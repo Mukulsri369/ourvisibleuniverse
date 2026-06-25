@@ -12,18 +12,9 @@ function StarLabel({ star, hovered, setHovered }: { star: NamedStar; hovered: st
   const flyTo = useStore((s) => s.flyToStar);
   const isHover = hovered === star.name;
 
-  useFrame(({ camera }) => {
-    if (!groupRef.current || !ref.current) return;
-    const dist = camera.position.distanceTo(groupRef.current.position);
-    const importance = Math.max(1, 30 - star.magnitude * 2);
-    const near = Math.max(2, star.distance * 0.15);
-    const far = Math.max(50, star.distance * 4 + importance * 2);
-    let opacity = 0;
-    if (dist > near && dist < far) {
-      opacity = Math.min(1, (dist - near) / (near + 0.01)) * Math.min(1, (far - dist) / (far * 0.4));
-    }
-    if (isHover) opacity = 1;
-    ref.current.style.opacity = String(opacity);
+  useFrame(() => {
+    if (!ref.current) return;
+    ref.current.style.opacity = isHover ? "1" : "0";
     ref.current.style.pointerEvents = "none";
   });
 
