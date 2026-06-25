@@ -15,7 +15,9 @@ import {
   Branding,
   TourStopIndicator,
   LoadingScreen,
+  PlanetNavigator,
 } from "./UI";
+
 import { useStore } from "./store";
 
 export function StarsApp() {
@@ -58,7 +60,9 @@ export function StarsApp() {
       <MusicToggle />
       <Branding />
       <InfoPanel />
+      <PlanetNavigator />
       <LoadingScreen done={loaded} />
     </div>
   );
 }
+
