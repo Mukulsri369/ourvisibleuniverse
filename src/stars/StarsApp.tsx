@@ -38,12 +38,15 @@ export function StarsApp() {
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
           <GalaxyBackdrop />
-          <Sun />
-          <OrientationDisc />
-          <OortCloud />
-          <StarField />
-          <BinaryMarkers />
-          <StarLabels />
+          <GalacticRotation>
+            <Sun />
+            <Planets />
+            <OrientationDisc />
+            <OortCloud />
+            <StarField />
+            <BinaryMarkers />
+            <StarLabels />
+          </GalacticRotation>
           <CameraRig />
         </Suspense>
       </Canvas>
