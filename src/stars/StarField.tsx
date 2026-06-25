@@ -54,27 +54,34 @@ export function StarField() {
       phase[i] = Math.random() * Math.PI * 2;
     });
 
-    // background random stars in a sphere shell
+    // Background stars distributed as a real galactic thin-disk slice
+    // around the Sun: exponential radial profile + sech-like vertical
+    // scale-height (~300 ly). 1 scene unit = 1 light-year.
+    const SCALE_H = 300;
+    const R_MAX = 6000;     // local neighborhood we render in detail
     for (let j = 0; j < BACKGROUND_COUNT; j++) {
       const i = NAMED_STARS.length + j;
-      // random in sphere with bias toward galactic plane
-      const r = Math.pow(Math.random(), 0.4) * 1500 + 30;
+      // exponential-ish radial distribution in the galactic plane
+      const r = -Math.log(1 - Math.random() * 0.999) * 900;
+      const rClamped = Math.min(r, R_MAX);
       const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      // squash y a bit for disc-like distribution
-      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      positions[i * 3 + 1] = r * Math.cos(phi) * 0.45;
-      positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      // random spectral class skewed toward M and K
+      // vertical: laplace-like draw centered on plane, scale-height 300 ly
+      const u = Math.random() - 0.5;
+      const z = -Math.sign(u) * Math.log(1 - 2 * Math.abs(u) * 0.999) * SCALE_H;
+      positions[i * 3] = Math.cos(theta) * rClamped;
+      positions[i * 3 + 1] = z;
+      positions[i * 3 + 2] = Math.sin(theta) * rClamped;
+      // realistic spectral mix in the solar neighborhood (~76% M, 12% K, etc.)
       const roll = Math.random();
-      const cls = roll < 0.7 ? "M" : roll < 0.85 ? "K" : roll < 0.93 ? "G" : roll < 0.97 ? "F" : roll < 0.99 ? "A" : "B";
+      const cls = roll < 0.76 ? "M" : roll < 0.88 ? "K" : roll < 0.955 ? "G" : roll < 0.985 ? "F" : roll < 0.995 ? "A" : "B";
       const cNat = spectralColor(cls);
       const cSpec = spectralIndexColor(spectralIndex(cls));
       natural[i * 3] = cNat.r; natural[i * 3 + 1] = cNat.g; natural[i * 3 + 2] = cNat.b;
       spectral[i * 3] = cSpec.r; spectral[i * 3 + 1] = cSpec.g; spectral[i * 3 + 2] = cSpec.b;
-      sizes[i] = 1 + Math.random() * 2.5;
+      sizes[i] = 1 + Math.random() * 2.2;
       phase[i] = Math.random() * Math.PI * 2;
     }
+
 
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
