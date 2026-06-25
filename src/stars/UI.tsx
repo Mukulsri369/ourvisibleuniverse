@@ -188,7 +188,6 @@ export function ZoomSlider() {
         step={0.001}
         value={t}
         onChange={onChange}
-        orient="vertical"
         className="zoom-range h-full"
         style={{ writingMode: "vertical-lr" as React.CSSProperties["writingMode"], direction: "rtl" }}
       />
