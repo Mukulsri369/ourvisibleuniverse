@@ -27,6 +27,7 @@ interface State {
   musicOn: boolean;
   cameraDistance: number;
   flyTo: { x: number; y: number; z: number; distance: number } | null;
+  visitPlanet: string | null;
   setSelected: (s: NamedStar | null) => void;
   toggleSpectral: () => void;
   startTour: () => void;
@@ -37,6 +38,7 @@ interface State {
   setCameraDistance: (d: number) => void;
   flyToStar: (s: NamedStar) => void;
   clearFly: () => void;
+  setVisitPlanet: (name: string | null) => void;
 }
 
 export const useStore = create<State>((set) => ({
@@ -48,14 +50,16 @@ export const useStore = create<State>((set) => ({
   musicOn: false,
   cameraDistance: 8,
   flyTo: null,
+  visitPlanet: null,
   setSelected: (s) => set({ selectedStar: s }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
-  startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null }),
+  startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null, visitPlanet: null }),
   stopTour: () => set({ tourActive: false, tourCaption: null }),
   setTourStop: (n) => set({ tourStop: n }),
   setTourCaption: (c) => set({ tourCaption: c }),
   toggleMusic: () => set((st) => ({ musicOn: !st.musicOn })),
   setCameraDistance: (d) => set({ cameraDistance: d }),
-  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: Math.max(2, s.distance * 0.3 + 3) }, selectedStar: s }),
+  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: Math.max(2, s.distance * 0.3 + 3) }, selectedStar: s, visitPlanet: null }),
   clearFly: () => set({ flyTo: null }),
+  setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false }),
 }));
