@@ -2,11 +2,6 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 
-// Planets scaled for visibility (NOT to real scale).
-// distance: scene units from Sun (Sun radius = 1)
-// size: visual radius
-// period: seconds for one orbit (compressed time)
-// inclination: small tilt in radians
 export type PlanetDef = {
   name: string;
   distance: number;
@@ -29,24 +24,19 @@ export const PLANETS: PlanetDef[] = [
   { name: "Neptune", distance: 10.6, size: 0.15, color: "#3b6df0", period: 240, inclination: 0.03 },
 ];
 
-function OrbitLine({ radius, inclination }: { radius: number; inclination: number }) {
-  const geometry = useMemo(() => {
-    const segments = 256;
-    const pts: number[] = [];
-    for (let i = 0; i <= segments; i++) {
-      const a = (i / segments) * Math.PI * 2;
-      pts.push(Math.cos(a) * radius, 0, Math.sin(a) * radius);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    return g;
-  }, [radius]);
-  return (
-    <line rotation={[inclination, 0, 0]}>
-      <primitive object={geometry} attach="geometry" />
-      <lineBasicMaterial color="#5a8cff" transparent opacity={0.18} depthWrite={false} />
-    </line>
-  );
+function makeOrbitLine(radius: number, inclination: number, color: string, opacity: number) {
+  const segments = 256;
+  const pts: number[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const a = (i / segments) * Math.PI * 2;
+    pts.push(Math.cos(a) * radius, 0, Math.sin(a) * radius);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+  const m = new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+  const line = new THREE.Line(g, m);
+  line.rotation.x = inclination;
+  return line;
 }
 
 function Planet({ def }: { def: PlanetDef }) {
@@ -56,10 +46,7 @@ function Planet({ def }: { def: PlanetDef }) {
     if (!ref.current) return;
     const t = clock.elapsedTime;
     const a = phase + (t / def.period) * Math.PI * 2;
-    const x = Math.cos(a) * def.distance;
-    const z = Math.sin(a) * def.distance;
-    const y = Math.sin(a) * Math.sin(def.inclination) * def.distance * 0.0;
-    ref.current.position.set(x, y, z);
+    ref.current.position.set(Math.cos(a) * def.distance, 0, Math.sin(a) * def.distance);
     ref.current.rotation.y = t * 0.5;
   });
   return (
@@ -81,50 +68,31 @@ function Planet({ def }: { def: PlanetDef }) {
 }
 
 export function Planets() {
+  const orbits = useMemo(
+    () => PLANETS.map((p) => makeOrbitLine(p.distance, p.inclination, "#5a8cff", 0.2)),
+    [],
+  );
   return (
     <group>
+      {orbits.map((o, i) => (
+        <primitive key={`orbit-${i}`} object={o} />
+      ))}
       {PLANETS.map((p) => (
-        <group key={p.name}>
-          <OrbitLine radius={p.distance} inclination={p.inclination} />
-          <Planet def={p} />
-        </group>
+        <Planet key={p.name} def={p} />
       ))}
     </group>
   );
 }
 
-// Visualizes the Sun's (and local stars') ~225-million-year orbit around the
-// galactic center. We render an arc + direction arrow centered on the Sun
-// pointing toward the galactic rotation direction.
-export function GalacticMotionIndicator() {
+// Slowly rotates the local stellar neighborhood around the galactic center,
+// visualizing the ~225 Myr orbit. Effect is very subtle up close (only
+// noticeable when zoomed out to galactic scales).
+export function GalacticRotation({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
-  useFrame(({ camera }) => {
+  useFrame(({ clock }) => {
     if (!ref.current) return;
-    // fade based on distance: visible only when zoomed far enough out
-    const d = camera.position.length();
-    const o = Math.max(0, Math.min(0.6, (d - 30) / 200));
-    ref.current.traverse((obj) => {
-      const m = (obj as THREE.Mesh).material as THREE.Material & { opacity?: number };
-      if (m && "opacity" in m) (m as { opacity: number }).opacity = o;
-    });
+    // one full revolution every ~10 minutes of wall time
+    ref.current.rotation.y = clock.elapsedTime * ((Math.PI * 2) / 600);
   });
-  const arcGeom = useMemo(() => {
-    const pts: number[] = [];
-    const r = 25;
-    for (let i = 0; i <= 64; i++) {
-      const a = -0.6 + (i / 64) * 1.2;
-      pts.push(Math.cos(a) * r, 0, Math.sin(a) * r);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    return g;
-  }, []);
-  return (
-    <group ref={ref}>
-      <line>
-        <primitive object={arcGeom} attach="geometry" />
-        <lineBasicMaterial color="#88bbff" transparent opacity={0} depthWrite={false} />
-      </line>
-    </group>
-  );
+  return <group ref={ref}>{children}</group>;
 }
