@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, OortCloud, GalaxyBackdrop } from "./SceneObjects";
+import { Planets, GalacticRotation } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
 import {
