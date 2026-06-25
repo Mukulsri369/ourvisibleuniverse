@@ -134,7 +134,27 @@ export function CameraRig() {
     return () => clearTimeout(id);
   }, [tourActive, tourStop, setTourCaption, setTourStop, stopTour]);
 
+  // When user selects a planet to visit, set a close zoom
+  useEffect(() => {
+    if (!visitPlanet) return;
+    const def = PLANETS.find((p) => p.name === visitPlanet);
+    if (!def) return;
+    desired.current.radius = Math.max(0.4, def.size * 14);
+    fovTarget.current = 38;
+  }, [visitPlanet]);
+
   useFrame((_, dt) => {
+    // Follow a planet: move target toward live planet position
+    if (visitPlanet) {
+      const reg = (window as Window).__planetPositions;
+      const p = reg?.get(visitPlanet);
+      if (p) {
+        target.current.lerp(p, Math.min(1, dt * 5));
+      }
+    } else if (!tourActive && !flyTo) {
+      target.current.lerp(new THREE.Vector3(0, 0, 0), Math.min(1, dt * 1.5));
+    }
+
     // ease toward desired
     spherical.current.radius += (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
     spherical.current.theta += (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
@@ -150,15 +170,16 @@ export function CameraRig() {
     camera.position.copy(pos);
     camera.lookAt(target.current);
 
-    // dynamic FOV (unless tour overrides)
+    // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
     const t = Math.min(1, Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
-    if (!tourActive) fovTarget.current = 30 + t * 60;
+    if (!tourActive && !visitPlanet) fovTarget.current = 30 + t * 60;
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();
     setCameraDistance(r);
   });
+
 
   return null;
 }
