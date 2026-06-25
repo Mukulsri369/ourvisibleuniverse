@@ -28,7 +28,8 @@ export function CameraRig() {
 
 
   const minR = 2;
-  const maxR = 5000;
+  const maxR = 120000;
+
 
   // expose for slider
   useEffect(() => {
