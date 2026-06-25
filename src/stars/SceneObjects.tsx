@@ -168,55 +168,202 @@ export function OortCloud() {
   );
 }
 
-export function GalaxyBackdrop() {
-  const ref = useRef<THREE.Mesh>(null!);
-  const tex = useMemo(() => makeGalaxyTexture(), []);
-  useFrame(({ camera, clock }) => {
-    if (!ref.current) return;
-    ref.current.lookAt(camera.position);
-    ref.current.rotation.z = clock.elapsedTime * 0.005;
-    const d = camera.position.length();
-    const opacity = Math.max(0, Math.min(0.85, (d - 500) / 1500));
-    (ref.current.material as THREE.MeshBasicMaterial).opacity = opacity;
+// ---------------------------------------------------------------
+// MILKY WAY — real 3D particle galaxy with bulge, spiral disk,
+// halo, and Sgr A* at the galactic center. The Sun sits at
+// scene origin; the galactic center is offset by R0 ≈ 26,000 ly
+// along -X (matching the IAU-recommended Sun-to-Sgr A* distance).
+// The whole galaxy rotates slowly around its own center, which
+// from the Sun's frame appears as the Sun orbiting the galaxy.
+// ---------------------------------------------------------------
+
+export const GALACTIC_CENTER = new THREE.Vector3(-26000, 0, 0);
+const DISK_RADIUS = 50000;
+const DISK_SCALE_HEIGHT = 300;
+const BULGE_RADIUS = 4000;
+const HALO_RADIUS = 60000;
+const SUN_ORBIT_PERIOD_SEC = 600;
+
+export function MilkyWay() {
+  const groupRef = useRef<THREE.Group>(null!);
+  const tex = useMemo(makeStarSprite, []);
+  const coreTex = useMemo(() => makeRadialTexture("rgba(255,220,160,1)", "rgba(255,140,40,0)"), []);
+
+  const { diskGeo, bulgeGeo, haloGeo } = useMemo(() => {
+    const diskCount = 38000;
+    const dPos = new Float32Array(diskCount * 3);
+    const dCol = new Float32Array(diskCount * 3);
+    const dSize = new Float32Array(diskCount);
+    const arms = 4;
+    const armTwist = 4.5;
+    for (let i = 0; i < diskCount; i++) {
+      const r = Math.pow(Math.random(), 0.55) * DISK_RADIUS;
+      const arm = Math.floor(Math.random() * arms);
+      const armAngle = (arm / arms) * Math.PI * 2;
+      const spiral = armAngle + Math.log(Math.max(r, 1) / 800) * armTwist;
+      const scatter = (Math.random() - 0.5) * 0.55 * (1 - r / DISK_RADIUS) + (Math.random() - 0.5) * 0.05;
+      const theta = spiral + scatter;
+      const z = (Math.random() - 0.5) * DISK_SCALE_HEIGHT * 2 * Math.exp(-r / 15000);
+      dPos[i * 3] = Math.cos(theta) * r;
+      dPos[i * 3 + 1] = z;
+      dPos[i * 3 + 2] = Math.sin(theta) * r;
+      const inner = 1 - Math.min(1, r / DISK_RADIUS);
+      const pink = Math.random() < 0.04;
+      if (pink) {
+        dCol[i * 3] = 1.0; dCol[i * 3 + 1] = 0.55; dCol[i * 3 + 2] = 0.65;
+        dSize[i] = 28 + Math.random() * 22;
+      } else {
+        const b = 0.75 + Math.random() * 0.25;
+        dCol[i * 3] = b * (0.85 + inner * 0.15);
+        dCol[i * 3 + 1] = b * (0.88 + inner * 0.05);
+        dCol[i * 3 + 2] = b * (1.0 - inner * 0.25);
+        dSize[i] = 8 + Math.random() * 14;
+      }
+    }
+    const diskGeo = new THREE.BufferGeometry();
+    diskGeo.setAttribute("position", new THREE.BufferAttribute(dPos, 3));
+    diskGeo.setAttribute("color", new THREE.BufferAttribute(dCol, 3));
+    diskGeo.setAttribute("aSize", new THREE.BufferAttribute(dSize, 1));
+
+    const bulgeCount = 6000;
+    const bPos = new Float32Array(bulgeCount * 3);
+    const bCol = new Float32Array(bulgeCount * 3);
+    const bSize = new Float32Array(bulgeCount);
+    for (let i = 0; i < bulgeCount; i++) {
+      const r = Math.pow(Math.random(), 1.8) * BULGE_RADIUS;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      bPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      bPos[i * 3 + 1] = r * Math.cos(phi) * 0.45;
+      bPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+      const t = 1 - r / BULGE_RADIUS;
+      bCol[i * 3] = 1.0;
+      bCol[i * 3 + 1] = 0.78 + t * 0.15;
+      bCol[i * 3 + 2] = 0.45 + t * 0.25;
+      bSize[i] = 14 + Math.random() * 20 + t * 30;
+    }
+    const bulgeGeo = new THREE.BufferGeometry();
+    bulgeGeo.setAttribute("position", new THREE.BufferAttribute(bPos, 3));
+    bulgeGeo.setAttribute("color", new THREE.BufferAttribute(bCol, 3));
+    bulgeGeo.setAttribute("aSize", new THREE.BufferAttribute(bSize, 1));
+
+    const haloCount = 1500;
+    const hPos = new Float32Array(haloCount * 3);
+    const hCol = new Float32Array(haloCount * 3);
+    const hSize = new Float32Array(haloCount);
+    for (let i = 0; i < haloCount; i++) {
+      const r = Math.pow(Math.random(), 0.6) * HALO_RADIUS;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      hPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      hPos[i * 3 + 1] = r * Math.cos(phi);
+      hPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+      hCol[i * 3] = 0.9; hCol[i * 3 + 1] = 0.85; hCol[i * 3 + 2] = 0.7;
+      hSize[i] = 6 + Math.random() * 10;
+    }
+    const haloGeo = new THREE.BufferGeometry();
+    haloGeo.setAttribute("position", new THREE.BufferAttribute(hPos, 3));
+    haloGeo.setAttribute("color", new THREE.BufferAttribute(hCol, 3));
+    haloGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize, 1));
+
+    return { diskGeo, bulgeGeo, haloGeo };
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current) return;
+    const omega = (Math.PI * 2) / SUN_ORBIT_PERIOD_SEC;
+    groupRef.current.rotation.y = clock.elapsedTime * omega;
   });
+
+  const shader = useMemo(
+    () => ({
+      uniforms: { uTex: { value: tex }, uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 } },
+      vertexShader: /* glsl */ `
+        attribute float aSize;
+        varying vec3 vColor;
+        uniform float uPixelRatio;
+        void main(){
+          vColor = color;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          float size = aSize * uPixelRatio * (300.0 / max(-mv.z, 1.0));
+          gl_PointSize = clamp(size, 1.0, 70.0);
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform sampler2D uTex;
+        varying vec3 vColor;
+        void main(){
+          vec4 t = texture2D(uTex, gl_PointCoord);
+          if (t.a < 0.04) discard;
+          gl_FragColor = vec4(vColor, t.a);
+        }
+      `,
+      vertexColors: true,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
+    [tex],
+  );
+
   return (
-    <mesh ref={ref} position={[0, 0, -4000]}>
-      <planeGeometry args={[9000, 9000]} />
-      <meshBasicMaterial map={tex} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} />
-    </mesh>
+    <group position={GALACTIC_CENTER.toArray()}>
+      <group ref={groupRef}>
+        <points geometry={diskGeo} frustumCulled={false}>
+          <shaderMaterial args={[shader]} />
+        </points>
+        <points geometry={bulgeGeo} frustumCulled={false}>
+          <shaderMaterial args={[shader]} />
+        </points>
+        <points geometry={haloGeo} frustumCulled={false}>
+          <shaderMaterial args={[shader]} />
+        </points>
+        <mesh>
+          <sphereGeometry args={[60, 24, 24]} />
+          <meshBasicMaterial color="#ffe6b0" />
+        </mesh>
+        <sprite scale={[3500, 3500, 1]}>
+          <spriteMaterial map={coreTex} blending={THREE.AdditiveBlending} transparent depthWrite={false} />
+        </sprite>
+      </group>
+      <SolarOrbitRing radius={26000} />
+    </group>
   );
 }
 
-function makeGalaxyTexture(): THREE.Texture {
-  const size = 1024;
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, size, size);
-  const cx = size / 2, cy = size / 2;
-  // core glow
-  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.45);
-  core.addColorStop(0, "rgba(255,220,180,0.9)");
-  core.addColorStop(0.15, "rgba(255,180,120,0.4)");
-  core.addColorStop(0.5, "rgba(120,150,255,0.08)");
-  core.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = core;
-  ctx.fillRect(0, 0, size, size);
-  // spiral arms via many small dots
-  for (let i = 0; i < 25000; i++) {
-    const arm = Math.floor(Math.random() * 4);
-    const t = Math.random();
-    const r = t * size * 0.48;
-    const angle = arm * (Math.PI / 2) + t * 4 + (Math.random() - 0.5) * 0.6;
-    const x = cx + Math.cos(angle) * r + (Math.random() - 0.5) * 30 * t;
-    const y = cy + Math.sin(angle) * r * 0.55 + (Math.random() - 0.5) * 30 * t;
-    const a = (1 - t) * 0.8 * Math.random();
-    const hue = 200 + Math.random() * 40;
-    ctx.fillStyle = `hsla(${hue}, 80%, 80%, ${a})`;
-    ctx.fillRect(x, y, 1.2, 1.2);
-  }
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
+function SolarOrbitRing({ radius }: { radius: number }) {
+  const geo = useMemo(() => {
+    const segs = 256;
+    const pts: number[] = [];
+    for (let i = 0; i <= segs; i++) {
+      const a = (i / segs) * Math.PI * 2;
+      pts.push(Math.cos(a) * radius, 0, Math.sin(a) * radius);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    return g;
+  }, [radius]);
+  const mat = useMemo(() => new THREE.LineBasicMaterial({ color: "#3a5aaa", transparent: true, opacity: 0.18, depthWrite: false }), []);
+  const line = useMemo(() => new THREE.Line(geo, mat), [geo, mat]);
+  return <primitive object={line} />;
 }
+
+function makeStarSprite(): THREE.Texture {
+  const size = 64;
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.3, "rgba(255,255,255,0.7)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const t = new THREE.CanvasTexture(c);
+  t.needsUpdate = true;
+  return t;
+}
+
+export const GalaxyBackdrop = MilkyWay;
+

@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
-import { Sun, OrientationDisc, OortCloud, GalaxyBackdrop } from "./SceneObjects";
-import { Planets, GalacticRotation } from "./Planets";
+import { Sun, OrientationDisc, OortCloud, MilkyWay } from "./SceneObjects";
+import { Planets } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
 import {
@@ -33,25 +33,28 @@ export function StarsApp() {
   return (
     <div className="fixed inset-0 bg-black text-white" onClick={() => { if (selected) setSelected(null); }}>
       <Canvas
-        camera={{ fov: 40, near: 0.05, far: 20000, position: [4, 2, 6] }}
+        camera={{ fov: 40, near: 0.05, far: 250000, position: [4, 2, 6] }}
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
       >
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
-          <GalaxyBackdrop />
-          <GalacticRotation>
-            <Sun />
-            <Planets />
-            <OrientationDisc />
-            <OortCloud />
-            <StarField />
-            <BinaryMarkers />
-            <StarLabels />
-          </GalacticRotation>
+          {/* Galactic backdrop: Sun is at origin, Milky Way sits at its real
+              galactocentric offset (~26,000 ly) and rotates around Sgr A*. */}
+          <MilkyWay />
+          {/* Local stellar neighborhood — co-moving with the Sun, so it does
+              NOT rotate relative to us on human timescales. */}
+          <Sun />
+          <Planets />
+          <OrientationDisc />
+          <OortCloud />
+          <StarField />
+          <BinaryMarkers />
+          <StarLabels />
           <CameraRig />
         </Suspense>
       </Canvas>
+
       <TopLeftControls />
       <TourStopIndicator />
       <ZoomSlider />
