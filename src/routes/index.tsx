@@ -1,29 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { StarsApp } from "../stars/StarsApp";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "100,000 Stars — An interactive map of the stellar neighborhood" },
+      { name: "description", content: "Cinematic 3D visualization of our nearest stars, the Sun, the Oort Cloud, and the Milky Way." },
+      { property: "og:title", content: "100,000 Stars" },
+      { property: "og:description", content: "Cinematic 3D visualization of our nearest stars." },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
+  return <StarsApp />;
 }
