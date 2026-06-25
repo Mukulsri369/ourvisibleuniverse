@@ -2,6 +2,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useStore, TOUR_STOPS } from "./store";
+import { PLANETS } from "./Planets";
+
 
 // Custom orbit-style controller with smooth damped zoom & inertia
 export function CameraRig() {
@@ -22,6 +24,8 @@ export function CameraRig() {
   const setTourStop = useStore((s) => s.setTourStop);
   const setTourCaption = useStore((s) => s.setTourCaption);
   const stopTour = useStore((s) => s.stopTour);
+  const visitPlanet = useStore((s) => s.visitPlanet);
+
 
   const minR = 2;
   const maxR = 5000;
