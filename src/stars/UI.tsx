@@ -2,6 +2,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
+import { PLANETS } from "./Planets";
+
 
 export function InfoPanel() {
   const star = useStore((s) => s.selectedStar);
@@ -301,6 +303,77 @@ export function Branding() {
     </div>
   );
 }
+
+export function PlanetNavigator() {
+  const visit = useStore((s) => s.visitPlanet);
+  const setVisit = useStore((s) => s.setVisitPlanet);
+  const tourActive = useStore((s) => s.tourActive);
+  if (tourActive) return null;
+  const current = visit ? PLANETS.find((p) => p.name === visit) : null;
+  return (
+    <>
+      <div className="pointer-events-auto fixed bottom-20 left-1/2 z-20 -translate-x-1/2">
+        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-md">
+          <span className="px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">Visit</span>
+          {PLANETS.map((p) => (
+            <button
+              key={p.name}
+              onClick={() => setVisit(visit === p.name ? null : p.name)}
+              title={p.name}
+              className={`group flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] tracking-wide transition ${
+                visit === p.name ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <span
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ background: p.color, boxShadow: `0 0 6px ${p.color}` }}
+              />
+              <span className="hidden sm:inline">{p.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <AnimatePresence>
+        {current && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className="pointer-events-auto fixed left-6 top-1/2 z-20 hidden w-72 -translate-y-1/2 rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.25em] text-white/40">Now Viewing</div>
+                <h3 className="mt-1 text-2xl font-light tracking-wide">{current.name}</h3>
+              </div>
+              <button
+                onClick={() => setVisit(null)}
+                aria-label="Exit"
+                className="grid h-8 w-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-white/70">{current.description}</p>
+            <div className="mt-4 grid grid-cols-2 gap-y-2 text-[11px] text-white/70">
+              <span className="text-white/40">Distance</span><span>{(current.a / 3.2).toFixed(2)} AU</span>
+              <span className="text-white/40">Eccentricity</span><span>{current.e.toFixed(4)}</span>
+              <span className="text-white/40">Inclination</span><span>{(current.i * 180 / Math.PI).toFixed(2)}°</span>
+              <span className="text-white/40">Axial tilt</span><span>{(current.tilt * 180 / Math.PI).toFixed(1)}°</span>
+              {current.moons?.length ? (
+                <>
+                  <span className="text-white/40">Moons</span>
+                  <span>{current.moons.map((m) => m.name).join(", ")}</span>
+                </>
+              ) : null}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
 
 export function TourStopIndicator() {
   const active = useStore((s) => s.tourActive);
