@@ -145,15 +145,18 @@ export function CameraRig() {
   }, [visitPlanet]);
 
   useFrame((_, dt) => {
+    const reg = (window as Window).__planetPositions;
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
-      const reg = (window as Window).__planetPositions;
       const p = reg?.get(visitPlanet);
       if (p) {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
     } else if (!tourActive && !flyTo) {
-      target.current.lerp(new THREE.Vector3(0, 0, 0), Math.min(1, dt * 1.5));
+      // Follow the drifting Sun so the user stays with the Solar System
+      const sun = reg?.get("Sun");
+      if (sun) target.current.lerp(sun, Math.min(1, dt * 3));
+      else target.current.lerp(new THREE.Vector3(0, 0, 0), Math.min(1, dt * 1.5));
     }
 
     // ease toward desired
