@@ -280,20 +280,50 @@ export function MilkyWay() {
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
-    const omega = (Math.PI * 2) / SUN_ORBIT_PERIOD_SEC;
-    groupRef.current.rotation.y = clock.elapsedTime * omega;
+    // Galaxy itself is fixed; differential rotation happens in the shader.
+    // We only counter-rotate by the Sun's omega so the Sun (at R0) appears
+    // to orbit while the bulk-flow frame stays comprehensible.
+    shader.uniforms.uTime.value = clock.elapsedTime;
   });
 
   const shader = useMemo(
     () => ({
-      uniforms: { uTex: { value: tex }, uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 } },
+      uniforms: {
+        uTex: { value: tex },
+        uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
+        uTime: { value: 0 },
+        uVflat: { value: V_FLAT },
+        uRcore: { value: R_CORE_LY },
+        // Sun's own angular velocity — subtracted so the Sun's frame is the
+        // viewer's reference (matches camera at origin).
+        uOmegaSun: { value: (2 * Math.PI) / SUN_ORBIT_PERIOD_SEC },
+        uDifferential: { value: 1.0 },
+      },
       vertexShader: /* glsl */ `
         attribute float aSize;
         varying vec3 vColor;
         uniform float uPixelRatio;
+        uniform float uTime;
+        uniform float uVflat;
+        uniform float uRcore;
+        uniform float uOmegaSun;
+        uniform float uDifferential;
         void main(){
           vColor = color;
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          // Radial distance from galactic center (in galaxy's local XZ plane)
+          float r = length(position.xz);
+          // Flat rotation curve with solid-body core
+          float vrot = (r < uRcore) ? uVflat * (r / uRcore) : uVflat;
+          float omega = (r > 0.5) ? (vrot / r) : 0.0;
+          // Rotate by (omega - omegaSun) * t so Sun's frame is stationary
+          float ang = (omega - uOmegaSun) * uTime * uDifferential;
+          float c = cos(ang), s = sin(ang);
+          vec3 p = vec3(
+            position.x * c - position.z * s,
+            position.y,
+            position.x * s + position.z * c
+          );
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
           float size = aSize * uPixelRatio * (300.0 / max(-mv.z, 1.0));
           gl_PointSize = clamp(size, 1.0, 70.0);
           gl_Position = projectionMatrix * mv;
