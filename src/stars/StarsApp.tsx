@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, OortCloud, MilkyWay } from "./SceneObjects";
 import { Planets } from "./Planets";
+import { MotionTrails } from "./MotionTrails";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
 import {
@@ -46,6 +47,8 @@ export function StarsApp() {
               NOT rotate relative to us on human timescales. */}
           <Sun />
           <Planets />
+          <MotionTrails />
+
           <OrientationDisc />
           <OortCloud />
           <StarField />

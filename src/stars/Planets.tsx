@@ -238,15 +238,12 @@ function Moon({ moon }: { moon: MoonDef }) {
 }
 
 export function Planets() {
-  const orbits = useMemo(
-    () => PLANETS.map((p) => makeOrbitLine(p, "#6a8cff", 0.22)),
-    [],
-  );
+  // No static elliptical orbit lines — real orbits are helical because the
+  // Sun itself sweeps around the galactic center. See <MotionTrails /> for
+  // the live helical trace.
+  void makeOrbitLine;
   return (
     <group>
-      {orbits.map((o, i) => (
-        <primitive key={`orbit-${i}`} object={o} />
-      ))}
       {PLANETS.map((p) => (
         <Planet key={p.name} def={p} />
       ))}
