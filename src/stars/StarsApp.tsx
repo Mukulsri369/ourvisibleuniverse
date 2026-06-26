@@ -47,6 +47,8 @@ export function StarsApp() {
               NOT rotate relative to us on human timescales. */}
           <Sun />
           <Planets />
+          <MotionTrails />
+
           <OrientationDisc />
           <OortCloud />
           <StarField />
