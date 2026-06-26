@@ -182,7 +182,16 @@ const DISK_RADIUS = 50000;
 const DISK_SCALE_HEIGHT = 300;
 const BULGE_RADIUS = 4000;
 const HALO_RADIUS = 60000;
+// Sun's apparent orbital period in scene-seconds. Real value: ~230 Myr.
+// We compress to 600 s for visualization. From this we derive V_flat so the
+// Sun (at R0 = 26,000 ly) has the correct angular velocity, and all other
+// stars rotate per a flat rotation curve V(r) ≈ V_flat (≈220 km/s in reality)
+// with solid-body behavior inside the bulge (r < R_CORE).
 const SUN_ORBIT_PERIOD_SEC = 600;
+const R0_LY = 26000;
+const R_CORE_LY = 2000;
+// V_flat in scene units (ly per scene-second): chosen so omega(R0) = 2π/T_sun
+const V_FLAT = (2 * Math.PI * R0_LY) / SUN_ORBIT_PERIOD_SEC;
 
 export function MilkyWay() {
   const groupRef = useRef<THREE.Group>(null!);
