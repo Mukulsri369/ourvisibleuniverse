@@ -239,7 +239,7 @@ function Moon({ moon }: { moon: MoonDef }) {
 
 export function Planets() {
   const orbits = useMemo(
-    () => PLANETS.map((p) => makeOrbitLine(p, "#6a8cff", 0.10)),
+    () => PLANETS.map((p) => makeOrbitLine(p, "#6a8cff", 0.22)),
     [],
   );
   return (
@@ -254,123 +254,12 @@ export function Planets() {
   );
 }
 
-// ---------------------------------------------------------------
-// SolarSystem — wraps Sun + Planets and drifts them along the
-// Sun's galactic orbital tangent (+Z). Locally subtle, but enough
-// that the world-space trails of the planets become true helices
-// (Kepler ellipse + linear drift = helix), matching the real
-// motion of our Solar System through the Milky Way.
-// ---------------------------------------------------------------
-
-// Scene units per second of galactic drift. Real Sun moves ~220 km/s
-// through the galaxy; compressed for visualization so trails of length
-// ~4 s show a clearly visible helical pitch versus planet orbits.
-export const SUN_DRIFT_SPEED = 0.35;
-export const SUN_DRIFT_DIR = new THREE.Vector3(0, 0, 1); // galactic tangent
-
-export function SolarSystem({ children }: { children: React.ReactNode }) {
+// Slow rotation around the galactic center
+export function GalacticRotation({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
-  const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    const t = clock.elapsedTime;
-    ref.current.position.set(0, 0, t * SUN_DRIFT_SPEED);
-    // publish Sun's world position so the camera + trails can follow
-    ref.current.getWorldPosition(tmp);
-    const reg = getRegistry();
-    let v = reg.get("Sun");
-    if (!v) { v = new THREE.Vector3(); reg.set("Sun", v); }
-    v.copy(tmp);
+    ref.current.rotation.y = clock.elapsedTime * ((Math.PI * 2) / 600);
   });
   return <group ref={ref}>{children}</group>;
 }
-
-// ---------------------------------------------------------------
-// MotionTrails — ring-buffer polylines that record the live
-// world-space position of the Sun + each planet and fade with age,
-// so the actual path (helix relative to the galaxy) is visible.
-// ---------------------------------------------------------------
-
-const TRAIL_LEN = 260;
-
-type TrailBody = { name: string; color: THREE.Color };
-
-function useTrail(body: TrailBody) {
-  const lineRef = useRef<THREE.Line>(null!);
-  const initialized = useRef(false);
-
-  const { geometry, material } = useMemo(() => {
-    const positions = new Float32Array(TRAIL_LEN * 3);
-    const ages = new Float32Array(TRAIL_LEN);
-    for (let i = 0; i < TRAIL_LEN; i++) ages[i] = i / (TRAIL_LEN - 1);
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute("aAge", new THREE.BufferAttribute(ages, 1));
-    const mat = new THREE.ShaderMaterial({
-      uniforms: { uColor: { value: body.color } },
-      vertexShader: /* glsl */ `
-        attribute float aAge;
-        varying float vAge;
-        void main(){
-          vAge = aAge;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: /* glsl */ `
-        uniform vec3 uColor;
-        varying float vAge;
-        void main(){
-          float a = pow(1.0 - vAge, 1.6);
-          if (a < 0.015) discard;
-          gl_FragColor = vec4(uColor, a);
-        }
-      `,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    return { geometry: geo, material: mat };
-  }, [body.color]);
-
-  useFrame(() => {
-    const reg = (window as Window).__planetPositions;
-    const p = reg?.get(body.name);
-    if (!p) return;
-    const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
-    const arr = attr.array as Float32Array;
-    if (!initialized.current) {
-      for (let i = 0; i < TRAIL_LEN; i++) {
-        arr[i * 3] = p.x; arr[i * 3 + 1] = p.y; arr[i * 3 + 2] = p.z;
-      }
-      initialized.current = true;
-    } else {
-      // shift all points one slot toward the tail
-      arr.copyWithin(3, 0, (TRAIL_LEN - 1) * 3);
-      arr[0] = p.x; arr[1] = p.y; arr[2] = p.z;
-    }
-    attr.needsUpdate = true;
-  });
-
-  return { lineRef, geometry, material };
-}
-
-function Trail({ body }: { body: TrailBody }) {
-  const { geometry, material } = useTrail(body);
-  const line = useMemo(() => new THREE.Line(geometry, material), [geometry, material]);
-  return <primitive object={line} />;
-}
-
-export function MotionTrails() {
-  const bodies = useMemo<TrailBody[]>(() => [
-    { name: "Sun", color: new THREE.Color("#ffcf80") },
-    ...PLANETS.map((p) => ({ name: p.name, color: new THREE.Color(p.color) })),
-  ], []);
-  return (
-    <group>
-      {bodies.map((b) => <Trail key={b.name} body={b} />)}
-    </group>
-  );
-}
-
-// (Removed legacy GalacticRotation wrapper — real motion now comes
-//  from SolarSystem drift + MilkyWay differential rotation shader.)

@@ -2,7 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, OortCloud, MilkyWay } from "./SceneObjects";
-import { Planets, SolarSystem, MotionTrails } from "./Planets";
+import { Planets } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
 import {
@@ -39,18 +39,13 @@ export function StarsApp() {
       >
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
-          {/* Galactic backdrop: Milky Way sits at its real galactocentric
-              offset (~26,000 ly) and rotates around Sgr A*. */}
+          {/* Galactic backdrop: Sun is at origin, Milky Way sits at its real
+              galactocentric offset (~26,000 ly) and rotates around Sgr A*. */}
           <MilkyWay />
-          {/* Solar System drifts along the Sun's galactic orbital tangent.
-              Combined with each planet's Kepler orbit, that turns the planets'
-              world-space paths into true helices — the real motion of our
-              system through the Milky Way. */}
-          <SolarSystem>
-            <Sun />
-            <Planets />
-          </SolarSystem>
-          <MotionTrails />
+          {/* Local stellar neighborhood — co-moving with the Sun, so it does
+              NOT rotate relative to us on human timescales. */}
+          <Sun />
+          <Planets />
           <OrientationDisc />
           <OortCloud />
           <StarField />
