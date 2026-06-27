@@ -1,6 +1,8 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import { useStore } from "./store";
+
 
 // Real orbital elements (relative). We scale semi-major axis (a) for visibility:
 // 1 AU ≈ 3.2 scene units. Sizes are exaggerated for visibility (~1500x real ratio).
@@ -39,73 +41,82 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Mercury",
     a: 0.39 * AU, e: 0.2056, i: deg(7.0), omega: deg(29.1),
-    size: 0.05, color: "#a89078",
+    size: 0.14, color: "#a89078",
     period: 7.6, spinPeriod: 90, tilt: deg(0.03),
     description: "The smallest and innermost planet, scorched by the Sun and cratered like the Moon.",
   },
   {
     name: "Venus",
     a: 0.72 * AU, e: 0.0068, i: deg(3.39), omega: deg(54.9),
-    size: 0.09, color: "#e8c47a", atmosphere: "#ffd58a",
+    size: 0.24, color: "#e8c47a", atmosphere: "#ffd58a",
     period: 19.4, spinPeriod: -120, tilt: deg(177.4),
-    description: "A runaway greenhouse world wrapped in dense sulfuric‑acid clouds. Surface hot enough to melt lead.",
+    description: "A runaway greenhouse world wrapped in dense sulfuric-acid clouds. Surface hot enough to melt lead.",
   },
   {
     name: "Earth",
     a: 1.0 * AU, e: 0.0167, i: 0, omega: deg(114.2),
-    size: 0.10, color: "#1f5fbf", atmosphere: "#7fb6ff",
+    size: 0.26, color: "#1f5fbf", atmosphere: "#7fb6ff",
     period: 31.5, spinPeriod: 1.5, tilt: deg(23.44),
-    moons: [{ name: "Moon", distance: 0.25, size: 0.027, color: "#bdbdbd", period: 6 }],
+    moons: [{ name: "Moon", distance: 0.55, size: 0.07, color: "#bdbdbd", period: 6 }],
     description: "Our home — the only known world with liquid water on the surface and life.",
   },
   {
     name: "Mars",
     a: 1.52 * AU, e: 0.0934, i: deg(1.85), omega: deg(286.5),
-    size: 0.07, color: "#c1440e", atmosphere: "#e08060",
+    size: 0.18, color: "#c1440e", atmosphere: "#e08060",
     period: 59.2, spinPeriod: 1.55, tilt: deg(25.19),
     moons: [
-      { name: "Phobos", distance: 0.12, size: 0.012, color: "#9a8474", period: 0.6 },
-      { name: "Deimos", distance: 0.18, size: 0.009, color: "#8a7464", period: 1.4 },
+      { name: "Phobos", distance: 0.30, size: 0.03, color: "#9a8474", period: 0.6 },
+      { name: "Deimos", distance: 0.42, size: 0.022, color: "#8a7464", period: 1.4 },
     ],
-    description: "The Red Planet — iron‑oxide deserts, polar ice caps, and the tallest volcano in the Solar System.",
+    description: "The Red Planet — iron-oxide deserts, polar ice caps, and the tallest volcano in the Solar System.",
   },
   {
     name: "Jupiter",
     a: 5.2 * AU, e: 0.0489, i: deg(1.31), omega: deg(273.9),
-    size: 0.42, color: "#c8a878", emissive: "#3a2410",
+    size: 1.05, color: "#c8a878", emissive: "#3a2410",
     period: 372, spinPeriod: 0.6, tilt: deg(3.13),
-    ring: { inner: 0.48, outer: 0.55, color: "#7a6a55" },
+    ring: { inner: 1.18, outer: 1.35, color: "#7a6a55" },
     moons: [
-      { name: "Io",       distance: 0.65, size: 0.022, color: "#e6cf6a", period: 2.2 },
-      { name: "Europa",   distance: 0.78, size: 0.020, color: "#e3d9c2", period: 3.6 },
-      { name: "Ganymede", distance: 0.95, size: 0.030, color: "#b5a48b", period: 6.2 },
-      { name: "Callisto", distance: 1.20, size: 0.028, color: "#7e6f5d", period: 11.7 },
+      { name: "Io",       distance: 1.55, size: 0.055, color: "#e6cf6a", period: 2.2 },
+      { name: "Europa",   distance: 1.85, size: 0.05,  color: "#e3d9c2", period: 3.6 },
+      { name: "Ganymede", distance: 2.25, size: 0.075, color: "#b5a48b", period: 6.2 },
+      { name: "Callisto", distance: 2.80, size: 0.07,  color: "#7e6f5d", period: 11.7 },
     ],
     description: "The Solar System's giant — a gas world with the Great Red Spot, faint rings, and 95+ moons.",
   },
   {
     name: "Saturn",
     a: 9.58 * AU, e: 0.0565, i: deg(2.49), omega: deg(339.4),
-    size: 0.36, color: "#e6c98a", emissive: "#3a2c0e",
+    size: 0.90, color: "#e6c98a", emissive: "#3a2c0e",
     period: 925, spinPeriod: 0.7, tilt: deg(26.73),
-    ring: { inner: 0.45, outer: 0.85, color: "#e0d2a8", tilt: deg(26.73) },
-    moons: [{ name: "Titan", distance: 1.05, size: 0.033, color: "#d4a85a", period: 7.8 }],
+    ring: { inner: 1.12, outer: 2.10, color: "#e0d2a8", tilt: deg(26.73) },
+    moons: [{ name: "Titan", distance: 2.60, size: 0.08, color: "#d4a85a", period: 7.8 }],
     description: "Famed for its bright icy ring system. A gas giant with the lowest density of any planet.",
   },
   {
     name: "Uranus",
     a: 19.2 * AU, e: 0.0457, i: deg(0.77), omega: deg(96.99),
-    size: 0.18, color: "#9fd8e0", emissive: "#102830",
+    size: 0.45, color: "#9fd8e0", emissive: "#102830",
     period: 2640, spinPeriod: -1.0, tilt: deg(97.77),
-    ring: { inner: 0.24, outer: 0.30, color: "#6a8a92", tilt: deg(97.77) },
+    ring: { inner: 0.60, outer: 0.75, color: "#6a8a92", tilt: deg(97.77) },
     description: "An ice giant tilted on its side, rolling around the Sun once every 84 years.",
   },
   {
     name: "Neptune",
     a: 30.05 * AU, e: 0.0113, i: deg(1.77), omega: deg(273.2),
-    size: 0.17, color: "#3b6df0", emissive: "#08163a",
+    size: 0.42, color: "#3b6df0", emissive: "#08163a",
     period: 5180, spinPeriod: 1.1, tilt: deg(28.32),
-    description: "The windiest planet — supersonic storms tear through its deep‑blue methane atmosphere.",
+    moons: [{ name: "Triton", distance: 1.0, size: 0.07, color: "#cfd6e0", period: 5.5 }],
+    description: "The windiest planet — supersonic storms tear through its deep-blue methane atmosphere.",
+  },
+  {
+    name: "Pluto",
+    a: 39.5 * AU, e: 0.2488, i: deg(17.16), omega: deg(113.76),
+    size: 0.10, color: "#c9b39a",
+    period: 7820, spinPeriod: 2.1, tilt: deg(122.5),
+    moons: [{ name: "Charon", distance: 0.30, size: 0.05, color: "#9d8e7e", period: 1.6 }],
+    description: "A dwarf planet in the Kuiper Belt. Its eccentric, inclined orbit sometimes brings it closer to the Sun than Neptune.",
   },
 ];
 
@@ -181,31 +192,45 @@ function Planet({ def }: { def: PlanetDef }) {
     v.copy(tmp);
   });
 
+  const setVisit = useStore((s) => s.setVisitPlanet);
+  const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
+
   return (
     <group ref={groupRef}>
+      {/* halo sprite — keeps the planet visible as a colored dot from far away */}
+      <sprite scale={[def.size * 8, def.size * 8, 1]}>
+        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0.7} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </sprite>
       {/* tilt + body */}
       <group rotation={[0, 0, def.tilt]}>
-        <mesh ref={bodyRef} castShadow receiveShadow>
+        <mesh
+          ref={bodyRef}
+          castShadow
+          receiveShadow
+          onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
+          onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = ""; }}
+          onClick={(e) => { e.stopPropagation(); setVisit(def.name); }}
+        >
           <sphereGeometry args={[def.size, 48, 48]} />
           <meshStandardMaterial
             color={def.color}
             roughness={0.85}
             metalness={0.05}
             emissive={def.emissive ?? def.color}
-            emissiveIntensity={def.emissive ? 0.18 : 0.04}
+            emissiveIntensity={def.emissive ? 0.18 : 0.06}
           />
         </mesh>
         {/* atmosphere glow */}
         {def.atmosphere && (
           <mesh scale={1.08}>
             <sphereGeometry args={[def.size, 32, 32]} />
-            <meshBasicMaterial color={def.atmosphere} transparent opacity={0.15} side={THREE.BackSide} depthWrite={false} />
+            <meshBasicMaterial color={def.atmosphere} transparent opacity={0.18} side={THREE.BackSide} depthWrite={false} />
           </mesh>
         )}
         {def.ring && (
           <mesh rotation={[Math.PI / 2 + (def.ring.tilt ?? 0) * 0.2, 0, 0]}>
             <ringGeometry args={[def.ring.inner, def.ring.outer, 96]} />
-            <meshBasicMaterial color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.55} depthWrite={false} />
+            <meshBasicMaterial color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.6} depthWrite={false} />
           </mesh>
         )}
       </group>
@@ -215,6 +240,22 @@ function Planet({ def }: { def: PlanetDef }) {
       ))}
     </group>
   );
+}
+
+function makeHaloTexture(_color: string): THREE.Texture {
+  const size = 64;
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.3, "rgba(255,255,255,0.5)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const t = new THREE.CanvasTexture(c);
+  t.needsUpdate = true;
+  return t;
 }
 
 function Moon({ moon }: { moon: MoonDef }) {
@@ -250,7 +291,49 @@ export function Planets() {
       {PLANETS.map((p) => (
         <Planet key={p.name} def={p} />
       ))}
+      <MinorBodies />
     </group>
+  );
+}
+
+// Asteroid belt (2.2–3.3 AU) + Kuiper belt (30–50 AU) as particle rings.
+function MinorBodies() {
+  const geom = useMemo(() => {
+    const ASTEROIDS = 1400;
+    const KUIPER = 1800;
+    const total = ASTEROIDS + KUIPER;
+    const pos = new Float32Array(total * 3);
+    const col = new Float32Array(total * 3);
+    const sizes = new Float32Array(total);
+    const cAst = new THREE.Color("#a89274");
+    const cKui = new THREE.Color("#7da6c8");
+    for (let i = 0; i < ASTEROIDS; i++) {
+      const r = (2.2 + Math.random() * 1.1) * AU;
+      const th = Math.random() * Math.PI * 2;
+      const z = (Math.random() - 0.5) * 0.18;
+      pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
+      col[i*3] = cAst.r; col[i*3+1] = cAst.g; col[i*3+2] = cAst.b;
+      sizes[i] = 1.4 + Math.random()*1.6;
+    }
+    for (let j = 0; j < KUIPER; j++) {
+      const i = ASTEROIDS + j;
+      const r = (30 + Math.random() * 20) * AU;
+      const th = Math.random() * Math.PI * 2;
+      const z = (Math.random() - 0.5) * 2.0;
+      pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
+      col[i*3] = cKui.r; col[i*3+1] = cKui.g; col[i*3+2] = cKui.b;
+      sizes[i] = 1.2 + Math.random()*1.4;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    g.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    return g;
+  }, []);
+  return (
+    <points geometry={geom} frustumCulled={false}>
+      <pointsMaterial vertexColors size={0.04} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
+    </points>
   );
 }
 
