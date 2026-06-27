@@ -187,8 +187,8 @@ const HALO_RADIUS = 60000;
 // Sun (at R0 = 26,000 ly) has the correct angular velocity, and all other
 // stars rotate per a flat rotation curve V(r) ≈ V_flat (≈220 km/s in reality)
 // with solid-body behavior inside the bulge (r < R_CORE).
-export const SUN_ORBIT_PERIOD_SEC = 600;
-export const R0_LY = 26000;
+const SUN_ORBIT_PERIOD_SEC = 600;
+const R0_LY = 26000;
 const R_CORE_LY = 2000;
 // V_flat in scene units (ly per scene-second): chosen so omega(R0) = 2π/T_sun
 const V_FLAT = (2 * Math.PI * R0_LY) / SUN_ORBIT_PERIOD_SEC;
@@ -294,9 +294,9 @@ export function MilkyWay() {
         uTime: { value: 0 },
         uVflat: { value: V_FLAT },
         uRcore: { value: R_CORE_LY },
-        // Galaxy rotates in its inertial frame; the Sun physically orbits
-        // (SolarSystem moves), so no counter-rotation is applied here.
-        uOmegaSun: { value: 0.0 },
+        // Sun's own angular velocity — subtracted so the Sun's frame is the
+        // viewer's reference (matches camera at origin).
+        uOmegaSun: { value: (2 * Math.PI) / SUN_ORBIT_PERIOD_SEC },
         uDifferential: { value: 1.0 },
       },
       vertexShader: /* glsl */ `
