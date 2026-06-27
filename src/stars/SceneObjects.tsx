@@ -294,9 +294,9 @@ export function MilkyWay() {
         uTime: { value: 0 },
         uVflat: { value: V_FLAT },
         uRcore: { value: R_CORE_LY },
-        // Sun's own angular velocity — subtracted so the Sun's frame is the
-        // viewer's reference (matches camera at origin).
-        uOmegaSun: { value: (2 * Math.PI) / SUN_ORBIT_PERIOD_SEC },
+        // Galaxy rotates in its inertial frame; the Sun physically orbits
+        // (SolarSystem moves), so no counter-rotation is applied here.
+        uOmegaSun: { value: 0.0 },
         uDifferential: { value: 1.0 },
       },
       vertexShader: /* glsl */ `
