@@ -262,11 +262,12 @@ export function Planets() {
 // motion of our Solar System through the Milky Way.
 // ---------------------------------------------------------------
 
-// Scene units per second of galactic drift. Real Sun moves ~220 km/s
-// through the galaxy; compressed for visualization so trails of length
-// ~4 s show a clearly visible helical pitch versus planet orbits.
-export const SUN_DRIFT_SPEED = 0.35;
-export const SUN_DRIFT_DIR = new THREE.Vector3(0, 0, 1); // galactic tangent
+import { GALACTIC_CENTER, R0_LY, SUN_ORBIT_PERIOD_SEC } from "./SceneObjects";
+
+// Sun orbits the galactic center on a true circle of radius R0 (≈26,000 ly)
+// at constant angular velocity 2π / SUN_ORBIT_PERIOD_SEC. At t=0 the Sun
+// sits at the world origin (which is GALACTIC_CENTER + (R0,0,0)).
+export const SUN_OMEGA = (2 * Math.PI) / SUN_ORBIT_PERIOD_SEC;
 
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
@@ -274,8 +275,11 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const t = clock.elapsedTime;
-    ref.current.position.set(0, 0, t * SUN_DRIFT_SPEED);
-    // publish Sun's world position so the camera + trails can follow
+    const a = SUN_OMEGA * t;
+    // Position relative to world origin so that t=0 ⇒ (0,0,0)
+    const x = GALACTIC_CENTER.x + R0_LY * Math.cos(a);
+    const z = GALACTIC_CENTER.z + R0_LY * Math.sin(a);
+    ref.current.position.set(x, 0, z);
     ref.current.getWorldPosition(tmp);
     const reg = getRegistry();
     let v = reg.get("Sun");
@@ -291,7 +295,7 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 // so the actual path (helix relative to the galaxy) is visible.
 // ---------------------------------------------------------------
 
-const TRAIL_LEN = 260;
+const TRAIL_LEN = 900;
 
 type TrailBody = { name: string; color: THREE.Color };
 
