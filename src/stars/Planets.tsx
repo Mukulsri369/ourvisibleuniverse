@@ -1,6 +1,8 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import { useStore } from "./store";
+
 
 // Real orbital elements (relative). We scale semi-major axis (a) for visibility:
 // 1 AU ≈ 3.2 scene units. Sizes are exaggerated for visibility (~1500x real ratio).
