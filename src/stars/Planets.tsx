@@ -192,31 +192,45 @@ function Planet({ def }: { def: PlanetDef }) {
     v.copy(tmp);
   });
 
+  const setVisit = useStore((s) => s.setVisitPlanet);
+  const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
+
   return (
     <group ref={groupRef}>
+      {/* halo sprite — keeps the planet visible as a colored dot from far away */}
+      <sprite scale={[def.size * 8, def.size * 8, 1]}>
+        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0.7} depthWrite={false} blending={THREE.AdditiveBlending} />
+      </sprite>
       {/* tilt + body */}
       <group rotation={[0, 0, def.tilt]}>
-        <mesh ref={bodyRef} castShadow receiveShadow>
+        <mesh
+          ref={bodyRef}
+          castShadow
+          receiveShadow
+          onPointerOver={(e) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
+          onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = ""; }}
+          onClick={(e) => { e.stopPropagation(); setVisit(def.name); }}
+        >
           <sphereGeometry args={[def.size, 48, 48]} />
           <meshStandardMaterial
             color={def.color}
             roughness={0.85}
             metalness={0.05}
             emissive={def.emissive ?? def.color}
-            emissiveIntensity={def.emissive ? 0.18 : 0.04}
+            emissiveIntensity={def.emissive ? 0.18 : 0.06}
           />
         </mesh>
         {/* atmosphere glow */}
         {def.atmosphere && (
           <mesh scale={1.08}>
             <sphereGeometry args={[def.size, 32, 32]} />
-            <meshBasicMaterial color={def.atmosphere} transparent opacity={0.15} side={THREE.BackSide} depthWrite={false} />
+            <meshBasicMaterial color={def.atmosphere} transparent opacity={0.18} side={THREE.BackSide} depthWrite={false} />
           </mesh>
         )}
         {def.ring && (
           <mesh rotation={[Math.PI / 2 + (def.ring.tilt ?? 0) * 0.2, 0, 0]}>
             <ringGeometry args={[def.ring.inner, def.ring.outer, 96]} />
-            <meshBasicMaterial color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.55} depthWrite={false} />
+            <meshBasicMaterial color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.6} depthWrite={false} />
           </mesh>
         )}
       </group>
@@ -226,6 +240,22 @@ function Planet({ def }: { def: PlanetDef }) {
       ))}
     </group>
   );
+}
+
+function makeHaloTexture(_color: string): THREE.Texture {
+  const size = 64;
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.3, "rgba(255,255,255,0.5)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const t = new THREE.CanvasTexture(c);
+  t.needsUpdate = true;
+  return t;
 }
 
 function Moon({ moon }: { moon: MoonDef }) {
