@@ -146,12 +146,17 @@ export function CameraRig() {
 
   useFrame((_, dt) => {
     const reg = (window as Window).__planetPositions;
+    const selectedStar = useStore.getState().selectedStar;
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
       const p = reg?.get(visitPlanet);
       if (p) {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
+    } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
+      // Stay anchored on the selected star (don't snap back to the Sun)
+      const sp = new THREE.Vector3(selectedStar.x, selectedStar.y, selectedStar.z);
+      target.current.lerp(sp, Math.min(1, dt * 4));
     } else if (!tourActive && !flyTo) {
       // Follow the drifting Sun so the user stays with the Solar System
       const sun = reg?.get("Sun");
