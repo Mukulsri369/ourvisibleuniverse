@@ -100,20 +100,21 @@ export function CameraRig() {
     };
   }, [gl]);
 
-  // Fly-to handling
+  // Fly-to handling — smoothly transition to the target star's system.
+  // We set desired radius/orientation and a close FOV, but let useFrame
+  // ease the target position for a cinematic sweep instead of snapping.
   useEffect(() => {
     if (!flyTo) return;
-    const dir = new THREE.Vector3(flyTo.x, flyTo.y, flyTo.z);
-    target.current.copy(dir);
     const r = flyTo.distance;
     desired.current.radius = r;
-    const sph = new THREE.Spherical().setFromVector3(
-      dir.clone().add(new THREE.Vector3(r * 0.6, r * 0.4, r * 0.6)).sub(dir),
-    );
+    // Orbit angle chosen for a pleasant 3/4 view of the star system.
+    const offset = new THREE.Vector3(r * 0.6, r * 0.4, r * 0.6);
+    const sph = new THREE.Spherical().setFromVector3(offset);
     desired.current.theta = sph.theta;
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));
-    // clear after handled
-    const id = setTimeout(() => clearFly(), 100);
+    fovTarget.current = 36;
+    // Clear the flyTo flag quickly; the selectedStar keeps the camera anchored.
+    const id = setTimeout(() => clearFly(), 60);
     return () => clearTimeout(id);
   }, [flyTo, clearFly]);
 
