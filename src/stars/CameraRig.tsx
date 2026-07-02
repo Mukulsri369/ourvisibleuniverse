@@ -155,9 +155,13 @@ export function CameraRig() {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
-      // Stay anchored on the selected star (don't snap back to the Sun)
+      // Smoothly sweep the target from wherever we are toward the selected
+      // star's system, then keep it anchored there.
       const sp = new THREE.Vector3(selectedStar.x, selectedStar.y, selectedStar.z);
-      target.current.lerp(sp, Math.min(1, dt * 4));
+      const dist = target.current.distanceTo(sp);
+      // Slower ease while far away for a cinematic approach, snappier as we arrive.
+      const k = dist > 5 ? dt * 1.4 : dt * 4;
+      target.current.lerp(sp, Math.min(1, k));
     } else if (!tourActive && !flyTo) {
       // Follow the drifting Sun so the user stays with the Solar System
       const sun = reg?.get("Sun");
