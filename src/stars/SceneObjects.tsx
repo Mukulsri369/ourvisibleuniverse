@@ -208,7 +208,7 @@ export function MilkyWay() {
     const ARM_STRENGTH = [1.0, 1.0, 0.55, 0.55];
     const ARM_WIDTH = [700, 700, 900, 900]; // ly, gaussian σ across arm ridge
 
-    const diskCount = 260000;
+    const diskCount = 120000;
     const dPos = new Float32Array(diskCount * 3);
     const dCol = new Float32Array(diskCount * 3);
     const dSize = new Float32Array(diskCount);
@@ -280,7 +280,7 @@ export function MilkyWay() {
     diskGeo.setAttribute("aSize", new THREE.BufferAttribute(dSize, 1));
 
     // ---- Bulge (spheroidal, older population, warm colors) ----
-    const bulgeCount = 45000;
+    const bulgeCount = 22000;
     const bPos = new Float32Array(bulgeCount * 3);
     const bCol = new Float32Array(bulgeCount * 3);
     const bSize = new Float32Array(bulgeCount);
@@ -304,7 +304,7 @@ export function MilkyWay() {
     bulgeGeo.setAttribute("aSize", new THREE.BufferAttribute(bSize, 1));
 
     // ---- Central Bar (~8000 ly long, oriented ~27° from Sun-GC line) ----
-    const barCount = 18000;
+    const barCount = 9000;
     const barLen = 8000, barWidth = 1500, barHeight = 700;
     const barAngle = (27 * Math.PI) / 180;
     const cosA = Math.cos(barAngle), sinA = Math.sin(barAngle);
@@ -335,8 +335,8 @@ export function MilkyWay() {
     barGeo.setAttribute("aSize", new THREE.BufferAttribute(barSize, 1));
 
     // ---- HII regions: bright pink/magenta knots clumped along arm ridges ----
-    const hiiClusterCount = 420;
-    const perCluster = 26;
+    const hiiClusterCount = 260;
+    const perCluster = 22;
     const hiiTotal = hiiClusterCount * perCluster;
     const hPos2 = new Float32Array(hiiTotal * 3);
     const hCol2 = new Float32Array(hiiTotal * 3);
@@ -370,7 +370,7 @@ export function MilkyWay() {
     hiiGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize2, 1));
 
     // ---- Halo (spheroidal, sparse, old population II) ----
-    const haloCount = 12000;
+    const haloCount = 4000;
     const hPos = new Float32Array(haloCount * 3);
     const hCol = new Float32Array(haloCount * 3);
     const hSize = new Float32Array(haloCount);
@@ -392,13 +392,12 @@ export function MilkyWay() {
     return { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo };
   }, []);
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ clock }) => {
     if (!groupRef.current) return;
+    // Galaxy itself is fixed; differential rotation happens in the shader.
+    // We only counter-rotate by the Sun's omega so the Sun (at R0) appears
+    // to orbit while the bulk-flow frame stays comprehensible.
     shader.uniforms.uTime.value = clock.elapsedTime;
-    // LOD: distance from camera to galactic center drives per-star size
-    // scaling so the disk's spiral shape stays sharp at every zoom level.
-    const camGC = camera.position.distanceTo(GALACTIC_CENTER);
-    shader.uniforms.uCamGC.value = camGC;
   });
 
   const shader = useMemo(
@@ -409,26 +408,28 @@ export function MilkyWay() {
         uTime: { value: 0 },
         uVflat: { value: V_FLAT },
         uRcore: { value: R_CORE_LY },
+        // Sun's own angular velocity — subtracted so the Sun's frame is the
+        // viewer's reference (matches camera at origin).
         uOmegaSun: { value: (2 * Math.PI) / SUN_ORBIT_PERIOD_SEC },
         uDifferential: { value: 1.0 },
-        uCamGC: { value: 26000 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
         varying vec3 vColor;
-        varying float vAlpha;
         uniform float uPixelRatio;
         uniform float uTime;
         uniform float uVflat;
         uniform float uRcore;
         uniform float uOmegaSun;
         uniform float uDifferential;
-        uniform float uCamGC;
         void main(){
           vColor = color;
+          // Radial distance from galactic center (in galaxy's local XZ plane)
           float r = length(position.xz);
+          // Flat rotation curve with solid-body core
           float vrot = (r < uRcore) ? uVflat * (r / uRcore) : uVflat;
           float omega = (r > 0.5) ? (vrot / r) : 0.0;
+          // Rotate by (omega - omegaSun) * t so Sun's frame is stationary
           float ang = (omega - uOmegaSun) * uTime * uDifferential;
           float c = cos(ang), s = sin(ang);
           vec3 p = vec3(
@@ -437,35 +438,18 @@ export function MilkyWay() {
             position.x * s + position.z * c
           );
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          float viewDist = max(-mv.z, 1.0);
-
-          // Distance-based LOD:
-          // - Zoomed out (uCamGC large): boost small stars & floor point size
-          //   so faint disk stars still resolve and the spiral shape stays crisp.
-          // - Zoomed in (uCamGC small): shrink point size so nearby stars
-          //   don't bloom into overlapping blobs — LOD keeps detail sharp.
-          float lodFar = clamp(log(uCamGC / 1200.0) * 0.35, 0.0, 1.4);
-          float lodNear = clamp(1.0 - log(max(uCamGC, 400.0) / 3000.0) * 0.4, 0.55, 1.6);
-          float sizeBoost = mix(lodNear, 1.0 + lodFar, smoothstep(2000.0, 15000.0, uCamGC));
-
-          float size = aSize * sizeBoost * uPixelRatio * (300.0 / viewDist);
-          float floorPx = mix(0.9, 1.8, smoothstep(3000.0, 30000.0, uCamGC));
-          gl_PointSize = clamp(size, floorPx, 90.0);
-
-          // Fade very-near stars slightly when zoomed in so density stays clean.
-          vAlpha = clamp(1.0 - smoothstep(0.0, 400.0, uCamGC) * 0.0 + 0.0, 0.0, 1.0);
-          vAlpha = mix(1.0, 0.85, smoothstep(150.0, 800.0, viewDist / max(uCamGC, 1.0) * uCamGC));
+          float size = aSize * uPixelRatio * (300.0 / max(-mv.z, 1.0));
+          gl_PointSize = clamp(size, 1.0, 70.0);
           gl_Position = projectionMatrix * mv;
         }
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
         varying vec3 vColor;
-        varying float vAlpha;
         void main(){
           vec4 t = texture2D(uTex, gl_PointCoord);
           if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a * vAlpha);
+          gl_FragColor = vec4(vColor, t.a);
         }
       `,
       vertexColors: true,
