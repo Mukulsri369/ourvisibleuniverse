@@ -59,7 +59,7 @@ export const useStore = create<State>((set) => ({
   setTourCaption: (c) => set({ tourCaption: c }),
   toggleMusic: () => set((st) => ({ musicOn: !st.musicOn })),
   setCameraDistance: (d) => set({ cameraDistance: d }),
-  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: Math.max(2, s.distance * 0.3 + 3) }, selectedStar: s, visitPlanet: null }),
+  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 }, selectedStar: s, visitPlanet: null }),
   clearFly: () => set({ flyTo: null }),
   setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false }),
 }));

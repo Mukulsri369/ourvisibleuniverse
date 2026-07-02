@@ -100,20 +100,21 @@ export function CameraRig() {
     };
   }, [gl]);
 
-  // Fly-to handling
+  // Fly-to handling — smoothly transition to the target star's system.
+  // We set desired radius/orientation and a close FOV, but let useFrame
+  // ease the target position for a cinematic sweep instead of snapping.
   useEffect(() => {
     if (!flyTo) return;
-    const dir = new THREE.Vector3(flyTo.x, flyTo.y, flyTo.z);
-    target.current.copy(dir);
     const r = flyTo.distance;
     desired.current.radius = r;
-    const sph = new THREE.Spherical().setFromVector3(
-      dir.clone().add(new THREE.Vector3(r * 0.6, r * 0.4, r * 0.6)).sub(dir),
-    );
+    // Orbit angle chosen for a pleasant 3/4 view of the star system.
+    const offset = new THREE.Vector3(r * 0.6, r * 0.4, r * 0.6);
+    const sph = new THREE.Spherical().setFromVector3(offset);
     desired.current.theta = sph.theta;
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));
-    // clear after handled
-    const id = setTimeout(() => clearFly(), 100);
+    fovTarget.current = 36;
+    // Clear the flyTo flag quickly; the selectedStar keeps the camera anchored.
+    const id = setTimeout(() => clearFly(), 60);
     return () => clearTimeout(id);
   }, [flyTo, clearFly]);
 
@@ -154,9 +155,13 @@ export function CameraRig() {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
-      // Stay anchored on the selected star (don't snap back to the Sun)
+      // Smoothly sweep the target from wherever we are toward the selected
+      // star's system, then keep it anchored there.
       const sp = new THREE.Vector3(selectedStar.x, selectedStar.y, selectedStar.z);
-      target.current.lerp(sp, Math.min(1, dt * 4));
+      const dist = target.current.distanceTo(sp);
+      // Slower ease while far away for a cinematic approach, snappier as we arrive.
+      const k = dist > 5 ? dt * 1.4 : dt * 4;
+      target.current.lerp(sp, Math.min(1, k));
     } else if (!tourActive && !flyTo) {
       // Follow the drifting Sun so the user stays with the Solar System
       const sun = reg?.get("Sun");
@@ -182,7 +187,7 @@ export function CameraRig() {
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
     const t = Math.min(1, Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
-    if (!tourActive && !visitPlanet) fovTarget.current = 30 + t * 60;
+    if (!tourActive && !visitPlanet && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();
