@@ -198,35 +198,80 @@ export function MilkyWay() {
   const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeRadialTexture("rgba(255,220,160,1)", "rgba(255,140,40,0)"), []);
 
-  const { diskGeo, bulgeGeo, haloGeo } = useMemo(() => {
-    const diskCount = 38000;
+  const { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo } = useMemo(() => {
+    // ---- Log-spiral disk with 2 major + 2 minor arms ----
+    // theta = k * ln(r / r0), pitch angle p ≈ 12.5° → k = 1/tan(p) ≈ 4.51.
+    // Real Milky Way: Scutum-Centaurus & Perseus (major), Sagittarius & Norma (minor).
+    const PITCH = (12.5 * Math.PI) / 180;
+    const K = 1 / Math.tan(PITCH);
+    const ARM_OFFSETS = [0, Math.PI, Math.PI * 0.5, Math.PI * 1.5];
+    const ARM_STRENGTH = [1.0, 1.0, 0.55, 0.55];
+    const ARM_WIDTH = [700, 700, 900, 900]; // ly, gaussian σ across arm ridge
+
+    const diskCount = 120000;
     const dPos = new Float32Array(diskCount * 3);
     const dCol = new Float32Array(diskCount * 3);
     const dSize = new Float32Array(diskCount);
-    const arms = 4;
-    const armTwist = 4.5;
+
+    // 82% concentrated on arm ridges, 18% smooth inter-arm disk
     for (let i = 0; i < diskCount; i++) {
-      const r = Math.pow(Math.random(), 0.55) * DISK_RADIUS;
-      const arm = Math.floor(Math.random() * arms);
-      const armAngle = (arm / arms) * Math.PI * 2;
-      const spiral = armAngle + Math.log(Math.max(r, 1) / 800) * armTwist;
-      const scatter = (Math.random() - 0.5) * 0.55 * (1 - r / DISK_RADIUS) + (Math.random() - 0.5) * 0.05;
-      const theta = spiral + scatter;
-      const z = (Math.random() - 0.5) * DISK_SCALE_HEIGHT * 2 * Math.exp(-r / 15000);
+      const onArm = Math.random() < 0.82;
+      // exponential radial profile — real disk scale length ≈ 8500 ly
+      const r = -Math.log(1 - Math.random() * 0.999) * 5200 + 1500;
+      if (r > DISK_RADIUS) { i--; continue; }
+
+      // Arm selection weighted by strength
+      let armIdx = 0;
+      if (onArm) {
+        const totalW = ARM_STRENGTH.reduce((a, b) => a + b, 0);
+        let pick = Math.random() * totalW;
+        for (let a = 0; a < ARM_OFFSETS.length; a++) {
+          pick -= ARM_STRENGTH[a];
+          if (pick <= 0) { armIdx = a; break; }
+        }
+      } else {
+        armIdx = Math.floor(Math.random() * ARM_OFFSETS.length);
+      }
+
+      const ridgeTheta = ARM_OFFSETS[armIdx] + K * Math.log(Math.max(r, 800) / 800);
+      // Gaussian scatter across the arm ridge (in radians, scaled by 1/r)
+      const sigmaTheta = ARM_WIDTH[armIdx] / Math.max(r, 800);
+      const noise = onArm
+        ? (Math.random() + Math.random() + Math.random() - 1.5) * sigmaTheta * 0.8
+        : (Math.random() - 0.5) * Math.PI * 0.9; // broad inter-arm scatter
+      const theta = ridgeTheta + noise;
+
+      // Vertical: thin disk (300 ly) + occasional thick-disk stars (1000 ly)
+      const isThick = Math.random() < 0.12;
+      const scaleH = isThick ? 1000 : DISK_SCALE_HEIGHT;
+      const uz = Math.random() - 0.5;
+      const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / 20000);
+
       dPos[i * 3] = Math.cos(theta) * r;
       dPos[i * 3 + 1] = z;
       dPos[i * 3 + 2] = Math.sin(theta) * r;
-      const inner = 1 - Math.min(1, r / DISK_RADIUS);
-      const pink = Math.random() < 0.04;
-      if (pink) {
-        dCol[i * 3] = 1.0; dCol[i * 3 + 1] = 0.55; dCol[i * 3 + 2] = 0.65;
-        dSize[i] = 28 + Math.random() * 22;
+
+      // Color: young blue-white OB stars on arm ridges (near ridge & inner-mid disk),
+      // yellow-white older stars in inter-arm, warmer toward bulge.
+      const ridgeCloseness = Math.exp(-(noise * noise) / (2 * sigmaTheta * sigmaTheta));
+      const rNorm = Math.min(1, r / DISK_RADIUS);
+      const youngProb = onArm ? 0.35 * ridgeCloseness * (1 - rNorm * 0.4) : 0.05;
+      const isYoung = Math.random() < youngProb;
+      const isRedGiant = !isYoung && Math.random() < 0.06;
+      if (isYoung) {
+        // hot blue-white
+        dCol[i * 3] = 0.75; dCol[i * 3 + 1] = 0.85; dCol[i * 3 + 2] = 1.0;
+        dSize[i] = 18 + Math.random() * 22;
+      } else if (isRedGiant) {
+        dCol[i * 3] = 1.0; dCol[i * 3 + 1] = 0.65; dCol[i * 3 + 2] = 0.45;
+        dSize[i] = 16 + Math.random() * 18;
       } else {
-        const b = 0.75 + Math.random() * 0.25;
-        dCol[i * 3] = b * (0.85 + inner * 0.15);
-        dCol[i * 3 + 1] = b * (0.88 + inner * 0.05);
-        dCol[i * 3 + 2] = b * (1.0 - inner * 0.25);
-        dSize[i] = 8 + Math.random() * 14;
+        const inner = 1 - rNorm;
+        const b = 0.72 + Math.random() * 0.28;
+        dCol[i * 3] = b * (0.9 + inner * 0.1);
+        dCol[i * 3 + 1] = b * (0.9 + inner * 0.02);
+        dCol[i * 3 + 2] = b * (1.0 - inner * 0.22);
+        dSize[i] = 6 + Math.random() * 10;
       }
     }
     const diskGeo = new THREE.BufferGeometry();
@@ -234,48 +279,117 @@ export function MilkyWay() {
     diskGeo.setAttribute("color", new THREE.BufferAttribute(dCol, 3));
     diskGeo.setAttribute("aSize", new THREE.BufferAttribute(dSize, 1));
 
-    const bulgeCount = 6000;
+    // ---- Bulge (spheroidal, older population, warm colors) ----
+    const bulgeCount = 22000;
     const bPos = new Float32Array(bulgeCount * 3);
     const bCol = new Float32Array(bulgeCount * 3);
     const bSize = new Float32Array(bulgeCount);
     for (let i = 0; i < bulgeCount; i++) {
-      const r = Math.pow(Math.random(), 1.8) * BULGE_RADIUS;
+      const r = Math.pow(Math.random(), 2.2) * BULGE_RADIUS;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
+      // Flattened oblate spheroid (b/a ≈ 0.6)
       bPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      bPos[i * 3 + 1] = r * Math.cos(phi) * 0.45;
+      bPos[i * 3 + 1] = r * Math.cos(phi) * 0.6;
       bPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
       const t = 1 - r / BULGE_RADIUS;
       bCol[i * 3] = 1.0;
-      bCol[i * 3 + 1] = 0.78 + t * 0.15;
-      bCol[i * 3 + 2] = 0.45 + t * 0.25;
-      bSize[i] = 14 + Math.random() * 20 + t * 30;
+      bCol[i * 3 + 1] = 0.82 + t * 0.12;
+      bCol[i * 3 + 2] = 0.55 + t * 0.2;
+      bSize[i] = 10 + Math.random() * 18 + t * 24;
     }
     const bulgeGeo = new THREE.BufferGeometry();
     bulgeGeo.setAttribute("position", new THREE.BufferAttribute(bPos, 3));
     bulgeGeo.setAttribute("color", new THREE.BufferAttribute(bCol, 3));
     bulgeGeo.setAttribute("aSize", new THREE.BufferAttribute(bSize, 1));
 
-    const haloCount = 1500;
+    // ---- Central Bar (~8000 ly long, oriented ~27° from Sun-GC line) ----
+    const barCount = 9000;
+    const barLen = 8000, barWidth = 1500, barHeight = 700;
+    const barAngle = (27 * Math.PI) / 180;
+    const cosA = Math.cos(barAngle), sinA = Math.sin(barAngle);
+    const barPos = new Float32Array(barCount * 3);
+    const barCol = new Float32Array(barCount * 3);
+    const barSize = new Float32Array(barCount);
+    for (let i = 0; i < barCount; i++) {
+      // Prolate ellipsoid distribution
+      const u = Math.random() - 0.5;
+      const v = (Math.random() - 0.5);
+      const w = (Math.random() - 0.5);
+      const density = Math.exp(-(u * u * 4 + v * v * 6 + w * w * 6));
+      if (Math.random() > density) { i--; continue; }
+      const lx = u * barLen;
+      const lz = v * barWidth;
+      const ly = w * barHeight;
+      barPos[i * 3] = lx * cosA - lz * sinA;
+      barPos[i * 3 + 1] = ly;
+      barPos[i * 3 + 2] = lx * sinA + lz * cosA;
+      barCol[i * 3] = 1.0;
+      barCol[i * 3 + 1] = 0.78;
+      barCol[i * 3 + 2] = 0.5;
+      barSize[i] = 10 + Math.random() * 16;
+    }
+    const barGeo = new THREE.BufferGeometry();
+    barGeo.setAttribute("position", new THREE.BufferAttribute(barPos, 3));
+    barGeo.setAttribute("color", new THREE.BufferAttribute(barCol, 3));
+    barGeo.setAttribute("aSize", new THREE.BufferAttribute(barSize, 1));
+
+    // ---- HII regions: bright pink/magenta knots clumped along arm ridges ----
+    const hiiClusterCount = 260;
+    const perCluster = 22;
+    const hiiTotal = hiiClusterCount * perCluster;
+    const hPos2 = new Float32Array(hiiTotal * 3);
+    const hCol2 = new Float32Array(hiiTotal * 3);
+    const hSize2 = new Float32Array(hiiTotal);
+    let hi = 0;
+    for (let c = 0; c < hiiClusterCount; c++) {
+      const armIdx = Math.floor(Math.random() * ARM_OFFSETS.length);
+      const r = 3000 + Math.random() * (DISK_RADIUS * 0.7 - 3000);
+      const ridgeTheta = ARM_OFFSETS[armIdx] + K * Math.log(Math.max(r, 800) / 800);
+      const cx = Math.cos(ridgeTheta) * r;
+      const cz = Math.sin(ridgeTheta) * r;
+      for (let k = 0; k < perCluster; k++) {
+        const dx = (Math.random() - 0.5) * 400;
+        const dy = (Math.random() - 0.5) * 200;
+        const dz = (Math.random() - 0.5) * 400;
+        hPos2[hi * 3] = cx + dx;
+        hPos2[hi * 3 + 1] = dy;
+        hPos2[hi * 3 + 2] = cz + dz;
+        // Emission-nebula pink (Hα + OIII mix)
+        const pinkT = Math.random();
+        hCol2[hi * 3] = 1.0;
+        hCol2[hi * 3 + 1] = 0.45 + pinkT * 0.2;
+        hCol2[hi * 3 + 2] = 0.7 + pinkT * 0.25;
+        hSize2[hi] = 28 + Math.random() * 34;
+        hi++;
+      }
+    }
+    const hiiGeo = new THREE.BufferGeometry();
+    hiiGeo.setAttribute("position", new THREE.BufferAttribute(hPos2, 3));
+    hiiGeo.setAttribute("color", new THREE.BufferAttribute(hCol2, 3));
+    hiiGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize2, 1));
+
+    // ---- Halo (spheroidal, sparse, old population II) ----
+    const haloCount = 4000;
     const hPos = new Float32Array(haloCount * 3);
     const hCol = new Float32Array(haloCount * 3);
     const hSize = new Float32Array(haloCount);
     for (let i = 0; i < haloCount; i++) {
-      const r = Math.pow(Math.random(), 0.6) * HALO_RADIUS;
+      const r = Math.pow(Math.random(), 0.55) * HALO_RADIUS;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
       hPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       hPos[i * 3 + 1] = r * Math.cos(phi);
       hPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      hCol[i * 3] = 0.9; hCol[i * 3 + 1] = 0.85; hCol[i * 3 + 2] = 0.7;
-      hSize[i] = 6 + Math.random() * 10;
+      hCol[i * 3] = 0.95; hCol[i * 3 + 1] = 0.88; hCol[i * 3 + 2] = 0.72;
+      hSize[i] = 4 + Math.random() * 8;
     }
     const haloGeo = new THREE.BufferGeometry();
     haloGeo.setAttribute("position", new THREE.BufferAttribute(hPos, 3));
     haloGeo.setAttribute("color", new THREE.BufferAttribute(hCol, 3));
     haloGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize, 1));
 
-    return { diskGeo, bulgeGeo, haloGeo };
+    return { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo };
   }, []);
 
   useFrame(({ clock }) => {
