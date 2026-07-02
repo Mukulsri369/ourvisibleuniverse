@@ -208,7 +208,7 @@ export function MilkyWay() {
     const ARM_STRENGTH = [1.0, 1.0, 0.55, 0.55];
     const ARM_WIDTH = [700, 700, 900, 900]; // ly, gaussian σ across arm ridge
 
-    const diskCount = 120000;
+    const diskCount = 260000;
     const dPos = new Float32Array(diskCount * 3);
     const dCol = new Float32Array(diskCount * 3);
     const dSize = new Float32Array(diskCount);
@@ -280,7 +280,7 @@ export function MilkyWay() {
     diskGeo.setAttribute("aSize", new THREE.BufferAttribute(dSize, 1));
 
     // ---- Bulge (spheroidal, older population, warm colors) ----
-    const bulgeCount = 22000;
+    const bulgeCount = 45000;
     const bPos = new Float32Array(bulgeCount * 3);
     const bCol = new Float32Array(bulgeCount * 3);
     const bSize = new Float32Array(bulgeCount);
@@ -304,7 +304,7 @@ export function MilkyWay() {
     bulgeGeo.setAttribute("aSize", new THREE.BufferAttribute(bSize, 1));
 
     // ---- Central Bar (~8000 ly long, oriented ~27° from Sun-GC line) ----
-    const barCount = 9000;
+    const barCount = 18000;
     const barLen = 8000, barWidth = 1500, barHeight = 700;
     const barAngle = (27 * Math.PI) / 180;
     const cosA = Math.cos(barAngle), sinA = Math.sin(barAngle);
@@ -335,8 +335,8 @@ export function MilkyWay() {
     barGeo.setAttribute("aSize", new THREE.BufferAttribute(barSize, 1));
 
     // ---- HII regions: bright pink/magenta knots clumped along arm ridges ----
-    const hiiClusterCount = 260;
-    const perCluster = 22;
+    const hiiClusterCount = 420;
+    const perCluster = 26;
     const hiiTotal = hiiClusterCount * perCluster;
     const hPos2 = new Float32Array(hiiTotal * 3);
     const hCol2 = new Float32Array(hiiTotal * 3);
@@ -370,7 +370,7 @@ export function MilkyWay() {
     hiiGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize2, 1));
 
     // ---- Halo (spheroidal, sparse, old population II) ----
-    const haloCount = 4000;
+    const haloCount = 12000;
     const hPos = new Float32Array(haloCount * 3);
     const hCol = new Float32Array(haloCount * 3);
     const hSize = new Float32Array(haloCount);
