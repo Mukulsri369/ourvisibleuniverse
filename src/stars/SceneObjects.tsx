@@ -466,7 +466,13 @@ export function MilkyWay() {
         <points geometry={diskGeo} frustumCulled={false}>
           <shaderMaterial args={[shader]} />
         </points>
+        <points geometry={barGeo} frustumCulled={false}>
+          <shaderMaterial args={[shader]} />
+        </points>
         <points geometry={bulgeGeo} frustumCulled={false}>
+          <shaderMaterial args={[shader]} />
+        </points>
+        <points geometry={hiiGeo} frustumCulled={false}>
           <shaderMaterial args={[shader]} />
         </points>
         <points geometry={haloGeo} frustumCulled={false}>
