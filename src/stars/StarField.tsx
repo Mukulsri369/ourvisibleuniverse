@@ -117,15 +117,18 @@ export function StarField() {
         uSpectral: { value: 0 },
         uTex: { value: texture },
         uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
+        uCamDist: { value: 8 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
         attribute float aPhase;
+        attribute float aIsBg;
         attribute vec3 aColorNatural;
         attribute vec3 aColorSpectral;
         uniform float uTime;
         uniform float uSpectral;
         uniform float uPixelRatio;
+        uniform float uCamDist;
         varying vec3 vColor;
         varying float vAlpha;
         void main() {
@@ -134,8 +137,13 @@ export function StarField() {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           float twinkle = 0.85 + 0.25 * sin(uTime * 1.4 + aPhase);
           float size = aSize * twinkle * uPixelRatio * (320.0 / max(-mv.z, 1.0));
-          gl_PointSize = clamp(size, 1.0, 80.0);
-          vAlpha = clamp(1.0 - (length(mv.xyz) / 4000.0), 0.15, 1.0);
+          // Background stars only fade in as the camera pulls back from the
+          // Solar System, so the immediate view stays clean and planets are
+          // clearly visible up close. Named stars are always visible.
+          float bgFade = smoothstep(120.0, 900.0, uCamDist);
+          float visibility = mix(1.0, bgFade, aIsBg);
+          gl_PointSize = clamp(size * mix(1.0, bgFade, aIsBg * 0.6), 1.0, 80.0);
+          vAlpha = clamp(1.0 - (length(mv.xyz) / 4000.0), 0.15, 1.0) * visibility;
           gl_Position = projectionMatrix * mv;
         }
       `,
