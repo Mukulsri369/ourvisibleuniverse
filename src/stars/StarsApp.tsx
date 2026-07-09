@@ -70,6 +70,7 @@ export function StarsApp() {
       <Branding />
       <InfoPanel />
       <PlanetNavigator />
+      <StarNavigator />
       <LoadingScreen done={loaded} />
     </div>
   );
