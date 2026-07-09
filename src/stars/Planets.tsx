@@ -380,7 +380,7 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 // so the actual path (helix relative to the galaxy) is visible.
 // ---------------------------------------------------------------
 
-const TRAIL_LEN = 700;
+const TRAIL_LEN = 2400;
 
 type TrailBody = { name: string; color: THREE.Color };
 
