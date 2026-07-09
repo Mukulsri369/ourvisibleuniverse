@@ -39,6 +39,7 @@ export function StarField() {
     const spectral = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
     const phase = new Float32Array(count);
+    const isBg = new Float32Array(count);
 
     NAMED_STARS.forEach((s, i) => {
       positions[i * 3] = s.x;
