@@ -332,7 +332,7 @@ function MinorBodies() {
   }, []);
   return (
     <points geometry={geom} frustumCulled={false}>
-      <pointsMaterial vertexColors size={0.04} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
+      <pointsMaterial vertexColors size={0.18} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
     </points>
   );
 }
