@@ -16,6 +16,7 @@ import {
   TourStopIndicator,
   LoadingScreen,
   PlanetNavigator,
+  StarNavigator,
 } from "./UI";
 
 import { useStore } from "./store";
