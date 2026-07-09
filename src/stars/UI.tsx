@@ -389,11 +389,14 @@ export function StarNavigator() {
   );
   if (tourActive) return null;
   return (
-    <div className="pointer-events-auto fixed bottom-32 left-1/2 z-20 hidden -translate-x-1/2 md:block">
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="pointer-events-auto fixed bottom-32 left-1/2 z-20 hidden -translate-x-1/2 md:block"
+    >
       <div className="flex max-w-[min(90vw,900px)] items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-md">
         <span className="whitespace-nowrap px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">Visit Star</span>
         <button
-          onClick={() => setSelected(null)}
+          onClick={(e) => { e.stopPropagation(); setSelected(null); }}
           className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
             !selected ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
           }`}
@@ -405,7 +408,7 @@ export function StarNavigator() {
           return (
             <button
               key={s.name}
-              onClick={() => flyTo(s)}
+              onClick={(e) => { e.stopPropagation(); flyTo(s); }}
               title={`${s.name} — ${s.distance.toFixed(2)} ly`}
               className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
                 active ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
