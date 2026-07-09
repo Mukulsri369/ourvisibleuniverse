@@ -416,6 +416,7 @@ function useTrail(body: TrailBody) {
       `,
       transparent: true,
       depthWrite: false,
+      depthTest: false,
       blending: THREE.AdditiveBlending,
     });
     return { geometry: geo, material: mat };
@@ -445,7 +446,12 @@ function useTrail(body: TrailBody) {
 
 function Trail({ body }: { body: TrailBody }) {
   const { geometry, material } = useTrail(body);
-  const line = useMemo(() => new THREE.Line(geometry, material), [geometry, material]);
+  const line = useMemo(() => {
+    const l = new THREE.Line(geometry, material);
+    l.renderOrder = 999;
+    l.frustumCulled = false;
+    return l;
+  }, [geometry, material]);
   return <primitive object={line} />;
 }
 

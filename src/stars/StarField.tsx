@@ -39,6 +39,7 @@ export function StarField() {
     const spectral = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
     const phase = new Float32Array(count);
+    const isBg = new Float32Array(count);
 
     NAMED_STARS.forEach((s, i) => {
       positions[i * 3] = s.x;
@@ -52,6 +53,7 @@ export function StarField() {
       const mag = Math.min(10, Math.max(-2, s.magnitude));
       sizes[i] = Math.max(3, 14 - mag * 1.3);
       phase[i] = Math.random() * Math.PI * 2;
+      isBg[i] = 0;
     });
 
     // Background stars distributed as a real galactic thin-disk slice
@@ -80,6 +82,7 @@ export function StarField() {
       spectral[i * 3] = cSpec.r; spectral[i * 3 + 1] = cSpec.g; spectral[i * 3 + 2] = cSpec.b;
       sizes[i] = 1 + Math.random() * 2.2;
       phase[i] = Math.random() * Math.PI * 2;
+      isBg[i] = 1;
     }
 
 
@@ -89,18 +92,21 @@ export function StarField() {
     g.setAttribute("aColorSpectral", new THREE.BufferAttribute(spectral, 3));
     g.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     g.setAttribute("aPhase", new THREE.BufferAttribute(phase, 1));
+    g.setAttribute("aIsBg", new THREE.BufferAttribute(isBg, 1));
     return { geometry: g, naturalColors: natural, spectralColors: spectral };
   }, []);
 
   // Avoid unused-var lints; the buffers are stored on geometry attributes
   void naturalColors; void spectralColors;
 
+  const cameraDistance = useStore((s) => s.cameraDistance);
   useFrame(({ clock }) => {
     spectralTarget.current = spectralMode ? 1 : 0;
     spectralBlend.current += (spectralTarget.current - spectralBlend.current) * 0.05;
     if (material.current) {
       material.current.uniforms.uTime.value = clock.elapsedTime;
       material.current.uniforms.uSpectral.value = spectralBlend.current;
+      material.current.uniforms.uCamDist.value = cameraDistance;
     }
   });
 
@@ -111,15 +117,18 @@ export function StarField() {
         uSpectral: { value: 0 },
         uTex: { value: texture },
         uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
+        uCamDist: { value: 8 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
         attribute float aPhase;
+        attribute float aIsBg;
         attribute vec3 aColorNatural;
         attribute vec3 aColorSpectral;
         uniform float uTime;
         uniform float uSpectral;
         uniform float uPixelRatio;
+        uniform float uCamDist;
         varying vec3 vColor;
         varying float vAlpha;
         void main() {
@@ -128,8 +137,13 @@ export function StarField() {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           float twinkle = 0.85 + 0.25 * sin(uTime * 1.4 + aPhase);
           float size = aSize * twinkle * uPixelRatio * (320.0 / max(-mv.z, 1.0));
-          gl_PointSize = clamp(size, 1.0, 80.0);
-          vAlpha = clamp(1.0 - (length(mv.xyz) / 4000.0), 0.15, 1.0);
+          // Background stars only fade in as the camera pulls back from the
+          // Solar System, so the immediate view stays clean and planets are
+          // clearly visible up close. Named stars are always visible.
+          float bgFade = smoothstep(120.0, 900.0, uCamDist);
+          float visibility = mix(1.0, bgFade, aIsBg);
+          gl_PointSize = clamp(size * mix(1.0, bgFade, aIsBg * 0.6), 1.0, 80.0);
+          vAlpha = clamp(1.0 - (length(mv.xyz) / 4000.0), 0.15, 1.0) * visibility;
           gl_Position = projectionMatrix * mv;
         }
       `,
