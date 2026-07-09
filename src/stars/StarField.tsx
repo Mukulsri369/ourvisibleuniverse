@@ -92,6 +92,7 @@ export function StarField() {
     g.setAttribute("aColorSpectral", new THREE.BufferAttribute(spectral, 3));
     g.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
     g.setAttribute("aPhase", new THREE.BufferAttribute(phase, 1));
+    g.setAttribute("aIsBg", new THREE.BufferAttribute(isBg, 1));
     return { geometry: g, naturalColors: natural, spectralColors: spectral };
   }, []);
 
