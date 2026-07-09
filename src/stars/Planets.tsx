@@ -416,6 +416,7 @@ function useTrail(body: TrailBody) {
       `,
       transparent: true,
       depthWrite: false,
+      depthTest: false,
       blending: THREE.AdditiveBlending,
     });
     return { geometry: geo, material: mat };
