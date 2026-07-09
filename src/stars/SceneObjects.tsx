@@ -67,12 +67,12 @@ export function Sun() {
       meshRef.current.rotation.y = t * 0.05;
     }
     if (coronaRef.current) {
-      const s = 4 + Math.sin(t * 0.8) * 0.15;
+      const s = 11 + Math.sin(t * 0.8) * 0.4;
       coronaRef.current.scale.set(s, s, 1);
     }
     if (flareRef.current) {
       flareRef.current.quaternion.copy(camera.quaternion);
-      flareRef.current.scale.set(18, 0.7, 1);
+      flareRef.current.scale.set(48, 1.8, 1);
     }
     if (ringRef.current) {
       ringRef.current.rotation.z = t * 0.3;
@@ -84,10 +84,10 @@ export function Sun() {
   return (
     <group>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[1, 64, 64]} />
+        <sphereGeometry args={[2.8, 64, 64]} />
         <shaderMaterial args={[shader]} />
       </mesh>
-      <pointLight color="#ffb060" intensity={3} distance={50} />
+      <pointLight color="#ffb060" intensity={4} distance={800} decay={1.2} />
       <sprite ref={coronaRef}>
         <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent />
       </sprite>
@@ -95,7 +95,7 @@ export function Sun() {
         <spriteMaterial map={flareTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent opacity={0.7} />
       </sprite>
       <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.25, 0.02, 8, 64]} />
+        <torusGeometry args={[3.5, 0.06, 8, 64]} />
         <meshBasicMaterial color="#ffaa55" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
