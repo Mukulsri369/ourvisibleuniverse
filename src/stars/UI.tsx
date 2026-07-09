@@ -314,7 +314,7 @@ export function PlanetNavigator() {
     <>
       <div className="pointer-events-auto fixed bottom-20 left-1/2 z-20 -translate-x-1/2">
         <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-md">
-          <span className="px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">Visit</span>
+          <span className="px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">Visit Planet</span>
           {PLANETS.map((p) => (
             <button
               key={p.name}
@@ -373,6 +373,57 @@ export function PlanetNavigator() {
     </>
   );
 }
+
+// Compact horizontally-scrollable star picker — same interaction pattern as
+// PlanetNavigator but for the named star catalog. Click a star to fly to it;
+// the InfoPanel on the right shows its details.
+export function StarNavigator() {
+  const tourActive = useStore((s) => s.tourActive);
+  const selected = useStore((s) => s.selectedStar);
+  const flyTo = useStore((s) => s.flyToStar);
+  const setSelected = useStore((s) => s.setSelected);
+  // Stop at Sun click clears selection (return to Solar System)
+  const stars = useMemo(
+    () => NAMED_STARS.filter((s) => s.name !== "Sun").slice(0, 40),
+    [],
+  );
+  if (tourActive) return null;
+  return (
+    <div className="pointer-events-auto fixed bottom-32 left-1/2 z-20 hidden -translate-x-1/2 md:block">
+      <div className="flex max-w-[min(90vw,900px)] items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-md">
+        <span className="whitespace-nowrap px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">Visit Star</span>
+        <button
+          onClick={() => setSelected(null)}
+          className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
+            !selected ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+          }`}
+        >
+          ☉ Sun
+        </button>
+        {stars.map((s) => {
+          const active = selected?.name === s.name;
+          return (
+            <button
+              key={s.name}
+              onClick={() => flyTo(s)}
+              title={`${s.name} — ${s.distance.toFixed(2)} ly`}
+              className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
+                active ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: "#cfe0ff", boxShadow: "0 0 6px #88aaff" }}
+              />
+              {s.name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 
 export function TourStopIndicator() {
