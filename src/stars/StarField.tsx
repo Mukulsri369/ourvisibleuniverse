@@ -53,6 +53,7 @@ export function StarField() {
       const mag = Math.min(10, Math.max(-2, s.magnitude));
       sizes[i] = Math.max(3, 14 - mag * 1.3);
       phase[i] = Math.random() * Math.PI * 2;
+      isBg[i] = 0;
     });
 
     // Background stars distributed as a real galactic thin-disk slice
