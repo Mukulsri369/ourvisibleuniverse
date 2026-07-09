@@ -82,6 +82,7 @@ export function StarField() {
       spectral[i * 3] = cSpec.r; spectral[i * 3 + 1] = cSpec.g; spectral[i * 3 + 2] = cSpec.b;
       sizes[i] = 1 + Math.random() * 2.2;
       phase[i] = Math.random() * Math.PI * 2;
+      isBg[i] = 1;
     }
 
 
