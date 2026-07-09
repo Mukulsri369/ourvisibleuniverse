@@ -345,11 +345,13 @@ function MinorBodies() {
 // motion of our Solar System through the Milky Way.
 // ---------------------------------------------------------------
 
-// Scene units per second of galactic drift. Real Sun moves ~220 km/s
-// through the galaxy; compressed for visualization so trails of length
-// ~4 s show a clearly visible helical pitch versus planet orbits.
-export const SUN_DRIFT_SPEED = 0.35;
-export const SUN_DRIFT_DIR = new THREE.Vector3(0, 0, 1); // galactic tangent
+// The Sun moves through the galaxy roughly PERPENDICULAR to the ecliptic
+// plane (the ecliptic is tilted ~60° to the galactic plane). Orbits are
+// in the local XZ plane, so we drift mostly along +Y with a small +Z
+// tilt — this reproduces the vortex/helix motion seen in real
+// visualizations (planets spiraling around the Sun's forward path).
+export const SUN_DRIFT_SPEED = 0.55;
+export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, 0.87, 0.5).normalize();
 
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
@@ -357,8 +359,12 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const t = clock.elapsedTime;
-    ref.current.position.set(0, 0, t * SUN_DRIFT_SPEED);
-    // publish Sun's world position so the camera + trails can follow
+    const d = t * SUN_DRIFT_SPEED;
+    ref.current.position.set(
+      SUN_DRIFT_DIR.x * d,
+      SUN_DRIFT_DIR.y * d,
+      SUN_DRIFT_DIR.z * d,
+    );
     ref.current.getWorldPosition(tmp);
     const reg = getRegistry();
     let v = reg.get("Sun");
@@ -374,7 +380,7 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 // so the actual path (helix relative to the galaxy) is visible.
 // ---------------------------------------------------------------
 
-const TRAIL_LEN = 260;
+const TRAIL_LEN = 700;
 
 type TrailBody = { name: string; color: THREE.Color };
 
