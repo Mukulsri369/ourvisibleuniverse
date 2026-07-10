@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, OortCloud, MilkyWay } from "./SceneObjects";
 import { Universe } from "./Universe";
+import { Nebulae } from "./Nebulae";
 import { Planets, SolarSystem, MotionTrails } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
@@ -44,6 +45,7 @@ export function StarsApp() {
           {/* Galactic backdrop: Milky Way sits at its real galactocentric
               offset (~26,000 ly) and rotates around Sgr A*. */}
           <MilkyWay />
+          <Nebulae />
           {/* Everything beyond the Milky Way — Local Group, Virgo Supercluster,
               cosmic web filaments, and the observable-universe shell. */}
           <Universe />
