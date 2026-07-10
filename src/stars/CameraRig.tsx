@@ -28,7 +28,10 @@ export function CameraRig() {
 
 
   const minR = 2;
-  const maxR = 120000;
+  // Zoom range spans from ~2 ly (inside Solar System) out to ~50 Gly
+  // (observable-universe scale) so pulling back reveals Local Group,
+  // Virgo Supercluster, and cosmic-web filaments.
+  const maxR = 5e10;
 
 
   // expose for slider
