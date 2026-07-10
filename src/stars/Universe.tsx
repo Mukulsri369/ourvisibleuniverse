@@ -373,6 +373,72 @@ function MilkyWayFarSprite() {
   );
 }
 
+// ------ Galaxy labels ------
+// Floating text sprites that fade in when the camera pulls back into the
+// Local Group / cosmic-web range, so the view matches images 2 & 3 the
+// user referenced (Andromeda, Milky Way, Ursa Major group visible).
+function makeLabelTexture(text: string): THREE.Texture {
+  const w = 512, h = 128;
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d")!;
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = "300 44px -apple-system, 'SF Pro Display', Helvetica, Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0,0,0,0.85)";
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = "rgba(240,230,255,0.95)";
+  ctx.fillText(text, w / 2, h / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+type LabelDef = { text: string; pos: [number, number, number]; scale: number; showFrom: number; showTo: number };
+
+function GalaxyLabel({ def }: { def: LabelDef }) {
+  const ref = useRef<THREE.Sprite>(null!);
+  const tex = useMemo(() => makeLabelTexture(def.text), [def.text]);
+  useFrame(({ camera }) => {
+    if (!ref.current) return;
+    const d = camera.position.length();
+    const fadeIn = Math.min(1, Math.max(0, (d - def.showFrom) / (def.showFrom * 0.5)));
+    const fadeOut = Math.min(1, Math.max(0, (def.showTo - d) / (def.showTo * 0.5)));
+    const a = fadeIn * fadeOut;
+    (ref.current.material as THREE.SpriteMaterial).opacity = a * 0.9;
+  });
+  return (
+    <sprite ref={ref} position={def.pos} scale={[def.scale, def.scale / 4, 1]}>
+      <spriteMaterial map={tex} transparent depthWrite={false} opacity={0} />
+    </sprite>
+  );
+}
+
+function GalaxyLabels() {
+  const labels = useMemo<LabelDef[]>(() => {
+    const arr: LabelDef[] = [
+      { text: "Milky Way", pos: [-26000, 0, 0], scale: 60_000, showFrom: 300_000, showTo: 5e8 },
+      { text: "Andromeda Galaxy", pos: toXYZ(121.2, -21.6, 2_537_000).toArray() as [number, number, number], scale: 180_000, showFrom: 400_000, showTo: 5e7 },
+      { text: "Triangulum (M33)", pos: toXYZ(133.6, -31.3, 2_730_000).toArray() as [number, number, number], scale: 130_000, showFrom: 500_000, showTo: 3e7 },
+      { text: "Large Magellanic Cloud", pos: toXYZ(280.5, -32.9, 163_000).toArray() as [number, number, number], scale: 40_000, showFrom: 200_000, showTo: 5_000_000 },
+      { text: "Small Magellanic Cloud", pos: toXYZ(302.8, -44.3, 200_000).toArray() as [number, number, number], scale: 32_000, showFrom: 200_000, showTo: 5_000_000 },
+      { text: "M81 / M82 Group", pos: toXYZ(141.7, 40.7, 12_000_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
+      { text: "Centaurus A", pos: toXYZ(309.5, 19.4, 13_000_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
+      { text: "Sculptor Group", pos: toXYZ(97.4, -88.0, 11_400_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
+      { text: "Ursa Major Group", pos: toXYZ(140, 55, 18_000_000).toArray() as [number, number, number], scale: 900_000, showFrom: 5_000_000, showTo: 3e8 },
+      { text: "Virgo Cluster", pos: toXYZ(283.8, 74.5, 53_000_000).toArray() as [number, number, number], scale: 3_000_000, showFrom: 2e7, showTo: 3e9 },
+      { text: "Laniakea Supercluster", pos: [1.5e8, 0, 0], scale: 2e7, showFrom: 3e8, showTo: 2e10 },
+    ];
+    return arr;
+  }, []);
+  return (
+    <group>
+      {labels.map((l) => <GalaxyLabel key={l.text} def={l} />)}
+    </group>
+  );
+}
+
 export function Universe() {
   const spiralTex = useMemo(() => makeSpiralGalaxyTexture(), []);
   const ellipTex = useMemo(makeEllipticalGalaxyTexture, []);
@@ -385,6 +451,7 @@ export function Universe() {
       {NEARBY_GALAXIES.map((g) => (
         <NamedGalaxyDisc key={g.name} g={g} spiralTex={spiralTex} ellipTex={ellipTex} irrTex={irrTex} />
       ))}
+      <GalaxyLabels />
     </group>
   );
 }
