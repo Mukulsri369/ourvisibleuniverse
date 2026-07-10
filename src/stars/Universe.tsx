@@ -202,21 +202,21 @@ export const NAMED_GALAXIES = NEARBY_GALAXIES.map((g) => ({
   position: toXYZ(g.l, g.b, g.distance),
 }));
 
-// Cosmic-web / large-scale structure: a spherical shell of galaxy points
-// with filamentary clustering, out to ~1 Gly. Each point is a distant
-// galaxy. We use several logarithmic-radius shells so the eye perceives
-// depth over ~7 orders of magnitude in scale.
+// Cosmic-web / large-scale structure: purple filaments of galaxy points
+// out to the observable universe. Denser and more strongly clustered
+// than a random sphere so the eye reads it as the dark-matter web
+// filaments visible in cosmological simulations (Millennium, IllustrisTNG).
 function useCosmicWeb() {
   return useMemo(() => {
     const shells = [
-      { rMin: 3e6, rMax: 3e7, n: 6000, warm: 0.5, size: 60 }, // Virgo Supercluster region
-      { rMin: 3e7, rMax: 3e8, n: 12000, warm: 0.4, size: 90 }, // Laniakea + neighbors
-      { rMin: 3e8, rMax: 3e9, n: 18000, warm: 0.3, size: 140 }, // large-scale filaments
-      { rMin: 3e9, rMax: 4.5e10, n: 22000, warm: 0.2, size: 220 }, // out to observable universe
+      { rMin: 3e6, rMax: 3e7, n: 12000, size: 80 },    // Virgo Supercluster
+      { rMin: 3e7, rMax: 3e8, n: 22000, size: 130 },   // Laniakea + neighbors
+      { rMin: 3e8, rMax: 3e9, n: 32000, size: 200 },   // large-scale filaments
+      { rMin: 3e9, rMax: 4.5e10, n: 40000, size: 320 },// out to observable universe
     ];
-    // Filament seeds — clumps that galaxies gravitate toward
+    // Filament seeds — galaxies cluster along these ridge lines
     const seeds: THREE.Vector3[] = [];
-    for (let i = 0; i < 220; i++) {
+    for (let i = 0; i < 340; i++) {
       const u = Math.random(), v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
@@ -232,32 +232,41 @@ function useCosmicWeb() {
       const pos = new Float32Array(s.n * 3);
       const col = new Float32Array(s.n * 3);
       for (let i = 0; i < s.n; i++) {
-        // logarithmic radius so density looks even at all zoom scales
+        // logarithmic radius so density looks even across zoom scales
         const t = Math.random();
         const r = s.rMin * Math.pow(s.rMax / s.rMin, t);
-        // filament clustering: pick a random direction, but 70% of the time
-        // bias toward the nearest seed direction
+        // Strong filament clustering: 88% of galaxies snap toward the
+        // nearest seed direction with a tight jitter, 12% fill voids.
         let dir = new THREE.Vector3(
           Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5,
         ).normalize();
-        if (Math.random() < 0.72) {
+        if (Math.random() < 0.88) {
           const seed = seeds[Math.floor(Math.random() * seeds.length)];
           const jitter = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.35,
-            (Math.random() - 0.5) * 0.35,
-            (Math.random() - 0.5) * 0.35,
+            (Math.random() - 0.5) * 0.22,
+            (Math.random() - 0.5) * 0.22,
+            (Math.random() - 0.5) * 0.22,
           );
           dir = seed.clone().add(jitter).normalize();
         }
         pos[i * 3] = dir.x * r;
         pos[i * 3 + 1] = dir.y * r;
         pos[i * 3 + 2] = dir.z * r;
-        // Color: mix warm (elliptical/old) and cool (spiral) galaxies
-        const warm = Math.random() < s.warm;
-        if (warm) {
-          col[i * 3] = 1.0; col[i * 3 + 1] = 0.82; col[i * 3 + 2] = 0.55;
+        // Purple/violet palette — bright pinks on ridge nodes, deep
+        // indigo elsewhere. Matches the Millennium-simulation look
+        // (deep purple void, pink node highlights).
+        const bright = Math.random() < 0.18;
+        if (bright) {
+          // Hot node — magenta / pink
+          col[i * 3] = 1.0;
+          col[i * 3 + 1] = 0.55 + Math.random() * 0.25;
+          col[i * 3 + 2] = 1.0;
         } else {
-          col[i * 3] = 0.82; col[i * 3 + 1] = 0.88; col[i * 3 + 2] = 1.0;
+          // Filament — violet / indigo
+          const v = 0.55 + Math.random() * 0.35;
+          col[i * 3] = 0.55 * v;
+          col[i * 3 + 1] = 0.25 * v;
+          col[i * 3 + 2] = 0.95 * v;
         }
       }
       const geo = new THREE.BufferGeometry();
