@@ -337,11 +337,14 @@ function ObservableUniverseShell() {
             return n;
           }
           void main(){
-            float n = noise(vN * 12.0) * 0.5 + noise(vN * 40.0) * 0.5;
-            vec3 warm = vec3(1.0, 0.55, 0.35);
-            vec3 cool = vec3(0.35, 0.55, 1.0);
-            vec3 col = mix(cool, warm, n);
-            gl_FragColor = vec4(col * 0.28, 0.55);
+            float n = noise(vN * 10.0) * 0.55 + noise(vN * 36.0) * 0.45;
+            // Deep violet void with magenta clumps — matches the
+            // Millennium / IllustrisTNG cosmic-web imagery the user
+            // referenced (image 1).
+            vec3 deep = vec3(0.28, 0.10, 0.55);
+            vec3 hot  = vec3(0.95, 0.35, 1.00);
+            vec3 col  = mix(deep, hot, smoothstep(0.35, 0.85, n));
+            gl_FragColor = vec4(col * 0.55, 0.85);
           }
         `,
       }),
