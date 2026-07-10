@@ -222,12 +222,11 @@ export function TourCaption() {
 export function ScaleIndicator() {
   const d = useStore((s) => s.cameraDistance);
   const label =
-    d < 5 ? `${d.toFixed(2)} light-years`
-    : d < 50 ? `${d.toFixed(1)} light-years`
-    : d < 5000 ? `${Math.round(d)} light-years`
-    : d < 1e6 ? `${(d / 1000).toFixed(1)}k light-years`
-    : d < 1e9 ? `${(d / 1e6).toFixed(1)} million light-years`
-    : `${(d / 1e9).toFixed(2)} billion light-years`;
+    d < 5 ? `${d.toFixed(1)} light-years`
+    : d < 50 ? `${Math.round(d)} light-years`
+    : d < 500 ? `${Math.round(d / 10) * 10} light-years`
+    : d < 5000 ? `${Math.round(d / 100) * 100} light-years`
+    : `${(d / 1000).toFixed(1)}k light-years`;
   return (
     <div className="pointer-events-none fixed bottom-5 left-1/2 z-20 -translate-x-1/2 text-[11px] uppercase tracking-[0.3em] text-white/50">
       {label}

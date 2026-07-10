@@ -27,11 +27,8 @@ export function CameraRig() {
   const visitPlanet = useStore((s) => s.visitPlanet);
 
 
-  const minR = 0.05;
-  // Zoom range spans from ~0.05 ly (inside Solar System) out to ~50 Gly
-  // (observable-universe scale) so pulling back reveals Local Group,
-  // Virgo Supercluster, and cosmic-web filaments.
-  const maxR = 5e10;
+  const minR = 2;
+  const maxR = 120000;
 
 
   // expose for slider
@@ -144,10 +141,7 @@ export function CameraRig() {
     if (!visitPlanet) return;
     const def = PLANETS.find((p) => p.name === visitPlanet);
     if (!def) return;
-    // Planet sizes live inside the SolarSystem group which is scaled 0.08×.
-    // So the "world-space" radius of the planet is def.size * 0.08.
-    const worldSize = def.size * 0.08;
-    desired.current.radius = Math.max(0.03, worldSize * 14);
+    desired.current.radius = Math.max(0.4, def.size * 14);
     fovTarget.current = 38;
   }, [visitPlanet]);
 
