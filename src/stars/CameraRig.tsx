@@ -144,7 +144,10 @@ export function CameraRig() {
     if (!visitPlanet) return;
     const def = PLANETS.find((p) => p.name === visitPlanet);
     if (!def) return;
-    desired.current.radius = Math.max(0.4, def.size * 14);
+    // Planet sizes live inside the SolarSystem group which is scaled 0.08×.
+    // So the "world-space" radius of the planet is def.size * 0.08.
+    const worldSize = def.size * 0.08;
+    desired.current.radius = Math.max(0.03, worldSize * 14);
     fovTarget.current = 38;
   }, [visitPlanet]);
 
