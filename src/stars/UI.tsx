@@ -444,6 +444,137 @@ export function TourStopIndicator() {
   );
 }
 
+// Horizontal picker for named galaxies. Clicking flies the camera to the
+// galaxy's real position and opens the GalaxyInfoPanel with its photo.
+export function GalaxyNavigator() {
+  const tourActive = useStore((s) => s.tourActive);
+  const selectedGalaxy = useStore((s) => s.selectedGalaxy);
+  const flyToGalaxy = useStore((s) => s.flyToGalaxy);
+  const galaxies = useMemo(
+    () => NEARBY_GALAXIES.slice().sort((a, b) => a.distance - b.distance),
+    [],
+  );
+  if (tourActive) return null;
+  return (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="pointer-events-auto fixed bottom-44 left-1/2 z-20 hidden -translate-x-1/2 md:block"
+    >
+      <div className="flex max-w-[min(92vw,1000px)] items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-md">
+        <span className="whitespace-nowrap px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">Visit Galaxy</span>
+        {galaxies.map((g) => {
+          const active = selectedGalaxy?.name === g.name;
+          return (
+            <button
+              key={g.name}
+              onClick={(e) => {
+                e.stopPropagation();
+                import("./Universe").then(() => {
+                  // Compute position via same formula used in Universe
+                  const lr = (g.l * Math.PI) / 180;
+                  const br = (g.b * Math.PI) / 180;
+                  const x = -g.distance * Math.cos(br) * Math.cos(lr);
+                  const y = g.distance * Math.sin(br);
+                  const z = g.distance * Math.cos(br) * Math.sin(lr);
+                  flyToGalaxy({
+                    name: g.name, type: g.type, distance: g.distance, size: g.size,
+                    color: g.color, x, y, z, image: g.image, description: g.description,
+                  });
+                });
+              }}
+              title={`${g.name} — ${(g.distance / 1e6).toFixed(2)} Mly`}
+              className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
+                active ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ background: g.color, boxShadow: `0 0 6px ${g.color}` }}
+              />
+              {g.name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function GalaxyInfoPanel() {
+  const g = useStore((s) => s.selectedGalaxy);
+  const setSelectedGalaxy = useStore((s) => s.setSelectedGalaxy);
+  return (
+    <AnimatePresence>
+      {g && (
+        <motion.aside
+          initial={{ x: 400, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 400, opacity: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="fixed right-0 top-0 z-30 h-full w-full max-w-[400px] overflow-y-auto border-l border-white/10 p-7 text-white"
+          style={{ background: "rgba(8,10,24,0.8)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => setSelectedGalaxy(null)}
+            aria-label="Close"
+            className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+          >
+            ✕
+          </button>
+          <h2 className="pr-10 text-3xl font-light tracking-wide">{g.name}</h2>
+          <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">{g.type}</div>
+          {g.image ? (
+            <div className="mt-5 overflow-hidden rounded-lg border border-white/10 bg-black">
+              <img
+                src={g.image}
+                alt={g.name}
+                loading="lazy"
+                className="h-56 w-full object-cover"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            </div>
+          ) : (
+            <div className="mt-5 grid h-40 place-items-center rounded-lg border border-white/10 bg-gradient-to-br from-indigo-900/40 to-black text-xs text-white/40">
+              No photograph available
+            </div>
+          )}
+          <div className="mt-5 grid grid-cols-2 gap-y-3 text-sm">
+            <Stat label="Distance" value={g.distance >= 1e6 ? `${(g.distance / 1e6).toFixed(2)} Mly` : `${(g.distance / 1e3).toFixed(0)} kly`} />
+            <Stat label="Diameter" value={g.size >= 1000 ? `${(g.size / 1000).toFixed(0)}k ly` : `${g.size} ly`} />
+            <Stat label="Type" value={g.type} />
+          </div>
+          {g.description ? (
+            <>
+              <div className="my-5 h-px bg-white/10" />
+              <p className="text-sm leading-relaxed text-white/75">{g.description}</p>
+            </>
+          ) : null}
+        </motion.aside>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export function UIVisibilityToggle() {
+  const hidden = useStore((s) => s.uiHidden);
+  const toggle = useStore((s) => s.toggleUI);
+  return (
+    <button
+      onClick={toggle}
+      className="pointer-events-auto fixed right-6 top-5 z-40 grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-black/40 text-white/70 backdrop-blur transition hover:border-white/50 hover:text-white"
+      title={hidden ? "Show UI" : "Hide UI"}
+      aria-label={hidden ? "Show UI" : "Hide UI"}
+    >
+      {hidden ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" /><circle cx="12" cy="12" r="3" /></svg>
+      ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.94 10.94 0 0112 20c-7 0-11-8-11-8a19.65 19.65 0 015.06-6.06M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 8 11 8a19.65 19.65 0 01-3.17 4.19M1 1l22 22" /></svg>
+      )}
+    </button>
+  );
+}
+
 export function LoadingScreen({ done }: { done: boolean }) {
   return (
     <AnimatePresence>
