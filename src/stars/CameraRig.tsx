@@ -154,12 +154,18 @@ export function CameraRig() {
   useFrame((_, dt) => {
     const reg = (window as Window).__planetPositions;
     const selectedStar = useStore.getState().selectedStar;
+    const selectedGalaxy = useStore.getState().selectedGalaxy;
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
       const p = reg?.get(visitPlanet);
       if (p) {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
+    } else if (!tourActive && selectedGalaxy) {
+      const gp = new THREE.Vector3(selectedGalaxy.x, selectedGalaxy.y, selectedGalaxy.z);
+      const dist = target.current.distanceTo(gp);
+      const k = dist > 500_000 ? dt * 1.2 : dt * 3;
+      target.current.lerp(gp, Math.min(1, k));
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
       // Smoothly sweep the target from wherever we are toward the selected
       // star's system, then keep it anchored there.
