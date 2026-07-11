@@ -360,7 +360,7 @@ export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, 0.87, 0.5).normalize();
 // this wrapper group, then SHRINK the wrapper by SOLAR_VIEW_SCALE so
 // the system reads as a compact cluster against the Milky Way — much
 // more faithful to how tiny it truly is at galactic scale.
-export const SOLAR_VIEW_SCALE = 0.08;
+export const SOLAR_VIEW_SCALE = 0.0016;
 
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);

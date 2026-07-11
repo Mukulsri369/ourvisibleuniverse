@@ -445,7 +445,7 @@ export function Universe() {
   const irrTex = useMemo(makeIrregularTexture, []);
   return (
     <group>
-      <ObservableUniverseShell />
+      {/* ObservableUniverseShell removed — background is pure black */}
       <CosmicWeb />
       <MilkyWayFarSprite />
       {NEARBY_GALAXIES.map((g) => (
