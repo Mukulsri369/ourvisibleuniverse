@@ -20,8 +20,20 @@ export const TOUR_STOPS: TourStop[] = [
   { name: "The Cosmic Web", caption: "The Cosmic Web — Galaxies cluster along vast filaments of dark matter that thread the observable universe", distance: 2e9, fov: 75, duration: 10000 },
 ];
 
+export type GalaxyTarget = {
+  name: string;
+  type: string;
+  distance: number; // ly
+  size: number;
+  color: string;
+  x: number; y: number; z: number;
+  image?: string;
+  description?: string;
+};
+
 interface State {
   selectedStar: NamedStar | null;
+  selectedGalaxy: GalaxyTarget | null;
   spectralMode: boolean;
   tourActive: boolean;
   tourStop: number;
@@ -30,7 +42,9 @@ interface State {
   cameraDistance: number;
   flyTo: { x: number; y: number; z: number; distance: number } | null;
   visitPlanet: string | null;
+  uiHidden: boolean;
   setSelected: (s: NamedStar | null) => void;
+  setSelectedGalaxy: (g: GalaxyTarget | null) => void;
   toggleSpectral: () => void;
   startTour: () => void;
   stopTour: () => void;
@@ -39,12 +53,15 @@ interface State {
   toggleMusic: () => void;
   setCameraDistance: (d: number) => void;
   flyToStar: (s: NamedStar) => void;
+  flyToGalaxy: (g: GalaxyTarget) => void;
   clearFly: () => void;
   setVisitPlanet: (name: string | null) => void;
+  toggleUI: () => void;
 }
 
 export const useStore = create<State>((set) => ({
   selectedStar: null,
+  selectedGalaxy: null,
   spectralMode: false,
   tourActive: false,
   tourStop: 0,
@@ -53,15 +70,24 @@ export const useStore = create<State>((set) => ({
   cameraDistance: 8,
   flyTo: null,
   visitPlanet: null,
-  setSelected: (s) => set({ selectedStar: s }),
+  uiHidden: false,
+  setSelected: (s) => set({ selectedStar: s, selectedGalaxy: null }),
+  setSelectedGalaxy: (g) => set({ selectedGalaxy: g }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
-  startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null, visitPlanet: null }),
+  startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null, selectedGalaxy: null, visitPlanet: null }),
   stopTour: () => set({ tourActive: false, tourCaption: null }),
   setTourStop: (n) => set({ tourStop: n }),
   setTourCaption: (c) => set({ tourCaption: c }),
   toggleMusic: () => set((st) => ({ musicOn: !st.musicOn })),
   setCameraDistance: (d) => set({ cameraDistance: d }),
-  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 }, selectedStar: s, visitPlanet: null }),
+  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 }, selectedStar: s, selectedGalaxy: null, visitPlanet: null }),
+  flyToGalaxy: (g) => set({
+    flyTo: { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 40_000) },
+    selectedGalaxy: g,
+    selectedStar: null,
+    visitPlanet: null,
+  }),
   clearFly: () => set({ flyTo: null }),
-  setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false }),
+  setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, selectedGalaxy: null, tourActive: false }),
+  toggleUI: () => set((st) => ({ uiHidden: !st.uiHidden })),
 }));
