@@ -19,6 +19,9 @@ import {
   LoadingScreen,
   PlanetNavigator,
   StarNavigator,
+  GalaxyNavigator,
+  GalaxyInfoPanel,
+  UIVisibilityToggle,
 } from "./UI";
 
 import { useStore } from "./store";
@@ -26,7 +29,10 @@ import { useStore } from "./store";
 export function StarsApp() {
   const [loaded, setLoaded] = useState(false);
   const selected = useStore((s) => s.selectedStar);
+  const selectedGalaxy = useStore((s) => s.selectedGalaxy);
   const setSelected = useStore((s) => s.setSelected);
+  const setSelectedGalaxy = useStore((s) => s.setSelectedGalaxy);
+  const uiHidden = useStore((s) => s.uiHidden);
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 1500);
@@ -34,7 +40,10 @@ export function StarsApp() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black text-white" onClick={() => { if (selected) setSelected(null); }}>
+    <div className="fixed inset-0 bg-black text-white" onClick={() => {
+      if (selected) setSelected(null);
+      if (selectedGalaxy) setSelectedGalaxy(null);
+    }}>
       <Canvas
         camera={{ fov: 40, near: 0.05, far: 1e11, position: [4, 2, 6] }}
         dpr={[1, 2]}
@@ -42,17 +51,9 @@ export function StarsApp() {
       >
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
-          {/* Galactic backdrop: Milky Way sits at its real galactocentric
-              offset (~26,000 ly) and rotates around Sgr A*. */}
           <MilkyWay />
           <Nebulae />
-          {/* Everything beyond the Milky Way — Local Group, Virgo Supercluster,
-              cosmic web filaments, and the observable-universe shell. */}
           <Universe />
-          {/* Solar System drifts along the Sun's galactic orbital tangent.
-              Combined with each planet's Kepler orbit, that turns the planets'
-              world-space paths into true helices — the real motion of our
-              system through the Milky Way. */}
           <SolarSystem>
             <Sun />
             <Planets />
@@ -67,18 +68,24 @@ export function StarsApp() {
         </Suspense>
       </Canvas>
 
-      <TopLeftControls />
-      <TourStopIndicator />
-      <ZoomSlider />
-      <TourCaption />
-      <ScaleIndicator />
-      <MusicToggle />
-      <Branding />
-      <InfoPanel />
-      <PlanetNavigator />
-      <StarNavigator />
+      <UIVisibilityToggle />
+      {!uiHidden && (
+        <>
+          <TopLeftControls />
+          <TourStopIndicator />
+          <ZoomSlider />
+          <TourCaption />
+          <ScaleIndicator />
+          <MusicToggle />
+          <Branding />
+          <InfoPanel />
+          <GalaxyInfoPanel />
+          <PlanetNavigator />
+          <StarNavigator />
+          <GalaxyNavigator />
+        </>
+      )}
       <LoadingScreen done={loaded} />
     </div>
   );
 }
-

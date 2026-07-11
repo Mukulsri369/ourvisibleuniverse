@@ -154,12 +154,18 @@ export function CameraRig() {
   useFrame((_, dt) => {
     const reg = (window as Window).__planetPositions;
     const selectedStar = useStore.getState().selectedStar;
+    const selectedGalaxy = useStore.getState().selectedGalaxy;
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
       const p = reg?.get(visitPlanet);
       if (p) {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
+    } else if (!tourActive && selectedGalaxy) {
+      const gp = new THREE.Vector3(selectedGalaxy.x, selectedGalaxy.y, selectedGalaxy.z);
+      const dist = target.current.distanceTo(gp);
+      const k = dist > 500_000 ? dt * 1.2 : dt * 3;
+      target.current.lerp(gp, Math.min(1, k));
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
       // Smoothly sweep the target from wherever we are toward the selected
       // star's system, then keep it anchored there.
@@ -193,7 +199,7 @@ export function CameraRig() {
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
     const t = Math.min(1, Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
-    if (!tourActive && !visitPlanet && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
+    if (!tourActive && !visitPlanet && !selectedGalaxy && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();
