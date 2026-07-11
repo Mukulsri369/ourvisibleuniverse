@@ -18,7 +18,7 @@ import { useFrame } from "@react-three/fiber";
 // converting from standard galactic coords where l=0 points toward GC.
 // ---------------------------------------------------------------
 
-export type NamedGalaxy = {
+type NamedGalaxy = {
   name: string;
   type: string;
   // galactic coords
@@ -31,112 +31,40 @@ export type NamedGalaxy = {
   color: string;
   inclination?: number; // deg, tilt of disk from face-on
   posAngle?: number; // deg, orientation of major axis in sky
-  image?: string; // real photograph URL (Wikimedia)
-  description?: string;
 };
 
-// Wikimedia stable file-path redirect
-const wm = (file: string) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${file}?width=640`;
-
 const NEARBY_GALAXIES: NamedGalaxy[] = [
-  { name: "Large Magellanic Cloud", type: "Irregular", l: 280.5, b: -32.9, distance: 163_000, size: 14_000, color: "#c9d6ff", inclination: 35,
-    image: wm("Large_Magellanic_Cloud.jpg"),
-    description: "A satellite galaxy of the Milky Way, visible to the naked eye in the southern sky. Home to the Tarantula Nebula, the most active star-forming region in the Local Group." },
-  { name: "Small Magellanic Cloud", type: "Irregular", l: 302.8, b: -44.3, distance: 200_000, size: 7_000, color: "#cfd8ff", inclination: 40,
-    image: wm("Small_Magellanic_Cloud_(Digitized_Sky_Survey_2).jpg"),
-    description: "A dwarf irregular companion of the Milky Way, gravitationally distorted by the LMC and our galaxy." },
-  { name: "Sagittarius Dwarf", type: "Dwarf Elliptical", l: 5.6, b: -14.1, distance: 65_000, size: 10_000, color: "#ffe0b0",
-    description: "A small satellite galaxy currently being tidally shredded and consumed by the Milky Way." },
-  { name: "Canis Major Dwarf", type: "Dwarf Irregular", l: 240.0, b: -8.0, distance: 25_000, size: 5_000, color: "#ffd8a0",
-    description: "The closest known galaxy to the Sun — a tidal remnant merging with the Milky Way's disk." },
-  { name: "Andromeda (M31)", type: "Spiral", l: 121.2, b: -21.6, distance: 2_537_000, size: 220_000, color: "#e8ecff", inclination: 77, posAngle: 35,
-    image: wm("Andromeda_Galaxy_(with_h-alpha).jpg"),
-    description: "The nearest large spiral galaxy and the most massive in the Local Group. Contains a trillion stars and is on a collision course with the Milky Way in ~4.5 billion years." },
-  { name: "Triangulum (M33)", type: "Spiral", l: 133.6, b: -31.3, distance: 2_730_000, size: 60_000, color: "#d8e4ff", inclination: 54, posAngle: 22,
-    image: wm("VST_snaps_a_very_detailed_view_of_the_Triangulum_Galaxy.jpg"),
-    description: "The third-largest galaxy in the Local Group, a face-on spiral with vigorous star formation." },
-  { name: "NGC 205 (M110)", type: "Dwarf Elliptical", l: 120.7, b: -21.1, distance: 2_690_000, size: 17_000, color: "#ffe4c8",
-    image: wm("Messier_110.jpg"),
-    description: "A dwarf elliptical satellite of Andromeda." },
-  { name: "IC 10", type: "Starburst Irregular", l: 119.0, b: -3.3, distance: 2_200_000, size: 5_000, color: "#ffc0d0",
-    description: "The only known starburst galaxy in the Local Group." },
-  { name: "NGC 6822 (Barnard's Galaxy)", type: "Irregular", l: 25.3, b: -18.4, distance: 1_630_000, size: 7_000, color: "#ffd8b0",
-    image: wm("NGC_6822_HST.jpg"),
-    description: "A dwarf irregular galaxy discovered by E. E. Barnard in 1884." },
-  { name: "Leo I", type: "Dwarf Spheroidal", l: 226.0, b: 49.1, distance: 820_000, size: 3_000, color: "#ffe8c8",
-    description: "A dwarf spheroidal companion of the Milky Way in the constellation Leo." },
-  { name: "Leo II", type: "Dwarf Spheroidal", l: 220.2, b: 67.2, distance: 690_000, size: 2_000, color: "#ffe8c8",
-    description: "A small, faint satellite galaxy of the Milky Way." },
+  { name: "Large Magellanic Cloud", type: "Irregular", l: 280.5, b: -32.9, distance: 163_000, size: 14_000, color: "#c9d6ff", inclination: 35 },
+  { name: "Small Magellanic Cloud", type: "Irregular", l: 302.8, b: -44.3, distance: 200_000, size: 7_000, color: "#cfd8ff", inclination: 40 },
+  { name: "Sagittarius Dwarf", type: "Dwarf Elliptical", l: 5.6, b: -14.1, distance: 65_000, size: 10_000, color: "#ffe0b0" },
+  { name: "Canis Major Dwarf", type: "Dwarf Irregular", l: 240.0, b: -8.0, distance: 25_000, size: 5_000, color: "#ffd8a0" },
+  { name: "Andromeda (M31)", type: "Spiral", l: 121.2, b: -21.6, distance: 2_537_000, size: 220_000, color: "#e8ecff", inclination: 77, posAngle: 35 },
+  { name: "Triangulum (M33)", type: "Spiral", l: 133.6, b: -31.3, distance: 2_730_000, size: 60_000, color: "#d8e4ff", inclination: 54, posAngle: 22 },
+  { name: "NGC 205 (M110)", type: "Dwarf Elliptical", l: 120.7, b: -21.1, distance: 2_690_000, size: 17_000, color: "#ffe4c8" },
+  { name: "IC 10", type: "Starburst Irregular", l: 119.0, b: -3.3, distance: 2_200_000, size: 5_000, color: "#ffc0d0" },
+  { name: "NGC 6822 (Barnard)", type: "Irregular", l: 25.3, b: -18.4, distance: 1_630_000, size: 7_000, color: "#ffd8b0" },
+  { name: "Leo I", type: "Dwarf Spheroidal", l: 226.0, b: 49.1, distance: 820_000, size: 3_000, color: "#ffe8c8" },
+  { name: "Leo II", type: "Dwarf Spheroidal", l: 220.2, b: 67.2, distance: 690_000, size: 2_000, color: "#ffe8c8" },
   { name: "Draco Dwarf", type: "Dwarf Spheroidal", l: 86.4, b: 34.7, distance: 260_000, size: 2_500, color: "#ffe8c8" },
   { name: "Sculptor Dwarf", type: "Dwarf Spheroidal", l: 287.5, b: -83.2, distance: 290_000, size: 2_800, color: "#ffe8c8" },
   { name: "Fornax Dwarf", type: "Dwarf Spheroidal", l: 237.1, b: -65.7, distance: 460_000, size: 3_000, color: "#ffe8c8" },
-  { name: "Ursa Minor Dwarf", type: "Dwarf Spheroidal", l: 105.0, b: 44.8, distance: 220_000, size: 2_000, color: "#ffe8c8" },
-  { name: "Carina Dwarf", type: "Dwarf Spheroidal", l: 260.1, b: -22.2, distance: 330_000, size: 1_600, color: "#ffe8c8" },
-  { name: "Sextans Dwarf", type: "Dwarf Spheroidal", l: 243.5, b: 42.3, distance: 280_000, size: 3_000, color: "#ffe8c8" },
-  { name: "NGC 300", type: "Spiral", l: 299.2, b: -79.4, distance: 6_100_000, size: 60_000, color: "#dde6ff", inclination: 42,
-    image: wm("NGC_300.jpg") },
+  { name: "NGC 300", type: "Spiral", l: 299.2, b: -79.4, distance: 6_100_000, size: 60_000, color: "#dde6ff", inclination: 42 },
   { name: "NGC 55", type: "Barred Spiral", l: 332.9, b: -75.7, distance: 6_500_000, size: 70_000, color: "#dde6ff", inclination: 78 },
-  { name: "Centaurus A (NGC 5128)", type: "Lenticular", l: 309.5, b: 19.4, distance: 13_000_000, size: 60_000, color: "#ffc898", inclination: 60,
-    image: wm("Centaurus_A_(NGC_5128).jpg"),
-    description: "A peculiar elliptical galaxy with a prominent dark dust lane, the result of a past merger. Hosts a supermassive black hole and powerful radio jets." },
-  { name: "M81 (Bode's Galaxy)", type: "Spiral", l: 142.1, b: 40.9, distance: 12_000_000, size: 90_000, color: "#dae4ff", inclination: 62,
-    image: wm("Messier_81_HST.jpg"),
-    description: "A grand-design spiral galaxy in Ursa Major with an active galactic nucleus and a supermassive black hole 70× the mass of Sagittarius A*." },
-  { name: "M82 (Cigar Galaxy)", type: "Starburst", l: 141.4, b: 40.6, distance: 12_000_000, size: 37_000, color: "#ffd0c0", inclination: 80, posAngle: 65,
-    image: wm("M82_HST_ACS_2006-14-a-large_web.jpg"),
-    description: "A starburst galaxy 5× more luminous than the Milky Way, driven by a gravitational encounter with M81." },
-  { name: "NGC 253 (Sculptor Galaxy)", type: "Spiral", l: 97.4, b: -88.0, distance: 11_400_000, size: 90_000, color: "#dfe8ff", inclination: 78,
-    image: wm("NGC_253_Galaxy.jpg") },
-  { name: "M83 (Southern Pinwheel)", type: "Barred Spiral", l: 314.6, b: 32.0, distance: 15_000_000, size: 55_000, color: "#e0eaff", inclination: 24,
-    image: wm("Messier_83_-_Heic1403a.jpg"),
-    description: "A face-on barred spiral known for prolific star formation and numerous supernovae." },
+  { name: "Centaurus A (NGC 5128)", type: "Lenticular", l: 309.5, b: 19.4, distance: 13_000_000, size: 60_000, color: "#ffc898", inclination: 60 },
+  { name: "M81 (Bode's Galaxy)", type: "Spiral", l: 142.1, b: 40.9, distance: 12_000_000, size: 90_000, color: "#dae4ff", inclination: 62 },
+  { name: "M82 (Cigar Galaxy)", type: "Starburst", l: 141.4, b: 40.6, distance: 12_000_000, size: 37_000, color: "#ffd0c0", inclination: 80, posAngle: 65 },
+  { name: "NGC 253 (Sculptor Galaxy)", type: "Spiral", l: 97.4, b: -88.0, distance: 11_400_000, size: 90_000, color: "#dfe8ff", inclination: 78 },
+  { name: "M83", type: "Barred Spiral", l: 314.6, b: 32.0, distance: 15_000_000, size: 55_000, color: "#e0eaff", inclination: 24 },
   { name: "M94", type: "Spiral", l: 123.4, b: 76.0, distance: 16_000_000, size: 50_000, color: "#e2ecff", inclination: 35 },
-  { name: "M101 (Pinwheel Galaxy)", type: "Spiral", l: 102.0, b: 59.8, distance: 21_000_000, size: 170_000, color: "#e5efff", inclination: 18,
-    image: wm("M101_hires_STScI-PRC2006-10a.jpg"),
-    description: "A giant face-on spiral 70% larger than the Milky Way, showing prominent asymmetric star-forming arms." },
-  { name: "M51 (Whirlpool Galaxy)", type: "Spiral", l: 104.9, b: 68.6, distance: 23_000_000, size: 76_000, color: "#e0ebff", inclination: 22, posAngle: 10,
-    image: wm("Messier51_sRGB.jpg"),
-    description: "A grand-design spiral interacting with the dwarf galaxy NGC 5195. The first galaxy in which spiral structure was recognized." },
-  { name: "M104 (Sombrero Galaxy)", type: "Lenticular", l: 298.5, b: 51.1, distance: 29_000_000, size: 50_000, color: "#ffd8b0", inclination: 84, posAngle: 90,
-    image: wm("M104_ngc4594_sombrero_galaxy_hi-res.jpg"),
-    description: "An edge-on lenticular galaxy defined by a bright bulge and a striking dark dust lane." },
-  { name: "NGC 1300", type: "Barred Spiral", l: 209.6, b: -52.4, distance: 61_000_000, size: 110_000, color: "#dde8ff", inclination: 45,
-    image: wm("Barred_Spiral_Galaxy_NGC_1300.jpg"),
-    description: "One of the most striking examples of a barred spiral galaxy." },
-  { name: "M87 (Virgo A)", type: "Elliptical", l: 283.8, b: 74.5, distance: 53_000_000, size: 240_000, color: "#ffe0b0",
-    image: wm("Black_hole_-_Messier_87_crop_max_res.jpg"),
-    description: "The dominant elliptical galaxy of the Virgo Cluster, whose supermassive black hole was the first ever imaged (EHT, 2019)." },
+  { name: "M101 (Pinwheel)", type: "Spiral", l: 102.0, b: 59.8, distance: 21_000_000, size: 170_000, color: "#e5efff", inclination: 18 },
+  { name: "M51 (Whirlpool)", type: "Spiral", l: 104.9, b: 68.6, distance: 23_000_000, size: 76_000, color: "#e0ebff", inclination: 22, posAngle: 10 },
+  { name: "M104 (Sombrero)", type: "Lenticular", l: 298.5, b: 51.1, distance: 29_000_000, size: 50_000, color: "#ffd8b0", inclination: 84, posAngle: 90 },
+  { name: "NGC 1300", type: "Barred Spiral", l: 209.6, b: -52.4, distance: 61_000_000, size: 110_000, color: "#dde8ff", inclination: 45 },
+  { name: "M87 (Virgo A)", type: "Elliptical", l: 283.8, b: 74.5, distance: 53_000_000, size: 240_000, color: "#ffe0b0" },
   { name: "M49", type: "Elliptical", l: 286.9, b: 70.2, distance: 56_000_000, size: 160_000, color: "#ffe0b0" },
   { name: "M60", type: "Elliptical", l: 291.2, b: 74.3, distance: 55_000_000, size: 120_000, color: "#ffe0b0" },
-  { name: "NGC 4038/4039 (Antennae)", type: "Interacting", l: 286.2, b: 42.5, distance: 45_000_000, size: 90_000, color: "#ffcadd",
-    image: wm("Antennae_galaxies_xl.jpg"),
-    description: "A pair of colliding spiral galaxies whose tidal streams form long, antenna-like tails." },
-  { name: "M64 (Black Eye Galaxy)", type: "Spiral", l: 315.7, b: 84.4, distance: 17_000_000, size: 54_000, color: "#e2e8ff", inclination: 58,
-    image: wm("Messier_64_-_Hubble_Space_Telescope.jpg"),
-    description: "Famous for a spectacular dark band of dust in front of its bright nucleus." },
-  { name: "NGC 4565 (Needle Galaxy)", type: "Spiral", l: 230.8, b: 86.4, distance: 40_000_000, size: 100_000, color: "#e0e6ff", inclination: 88 },
-  { name: "M77 (Cetus A)", type: "Barred Spiral", l: 172.1, b: -51.9, distance: 47_000_000, size: 170_000, color: "#e6efff",
-    description: "A Seyfert galaxy with a very active galactic nucleus." },
-  { name: "M74", type: "Spiral", l: 138.0, b: -45.7, distance: 32_000_000, size: 95_000, color: "#e4edff", inclination: 20,
-    image: wm("Messier_74_by_HST.jpg") },
-  { name: "NGC 2903", type: "Barred Spiral", l: 208.7, b: 44.5, distance: 30_000_000, size: 80_000, color: "#e0e8ff", inclination: 60 },
-  { name: "NGC 891", type: "Spiral", l: 140.4, b: -17.4, distance: 30_000_000, size: 100_000, color: "#dae2ff", inclination: 90 },
-  { name: "NGC 6946 (Fireworks)", type: "Spiral", l: 95.7, b: 11.7, distance: 25_200_000, size: 40_000, color: "#ffd8c8", inclination: 33,
-    description: "Nicknamed the Fireworks Galaxy for hosting 10 supernovae in the last century." },
-  { name: "Sombrero Group", type: "Elliptical", l: 285.0, b: 60.0, distance: 60_000_000, size: 100_000, color: "#ffe0b0" },
-  { name: "NGC 1365", type: "Barred Spiral", l: 237.9, b: -54.6, distance: 56_000_000, size: 200_000, color: "#dde8ff", inclination: 55,
-    image: wm("A_Fornax_of_Beauty.jpg"),
-    description: "The Great Barred Spiral in the Fornax Cluster." },
-  { name: "NGC 4676 (Mice)", type: "Interacting", l: 285.5, b: 76.0, distance: 290_000_000, size: 60_000, color: "#ffc8d8",
-    image: wm("The_Mice_Galaxies.jpg"),
-    description: "A pair of colliding spirals with long tidal tails." },
-  { name: "NGC 1275 (Perseus A)", type: "Elliptical", l: 150.6, b: -13.3, distance: 237_000_000, size: 180_000, color: "#ffe4c0",
-    description: "Central galaxy of the Perseus Cluster, hosting a huge active nucleus." },
-  { name: "NGC 4889", type: "Elliptical", l: 58.1, b: 87.9, distance: 308_000_000, size: 300_000, color: "#ffe0b0",
-    description: "One of the two brightest galaxies of the Coma Cluster, with one of the most massive known black holes." },
+  { name: "NGC 4038/4039 (Antennae)", type: "Interacting", l: 286.2, b: 42.5, distance: 45_000_000, size: 90_000, color: "#ffcadd" },
 ];
-export { NEARBY_GALAXIES };
 
 function toXYZ(l: number, b: number, d: number): THREE.Vector3 {
   const lr = (l * Math.PI) / 180;
@@ -236,8 +164,6 @@ function makeDotTexture(): THREE.Texture {
   return new THREE.CanvasTexture(c);
 }
 
-import { useStore } from "./store";
-
 function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
   g: NamedGalaxy;
   spiralTex: THREE.Texture;
@@ -256,15 +182,8 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
     const pa = ((g.posAngle ?? 0) * Math.PI) / 180;
     return new THREE.Euler(incl, 0, pa);
   }, [g]);
-  const onClick = (e: { stopPropagation: () => void }) => {
-    e.stopPropagation();
-    useStore.getState().flyToGalaxy({
-      name: g.name, type: g.type, distance: g.distance, size: g.size, color: g.color,
-      x: pos.x, y: pos.y, z: pos.z, image: g.image, description: g.description,
-    });
-  };
   return (
-    <mesh ref={meshRef} position={pos} rotation={rot} frustumCulled={false} onClick={onClick}>
+    <mesh ref={meshRef} position={pos} rotation={rot} frustumCulled={false}>
       <planeGeometry args={[g.size, g.size]} />
       <meshBasicMaterial
         map={tex}
@@ -283,21 +202,21 @@ export const NAMED_GALAXIES = NEARBY_GALAXIES.map((g) => ({
   position: toXYZ(g.l, g.b, g.distance),
 }));
 
-// Cosmic-web / large-scale structure: purple filaments of galaxy points
-// out to the observable universe. Denser and more strongly clustered
-// than a random sphere so the eye reads it as the dark-matter web
-// filaments visible in cosmological simulations (Millennium, IllustrisTNG).
+// Cosmic-web / large-scale structure: a spherical shell of galaxy points
+// with filamentary clustering, out to ~1 Gly. Each point is a distant
+// galaxy. We use several logarithmic-radius shells so the eye perceives
+// depth over ~7 orders of magnitude in scale.
 function useCosmicWeb() {
   return useMemo(() => {
     const shells = [
-      { rMin: 3e6, rMax: 3e7, n: 12000, size: 80 },    // Virgo Supercluster
-      { rMin: 3e7, rMax: 3e8, n: 22000, size: 130 },   // Laniakea + neighbors
-      { rMin: 3e8, rMax: 3e9, n: 32000, size: 200 },   // large-scale filaments
-      { rMin: 3e9, rMax: 4.5e10, n: 40000, size: 320 },// out to observable universe
+      { rMin: 3e6, rMax: 3e7, n: 6000, warm: 0.5, size: 60 }, // Virgo Supercluster region
+      { rMin: 3e7, rMax: 3e8, n: 12000, warm: 0.4, size: 90 }, // Laniakea + neighbors
+      { rMin: 3e8, rMax: 3e9, n: 18000, warm: 0.3, size: 140 }, // large-scale filaments
+      { rMin: 3e9, rMax: 4.5e10, n: 22000, warm: 0.2, size: 220 }, // out to observable universe
     ];
-    // Filament seeds — galaxies cluster along these ridge lines
+    // Filament seeds — clumps that galaxies gravitate toward
     const seeds: THREE.Vector3[] = [];
-    for (let i = 0; i < 340; i++) {
+    for (let i = 0; i < 220; i++) {
       const u = Math.random(), v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
@@ -313,41 +232,32 @@ function useCosmicWeb() {
       const pos = new Float32Array(s.n * 3);
       const col = new Float32Array(s.n * 3);
       for (let i = 0; i < s.n; i++) {
-        // logarithmic radius so density looks even across zoom scales
+        // logarithmic radius so density looks even at all zoom scales
         const t = Math.random();
         const r = s.rMin * Math.pow(s.rMax / s.rMin, t);
-        // Strong filament clustering: 88% of galaxies snap toward the
-        // nearest seed direction with a tight jitter, 12% fill voids.
+        // filament clustering: pick a random direction, but 70% of the time
+        // bias toward the nearest seed direction
         let dir = new THREE.Vector3(
           Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5,
         ).normalize();
-        if (Math.random() < 0.88) {
+        if (Math.random() < 0.72) {
           const seed = seeds[Math.floor(Math.random() * seeds.length)];
           const jitter = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.22,
-            (Math.random() - 0.5) * 0.22,
-            (Math.random() - 0.5) * 0.22,
+            (Math.random() - 0.5) * 0.35,
+            (Math.random() - 0.5) * 0.35,
+            (Math.random() - 0.5) * 0.35,
           );
           dir = seed.clone().add(jitter).normalize();
         }
         pos[i * 3] = dir.x * r;
         pos[i * 3 + 1] = dir.y * r;
         pos[i * 3 + 2] = dir.z * r;
-        // Purple/violet palette — bright pinks on ridge nodes, deep
-        // indigo elsewhere. Matches the Millennium-simulation look
-        // (deep purple void, pink node highlights).
-        const bright = Math.random() < 0.18;
-        if (bright) {
-          // Hot node — magenta / pink
-          col[i * 3] = 1.0;
-          col[i * 3 + 1] = 0.55 + Math.random() * 0.25;
-          col[i * 3 + 2] = 1.0;
+        // Color: mix warm (elliptical/old) and cool (spiral) galaxies
+        const warm = Math.random() < s.warm;
+        if (warm) {
+          col[i * 3] = 1.0; col[i * 3 + 1] = 0.82; col[i * 3 + 2] = 0.55;
         } else {
-          // Filament — violet / indigo
-          const v = 0.55 + Math.random() * 0.35;
-          col[i * 3] = 0.55 * v;
-          col[i * 3 + 1] = 0.25 * v;
-          col[i * 3 + 2] = 0.95 * v;
+          col[i * 3] = 0.82; col[i * 3 + 1] = 0.88; col[i * 3 + 2] = 1.0;
         }
       }
       const geo = new THREE.BufferGeometry();
@@ -418,14 +328,11 @@ function ObservableUniverseShell() {
             return n;
           }
           void main(){
-            float n = noise(vN * 10.0) * 0.55 + noise(vN * 36.0) * 0.45;
-            // Deep violet void with magenta clumps — matches the
-            // Millennium / IllustrisTNG cosmic-web imagery the user
-            // referenced (image 1).
-            vec3 deep = vec3(0.28, 0.10, 0.55);
-            vec3 hot  = vec3(0.95, 0.35, 1.00);
-            vec3 col  = mix(deep, hot, smoothstep(0.35, 0.85, n));
-            gl_FragColor = vec4(col * 0.55, 0.85);
+            float n = noise(vN * 12.0) * 0.5 + noise(vN * 40.0) * 0.5;
+            vec3 warm = vec3(1.0, 0.55, 0.35);
+            vec3 cool = vec3(0.35, 0.55, 1.0);
+            vec3 col = mix(cool, warm, n);
+            gl_FragColor = vec4(col * 0.28, 0.55);
           }
         `,
       }),
@@ -454,85 +361,18 @@ function MilkyWayFarSprite() {
   );
 }
 
-// ------ Galaxy labels ------
-// Floating text sprites that fade in when the camera pulls back into the
-// Local Group / cosmic-web range, so the view matches images 2 & 3 the
-// user referenced (Andromeda, Milky Way, Ursa Major group visible).
-function makeLabelTexture(text: string): THREE.Texture {
-  const w = 512, h = 128;
-  const c = document.createElement("canvas");
-  c.width = w; c.height = h;
-  const ctx = c.getContext("2d")!;
-  ctx.clearRect(0, 0, w, h);
-  ctx.font = "300 44px -apple-system, 'SF Pro Display', Helvetica, Arial";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.shadowColor = "rgba(0,0,0,0.85)";
-  ctx.shadowBlur = 12;
-  ctx.fillStyle = "rgba(240,230,255,0.95)";
-  ctx.fillText(text, w / 2, h / 2);
-  const tex = new THREE.CanvasTexture(c);
-  tex.needsUpdate = true;
-  return tex;
-}
-
-type LabelDef = { text: string; pos: [number, number, number]; scale: number; showFrom: number; showTo: number };
-
-function GalaxyLabel({ def }: { def: LabelDef }) {
-  const ref = useRef<THREE.Sprite>(null!);
-  const tex = useMemo(() => makeLabelTexture(def.text), [def.text]);
-  useFrame(({ camera }) => {
-    if (!ref.current) return;
-    const d = camera.position.length();
-    const fadeIn = Math.min(1, Math.max(0, (d - def.showFrom) / (def.showFrom * 0.5)));
-    const fadeOut = Math.min(1, Math.max(0, (def.showTo - d) / (def.showTo * 0.5)));
-    const a = fadeIn * fadeOut;
-    (ref.current.material as THREE.SpriteMaterial).opacity = a * 0.9;
-  });
-  return (
-    <sprite ref={ref} position={def.pos} scale={[def.scale, def.scale / 4, 1]}>
-      <spriteMaterial map={tex} transparent depthWrite={false} opacity={0} />
-    </sprite>
-  );
-}
-
-function GalaxyLabels() {
-  const labels = useMemo<LabelDef[]>(() => {
-    const arr: LabelDef[] = [
-      { text: "Milky Way", pos: [-26000, 0, 0], scale: 60_000, showFrom: 300_000, showTo: 5e8 },
-      { text: "Andromeda Galaxy", pos: toXYZ(121.2, -21.6, 2_537_000).toArray() as [number, number, number], scale: 180_000, showFrom: 400_000, showTo: 5e7 },
-      { text: "Triangulum (M33)", pos: toXYZ(133.6, -31.3, 2_730_000).toArray() as [number, number, number], scale: 130_000, showFrom: 500_000, showTo: 3e7 },
-      { text: "Large Magellanic Cloud", pos: toXYZ(280.5, -32.9, 163_000).toArray() as [number, number, number], scale: 40_000, showFrom: 200_000, showTo: 5_000_000 },
-      { text: "Small Magellanic Cloud", pos: toXYZ(302.8, -44.3, 200_000).toArray() as [number, number, number], scale: 32_000, showFrom: 200_000, showTo: 5_000_000 },
-      { text: "M81 / M82 Group", pos: toXYZ(141.7, 40.7, 12_000_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
-      { text: "Centaurus A", pos: toXYZ(309.5, 19.4, 13_000_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
-      { text: "Sculptor Group", pos: toXYZ(97.4, -88.0, 11_400_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
-      { text: "Ursa Major Group", pos: toXYZ(140, 55, 18_000_000).toArray() as [number, number, number], scale: 900_000, showFrom: 5_000_000, showTo: 3e8 },
-      { text: "Virgo Cluster", pos: toXYZ(283.8, 74.5, 53_000_000).toArray() as [number, number, number], scale: 3_000_000, showFrom: 2e7, showTo: 3e9 },
-      { text: "Laniakea Supercluster", pos: [1.5e8, 0, 0], scale: 2e7, showFrom: 3e8, showTo: 2e10 },
-    ];
-    return arr;
-  }, []);
-  return (
-    <group>
-      {labels.map((l) => <GalaxyLabel key={l.text} def={l} />)}
-    </group>
-  );
-}
-
 export function Universe() {
   const spiralTex = useMemo(() => makeSpiralGalaxyTexture(), []);
   const ellipTex = useMemo(makeEllipticalGalaxyTexture, []);
   const irrTex = useMemo(makeIrregularTexture, []);
   return (
     <group>
-      {/* ObservableUniverseShell removed — background is pure black */}
+      <ObservableUniverseShell />
       <CosmicWeb />
       <MilkyWayFarSprite />
       {NEARBY_GALAXIES.map((g) => (
         <NamedGalaxyDisc key={g.name} g={g} spiralTex={spiralTex} ellipTex={ellipTex} irrTex={irrTex} />
       ))}
-      <GalaxyLabels />
     </group>
   );
 }
