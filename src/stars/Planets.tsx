@@ -350,7 +350,10 @@ function MinorBodies() {
 // in the local XZ plane, so we drift mostly along +Y with a small +Z
 // tilt — this reproduces the vortex/helix motion seen in real
 // visualizations (planets spiraling around the Sun's forward path).
-export const SUN_DRIFT_SPEED = 0.55;
+// The whole Solar System is scaled down to be a tiny speck at the origin —
+// on the same scale as every other star in the field. Zoom in to explore.
+export const SOLAR_SCALE = 0.005;
+export const SUN_DRIFT_SPEED = 0.55 * SOLAR_SCALE;
 export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, 0.87, 0.5).normalize();
 
 export function SolarSystem({ children }: { children: React.ReactNode }) {
@@ -371,7 +374,7 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
     if (!v) { v = new THREE.Vector3(); reg.set("Sun", v); }
     v.copy(tmp);
   });
-  return <group ref={ref}>{children}</group>;
+  return <group ref={ref} scale={SOLAR_SCALE}>{children}</group>;
 }
 
 // ---------------------------------------------------------------
