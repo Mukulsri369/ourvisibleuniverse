@@ -199,7 +199,7 @@ export function CameraRig() {
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
     const t = Math.min(1, Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
-    if (!tourActive && !visitPlanet && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
+    if (!tourActive && !visitPlanet && !selectedGalaxy && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();
