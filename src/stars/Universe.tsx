@@ -202,21 +202,21 @@ export const NAMED_GALAXIES = NEARBY_GALAXIES.map((g) => ({
   position: toXYZ(g.l, g.b, g.distance),
 }));
 
-// Cosmic-web / large-scale structure: a spherical shell of galaxy points
-// with filamentary clustering, out to ~1 Gly. Each point is a distant
-// galaxy. We use several logarithmic-radius shells so the eye perceives
-// depth over ~7 orders of magnitude in scale.
+// Cosmic-web / large-scale structure: purple filaments of galaxy points
+// out to the observable universe. Denser and more strongly clustered
+// than a random sphere so the eye reads it as the dark-matter web
+// filaments visible in cosmological simulations (Millennium, IllustrisTNG).
 function useCosmicWeb() {
   return useMemo(() => {
     const shells = [
-      { rMin: 3e6, rMax: 3e7, n: 6000, warm: 0.5, size: 60 }, // Virgo Supercluster region
-      { rMin: 3e7, rMax: 3e8, n: 12000, warm: 0.4, size: 90 }, // Laniakea + neighbors
-      { rMin: 3e8, rMax: 3e9, n: 18000, warm: 0.3, size: 140 }, // large-scale filaments
-      { rMin: 3e9, rMax: 4.5e10, n: 22000, warm: 0.2, size: 220 }, // out to observable universe
+      { rMin: 3e6, rMax: 3e7, n: 12000, size: 80 },    // Virgo Supercluster
+      { rMin: 3e7, rMax: 3e8, n: 22000, size: 130 },   // Laniakea + neighbors
+      { rMin: 3e8, rMax: 3e9, n: 32000, size: 200 },   // large-scale filaments
+      { rMin: 3e9, rMax: 4.5e10, n: 40000, size: 320 },// out to observable universe
     ];
-    // Filament seeds — clumps that galaxies gravitate toward
+    // Filament seeds — galaxies cluster along these ridge lines
     const seeds: THREE.Vector3[] = [];
-    for (let i = 0; i < 220; i++) {
+    for (let i = 0; i < 340; i++) {
       const u = Math.random(), v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
@@ -232,32 +232,41 @@ function useCosmicWeb() {
       const pos = new Float32Array(s.n * 3);
       const col = new Float32Array(s.n * 3);
       for (let i = 0; i < s.n; i++) {
-        // logarithmic radius so density looks even at all zoom scales
+        // logarithmic radius so density looks even across zoom scales
         const t = Math.random();
         const r = s.rMin * Math.pow(s.rMax / s.rMin, t);
-        // filament clustering: pick a random direction, but 70% of the time
-        // bias toward the nearest seed direction
+        // Strong filament clustering: 88% of galaxies snap toward the
+        // nearest seed direction with a tight jitter, 12% fill voids.
         let dir = new THREE.Vector3(
           Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5,
         ).normalize();
-        if (Math.random() < 0.72) {
+        if (Math.random() < 0.88) {
           const seed = seeds[Math.floor(Math.random() * seeds.length)];
           const jitter = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.35,
-            (Math.random() - 0.5) * 0.35,
-            (Math.random() - 0.5) * 0.35,
+            (Math.random() - 0.5) * 0.22,
+            (Math.random() - 0.5) * 0.22,
+            (Math.random() - 0.5) * 0.22,
           );
           dir = seed.clone().add(jitter).normalize();
         }
         pos[i * 3] = dir.x * r;
         pos[i * 3 + 1] = dir.y * r;
         pos[i * 3 + 2] = dir.z * r;
-        // Color: mix warm (elliptical/old) and cool (spiral) galaxies
-        const warm = Math.random() < s.warm;
-        if (warm) {
-          col[i * 3] = 1.0; col[i * 3 + 1] = 0.82; col[i * 3 + 2] = 0.55;
+        // Purple/violet palette — bright pinks on ridge nodes, deep
+        // indigo elsewhere. Matches the Millennium-simulation look
+        // (deep purple void, pink node highlights).
+        const bright = Math.random() < 0.18;
+        if (bright) {
+          // Hot node — magenta / pink
+          col[i * 3] = 1.0;
+          col[i * 3 + 1] = 0.55 + Math.random() * 0.25;
+          col[i * 3 + 2] = 1.0;
         } else {
-          col[i * 3] = 0.82; col[i * 3 + 1] = 0.88; col[i * 3 + 2] = 1.0;
+          // Filament — violet / indigo
+          const v = 0.55 + Math.random() * 0.35;
+          col[i * 3] = 0.55 * v;
+          col[i * 3 + 1] = 0.25 * v;
+          col[i * 3 + 2] = 0.95 * v;
         }
       }
       const geo = new THREE.BufferGeometry();
@@ -328,11 +337,14 @@ function ObservableUniverseShell() {
             return n;
           }
           void main(){
-            float n = noise(vN * 12.0) * 0.5 + noise(vN * 40.0) * 0.5;
-            vec3 warm = vec3(1.0, 0.55, 0.35);
-            vec3 cool = vec3(0.35, 0.55, 1.0);
-            vec3 col = mix(cool, warm, n);
-            gl_FragColor = vec4(col * 0.28, 0.55);
+            float n = noise(vN * 10.0) * 0.55 + noise(vN * 36.0) * 0.45;
+            // Deep violet void with magenta clumps — matches the
+            // Millennium / IllustrisTNG cosmic-web imagery the user
+            // referenced (image 1).
+            vec3 deep = vec3(0.28, 0.10, 0.55);
+            vec3 hot  = vec3(0.95, 0.35, 1.00);
+            vec3 col  = mix(deep, hot, smoothstep(0.35, 0.85, n));
+            gl_FragColor = vec4(col * 0.55, 0.85);
           }
         `,
       }),
@@ -361,6 +373,72 @@ function MilkyWayFarSprite() {
   );
 }
 
+// ------ Galaxy labels ------
+// Floating text sprites that fade in when the camera pulls back into the
+// Local Group / cosmic-web range, so the view matches images 2 & 3 the
+// user referenced (Andromeda, Milky Way, Ursa Major group visible).
+function makeLabelTexture(text: string): THREE.Texture {
+  const w = 512, h = 128;
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d")!;
+  ctx.clearRect(0, 0, w, h);
+  ctx.font = "300 44px -apple-system, 'SF Pro Display', Helvetica, Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.shadowColor = "rgba(0,0,0,0.85)";
+  ctx.shadowBlur = 12;
+  ctx.fillStyle = "rgba(240,230,255,0.95)";
+  ctx.fillText(text, w / 2, h / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+type LabelDef = { text: string; pos: [number, number, number]; scale: number; showFrom: number; showTo: number };
+
+function GalaxyLabel({ def }: { def: LabelDef }) {
+  const ref = useRef<THREE.Sprite>(null!);
+  const tex = useMemo(() => makeLabelTexture(def.text), [def.text]);
+  useFrame(({ camera }) => {
+    if (!ref.current) return;
+    const d = camera.position.length();
+    const fadeIn = Math.min(1, Math.max(0, (d - def.showFrom) / (def.showFrom * 0.5)));
+    const fadeOut = Math.min(1, Math.max(0, (def.showTo - d) / (def.showTo * 0.5)));
+    const a = fadeIn * fadeOut;
+    (ref.current.material as THREE.SpriteMaterial).opacity = a * 0.9;
+  });
+  return (
+    <sprite ref={ref} position={def.pos} scale={[def.scale, def.scale / 4, 1]}>
+      <spriteMaterial map={tex} transparent depthWrite={false} opacity={0} />
+    </sprite>
+  );
+}
+
+function GalaxyLabels() {
+  const labels = useMemo<LabelDef[]>(() => {
+    const arr: LabelDef[] = [
+      { text: "Milky Way", pos: [-26000, 0, 0], scale: 60_000, showFrom: 300_000, showTo: 5e8 },
+      { text: "Andromeda Galaxy", pos: toXYZ(121.2, -21.6, 2_537_000).toArray() as [number, number, number], scale: 180_000, showFrom: 400_000, showTo: 5e7 },
+      { text: "Triangulum (M33)", pos: toXYZ(133.6, -31.3, 2_730_000).toArray() as [number, number, number], scale: 130_000, showFrom: 500_000, showTo: 3e7 },
+      { text: "Large Magellanic Cloud", pos: toXYZ(280.5, -32.9, 163_000).toArray() as [number, number, number], scale: 40_000, showFrom: 200_000, showTo: 5_000_000 },
+      { text: "Small Magellanic Cloud", pos: toXYZ(302.8, -44.3, 200_000).toArray() as [number, number, number], scale: 32_000, showFrom: 200_000, showTo: 5_000_000 },
+      { text: "M81 / M82 Group", pos: toXYZ(141.7, 40.7, 12_000_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
+      { text: "Centaurus A", pos: toXYZ(309.5, 19.4, 13_000_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
+      { text: "Sculptor Group", pos: toXYZ(97.4, -88.0, 11_400_000).toArray() as [number, number, number], scale: 700_000, showFrom: 4_000_000, showTo: 2e8 },
+      { text: "Ursa Major Group", pos: toXYZ(140, 55, 18_000_000).toArray() as [number, number, number], scale: 900_000, showFrom: 5_000_000, showTo: 3e8 },
+      { text: "Virgo Cluster", pos: toXYZ(283.8, 74.5, 53_000_000).toArray() as [number, number, number], scale: 3_000_000, showFrom: 2e7, showTo: 3e9 },
+      { text: "Laniakea Supercluster", pos: [1.5e8, 0, 0], scale: 2e7, showFrom: 3e8, showTo: 2e10 },
+    ];
+    return arr;
+  }, []);
+  return (
+    <group>
+      {labels.map((l) => <GalaxyLabel key={l.text} def={l} />)}
+    </group>
+  );
+}
+
 export function Universe() {
   const spiralTex = useMemo(() => makeSpiralGalaxyTexture(), []);
   const ellipTex = useMemo(makeEllipticalGalaxyTexture, []);
@@ -373,6 +451,7 @@ export function Universe() {
       {NEARBY_GALAXIES.map((g) => (
         <NamedGalaxyDisc key={g.name} g={g} spiralTex={spiralTex} ellipTex={ellipTex} irrTex={irrTex} />
       ))}
+      <GalaxyLabels />
     </group>
   );
 }

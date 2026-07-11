@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, OortCloud, MilkyWay } from "./SceneObjects";
 import { Universe } from "./Universe";
+import { Nebulae } from "./Nebulae";
 import { Planets, SolarSystem, MotionTrails } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
@@ -35,7 +36,7 @@ export function StarsApp() {
   return (
     <div className="fixed inset-0 bg-black text-white" onClick={() => { if (selected) setSelected(null); }}>
       <Canvas
-        camera={{ fov: 40, near: 0.0005, far: 1e11, position: [4, 2, 6] }}
+        camera={{ fov: 40, near: 0.05, far: 1e11, position: [4, 2, 6] }}
         dpr={[1, 2]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
       >
@@ -44,6 +45,7 @@ export function StarsApp() {
           {/* Galactic backdrop: Milky Way sits at its real galactocentric
               offset (~26,000 ly) and rotates around Sgr A*. */}
           <MilkyWay />
+          <Nebulae />
           {/* Everything beyond the Milky Way — Local Group, Virgo Supercluster,
               cosmic web filaments, and the observable-universe shell. */}
           <Universe />
