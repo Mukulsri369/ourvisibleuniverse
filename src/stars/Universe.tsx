@@ -236,6 +236,8 @@ function makeDotTexture(): THREE.Texture {
   return new THREE.CanvasTexture(c);
 }
 
+import { useStore } from "./store";
+
 function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
   g: NamedGalaxy;
   spiralTex: THREE.Texture;
@@ -254,8 +256,15 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
     const pa = ((g.posAngle ?? 0) * Math.PI) / 180;
     return new THREE.Euler(incl, 0, pa);
   }, [g]);
+  const onClick = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
+    useStore.getState().flyToGalaxy({
+      name: g.name, type: g.type, distance: g.distance, size: g.size, color: g.color,
+      x: pos.x, y: pos.y, z: pos.z, image: g.image, description: g.description,
+    });
+  };
   return (
-    <mesh ref={meshRef} position={pos} rotation={rot} frustumCulled={false}>
+    <mesh ref={meshRef} position={pos} rotation={rot} frustumCulled={false} onClick={onClick}>
       <planeGeometry args={[g.size, g.size]} />
       <meshBasicMaterial
         map={tex}
