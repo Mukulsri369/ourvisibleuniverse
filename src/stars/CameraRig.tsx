@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useStore, TOUR_STOPS } from "./store";
-import { PLANETS } from "./Planets";
+import { PLANETS, SOLAR_SCALE } from "./Planets";
 
 
 // Custom orbit-style controller with smooth damped zoom & inertia
@@ -27,10 +27,9 @@ export function CameraRig() {
   const visitPlanet = useStore((s) => s.visitPlanet);
 
 
-  const minR = 2;
-  // Zoom range spans from ~2 ly (inside Solar System) out to ~50 Gly
-  // (observable-universe scale) so pulling back reveals Local Group,
-  // Virgo Supercluster, and cosmic-web filaments.
+  // Solar System is scaled down to star-scale, so we can zoom in extremely
+  // close to see its planets. Outer bound reaches observable-universe scale.
+  const minR = 0.005;
   const maxR = 5e10;
 
 
@@ -144,7 +143,7 @@ export function CameraRig() {
     if (!visitPlanet) return;
     const def = PLANETS.find((p) => p.name === visitPlanet);
     if (!def) return;
-    desired.current.radius = Math.max(0.4, def.size * 14);
+    desired.current.radius = Math.max(0.01, def.size * 14 * SOLAR_SCALE);
     fovTarget.current = 38;
   }, [visitPlanet]);
 

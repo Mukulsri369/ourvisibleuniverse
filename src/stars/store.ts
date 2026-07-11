@@ -10,9 +10,9 @@ export type TourStop = {
 };
 
 export const TOUR_STOPS: TourStop[] = [
-  { name: "The Sun", caption: "The Sun — Our home star, 4.6 billion years old", distance: 12, fov: 35, duration: 7000 },
-  { name: "Our Solar System", caption: "Our Solar System — Eight planets orbit the Sun", distance: 180, fov: 45, duration: 7000 },
-  { name: "The Oort Cloud", caption: "The Oort Cloud — Icy bodies marking the edge of the Sun's influence, about 1 light-year away", distance: 900, fov: 55, duration: 7000 },
+  { name: "The Sun", caption: "The Sun — Our home star, 4.6 billion years old", distance: 0.06, fov: 35, duration: 7000 },
+  { name: "Our Solar System", caption: "Our Solar System — Eight planets orbit the Sun", distance: 1.0, fov: 45, duration: 7000 },
+  { name: "The Oort Cloud", caption: "The Oort Cloud — Icy bodies marking the edge of the Sun's influence, about 1 light-year away", distance: 3, fov: 55, duration: 7000 },
   { name: "Nearby Stars", caption: "87 Named Stars — The closest stars to our Sun, each one a distant sun of its own", distance: 60, fov: 60, duration: 13000 },
   { name: "Our Stellar Neighborhood", caption: "100,000 Stars — An accurate map of our stellar neighborhood within the Milky Way", distance: 800, fov: 75, duration: 15000 },
   { name: "The Milky Way", caption: "The Milky Way — Our galaxy contains over 100 billion stars. You are here.", distance: 4500, fov: 85, duration: 10000 },
