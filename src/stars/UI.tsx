@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
 import { PLANETS } from "./Planets";
+import { NEARBY_GALAXIES } from "./Universe";
 
 
 export function InfoPanel() {
