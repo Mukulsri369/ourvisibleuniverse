@@ -5,11 +5,9 @@ import { useFrame } from "@react-three/fiber";
 export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const coronaRef = useRef<THREE.Sprite>(null!);
-  const flareRef = useRef<THREE.Sprite>(null!);
   const ringRef = useRef<THREE.Mesh>(null!);
 
   const coronaTex = useMemo(() => makeRadialTexture("rgba(255,180,80,1)", "rgba(255,100,30,0)"), []);
-  const flareTex = useMemo(() => makeFlareTexture(), []);
 
   const shader = useMemo(
     () => ({
