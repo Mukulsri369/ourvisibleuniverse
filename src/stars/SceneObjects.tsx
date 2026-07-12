@@ -5,11 +5,9 @@ import { useFrame } from "@react-three/fiber";
 export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const coronaRef = useRef<THREE.Sprite>(null!);
-  const flareRef = useRef<THREE.Sprite>(null!);
   const ringRef = useRef<THREE.Mesh>(null!);
 
   const coronaTex = useMemo(() => makeRadialTexture("rgba(255,180,80,1)", "rgba(255,100,30,0)"), []);
-  const flareTex = useMemo(() => makeFlareTexture(), []);
 
   const shader = useMemo(
     () => ({
@@ -60,7 +58,7 @@ export function Sun() {
     [],
   );
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (meshRef.current) {
       (meshRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
@@ -70,10 +68,7 @@ export function Sun() {
       const s = 11 + Math.sin(t * 0.8) * 0.4;
       coronaRef.current.scale.set(s, s, 1);
     }
-    if (flareRef.current) {
-      flareRef.current.quaternion.copy(camera.quaternion);
-      flareRef.current.scale.set(48, 1.8, 1);
-    }
+    // horizontal lens-flare streak removed by request
     if (ringRef.current) {
       ringRef.current.rotation.z = t * 0.3;
       const s = 1 + Math.sin(t * 1.2) * 0.05;
@@ -91,9 +86,7 @@ export function Sun() {
       <sprite ref={coronaRef}>
         <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent />
       </sprite>
-      <sprite ref={flareRef}>
-        <spriteMaterial map={flareTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent opacity={0.7} />
-      </sprite>
+      {/* flare sprite removed */}
       <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[3.5, 0.06, 8, 64]} />
         <meshBasicMaterial color="#ffaa55" transparent opacity={0.5} blending={THREE.AdditiveBlending} />

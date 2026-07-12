@@ -18,6 +18,8 @@ import {
   LoadingScreen,
   PlanetNavigator,
   StarNavigator,
+  GalaxyNavigator,
+  UIHideToggle,
 } from "./UI";
 
 import { useStore } from "./store";
@@ -26,6 +28,7 @@ export function StarsApp() {
   const [loaded, setLoaded] = useState(false);
   const selected = useStore((s) => s.selectedStar);
   const setSelected = useStore((s) => s.setSelected);
+  const uiHidden = useStore((s) => s.uiHidden);
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 1500);
@@ -41,16 +44,8 @@ export function StarsApp() {
       >
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
-          {/* Galactic backdrop: Milky Way sits at its real galactocentric
-              offset (~26,000 ly) and rotates around Sgr A*. */}
           <MilkyWay />
-          {/* Everything beyond the Milky Way — Local Group, Virgo Supercluster,
-              cosmic web filaments, and the observable-universe shell. */}
           <Universe />
-          {/* Solar System drifts along the Sun's galactic orbital tangent.
-              Combined with each planet's Kepler orbit, that turns the planets'
-              world-space paths into true helices — the real motion of our
-              system through the Milky Way. */}
           <SolarSystem>
             <Sun />
             <Planets />
@@ -65,18 +60,26 @@ export function StarsApp() {
         </Suspense>
       </Canvas>
 
-      <TopLeftControls />
-      <TourStopIndicator />
-      <ZoomSlider />
+      {/* Hide toggle stays visible so users can bring the UI back */}
+      <UIHideToggle />
+
+      {!uiHidden && (
+        <>
+          <TopLeftControls />
+          <TourStopIndicator />
+          <ZoomSlider />
+          <ScaleIndicator />
+          <MusicToggle />
+          <Branding />
+          <InfoPanel />
+          <PlanetNavigator />
+          <StarNavigator />
+          <GalaxyNavigator />
+        </>
+      )}
+      {/* Tour caption remains even when panels are hidden — it's diegetic. */}
       <TourCaption />
-      <ScaleIndicator />
-      <MusicToggle />
-      <Branding />
-      <InfoPanel />
-      <PlanetNavigator />
-      <StarNavigator />
       <LoadingScreen done={loaded} />
     </div>
   );
 }
-
