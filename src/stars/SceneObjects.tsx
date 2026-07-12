@@ -88,9 +88,7 @@ export function Sun() {
       <sprite ref={coronaRef}>
         <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent />
       </sprite>
-      <sprite ref={flareRef}>
-        <spriteMaterial map={flareTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent opacity={0.7} />
-      </sprite>
+      {/* flare sprite removed */}
       <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[3.5, 0.06, 8, 64]} />
         <meshBasicMaterial color="#ffaa55" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
