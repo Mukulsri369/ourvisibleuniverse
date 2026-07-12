@@ -149,6 +149,18 @@ export function CameraRig() {
     fovTarget.current = 38;
   }, [visitPlanet]);
 
+  // When user selects a galaxy to visit, orbit at a nice framing distance
+  useEffect(() => {
+    if (!visitGalaxy) return;
+    const r = Math.max(visitGalaxy.size * 2.2, 2000);
+    desired.current.radius = r;
+    const offset = new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
+    const sph = new THREE.Spherical().setFromVector3(offset);
+    desired.current.theta = sph.theta;
+    desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));
+    fovTarget.current = 42;
+  }, [visitGalaxy]);
+
   useFrame((_, dt) => {
     const reg = (window as Window).__planetPositions;
     const selectedStar = useStore.getState().selectedStar;
@@ -158,6 +170,11 @@ export function CameraRig() {
       if (p) {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
+    } else if (visitGalaxy) {
+      const gp = new THREE.Vector3(visitGalaxy.x, visitGalaxy.y, visitGalaxy.z);
+      const dist = target.current.distanceTo(gp);
+      const k = dist > visitGalaxy.size ? dt * 1.4 : dt * 4;
+      target.current.lerp(gp, Math.min(1, k));
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
       // Smoothly sweep the target from wherever we are toward the selected
       // star's system, then keep it anchored there.
