@@ -193,12 +193,39 @@ const R_CORE_LY = 2000;
 // V_flat in scene units (ly per scene-second): chosen so omega(R0) = 2π/T_sun
 const V_FLAT = (2 * Math.PI * R0_LY) / SUN_ORBIT_PERIOD_SEC;
 
+// Deterministic seeded PRNG so the Milky Way shape is generated ONCE and is
+// bit-for-bit identical across remounts, StrictMode double-invocations, hot
+// reloads, and full app reloads. No more "the galaxy looks different every
+// time I open the page".
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Module-level cache: geometries survive component remounts.
+let CACHED_MW: {
+  diskGeo: THREE.BufferGeometry;
+  bulgeGeo: THREE.BufferGeometry;
+  haloGeo: THREE.BufferGeometry;
+  hiiGeo: THREE.BufferGeometry;
+  barGeo: THREE.BufferGeometry;
+} | null = null;
+
 export function MilkyWay() {
   const groupRef = useRef<THREE.Group>(null!);
   const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeRadialTexture("rgba(255,220,160,1)", "rgba(255,140,40,0)"), []);
 
   const { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo } = useMemo(() => {
+    if (CACHED_MW) return CACHED_MW;
+    const rand = mulberry32(0xC0FFEE42);
+
     // ---- Log-spiral disk with 2 major + 2 minor arms ----
     // theta = k * ln(r / r0), pitch angle p ≈ 12.5° → k = 1/tan(p) ≈ 4.51.
     // Real Milky Way: Scutum-Centaurus & Perseus (major), Sagittarius & Norma (minor).
