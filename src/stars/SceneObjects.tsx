@@ -70,10 +70,7 @@ export function Sun() {
       const s = 11 + Math.sin(t * 0.8) * 0.4;
       coronaRef.current.scale.set(s, s, 1);
     }
-    if (flareRef.current) {
-      flareRef.current.quaternion.copy(camera.quaternion);
-      flareRef.current.scale.set(48, 1.8, 1);
-    }
+    // horizontal lens-flare streak removed by request
     if (ringRef.current) {
       ringRef.current.rotation.z = t * 0.3;
       const s = 1 + Math.sin(t * 1.2) * 0.05;
