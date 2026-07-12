@@ -60,7 +60,7 @@ export function Sun() {
     [],
   );
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (meshRef.current) {
       (meshRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
