@@ -429,6 +429,129 @@ export function StarNavigator() {
 }
 
 
+// Galaxy visit panel — mirrors StarNavigator but for extragalactic targets.
+// Clicking a galaxy tells the camera to fly out to that galaxy's world-space
+// position and orbit it at a framing distance proportional to its size.
+export function GalaxyNavigator() {
+  const tourActive = useStore((s) => s.tourActive);
+  const visitGalaxy = useStore((s) => s.visitGalaxy);
+  const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
+  const galaxies = useMemo(
+    () => NAMED_GALAXIES.slice().sort((a, b) => a.distance - b.distance),
+    [],
+  );
+  if (tourActive) return null;
+  return (
+    <>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="pointer-events-auto fixed bottom-44 left-1/2 z-20 hidden -translate-x-1/2 md:block"
+      >
+        <div className="flex max-w-[min(92vw,940px)] items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-md">
+          <span className="whitespace-nowrap px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">Visit Galaxy</span>
+          <button
+            onClick={(e) => { e.stopPropagation(); setVisitGalaxy(null); }}
+            className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
+              !visitGalaxy ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+            }`}
+          >
+            ✦ Milky Way
+          </button>
+          {galaxies.map((g) => {
+            const active = visitGalaxy?.name === g.name;
+            return (
+              <button
+                key={g.name}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setVisitGalaxy({
+                    name: g.name,
+                    x: g.position.x,
+                    y: g.position.y,
+                    z: g.position.z,
+                    size: g.size,
+                    distance: g.distance,
+                    type: g.type,
+                  });
+                }}
+                title={`${g.name} — ${g.distance.toLocaleString()} ly`}
+                className={`flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
+                  active ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <span
+                  className="inline-block h-2 w-2 rounded-full"
+                  style={{ background: g.color, boxShadow: `0 0 6px ${g.color}` }}
+                />
+                {g.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <AnimatePresence>
+        {visitGalaxy && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className="pointer-events-auto fixed right-6 top-1/2 z-20 hidden w-72 -translate-y-1/2 rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.25em] text-white/40">Now Viewing</div>
+                <h3 className="mt-1 text-2xl font-light tracking-wide">{visitGalaxy.name}</h3>
+              </div>
+              <button
+                onClick={() => setVisitGalaxy(null)}
+                aria-label="Exit"
+                className="grid h-8 w-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-y-2 text-[11px] text-white/70">
+              <span className="text-white/40">Type</span><span>{visitGalaxy.type}</span>
+              <span className="text-white/40">Distance</span><span>{formatLy(visitGalaxy.distance)}</span>
+              <span className="text-white/40">Diameter</span><span>{formatLy(visitGalaxy.size)}</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function formatLy(v: number): string {
+  if (v >= 1e9) return `${(v / 1e9).toFixed(2)} Gly`;
+  if (v >= 1e6) return `${(v / 1e6).toFixed(2)} Mly`;
+  if (v >= 1e3) return `${(v / 1e3).toFixed(1)}k ly`;
+  return `${Math.round(v)} ly`;
+}
+
+// Small floating toggle to hide/show all overlay panels for a clean view.
+export function UIHideToggle() {
+  const hidden = useStore((s) => s.uiHidden);
+  const toggle = useStore((s) => s.toggleUiHidden);
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); toggle(); }}
+      title={hidden ? "Show panels" : "Hide panels for clean view"}
+      aria-label={hidden ? "Show panels" : "Hide panels"}
+      className="fixed right-6 top-5 z-40 grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-black/40 text-white/70 backdrop-blur transition hover:border-white/50 hover:text-white"
+    >
+      {hidden ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a19.77 19.77 0 0 1 4.22-5.28"/><path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 7 11 7a19.77 19.77 0 0 1-2.66 3.72"/><path d="M1 1l22 22"/></svg>
+      )}
+    </button>
+  );
+}
+
+
+
+
 
 export function TourStopIndicator() {
   const active = useStore((s) => s.tourActive);
