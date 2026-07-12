@@ -25,6 +25,7 @@ export function CameraRig() {
   const setTourCaption = useStore((s) => s.setTourCaption);
   const stopTour = useStore((s) => s.stopTour);
   const visitPlanet = useStore((s) => s.visitPlanet);
+  const visitGalaxy = useStore((s) => s.visitGalaxy);
 
 
   const minR = 2;
