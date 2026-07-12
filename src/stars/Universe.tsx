@@ -96,8 +96,8 @@ function makeSpiralGalaxyTexture(color = "#dfe6ff"): THREE.Texture {
   ctx.globalCompositeOperation = "lighter";
   const arms = 2;
   for (let a = 0; a < arms; a++) {
-    for (let i = 0; i < 900; i++) {
-      const t = i / 900;
+    for (let i = 0; i < 2600; i++) {
+      const t = i / 2600;
       const r = 8 + t * (size * 0.48);
       const theta = (a * Math.PI) + t * 6.5 + (Math.random() - 0.5) * 0.35;
       const x = cx + Math.cos(theta) * r;
@@ -136,7 +136,7 @@ function makeIrregularTexture(): THREE.Texture {
   c.width = c.height = size;
   const ctx = c.getContext("2d")!;
   ctx.globalCompositeOperation = "lighter";
-  for (let i = 0; i < 400; i++) {
+  for (let i = 0; i < 1400; i++) {
     const r = Math.random() * size * 0.4;
     const theta = Math.random() * Math.PI * 2;
     const x = size / 2 + Math.cos(theta) * r;
