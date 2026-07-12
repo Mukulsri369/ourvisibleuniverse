@@ -209,11 +209,12 @@ export const NAMED_GALAXIES = NEARBY_GALAXIES.map((g) => ({
 function useCosmicWeb() {
   return useMemo(() => {
     const shells = [
-      { rMin: 3e6, rMax: 3e7, n: 6000, warm: 0.5, size: 60 }, // Virgo Supercluster region
-      { rMin: 3e7, rMax: 3e8, n: 12000, warm: 0.4, size: 90 }, // Laniakea + neighbors
-      { rMin: 3e8, rMax: 3e9, n: 18000, warm: 0.3, size: 140 }, // large-scale filaments
-      { rMin: 3e9, rMax: 4.5e10, n: 22000, warm: 0.2, size: 220 }, // out to observable universe
+      { rMin: 3e6, rMax: 3e7, n: 14000, warm: 0.5, size: 60 }, // Virgo Supercluster region
+      { rMin: 3e7, rMax: 3e8, n: 26000, warm: 0.4, size: 90 }, // Laniakea + neighbors
+      { rMin: 3e8, rMax: 3e9, n: 38000, warm: 0.3, size: 140 }, // large-scale filaments
+      { rMin: 3e9, rMax: 4.5e10, n: 46000, warm: 0.2, size: 220 }, // out to observable universe
     ];
+
     // Filament seeds — clumps that galaxies gravitate toward
     const seeds: THREE.Vector3[] = [];
     for (let i = 0; i < 220; i++) {
