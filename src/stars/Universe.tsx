@@ -179,23 +179,79 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
       ? ellipTex
       : irrTex;
   const meshRef = useRef<THREE.Mesh>(null!);
+  const [hovered, setHovered] = useState(false);
+  const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const rot = useMemo(() => {
     const incl = ((g.inclination ?? 0) * Math.PI) / 180;
     const pa = ((g.posAngle ?? 0) * Math.PI) / 180;
     return new THREE.Euler(incl, 0, pa);
   }, [g]);
+  // Pick radius scales with distance so far galaxies remain hoverable.
+  const pickRadius = Math.max(g.size * 0.6, g.distance * 0.02);
+  const onOver = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    setHovered(true);
+    document.body.style.cursor = "pointer";
+  };
+  const onOut = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    setHovered(false);
+    document.body.style.cursor = "";
+  };
+  const onClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    setVisitGalaxy({
+      name: g.name,
+      x: pos.x, y: pos.y, z: pos.z,
+      size: g.size, distance: g.distance, type: g.type,
+    });
+  };
   return (
-    <mesh ref={meshRef} position={pos} rotation={rot} frustumCulled={false}>
-      <planeGeometry args={[g.size, g.size]} />
-      <meshBasicMaterial
-        map={tex}
-        color={g.color}
-        transparent
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
+    <group position={pos}>
+      <mesh ref={meshRef} rotation={rot} frustumCulled={false}>
+        <planeGeometry args={[g.size, g.size]} />
+        <meshBasicMaterial
+          map={tex}
+          color={g.color}
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* invisible hover/click target */}
+      <mesh onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
+        <sphereGeometry args={[pickRadius, 12, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <Billboard>
+        <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
+          <div
+            style={{
+              opacity: hovered ? 1 : 0,
+              transform: "translate(10px, -10px)",
+              color: "#ffffff",
+              fontSize: 13,
+              fontFamily: "Inter, system-ui, sans-serif",
+              letterSpacing: 0.5,
+              whiteSpace: "nowrap",
+              padding: "3px 8px",
+              borderLeft: "1px solid rgba(255,255,255,0.9)",
+              background: "rgba(0,0,0,0.6)",
+              textShadow: "0 0 10px rgba(160,200,255,0.6)",
+              transition: "opacity 150ms",
+            }}
+          >
+            {g.name}
+            <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>
+              {g.type} · {g.distance >= 1_000_000
+                ? (g.distance / 1_000_000).toFixed(2) + " Mly"
+                : (g.distance / 1000).toFixed(0) + " kly"}
+            </div>
+          </div>
+        </Html>
+      </Billboard>
+    </group>
   );
 }
 
