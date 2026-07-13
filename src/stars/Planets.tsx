@@ -350,8 +350,12 @@ function MinorBodies() {
 // in the local XZ plane, so we drift mostly along +Y with a small +Z
 // tilt — this reproduces the vortex/helix motion seen in real
 // visualizations (planets spiraling around the Sun's forward path).
-export const SUN_DRIFT_SPEED = 0.55;
-export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, 0.87, 0.5).normalize();
+// Slow drift along the Sun's galactic orbital tangent (+Z in scene coords,
+// since Sgr A* is on -X). A small +Y tilt (~25°) matches the tilt of the
+// ecliptic to the galactic plane so the planetary trails still helix, but
+// the Sun now moves with — not away from — the surrounding stars.
+export const SUN_DRIFT_SPEED = 0.12;
+export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, 0.42, 0.91).normalize();
 
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
