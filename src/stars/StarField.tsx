@@ -59,15 +59,17 @@ export function StarField() {
     // Background stars distributed as a real galactic thin-disk slice
     // around the Sun: exponential radial profile + sech-like vertical
     // scale-height (~300 ly). 1 scene unit = 1 light-year.
-    const SCALE_H = 300;
-    const R_MAX = 6000;     // local neighborhood we render in detail
+    const SCALE_H = 700;
+    const R_MAX = 14000;     // local neighborhood we render in detail
     for (let j = 0; j < BACKGROUND_COUNT; j++) {
       const i = NAMED_STARS.length + j;
-      // exponential-ish radial distribution in the galactic plane
-      const r = -Math.log(1 - Math.random() * 0.999) * 900;
+      // exponential-ish radial distribution in the galactic plane —
+      // widened so background stars sit noticeably farther from the Sun
+      // and the Solar System has clear breathing room around it.
+      const r = -Math.log(1 - Math.random() * 0.999) * 2400 + 400;
       const rClamped = Math.min(r, R_MAX);
       const theta = Math.random() * Math.PI * 2;
-      // vertical: laplace-like draw centered on plane, scale-height 300 ly
+      // vertical: laplace-like draw centered on plane, scale-height 700 ly
       const u = Math.random() - 0.5;
       const z = -Math.sign(u) * Math.log(1 - 2 * Math.abs(u) * 0.999) * SCALE_H;
       positions[i * 3] = Math.cos(theta) * rClamped;
