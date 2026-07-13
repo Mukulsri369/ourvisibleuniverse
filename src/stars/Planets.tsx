@@ -364,7 +364,9 @@ function MinorBodies() {
 // ecliptic to the galactic plane so the planetary trails still helix, but
 // the Sun now moves with — not away from — the surrounding stars.
 export const SUN_DRIFT_SPEED = 0.12;
-export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, 0.42, 0.91).normalize();
+// Flipped 180° so the Solar System travels along the galactic rotation
+// direction the surrounding stars are moving in (was previously reversed).
+export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, -0.42, -0.91).normalize();
 
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
