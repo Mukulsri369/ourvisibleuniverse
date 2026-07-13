@@ -1,6 +1,8 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { Billboard, Html } from "@react-three/drei";
+import { useStore } from "./store";
 
 // ---------------------------------------------------------------
 // UNIVERSE — everything beyond the Milky Way.
