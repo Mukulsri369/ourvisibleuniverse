@@ -283,8 +283,17 @@ export function Planets() {
     () => PLANETS.map((p) => makeOrbitLine(p, "#6a8cff", 0.10)),
     [],
   );
+  // Tilt the entire planetary + belt system so its orbital-plane normal
+  // aligns with the Sun's galactic drift direction. The Sun then travels
+  // perpendicular to the ecliptic (edge-on through the galaxy), producing
+  // the classic "vortex" helix of real Solar System motion.
+  const quat = useMemo(() => {
+    const q = new THREE.Quaternion();
+    q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), SUN_DRIFT_DIR.clone().normalize());
+    return q;
+  }, []);
   return (
-    <group>
+    <group quaternion={quat}>
       {orbits.map((o, i) => (
         <primitive key={`orbit-${i}`} object={o} />
       ))}
