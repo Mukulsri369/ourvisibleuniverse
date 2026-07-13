@@ -217,7 +217,7 @@ export function MilkyWay() {
 
   const { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo } = useMemo(() => {
     if (CACHED_MW) return CACHED_MW;
-    const rand = mulberry32(0xC0FFEE42);
+    const rand = mulberry32(0xC0FFEE43);
 
     // ---- Log-spiral disk with 2 major + 2 minor arms ----
     // theta = k * ln(r / r0), pitch angle p ≈ 12.5° → k = 1/tan(p) ≈ 4.51.
@@ -225,19 +225,25 @@ export function MilkyWay() {
     const PITCH = (12.5 * Math.PI) / 180;
     const K = 1 / Math.tan(PITCH);
     const ARM_OFFSETS = [0, Math.PI, Math.PI * 0.5, Math.PI * 1.5];
-    const ARM_STRENGTH = [1.0, 1.0, 0.55, 0.55];
-    const ARM_WIDTH = [700, 700, 900, 900]; // ly, gaussian σ across arm ridge
+    const ARM_STRENGTH = [1.0, 1.0, 0.7, 0.7];
+    // Wider arms, especially in the outer disk, so branches look filled.
+    const ARM_WIDTH = [1400, 1400, 1700, 1700]; // ly, gaussian σ across arm ridge
 
-    const diskCount = 260000;
+    const diskCount = 420000;
     const dPos = new Float32Array(diskCount * 3);
     const dCol = new Float32Array(diskCount * 3);
     const dSize = new Float32Array(diskCount);
 
-    // 82% concentrated on arm ridges, 18% smooth inter-arm disk
+    // 78% concentrated on arm ridges, 22% smooth inter-arm disk
     for (let i = 0; i < diskCount; i++) {
-      const onArm = rand() < 0.82;
-      // exponential radial profile — real disk scale length ≈ 8500 ly
-      const r = -Math.log(1 - rand() * 0.999) * 5200 + 1500;
+      const onArm = rand() < 0.78;
+      // Exponential radial profile with real disk scale length ≈ 8500 ly,
+      // biased outward so the outer branches are noticeably fuller.
+      const u = rand();
+      // Mix two exponentials: dominant long scale + a heavier outer tail.
+      const r = (u < 0.7)
+        ? -Math.log(1 - rand() * 0.999) * 8500 + 1500
+        : -Math.log(1 - rand() * 0.999) * 14000 + 6000;
       if (r > DISK_RADIUS) { i--; continue; }
 
       // Arm selection weighted by strength
@@ -254,10 +260,11 @@ export function MilkyWay() {
       }
 
       const ridgeTheta = ARM_OFFSETS[armIdx] + K * Math.log(Math.max(r, 800) / 800);
-      // Gaussian scatter across the arm ridge (in radians, scaled by 1/r)
-      const sigmaTheta = ARM_WIDTH[armIdx] / Math.max(r, 800);
+      // Arms flare with radius — outer arms are broader than inner ones.
+      const flare = 1 + Math.min(2.2, r / 18000);
+      const sigmaTheta = (ARM_WIDTH[armIdx] * flare) / Math.max(r, 800);
       const noise = onArm
-        ? (rand() + rand() + rand() - 1.5) * sigmaTheta * 0.8
+        ? (rand() + rand() + rand() - 1.5) * sigmaTheta * 0.9
         : (rand() - 0.5) * Math.PI * 0.9; // broad inter-arm scatter
       const theta = ridgeTheta + noise;
 
@@ -275,11 +282,10 @@ export function MilkyWay() {
       // yellow-white older stars in inter-arm, warmer toward bulge.
       const ridgeCloseness = Math.exp(-(noise * noise) / (2 * sigmaTheta * sigmaTheta));
       const rNorm = Math.min(1, r / DISK_RADIUS);
-      const youngProb = onArm ? 0.35 * ridgeCloseness * (1 - rNorm * 0.4) : 0.05;
+      const youngProb = onArm ? 0.38 * ridgeCloseness * (1 - rNorm * 0.35) : 0.06;
       const isYoung = rand() < youngProb;
       const isRedGiant = !isYoung && rand() < 0.06;
       if (isYoung) {
-        // hot blue-white
         dCol[i * 3] = 0.75; dCol[i * 3 + 1] = 0.85; dCol[i * 3 + 2] = 1.0;
         dSize[i] = 18 + rand() * 22;
       } else if (isRedGiant) {

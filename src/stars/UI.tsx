@@ -127,22 +127,60 @@ function SearchIcon() {
   );
 }
 
+type SearchHit =
+  | { kind: "star"; name: string; sub: string; star: NamedStar }
+  | { kind: "planet"; name: string; sub: string }
+  | { kind: "galaxy"; name: string; sub: string; galaxy: typeof NAMED_GALAXIES[number] };
+
 function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState("");
   const flyTo = useStore((s) => s.flyToStar);
+  const setVisitPlanet = useStore((s) => s.setVisitPlanet);
+  const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (open) inputRef.current?.focus(); else setQ(""); }, [open]);
-  const matches = useMemo(() => {
-    if (!q) return [] as NamedStar[];
+  const matches = useMemo<SearchHit[]>(() => {
+    if (!q) return [];
     const lower = q.toLowerCase();
-    return NAMED_STARS.filter((s) => s.name.toLowerCase().includes(lower)).slice(0, 6);
+    const stars: SearchHit[] = NAMED_STARS
+      .filter((s) => s.name.toLowerCase().includes(lower))
+      .map((s) => ({ kind: "star", name: s.name, sub: `Star · ${s.distance.toFixed(1)} ly`, star: s }));
+    const planets: SearchHit[] = PLANETS
+      .filter((p) => p.name.toLowerCase().includes(lower))
+      .map((p) => ({ kind: "planet", name: p.name, sub: `Planet · ${(p.a / 3.2).toFixed(2)} AU` }));
+    const galaxies: SearchHit[] = NAMED_GALAXIES
+      .filter((g) => g.name.toLowerCase().includes(lower))
+      .map((g) => ({
+        kind: "galaxy",
+        name: g.name,
+        sub: `Galaxy · ${g.distance >= 1_000_000 ? (g.distance / 1_000_000).toFixed(2) + " Mly" : (g.distance / 1000).toFixed(0) + " kly"}`,
+        galaxy: g,
+      }));
+    return [...planets, ...stars, ...galaxies].slice(0, 8);
   }, [q]);
+  const activate = (m: SearchHit) => {
+    if (m.kind === "star") flyTo(m.star);
+    else if (m.kind === "planet") setVisitPlanet(m.name);
+    else {
+      const g = m.galaxy;
+      setVisitGalaxy({
+        name: g.name,
+        x: g.position.x,
+        y: g.position.y,
+        z: g.position.z,
+        size: g.size,
+        distance: g.distance,
+        type: g.type,
+      });
+    }
+    onClose();
+  };
   return (
     <AnimatePresence>
       {open && (
         <motion.div
           initial={{ width: 0, opacity: 0 }}
-          animate={{ width: 240, opacity: 1 }}
+          animate={{ width: 260, opacity: 1 }}
           exit={{ width: 0, opacity: 0 }}
           className="relative ml-2 overflow-visible"
         >
@@ -150,19 +188,19 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search stars..."
+            placeholder="Search stars, planets, galaxies..."
             className="h-9 w-full rounded-full border border-white/20 bg-white/5 px-4 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/50"
           />
           {matches.length > 0 && (
             <ul className="absolute left-0 right-0 top-11 overflow-hidden rounded-lg border border-white/10 bg-black/70 backdrop-blur">
               {matches.map((m) => (
-                <li key={m.name}>
+                <li key={`${m.kind}:${m.name}`}>
                   <button
-                    className="block w-full px-4 py-2 text-left text-sm text-white/80 hover:bg-white/10"
-                    onClick={() => { flyTo(m); onClose(); }}
+                    className="flex w-full items-center justify-between px-4 py-2 text-left text-sm text-white/80 hover:bg-white/10"
+                    onClick={() => activate(m)}
                   >
-                    {m.name}
-                    <span className="ml-2 text-xs text-white/40">{m.distance.toFixed(1)} ly</span>
+                    <span>{m.name}</span>
+                    <span className="ml-2 text-xs text-white/40">{m.sub}</span>
                   </button>
                 </li>
               ))}
