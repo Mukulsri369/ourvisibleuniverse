@@ -204,7 +204,7 @@ function Planet({ def }: { def: PlanetDef }) {
   return (
     <group ref={groupRef}>
       {/* halo sprite — keeps the planet visible as a colored dot from far away */}
-      <sprite scale={[Math.max(def.size * 22, 0.6), Math.max(def.size * 22, 0.6), 1]}>
+      <sprite scale={[Math.max(def.size * 22, 0.05), Math.max(def.size * 22, 0.05), 1]}>
         <spriteMaterial map={haloTex} color={def.color} transparent opacity={0.7} depthWrite={false} blending={THREE.AdditiveBlending} />
       </sprite>
       {/* tilt + body */}
@@ -325,19 +325,19 @@ function MinorBodies() {
     for (let i = 0; i < ASTEROIDS; i++) {
       const r = (2.2 + Math.random() * 1.1) * AU;
       const th = Math.random() * Math.PI * 2;
-      const z = (Math.random() - 0.5) * 0.18;
+      const z = (Math.random() - 0.5) * 0.18 * AU;
       pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
       col[i*3] = cAst.r; col[i*3+1] = cAst.g; col[i*3+2] = cAst.b;
-      sizes[i] = 1.4 + Math.random()*1.6;
+      sizes[i] = (1.4 + Math.random()*1.6) * P;
     }
     for (let j = 0; j < KUIPER; j++) {
       const i = ASTEROIDS + j;
       const r = (30 + Math.random() * 20) * AU;
       const th = Math.random() * Math.PI * 2;
-      const z = (Math.random() - 0.5) * 2.0;
+      const z = (Math.random() - 0.5) * 2.0 * AU;
       pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
       col[i*3] = cKui.r; col[i*3+1] = cKui.g; col[i*3+2] = cKui.b;
-      sizes[i] = 1.2 + Math.random()*1.4;
+      sizes[i] = (1.2 + Math.random()*1.4) * P;
     }
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
@@ -347,7 +347,7 @@ function MinorBodies() {
   }, []);
   return (
     <points geometry={geom} frustumCulled={false}>
-      <pointsMaterial vertexColors size={0.18} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
+      <pointsMaterial vertexColors size={0.18 * P} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
     </points>
   );
 }
