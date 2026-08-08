@@ -214,7 +214,7 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
 
 export function ZoomSlider() {
   const distance = useStore((s) => s.cameraDistance);
-  const minR = 2, maxR = 5000;
+  const minR = 0.005, maxR = 5000;
   const t = Math.min(1, Math.max(0, (Math.log(distance) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const n = parseFloat(e.target.value);
