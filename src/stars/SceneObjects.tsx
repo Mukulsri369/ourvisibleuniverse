@@ -155,7 +155,7 @@ export function OortCloud() {
   });
   return (
     <points ref={ref} geometry={geometry}>
-      <pointsMaterial color="#88aaff" size={0.01} sizeAttenuation transparent opacity={0} depthWrite={false} />
+      <pointsMaterial color="#88aaff" size={0.05} sizeAttenuation transparent opacity={0} depthWrite={false} />
     </points>
   );
 }
