@@ -41,7 +41,7 @@ const deg = (d: number) => (d * Math.PI) / 180;
 // smaller than the distance to nearby stars (Proxima Centauri ~4.2 ly).
 const AU = 0.05;
 // Planets are still enlarged relative to their orbits so they stay visible when visited.
-const P = 0.01;
+const P = 0.005;
 
 export const PLANETS: PlanetDef[] = [
   {
