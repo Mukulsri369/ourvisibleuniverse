@@ -4,24 +4,26 @@ import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
 
 
-// Real orbital elements (relative). We scale semi-major axis (a) for visibility:
-// 1 AU ≈ 3.2 scene units. Sizes are exaggerated for visibility (~1500x real ratio).
+// Real orbital elements (relative). We scale semi-major axis (a) so the
+// entire Solar System fits realistically in the star field:
+// 1 AU ≈ 0.05 light-years. Sizes are exaggerated for visibility so planets
+// remain visitable and clearly visible when zoomed in.
 // e = eccentricity (real), i = inclination to ecliptic (rad), omega = longitude of perihelion (rad).
 export type MoonDef = {
-  name: string;
-  distance: number;   // from planet center, scene units
+  name: string;        // from planet center, scene units
+  distance: number;    // from planet center, scene units
   size: number;
   color: string;
-  period: number;     // scene seconds per orbit
+  period: number;      // scene seconds per orbit
   inclination?: number;
 };
 
 export type PlanetDef = {
   name: string;
-  a: number;          // semi-major axis (scene units)
-  e: number;          // eccentricity
-  i: number;          // orbital inclination (rad)
-  omega: number;      // argument of perihelion (rad)
+  a: number;           // semi-major axis (scene units)
+  e: number;           // eccentricity
+  i: number;           // orbital inclination (rad)
+  omega: number;       // argument of perihelion (rad)
   size: number;
   color: string;
   emissive?: string;
@@ -35,7 +37,11 @@ export type PlanetDef = {
 };
 
 const deg = (d: number) => (d * Math.PI) / 180;
-const AU = 15;
+// 1 AU = 0.05 ly places Neptune at ~1.5 ly, making the Solar System clearly
+// smaller than the distance to nearby stars (Proxima Centauri ~4.2 ly).
+const AU = 0.05;
+// Planets are still enlarged relative to their orbits so they stay visible when visited.
+const P = 0.01;
 
 export const PLANETS: PlanetDef[] = [
   {
