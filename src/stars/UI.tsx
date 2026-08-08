@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
-import { PLANETS } from "./Planets";
+import { AU, PLANETS } from "./Planets";
 import { NAMED_GALAXIES } from "./Universe";
 
 
@@ -147,7 +147,7 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
       .map((s) => ({ kind: "star", name: s.name, sub: `Star · ${s.distance.toFixed(1)} ly`, star: s }));
     const planets: SearchHit[] = PLANETS
       .filter((p) => p.name.toLowerCase().includes(lower))
-      .map((p) => ({ kind: "planet", name: p.name, sub: `Planet · ${(p.a / 3.2).toFixed(2)} AU` }));
+      .map((p) => ({ kind: "planet", name: p.name, sub: `Planet · ${(p.a / AU).toFixed(2)} AU` }));
     const galaxies: SearchHit[] = NAMED_GALAXIES
       .filter((g) => g.name.toLowerCase().includes(lower))
       .map((g) => ({
@@ -214,7 +214,7 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
 
 export function ZoomSlider() {
   const distance = useStore((s) => s.cameraDistance);
-  const minR = 2, maxR = 5000;
+  const minR = 0.005, maxR = 5000;
   const t = Math.min(1, Math.max(0, (Math.log(distance) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const n = parseFloat(e.target.value);
@@ -395,7 +395,7 @@ export function PlanetNavigator() {
             </div>
             <p className="mt-3 text-xs leading-relaxed text-white/70">{current.description}</p>
             <div className="mt-4 grid grid-cols-2 gap-y-2 text-[11px] text-white/70">
-              <span className="text-white/40">Distance</span><span>{(current.a / 3.2).toFixed(2)} AU</span>
+              <span className="text-white/40">Distance</span><span>{(current.a / AU).toFixed(2)} AU</span>
               <span className="text-white/40">Eccentricity</span><span>{current.e.toFixed(4)}</span>
               <span className="text-white/40">Inclination</span><span>{(current.i * 180 / Math.PI).toFixed(2)}°</span>
               <span className="text-white/40">Axial tilt</span><span>{(current.tilt * 180 / Math.PI).toFixed(1)}°</span>

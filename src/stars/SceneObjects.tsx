@@ -65,10 +65,10 @@ export function Sun() {
       meshRef.current.rotation.y = t * 0.05;
     }
     if (coronaRef.current) {
-      const s = 11 + Math.sin(t * 0.8) * 0.4;
+      // corona stays a visible fraction of the now much smaller Solar System
+      const s = 0.5 + Math.sin(t * 0.8) * 0.02;
       coronaRef.current.scale.set(s, s, 1);
     }
-    // horizontal lens-flare streak removed by request
     if (ringRef.current) {
       ringRef.current.rotation.z = t * 0.3;
       const s = 1 + Math.sin(t * 1.2) * 0.05;
@@ -79,16 +79,15 @@ export function Sun() {
   return (
     <group>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[2.8, 64, 64]} />
+        <sphereGeometry args={[0.015, 64, 64]} />
         <shaderMaterial args={[shader]} />
       </mesh>
-      <pointLight color="#ffb060" intensity={4} distance={800} decay={1.2} />
+      <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />
       <sprite ref={coronaRef}>
         <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent />
       </sprite>
-      {/* flare sprite removed */}
       <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[3.5, 0.06, 8, 64]} />
+        <torusGeometry args={[0.05, 0.0009, 8, 64]} />
         <meshBasicMaterial color="#ffaa55" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
@@ -125,7 +124,7 @@ function makeFlareTexture(): THREE.Texture {
 export function OrientationDisc() {
   return (
     <mesh rotation={[Math.PI / 2, 0, 0]}>
-      <ringGeometry args={[3, 50, 64]} />
+      <ringGeometry args={[0.2, 2.5, 64]} />
       <meshBasicMaterial color="#3344aa" transparent opacity={0.05} side={THREE.DoubleSide} />
     </mesh>
   );
@@ -156,7 +155,7 @@ export function OortCloud() {
   });
   return (
     <points ref={ref} geometry={geometry}>
-      <pointsMaterial color="#88aaff" size={0.01} sizeAttenuation transparent opacity={0} depthWrite={false} />
+      <pointsMaterial color="#88aaff" size={0.05} sizeAttenuation transparent opacity={0} depthWrite={false} />
     </points>
   );
 }
