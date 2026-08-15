@@ -66,7 +66,7 @@ export function Sun() {
     }
     if (coronaRef.current) {
       // corona stays a visible fraction of the now much smaller Solar System
-      const s = 0.5 + Math.sin(t * 0.8) * 0.02;
+      const s = 0.16 + Math.sin(t * 0.8) * 0.006;
       coronaRef.current.scale.set(s, s, 1);
     }
     if (ringRef.current) {
@@ -84,11 +84,11 @@ export function Sun() {
       </mesh>
       <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />
       <sprite ref={coronaRef}>
-        <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent />
+        <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent opacity={0.35} />
       </sprite>
       <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.05, 0.0009, 8, 64]} />
-        <meshBasicMaterial color="#ffaa55" transparent opacity={0.5} blending={THREE.AdditiveBlending} />
+        <meshBasicMaterial color="#ffaa55" transparent opacity={0.22} blending={THREE.AdditiveBlending} />
       </mesh>
     </group>
   );
@@ -228,7 +228,7 @@ export function MilkyWay() {
     // Wider arms, especially in the outer disk, so branches look filled.
     const ARM_WIDTH = [1400, 1400, 1700, 1700]; // ly, gaussian σ across arm ridge
 
-    const diskCount = 420000;
+    const diskCount = 620000;
     const dPos = new Float32Array(diskCount * 3);
     const dCol = new Float32Array(diskCount * 3);
     const dSize = new Float32Array(diskCount);
@@ -305,7 +305,7 @@ export function MilkyWay() {
     diskGeo.setAttribute("aSize", new THREE.BufferAttribute(dSize, 1));
 
     // ---- Bulge (spheroidal, older population, warm colors) ----
-    const bulgeCount = 55000;
+    const bulgeCount = 80000;
     const bPos = new Float32Array(bulgeCount * 3);
     const bCol = new Float32Array(bulgeCount * 3);
     const bSize = new Float32Array(bulgeCount);
@@ -395,7 +395,7 @@ export function MilkyWay() {
     hiiGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize2, 1));
 
     // ---- Halo (spheroidal, sparse, old population II) ----
-    const haloCount = 12000;
+    const haloCount = 18000;
     const hPos = new Float32Array(haloCount * 3);
     const hCol = new Float32Array(haloCount * 3);
     const hSize = new Float32Array(haloCount);
