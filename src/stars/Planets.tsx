@@ -242,7 +242,7 @@ function Planet({ def }: { def: PlanetDef }) {
       </group>
       {/* Moons orbit the planet (not tilt-locked, just stable around it) */}
       {def.moons?.map((m) => (
-        <Moon key={m.name} moon={m} />
+        <Moon key={m.name} moon={m} parent={def.name} />
       ))}
     </group>
   );
