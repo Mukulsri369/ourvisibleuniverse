@@ -492,13 +492,13 @@ function useTrail(body: TrailBody) {
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     if (!initialized.current) {
-      for (let i = 0; i < TRAIL_LEN; i++) {
+      for (let i = 0; i < len; i++) {
         arr[i * 3] = p.x; arr[i * 3 + 1] = p.y; arr[i * 3 + 2] = p.z;
       }
       initialized.current = true;
     } else {
       // shift all points one slot toward the tail
-      arr.copyWithin(3, 0, (TRAIL_LEN - 1) * 3);
+      arr.copyWithin(3, 0, (len - 1) * 3);
       arr[0] = p.x; arr[1] = p.y; arr[2] = p.z;
     }
     attr.needsUpdate = true;
