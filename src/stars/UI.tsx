@@ -378,7 +378,7 @@ export function PlanetNavigator() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="pointer-events-auto fixed left-6 top-1/2 z-20 hidden w-72 -translate-y-1/2 rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
+            className="pointer-events-auto fixed left-[17.5rem] top-1/2 z-20 hidden w-72 -translate-y-1/2 rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -423,7 +423,7 @@ export function StarNavigator() {
   const setSelected = useStore((s) => s.setSelected);
   // Stop at Sun click clears selection (return to Solar System)
   const stars = useMemo(
-    () => NAMED_STARS.filter((s) => s.name !== "Sun").slice(0, 40),
+    () => NAMED_STARS.filter((s) => s.name !== "Sun").slice().sort((a, b) => a.distance - b.distance),
     [],
   );
   if (tourActive) return null;
