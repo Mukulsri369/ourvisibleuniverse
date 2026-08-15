@@ -438,17 +438,21 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 // ---------------------------------------------------------------
 
 const TRAIL_LEN = 2400;
+// Moons move fast around their planet, so their trails are much shorter —
+// just enough to sketch the little helix they trace around the planet's path.
+const MOON_TRAIL_LEN = 320;
 
-type TrailBody = { name: string; color: THREE.Color };
+type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: number };
 
 function useTrail(body: TrailBody) {
   const lineRef = useRef<THREE.Line>(null!);
   const initialized = useRef(false);
+  const len = body.length ?? TRAIL_LEN;
 
   const { geometry, material } = useMemo(() => {
-    const positions = new Float32Array(TRAIL_LEN * 3);
-    const ages = new Float32Array(TRAIL_LEN);
-    for (let i = 0; i < TRAIL_LEN; i++) ages[i] = i / (TRAIL_LEN - 1);
+    const positions = new Float32Array(len * 3);
+    const ages = new Float32Array(len);
+    for (let i = 0; i < len; i++) ages[i] = i / (len - 1);
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geo.setAttribute("aAge", new THREE.BufferAttribute(ages, 1));
