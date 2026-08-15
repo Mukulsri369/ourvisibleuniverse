@@ -522,6 +522,16 @@ export function MotionTrails() {
   const bodies = useMemo<TrailBody[]>(() => [
     { name: "Sun", color: new THREE.Color("#ffcf80") },
     ...PLANETS.map((p) => ({ name: p.name, color: new THREE.Color(p.color) })),
+    // Moons: short, dimmer trails so their fast loops around each planet
+    // read as fine helices without cluttering the planetary paths.
+    ...PLANETS.flatMap((p) =>
+      (p.moons ?? []).map((m) => ({
+        name: moonKey(p.name, m.name),
+        color: new THREE.Color(m.color),
+        length: MOON_TRAIL_LEN,
+        opacity: 0.55,
+      })),
+    ),
   ], []);
   return (
     <group>
