@@ -482,7 +482,8 @@ function useTrail(body: TrailBody) {
       blending: THREE.AdditiveBlending,
     });
     return { geometry: geo, material: mat };
-  }, [body.color]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [body.color, len, body.opacity]);
 
   useFrame(() => {
     const reg = (window as Window).__planetPositions;
