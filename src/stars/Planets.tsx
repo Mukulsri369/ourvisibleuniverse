@@ -457,7 +457,7 @@ function useTrail(body: TrailBody) {
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geo.setAttribute("aAge", new THREE.BufferAttribute(ages, 1));
     const mat = new THREE.ShaderMaterial({
-      uniforms: { uColor: { value: body.color } },
+      uniforms: { uColor: { value: body.color }, uOpacity: { value: body.opacity ?? 1 } },
       vertexShader: /* glsl */ `
         attribute float aAge;
         varying float vAge;
