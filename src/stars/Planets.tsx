@@ -468,9 +468,10 @@ function useTrail(body: TrailBody) {
       `,
       fragmentShader: /* glsl */ `
         uniform vec3 uColor;
+        uniform float uOpacity;
         varying float vAge;
         void main(){
-          float a = pow(1.0 - vAge, 1.6);
+          float a = pow(1.0 - vAge, 1.6) * uOpacity;
           if (a < 0.015) discard;
           gl_FragColor = vec4(uColor, a);
         }
