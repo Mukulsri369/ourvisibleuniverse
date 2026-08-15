@@ -312,30 +312,41 @@ export function Planets() {
 }
 
 // Asteroid belt (2.2–3.3 AU) + Kuiper belt (30–50 AU) as particle rings.
+// Each particle orbits the Sun on its own Keplerian period (T ∝ r^1.5),
+// so the belts shear differentially like the real thing.
+const BELT_K = 96 / Math.pow(5.2, 1.5); // matched to Jupiter's scene period
+
 function MinorBodies() {
-  const geom = useMemo(() => {
+  const { geom, radii, thetas, heights, omegas } = useMemo(() => {
     const ASTEROIDS = 1400;
     const KUIPER = 1800;
     const total = ASTEROIDS + KUIPER;
     const pos = new Float32Array(total * 3);
     const col = new Float32Array(total * 3);
     const sizes = new Float32Array(total);
+    const radii = new Float32Array(total);
+    const thetas = new Float32Array(total);
+    const heights = new Float32Array(total);
+    const omegas = new Float32Array(total);
     const cAst = new THREE.Color("#a89274");
     const cKui = new THREE.Color("#7da6c8");
+    const setOrbit = (i: number, rAU: number, z: number) => {
+      radii[i] = rAU * AU;
+      thetas[i] = Math.random() * Math.PI * 2;
+      heights[i] = z;
+      omegas[i] = (Math.PI * 2) / (BELT_K * Math.pow(rAU, 1.5));
+      pos[i * 3] = Math.cos(thetas[i]) * radii[i];
+      pos[i * 3 + 1] = z;
+      pos[i * 3 + 2] = Math.sin(thetas[i]) * radii[i];
+    };
     for (let i = 0; i < ASTEROIDS; i++) {
-      const r = (2.2 + Math.random() * 1.1) * AU;
-      const th = Math.random() * Math.PI * 2;
-      const z = (Math.random() - 0.5) * 0.18 * AU;
-      pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
+      setOrbit(i, 2.2 + Math.random() * 1.1, (Math.random() - 0.5) * 0.18 * AU);
       col[i*3] = cAst.r; col[i*3+1] = cAst.g; col[i*3+2] = cAst.b;
       sizes[i] = (1.4 + Math.random()*1.6) * P;
     }
     for (let j = 0; j < KUIPER; j++) {
       const i = ASTEROIDS + j;
-      const r = (30 + Math.random() * 20) * AU;
-      const th = Math.random() * Math.PI * 2;
-      const z = (Math.random() - 0.5) * 2.0 * AU;
-      pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
+      setOrbit(i, 30 + Math.random() * 20, (Math.random() - 0.5) * 2.0 * AU);
       col[i*3] = cKui.r; col[i*3+1] = cKui.g; col[i*3+2] = cKui.b;
       sizes[i] = (1.2 + Math.random()*1.4) * P;
     }
@@ -343,14 +354,29 @@ function MinorBodies() {
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     g.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-    return g;
+    return { geom: g, radii, thetas, heights, omegas };
   }, []);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const attr = geom.getAttribute("position") as THREE.BufferAttribute;
+    const arr = attr.array as Float32Array;
+    for (let i = 0; i < radii.length; i++) {
+      const a = thetas[i] + omegas[i] * t;
+      arr[i * 3] = Math.cos(a) * radii[i];
+      arr[i * 3 + 1] = heights[i];
+      arr[i * 3 + 2] = Math.sin(a) * radii[i];
+    }
+    attr.needsUpdate = true;
+  });
+
   return (
     <points geometry={geom} frustumCulled={false}>
       <pointsMaterial vertexColors size={0.18 * P} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
     </points>
   );
 }
+
 
 // ---------------------------------------------------------------
 // SolarSystem — wraps Sun + Planets and drifts them along the
