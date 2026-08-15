@@ -378,7 +378,7 @@ export function PlanetNavigator() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="pointer-events-auto fixed left-6 top-1/2 z-20 hidden w-72 -translate-y-1/2 rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
+            className="pointer-events-auto fixed left-[17.5rem] top-1/2 z-20 hidden w-72 -translate-y-1/2 rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -423,7 +423,7 @@ export function StarNavigator() {
   const setSelected = useStore((s) => s.setSelected);
   // Stop at Sun click clears selection (return to Solar System)
   const stars = useMemo(
-    () => NAMED_STARS.filter((s) => s.name !== "Sun").slice(0, 40),
+    () => NAMED_STARS.filter((s) => s.name !== "Sun").slice().sort((a, b) => a.distance - b.distance),
     [],
   );
   if (tourActive) return null;
@@ -639,5 +639,179 @@ export function LoadingScreen({ done }: { done: boolean }) {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+// ---------------------------------------------------------------
+// SiteMap — a collapsible left-hand index of every destination in
+// the experience. Mirrors the Visit panels (planets, moons, stars,
+// galaxies) plus the guided tour, so everything is reachable from
+// one place.
+// ---------------------------------------------------------------
+export function SiteMap() {
+  const [open, setOpen] = useState(true);
+  const [section, setSection] = useState<"planets" | "stars" | "galaxies" | "tour">("planets");
+  const [q, setQ] = useState("");
+
+  const visitPlanet = useStore((s) => s.visitPlanet);
+  const setVisitPlanet = useStore((s) => s.setVisitPlanet);
+  const selected = useStore((s) => s.selectedStar);
+  const flyTo = useStore((s) => s.flyToStar);
+  const setSelected = useStore((s) => s.setSelected);
+  const visitGalaxy = useStore((s) => s.visitGalaxy);
+  const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
+  const startTour = useStore((s) => s.startTour);
+  const tourActive = useStore((s) => s.tourActive);
+  const stopTour = useStore((s) => s.stopTour);
+
+  const lower = q.trim().toLowerCase();
+  const match = (n: string) => !lower || n.toLowerCase().includes(lower);
+
+  const stars = useMemo(
+    () => NAMED_STARS.filter((s) => s.name !== "Sun").slice().sort((a, b) => a.distance - b.distance),
+    [],
+  );
+  const galaxies = useMemo(
+    () => NAMED_GALAXIES.slice().sort((a, b) => a.distance - b.distance),
+    [],
+  );
+
+  const goGalaxy = (g: typeof NAMED_GALAXIES[number]) =>
+    setVisitGalaxy({ name: g.name, x: g.position.x, y: g.position.y, z: g.position.z, size: g.size, distance: g.distance, type: g.type });
+
+  return (
+    <div onClick={(e) => e.stopPropagation()} className="pointer-events-auto fixed left-0 top-16 z-30 hidden md:block">
+      <motion.div
+        animate={{ width: open ? 264 : 44 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="ml-4 overflow-hidden rounded-xl border border-white/10 bg-black/55 backdrop-blur-md"
+      >
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[10px] uppercase tracking-[0.25em] text-white/60 transition hover:text-white"
+          title={open ? "Collapse site map" : "Expand site map"}
+        >
+          <span className="text-base leading-none">{open ? "‹" : "☰"}</span>
+          {open && <span>Site Map</span>}
+        </button>
+
+        {open && (
+          <div className="border-t border-white/10 px-3 pb-3 pt-2">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Filter destinations..."
+              className="mb-2 h-8 w-full rounded-full border border-white/15 bg-white/5 px-3 text-[11px] text-white outline-none placeholder:text-white/35 focus:border-white/40"
+            />
+            <div className="mb-2 flex gap-1">
+              {(["planets", "stars", "galaxies", "tour"] as const).map((k) => (
+                <button
+                  key={k}
+                  onClick={() => setSection(k)}
+                  className={`flex-1 rounded-full px-1.5 py-1 text-[9px] uppercase tracking-[0.12em] transition ${
+                    section === k ? "bg-white/15 text-white" : "text-white/45 hover:bg-white/5 hover:text-white/80"
+                  }`}
+                >
+                  {k}
+                </button>
+              ))}
+            </div>
+
+            <div className="max-h-[52vh] space-y-0.5 overflow-y-auto pr-1">
+              {section === "planets" && (
+                <>
+                  <Row label="☉ Sun" active={!visitPlanet} onClick={() => setVisitPlanet(null)} />
+                  {PLANETS.filter((p) => match(p.name)).map((p) => (
+                    <div key={p.name}>
+                      <Row
+                        label={p.name}
+                        sub={`${(p.a / AU).toFixed(2)} AU`}
+                        color={p.color}
+                        active={visitPlanet === p.name}
+                        onClick={() => setVisitPlanet(p.name)}
+                      />
+                      {p.moons?.map((m) => (
+                        <Row
+                          key={m.name}
+                          label={`↳ ${m.name}`}
+                          color={m.color}
+                          indent
+                          onClick={() => setVisitPlanet(p.name)}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </>
+              )}
+
+              {section === "stars" && (
+                <>
+                  <Row label="☉ Back to the Sun" active={!selected} onClick={() => setSelected(null)} />
+                  {stars.filter((s) => match(s.name)).map((s) => (
+                    <Row
+                      key={s.name}
+                      label={s.name}
+                      sub={`${s.distance.toFixed(1)} ly`}
+                      color="#cfe0ff"
+                      active={selected?.name === s.name}
+                      onClick={() => flyTo(s)}
+                    />
+                  ))}
+                </>
+              )}
+
+              {section === "galaxies" && (
+                <>
+                  <Row label="✦ Milky Way" active={!visitGalaxy} onClick={() => setVisitGalaxy(null)} />
+                  {galaxies.filter((g) => match(g.name)).map((g) => (
+                    <Row
+                      key={g.name}
+                      label={g.name}
+                      sub={formatLy(g.distance)}
+                      color={g.color}
+                      active={visitGalaxy?.name === g.name}
+                      onClick={() => goGalaxy(g)}
+                    />
+                  ))}
+                </>
+              )}
+
+              {section === "tour" && (
+                <>
+                  <Row
+                    label={tourActive ? "✕ Stop guided tour" : "◯ Start guided tour"}
+                    onClick={() => (tourActive ? stopTour() : startTour())}
+                    active={tourActive}
+                  />
+                  {TOUR_STOPS.map((t, i) => (
+                    <Row key={i} label={`${i + 1}. ${t.name}`} indent onClick={() => startTour()} />
+                  ))}
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </div>
+  );
+}
+
+function Row({
+  label, sub, color, active, indent, onClick,
+}: { label: string; sub?: string; color?: string; active?: boolean; indent?: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      title={label}
+      className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[11px] transition ${
+        indent ? "pl-5" : ""
+      } ${active ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"}`}
+    >
+      {color && (
+        <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
+      )}
+      <span className="truncate">{label}</span>
+      {sub && <span className="ml-auto shrink-0 text-[9px] text-white/35">{sub}</span>}
+    </button>
   );
 }

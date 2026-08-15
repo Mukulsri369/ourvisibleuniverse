@@ -242,7 +242,7 @@ function Planet({ def }: { def: PlanetDef }) {
       </group>
       {/* Moons orbit the planet (not tilt-locked, just stable around it) */}
       {def.moons?.map((m) => (
-        <Moon key={m.name} moon={m} />
+        <Moon key={m.name} moon={m} parent={def.name} />
       ))}
     </group>
   );
@@ -264,15 +264,25 @@ function makeHaloTexture(_color: string): THREE.Texture {
   return t;
 }
 
-function Moon({ moon }: { moon: MoonDef }) {
+export const moonKey = (parent: string, moon: string) => `${parent}:${moon}`;
+
+function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const ref = useRef<THREE.Group>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
+  const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const t = clock.elapsedTime;
     const a = phase + (t / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
     ref.current.position.set(Math.cos(a) * moon.distance, Math.sin(a) * moon.distance * Math.sin(inc), Math.sin(a) * moon.distance * Math.cos(inc));
+    // publish live world position so the moon trail can track it
+    ref.current.getWorldPosition(tmp);
+    const reg = getRegistry();
+    const key = moonKey(parent, moon.name);
+    let v = reg.get(key);
+    if (!v) { v = new THREE.Vector3(); reg.set(key, v); }
+    v.copy(tmp);
   });
   return (
     <group ref={ref}>
@@ -428,22 +438,26 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 // ---------------------------------------------------------------
 
 const TRAIL_LEN = 2400;
+// Moons move fast around their planet, so their trails are much shorter —
+// just enough to sketch the little helix they trace around the planet's path.
+const MOON_TRAIL_LEN = 320;
 
-type TrailBody = { name: string; color: THREE.Color };
+type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: number };
 
 function useTrail(body: TrailBody) {
   const lineRef = useRef<THREE.Line>(null!);
   const initialized = useRef(false);
+  const len = body.length ?? TRAIL_LEN;
 
   const { geometry, material } = useMemo(() => {
-    const positions = new Float32Array(TRAIL_LEN * 3);
-    const ages = new Float32Array(TRAIL_LEN);
-    for (let i = 0; i < TRAIL_LEN; i++) ages[i] = i / (TRAIL_LEN - 1);
+    const positions = new Float32Array(len * 3);
+    const ages = new Float32Array(len);
+    for (let i = 0; i < len; i++) ages[i] = i / (len - 1);
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geo.setAttribute("aAge", new THREE.BufferAttribute(ages, 1));
     const mat = new THREE.ShaderMaterial({
-      uniforms: { uColor: { value: body.color } },
+      uniforms: { uColor: { value: body.color }, uOpacity: { value: body.opacity ?? 1 } },
       vertexShader: /* glsl */ `
         attribute float aAge;
         varying float vAge;
@@ -454,9 +468,10 @@ function useTrail(body: TrailBody) {
       `,
       fragmentShader: /* glsl */ `
         uniform vec3 uColor;
+        uniform float uOpacity;
         varying float vAge;
         void main(){
-          float a = pow(1.0 - vAge, 1.6);
+          float a = pow(1.0 - vAge, 1.6) * uOpacity;
           if (a < 0.015) discard;
           gl_FragColor = vec4(uColor, a);
         }
@@ -467,7 +482,8 @@ function useTrail(body: TrailBody) {
       blending: THREE.AdditiveBlending,
     });
     return { geometry: geo, material: mat };
-  }, [body.color]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [body.color, len, body.opacity]);
 
   useFrame(() => {
     const reg = (window as Window).__planetPositions;
@@ -476,13 +492,13 @@ function useTrail(body: TrailBody) {
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     if (!initialized.current) {
-      for (let i = 0; i < TRAIL_LEN; i++) {
+      for (let i = 0; i < len; i++) {
         arr[i * 3] = p.x; arr[i * 3 + 1] = p.y; arr[i * 3 + 2] = p.z;
       }
       initialized.current = true;
     } else {
       // shift all points one slot toward the tail
-      arr.copyWithin(3, 0, (TRAIL_LEN - 1) * 3);
+      arr.copyWithin(3, 0, (len - 1) * 3);
       arr[0] = p.x; arr[1] = p.y; arr[2] = p.z;
     }
     attr.needsUpdate = true;
@@ -506,6 +522,16 @@ export function MotionTrails() {
   const bodies = useMemo<TrailBody[]>(() => [
     { name: "Sun", color: new THREE.Color("#ffcf80") },
     ...PLANETS.map((p) => ({ name: p.name, color: new THREE.Color(p.color) })),
+    // Moons: short, dimmer trails so their fast loops around each planet
+    // read as fine helices without cluttering the planetary paths.
+    ...PLANETS.flatMap((p) =>
+      (p.moons ?? []).map((m) => ({
+        name: moonKey(p.name, m.name),
+        color: new THREE.Color(m.color),
+        length: MOON_TRAIL_LEN,
+        opacity: 0.55,
+      })),
+    ),
   ], []);
   return (
     <group>
