@@ -784,7 +784,7 @@ export function SiteMap() {
                     active={tourActive}
                   />
                   {TOUR_STOPS.map((t, i) => (
-                    <Row key={i} label={`${i + 1}. ${t.caption ?? "Stop"}`} indent onClick={() => startTour()} />
+                    <Row key={i} label={`${i + 1}. ${t.name}`} indent onClick={() => startTour()} />
                   ))}
                 </>
               )}

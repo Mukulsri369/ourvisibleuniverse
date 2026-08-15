@@ -20,6 +20,7 @@ import {
   StarNavigator,
   GalaxyNavigator,
   UIHideToggle,
+  SiteMap,
 } from "./UI";
 
 import { useStore } from "./store";
@@ -65,6 +66,7 @@ export function StarsApp() {
 
       {!uiHidden && (
         <>
+          <SiteMap />
           <TopLeftControls />
           <TourStopIndicator />
           <ZoomSlider />
