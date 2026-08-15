@@ -81,7 +81,7 @@ export const PLANETS: PlanetDef[] = [
     name: "Jupiter",
     a: 5.2 * AU, e: 0.0489, i: deg(1.31), omega: deg(273.9),
     size: 0.617 * P, color: "#c8a878", emissive: "#3a2410",
-    period: 372, spinPeriod: 0.6, tilt: deg(3.13),
+    period: 96, spinPeriod: 0.6, tilt: deg(3.13),
     ring: { inner: 1.18 * P, outer: 1.35 * P, color: "#7a6a55" },
     moons: [
       { name: "Io",       distance: 1.20 * P, size: 0.017 * P, color: "#e6cf6a", period: 2.2 },
@@ -95,7 +95,7 @@ export const PLANETS: PlanetDef[] = [
     name: "Saturn",
     a: 9.58 * AU, e: 0.0565, i: deg(2.49), omega: deg(339.4),
     size: 0.520 * P, color: "#e6c98a", emissive: "#3a2c0e",
-    period: 925, spinPeriod: 0.7, tilt: deg(26.73),
+    period: 150, spinPeriod: 0.7, tilt: deg(26.73),
     ring: { inner: 1.15 * P, outer: 2.20 * P, color: "#e0d2a8", tilt: deg(26.73) },
     moons: [{ name: "Titan", distance: 2.20 * P, size: 0.023 * P, color: "#d4a85a", period: 7.8 }],
     description: "Famed for its bright icy ring system. A gas giant with the lowest density of any planet.",
@@ -104,7 +104,7 @@ export const PLANETS: PlanetDef[] = [
     name: "Uranus",
     a: 19.2 * AU, e: 0.0457, i: deg(0.77), omega: deg(96.99),
     size: 0.220 * P, color: "#9fd8e0", emissive: "#102830",
-    period: 2640, spinPeriod: -1.0, tilt: deg(97.77),
+    period: 240, spinPeriod: -1.0, tilt: deg(97.77),
     ring: { inner: 0.60 * P, outer: 0.75 * P, color: "#6a8a92", tilt: deg(97.77) },
     description: "An ice giant tilted on its side, rolling around the Sun once every 84 years.",
   },
@@ -112,7 +112,7 @@ export const PLANETS: PlanetDef[] = [
     name: "Neptune",
     a: 30.05 * AU, e: 0.0113, i: deg(1.77), omega: deg(273.2),
     size: 0.213 * P, color: "#3b6df0", emissive: "#08163a",
-    period: 5180, spinPeriod: 1.1, tilt: deg(28.32),
+    period: 330, spinPeriod: 1.1, tilt: deg(28.32),
     moons: [{ name: "Triton", distance: 0.60 * P, size: 0.020 * P, color: "#cfd6e0", period: 5.5 }],
     description: "The windiest planet — supersonic storms tear through its deep-blue methane atmosphere.",
   },
@@ -120,7 +120,7 @@ export const PLANETS: PlanetDef[] = [
     name: "Pluto",
     a: 39.5 * AU, e: 0.2488, i: deg(17.16), omega: deg(113.76),
     size: 0.010 * P, color: "#c9b39a",
-    period: 7820, spinPeriod: 2.1, tilt: deg(122.5),
+    period: 420, spinPeriod: 2.1, tilt: deg(122.5),
     moons: [{ name: "Charon", distance: 0.06 * P, size: 0.005 * P, color: "#9d8e7e", period: 1.6 }],
     description: "A dwarf planet in the Kuiper Belt. Its eccentric, inclined orbit sometimes brings it closer to the Sun than Neptune.",
   },
@@ -312,30 +312,41 @@ export function Planets() {
 }
 
 // Asteroid belt (2.2–3.3 AU) + Kuiper belt (30–50 AU) as particle rings.
+// Each particle orbits the Sun on its own Keplerian period (T ∝ r^1.5),
+// so the belts shear differentially like the real thing.
+const BELT_K = 96 / Math.pow(5.2, 1.5); // matched to Jupiter's scene period
+
 function MinorBodies() {
-  const geom = useMemo(() => {
+  const { geom, radii, thetas, heights, omegas } = useMemo(() => {
     const ASTEROIDS = 1400;
     const KUIPER = 1800;
     const total = ASTEROIDS + KUIPER;
     const pos = new Float32Array(total * 3);
     const col = new Float32Array(total * 3);
     const sizes = new Float32Array(total);
+    const radii = new Float32Array(total);
+    const thetas = new Float32Array(total);
+    const heights = new Float32Array(total);
+    const omegas = new Float32Array(total);
     const cAst = new THREE.Color("#a89274");
     const cKui = new THREE.Color("#7da6c8");
+    const setOrbit = (i: number, rAU: number, z: number) => {
+      radii[i] = rAU * AU;
+      thetas[i] = Math.random() * Math.PI * 2;
+      heights[i] = z;
+      omegas[i] = (Math.PI * 2) / (BELT_K * Math.pow(rAU, 1.5));
+      pos[i * 3] = Math.cos(thetas[i]) * radii[i];
+      pos[i * 3 + 1] = z;
+      pos[i * 3 + 2] = Math.sin(thetas[i]) * radii[i];
+    };
     for (let i = 0; i < ASTEROIDS; i++) {
-      const r = (2.2 + Math.random() * 1.1) * AU;
-      const th = Math.random() * Math.PI * 2;
-      const z = (Math.random() - 0.5) * 0.18 * AU;
-      pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
+      setOrbit(i, 2.2 + Math.random() * 1.1, (Math.random() - 0.5) * 0.18 * AU);
       col[i*3] = cAst.r; col[i*3+1] = cAst.g; col[i*3+2] = cAst.b;
       sizes[i] = (1.4 + Math.random()*1.6) * P;
     }
     for (let j = 0; j < KUIPER; j++) {
       const i = ASTEROIDS + j;
-      const r = (30 + Math.random() * 20) * AU;
-      const th = Math.random() * Math.PI * 2;
-      const z = (Math.random() - 0.5) * 2.0 * AU;
-      pos[i*3] = Math.cos(th)*r; pos[i*3+1] = z; pos[i*3+2] = Math.sin(th)*r;
+      setOrbit(i, 30 + Math.random() * 20, (Math.random() - 0.5) * 2.0 * AU);
       col[i*3] = cKui.r; col[i*3+1] = cKui.g; col[i*3+2] = cKui.b;
       sizes[i] = (1.2 + Math.random()*1.4) * P;
     }
@@ -343,14 +354,29 @@ function MinorBodies() {
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     g.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-    return g;
+    return { geom: g, radii, thetas, heights, omegas };
   }, []);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const attr = geom.getAttribute("position") as THREE.BufferAttribute;
+    const arr = attr.array as Float32Array;
+    for (let i = 0; i < radii.length; i++) {
+      const a = thetas[i] + omegas[i] * t;
+      arr[i * 3] = Math.cos(a) * radii[i];
+      arr[i * 3 + 1] = heights[i];
+      arr[i * 3 + 2] = Math.sin(a) * radii[i];
+    }
+    attr.needsUpdate = true;
+  });
+
   return (
     <points geometry={geom} frustumCulled={false}>
       <pointsMaterial vertexColors size={0.18 * P} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
     </points>
   );
 }
+
 
 // ---------------------------------------------------------------
 // SolarSystem — wraps Sun + Planets and drifts them along the
