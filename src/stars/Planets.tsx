@@ -264,15 +264,25 @@ function makeHaloTexture(_color: string): THREE.Texture {
   return t;
 }
 
-function Moon({ moon }: { moon: MoonDef }) {
+export const moonKey = (parent: string, moon: string) => `${parent}:${moon}`;
+
+function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const ref = useRef<THREE.Group>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
+  const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const t = clock.elapsedTime;
     const a = phase + (t / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
     ref.current.position.set(Math.cos(a) * moon.distance, Math.sin(a) * moon.distance * Math.sin(inc), Math.sin(a) * moon.distance * Math.cos(inc));
+    // publish live world position so the moon trail can track it
+    ref.current.getWorldPosition(tmp);
+    const reg = getRegistry();
+    const key = moonKey(parent, moon.name);
+    let v = reg.get(key);
+    if (!v) { v = new THREE.Vector3(); reg.set(key, v); }
+    v.copy(tmp);
   });
   return (
     <group ref={ref}>
