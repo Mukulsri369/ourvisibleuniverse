@@ -88,6 +88,14 @@ export const PLANETS: PlanetDef[] = [
       { name: "Europa",   distance: 1.50 * P, size: 0.015 * P, color: "#e3d9c2", period: 3.6 },
       { name: "Ganymede", distance: 1.90 * P, size: 0.025 * P, color: "#b5a48b", period: 6.2 },
       { name: "Callisto", distance: 2.55 * P, size: 0.023 * P, color: "#7e6f5d", period: 11.7 },
+      { name: "Metis",     distance: 0.80 * P, size: 0.004 * P, color: "#8a7b68", period: 0.5 },
+      { name: "Adrastea",  distance: 0.84 * P, size: 0.003 * P, color: "#8f8070", period: 0.55, inclination: 0.02 },
+      { name: "Amalthea",  distance: 0.95 * P, size: 0.006 * P, color: "#b5644a", period: 0.8 },
+      { name: "Thebe",     distance: 1.05 * P, size: 0.005 * P, color: "#9c7a62", period: 1.1, inclination: 0.03 },
+      { name: "Himalia",   distance: 3.30 * P, size: 0.007 * P, color: "#7a7266", period: 22, inclination: 0.5 },
+      { name: "Elara",     distance: 3.55 * P, size: 0.005 * P, color: "#6f685c", period: 26, inclination: 0.48 },
+      { name: "Pasiphae",  distance: 4.10 * P, size: 0.005 * P, color: "#66605a", period: 34, inclination: -2.6 },
+      { name: "Carme",     distance: 4.30 * P, size: 0.004 * P, color: "#5f5a54", period: 37, inclination: -2.7 },
     ],
     description: "The Solar System's giant — a gas world with the Great Red Spot, faint rings, and 95+ moons.",
   },
@@ -97,7 +105,17 @@ export const PLANETS: PlanetDef[] = [
     size: 0.520 * P, color: "#e6c98a", emissive: "#3a2c0e",
     period: 150, spinPeriod: 0.7, tilt: deg(26.73),
     ring: { inner: 1.15 * P, outer: 2.20 * P, color: "#e0d2a8", tilt: deg(26.73) },
-    moons: [{ name: "Titan", distance: 2.20 * P, size: 0.023 * P, color: "#d4a85a", period: 7.8 }],
+    moons: [
+      { name: "Mimas",     distance: 1.05 * P, size: 0.005 * P, color: "#cfcabd", period: 1.2, inclination: 0.03 },
+      { name: "Enceladus", distance: 1.20 * P, size: 0.006 * P, color: "#f2f5f7", period: 1.6 },
+      { name: "Tethys",    distance: 1.40 * P, size: 0.009 * P, color: "#ddd8cc", period: 2.2 },
+      { name: "Dione",     distance: 1.65 * P, size: 0.009 * P, color: "#d2ccbf", period: 3.0 },
+      { name: "Rhea",      distance: 2.00 * P, size: 0.012 * P, color: "#cbc5b8", period: 4.7 },
+      { name: "Titan",     distance: 2.60 * P, size: 0.023 * P, color: "#d4a85a", period: 7.8 },
+      { name: "Hyperion",  distance: 3.00 * P, size: 0.005 * P, color: "#b8a68c", period: 9.6, inclination: 0.1 },
+      { name: "Iapetus",   distance: 3.80 * P, size: 0.011 * P, color: "#9c8f7c", period: 22, inclination: 0.27 },
+      { name: "Phoebe",    distance: 4.60 * P, size: 0.005 * P, color: "#6b6558", period: 40, inclination: -2.7 },
+    ],
     description: "Famed for its bright icy ring system. A gas giant with the lowest density of any planet.",
   },
   {
@@ -106,6 +124,14 @@ export const PLANETS: PlanetDef[] = [
     size: 0.220 * P, color: "#9fd8e0", emissive: "#102830",
     period: 240, spinPeriod: -1.0, tilt: deg(97.77),
     ring: { inner: 0.60 * P, outer: 0.75 * P, color: "#6a8a92", tilt: deg(97.77) },
+    moons: [
+      { name: "Puck",    distance: 0.55 * P, size: 0.004 * P, color: "#7f7f7f", period: 0.8, inclination: 0.02 },
+      { name: "Miranda", distance: 0.80 * P, size: 0.005 * P, color: "#b9c2c4", period: 1.4 },
+      { name: "Ariel",   distance: 1.00 * P, size: 0.009 * P, color: "#cdd6d8", period: 2.5 },
+      { name: "Umbriel", distance: 1.25 * P, size: 0.009 * P, color: "#8d9698", period: 4.1 },
+      { name: "Titania", distance: 1.70 * P, size: 0.012 * P, color: "#c2c9c9", period: 8.7 },
+      { name: "Oberon",  distance: 2.10 * P, size: 0.012 * P, color: "#a8b0b0", period: 13.5 },
+    ],
     description: "An ice giant tilted on its side, rolling around the Sun once every 84 years.",
   },
   {
@@ -113,7 +139,15 @@ export const PLANETS: PlanetDef[] = [
     a: 30.05 * AU, e: 0.0113, i: deg(1.77), omega: deg(273.2),
     size: 0.213 * P, color: "#3b6df0", emissive: "#08163a",
     period: 330, spinPeriod: 1.1, tilt: deg(28.32),
-    moons: [{ name: "Triton", distance: 0.60 * P, size: 0.020 * P, color: "#cfd6e0", period: 5.5 }],
+    moons: [
+      { name: "Naiad",    distance: 0.30 * P, size: 0.003 * P, color: "#9aa3ad", period: 0.4, inclination: 0.08 },
+      { name: "Despina",  distance: 0.36 * P, size: 0.004 * P, color: "#a2abb5", period: 0.5 },
+      { name: "Galatea",  distance: 0.42 * P, size: 0.004 * P, color: "#a8b1bb", period: 0.6 },
+      { name: "Larissa",  distance: 0.48 * P, size: 0.005 * P, color: "#9ba4ae", period: 0.7 },
+      { name: "Proteus",  distance: 0.55 * P, size: 0.007 * P, color: "#8f98a2", period: 0.9 },
+      { name: "Triton",   distance: 0.80 * P, size: 0.020 * P, color: "#cfd6e0", period: 5.5, inclination: -2.8 },
+      { name: "Nereid",   distance: 1.60 * P, size: 0.005 * P, color: "#aeb6c0", period: 20, inclination: 0.5 },
+    ],
     description: "The windiest planet — supersonic storms tear through its deep-blue methane atmosphere.",
   },
   {
@@ -121,7 +155,13 @@ export const PLANETS: PlanetDef[] = [
     a: 39.5 * AU, e: 0.2488, i: deg(17.16), omega: deg(113.76),
     size: 0.010 * P, color: "#c9b39a",
     period: 420, spinPeriod: 2.1, tilt: deg(122.5),
-    moons: [{ name: "Charon", distance: 0.06 * P, size: 0.005 * P, color: "#9d8e7e", period: 1.6 }],
+    moons: [
+      { name: "Charon", distance: 0.06 * P, size: 0.005 * P, color: "#9d8e7e", period: 1.6 },
+      { name: "Styx",   distance: 0.09 * P, size: 0.0015 * P, color: "#8d8272", period: 2.4, inclination: 0.03 },
+      { name: "Nix",    distance: 0.11 * P, size: 0.002 * P, color: "#a89c8b", period: 3.0 },
+      { name: "Kerberos", distance: 0.13 * P, size: 0.0015 * P, color: "#8a7f70", period: 3.7, inclination: 0.04 },
+      { name: "Hydra",  distance: 0.15 * P, size: 0.002 * P, color: "#b0a493", period: 4.4 },
+    ],
     description: "A dwarf planet in the Kuiper Belt. Its eccentric, inclined orbit sometimes brings it closer to the Sun than Neptune.",
   },
 ];
@@ -200,6 +240,13 @@ function Planet({ def }: { def: PlanetDef }) {
 
   const setVisit = useStore((s) => s.setVisitPlanet);
   const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
+  const surface = useMemo(() => makeSurfaceTexture(def), [def]);
+  const ringTex = useMemo(() => (def.ring ? makeRingTexture(def.name, def.ring.color) : null), [def]);
+  const ringGeo = useMemo(
+    () => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 192) : null),
+    [def],
+  );
+
 
   return (
     <group ref={groupRef}>
@@ -217,26 +264,40 @@ function Planet({ def }: { def: PlanetDef }) {
           onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = ""; }}
           onClick={(e) => { e.stopPropagation(); setVisit(def.name); }}
         >
-          <sphereGeometry args={[def.size, 48, 48]} />
+          <sphereGeometry args={[def.size, 64, 64]} />
           <meshStandardMaterial
-            color={def.color}
-            roughness={0.85}
-            metalness={0.05}
-            emissive={def.emissive ?? def.color}
-            emissiveIntensity={def.emissive ? 0.18 : 0.06}
+            map={surface}
+            bumpMap={def.atmosphere || def.emissive ? undefined : surface}
+            bumpScale={def.size * 0.06}
+            roughness={def.emissive ? 0.55 : 0.9}
+            metalness={0.02}
+            emissive={new THREE.Color(def.emissive ?? def.color)}
+            emissiveIntensity={def.emissive ? 0.12 : 0.05}
           />
         </mesh>
-        {/* atmosphere glow */}
+        {/* atmosphere glow — two soft shells for a limb-lit look */}
         {def.atmosphere && (
-          <mesh scale={1.08}>
-            <sphereGeometry args={[def.size, 32, 32]} />
-            <meshBasicMaterial color={def.atmosphere} transparent opacity={0.18} side={THREE.BackSide} depthWrite={false} />
-          </mesh>
+          <>
+            <mesh scale={1.03}>
+              <sphereGeometry args={[def.size, 48, 48]} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.14} side={THREE.BackSide} depthWrite={false} />
+            </mesh>
+            <mesh scale={1.12}>
+              <sphereGeometry args={[def.size, 48, 48]} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+            </mesh>
+          </>
         )}
-        {def.ring && (
-          <mesh rotation={[Math.PI / 2 + (def.ring.tilt ?? 0) * 0.2, 0, 0]}>
-            <ringGeometry args={[def.ring.inner, def.ring.outer, 96]} />
-            <meshBasicMaterial color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.6} depthWrite={false} />
+        {def.ring && ringGeo && (
+          <mesh geometry={ringGeo} rotation={[Math.PI / 2, 0, 0]} receiveShadow>
+            <meshBasicMaterial
+              map={ringTex ?? undefined}
+              color={def.ring.color}
+              side={THREE.DoubleSide}
+              transparent
+              opacity={0.95}
+              depthWrite={false}
+            />
           </mesh>
         )}
       </group>
@@ -246,6 +307,182 @@ function Planet({ def }: { def: PlanetDef }) {
       ))}
     </group>
   );
+}
+
+// --- Procedural surface textures -------------------------------------------
+// Deterministic per-planet noise so each world keeps the same face.
+function hashSeed(s: string) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function rng(seed: number) {
+  let t = seed;
+  return () => {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const GAS_GIANTS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune"]);
+
+function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
+  const W = 1024, H = 512;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  const rand = rng(hashSeed(def.name));
+  const base = new THREE.Color(def.color);
+
+  ctx.fillStyle = `#${base.getHexString()}`;
+  ctx.fillRect(0, 0, W, H);
+
+  const shade = (l: number) => {
+    const col = base.clone();
+    const hsl = { h: 0, s: 0, l: 0 };
+    col.getHSL(hsl);
+    col.setHSL(hsl.h, hsl.s, Math.min(0.95, Math.max(0.03, hsl.l * l)));
+    return `#${col.getHexString()}`;
+  };
+
+  if (GAS_GIANTS.has(def.name)) {
+    // Latitudinal cloud bands with turbulent edges
+    let y = 0;
+    while (y < H) {
+      const h = 8 + rand() * 38;
+      const l = 0.7 + rand() * 0.7;
+      ctx.fillStyle = shade(l);
+      ctx.globalAlpha = 0.55 + rand() * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      for (let x = 0; x <= W; x += 32) {
+        ctx.lineTo(x, y + Math.sin(x * 0.012 + rand() * 0.4) * 3);
+      }
+      ctx.lineTo(W, y + h); ctx.lineTo(0, y + h); ctx.closePath();
+      ctx.fill();
+      y += h;
+    }
+    ctx.globalAlpha = 1;
+    // Storm ovals (e.g. Jupiter's Great Red Spot)
+    const storms = def.name === "Jupiter" ? 6 : 3;
+    for (let i = 0; i < storms; i++) {
+      const sx = rand() * W, sy = H * (0.25 + rand() * 0.5);
+      const rx = 20 + rand() * 60, ry = rx * (0.35 + rand() * 0.3);
+      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rx);
+      const stormCol = def.name === "Jupiter" && i === 0 ? "#c1440e" : shade(1.25);
+      g.addColorStop(0, stormCol);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.save(); ctx.translate(sx, sy); ctx.scale(1, ry / rx); ctx.translate(-sx, -sy);
+      ctx.beginPath(); ctx.arc(sx, sy, rx, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  } else {
+    // Rocky/icy worlds: continents, maria and craters
+    for (let i = 0; i < 220; i++) {
+      const x = rand() * W, y = rand() * H;
+      const r = 12 + rand() * 90;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, shade(0.65 + rand() * 0.8));
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    if (def.name === "Earth") {
+      ctx.globalAlpha = 0.85;
+      for (let i = 0; i < 40; i++) {
+        const x = rand() * W, y = H * (0.15 + rand() * 0.7);
+        ctx.fillStyle = rand() > 0.5 ? "#2f7d32" : "#8a6b3a";
+        ctx.beginPath();
+        ctx.ellipse(x, y, 20 + rand() * 70, 12 + rand() * 40, rand() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // polar ice
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.fillRect(0, 0, W, 22); ctx.fillRect(0, H - 22, W, 22);
+    }
+    if (def.name === "Mars") {
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.beginPath(); ctx.ellipse(W * 0.5, 6, W * 0.22, 20, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(W * 0.5, H - 6, W * 0.18, 16, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    // craters
+    ctx.globalAlpha = 0.35;
+    const craters = def.name === "Mercury" ? 500 : 180;
+    for (let i = 0; i < craters; i++) {
+      const x = rand() * W, y = rand() * H, r = 1.5 + rand() * 9;
+      ctx.strokeStyle = shade(1.4); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = shade(0.7);
+      ctx.beginPath(); ctx.arc(x, y, r * 0.85, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  t.needsUpdate = true;
+  return t;
+}
+
+// Ring texture: radial bands of varying brightness/opacity with real gaps
+// (Cassini division for Saturn). u = radial position across the ring.
+function makeRingTexture(name: string, color: string): THREE.Texture {
+  const W = 1024, H = 8;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  const rand = rng(hashSeed(name + "ring"));
+  const base = new THREE.Color(color);
+  ctx.clearRect(0, 0, W, H);
+  for (let x = 0; x < W; x++) {
+    const u = x / W;
+    let a = 0.55 + 0.35 * Math.sin(u * 90 + rand() * 0.1) * 0.5 + rand() * 0.12;
+    // soft inner/outer falloff
+    a *= Math.min(1, u * 8) * Math.min(1, (1 - u) * 6);
+    if (name === "Saturn") {
+      if (u > 0.46 && u < 0.53) a *= 0.08;       // Cassini division
+      if (u > 0.72 && u < 0.735) a *= 0.25;      // Encke gap
+      if (u < 0.18) a *= 0.45;                   // faint C ring
+      if (u > 0.55 && u < 0.72) a *= 1.25;       // bright A ring
+    }
+    const l = 0.75 + 0.5 * rand();
+    const col = base.clone().multiplyScalar(l);
+    ctx.fillStyle = `rgba(${Math.round(col.r * 255)},${Math.round(col.g * 255)},${Math.round(col.b * 255)},${Math.min(1, a)})`;
+    ctx.fillRect(x, 0, 1, H);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  t.needsUpdate = true;
+  return t;
+}
+
+// Ring geometry with radial UVs (u across the ring width) so the band
+// texture maps correctly — the default ringGeometry UVs do not.
+function makeRingGeometry(inner: number, outer: number, segments: number) {
+  const pos: number[] = [];
+  const uv: number[] = [];
+  const idx: number[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const a = (i / segments) * Math.PI * 2;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    pos.push(ca * inner, sa * inner, 0); uv.push(0, i / segments);
+    pos.push(ca * outer, sa * outer, 0); uv.push(1, i / segments);
+  }
+  for (let i = 0; i < segments; i++) {
+    const a = i * 2, b = a + 1, c2 = a + 2, d = a + 3;
+    idx.push(a, b, c2, b, d, c2);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
 }
 
 function makeHaloTexture(_color: string): THREE.Texture {

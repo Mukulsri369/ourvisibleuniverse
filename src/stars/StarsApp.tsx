@@ -16,9 +16,6 @@ import {
   Branding,
   TourStopIndicator,
   LoadingScreen,
-  PlanetNavigator,
-  StarNavigator,
-  GalaxyNavigator,
   UIHideToggle,
   SiteMap,
 } from "./UI";
@@ -74,9 +71,7 @@ export function StarsApp() {
           <MusicToggle />
           <Branding />
           <InfoPanel />
-          <PlanetNavigator />
-          <StarNavigator />
-          <GalaxyNavigator />
+
         </>
       )}
       {/* Tour caption remains even when panels are hidden — it's diegetic. */}
