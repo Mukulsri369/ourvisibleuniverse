@@ -200,6 +200,13 @@ function Planet({ def }: { def: PlanetDef }) {
 
   const setVisit = useStore((s) => s.setVisitPlanet);
   const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
+  const surface = useMemo(() => makeSurfaceTexture(def), [def]);
+  const ringTex = useMemo(() => (def.ring ? makeRingTexture(def.name, def.ring.color) : null), [def]);
+  const ringGeo = useMemo(
+    () => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 192) : null),
+    [def],
+  );
+
 
   return (
     <group ref={groupRef}>
