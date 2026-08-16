@@ -16,9 +16,6 @@ import {
   Branding,
   TourStopIndicator,
   LoadingScreen,
-  PlanetNavigator,
-  StarNavigator,
-  GalaxyNavigator,
   UIHideToggle,
   SiteMap,
 } from "./UI";
