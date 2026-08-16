@@ -269,6 +269,182 @@ function Planet({ def }: { def: PlanetDef }) {
   );
 }
 
+// --- Procedural surface textures -------------------------------------------
+// Deterministic per-planet noise so each world keeps the same face.
+function hashSeed(s: string) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function rng(seed: number) {
+  let t = seed;
+  return () => {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const GAS_GIANTS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune"]);
+
+function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
+  const W = 1024, H = 512;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  const rand = rng(hashSeed(def.name));
+  const base = new THREE.Color(def.color);
+
+  ctx.fillStyle = `#${base.getHexString()}`;
+  ctx.fillRect(0, 0, W, H);
+
+  const shade = (l: number) => {
+    const col = base.clone();
+    const hsl = { h: 0, s: 0, l: 0 };
+    col.getHSL(hsl);
+    col.setHSL(hsl.h, hsl.s, Math.min(0.95, Math.max(0.03, hsl.l * l)));
+    return `#${col.getHexString()}`;
+  };
+
+  if (GAS_GIANTS.has(def.name)) {
+    // Latitudinal cloud bands with turbulent edges
+    let y = 0;
+    while (y < H) {
+      const h = 8 + rand() * 38;
+      const l = 0.7 + rand() * 0.7;
+      ctx.fillStyle = shade(l);
+      ctx.globalAlpha = 0.55 + rand() * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      for (let x = 0; x <= W; x += 32) {
+        ctx.lineTo(x, y + Math.sin(x * 0.012 + rand() * 0.4) * 3);
+      }
+      ctx.lineTo(W, y + h); ctx.lineTo(0, y + h); ctx.closePath();
+      ctx.fill();
+      y += h;
+    }
+    ctx.globalAlpha = 1;
+    // Storm ovals (e.g. Jupiter's Great Red Spot)
+    const storms = def.name === "Jupiter" ? 6 : 3;
+    for (let i = 0; i < storms; i++) {
+      const sx = rand() * W, sy = H * (0.25 + rand() * 0.5);
+      const rx = 20 + rand() * 60, ry = rx * (0.35 + rand() * 0.3);
+      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rx);
+      const stormCol = def.name === "Jupiter" && i === 0 ? "#c1440e" : shade(1.25);
+      g.addColorStop(0, stormCol);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.save(); ctx.translate(sx, sy); ctx.scale(1, ry / rx); ctx.translate(-sx, -sy);
+      ctx.beginPath(); ctx.arc(sx, sy, rx, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+  } else {
+    // Rocky/icy worlds: continents, maria and craters
+    for (let i = 0; i < 220; i++) {
+      const x = rand() * W, y = rand() * H;
+      const r = 12 + rand() * 90;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, shade(0.65 + rand() * 0.8));
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    if (def.name === "Earth") {
+      ctx.globalAlpha = 0.85;
+      for (let i = 0; i < 40; i++) {
+        const x = rand() * W, y = H * (0.15 + rand() * 0.7);
+        ctx.fillStyle = rand() > 0.5 ? "#2f7d32" : "#8a6b3a";
+        ctx.beginPath();
+        ctx.ellipse(x, y, 20 + rand() * 70, 12 + rand() * 40, rand() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // polar ice
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.fillRect(0, 0, W, 22); ctx.fillRect(0, H - 22, W, 22);
+    }
+    if (def.name === "Mars") {
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.beginPath(); ctx.ellipse(W * 0.5, 6, W * 0.22, 20, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(W * 0.5, H - 6, W * 0.18, 16, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    // craters
+    ctx.globalAlpha = 0.35;
+    const craters = def.name === "Mercury" ? 500 : 180;
+    for (let i = 0; i < craters; i++) {
+      const x = rand() * W, y = rand() * H, r = 1.5 + rand() * 9;
+      ctx.strokeStyle = shade(1.4); ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = shade(0.7);
+      ctx.beginPath(); ctx.arc(x, y, r * 0.85, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  t.needsUpdate = true;
+  return t;
+}
+
+// Ring texture: radial bands of varying brightness/opacity with real gaps
+// (Cassini division for Saturn). u = radial position across the ring.
+function makeRingTexture(name: string, color: string): THREE.Texture {
+  const W = 1024, H = 8;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  const rand = rng(hashSeed(name + "ring"));
+  const base = new THREE.Color(color);
+  ctx.clearRect(0, 0, W, H);
+  for (let x = 0; x < W; x++) {
+    const u = x / W;
+    let a = 0.55 + 0.35 * Math.sin(u * 90 + rand() * 0.1) * 0.5 + rand() * 0.12;
+    // soft inner/outer falloff
+    a *= Math.min(1, u * 8) * Math.min(1, (1 - u) * 6);
+    if (name === "Saturn") {
+      if (u > 0.46 && u < 0.53) a *= 0.08;       // Cassini division
+      if (u > 0.72 && u < 0.735) a *= 0.25;      // Encke gap
+      if (u < 0.18) a *= 0.45;                   // faint C ring
+      if (u > 0.55 && u < 0.72) a *= 1.25;       // bright A ring
+    }
+    const l = 0.75 + 0.5 * rand();
+    const col = base.clone().multiplyScalar(l);
+    ctx.fillStyle = `rgba(${Math.round(col.r * 255)},${Math.round(col.g * 255)},${Math.round(col.b * 255)},${Math.min(1, a)})`;
+    ctx.fillRect(x, 0, 1, H);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  t.needsUpdate = true;
+  return t;
+}
+
+// Ring geometry with radial UVs (u across the ring width) so the band
+// texture maps correctly — the default ringGeometry UVs do not.
+function makeRingGeometry(inner: number, outer: number, segments: number) {
+  const pos: number[] = [];
+  const uv: number[] = [];
+  const idx: number[] = [];
+  for (let i = 0; i <= segments; i++) {
+    const a = (i / segments) * Math.PI * 2;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    pos.push(ca * inner, sa * inner, 0); uv.push(0, i / segments);
+    pos.push(ca * outer, sa * outer, 0); uv.push(1, i / segments);
+  }
+  for (let i = 0; i < segments; i++) {
+    const a = i * 2, b = a + 1, c2 = a + 2, d = a + 3;
+    idx.push(a, b, c2, b, d, c2);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
 function makeHaloTexture(_color: string): THREE.Texture {
   const size = 64;
   const c = document.createElement("canvas");
