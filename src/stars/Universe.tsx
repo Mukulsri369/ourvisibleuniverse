@@ -77,7 +77,6 @@ const NEARBY_GALAXIES: NamedGalaxy[] = [
   { name: "IC 1613", type: "Dwarf Irregular", l: 129.7, b: -60.6, distance: 2_380_000, size: 10_000, color: "#dde8ff" },
   { name: "Maffei 1", type: "Elliptical", l: 136.0, b: -0.6, distance: 9_800_000, size: 75_000, color: "#ffd8a8" },
   { name: "NGC 2403", type: "Spiral", l: 150.6, b: 29.2, distance: 8_000_000, size: 50_000, color: "#dde6ff", inclination: 62 },
-  { name: "NGC 4736 (M94)", type: "Spiral", l: 123.4, b: 76.0, distance: 16_100_000, size: 50_000, color: "#e2ecff", inclination: 35 },
   { name: "M64 (Black Eye)", type: "Spiral", l: 315.7, b: 84.4, distance: 17_000_000, size: 54_000, color: "#e6dcff", inclination: 60 },
   { name: "M106", type: "Spiral", l: 138.3, b: 68.8, distance: 23_700_000, size: 135_000, color: "#dfeaff", inclination: 67 },
   { name: "M66", type: "Barred Spiral", l: 241.5, b: 64.4, distance: 36_000_000, size: 95_000, color: "#e0eaff", inclination: 60 },
@@ -87,7 +86,7 @@ const NEARBY_GALAXIES: NamedGalaxy[] = [
   { name: "NGC 5866", type: "Lenticular", l: 92.0, b: 52.5, distance: 44_000_000, size: 60_000, color: "#ffdcb0", inclination: 88 },
   { name: "NGC 1316 (Fornax A)", type: "Lenticular", l: 240.2, b: -56.7, distance: 62_000_000, size: 160_000, color: "#ffdcb0" },
   { name: "NGC 1365", type: "Barred Spiral", l: 238.0, b: -54.6, distance: 56_000_000, size: 200_000, color: "#dde8ff", inclination: 55 },
-  { name: "NGC 5128 Group Dwarf", type: "Dwarf Irregular", l: 307.0, b: 17.0, distance: 13_500_000, size: 6_000, color: "#ffd0a0" },
+  { name: "NGC 5253", type: "Dwarf Starburst", l: 314.9, b: 30.1, distance: 10_900_000, size: 16_000, color: "#ffd0a0" },
   { name: "NGC 6946 (Fireworks)", type: "Spiral", l: 95.7, b: 11.7, distance: 25_200_000, size: 90_000, color: "#e2edff", inclination: 33 },
   { name: "NGC 7331", type: "Spiral", l: 93.7, b: -20.7, distance: 40_000_000, size: 120_000, color: "#dfe9ff", inclination: 70 },
   { name: "M77 (Cetus A)", type: "Barred Spiral", l: 172.1, b: -51.9, distance: 47_000_000, size: 170_000, color: "#ffe6d0", inclination: 40 },
@@ -95,7 +94,7 @@ const NEARBY_GALAXIES: NamedGalaxy[] = [
   { name: "Coma Cluster (NGC 4889)", type: "Elliptical", l: 58.1, b: 87.9, distance: 321_000_000, size: 300_000, color: "#ffe0b0" },
   { name: "Perseus Cluster (NGC 1275)", type: "Elliptical", l: 150.6, b: -13.3, distance: 237_000_000, size: 200_000, color: "#ffd8b8" },
   { name: "Hercules A", type: "Radio Elliptical", l: 23.5, b: 27.9, distance: 2_100_000_000, size: 500_000, color: "#ffcfa0" },
-  { name: "Sombrero Group Dwarf", type: "Dwarf Elliptical", l: 298.0, b: 50.5, distance: 30_000_000, size: 8_000, color: "#ffe0b0" },
+  { name: "NGC 4565 (Needle)", type: "Edge-on Spiral", l: 230.8, b: 86.4, distance: 46_000_000, size: 200_000, color: "#e2ecff", inclination: 88, posAngle: 45 },
 ];
 
 function toXYZ(l: number, b: number, d: number): THREE.Vector3 {
