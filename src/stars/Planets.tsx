@@ -224,26 +224,40 @@ function Planet({ def }: { def: PlanetDef }) {
           onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = ""; }}
           onClick={(e) => { e.stopPropagation(); setVisit(def.name); }}
         >
-          <sphereGeometry args={[def.size, 48, 48]} />
+          <sphereGeometry args={[def.size, 64, 64]} />
           <meshStandardMaterial
-            color={def.color}
-            roughness={0.85}
-            metalness={0.05}
-            emissive={def.emissive ?? def.color}
-            emissiveIntensity={def.emissive ? 0.18 : 0.06}
+            map={surface}
+            bumpMap={def.atmosphere || def.emissive ? undefined : surface}
+            bumpScale={def.size * 0.06}
+            roughness={def.emissive ? 0.55 : 0.9}
+            metalness={0.02}
+            emissive={new THREE.Color(def.emissive ?? def.color)}
+            emissiveIntensity={def.emissive ? 0.12 : 0.05}
           />
         </mesh>
-        {/* atmosphere glow */}
+        {/* atmosphere glow — two soft shells for a limb-lit look */}
         {def.atmosphere && (
-          <mesh scale={1.08}>
-            <sphereGeometry args={[def.size, 32, 32]} />
-            <meshBasicMaterial color={def.atmosphere} transparent opacity={0.18} side={THREE.BackSide} depthWrite={false} />
-          </mesh>
+          <>
+            <mesh scale={1.03}>
+              <sphereGeometry args={[def.size, 48, 48]} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.14} side={THREE.BackSide} depthWrite={false} />
+            </mesh>
+            <mesh scale={1.12}>
+              <sphereGeometry args={[def.size, 48, 48]} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+            </mesh>
+          </>
         )}
-        {def.ring && (
-          <mesh rotation={[Math.PI / 2 + (def.ring.tilt ?? 0) * 0.2, 0, 0]}>
-            <ringGeometry args={[def.ring.inner, def.ring.outer, 96]} />
-            <meshBasicMaterial color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.6} depthWrite={false} />
+        {def.ring && ringGeo && (
+          <mesh geometry={ringGeo} rotation={[Math.PI / 2, 0, 0]} receiveShadow>
+            <meshBasicMaterial
+              map={ringTex ?? undefined}
+              color={def.ring.color}
+              side={THREE.DoubleSide}
+              transparent
+              opacity={0.95}
+              depthWrite={false}
+            />
           </mesh>
         )}
       </group>
