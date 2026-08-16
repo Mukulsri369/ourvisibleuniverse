@@ -31,12 +31,21 @@ export function InfoPanel() {
           <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">{star.constellation}</div>
           <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
             <Stat label="Distance" value={`${star.distance.toFixed(2)} ly`} />
-            <Stat label="Spectral" value={star.spectral} />
-            <Stat label="Magnitude" value={star.magnitude.toFixed(2)} />
-            <Stat label="Constellation" value={star.constellation} />
+            <Stat label="Spectral type" value={star.spectral} />
+            <Stat label="App. magnitude" value={star.magnitude.toFixed(2)} />
+            <Stat label="Abs. magnitude" value={star.absMagnitude.toFixed(2)} />
+            <Stat label="Mass" value={`${star.mass} M☉`} />
+            <Stat label="Radius" value={`${star.radius} R☉`} />
+            <Stat label="Temperature" value={`${star.temperature.toLocaleString()} K`} />
+            <Stat label="Luminosity" value={`${star.luminosity} L☉`} />
+            <Stat label="Right ascension" value={star.ra} />
+            <Stat label="Declination" value={star.dec} />
+            <Stat label="Galactic l, b" value={`${star.galacticL.toFixed(1)}°, ${star.galacticB.toFixed(1)}°`} />
+            <Stat label="Known planets" value={String(star.planets)} />
           </div>
           <div className="my-6 h-px bg-white/10" />
           <p className="text-sm leading-relaxed text-white/75">{star.description}</p>
+
           {star.companions?.length ? (
             <div className="mt-6">
               <div className="text-xs uppercase tracking-[0.2em] text-white/40">Companions</div>
