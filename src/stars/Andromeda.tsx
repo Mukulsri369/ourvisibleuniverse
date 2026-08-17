@@ -613,7 +613,25 @@ function PA99N2System() {
   );
 }
 
-// ---------------------------------------------------------------
+// Soft glow so M31 reads as a galaxy from millions of light-years away,
+// fading out as the camera closes in on the particle model.
+function M31FarGlow() {
+  const ref = useRef<THREE.Sprite>(null!);
+  const tex = useMemo(() => makeGlowTexture("rgba(240,236,255,0.95)", "rgba(120,140,255,0)"), []);
+  const world = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ camera }) => {
+    if (!ref.current) return;
+    ref.current.getWorldPosition(world);
+    const d = camera.position.distanceTo(world);
+    const a = Math.min(1, Math.max(0, (d - 250_000) / 500_000));
+    (ref.current.material as THREE.SpriteMaterial).opacity = a * 0.55;
+  });
+  return (
+    <sprite ref={ref} scale={[260_000, 130_000, 1]}>
+      <spriteMaterial map={tex} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0} />
+    </sprite>
+  );
+}
 
 export function Andromeda() {
   const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo } = useMemo(buildAndromeda, []);
@@ -695,6 +713,7 @@ export function Andromeda() {
           <sphereGeometry args={[120, 24, 24]} />
           <meshBasicMaterial color="#ffeccc" />
         </mesh>
+        <M31FarGlow />
         <sprite scale={[9000, 9000, 1]}>
           <spriteMaterial map={coreTex} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
         </sprite>
