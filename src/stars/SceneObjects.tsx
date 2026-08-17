@@ -5,7 +5,6 @@ import { useFrame } from "@react-three/fiber";
 export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const coronaRef = useRef<THREE.Sprite>(null!);
-  const ringRef = useRef<THREE.Mesh>(null!);
 
   const coronaTex = useMemo(() => makeRadialTexture("rgba(255,180,80,1)", "rgba(255,100,30,0)"), []);
 
@@ -68,11 +67,6 @@ export function Sun() {
       // corona stays a visible fraction of the now much smaller Solar System
       const s = 0.16 + Math.sin(t * 0.8) * 0.006;
       coronaRef.current.scale.set(s, s, 1);
-    }
-    if (ringRef.current) {
-      ringRef.current.rotation.z = t * 0.3;
-      const s = 1 + Math.sin(t * 1.2) * 0.05;
-      ringRef.current.scale.set(s, s, s);
     }
   });
 
