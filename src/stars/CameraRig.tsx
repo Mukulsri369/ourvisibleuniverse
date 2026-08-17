@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useStore, TOUR_STOPS } from "./store";
 import { PLANETS } from "./Planets";
+import { M31_PLANETS, PA99N2_STAR } from "./andromeda-data";
 
 
 // Custom orbit-style controller with smooth damped zoom & inertia
@@ -144,15 +145,17 @@ export function CameraRig() {
   useEffect(() => {
     if (!visitPlanet) return;
     const def = PLANETS.find((p) => p.name === visitPlanet);
-    if (!def) return;
-    desired.current.radius = Math.max(0.005, def.size * 15);
+    const m31 = def ? null : M31_PLANETS.find((p) => p.name === visitPlanet);
+    const size = def?.size ?? m31?.size;
+    if (size == null) return;
+    desired.current.radius = Math.max(0.005, size * 15);
     fovTarget.current = 38;
   }, [visitPlanet]);
 
   // When user selects a galaxy to visit, orbit at a nice framing distance
   useEffect(() => {
     if (!visitGalaxy) return;
-    const r = Math.max(visitGalaxy.size * 2.2, 2000);
+    const r = visitGalaxy.focus ? visitGalaxy.focus.distance : Math.max(visitGalaxy.size * 2.2, 2000);
     desired.current.radius = r;
     const offset = new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
     const sph = new THREE.Spherical().setFromVector3(offset);
@@ -171,9 +174,13 @@ export function CameraRig() {
         target.current.lerp(p, Math.min(1, dt * 5));
       }
     } else if (visitGalaxy) {
-      const gp = new THREE.Vector3(visitGalaxy.x, visitGalaxy.y, visitGalaxy.z);
+      const f = visitGalaxy.focus;
+      const gp = f
+        ? new THREE.Vector3(f.x, f.y, f.z)
+        : new THREE.Vector3(visitGalaxy.x, visitGalaxy.y, visitGalaxy.z);
       const dist = target.current.distanceTo(gp);
-      const k = dist > visitGalaxy.size ? dt * 1.4 : dt * 4;
+      const reach = f ? f.distance : visitGalaxy.size;
+      const k = dist > reach ? dt * 1.4 : dt * 4;
       target.current.lerp(gp, Math.min(1, k));
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
       // Smoothly sweep the target from wherever we are toward the selected
