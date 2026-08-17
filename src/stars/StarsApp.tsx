@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
-import { Sun, OrientationDisc, OortCloud, MilkyWay } from "./SceneObjects";
+import { Sun, OrientationDisc, MilkyWay } from "./SceneObjects";
 import { Universe } from "./Universe";
 import { Planets, SolarSystem, MotionTrails } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
@@ -50,7 +50,6 @@ export function StarsApp() {
           </SolarSystem>
           <MotionTrails />
           <OrientationDisc />
-          <OortCloud />
           <StarField />
           <BinaryMarkers />
           <StarLabels />

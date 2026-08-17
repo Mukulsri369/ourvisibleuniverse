@@ -5,7 +5,6 @@ import { useFrame } from "@react-three/fiber";
 export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const coronaRef = useRef<THREE.Sprite>(null!);
-  const ringRef = useRef<THREE.Mesh>(null!);
 
   const coronaTex = useMemo(() => makeRadialTexture("rgba(255,180,80,1)", "rgba(255,100,30,0)"), []);
 
@@ -69,11 +68,6 @@ export function Sun() {
       const s = 0.16 + Math.sin(t * 0.8) * 0.006;
       coronaRef.current.scale.set(s, s, 1);
     }
-    if (ringRef.current) {
-      ringRef.current.rotation.z = t * 0.3;
-      const s = 1 + Math.sin(t * 1.2) * 0.05;
-      ringRef.current.scale.set(s, s, s);
-    }
   });
 
   return (
@@ -86,10 +80,6 @@ export function Sun() {
       <sprite ref={coronaRef}>
         <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent opacity={0.35} />
       </sprite>
-      <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.05, 0.0009, 8, 64]} />
-        <meshBasicMaterial color="#ffaa55" transparent opacity={0.22} blending={THREE.AdditiveBlending} />
-      </mesh>
     </group>
   );
 }
