@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, MilkyWay } from "./SceneObjects";
 import { Universe } from "./Universe";
+import { Andromeda } from "./Andromeda";
 import { Planets, SolarSystem, MotionTrails } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
@@ -44,6 +45,7 @@ export function StarsApp() {
         <Suspense fallback={null}>
           <MilkyWay />
           <Universe />
+          <Andromeda />
           <SolarSystem>
             <Sun />
             <Planets />
