@@ -146,7 +146,7 @@ export const M31_PLANETS: M31PlanetDef[] = [
     ring: { inner: 0.13 * M31_AU, outer: 0.20 * M31_AU, color: "#a08a68" },
     moons: [
       { name: "PA-99-N2 b I", distance: 0.14 * M31_AU, size: 0.010 * M31_AU, color: "#e0cfa8", period: 3.0 },
-      { name: "PA-99-N2 b II", distance: 0.19 * M31_AU, size: 0.008 * M31_AU, color: "#b7a храм" as unknown as string, period: 4.8 },
+      { name: "PA-99-N2 b II", distance: 0.19 * M31_AU, size: 0.008 * M31_AU, color: "#b7a68c", period: 4.8 },
       { name: "PA-99-N2 b III", distance: 0.26 * M31_AU, size: 0.007 * M31_AU, color: "#8e8272", period: 7.5, inclination: 0.3 },
     ],
     confirmed: true,
