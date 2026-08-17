@@ -50,7 +50,6 @@ export function StarsApp() {
           </SolarSystem>
           <MotionTrails />
           <OrientationDisc />
-          <OortCloud />
           <StarField />
           <BinaryMarkers />
           <StarLabels />
