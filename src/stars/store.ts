@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { NamedStar } from "./data";
+import { ANDROMEDA_NAME, M31_AU, PA99N2_WORLD } from "./andromeda-data";
 
 export type TourStop = {
   name: string;
@@ -26,6 +27,9 @@ export type VisitGalaxy = {
   size: number;
   distance: number;
   type: string;
+  // Optional point of interest inside the galaxy the camera should settle on
+  // (e.g. Andromeda focuses the PA-99-N2 planetary system).
+  focus?: { x: number; y: number; z: number; distance: number };
 };
 
 interface State {
@@ -55,6 +59,16 @@ interface State {
   toggleUiHidden: () => void;
 }
 
+// Andromeda has a fully modelled star system (PA-99-N2), so visiting it
+// flies the camera to that system rather than the galaxy's core.
+function withFocus(g: VisitGalaxy): VisitGalaxy {
+  if (g.name !== ANDROMEDA_NAME || g.focus) return g;
+  return {
+    ...g,
+    focus: { x: PA99N2_WORLD.x, y: PA99N2_WORLD.y, z: PA99N2_WORLD.z, distance: 14 * M31_AU },
+  };
+}
+
 export const useStore = create<State>((set) => ({
   selectedStar: null,
   spectralMode: false,
@@ -79,11 +93,18 @@ export const useStore = create<State>((set) => ({
   clearFly: () => set({ flyTo: null }),
   setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false, visitGalaxy: null }),
   setVisitGalaxy: (g) => set({
-    visitGalaxy: g,
+    visitGalaxy: g ? withFocus(g) : null,
     selectedStar: null,
     visitPlanet: null,
     tourActive: false,
-    flyTo: g ? { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 2000) } : null,
+    flyTo: g
+      ? (() => {
+          const f = withFocus(g).focus;
+          return f
+            ? { x: f.x, y: f.y, z: f.z, distance: f.distance }
+            : { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 2000) };
+        })()
+      : null,
   }),
   toggleUiHidden: () => set((st) => ({ uiHidden: !st.uiHidden })),
 }));

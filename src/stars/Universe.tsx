@@ -458,7 +458,9 @@ export function Universe() {
       <ObservableUniverseShell />
       <CosmicWeb />
       <MilkyWayFarSprite />
-      {NEARBY_GALAXIES.map((g) => (
+      {/* Andromeda is rendered in full particle detail by <Andromeda />, so
+          its low-resolution stand-in disc is skipped here. */}
+      {NEARBY_GALAXIES.filter((g) => g.name !== "Andromeda (M31)").map((g) => (
         <NamedGalaxyDisc key={g.name} g={g} spiralTex={spiralTex} ellipTex={ellipTex} irrTex={irrTex} />
       ))}
     </group>
