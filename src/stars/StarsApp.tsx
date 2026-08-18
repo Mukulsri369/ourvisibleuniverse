@@ -4,6 +4,7 @@ import { StarField } from "./StarField";
 import { Sun, OrientationDisc, MilkyWay } from "./SceneObjects";
 import { Universe } from "./Universe";
 import { Andromeda } from "./Andromeda";
+import { DetailedGalaxies } from "./GalaxyDetail";
 import { Planets, SolarSystem, MotionTrails } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
@@ -46,6 +47,7 @@ export function StarsApp() {
           <MilkyWay />
           <Universe />
           <Andromeda />
+          <DetailedGalaxies />
           <SolarSystem>
             <Sun />
             <Planets />

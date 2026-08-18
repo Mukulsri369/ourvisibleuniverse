@@ -76,12 +76,9 @@ function withFocus(g: VisitGalaxy): VisitGalaxy {
   const model = GALAXY_BY_NAME.get(g.name);
   if (model) {
     const c = galaxyCenter(model);
-    const sysPos = c.clone().add(
-      new (PA99N2_WORLD.constructor as typeof PA99N2_WORLD.constructor)() as typeof PA99N2_WORLD,
-    );
-    // Approximate starting point; the camera then locks onto the live
+    // Aim at the galaxy centre first; the camera then locks onto the live
     // system position published under the host star's name.
-    sysPos.copy(c);
+    const sysPos = c;
     return {
       ...g,
       focus: {

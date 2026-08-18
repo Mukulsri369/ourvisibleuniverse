@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { useStore, TOUR_STOPS } from "./store";
 import { PLANETS } from "./Planets";
 import { M31_PLANETS, PA99N2_STAR } from "./andromeda-data";
+import { GX_PLANET_INDEX } from "./galaxy-models";
 
 
 // Custom orbit-style controller with smooth damped zoom & inertia
@@ -146,7 +147,8 @@ export function CameraRig() {
     if (!visitPlanet) return;
     const def = PLANETS.find((p) => p.name === visitPlanet);
     const m31 = def ? null : M31_PLANETS.find((p) => p.name === visitPlanet);
-    const size = def?.size ?? m31?.size;
+    const gx = def || m31 ? null : GX_PLANET_INDEX.get(visitPlanet)?.planet;
+    const size = def?.size ?? m31?.size ?? gx?.size;
     if (size == null) return;
     desired.current.radius = Math.max(0.005, size * 15);
     fovTarget.current = 38;
@@ -175,9 +177,14 @@ export function CameraRig() {
       }
     } else if (visitGalaxy) {
       const f = visitGalaxy.focus;
-      const gp = f
-        ? new THREE.Vector3(f.x, f.y, f.z)
-        : new THREE.Vector3(visitGalaxy.x, visitGalaxy.y, visitGalaxy.z);
+      // Prefer the live position of the focused star system: it orbits its
+      // galaxy's centre, so a static point would drift out of frame.
+      const live = f?.key ? reg?.get(f.key) : undefined;
+      const gp = live
+        ? live.clone()
+        : f
+          ? new THREE.Vector3(f.x, f.y, f.z)
+          : new THREE.Vector3(visitGalaxy.x, visitGalaxy.y, visitGalaxy.z);
       const dist = target.current.distanceTo(gp);
       const reach = f ? f.distance : visitGalaxy.size;
       const k = dist > reach ? dt * 1.4 : dt * 4;
