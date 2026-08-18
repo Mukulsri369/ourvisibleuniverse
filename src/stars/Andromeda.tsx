@@ -620,16 +620,30 @@ function PA99N2System() {
     [],
   );
 
+  // The system rides M31's rotation curve, circling the galactic centre
+  // exactly like the Sun does in the Milky Way.
+  const sysRef = useRef<THREE.Group>(null!);
+  const sysWorld = useMemo(() => new THREE.Vector3(), []);
+  const sysR = useMemo(() => Math.hypot(PA99N2_LOCAL.x, PA99N2_LOCAL.z), []);
+  const sysPhase = useMemo(() => Math.atan2(PA99N2_LOCAL.z, PA99N2_LOCAL.x), []);
+  const sysOmega = useMemo(() => V_FLAT / Math.max(sysR, 1), [sysR]);
+
   useFrame(({ clock }) => {
-    if (starRef.current) starRef.current.rotation.y = clock.elapsedTime * 0.05;
+    const t = clock.elapsedTime;
+    if (starRef.current) starRef.current.rotation.y = t * 0.05;
+    if (sysRef.current) {
+      const ang = sysPhase + sysOmega * t;
+      sysRef.current.position.set(Math.cos(ang) * sysR, PA99N2_LOCAL.y, Math.sin(ang) * sysR);
+      sysRef.current.getWorldPosition(sysWorld);
+    }
     const reg = getRegistry();
     let v = reg.get(PA99N2_STAR.name);
     if (!v) { v = new THREE.Vector3(); reg.set(PA99N2_STAR.name, v); }
-    v.copy(PA99N2_WORLD);
+    v.copy(sysRef.current ? sysWorld : PA99N2_WORLD);
   });
 
   return (
-    <group position={PA99N2_LOCAL.toArray()}>
+    <group ref={sysRef} position={PA99N2_LOCAL.toArray()}>
       <mesh
         ref={starRef}
         onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
