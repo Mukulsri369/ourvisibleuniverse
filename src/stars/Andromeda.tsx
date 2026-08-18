@@ -57,6 +57,8 @@ type Geos = {
   barGeo: THREE.BufferGeometry;
   hiiGeo: THREE.BufferGeometry;
   haloGeo: THREE.BufferGeometry;
+  dustGeo: THREE.BufferGeometry;
+  satGeo: THREE.BufferGeometry;
 };
 
 let CACHED_M31: Geos | null = null;
