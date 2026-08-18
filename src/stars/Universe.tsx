@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Billboard, Html } from "@react-three/drei";
 import { useStore } from "./store";
+import { GALAXY_BY_NAME } from "./galaxy-models";
 
 // ---------------------------------------------------------------
 // UNIVERSE — everything beyond the Milky Way.
@@ -208,6 +209,10 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
       ? ellipTex
       : irrTex;
   const meshRef = useRef<THREE.Mesh>(null!);
+  const matRef = useRef<THREE.MeshBasicMaterial>(null!);
+  // Galaxies that have a full particle model fade their stand-in disc out
+  // as the camera approaches, so the detailed build takes over cleanly.
+  const hasDetail = GALAXY_BY_NAME.has(g.name);
   const [hovered, setHovered] = useState(false);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const rot = useMemo(() => {
@@ -217,6 +222,14 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
   }, [g]);
   // Pick radius scales with distance so far galaxies remain hoverable.
   const pickRadius = Math.max(g.size * 0.6, g.distance * 0.02);
+  useFrame(({ camera }) => {
+    if (!hasDetail || !matRef.current) return;
+    const d = camera.position.distanceTo(pos);
+    const fade = Math.min(1, Math.max(0, (d - g.size * 3) / (g.size * 8)));
+    matRef.current.opacity = fade;
+    matRef.current.transparent = true;
+  });
+
   const onOver = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     setHovered(true);
@@ -240,6 +253,7 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
       <mesh ref={meshRef} rotation={rot} frustumCulled={false}>
         <planeGeometry args={[g.size, g.size]} />
         <meshBasicMaterial
+          ref={matRef}
           map={tex}
           color={g.color}
           transparent

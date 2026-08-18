@@ -57,6 +57,8 @@ type Geos = {
   barGeo: THREE.BufferGeometry;
   hiiGeo: THREE.BufferGeometry;
   haloGeo: THREE.BufferGeometry;
+  dustGeo: THREE.BufferGeometry;
+  satGeo: THREE.BufferGeometry;
 };
 
 let CACHED_M31: Geos | null = null;
@@ -80,7 +82,7 @@ function buildAndromeda(): Geos {
   const ARM_W = [2000, 2000, 2400, 2400];
   const ARM_STR = [1.0, 1.0, 0.6, 0.6];
 
-  const diskCount = 300_000;
+  const diskCount = 430_000;
   const dPos = new Float32Array(diskCount * 3);
   const dCol = new Float32Array(diskCount * 3);
   const dSize = new Float32Array(diskCount);
@@ -139,7 +141,7 @@ function buildAndromeda(): Geos {
   const diskGeo = pack(dPos, dCol, dSize);
 
   // ---- The 10-kpc star-forming ring — M31's defining feature ----
-  const ringCount = 90_000;
+  const ringCount = 140_000;
   const rPos = new Float32Array(ringCount * 3);
   const rCol = new Float32Array(ringCount * 3);
   const rSize = new Float32Array(ringCount);
@@ -166,7 +168,7 @@ function buildAndromeda(): Geos {
   const ringGeo = pack(rPos, rCol, rSize);
 
   // ---- Large classical bulge ----
-  const bulgeCount = 95_000;
+  const bulgeCount = 130_000;
   const bPos = new Float32Array(bulgeCount * 3);
   const bCol = new Float32Array(bulgeCount * 3);
   const bSize = new Float32Array(bulgeCount);
@@ -206,7 +208,7 @@ function buildAndromeda(): Geos {
   const barGeo = pack(aPos, aCol, aSize);
 
   // ---- HII knots clumped along the ring ----
-  const clusters = 380, per = 26;
+  const clusters = 560, per = 28;
   const hn = clusters * per;
   const hPos = new Float32Array(hn * 3);
   const hCol = new Float32Array(hn * 3);
@@ -231,7 +233,7 @@ function buildAndromeda(): Geos {
   const hiiGeo = pack(hPos, hCol, hSize);
 
   // ---- Halo / globular clusters ----
-  const haloCount = 22_000;
+  const haloCount = 34_000;
   const loPos = new Float32Array(haloCount * 3);
   const loCol = new Float32Array(haloCount * 3);
   const loSize = new Float32Array(haloCount);
@@ -247,7 +249,61 @@ function buildAndromeda(): Geos {
   }
   const haloGeo = pack(loPos, loCol, loSize);
 
-  CACHED_M31 = { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo };
+  // ---- Dust lanes: dark, reddened absorbing arcs just inside each arm ----
+  const dustCount = 110_000;
+  const duPos = new Float32Array(dustCount * 3);
+  const duCol = new Float32Array(dustCount * 3);
+  const duSize = new Float32Array(dustCount);
+  for (let i = 0; i < dustCount; i++) {
+    const armIdx = Math.floor(rand() * ARMS.length);
+    const r = 6_000 + rand() * (M31_DISK_RADIUS * 0.7);
+    const ridge = ARMS[armIdx] + K * Math.log(Math.max(r, 2000) / 2000) - 0.13;
+    const theta = ridge + (rand() - 0.5) * 0.12;
+    duPos[i * 3] = Math.cos(theta) * r;
+    duPos[i * 3 + 1] = (rand() - 0.5) * 500;
+    duPos[i * 3 + 2] = Math.sin(theta) * r;
+    const b = 0.09 + rand() * 0.17;
+    duCol[i * 3] = b; duCol[i * 3 + 1] = b * 0.42; duCol[i * 3 + 2] = b * 0.3;
+    duSize[i] = 18 + rand() * 26;
+  }
+  const dustGeo = pack(duPos, duCol, duSize);
+
+  // ---- Satellite companions M32 and M110, plus outer stellar streams ----
+  const satCount = 70_000;
+  const saPos = new Float32Array(satCount * 3);
+  const saCol = new Float32Array(satCount * 3);
+  const saSize = new Float32Array(satCount);
+  const companions = [
+    { cx: 16_000, cy: 4_000, cz: -9_000, radius: 3_200 },   // M32 (compact elliptical)
+    { cx: -22_000, cy: -6_000, cz: 14_000, radius: 8_500 }, // NGC 205 / M110
+  ];
+  for (let i = 0; i < satCount; i++) {
+    if (i < satCount * 0.55) {
+      const c = companions[i % 2];
+      const r = Math.pow(rand(), 2.2) * c.radius;
+      const theta = rand() * Math.PI * 2;
+      const phi = Math.acos(2 * rand() - 1);
+      saPos[i * 3] = c.cx + r * Math.sin(phi) * Math.cos(theta);
+      saPos[i * 3 + 1] = c.cy + r * Math.cos(phi);
+      saPos[i * 3 + 2] = c.cz + r * Math.sin(phi) * Math.sin(theta);
+      saCol[i * 3] = 1.0; saCol[i * 3 + 1] = 0.86; saCol[i * 3 + 2] = 0.68;
+      saSize[i] = 5 + rand() * 10;
+    } else {
+      // Giant Stellar Stream — a tidal arc wrapping the southern halo
+      const t = rand();
+      const ang = -1.1 + t * 3.4;
+      const r = 45_000 + t * 60_000;
+      saPos[i * 3] = Math.cos(ang) * r + (rand() - 0.5) * 6_000;
+      saPos[i * 3 + 1] = (rand() - 0.5) * 8_000 - 6_000 * t;
+      saPos[i * 3 + 2] = Math.sin(ang) * r + (rand() - 0.5) * 6_000;
+      const b = 0.5 + rand() * 0.4;
+      saCol[i * 3] = b * 0.96; saCol[i * 3 + 1] = b * 0.86; saCol[i * 3 + 2] = b * 0.7;
+      saSize[i] = 3 + rand() * 7;
+    }
+  }
+  const satGeo = pack(saPos, saCol, saSize);
+
+  CACHED_M31 = { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo, dustGeo, satGeo };
   return CACHED_M31;
 }
 
@@ -564,16 +620,30 @@ function PA99N2System() {
     [],
   );
 
+  // The system rides M31's rotation curve, circling the galactic centre
+  // exactly like the Sun does in the Milky Way.
+  const sysRef = useRef<THREE.Group>(null!);
+  const sysWorld = useMemo(() => new THREE.Vector3(), []);
+  const sysR = useMemo(() => Math.hypot(PA99N2_LOCAL.x, PA99N2_LOCAL.z), []);
+  const sysPhase = useMemo(() => Math.atan2(PA99N2_LOCAL.z, PA99N2_LOCAL.x), []);
+  const sysOmega = useMemo(() => V_FLAT / Math.max(sysR, 1), [sysR]);
+
   useFrame(({ clock }) => {
-    if (starRef.current) starRef.current.rotation.y = clock.elapsedTime * 0.05;
+    const t = clock.elapsedTime;
+    if (starRef.current) starRef.current.rotation.y = t * 0.05;
+    if (sysRef.current) {
+      const ang = sysPhase + sysOmega * t;
+      sysRef.current.position.set(Math.cos(ang) * sysR, PA99N2_LOCAL.y, Math.sin(ang) * sysR);
+      sysRef.current.getWorldPosition(sysWorld);
+    }
     const reg = getRegistry();
     let v = reg.get(PA99N2_STAR.name);
     if (!v) { v = new THREE.Vector3(); reg.set(PA99N2_STAR.name, v); }
-    v.copy(PA99N2_WORLD);
+    v.copy(sysRef.current ? sysWorld : PA99N2_WORLD);
   });
 
   return (
-    <group position={PA99N2_LOCAL.toArray()}>
+    <group ref={sysRef} position={PA99N2_LOCAL.toArray()}>
       <mesh
         ref={starRef}
         onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
@@ -634,7 +704,7 @@ function M31FarGlow() {
 }
 
 export function Andromeda() {
-  const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo } = useMemo(buildAndromeda, []);
+  const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo, dustGeo, satGeo } = useMemo(buildAndromeda, []);
   const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeGlowTexture("rgba(255,226,178,1)", "rgba(255,150,60,0)"), []);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
@@ -704,7 +774,7 @@ export function Andromeda() {
     <group position={M31_CENTER.toArray()} rotation={[M31_INCLINATION, 0, M31_POS_ANGLE]}>
       {/* Galaxy body lives in its own XZ plane, tipped into the disc plane */}
       <group rotation={[Math.PI / 2, 0, 0]}>
-        {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo].map((g, i) => (
+        {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo, dustGeo, satGeo].map((g, i) => (
           <points key={i} geometry={g} frustumCulled={false}>
             <shaderMaterial args={[shader]} />
           </points>
