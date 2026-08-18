@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { NamedStar } from "./data";
-import { ANDROMEDA_NAME, M31_AU, PA99N2_WORLD } from "./andromeda-data";
+import { ANDROMEDA_NAME, M31_AU, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
+import { GALAXY_BY_NAME, galaxyCenter } from "./galaxy-models";
 
 export type TourStop = {
   name: string;
@@ -29,7 +30,7 @@ export type VisitGalaxy = {
   type: string;
   // Optional point of interest inside the galaxy the camera should settle on
   // (e.g. Andromeda focuses the PA-99-N2 planetary system).
-  focus?: { x: number; y: number; z: number; distance: number };
+  focus?: { x: number; y: number; z: number; distance: number; key?: string };
 };
 
 interface State {
@@ -62,11 +63,35 @@ interface State {
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
 // flies the camera to that system rather than the galaxy's core.
 function withFocus(g: VisitGalaxy): VisitGalaxy {
-  if (g.name !== ANDROMEDA_NAME || g.focus) return g;
-  return {
-    ...g,
-    focus: { x: PA99N2_WORLD.x, y: PA99N2_WORLD.y, z: PA99N2_WORLD.z, distance: 14 * M31_AU },
-  };
+  if (g.focus) return g;
+  if (g.name === ANDROMEDA_NAME) {
+    return {
+      ...g,
+      focus: {
+        x: PA99N2_WORLD.x, y: PA99N2_WORLD.y, z: PA99N2_WORLD.z,
+        distance: 14 * M31_AU, key: PA99N2_STAR.name,
+      },
+    };
+  }
+  const model = GALAXY_BY_NAME.get(g.name);
+  if (model) {
+    const c = galaxyCenter(model);
+    const sysPos = c.clone().add(
+      new (PA99N2_WORLD.constructor as typeof PA99N2_WORLD.constructor)() as typeof PA99N2_WORLD,
+    );
+    // Approximate starting point; the camera then locks onto the live
+    // system position published under the host star's name.
+    sysPos.copy(c);
+    return {
+      ...g,
+      focus: {
+        x: sysPos.x, y: sysPos.y, z: sysPos.z,
+        distance: 16 * model.system.au,
+        key: model.system.star.name,
+      },
+    };
+  }
+  return g;
 }
 
 export const useStore = create<State>((set) => ({
