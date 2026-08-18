@@ -249,7 +249,61 @@ function buildAndromeda(): Geos {
   }
   const haloGeo = pack(loPos, loCol, loSize);
 
-  CACHED_M31 = { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo };
+  // ---- Dust lanes: dark, reddened absorbing arcs just inside each arm ----
+  const dustCount = 110_000;
+  const duPos = new Float32Array(dustCount * 3);
+  const duCol = new Float32Array(dustCount * 3);
+  const duSize = new Float32Array(dustCount);
+  for (let i = 0; i < dustCount; i++) {
+    const armIdx = Math.floor(rand() * ARMS.length);
+    const r = 6_000 + rand() * (M31_DISK_RADIUS * 0.7);
+    const ridge = ARMS[armIdx] + K * Math.log(Math.max(r, 2000) / 2000) - 0.13;
+    const theta = ridge + (rand() - 0.5) * 0.12;
+    duPos[i * 3] = Math.cos(theta) * r;
+    duPos[i * 3 + 1] = (rand() - 0.5) * 500;
+    duPos[i * 3 + 2] = Math.sin(theta) * r;
+    const b = 0.09 + rand() * 0.17;
+    duCol[i * 3] = b; duCol[i * 3 + 1] = b * 0.42; duCol[i * 3 + 2] = b * 0.3;
+    duSize[i] = 18 + rand() * 26;
+  }
+  const dustGeo = pack(duPos, duCol, duSize);
+
+  // ---- Satellite companions M32 and M110, plus outer stellar streams ----
+  const satCount = 70_000;
+  const saPos = new Float32Array(satCount * 3);
+  const saCol = new Float32Array(satCount * 3);
+  const saSize = new Float32Array(satCount);
+  const companions = [
+    { cx: 16_000, cy: 4_000, cz: -9_000, radius: 3_200 },   // M32 (compact elliptical)
+    { cx: -22_000, cy: -6_000, cz: 14_000, radius: 8_500 }, // NGC 205 / M110
+  ];
+  for (let i = 0; i < satCount; i++) {
+    if (i < satCount * 0.55) {
+      const c = companions[i % 2];
+      const r = Math.pow(rand(), 2.2) * c.radius;
+      const theta = rand() * Math.PI * 2;
+      const phi = Math.acos(2 * rand() - 1);
+      saPos[i * 3] = c.cx + r * Math.sin(phi) * Math.cos(theta);
+      saPos[i * 3 + 1] = c.cy + r * Math.cos(phi);
+      saPos[i * 3 + 2] = c.cz + r * Math.sin(phi) * Math.sin(theta);
+      saCol[i * 3] = 1.0; saCol[i * 3 + 1] = 0.86; saCol[i * 3 + 2] = 0.68;
+      saSize[i] = 5 + rand() * 10;
+    } else {
+      // Giant Stellar Stream — a tidal arc wrapping the southern halo
+      const t = rand();
+      const ang = -1.1 + t * 3.4;
+      const r = 45_000 + t * 60_000;
+      saPos[i * 3] = Math.cos(ang) * r + (rand() - 0.5) * 6_000;
+      saPos[i * 3 + 1] = (rand() - 0.5) * 8_000 - 6_000 * t;
+      saPos[i * 3 + 2] = Math.sin(ang) * r + (rand() - 0.5) * 6_000;
+      const b = 0.5 + rand() * 0.4;
+      saCol[i * 3] = b * 0.96; saCol[i * 3 + 1] = b * 0.86; saCol[i * 3 + 2] = b * 0.7;
+      saSize[i] = 3 + rand() * 7;
+    }
+  }
+  const satGeo = pack(saPos, saCol, saSize);
+
+  CACHED_M31 = { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo, dustGeo, satGeo };
   return CACHED_M31;
 }
 
