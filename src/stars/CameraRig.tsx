@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useStore, TOUR_STOPS } from "./store";
 import { PLANETS } from "./Planets";
-import { M31_PLANETS, PA99N2_STAR } from "./andromeda-data";
+import { M31_PLANETS } from "./andromeda-data";
 import { GX_PLANET_INDEX } from "./galaxy-models";
 
 
