@@ -82,7 +82,7 @@ function buildAndromeda(): Geos {
   const ARM_W = [2000, 2000, 2400, 2400];
   const ARM_STR = [1.0, 1.0, 0.6, 0.6];
 
-  const diskCount = 300_000;
+  const diskCount = 430_000;
   const dPos = new Float32Array(diskCount * 3);
   const dCol = new Float32Array(diskCount * 3);
   const dSize = new Float32Array(diskCount);
@@ -141,7 +141,7 @@ function buildAndromeda(): Geos {
   const diskGeo = pack(dPos, dCol, dSize);
 
   // ---- The 10-kpc star-forming ring — M31's defining feature ----
-  const ringCount = 90_000;
+  const ringCount = 140_000;
   const rPos = new Float32Array(ringCount * 3);
   const rCol = new Float32Array(ringCount * 3);
   const rSize = new Float32Array(ringCount);
@@ -168,7 +168,7 @@ function buildAndromeda(): Geos {
   const ringGeo = pack(rPos, rCol, rSize);
 
   // ---- Large classical bulge ----
-  const bulgeCount = 95_000;
+  const bulgeCount = 130_000;
   const bPos = new Float32Array(bulgeCount * 3);
   const bCol = new Float32Array(bulgeCount * 3);
   const bSize = new Float32Array(bulgeCount);
@@ -208,7 +208,7 @@ function buildAndromeda(): Geos {
   const barGeo = pack(aPos, aCol, aSize);
 
   // ---- HII knots clumped along the ring ----
-  const clusters = 380, per = 26;
+  const clusters = 560, per = 28;
   const hn = clusters * per;
   const hPos = new Float32Array(hn * 3);
   const hCol = new Float32Array(hn * 3);
@@ -233,7 +233,7 @@ function buildAndromeda(): Geos {
   const hiiGeo = pack(hPos, hCol, hSize);
 
   // ---- Halo / globular clusters ----
-  const haloCount = 22_000;
+  const haloCount = 34_000;
   const loPos = new Float32Array(haloCount * 3);
   const loCol = new Float32Array(haloCount * 3);
   const loSize = new Float32Array(haloCount);
@@ -690,7 +690,7 @@ function M31FarGlow() {
 }
 
 export function Andromeda() {
-  const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo } = useMemo(buildAndromeda, []);
+  const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo, dustGeo, satGeo } = useMemo(buildAndromeda, []);
   const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeGlowTexture("rgba(255,226,178,1)", "rgba(255,150,60,0)"), []);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
@@ -760,7 +760,7 @@ export function Andromeda() {
     <group position={M31_CENTER.toArray()} rotation={[M31_INCLINATION, 0, M31_POS_ANGLE]}>
       {/* Galaxy body lives in its own XZ plane, tipped into the disc plane */}
       <group rotation={[Math.PI / 2, 0, 0]}>
-        {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo].map((g, i) => (
+        {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo, dustGeo, satGeo].map((g, i) => (
           <points key={i} geometry={g} frustumCulled={false}>
             <shaderMaterial args={[shader]} />
           </points>
