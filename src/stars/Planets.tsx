@@ -760,6 +760,9 @@ function Trail({ body }: { body: TrailBody }) {
 }
 
 export function MotionTrails() {
+  // Trail length is user-adjustable (0–100 slider → 0.1×–2× the default).
+  const trailSize = useStore((s) => s.trailSize);
+  const scale = 0.1 + (trailSize / 100) * 1.9;
   const bodies = useMemo<TrailBody[]>(() => [
     { name: "Sun", color: new THREE.Color("#ffcf80") },
     ...PLANETS.map((p) => ({ name: p.name, color: new THREE.Color(p.color) })),

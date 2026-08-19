@@ -48,6 +48,7 @@ interface State {
   cameraFree: boolean;
   zoomSpeed: number;
   systemSpeed: number;
+  trailSize: number;
   setSelected: (s: NamedStar | null) => void;
   toggleSpectral: () => void;
   startTour: () => void;
@@ -64,6 +65,7 @@ interface State {
   toggleCameraFree: () => void;
   setZoomSpeed: (n: number) => void;
   setSystemSpeed: (n: number) => void;
+  setTrailSize: (n: number) => void;
 }
 
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
@@ -112,6 +114,7 @@ export const useStore = create<State>((set) => ({
   cameraFree: false,
   zoomSpeed: 50,
   systemSpeed: 50,
+  trailSize: 50,
   setSelected: (s) => set({ selectedStar: s, visitGalaxy: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
   startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null, visitPlanet: null, visitGalaxy: null }),
@@ -141,4 +144,5 @@ export const useStore = create<State>((set) => ({
   toggleCameraFree: () => set((st) => ({ cameraFree: !st.cameraFree })),
   setZoomSpeed: (n) => set({ zoomSpeed: n }),
   setSystemSpeed: (n) => set({ systemSpeed: n }),
+  setTrailSize: (n) => set({ trailSize: n }),
 }));
