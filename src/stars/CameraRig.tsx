@@ -68,7 +68,8 @@ export function CameraRig() {
     };
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const factor = Math.exp(e.deltaY * 0.0015);
+      const speed = useStore.getState().zoomSpeed / 50;
+      const factor = Math.exp(e.deltaY * 0.0015 * speed);
       desired.current.radius = Math.max(minR, Math.min(maxR, desired.current.radius * factor));
     };
     const onTouchStart = (e: TouchEvent) => {
@@ -105,6 +106,31 @@ export function CameraRig() {
       el.removeEventListener("touchend", onTouchEnd);
     };
   }, [gl]);
+
+  // Keyboard zoom — SPACE zooms out, CTRL zooms in. Held keys ramp smoothly
+  // via a per-frame factor driven by the user's zoom-speed setting.
+  const keys = useRef({ out: false, in: false });
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.code === "Space") { e.preventDefault(); keys.current.out = true; }
+      if (e.key === "Control") { e.preventDefault(); keys.current.in = true; }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (e.code === "Space") keys.current.out = false;
+      if (e.key === "Control") keys.current.in = false;
+    };
+    const blur = () => { keys.current.out = false; keys.current.in = false; };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+    };
+  }, []);
 
   // Fly-to handling — smoothly transition to the target star's system.
   // We set desired radius/orientation and a close FOV, but let useFrame
@@ -168,7 +194,29 @@ export function CameraRig() {
 
   useFrame((_, dt) => {
     const reg = (window as Window).__planetPositions;
-    const selectedStar = useStore.getState().selectedStar;
+    const st = useStore.getState();
+    const selectedStar = st.selectedStar;
+    const cameraFree = st.cameraFree;
+
+    // Held-key zoom
+    if (keys.current.out || keys.current.in) {
+      const rate = (st.zoomSpeed / 50) * 1.2 * Math.min(dt, 0.1);
+      const dir = (keys.current.out ? 1 : 0) - (keys.current.in ? 1 : 0);
+      desired.current.radius = Math.max(minR, Math.min(maxR, desired.current.radius * Math.exp(dir * rate)));
+    }
+
+    // Free-look: the camera target is frozen in space, so the Solar System
+    // drifts past instead of staying pinned to the centre of the screen.
+    if (cameraFree) {
+      spherical.current.radius += (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
+      spherical.current.theta += (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
+      spherical.current.phi += (desired.current.phi - spherical.current.phi) * Math.min(1, dt * 6);
+      const p = new THREE.Vector3().setFromSpherical(spherical.current).add(target.current);
+      camera.position.copy(p);
+      camera.lookAt(target.current);
+      setCameraDistance(spherical.current.radius);
+      return;
+    }
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
       const p = reg?.get(visitPlanet);
