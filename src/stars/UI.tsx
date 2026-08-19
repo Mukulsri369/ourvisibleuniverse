@@ -72,31 +72,115 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export function TopLeftControls() {
-  const startTour = useStore((s) => s.startTour);
-  const tourActive = useStore((s) => s.tourActive);
-  const stopTour = useStore((s) => s.stopTour);
   const spectralMode = useStore((s) => s.spectralMode);
   const toggleSpectral = useStore((s) => s.toggleSpectral);
+  const cameraFree = useStore((s) => s.cameraFree);
+  const toggleCameraFree = useStore((s) => s.toggleCameraFree);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   return (
-    <div className="fixed left-6 top-5 z-20 flex items-center gap-3 text-white/80">
-      {!tourActive ? (
-        <button onClick={startTour} className="text-xs uppercase tracking-[0.25em] text-white/70 transition hover:text-white">
-          ◯ Take the Tour
-        </button>
-      ) : (
-        <button onClick={stopTour} className="text-xs uppercase tracking-[0.25em] text-white/70 transition hover:text-white">
-          ✕ Skip Tour
-        </button>
-      )}
-      <div className="mx-2 h-4 w-px bg-white/15" />
+    <div onClick={(e) => e.stopPropagation()} className="fixed left-6 top-5 z-30 flex items-center gap-3 text-white/80">
       <IconButton title="Toggle Spectral Colors" onClick={toggleSpectral} active={spectralMode}>
         <SpectrumIcon />
       </IconButton>
-      <IconButton title="Search stars" onClick={() => setSearchOpen((v) => !v)} active={searchOpen}>
+      <IconButton title="Search stars, planets and galaxies" onClick={() => setSearchOpen((v) => !v)} active={searchOpen}>
         <SearchIcon />
       </IconButton>
+      <IconButton
+        title={cameraFree ? "Camera stopped — click to follow the Solar System again" : "Stop the camera in space (free look)"}
+        onClick={toggleCameraFree}
+        active={cameraFree}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="6" y="6" width="12" height="12" rx="2" />
+        </svg>
+      </IconButton>
+      <MaximizeButton />
+      <IconButton title="Settings" onClick={() => setSettingsOpen((v) => !v)} active={settingsOpen}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" />
+        </svg>
+      </IconButton>
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+    </div>
+  );
+}
+
+// Fullscreen toggle — the browser exits fullscreen on Esc automatically,
+// so we only mirror the state here.
+function MaximizeButton() {
+  const [full, setFull] = useState(false);
+  useEffect(() => {
+    const onChange = () => setFull(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+  const toggle = async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen({ navigationUI: "hide" });
+    } catch { /* fullscreen may be blocked */ }
+  };
+  return (
+    <IconButton title={full ? "Exit full screen (Esc)" : "Maximize — full screen"} onClick={toggle} active={full}>
+      {full ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M9 3v6H3M15 21v-6h6M21 9h-6V3M3 15h6v6" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+        </svg>
+      )}
+    </IconButton>
+  );
+}
+
+function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const zoomSpeed = useStore((s) => s.zoomSpeed);
+  const setZoomSpeed = useStore((s) => s.setZoomSpeed);
+  const systemSpeed = useStore((s) => s.systemSpeed);
+  const setSystemSpeed = useStore((s) => s.setSystemSpeed);
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          className="absolute left-0 top-12 w-72 rounded-xl border border-white/10 bg-black/70 p-4 backdrop-blur-md"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Settings</span>
+            <button onClick={onClose} className="text-white/50 transition hover:text-white" aria-label="Close settings">✕</button>
+          </div>
+          <Slider label="Zoom speed" hint="Space = zoom out · Ctrl = zoom in" value={zoomSpeed} onChange={setZoomSpeed} />
+          <Slider label="Solar System speed" hint="Drift through space" value={systemSpeed} onChange={setSystemSpeed} />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function Slider({ label, hint, value, onChange }: { label: string; hint: string; value: number; onChange: (n: number) => void }) {
+  return (
+    <div className="mb-4 last:mb-0">
+      <div className="flex items-baseline justify-between text-[11px] text-white/70">
+        <span>{label}</span>
+        <span className="text-white/45">{Math.round(value)}</span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="mt-2 w-full accent-white"
+      />
+      <div className="mt-1 text-[9px] uppercase tracking-[0.15em] text-white/30">{hint}</div>
     </div>
   );
 }
@@ -659,7 +743,7 @@ export function LoadingScreen({ done }: { done: boolean }) {
 // ---------------------------------------------------------------
 export function SiteMap() {
   const [open, setOpen] = useState(true);
-  const [section, setSection] = useState<"planets" | "stars" | "galaxies" | "tour">("planets");
+  const [section, setSection] = useState<"planets" | "stars" | "galaxies">("planets");
   const [q, setQ] = useState("");
 
   const visitPlanet = useStore((s) => s.visitPlanet);
@@ -669,9 +753,6 @@ export function SiteMap() {
   const setSelected = useStore((s) => s.setSelected);
   const visitGalaxy = useStore((s) => s.visitGalaxy);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
-  const startTour = useStore((s) => s.startTour);
-  const tourActive = useStore((s) => s.tourActive);
-  const stopTour = useStore((s) => s.stopTour);
 
   const lower = q.trim().toLowerCase();
   const match = (n: string) => !lower || n.toLowerCase().includes(lower);
@@ -713,7 +794,7 @@ export function SiteMap() {
               className="mb-2 h-8 w-full rounded-full border border-white/15 bg-white/5 px-3 text-[11px] text-white outline-none placeholder:text-white/35 focus:border-white/40"
             />
             <div className="mb-2 flex gap-1">
-              {(["planets", "stars", "galaxies", "tour"] as const).map((k) => (
+              {(["planets", "stars", "galaxies"] as const).map((k) => (
                 <button
                   key={k}
                   onClick={() => setSection(k)}
@@ -785,19 +866,7 @@ export function SiteMap() {
                 </>
               )}
 
-              {section === "tour" && (
-                <>
-                  <Row
-                    label={tourActive ? "✕ Stop guided tour" : "◯ Start guided tour"}
-                    onClick={() => (tourActive ? stopTour() : startTour())}
-                    active={tourActive}
-                  />
-                  {TOUR_STOPS.map((t, i) => (
-                    <Row key={i} label={`${i + 1}. ${t.name}`} indent onClick={() => startTour()} />
-                  ))}
-                </>
-              )}
-            </div>
+              </div>
           </div>
         )}
       </motion.div>
