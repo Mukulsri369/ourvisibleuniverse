@@ -45,6 +45,9 @@ interface State {
   visitPlanet: string | null;
   visitGalaxy: VisitGalaxy | null;
   uiHidden: boolean;
+  cameraFree: boolean;
+  zoomSpeed: number;
+  systemSpeed: number;
   setSelected: (s: NamedStar | null) => void;
   toggleSpectral: () => void;
   startTour: () => void;
@@ -58,6 +61,9 @@ interface State {
   setVisitPlanet: (name: string | null) => void;
   setVisitGalaxy: (g: VisitGalaxy | null) => void;
   toggleUiHidden: () => void;
+  toggleCameraFree: () => void;
+  setZoomSpeed: (n: number) => void;
+  setSystemSpeed: (n: number) => void;
 }
 
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
@@ -103,6 +109,9 @@ export const useStore = create<State>((set) => ({
   visitPlanet: null,
   visitGalaxy: null,
   uiHidden: false,
+  cameraFree: false,
+  zoomSpeed: 50,
+  systemSpeed: 50,
   setSelected: (s) => set({ selectedStar: s, visitGalaxy: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
   startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null, visitPlanet: null, visitGalaxy: null }),
@@ -129,4 +138,7 @@ export const useStore = create<State>((set) => ({
       : null,
   }),
   toggleUiHidden: () => set((st) => ({ uiHidden: !st.uiHidden })),
+  toggleCameraFree: () => set((st) => ({ cameraFree: !st.cameraFree })),
+  setZoomSpeed: (n) => set({ zoomSpeed: n }),
+  setSystemSpeed: (n) => set({ systemSpeed: n }),
 }));

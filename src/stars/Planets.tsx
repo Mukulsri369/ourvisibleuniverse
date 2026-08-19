@@ -650,10 +650,14 @@ export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, -0.42, -0.91).normalize();
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
   const tmp = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ clock }) => {
+  // Distance travelled so far — accumulated instead of derived from elapsed
+  // time so the user-controlled speed setting can change it live.
+  const dist = useRef(0);
+  useFrame((_, dt) => {
     if (!ref.current) return;
-    const t = clock.elapsedTime;
-    const d = t * SUN_DRIFT_SPEED;
+    const factor = useStore.getState().systemSpeed / 50;
+    dist.current += Math.min(dt, 0.1) * SUN_DRIFT_SPEED * factor;
+    const d = dist.current;
     ref.current.position.set(
       SUN_DRIFT_DIR.x * d,
       SUN_DRIFT_DIR.y * d,

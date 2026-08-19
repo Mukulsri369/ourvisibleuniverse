@@ -12,11 +12,9 @@ import {
   InfoPanel,
   TopLeftControls,
   ZoomSlider,
-  TourCaption,
   ScaleIndicator,
   MusicToggle,
   Branding,
-  TourStopIndicator,
   LoadingScreen,
   UIHideToggle,
   SiteMap,
@@ -68,7 +66,6 @@ export function StarsApp() {
         <>
           <SiteMap />
           <TopLeftControls />
-          <TourStopIndicator />
           <ZoomSlider />
           <ScaleIndicator />
           <MusicToggle />
@@ -77,8 +74,6 @@ export function StarsApp() {
 
         </>
       )}
-      {/* Tour caption remains even when panels are hidden — it's diegetic. */}
-      <TourCaption />
       <LoadingScreen done={loaded} />
     </div>
   );
