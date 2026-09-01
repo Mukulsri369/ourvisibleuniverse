@@ -764,22 +764,26 @@ export function MotionTrails() {
   const trailSize = useStore((s) => s.trailSize);
   const scale = 0.1 + (trailSize / 100) * 1.9;
   const bodies = useMemo<TrailBody[]>(() => [
-    { name: "Sun", color: new THREE.Color("#ffcf80") },
-    ...PLANETS.map((p) => ({ name: p.name, color: new THREE.Color(p.color) })),
+    { name: "Sun", color: new THREE.Color("#ffcf80"), length: Math.max(2, Math.round(TRAIL_LEN * scale)) },
+    ...PLANETS.map((p) => ({
+      name: p.name,
+      color: new THREE.Color(p.color),
+      length: Math.max(2, Math.round(TRAIL_LEN * scale)),
+    })),
     // Moons: short, dimmer trails so their fast loops around each planet
     // read as fine helices without cluttering the planetary paths.
     ...PLANETS.flatMap((p) =>
       (p.moons ?? []).map((m) => ({
         name: moonKey(p.name, m.name),
         color: new THREE.Color(m.color),
-        length: MOON_TRAIL_LEN,
+        length: Math.max(2, Math.round(MOON_TRAIL_LEN * scale)),
         opacity: 0.55,
       })),
     ),
-  ], []);
+  ], [scale]);
   return (
     <group>
-      {bodies.map((b) => <Trail key={b.name} body={b} />)}
+      {bodies.map((b) => <Trail key={`${b.name}-${b.length}`} body={b} />)}
     </group>
   );
 }
