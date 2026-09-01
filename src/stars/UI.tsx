@@ -78,6 +78,7 @@ export function TopLeftControls() {
   const toggleCameraFree = useStore((s) => s.toggleCameraFree);
   const [searchOpen, setSearchOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   return (
     <div onClick={(e) => e.stopPropagation()} className="fixed left-6 top-5 z-30 flex items-center gap-3 text-white/80">
       <IconButton title="Toggle Spectral Colors" onClick={toggleSpectral} active={spectralMode}>
@@ -102,9 +103,93 @@ export function TopLeftControls() {
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" />
         </svg>
       </IconButton>
+      <IconButton title="Guide — what every button does" onClick={() => setGuideOpen((v) => !v)} active={guideOpen}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.5v.4" />
+          <path d="M12 17h.01" />
+        </svg>
+      </IconButton>
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <GuidePanel open={guideOpen} onClose={() => setGuideOpen(false)} />
     </div>
+  );
+}
+
+// Quick reference for every control in the app.
+const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
+  {
+    title: "Toolbar",
+    items: [
+      ["Spectrum", "Toggle true spectral star colours"],
+      ["Search", "Find any star, planet or galaxy and fly to it"],
+      ["Square", "Stop the camera in space (free look)"],
+      ["Maximize", "Full screen — press Esc to exit"],
+      ["Gear", "Settings: zoom speed, system speed, trail size"],
+      ["?", "This guide"],
+      ["Eye (top right)", "Hide or show the whole interface"],
+      ["Music", "Ambient soundtrack on / off"],
+    ],
+  },
+  {
+    title: "Keyboard",
+    items: [
+      ["Space", "Zoom out"],
+      ["Ctrl", "Zoom in"],
+      ["S", "Stop / resume the camera"],
+      ["Esc", "Leave full screen"],
+    ],
+  },
+  {
+    title: "Mouse & touch",
+    items: [
+      ["Drag", "Orbit the view"],
+      ["Wheel / pinch", "Zoom in and out"],
+      ["Hover", "Reveal star and galaxy names"],
+      ["Click a name", "Fly the camera to it"],
+    ],
+  },
+  {
+    title: "Site map (left)",
+    items: [
+      ["Stars", "Visit any catalogued star system"],
+      ["Planets", "Follow a planet of the Solar System"],
+      ["Galaxies", "Fly to a galaxy and its star system"],
+    ],
+  },
+];
+
+function GuidePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          className="absolute left-0 top-12 max-h-[70vh] w-80 overflow-y-auto rounded-xl border border-white/10 bg-black/75 p-4 backdrop-blur-md"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Guide</span>
+            <button onClick={onClose} className="text-white/50 transition hover:text-white" aria-label="Close guide">✕</button>
+          </div>
+          {GUIDE_SECTIONS.map((s) => (
+            <div key={s.title} className="mb-4 last:mb-0">
+              <div className="mb-2 text-[9px] uppercase tracking-[0.2em] text-white/35">{s.title}</div>
+              <ul className="space-y-1.5">
+                {s.items.map(([k, v]) => (
+                  <li key={k} className="flex gap-3 text-[11px] leading-snug">
+                    <span className="w-24 shrink-0 text-white/80">{k}</span>
+                    <span className="text-white/50">{v}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -143,6 +228,8 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
   const setZoomSpeed = useStore((s) => s.setZoomSpeed);
   const systemSpeed = useStore((s) => s.systemSpeed);
   const setSystemSpeed = useStore((s) => s.setSystemSpeed);
+  const trailSize = useStore((s) => s.trailSize);
+  const setTrailSize = useStore((s) => s.setTrailSize);
   return (
     <AnimatePresence>
       {open && (
@@ -158,6 +245,7 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
           </div>
           <Slider label="Zoom speed" hint="Space = zoom out · Ctrl = zoom in" value={zoomSpeed} onChange={setZoomSpeed} />
           <Slider label="Solar System speed" hint="Drift through space" value={systemSpeed} onChange={setSystemSpeed} />
+          <Slider label="Trail size" hint="Length of planet & moon trails" value={trailSize} onChange={setTrailSize} />
         </motion.div>
       )}
     </AnimatePresence>

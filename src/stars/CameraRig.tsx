@@ -116,6 +116,11 @@ export function CameraRig() {
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
       if (e.code === "Space") { e.preventDefault(); keys.current.out = true; }
       if (e.key === "Control") { e.preventDefault(); keys.current.in = true; }
+      // S = stop/resume the camera (free look)
+      if ((e.key === "s" || e.key === "S") && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        useStore.getState().toggleCameraFree();
+      }
     };
     const up = (e: KeyboardEvent) => {
       if (e.code === "Space") keys.current.out = false;
