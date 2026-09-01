@@ -143,6 +143,8 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
   const setZoomSpeed = useStore((s) => s.setZoomSpeed);
   const systemSpeed = useStore((s) => s.systemSpeed);
   const setSystemSpeed = useStore((s) => s.setSystemSpeed);
+  const trailSize = useStore((s) => s.trailSize);
+  const setTrailSize = useStore((s) => s.setTrailSize);
   return (
     <AnimatePresence>
       {open && (
@@ -158,6 +160,7 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
           </div>
           <Slider label="Zoom speed" hint="Space = zoom out · Ctrl = zoom in" value={zoomSpeed} onChange={setZoomSpeed} />
           <Slider label="Solar System speed" hint="Drift through space" value={systemSpeed} onChange={setSystemSpeed} />
+          <Slider label="Trail size" hint="Length of planet & moon trails" value={trailSize} onChange={setTrailSize} />
         </motion.div>
       )}
     </AnimatePresence>
