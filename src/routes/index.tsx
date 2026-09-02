@@ -8,9 +8,9 @@ const StarsApp = lazy(() =>
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "100,000 Stars — An interactive map of the stellar neighborhood" },
-      { name: "description", content: "Cinematic 3D visualization of our nearest stars, the Sun, the Oort Cloud, and the Milky Way." },
-      { property: "og:title", content: "100,000 Stars" },
+      { title: "Our Visible Universe — An interactive map of the stellar neighborhood" },
+      { name: "description", content: "Cinematic 3D visualization of our nearest stars, the Sun, and the Milky Way." },
+      { property: "og:title", content: "Our Visible Universe" },
       { property: "og:description", content: "Cinematic 3D visualization of our nearest stars." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
