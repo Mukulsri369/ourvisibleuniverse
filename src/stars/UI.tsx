@@ -519,7 +519,7 @@ export function MusicToggle() {
 export function Branding() {
   return (
     <div className="pointer-events-none fixed bottom-5 right-6 z-20 text-[10px] uppercase tracking-[0.3em] text-white/30">
-      100,000 Stars — A Cosmic Experiment
+      Our Visible Universe — A Cosmic Experiment
     </div>
   );
 }
