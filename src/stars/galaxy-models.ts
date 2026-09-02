@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { LEGACY_BODY_RADIUS_TO_AU, LIGHT_YEARS_PER_AU, SOLAR_RADIUS_AU } from "./scale";
 
 // ---------------------------------------------------------------
 // GALAXY MODELS — data-driven definitions used by <GalaxyDetail />.
@@ -14,11 +15,8 @@ import * as THREE from "three";
 // systems are built around REAL, catalogued stars/binaries in those
 // galaxies and their planets are explicitly flagged as modelled.
 //
-// Scale note: a truly-to-scale planetary system 12 million ly away is
-// far below float precision. Each system is therefore drawn at a scale
-// tied to its host galaxy — 1 AU = diskRadius / 120 scene-ly — so every
-// system is exaggerated by exactly the same factor relative to its own
-// galaxy, keeping the relative proportions between galaxies honest.
+// Scale note: one scene unit is one light-year. Planetary distances and
+// body radii therefore use the physical AU-to-light-year conversion.
 // ---------------------------------------------------------------
 
 export type GxMoonDef = {
@@ -174,8 +172,7 @@ function sys(
       spectral: star.spectral,
       mass: star.mass,
       description: star.description,
-      // 1 R☉ ≈ 0.0047 AU; inflated ×60 so the star reads as a disc next to its planets.
-      radius: Math.max(0.12, star.radiusSolar * 0.0047 * 60) * au,
+      radius: star.radiusSolar * SOLAR_RADIUS_AU * au,
     },
     planets: specs.map((s, idx) => ({
       name: s.name,
@@ -183,18 +180,22 @@ function sys(
       e: s.e ?? 0.04 + (idx % 3) * 0.03,
       i: d2r(s.iDeg ?? (idx % 4) * 1.3),
       omega: d2r(s.omegaDeg ?? idx * 63),
-      size: s.sizeAU * au,
+      size: s.sizeAU * LEGACY_BODY_RADIUS_TO_AU * au,
       color: s.color,
       atmosphere: s.atmosphere,
       emissive: s.emissive,
       period: s.period,
       spinPeriod: s.spin ?? 4,
       tilt: d2r(6 + idx * 7),
-      ring: s.ring ? { inner: s.ring[0] * au, outer: s.ring[1] * au, color: s.ring[2] } : undefined,
+      ring: s.ring ? {
+        inner: s.ring[0] * LEGACY_BODY_RADIUS_TO_AU * au,
+        outer: s.ring[1] * LEGACY_BODY_RADIUS_TO_AU * au,
+        color: s.ring[2],
+      } : undefined,
       moons: s.moons?.map(([n, dAU, szAU, c, p]) => ({
         name: n,
-        distance: dAU * au,
-        size: szAU * au,
+        distance: dAU * LEGACY_BODY_RADIUS_TO_AU * au,
+        size: szAU * LEGACY_BODY_RADIUS_TO_AU * au,
         color: c,
         period: p,
       })),
@@ -204,7 +205,7 @@ function sys(
   };
 }
 
-const AU_OF = (diskRadius: number) => diskRadius / 120;
+const AU_OF = (_diskRadius: number) => LIGHT_YEARS_PER_AU;
 
 // ---------------------------------------------------------------
 // The catalogue
