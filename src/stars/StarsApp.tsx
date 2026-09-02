@@ -36,9 +36,9 @@ export function StarsApp() {
   return (
     <div className="fixed inset-0 bg-black text-white" onClick={() => { if (selected) setSelected(null); }}>
       <Canvas
-        camera={{ fov: 40, near: 0.0001, far: 1e11, position: [4, 2, 6] }}
+        camera={{ fov: 40, near: 1e-11, far: 1e11, position: [4, 2, 6] }}
         dpr={[1, 2]}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
+        gl={{ antialias: true, logarithmicDepthBuffer: true, powerPreference: "high-performance" }}
       >
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>

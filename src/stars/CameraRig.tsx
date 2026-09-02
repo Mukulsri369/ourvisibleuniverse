@@ -30,7 +30,7 @@ export function CameraRig() {
   const visitGalaxy = useStore((s) => s.visitGalaxy);
 
 
-  const minR = 0.005;
+  const minR = 1e-10;
   // Zoom range spans from inside the Solar System out to ~50 Gly
   // (observable-universe scale) so pulling back reveals Local Group,
   // Virgo Supercluster, and cosmic-web filaments.
@@ -181,7 +181,7 @@ export function CameraRig() {
     const gx = def || m31 ? null : GX_PLANET_INDEX.get(visitPlanet)?.planet;
     const size = def?.size ?? m31?.size ?? gx?.size;
     if (size == null) return;
-    desired.current.radius = Math.max(0.005, size * 15);
+    desired.current.radius = Math.max(minR, size * 15);
     fovTarget.current = 38;
   }, [visitPlanet]);
 
