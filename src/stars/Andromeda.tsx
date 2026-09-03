@@ -768,7 +768,7 @@ export function Andromeda() {
     if (detailRef.current) {
       detailRef.current.getWorldPosition(camWorld);
       const d = camera.position.distanceTo(camWorld);
-      detailRef.current.visible = d < M31_DISK_RADIUS * 40;
+      detailRef.current.visible = d < M31_DISK_RADIUS * 7;
     }
   });
 
