@@ -101,14 +101,14 @@ export function StarField() {
   // Avoid unused-var lints; the buffers are stored on geometry attributes
   void naturalColors; void spectralColors;
 
-  const cameraDistance = useStore((s) => s.cameraDistance);
   useFrame(({ clock }) => {
     spectralTarget.current = spectralMode ? 1 : 0;
     spectralBlend.current += (spectralTarget.current - spectralBlend.current) * 0.05;
     if (material.current) {
       material.current.uniforms.uTime.value = clock.elapsedTime;
       material.current.uniforms.uSpectral.value = spectralBlend.current;
-      material.current.uniforms.uCamDist.value = cameraDistance;
+      // read transiently so this component doesn't re-render every frame
+      material.current.uniforms.uCamDist.value = useStore.getState().cameraDistance;
     }
   });
 
