@@ -604,7 +604,11 @@ function MinorBodies() {
     return { geom: g, radii, thetas, heights, omegas };
   }, []);
 
+  const beltTick = useRef(0);
   useFrame(({ clock }) => {
+    // Rewriting tens of thousands of belt positions every frame is pure CPU
+    // cost for motion the eye can't resolve; every 3rd frame looks identical.
+    if (beltTick.current++ % 3 !== 0) return;
     const t = clock.elapsedTime;
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
@@ -726,7 +730,11 @@ function useTrail(body: TrailBody) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [body.color, len, body.opacity]);
 
+  const tick = useRef(0);
   useFrame(() => {
+    // Trails advance on every other frame: same visual path, half the
+    // per-frame buffer uploads across ~30 tracked bodies.
+    if (tick.current++ % 2 !== 0) return;
     const reg = (window as Window).__planetPositions;
     const p = reg?.get(body.name);
     if (!p) return;
