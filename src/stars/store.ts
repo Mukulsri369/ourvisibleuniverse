@@ -99,7 +99,7 @@ function withFocus(g: VisitGalaxy): VisitGalaxy {
   return g;
 }
 
-export const useStore = create<State>((set) => ({
+export const useStore = create<State>((set, get) => ({
   selectedStar: null,
   spectralMode: false,
   tourActive: false,
