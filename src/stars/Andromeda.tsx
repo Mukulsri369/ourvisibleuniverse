@@ -758,8 +758,18 @@ export function Andromeda() {
     [tex],
   );
 
-  useFrame(({ clock }) => {
+  // Detail LOD: from the Milky Way, M31's ~1M particles project onto a few
+  // pixels, so we let the far-glow sprite stand in and skip drawing them.
+  // Nothing is removed — they switch back on as the camera approaches.
+  const detailRef = useRef<THREE.Group>(null!);
+  const camWorld = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ clock, camera }) => {
     shader.uniforms.uTime.value = clock.elapsedTime;
+    if (detailRef.current) {
+      detailRef.current.getWorldPosition(camWorld);
+      const d = camera.position.distanceTo(camWorld);
+      detailRef.current.visible = d < M31_DISK_RADIUS * 40;
+    }
   });
 
   const pickRadius = M31_DISK_RADIUS * 0.9;
@@ -776,11 +786,13 @@ export function Andromeda() {
     <group position={M31_CENTER.toArray()} rotation={[M31_INCLINATION, 0, M31_POS_ANGLE]}>
       {/* Galaxy body lives in its own XZ plane, tipped into the disc plane */}
       <group rotation={[Math.PI / 2, 0, 0]}>
-        {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo, dustGeo, satGeo].map((g, i) => (
-          <points key={i} geometry={g} frustumCulled={false}>
-            <shaderMaterial args={[shader]} />
-          </points>
-        ))}
+        <group ref={detailRef}>
+          {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo, dustGeo, satGeo].map((g, i) => (
+            <points key={i} geometry={g} frustumCulled={false}>
+              <shaderMaterial args={[shader]} />
+            </points>
+          ))}
+        </group>
         <mesh onClick={visit}>
           <sphereGeometry args={[120, 24, 24]} />
           <meshBasicMaterial color="#ffeccc" />
