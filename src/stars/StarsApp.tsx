@@ -37,8 +37,11 @@ export function StarsApp() {
     <div className="fixed inset-0 bg-black text-white" onClick={() => { if (selected) setSelected(null); }}>
       <Canvas
         camera={{ fov: 40, near: 1e-11, far: 1e11, position: [4, 2, 6] }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, logarithmicDepthBuffer: true, powerPreference: "high-performance" }}
+        // Cap the render resolution: at 1M+ particles the fill cost of a
+        // 2x device-pixel-ratio buffer is the single biggest frame cost.
+        dpr={[1, 1.5]}
+        performance={{ min: 0.5 }}
+        gl={{ antialias: false, logarithmicDepthBuffer: true, powerPreference: "high-performance" }}
       >
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
