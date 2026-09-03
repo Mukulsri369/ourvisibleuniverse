@@ -122,7 +122,14 @@ export const useStore = create<State>((set) => ({
   setTourStop: (n) => set({ tourStop: n }),
   setTourCaption: (c) => set({ tourCaption: c }),
   toggleMusic: () => set((st) => ({ musicOn: !st.musicOn })),
-  setCameraDistance: (d) => set({ cameraDistance: d }),
+  // Called every animation frame by the camera rig. Only commit to the store
+  // when the value changes meaningfully (>2%), so React subscribers (HUD,
+  // shaders) don't re-render 60 times per second.
+  setCameraDistance: (d) => {
+    const prev = get().cameraDistance;
+    if (prev > 0 && Math.abs(d - prev) / prev < 0.02) return;
+    set({ cameraDistance: d });
+  },
   flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 }, selectedStar: s, visitPlanet: null, visitGalaxy: null }),
   clearFly: () => set({ flyTo: null }),
   setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false, visitGalaxy: null }),
