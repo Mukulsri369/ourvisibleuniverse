@@ -592,7 +592,9 @@ function M31Belt() {
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     return { geom: g, radii, thetas, heights, omegas };
   }, []);
+  const beltTick = useRef(0);
   useFrame(({ clock }) => {
+    if (beltTick.current++ % 3 !== 0) return;
     const t = clock.elapsedTime;
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
