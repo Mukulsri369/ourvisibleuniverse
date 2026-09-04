@@ -846,10 +846,7 @@ export function SiteMap() {
     () => NAMED_STARS.filter((s) => s.name !== "Sun").slice().sort((a, b) => a.distance - b.distance),
     [],
   );
-  const galaxies = useMemo(
-    () => NAMED_GALAXIES.slice().sort((a, b) => a.distance - b.distance),
-    [],
-  );
+  const galaxies = useMemo(() => NAMED_GALAXIES.slice().sort(galaxyOrder), []);
 
   const goGalaxy = (g: typeof NAMED_GALAXIES[number]) =>
     setVisitGalaxy({ name: g.name, x: g.position.x, y: g.position.y, z: g.position.z, size: g.size, distance: g.distance, type: g.type });
