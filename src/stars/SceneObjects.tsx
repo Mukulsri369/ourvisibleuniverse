@@ -35,10 +35,13 @@ export function Sun() {
           return n;
         }
         float fbm(vec3 p){
+          // 3 octaves instead of 5: visually near-identical granulation for
+          // roughly half the per-pixel cost when the Sun fills the screen.
           float v=0., a=0.5;
-          for(int i=0;i<5;i++){ v += a*noise(p); p*=2.03; a*=0.5; }
+          for(int i=0;i<3;i++){ v += a*noise(p); p*=2.03; a*=0.5; }
           return v;
         }
+
         void main(){
           vec3 p = normalize(vPos) * 2.0;
           float n = fbm(p + vec3(uTime*0.15));
@@ -73,7 +76,7 @@ export function Sun() {
   return (
     <group>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[0.015, 64, 64]} />
+        <sphereGeometry args={[0.015, 48, 32]} />
         <shaderMaterial args={[shader]} />
       </mesh>
       <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />

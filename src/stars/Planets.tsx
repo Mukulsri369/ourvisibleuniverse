@@ -264,7 +264,7 @@ function Planet({ def }: { def: PlanetDef }) {
           onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = ""; }}
           onClick={(e) => { e.stopPropagation(); setVisit(def.name); }}
         >
-          <sphereGeometry args={[def.size, 64, 64]} />
+          <sphereGeometry args={[def.size, 40, 28]} />
           <meshStandardMaterial
             map={surface}
             bumpMap={def.atmosphere || def.emissive ? undefined : surface}
@@ -279,11 +279,11 @@ function Planet({ def }: { def: PlanetDef }) {
         {def.atmosphere && (
           <>
             <mesh scale={1.03}>
-              <sphereGeometry args={[def.size, 48, 48]} />
+              <sphereGeometry args={[def.size, 24, 16]} />
               <meshBasicMaterial color={def.atmosphere} transparent opacity={0.14} side={THREE.BackSide} depthWrite={false} />
             </mesh>
             <mesh scale={1.12}>
-              <sphereGeometry args={[def.size, 48, 48]} />
+              <sphereGeometry args={[def.size, 24, 16]} />
               <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
             </mesh>
           </>
@@ -524,7 +524,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   return (
     <group ref={ref}>
       <mesh>
-        <sphereGeometry args={[moon.size, 24, 24]} />
+        <sphereGeometry args={[moon.size, 16, 12]} />
         <meshStandardMaterial color={moon.color} roughness={0.95} emissive={moon.color} emissiveIntensity={0.04} />
       </mesh>
     </group>
@@ -692,23 +692,38 @@ type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: 
 function useTrail(body: TrailBody) {
   const lineRef = useRef<THREE.Line>(null!);
   const initialized = useRef(false);
+  const head = useRef(0);
   const len = body.length ?? TRAIL_LEN;
 
   const { geometry, material } = useMemo(() => {
     const positions = new Float32Array(len * 3);
-    const ages = new Float32Array(len);
-    for (let i = 0; i < len; i++) ages[i] = i / (len - 1);
+    const idx = new Float32Array(len);
+    for (let i = 0; i < len; i++) idx[i] = i;
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute("aAge", new THREE.BufferAttribute(ages, 1));
+    const posAttr = new THREE.BufferAttribute(positions, 3);
+    posAttr.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute("position", posAttr);
+    geo.setAttribute("aIndex", new THREE.BufferAttribute(idx, 1));
     const mat = new THREE.ShaderMaterial({
-      uniforms: { uColor: { value: body.color }, uOpacity: { value: body.opacity ?? 1 } },
+      uniforms: {
+        uColor: { value: body.color },
+        uOpacity: { value: body.opacity ?? 1 },
+        uHead: { value: 0 },
+        uLen: { value: len },
+      },
       vertexShader: /* glsl */ `
-        attribute float aAge;
+        attribute float aIndex;
+        uniform float uHead;
+        uniform float uLen;
         varying float vAge;
         void main(){
-          vAge = aAge;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          // Ring buffer: age is distance behind the write head.
+          float age = mod(uHead - aIndex + uLen, uLen) / (uLen - 1.0);
+          vAge = age;
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          gl_Position = projectionMatrix * mv;
+          // Collapse the oldest vertex so the wrap-around segment vanishes.
+          if (age > 0.995) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
         }
       `,
       fragmentShader: /* glsl */ `
@@ -733,7 +748,7 @@ function useTrail(body: TrailBody) {
   const tick = useRef(0);
   useFrame(() => {
     // Trails advance on every other frame: same visual path, half the
-    // per-frame buffer uploads across ~30 tracked bodies.
+    // per-frame work across ~30 tracked bodies.
     if (tick.current++ % 2 !== 0) return;
     const reg = (window as Window).__planetPositions;
     const p = reg?.get(body.name);
@@ -745,16 +760,33 @@ function useTrail(body: TrailBody) {
         arr[i * 3] = p.x; arr[i * 3 + 1] = p.y; arr[i * 3 + 2] = p.z;
       }
       initialized.current = true;
+      attr.needsUpdate = true;
     } else {
-      // shift all points one slot toward the tail
-      arr.copyWithin(3, 0, (len - 1) * 3);
-      arr[0] = p.x; arr[1] = p.y; arr[2] = p.z;
+      // Ring buffer: write one slot instead of shifting the whole array,
+      // and upload only that slot to the GPU.
+      head.current = (head.current + 1) % len;
+      const h = head.current;
+      arr[h * 3] = p.x; arr[h * 3 + 1] = p.y; arr[h * 3 + 2] = p.z;
+      const anyAttr = attr as unknown as {
+        addUpdateRange?: (start: number, count: number) => void;
+        clearUpdateRanges?: () => void;
+        updateRange?: { offset: number; count: number };
+      };
+      if (anyAttr.addUpdateRange && anyAttr.clearUpdateRanges) {
+        anyAttr.clearUpdateRanges();
+        anyAttr.addUpdateRange(h * 3, 3);
+      } else if (anyAttr.updateRange) {
+        anyAttr.updateRange.offset = h * 3;
+        anyAttr.updateRange.count = 3;
+      }
+      attr.needsUpdate = true;
     }
-    attr.needsUpdate = true;
+    material.uniforms.uHead.value = head.current;
   });
 
   return { lineRef, geometry, material };
 }
+
 
 function Trail({ body }: { body: TrailBody }) {
   const { geometry, material } = useTrail(body);
