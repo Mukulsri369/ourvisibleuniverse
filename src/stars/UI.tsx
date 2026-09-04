@@ -4,6 +4,7 @@ import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
 import { AU, PLANETS } from "./Planets";
 import { NAMED_GALAXIES } from "./Universe";
+import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 
 
 export function InfoPanel() {
@@ -655,10 +656,7 @@ export function GalaxyNavigator() {
   const tourActive = useStore((s) => s.tourActive);
   const visitGalaxy = useStore((s) => s.visitGalaxy);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
-  const galaxies = useMemo(
-    () => NAMED_GALAXIES.slice().sort((a, b) => a.distance - b.distance),
-    [],
-  );
+  const galaxies = useMemo(() => NAMED_GALAXIES.slice().sort(galaxyOrder), []);
   if (tourActive) return null;
   return (
     <>
@@ -849,10 +847,7 @@ export function SiteMap() {
     () => NAMED_STARS.filter((s) => s.name !== "Sun").slice().sort((a, b) => a.distance - b.distance),
     [],
   );
-  const galaxies = useMemo(
-    () => NAMED_GALAXIES.slice().sort((a, b) => a.distance - b.distance),
-    [],
-  );
+  const galaxies = useMemo(() => NAMED_GALAXIES.slice().sort(galaxyOrder), []);
 
   const goGalaxy = (g: typeof NAMED_GALAXIES[number]) =>
     setVisitGalaxy({ name: g.name, x: g.position.x, y: g.position.y, z: g.position.z, size: g.size, distance: g.distance, type: g.type });
@@ -944,7 +939,7 @@ export function SiteMap() {
                   {galaxies.filter((g) => match(g.name)).map((g) => (
                     <Row
                       key={g.name}
-                      label={g.name}
+                      label={isDetailedGalaxy(g.name) ? `✦ ${g.name}` : g.name}
                       sub={formatLy(g.distance)}
                       color={g.color}
                       active={visitGalaxy?.name === g.name}

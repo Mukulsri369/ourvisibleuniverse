@@ -19,6 +19,7 @@ import {
   UIHideToggle,
   SiteMap,
 } from "./UI";
+import { GalaxyInfoPanel } from "./GalaxyInfoPanel";
 
 import { useStore } from "./store";
 
@@ -74,6 +75,7 @@ export function StarsApp() {
           <MusicToggle />
           <Branding />
           <InfoPanel />
+          <GalaxyInfoPanel />
 
         </>
       )}
