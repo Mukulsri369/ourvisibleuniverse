@@ -264,7 +264,7 @@ function Planet({ def }: { def: PlanetDef }) {
           onPointerOut={(e) => { e.stopPropagation(); document.body.style.cursor = ""; }}
           onClick={(e) => { e.stopPropagation(); setVisit(def.name); }}
         >
-          <sphereGeometry args={[def.size, 64, 64]} />
+          <sphereGeometry args={[def.size, 40, 28]} />
           <meshStandardMaterial
             map={surface}
             bumpMap={def.atmosphere || def.emissive ? undefined : surface}
@@ -279,11 +279,11 @@ function Planet({ def }: { def: PlanetDef }) {
         {def.atmosphere && (
           <>
             <mesh scale={1.03}>
-              <sphereGeometry args={[def.size, 48, 48]} />
+              <sphereGeometry args={[def.size, 24, 16]} />
               <meshBasicMaterial color={def.atmosphere} transparent opacity={0.14} side={THREE.BackSide} depthWrite={false} />
             </mesh>
             <mesh scale={1.12}>
-              <sphereGeometry args={[def.size, 48, 48]} />
+              <sphereGeometry args={[def.size, 24, 16]} />
               <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
             </mesh>
           </>
@@ -524,7 +524,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   return (
     <group ref={ref}>
       <mesh>
-        <sphereGeometry args={[moon.size, 24, 24]} />
+        <sphereGeometry args={[moon.size, 16, 12]} />
         <meshStandardMaterial color={moon.color} roughness={0.95} emissive={moon.color} emissiveIntensity={0.04} />
       </mesh>
     </group>
