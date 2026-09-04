@@ -76,7 +76,7 @@ export function Sun() {
   return (
     <group>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[0.015, 64, 64]} />
+        <sphereGeometry args={[0.015, 48, 32]} />
         <shaderMaterial args={[shader]} />
       </mesh>
       <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />
