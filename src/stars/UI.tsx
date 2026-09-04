@@ -4,6 +4,7 @@ import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
 import { AU, PLANETS } from "./Planets";
 import { NAMED_GALAXIES } from "./Universe";
+import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 
 
 export function InfoPanel() {
