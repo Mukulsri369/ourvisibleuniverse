@@ -655,10 +655,7 @@ export function GalaxyNavigator() {
   const tourActive = useStore((s) => s.tourActive);
   const visitGalaxy = useStore((s) => s.visitGalaxy);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
-  const galaxies = useMemo(
-    () => NAMED_GALAXIES.slice().sort((a, b) => a.distance - b.distance),
-    [],
-  );
+  const galaxies = useMemo(() => NAMED_GALAXIES.slice().sort(galaxyOrder), []);
   if (tourActive) return null;
   return (
     <>
