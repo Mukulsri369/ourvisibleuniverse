@@ -938,7 +938,7 @@ export function SiteMap() {
                   {galaxies.filter((g) => match(g.name)).map((g) => (
                     <Row
                       key={g.name}
-                      label={g.name}
+                      label={isDetailedGalaxy(g.name) ? `✦ ${g.name}` : g.name}
                       sub={formatLy(g.distance)}
                       color={g.color}
                       active={visitGalaxy?.name === g.name}
