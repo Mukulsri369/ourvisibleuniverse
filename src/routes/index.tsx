@@ -9,10 +9,10 @@ export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Our Visible Universe — An interactive map of the stellar neighborhood" },
-      { name: "description", content: "Cinematic 3D visualization of our nearest stars, the Sun, and the Milky Way." },
+      { title: "Our Visible Universe — Interactive 3D Space Map" },
+      { name: "description", content: "Explore a cinematic 3D map of planets, stars, galaxies, nebulae, quasars, neutron stars, and black holes." },
       { property: "og:title", content: "Our Visible Universe" },
-      { property: "og:description", content: "Cinematic 3D visualization of our nearest stars." },
+      { property: "og:description", content: "Explore planets, stars, galaxies, nebulae, quasars, neutron stars, and black holes in an interactive 3D universe." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
