@@ -81,8 +81,8 @@ function buildGalaxy(m: GalaxyModel): Geos {
   };
 
   // ---------- disk ----------
-  if (m.morphology === "spiral" || m.morphology === "barred" || m.morphology === "irregular") {
-    const count = B(m.morphology === "irregular" ? 150_000 : 240_000);
+  if (m.morphology === "spiral" || m.morphology === "barred" || m.morphology === "irregular" || m.morphology === "interacting") {
+    const count = B(m.morphology === "irregular" ? 150_000 : m.morphology === "interacting" ? 210_000 : 240_000);
     const PITCH = (m.pitchDeg * Math.PI) / 180;
     const K = 1 / Math.tan(PITCH);
     const armCount = Math.max(1, m.arms);
@@ -107,7 +107,9 @@ function buildGalaxy(m: GalaxyModel): Geos {
       const scaleH = (rand() < 0.15 ? 0.045 : 0.012) * m.diskRadius;
       const uz = rand() - 0.5;
       const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / (m.diskRadius * 0.45));
-      p[i * 3] = Math.cos(theta) * r;
+      const interactingOffset = m.morphology === "interacting" ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
+      const tidalStretch = m.morphology === "interacting" ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
+      p[i * 3] = Math.cos(theta) * r * tidalStretch + interactingOffset;
       p[i * 3 + 1] = z;
       p[i * 3 + 2] = Math.sin(theta) * r;
 
@@ -732,7 +734,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
         <sprite scale={[m.bulgeRadius * 1.6, m.bulgeRadius * 1.6, 1]}>
           <spriteMaterial map={coreTex} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.8} />
         </sprite>
-        <GxSystem m={m} />
+        {m.system && <GxSystem m={m} />}
       </group>
     </group>
   );
