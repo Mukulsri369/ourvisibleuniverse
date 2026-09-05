@@ -6,6 +6,7 @@ const StarsApp = lazy(() =>
 );
 
 export const Route = createFileRoute("/")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Our Visible Universe — An interactive map of the stellar neighborhood" },
