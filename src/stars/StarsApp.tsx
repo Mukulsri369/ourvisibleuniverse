@@ -37,7 +37,12 @@ export function StarsApp() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black text-white" onClick={() => { if (selected) setSelected(null); }}>
+    <div
+      className="fixed inset-0 bg-black text-white"
+      onClick={() => {
+        if (selected) setSelected(null);
+      }}
+    >
       <Canvas
         camera={{ fov: 40, near: 1e-11, far: 1e11, position: [4, 2, 6] }}
         // Cap the render resolution: at 1M+ particles the fill cost of a
@@ -80,7 +85,6 @@ export function StarsApp() {
           <InfoPanel />
           <GalaxyInfoPanel />
           <ObservedObjectInfoPanel />
-
         </>
       )}
       <LoadingScreen done={loaded} />

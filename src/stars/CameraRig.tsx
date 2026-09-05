@@ -7,7 +7,6 @@ import { M31_PLANETS } from "./andromeda-data";
 import { GX_PLANET_INDEX } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition } from "./observed-objects";
 
-
 // Custom orbit-style controller with smooth damped zoom & inertia
 export function CameraRig() {
   const { camera, gl } = useThree();
@@ -31,13 +30,11 @@ export function CameraRig() {
   const visitGalaxy = useStore((s) => s.visitGalaxy);
   const selectedObjectId = useStore((s) => s.selectedObjectId);
 
-
   const minR = 1e-10;
   // Zoom range spans from inside the Solar System out to ~50 Gly
   // (observable-universe scale) so pulling back reveals Local Group,
   // Virgo Supercluster, and cosmic-web filaments.
   const maxR = 5e10;
-
 
   // expose for slider
   useEffect(() => {
@@ -56,7 +53,11 @@ export function CameraRig() {
     };
     const onUp = (e: PointerEvent) => {
       dragging.current = false;
-      try { el.releasePointerCapture(e.pointerId); } catch { /* noop */ }
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {
+        /* noop */
+      }
     };
     const onMove = (e: PointerEvent) => {
       if (!dragging.current) return;
@@ -66,7 +67,10 @@ export function CameraRig() {
       velocity.current.theta = -dx * 0.005;
       velocity.current.phi = -dy * 0.005;
       desired.current.theta += velocity.current.theta;
-      desired.current.phi = Math.max(0.15, Math.min(Math.PI - 0.15, desired.current.phi + velocity.current.phi));
+      desired.current.phi = Math.max(
+        0.15,
+        Math.min(Math.PI - 0.15, desired.current.phi + velocity.current.phi),
+      );
     };
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -76,20 +80,24 @@ export function CameraRig() {
     };
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        const a = e.touches[0], b = e.touches[1];
+        const a = e.touches[0],
+          b = e.touches[1];
         pinch.current = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
       }
     };
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length === 2 && pinch.current != null) {
-        const a = e.touches[0], b = e.touches[1];
+        const a = e.touches[0],
+          b = e.touches[1];
         const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
         const factor = pinch.current / d;
         desired.current.radius = Math.max(minR, Math.min(maxR, desired.current.radius * factor));
         pinch.current = d;
       }
     };
-    const onTouchEnd = () => { pinch.current = null; };
+    const onTouchEnd = () => {
+      pinch.current = null;
+    };
 
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointerup", onUp);
@@ -116,8 +124,14 @@ export function CameraRig() {
     const down = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
-      if (e.code === "Space") { e.preventDefault(); keys.current.out = true; }
-      if (e.key === "Control") { e.preventDefault(); keys.current.in = true; }
+      if (e.code === "Space") {
+        e.preventDefault();
+        keys.current.out = true;
+      }
+      if (e.key === "Control") {
+        e.preventDefault();
+        keys.current.in = true;
+      }
       // S = stop/resume the camera (free look)
       if ((e.key === "s" || e.key === "S") && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
@@ -128,7 +142,10 @@ export function CameraRig() {
       if (e.code === "Space") keys.current.out = false;
       if (e.key === "Control") keys.current.in = false;
     };
-    const blur = () => { keys.current.out = false; keys.current.in = false; };
+    const blur = () => {
+      keys.current.out = false;
+      keys.current.in = false;
+    };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
     window.addEventListener("blur", blur);
@@ -163,7 +180,10 @@ export function CameraRig() {
     if (!tourActive) return;
     target.current.set(0, 0, 0);
     const stop = TOUR_STOPS[tourStop];
-    if (!stop) { stopTour(); return; }
+    if (!stop) {
+      stopTour();
+      return;
+    }
     desired.current.radius = stop.distance;
     fovTarget.current = stop.fov;
     setTourCaption(stop.caption);
@@ -190,7 +210,9 @@ export function CameraRig() {
   // When user selects a galaxy to visit, orbit at a nice framing distance
   useEffect(() => {
     if (!visitGalaxy) return;
-    const r = visitGalaxy.focus ? visitGalaxy.focus.distance : Math.max(visitGalaxy.size * 2.2, 2000);
+    const r = visitGalaxy.focus
+      ? visitGalaxy.focus.distance
+      : Math.max(visitGalaxy.size * 2.2, 2000);
     desired.current.radius = r;
     const offset = new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
     const sph = new THREE.Spherical().setFromVector3(offset);
@@ -209,14 +231,19 @@ export function CameraRig() {
     if (keys.current.out || keys.current.in) {
       const rate = (st.zoomSpeed / 50) * 1.2 * Math.min(dt, 0.1);
       const dir = (keys.current.out ? 1 : 0) - (keys.current.in ? 1 : 0);
-      desired.current.radius = Math.max(minR, Math.min(maxR, desired.current.radius * Math.exp(dir * rate)));
+      desired.current.radius = Math.max(
+        minR,
+        Math.min(maxR, desired.current.radius * Math.exp(dir * rate)),
+      );
     }
 
     // Free-look: the camera target is frozen in space, so the Solar System
     // drifts past instead of staying pinned to the centre of the screen.
     if (cameraFree) {
-      spherical.current.radius += (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
-      spherical.current.theta += (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
+      spherical.current.radius +=
+        (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
+      spherical.current.theta +=
+        (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
       spherical.current.phi += (desired.current.phi - spherical.current.phi) * Math.min(1, dt * 6);
       const p = new THREE.Vector3().setFromSpherical(spherical.current).add(target.current);
       camera.position.copy(p);
@@ -268,8 +295,10 @@ export function CameraRig() {
     }
 
     // ease toward desired
-    spherical.current.radius += (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
-    spherical.current.theta += (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
+    spherical.current.radius +=
+      (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
+    spherical.current.theta +=
+      (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
     spherical.current.phi += (desired.current.phi - spherical.current.phi) * Math.min(1, dt * 6);
     if (tourActive) {
       desired.current.theta += dt * 0.05;
@@ -284,14 +313,22 @@ export function CameraRig() {
 
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
-    const t = Math.min(1, Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
-    if (!tourActive && !visitPlanet && !selectedObjectId && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
+    const t = Math.min(
+      1,
+      Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))),
+    );
+    if (
+      !tourActive &&
+      !visitPlanet &&
+      !selectedObjectId &&
+      !(selectedStar && selectedStar.name !== "Sun")
+    )
+      fovTarget.current = 30 + t * 60;
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();
     setCameraDistance(r);
   });
-
 
   return null;
 }

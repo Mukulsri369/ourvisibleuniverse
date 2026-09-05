@@ -13,12 +13,50 @@ export type TourStop = {
 };
 
 export const TOUR_STOPS: TourStop[] = [
-  { name: "The Sun", caption: "The Sun — Our home star, 4.6 billion years old", distance: 12, fov: 35, duration: 7000 },
-  { name: "Our Solar System", caption: "Our Solar System — Eight planets orbit the Sun", distance: 180, fov: 45, duration: 7000 },
-  { name: "The Oort Cloud", caption: "The Oort Cloud — Icy bodies marking the edge of the Sun's influence, about 1 light-year away", distance: 900, fov: 55, duration: 7000 },
-  { name: "Nearby Stars", caption: "87 Named Stars — The closest stars to our Sun, each one a distant sun of its own", distance: 60, fov: 60, duration: 13000 },
-  { name: "Our Stellar Neighborhood", caption: "Our Visible Universe — An accurate map of our stellar neighborhood within the Milky Way", distance: 800, fov: 75, duration: 15000 },
-  { name: "The Milky Way", caption: "The Milky Way — Our galaxy contains over 100 billion stars. You are here.", distance: 4500, fov: 85, duration: 10000 },
+  {
+    name: "The Sun",
+    caption: "The Sun — Our home star, 4.6 billion years old",
+    distance: 12,
+    fov: 35,
+    duration: 7000,
+  },
+  {
+    name: "Our Solar System",
+    caption: "Our Solar System — Eight planets orbit the Sun",
+    distance: 180,
+    fov: 45,
+    duration: 7000,
+  },
+  {
+    name: "The Oort Cloud",
+    caption:
+      "The Oort Cloud — Icy bodies marking the edge of the Sun's influence, about 1 light-year away",
+    distance: 900,
+    fov: 55,
+    duration: 7000,
+  },
+  {
+    name: "Nearby Stars",
+    caption: "87 Named Stars — The closest stars to our Sun, each one a distant sun of its own",
+    distance: 60,
+    fov: 60,
+    duration: 13000,
+  },
+  {
+    name: "Our Stellar Neighborhood",
+    caption:
+      "Our Visible Universe — An accurate map of our stellar neighborhood within the Milky Way",
+    distance: 800,
+    fov: 75,
+    duration: 15000,
+  },
+  {
+    name: "The Milky Way",
+    caption: "The Milky Way — Our galaxy contains over 100 billion stars. You are here.",
+    distance: 4500,
+    fov: 85,
+    duration: 10000,
+  },
 ];
 
 export type VisitGalaxy = {
@@ -79,8 +117,11 @@ function withFocus(g: VisitGalaxy): VisitGalaxy {
     return {
       ...g,
       focus: {
-        x: PA99N2_WORLD.x, y: PA99N2_WORLD.y, z: PA99N2_WORLD.z,
-        distance: 14 * M31_AU, key: PA99N2_STAR.name,
+        x: PA99N2_WORLD.x,
+        y: PA99N2_WORLD.y,
+        z: PA99N2_WORLD.z,
+        distance: 14 * M31_AU,
+        key: PA99N2_STAR.name,
       },
     };
   }
@@ -93,7 +134,9 @@ function withFocus(g: VisitGalaxy): VisitGalaxy {
     return {
       ...g,
       focus: {
-        x: sysPos.x, y: sysPos.y, z: sysPos.z,
+        x: sysPos.x,
+        y: sysPos.y,
+        z: sysPos.z,
         distance: 16 * model.system.au,
         key: model.system.star.name,
       },
@@ -121,7 +164,14 @@ export const useStore = create<State>((set, get) => ({
   trailSize: 50,
   setSelected: (s) => set({ selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
-  startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null, visitPlanet: null, visitGalaxy: null }),
+  startTour: () =>
+    set({
+      tourActive: true,
+      tourStop: 0,
+      selectedStar: null,
+      visitPlanet: null,
+      visitGalaxy: null,
+    }),
   stopTour: () => set({ tourActive: false, tourCaption: null }),
   setTourStop: (n) => set({ tourStop: n }),
   setTourCaption: (c) => set({ tourCaption: c }),
@@ -134,24 +184,39 @@ export const useStore = create<State>((set, get) => ({
     if (prev > 0 && Math.abs(d - prev) / prev < 0.02) return;
     set({ cameraDistance: d });
   },
-  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 }, selectedStar: s, visitPlanet: null, visitGalaxy: null, selectedObjectId: null }),
+  flyToStar: (s) =>
+    set({
+      flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 },
+      selectedStar: s,
+      visitPlanet: null,
+      visitGalaxy: null,
+      selectedObjectId: null,
+    }),
   clearFly: () => set({ flyTo: null }),
-  setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false, visitGalaxy: null, selectedObjectId: null }),
-  setVisitGalaxy: (g) => set({
-    visitGalaxy: g ? withFocus(g) : null,
-    selectedStar: null,
-    visitPlanet: null,
-    selectedObjectId: null,
-    tourActive: false,
-    flyTo: g
-      ? (() => {
-          const f = withFocus(g).focus;
-          return f
-            ? { x: f.x, y: f.y, z: f.z, distance: f.distance }
-            : { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 2000) };
-        })()
-      : null,
-  }),
+  setVisitPlanet: (name) =>
+    set({
+      visitPlanet: name,
+      selectedStar: null,
+      tourActive: false,
+      visitGalaxy: null,
+      selectedObjectId: null,
+    }),
+  setVisitGalaxy: (g) =>
+    set({
+      visitGalaxy: g ? withFocus(g) : null,
+      selectedStar: null,
+      visitPlanet: null,
+      selectedObjectId: null,
+      tourActive: false,
+      flyTo: g
+        ? (() => {
+            const f = withFocus(g).focus;
+            return f
+              ? { x: f.x, y: f.y, z: f.z, distance: f.distance }
+              : { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 2000) };
+          })()
+        : null,
+    }),
   setSelectedObject: (id) => {
     const item = id ? OBJECT_BY_ID.get(id) : undefined;
     if (!item) {
