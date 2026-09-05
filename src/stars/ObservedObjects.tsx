@@ -214,7 +214,7 @@ function ObjectNode({ item }: { item: ObservedObject }) {
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       {selected && <Detail item={item} scale={closeScale} />}{" "}
-      {(hover || selected) && (
+      {hover && (
         <Billboard>
           <Html
             center
