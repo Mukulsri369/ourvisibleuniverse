@@ -554,6 +554,8 @@ function GxBelt({ system }: { system: GxSystemDef }) {
     const thetas = new Float32Array(n);
     const heights = new Float32Array(n);
     const omegas = new Float32Array(n);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     const ref = system.planets[system.planets.length - 1];
     if (!ref) return { geom: g, radii, thetas, heights, omegas };
     const refAU = ref.a / au;
@@ -568,8 +570,6 @@ function GxBelt({ system }: { system: GxSystemDef }) {
       pos[i * 3 + 1] = heights[i];
       pos[i * 3 + 2] = Math.sin(thetas[i]) * radii[i];
     }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     return { geom: g, radii, thetas, heights, omegas };
   }, [system, au]);
   const beltTick = useRef(0);
