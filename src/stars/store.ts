@@ -82,7 +82,7 @@ function withFocus(g: VisitGalaxy): VisitGalaxy {
     };
   }
   const model = GALAXY_BY_NAME.get(g.name);
-  if (model) {
+  if (model?.system) {
     const c = galaxyCenter(model);
     // Aim at the galaxy centre first; the camera then locks onto the live
     // system position published under the host star's name.

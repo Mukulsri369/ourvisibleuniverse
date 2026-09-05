@@ -10,6 +10,7 @@ import {
   type GalaxyModel,
   type GxMoonDef,
   type GxPlanetDef,
+  type GxSystem as GxSystemDef,
 } from "./galaxy-models";
 
 // ---------------------------------------------------------------
@@ -81,8 +82,8 @@ function buildGalaxy(m: GalaxyModel): Geos {
   };
 
   // ---------- disk ----------
-  if (m.morphology === "spiral" || m.morphology === "barred" || m.morphology === "irregular") {
-    const count = B(m.morphology === "irregular" ? 150_000 : 240_000);
+  if (m.morphology === "spiral" || m.morphology === "barred" || m.morphology === "irregular" || m.morphology === "interacting") {
+    const count = B(m.morphology === "irregular" ? 150_000 : m.morphology === "interacting" ? 210_000 : 240_000);
     const PITCH = (m.pitchDeg * Math.PI) / 180;
     const K = 1 / Math.tan(PITCH);
     const armCount = Math.max(1, m.arms);
@@ -107,7 +108,9 @@ function buildGalaxy(m: GalaxyModel): Geos {
       const scaleH = (rand() < 0.15 ? 0.045 : 0.012) * m.diskRadius;
       const uz = rand() - 0.5;
       const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / (m.diskRadius * 0.45));
-      p[i * 3] = Math.cos(theta) * r;
+      const interactingOffset = m.morphology === "interacting" ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
+      const tidalStretch = m.morphology === "interacting" ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
+      p[i * 3] = Math.cos(theta) * r * tidalStretch + interactingOffset;
       p[i * 3 + 1] = z;
       p[i * 3 + 2] = Math.sin(theta) * r;
 
@@ -542,8 +545,8 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
   );
 }
 
-function GxBelt({ m }: { m: GalaxyModel }) {
-  const au = m.system.au;
+function GxBelt({ system }: { system: GxSystemDef }) {
+  const au = system.au;
   const { geom, radii, thetas, heights, omegas } = useMemo(() => {
     const n = 1200;
     const pos = new Float32Array(n * 3);
@@ -551,11 +554,14 @@ function GxBelt({ m }: { m: GalaxyModel }) {
     const thetas = new Float32Array(n);
     const heights = new Float32Array(n);
     const omegas = new Float32Array(n);
-    const ref = m.system.planets[m.system.planets.length - 1];
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const ref = system.planets[system.planets.length - 1];
+    if (!ref) return { geom: g, radii, thetas, heights, omegas };
     const refAU = ref.a / au;
     const K = ref.period / Math.pow(refAU, 1.5);
     for (let i = 0; i < n; i++) {
-      const rAU = m.system.beltInnerAU + Math.random() * (m.system.beltOuterAU - m.system.beltInnerAU);
+      const rAU = system.beltInnerAU + Math.random() * (system.beltOuterAU - system.beltInnerAU);
       radii[i] = rAU * au;
       thetas[i] = Math.random() * Math.PI * 2;
       heights[i] = (Math.random() - 0.5) * 0.6 * au;
@@ -564,10 +570,8 @@ function GxBelt({ m }: { m: GalaxyModel }) {
       pos[i * 3 + 1] = heights[i];
       pos[i * 3 + 2] = Math.sin(thetas[i]) * radii[i];
     }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     return { geom: g, radii, thetas, heights, omegas };
-  }, [m, au]);
+  }, [system, au]);
   const beltTick = useRef(0);
   useFrame(({ clock }) => {
     if (beltTick.current++ % 3 !== 0) return;
@@ -593,9 +597,9 @@ function GxBelt({ m }: { m: GalaxyModel }) {
  * The star system, placed in the galaxy's disk and carried around the
  * galactic centre by the same rotation curve that spins the stars.
  */
-function GxSystem({ m }: { m: GalaxyModel }) {
+function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
   const groupRef = useRef<THREE.Group>(null!);
-  const s = m.system;
+  const s = system;
   const starRef = useRef<THREE.Mesh>(null!);
   const world = useMemo(() => new THREE.Vector3(), []);
   const glowTex = useMemo(() => makeGlowTexture("rgba(255,215,160,1)", "rgba(255,140,50,0)"), []);
@@ -639,7 +643,7 @@ function GxSystem({ m }: { m: GalaxyModel }) {
       </sprite>
       {orbits.map((o, i) => <primitive key={i} object={o} />)}
       {s.planets.map((p) => <GxPlanet key={p.name} def={p} au={s.au} />)}
-      <GxBelt m={m} />
+      <GxBelt system={s} />
       <Billboard>
         <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
           <div style={{
@@ -732,7 +736,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
         <sprite scale={[m.bulgeRadius * 1.6, m.bulgeRadius * 1.6, 1]}>
           <spriteMaterial map={coreTex} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.8} />
         </sprite>
-        <GxSystem m={m} />
+        {m.system && <GxSystem m={m} system={m.system} />}
       </group>
     </group>
   );

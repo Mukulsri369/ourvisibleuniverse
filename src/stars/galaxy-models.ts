@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { LEGACY_BODY_RADIUS_TO_AU, LIGHT_YEARS_PER_AU, SOLAR_RADIUS_AU } from "./scale";
+import { NEARBY_GALAXIES, type NamedGalaxy } from "./galaxy-catalog";
 
 // ---------------------------------------------------------------
 // GALAXY MODELS — data-driven definitions used by <GalaxyDetail />.
@@ -77,7 +78,8 @@ export type Morphology =
   | "irregular"
   | "lenticular"
   | "edge-on"
-  | "starburst";
+  | "starburst"
+  | "interacting";
 
 export type GalaxyModel = {
   key: string;
@@ -105,7 +107,8 @@ export type GalaxyModel = {
   /** Rotation period (scene seconds) at the disk half-radius. */
   rotPeriod: number;
   dustLanes: boolean;
-  system: GxSystem;
+  /** Present only where this visualization includes a documented/modelled system. */
+  system?: GxSystem;
   description: string;
 };
 
@@ -211,7 +214,7 @@ const AU_OF = (_diskRadius: number) => LIGHT_YEARS_PER_AU;
 // The catalogue
 // ---------------------------------------------------------------
 
-export const GALAXY_MODELS: GalaxyModel[] = [
+const CURATED_GALAXY_MODELS: GalaxyModel[] = [
   // ---------------- Triangulum (M33) ----------------
   (() => {
     const diskRadius = 30_000;
@@ -647,15 +650,92 @@ export const GALAXY_MODELS: GalaxyModel[] = [
   })(),
 ];
 
+const CURATED_BY_NAME = new Map(CURATED_GALAXY_MODELS.map((m) => [m.name, m]));
+
+const MORPHOLOGY_OVERRIDES: Record<string, Partial<GalaxyModel>> = {
+  "M94": { morphology: "spiral", arms: 2, pitchDeg: 10, ringRadius: 12_500, bulgeRadius: 5_500 },
+  "M64 (Black Eye)": { morphology: "spiral", arms: 2, pitchDeg: 14, ringRadius: 7_000, dustLanes: true },
+  "NGC 1300": { morphology: "barred", arms: 2, pitchDeg: 17, barLength: 24_000 },
+  "NGC 1365": { morphology: "barred", arms: 2, pitchDeg: 18, barLength: 38_000 },
+  "NGC 4038/4039 (Antennae)": { morphology: "interacting", arms: 2, pitchDeg: 24, barLength: 0 },
+  "NGC 4565 (Needle)": { morphology: "edge-on", arms: 2, pitchDeg: 14, dustLanes: true },
+  "NGC 3628": { morphology: "edge-on", arms: 2, pitchDeg: 14, dustLanes: true },
+  "NGC 5866": { morphology: "edge-on", arms: 0, pitchDeg: 0, dustLanes: true },
+  "NGC 5253": { morphology: "starburst", arms: 0, pitchDeg: 0 },
+  "Perseus Cluster (NGC 1275)": { morphology: "elliptical", bulgeRadius: 65_000, haloRadius: 140_000 },
+  "Coma Cluster (NGC 4889)": { morphology: "elliptical", bulgeRadius: 100_000, haloRadius: 210_000 },
+  "Hercules A": { morphology: "elliptical", bulgeRadius: 165_000, haloRadius: 350_000 },
+};
+
+function morphologyFor(type: string): Morphology {
+  if (/interacting/i.test(type)) return "interacting";
+  if (/starburst/i.test(type)) return "starburst";
+  if (/edge-on/i.test(type)) return "edge-on";
+  if (/barred/i.test(type)) return "barred";
+  if (/lenticular/i.test(type)) return "lenticular";
+  if (/elliptical|spheroidal/i.test(type)) return "elliptical";
+  if (/irregular/i.test(type)) return "irregular";
+  return "spiral";
+}
+
+function colorTuple(hex: string): [number, number, number] {
+  const c = new THREE.Color(hex);
+  return [c.r, c.g, c.b];
+}
+
+function catalogModel(g: NamedGalaxy): GalaxyModel {
+  const morphology = morphologyFor(g.type);
+  const radius = g.size * 0.5;
+  const dwarf = /dwarf/i.test(g.type);
+  const oldPopulation = morphology === "elliptical" || morphology === "lenticular";
+  const oldColor = colorTuple(g.color);
+  const base: GalaxyModel = {
+    key: `catalog-${g.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`,
+    name: g.name,
+    type: g.type,
+    morphology,
+    l: g.l,
+    b: g.b,
+    distance: g.distance,
+    inclination: g.inclination ?? (morphology === "elliptical" ? 32 : 48),
+    posAngle: g.posAngle ?? ((Math.abs(g.l * 13 + g.b * 7) % 180)),
+    diskRadius: radius,
+    bulgeRadius: radius * (morphology === "elliptical" ? 0.68 : morphology === "lenticular" ? 0.38 : 0.1),
+    haloRadius: radius * (morphology === "elliptical" ? 1.4 : 1.25),
+    arms: morphology === "spiral" || morphology === "barred" ? (g.size > 100_000 ? 4 : 2) : morphology === "irregular" ? 1 : 0,
+    pitchDeg: morphology === "spiral" || morphology === "barred" ? (g.size > 100_000 ? 19 : 15) : morphology === "irregular" ? 32 : 0,
+    barLength: morphology === "barred" ? radius * 0.42 : 0,
+    // Selected models are built one at a time; dwarfs need fewer points while
+    // giant galaxies receive enough particles to retain their structure.
+    density: dwarf ? 0.12 : Math.min(0.42, 0.2 + g.size / 1_000_000),
+    youngColor: oldPopulation ? [0.9, 0.86, 0.76] : [0.7, 0.84, 1.0],
+    oldColor,
+    coreColor: oldPopulation ? "rgba(255,220,170,1)" : "rgba(255,235,205,1)",
+    rotPeriod: 480 + Math.sqrt(Math.max(radius, 1)) * 2.2,
+    dustLanes: /spiral|lenticular|interacting/i.test(g.type),
+    description: `${g.name} is a real ${g.type.toLowerCase()} galaxy about ${g.distance.toLocaleString()} light-years away. Its particle model follows the catalogued physical diameter, sky position, viewing angle, and characteristic stellar structure of its morphological class.`,
+  };
+  return { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
+}
+
+/** Every named galaxy has a stable particle model; Andromeda remains bespoke. */
+export const GALAXY_MODELS: GalaxyModel[] = [
+  ...CURATED_GALAXY_MODELS,
+  ...NEARBY_GALAXIES
+    .filter((g) => g.name !== "Andromeda (M31)" && !CURATED_BY_NAME.has(g.name))
+    .map(catalogModel),
+];
+
 export const GALAXY_BY_NAME = new Map(GALAXY_MODELS.map((m) => [m.name, m]));
 
 export const GX_PLANET_INDEX = new Map<string, { planet: GxPlanetDef; model: GalaxyModel }>();
 for (const m of GALAXY_MODELS) {
-  for (const p of m.system.planets) GX_PLANET_INDEX.set(p.name, { planet: p, model: m });
+  for (const p of m.system?.planets ?? []) GX_PLANET_INDEX.set(p.name, { planet: p, model: m });
 }
 
 /** Angular speed (rad/scene-second) of the system's orbit around its galaxy. */
 export function systemOmega(m: GalaxyModel): number {
+  if (!m.system) return 0;
   const rHalf = m.diskRadius * 0.5;
   const vFlat = (2 * Math.PI * rHalf) / m.rotPeriod;
   const r = Math.max(m.system.orbitRadius, 1);

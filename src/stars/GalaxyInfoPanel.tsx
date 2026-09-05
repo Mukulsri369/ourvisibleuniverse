@@ -43,12 +43,13 @@ function systemFor(name: string): SystemView | null {
     };
   }
   const m = GALAXY_BY_NAME.get(name);
-  if (!m) return null;
+  const galaxySystem = m?.system;
+  if (!galaxySystem) return null;
   return {
-    star: m.system.star,
-    planets: m.system.planets.map((p) => ({
+    star: galaxySystem.star,
+    planets: galaxySystem.planets.map((p) => ({
       name: p.name,
-      au: p.a / m.system.au,
+      au: p.a / galaxySystem.au,
       confirmed: p.confirmed,
       moons: p.moons?.length ?? 0,
       description: p.description,
@@ -61,9 +62,9 @@ function overviewFor(name: string, type: string, distance: number, size: number)
     return "The Andromeda Galaxy is the largest member of the Local Group and our nearest large spiral, sweeping about 220,000 light-years across with roughly a trillion stars. It is approaching the Milky Way at some 110 km/s and will merge with it in about 4.5 billion years. Andromeda is the only galaxy beyond our own with a widely discussed planet candidate, PA-99-N2 b, found by gravitational microlensing.";
   const m = GALAXY_BY_NAME.get(name);
   if (m) return m.description;
-  return `${name} is a ${type.toLowerCase()} galaxy about ${formatLy(distance)} away, spanning roughly ${formatLy(
+    return `${name} is a ${type.toLowerCase()} galaxy about ${formatLy(distance)} away, spanning roughly ${formatLy(
     size,
-  )}. It is rendered here as a distant light source from its measured sky position — no individual stars or exoplanets have been resolved in it, so no star system is modelled.`;
+  )}. Its stars are shown as a detailed particle model at the galaxy's measured position and physical scale. No individual exoplanet system has been resolved there, so none is invented.`;
 }
 
 export function GalaxyInfoPanel() {
@@ -149,8 +150,8 @@ export function GalaxyInfoPanel() {
             </>
           ) : (
             <p className="mt-6 text-[12px] leading-relaxed text-white/45">
-              No exoplanets or individual star systems have been resolved in this galaxy yet. Pick one of the galaxies
-              marked ✦ in the site map to fly all the way down to a modelled star system.
+              No exoplanets or individual star systems have been resolved in this galaxy yet. The visible stellar
+              population is a morphology-based particle reconstruction; no fictional planetary system has been added.
             </p>
           )}
         </motion.aside>
