@@ -1040,9 +1040,9 @@ export function LoadingScreen({ done }: { done: boolean }) {
             ))}
           </div>
           <div className="relative text-center">
-            <h1 className="text-5xl font-extralight tracking-[0.4em] md:text-7xl">100,000 STARS</h1>
+            <h1 className="text-5xl font-extralight tracking-[0.3em] md:text-7xl">OUR VISIBLE UNIVERSE</h1>
             <p className="mt-4 text-xs uppercase tracking-[0.3em] text-white/50">
-              An interactive visualization of the stellar neighborhood
+              An interactive map from nearby worlds to the cosmic horizon
             </p>
             <div className="mx-auto mt-10 h-px w-64 overflow-hidden bg-white/10">
               <motion.div
