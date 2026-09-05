@@ -43,12 +43,13 @@ function systemFor(name: string): SystemView | null {
     };
   }
   const m = GALAXY_BY_NAME.get(name);
-  if (!m?.system) return null;
+  const galaxySystem = m?.system;
+  if (!galaxySystem) return null;
   return {
-    star: m.system.star,
-    planets: m.system.planets.map((p) => ({
+    star: galaxySystem.star,
+    planets: galaxySystem.planets.map((p) => ({
       name: p.name,
-      au: p.a / m.system.au,
+      au: p.a / galaxySystem.au,
       confirmed: p.confirmed,
       moons: p.moons?.length ?? 0,
       description: p.description,
