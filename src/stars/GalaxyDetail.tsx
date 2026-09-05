@@ -598,6 +598,7 @@ function GxBelt({ m }: { m: GalaxyModel }) {
 function GxSystem({ m }: { m: GalaxyModel }) {
   const groupRef = useRef<THREE.Group>(null!);
   const s = m.system;
+  if (!s) return null;
   const starRef = useRef<THREE.Mesh>(null!);
   const world = useMemo(() => new THREE.Vector3(), []);
   const glowTex = useMemo(() => makeGlowTexture("rgba(255,215,160,1)", "rgba(255,140,50,0)"), []);
