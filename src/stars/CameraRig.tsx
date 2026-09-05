@@ -5,6 +5,7 @@ import { useStore, TOUR_STOPS } from "./store";
 import { PLANETS } from "./Planets";
 import { M31_PLANETS } from "./andromeda-data";
 import { GX_PLANET_INDEX } from "./galaxy-models";
+import { OBJECT_BY_ID, objectPosition } from "./observed-objects";
 
 
 // Custom orbit-style controller with smooth damped zoom & inertia
@@ -28,6 +29,7 @@ export function CameraRig() {
   const stopTour = useStore((s) => s.stopTour);
   const visitPlanet = useStore((s) => s.visitPlanet);
   const visitGalaxy = useStore((s) => s.visitGalaxy);
+  const selectedObjectId = useStore((s) => s.selectedObjectId);
 
 
   const minR = 1e-10;
@@ -242,6 +244,14 @@ export function CameraRig() {
       const reach = f ? f.distance : visitGalaxy.size;
       const k = dist > reach ? dt * 1.4 : dt * 4;
       target.current.lerp(gp, Math.min(1, k));
+    } else if (selectedObjectId) {
+      const item = OBJECT_BY_ID.get(selectedObjectId);
+      if (item) {
+        const [x, y, z] = objectPosition(item);
+        const op = new THREE.Vector3(x, y, z);
+        const dist = target.current.distanceTo(op);
+        target.current.lerp(op, Math.min(1, dt * (dist > 5 ? 1.4 : 4)));
+      }
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
       // Smoothly sweep the target from wherever we are toward the selected
       // star's system, then keep it anchored there.
@@ -275,7 +285,7 @@ export function CameraRig() {
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
     const t = Math.min(1, Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))));
-    if (!tourActive && !visitPlanet && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
+    if (!tourActive && !visitPlanet && !selectedObjectId && !(selectedStar && selectedStar.name !== "Sun")) fovTarget.current = 30 + t * 60;
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();

@@ -20,6 +20,8 @@ import {
   SiteMap,
 } from "./UI";
 import { GalaxyInfoPanel } from "./GalaxyInfoPanel";
+import { ObservedObjects } from "./ObservedObjects";
+import { ObservedObjectInfoPanel } from "./ObservedObjectInfoPanel";
 
 import { useStore } from "./store";
 
@@ -50,6 +52,7 @@ export function StarsApp() {
           <Universe />
           <Andromeda />
           <DetailedGalaxies />
+          <ObservedObjects />
           <SolarSystem>
             <Sun />
             <Planets />
@@ -76,6 +79,7 @@ export function StarsApp() {
           <Branding />
           <InfoPanel />
           <GalaxyInfoPanel />
+          <ObservedObjectInfoPanel />
 
         </>
       )}

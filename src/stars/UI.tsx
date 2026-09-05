@@ -5,6 +5,7 @@ import { useStore, TOUR_STOPS } from "./store";
 import { AU, PLANETS } from "./Planets";
 import { NAMED_GALAXIES } from "./Universe";
 import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
+import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
 
 
 export function InfoPanel() {
@@ -85,7 +86,7 @@ export function TopLeftControls() {
       <IconButton title="Toggle Spectral Colors" onClick={toggleSpectral} active={spectralMode}>
         <SpectrumIcon />
       </IconButton>
-      <IconButton title="Search stars, planets and galaxies" onClick={() => setSearchOpen((v) => !v)} active={searchOpen}>
+      <IconButton title="Search all celestial objects" onClick={() => setSearchOpen((v) => !v)} active={searchOpen}>
         <SearchIcon />
       </IconButton>
       <IconButton
@@ -124,7 +125,7 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
     title: "Toolbar",
     items: [
       ["Spectrum", "Toggle true spectral star colours"],
-      ["Search", "Find any star, planet or galaxy and fly to it"],
+      ["Search", "Find any star, planet, galaxy or observed object"],
       ["Square", "Stop the camera in space (free look)"],
       ["Maximize", "Full screen — press Esc to exit"],
       ["Gear", "Settings: zoom speed, system speed, trail size"],
@@ -157,6 +158,7 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
       ["Stars", "Visit any catalogued star system"],
       ["Planets", "Follow a planet of the Solar System"],
       ["Galaxies", "Fly to a galaxy and its star system"],
+      ["Objects", "Visit nebulae, quasars, remnants and exotic stars"],
     ],
   },
 ];
@@ -312,13 +314,15 @@ function SearchIcon() {
 type SearchHit =
   | { kind: "star"; name: string; sub: string; star: NamedStar }
   | { kind: "planet"; name: string; sub: string }
-  | { kind: "galaxy"; name: string; sub: string; galaxy: typeof NAMED_GALAXIES[number] };
+  | { kind: "galaxy"; name: string; sub: string; galaxy: typeof NAMED_GALAXIES[number] }
+  | { kind: "object"; name: string; sub: string; object: ObservedObject };
 
 function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState("");
   const flyTo = useStore((s) => s.flyToStar);
   const setVisitPlanet = useStore((s) => s.setVisitPlanet);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
+  const setSelectedObject = useStore((s) => s.setSelectedObject);
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => { if (open) inputRef.current?.focus(); else setQ(""); }, [open]);
   const matches = useMemo<SearchHit[]>(() => {
@@ -338,11 +342,15 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
         sub: `Galaxy · ${g.distance >= 1_000_000 ? (g.distance / 1_000_000).toFixed(2) + " Mly" : (g.distance / 1000).toFixed(0) + " kly"}`,
         galaxy: g,
       }));
-    return [...planets, ...stars, ...galaxies].slice(0, 8);
+    const objects: SearchHit[] = OBSERVED_OBJECTS
+      .filter((o) => [o.name, o.category, o.subtype, ...o.aliases].some((v) => v.toLowerCase().includes(lower)))
+      .map((o) => ({ kind: "object", name: o.name, sub: `${o.category} · ${o.subtype}`, object: o }));
+    return [...planets, ...stars, ...objects, ...galaxies].slice(0, 10);
   }, [q]);
   const activate = (m: SearchHit) => {
     if (m.kind === "star") flyTo(m.star);
     else if (m.kind === "planet") setVisitPlanet(m.name);
+    else if (m.kind === "object") setSelectedObject(m.object.id);
     else {
       const g = m.galaxy;
       setVisitGalaxy({
@@ -370,7 +378,7 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search stars, planets, galaxies..."
+            placeholder="Search the visible universe..."
             className="h-9 w-full rounded-full border border-white/20 bg-white/5 px-4 text-sm text-white outline-none placeholder:text-white/40 focus:border-white/50"
           />
           {matches.length > 0 && (
@@ -829,7 +837,7 @@ export function LoadingScreen({ done }: { done: boolean }) {
 // ---------------------------------------------------------------
 export function SiteMap() {
   const [open, setOpen] = useState(true);
-  const [section, setSection] = useState<"planets" | "stars" | "galaxies">("planets");
+  const [section, setSection] = useState<"planets" | "stars" | "galaxies" | "objects">("planets");
   const [q, setQ] = useState("");
 
   const visitPlanet = useStore((s) => s.visitPlanet);
@@ -839,6 +847,8 @@ export function SiteMap() {
   const setSelected = useStore((s) => s.setSelected);
   const visitGalaxy = useStore((s) => s.visitGalaxy);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
+  const selectedObjectId = useStore((s) => s.selectedObjectId);
+  const setSelectedObject = useStore((s) => s.setSelectedObject);
 
   const lower = q.trim().toLowerCase();
   const match = (n: string) => !lower || n.toLowerCase().includes(lower);
@@ -877,7 +887,7 @@ export function SiteMap() {
               className="mb-2 h-8 w-full rounded-full border border-white/15 bg-white/5 px-3 text-[11px] text-white outline-none placeholder:text-white/35 focus:border-white/40"
             />
             <div className="mb-2 flex gap-1">
-              {(["planets", "stars", "galaxies"] as const).map((k) => (
+              {(["planets", "stars", "galaxies", "objects"] as const).map((k) => (
                 <button
                   key={k}
                   onClick={() => setSection(k)}
@@ -948,6 +958,15 @@ export function SiteMap() {
                   ))}
                 </>
               )}
+
+              {section === "objects" && OBJECT_CATEGORIES.map((category) => {
+                const items = OBSERVED_OBJECTS.filter((o) => o.category === category && match(`${o.name} ${o.subtype} ${o.aliases.join(" ")}`));
+                if (!items.length) return null;
+                return <div key={category} className="pb-2">
+                  <div className="px-2 pb-1 pt-2 text-[9px] uppercase tracking-[0.18em] text-white/35">{category}</div>
+                  {items.map((o) => <Row key={o.id} label={o.name} sub={o.subtype.split(" /")[0]} color={o.color} active={selectedObjectId === o.id} onClick={() => setSelectedObject(o.id)} />)}
+                </div>;
+              })}
 
               </div>
           </div>

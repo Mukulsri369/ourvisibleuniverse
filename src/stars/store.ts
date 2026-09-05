@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { NamedStar } from "./data";
 import { ANDROMEDA_NAME, M31_AU, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
 import { GALAXY_BY_NAME, galaxyCenter } from "./galaxy-models";
+import { OBJECT_BY_ID, objectPosition, objectVisitDistance } from "./observed-objects";
 
 export type TourStop = {
   name: string;
@@ -44,6 +45,7 @@ interface State {
   flyTo: { x: number; y: number; z: number; distance: number } | null;
   visitPlanet: string | null;
   visitGalaxy: VisitGalaxy | null;
+  selectedObjectId: string | null;
   uiHidden: boolean;
   cameraFree: boolean;
   zoomSpeed: number;
@@ -61,6 +63,7 @@ interface State {
   clearFly: () => void;
   setVisitPlanet: (name: string | null) => void;
   setVisitGalaxy: (g: VisitGalaxy | null) => void;
+  setSelectedObject: (id: string | null) => void;
   toggleUiHidden: () => void;
   toggleCameraFree: () => void;
   setZoomSpeed: (n: number) => void;
@@ -110,12 +113,13 @@ export const useStore = create<State>((set, get) => ({
   flyTo: null,
   visitPlanet: null,
   visitGalaxy: null,
+  selectedObjectId: null,
   uiHidden: false,
   cameraFree: false,
   zoomSpeed: 50,
   systemSpeed: 50,
   trailSize: 50,
-  setSelected: (s) => set({ selectedStar: s, visitGalaxy: null }),
+  setSelected: (s) => set({ selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
   startTour: () => set({ tourActive: true, tourStop: 0, selectedStar: null, visitPlanet: null, visitGalaxy: null }),
   stopTour: () => set({ tourActive: false, tourCaption: null }),
@@ -130,13 +134,14 @@ export const useStore = create<State>((set, get) => ({
     if (prev > 0 && Math.abs(d - prev) / prev < 0.02) return;
     set({ cameraDistance: d });
   },
-  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 }, selectedStar: s, visitPlanet: null, visitGalaxy: null }),
+  flyToStar: (s) => set({ flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 }, selectedStar: s, visitPlanet: null, visitGalaxy: null, selectedObjectId: null }),
   clearFly: () => set({ flyTo: null }),
-  setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false, visitGalaxy: null }),
+  setVisitPlanet: (name) => set({ visitPlanet: name, selectedStar: null, tourActive: false, visitGalaxy: null, selectedObjectId: null }),
   setVisitGalaxy: (g) => set({
     visitGalaxy: g ? withFocus(g) : null,
     selectedStar: null,
     visitPlanet: null,
+    selectedObjectId: null,
     tourActive: false,
     flyTo: g
       ? (() => {
@@ -147,6 +152,22 @@ export const useStore = create<State>((set, get) => ({
         })()
       : null,
   }),
+  setSelectedObject: (id) => {
+    const item = id ? OBJECT_BY_ID.get(id) : undefined;
+    if (!item) {
+      set({ selectedObjectId: null });
+      return;
+    }
+    const [x, y, z] = objectPosition(item);
+    set({
+      selectedObjectId: id,
+      selectedStar: null,
+      visitPlanet: null,
+      visitGalaxy: null,
+      tourActive: false,
+      flyTo: { x, y, z, distance: objectVisitDistance(item) },
+    });
+  },
   toggleUiHidden: () => set((st) => ({ uiHidden: !st.uiHidden })),
   toggleCameraFree: () => set((st) => ({ cameraFree: !st.cameraFree })),
   setZoomSpeed: (n) => set({ zoomSpeed: n }),
