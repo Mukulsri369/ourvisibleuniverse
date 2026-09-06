@@ -3,10 +3,7 @@ import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OBSERVED_OBJECTS, objectPosition, type ObservedObject } from "./observed-objects";
-import {
-  OBSERVED_VISUAL_PROFILES,
-  type ObservedVisualProfile,
-} from "./observed-object-visuals";
+import { OBSERVED_VISUAL_PROFILES, type ObservedVisualProfile } from "./observed-object-visuals";
 import { useStore } from "./store";
 
 function seeded(seed: number) {
@@ -57,14 +54,26 @@ function buildNebulaGeometry(item: ObservedObject, profile: ObservedVisualProfil
     if (morphology === "filament-remnant") {
       const shell = 0.72 + 0.24 * rand();
       const wrinkle = 1 + 0.11 * Math.sin(theta * 7 + phi * 11);
-      x *= shell * wrinkle; y *= shell * 0.72; z *= shell * 0.82;
-      if (rand() < 0.24) { x *= 0.48; y *= 0.48; z *= 0.48; mix = 1; }
+      x *= shell * wrinkle;
+      y *= shell * 0.72;
+      z *= shell * 0.82;
+      if (rand() < 0.24) {
+        x *= 0.48;
+        y *= 0.48;
+        z *= 0.48;
+        mix = 1;
+      }
     } else if (morphology === "orion-cloud") {
       const wing = rand() < 0.55 ? -1 : 1;
       x = wing * (0.12 + Math.pow(rand(), 0.45) * 0.9);
       y = (rand() - 0.5) * (0.28 + Math.abs(x) * 0.62);
       z = (rand() - 0.5) * 0.55;
-      if (rand() < 0.18) { x *= 0.18; y *= 0.18; z *= 0.18; mix = 1; }
+      if (rand() < 0.18) {
+        x *= 0.18;
+        y *= 0.18;
+        z *= 0.18;
+        mix = 1;
+      }
     } else if (morphology === "pillars") {
       const pillar = Math.floor(rand() * 3);
       const heights = [1, 0.78, 0.62];
@@ -81,7 +90,10 @@ function buildNebulaGeometry(item: ObservedObject, profile: ObservedVisualProfil
       x = Math.cos(theta) * rr;
       z = Math.sin(theta) * rr;
       y = (rand() - 0.5) * (morphology === "barrel-ring" ? 0.72 : 0.28);
-      if (morphology === "helix-ring" && rand() < 0.22) { x *= 1.25; z *= 1.25; }
+      if (morphology === "helix-ring" && rand() < 0.22) {
+        x *= 1.25;
+        z *= 1.25;
+      }
       mix = 0.35 + Math.abs(y) * 1.6;
     } else if (morphology === "veil-arcs") {
       const arc = Math.floor(rand() * 5);
@@ -96,22 +108,30 @@ function buildNebulaGeometry(item: ObservedObject, profile: ObservedVisualProfil
       const ridge = -0.2 + 0.18 * Math.sin(x * 5) + 0.1 * Math.sin(x * 13);
       y = ridge - Math.pow(rand(), 1.8) * 0.65;
       z = (rand() - 0.5) * 0.55;
-      if (rand() < 0.14) { y = ridge + rand() * 0.65; mix = 1; }
+      if (rand() < 0.14) {
+        y = ridge + rand() * 0.65;
+        mix = 1;
+      }
     } else if (["hourglass", "butterfly", "homunculus"].includes(morphology)) {
       const sign = rand() < 0.5 ? -1 : 1;
       y = sign * (0.08 + rand() * 0.85);
       const width = Math.pow(Math.abs(y), morphology === "butterfly" ? 0.55 : 0.75) * 0.65;
       x = (rand() - 0.5) * width * 2;
       z = (rand() - 0.5) * width * (morphology === "butterfly" ? 0.7 : 1.15);
-      if (morphology === "homunculus") { x *= 0.68; z *= 0.75; }
+      if (morphology === "homunculus") {
+        x *= 0.68;
+        z *= 0.75;
+      }
       mix = Math.abs(y);
     } else if (morphology === "triple-ring") {
       const ring = Math.floor(rand() * 3);
       const rr = ring === 0 ? 0.48 : 0.7;
       x = Math.cos(theta) * rr;
       z = Math.sin(theta) * rr * (ring === 0 ? 1 : 0.72);
-      y = ring === 0 ? (rand() - 0.5) * 0.035 : (ring === 1 ? -0.45 : 0.45) + Math.sin(theta) * 0.25;
-      x += (rand() - 0.5) * 0.025; z += (rand() - 0.5) * 0.025;
+      y =
+        ring === 0 ? (rand() - 0.5) * 0.035 : (ring === 1 ? -0.45 : 0.45) + Math.sin(theta) * 0.25;
+      x += (rand() - 0.5) * 0.025;
+      z += (rand() - 0.5) * 0.025;
       mix = ring === 0 ? 0 : 1;
     } else if (morphology === "pinwheel") {
       const t = rand() * Math.PI * 7;
@@ -124,10 +144,14 @@ function buildNebulaGeometry(item: ObservedObject, profile: ObservedVisualProfil
       const arm = rand() < 0.5 ? 0 : Math.PI;
       const rr = Math.pow(rand(), 0.55);
       const a = arm + rr * 5.5 + (rand() - 0.5) * 0.65;
-      x = Math.cos(a) * rr; z = Math.sin(a) * rr; y = (rand() - 0.5) * 0.16;
+      x = Math.cos(a) * rr;
+      z = Math.sin(a) * rr;
+      y = (rand() - 0.5) * 0.16;
     } else if (morphology === "dusty-supergiant") {
       const shell = 0.5 + rand() * 0.5;
-      x *= shell; y *= shell; z *= shell;
+      x *= shell;
+      y *= shell;
+      z *= shell;
       mix = shell;
     }
 
@@ -136,7 +160,9 @@ function buildNebulaGeometry(item: ObservedObject, profile: ObservedVisualProfil
     positions[i * 3 + 1] = y * stretch[1];
     positions[i * 3 + 2] = z * stretch[2];
     const color = primary.clone().lerp(secondary, Math.min(1, Math.max(0, mix)));
-    colors[i * 3] = color.r; colors[i * 3 + 1] = color.g; colors[i * 3 + 2] = color.b;
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -151,7 +177,11 @@ function buildFilaments(profile: ObservedVisualProfile) {
   for (let f = 0; f < count; f++) {
     const theta = rand() * Math.PI * 2;
     const phi = Math.acos(2 * rand() - 1);
-    const axis = new THREE.Vector3(Math.sin(phi) * Math.cos(theta), Math.cos(phi), Math.sin(phi) * Math.sin(theta));
+    const axis = new THREE.Vector3(
+      Math.sin(phi) * Math.cos(theta),
+      Math.cos(phi),
+      Math.sin(phi) * Math.sin(theta),
+    );
     let previous = axis.clone().multiplyScalar(0.68 + rand() * 0.12);
     for (let j = 1; j <= 9; j++) {
       const next = axis.clone().multiplyScalar(0.7 + j * 0.025 + rand() * 0.035);
@@ -166,46 +196,97 @@ function buildFilaments(profile: ObservedVisualProfile) {
   return geometry;
 }
 
-function NebulaDetail({ item, profile, scale }: { item: ObservedObject; profile: ObservedVisualProfile; scale: number }) {
+function NebulaDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
   const geometry = useMemo(() => buildNebulaGeometry(item, profile), [item, profile]);
   const filaments = useMemo(() => buildFilaments(profile), [profile]);
   const texture = useMemo(makeGlowTexture, []);
   const slowlyTurning = profile.morphology === "pinwheel";
   const group = useRef<THREE.Group>(null);
   useFrame((_, dt) => {
-    if (slowlyTurning && group.current) group.current.rotation.y += Math.min(dt, 0.05) * (profile.spin ?? 0.1);
+    if (slowlyTurning && group.current)
+      group.current.rotation.y += Math.min(dt, 0.05) * (profile.spin ?? 0.1);
   });
   return (
     <group ref={group} rotation={profile.tilt} scale={scale}>
       <points geometry={geometry}>
-        <pointsMaterial map={texture} vertexColors size={0.055} sizeAttenuation transparent opacity={0.76} alphaTest={0.015} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <pointsMaterial
+          map={texture}
+          vertexColors
+          size={0.055}
+          sizeAttenuation
+          transparent
+          opacity={0.76}
+          alphaTest={0.015}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
       </points>
       {(profile.filamentCount ?? 0) > 0 && (
         <lineSegments geometry={filaments}>
-          <lineBasicMaterial color={item.color} transparent opacity={0.5} depthWrite={false} blending={THREE.AdditiveBlending} />
+          <lineBasicMaterial
+            color={item.color}
+            transparent
+            opacity={0.5}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
         </lineSegments>
       )}
-      {profile.morphology === "pillars" && [0, 1, 2].map((n) => (
-        <mesh key={n} position={[-0.36 + n * 0.34, -0.05 - n * 0.08, 0]}>
-          <coneGeometry args={[0.13 - n * 0.018, 0.9 - n * 0.14, 9, 3, true]} />
-          <meshBasicMaterial color={item.color} transparent opacity={0.16} side={THREE.DoubleSide} depthWrite={false} />
-        </mesh>
-      ))}
+      {profile.morphology === "pillars" &&
+        [0, 1, 2].map((n) => (
+          <mesh key={n} position={[-0.36 + n * 0.34, -0.05 - n * 0.08, 0]}>
+            <coneGeometry args={[0.13 - n * 0.018, 0.9 - n * 0.14, 9, 3, true]} />
+            <meshBasicMaterial
+              color={item.color}
+              transparent
+              opacity={0.16}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+            />
+          </mesh>
+        ))}
       {["hourglass", "butterfly", "homunculus"].includes(profile.morphology) && (
         <mesh rotation-x={Math.PI / 2} scale={[0.34, 0.34, 0.09]}>
           <torusGeometry args={[0.42, 0.11, 10, 64]} />
-          <meshBasicMaterial color={new THREE.Color(item.color).multiplyScalar(0.28)} transparent opacity={0.82} depthWrite={false} />
+          <meshBasicMaterial
+            color={new THREE.Color(item.color).multiplyScalar(0.28)}
+            transparent
+            opacity={0.82}
+            depthWrite={false}
+          />
         </mesh>
       )}
-      {profile.morphology === "triple-ring" && Array.from({ length: 15 }, (_, n) => {
-        const a = (n / 15) * Math.PI * 2;
-        return <mesh key={n} position={[Math.cos(a) * 0.48, 0, Math.sin(a) * 0.48]}><sphereGeometry args={[0.035, 8, 6]} /><meshBasicMaterial color={item.accent} /></mesh>;
-      })}
+      {profile.morphology === "triple-ring" &&
+        Array.from({ length: 15 }, (_, n) => {
+          const a = (n / 15) * Math.PI * 2;
+          return (
+            <mesh key={n} position={[Math.cos(a) * 0.48, 0, Math.sin(a) * 0.48]}>
+              <sphereGeometry args={[0.035, 8, 6]} />
+              <meshBasicMaterial color={item.accent} />
+            </mesh>
+          );
+        })}
     </group>
   );
 }
 
-function PulsarDetail({ item, profile, scale }: { item: ObservedObject; profile: ObservedVisualProfile; scale: number }) {
+function PulsarDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
   const rotor = useRef<THREE.Group>(null);
   const glow = useRef<THREE.Mesh>(null);
   const companion = useRef<THREE.Group>(null);
@@ -214,7 +295,13 @@ function PulsarDetail({ item, profile, scale }: { item: ObservedObject; profile:
     if (rotor.current) rotor.current.rotation.y += Math.min(dt, 0.05) * (profile.spin ?? 1);
     if (glow.current) {
       const material = glow.current.material as THREE.MeshBasicMaterial;
-      material.opacity = 0.42 + Math.pow(Math.max(0, Math.cos(t * (Math.PI * 2) / Math.max(profile.pulsePeriod ?? 1, 0.18))), 10) * 0.58;
+      material.opacity =
+        0.42 +
+        Math.pow(
+          Math.max(0, Math.cos((t * (Math.PI * 2)) / Math.max(profile.pulsePeriod ?? 1, 0.18))),
+          10,
+        ) *
+          0.58;
     }
     if (companion.current) companion.current.rotation.y = t * 0.9;
   });
@@ -223,18 +310,73 @@ function PulsarDetail({ item, profile, scale }: { item: ObservedObject; profile:
   const binary = profile.morphology === "neutron-binary";
   return (
     <group scale={scale} rotation={profile.tilt}>
-      <mesh ref={glow}><sphereGeometry args={[0.1, 24, 16]} /><meshBasicMaterial color={item.color} transparent opacity={0.8} /></mesh>
+      <mesh ref={glow}>
+        <sphereGeometry args={[0.1, 24, 16]} />
+        <meshBasicMaterial color={item.color} transparent opacity={0.8} />
+      </mesh>
       <group ref={rotor} rotation-z={profile.beamTilt ?? 0.45}>
-        {[-1, 1].map((sign) => <mesh key={sign} position={[0, sign * 0.65, 0]} rotation-z={sign > 0 ? 0 : Math.PI}><coneGeometry args={[0.13, 1.2, 20, 1, true]} /><meshBasicMaterial color={item.accent} transparent opacity={0.22} side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>)}
+        {[-1, 1].map((sign) => (
+          <mesh key={sign} position={[0, sign * 0.65, 0]} rotation-z={sign > 0 ? 0 : Math.PI}>
+            <coneGeometry args={[0.13, 1.2, 20, 1, true]} />
+            <meshBasicMaterial
+              color={item.accent}
+              transparent
+              opacity={0.22}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
       </group>
-      {torus && <><mesh rotation-x={Math.PI / 2}><torusGeometry args={[0.34, 0.025, 8, 64]} /><meshBasicMaterial color={item.accent} transparent opacity={0.55} depthWrite={false} /></mesh><mesh rotation-x={Math.PI / 2} scale={1.42}><torusGeometry args={[0.34, 0.015, 8, 64]} /><meshBasicMaterial color={item.accent} transparent opacity={0.24} depthWrite={false} /></mesh></>}
-      {magnetar && [0, 1, 2, 3].map((n) => <mesh key={n} rotation={[n * 0.48, n * 0.72, n * 0.31]}><torusGeometry args={[0.36 + n * 0.055, 0.008, 6, 48]} /><meshBasicMaterial color={item.accent} transparent opacity={0.38} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>)}
-      {binary && <group ref={companion}><mesh position={[0.52, 0, 0]}><sphereGeometry args={[0.075, 18, 12]} /><meshBasicMaterial color={item.accent} /></mesh></group>}
+      {torus && (
+        <>
+          <mesh rotation-x={Math.PI / 2}>
+            <torusGeometry args={[0.34, 0.025, 8, 64]} />
+            <meshBasicMaterial color={item.accent} transparent opacity={0.55} depthWrite={false} />
+          </mesh>
+          <mesh rotation-x={Math.PI / 2} scale={1.42}>
+            <torusGeometry args={[0.34, 0.015, 8, 64]} />
+            <meshBasicMaterial color={item.accent} transparent opacity={0.24} depthWrite={false} />
+          </mesh>
+        </>
+      )}
+      {magnetar &&
+        [0, 1, 2, 3].map((n) => (
+          <mesh key={n} rotation={[n * 0.48, n * 0.72, n * 0.31]}>
+            <torusGeometry args={[0.36 + n * 0.055, 0.008, 6, 48]} />
+            <meshBasicMaterial
+              color={item.accent}
+              transparent
+              opacity={0.38}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
+      {binary && (
+        <group ref={companion}>
+          <mesh position={[0.52, 0, 0]}>
+            <sphereGeometry args={[0.075, 18, 12]} />
+            <meshBasicMaterial color={item.accent} />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 }
 
-function AccretionDisk({ item, profile, scale, jet = false }: { item: ObservedObject; profile: ObservedVisualProfile; scale: number; jet?: boolean }) {
+function AccretionDisk({
+  item,
+  profile,
+  scale,
+  jet = false,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+  jet?: boolean;
+}) {
   const disk = useRef<THREE.Group>(null);
   const knots = useRef<THREE.Group>(null);
   useFrame(({ clock }, dt) => {
@@ -244,52 +386,224 @@ function AccretionDisk({ item, profile, scale, jet = false }: { item: ObservedOb
   return (
     <group scale={scale} rotation={profile.tilt}>
       <group ref={disk} rotation-x={Math.PI / 2}>
-        {[0.25, 0.34, 0.45, 0.58].map((r, n) => <mesh key={r} rotation-z={n * 0.7}><torusGeometry args={[r, 0.025 + n * 0.009, 8, 72]} /><meshBasicMaterial color={n < 2 ? item.accent : item.color} transparent opacity={0.92 - n * 0.14} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>)}
+        {[0.25, 0.34, 0.45, 0.58].map((r, n) => (
+          <mesh key={r} rotation-z={n * 0.7}>
+            <torusGeometry args={[r, 0.025 + n * 0.009, 8, 72]} />
+            <meshBasicMaterial
+              color={n < 2 ? item.accent : item.color}
+              transparent
+              opacity={0.92 - n * 0.14}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
       </group>
-      <mesh><sphereGeometry args={[0.19, 32, 20]} /><meshBasicMaterial color="#000000" /></mesh>
-      <mesh rotation-x={Math.PI / 2}><torusGeometry args={[0.23, 0.035, 12, 96]} /><meshBasicMaterial color={item.accent} transparent opacity={0.92} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh>
-      {jet && <><mesh position={[0, 0.85, 0]}><coneGeometry args={[0.08, profile.jetLength ?? 1.6, 16, 1, true]} /><meshBasicMaterial color={item.accent} transparent opacity={0.38} side={THREE.DoubleSide} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh><group ref={knots}>{[-0.45, 0, 0.45].map((y) => <mesh key={y} position={[0, y, 0]}><sphereGeometry args={[0.035, 8, 6]} /><meshBasicMaterial color={item.accent} /></mesh>)}</group></>}
+      <mesh>
+        <sphereGeometry args={[0.19, 32, 20]} />
+        <meshBasicMaterial color="#000000" />
+      </mesh>
+      <mesh rotation-x={Math.PI / 2}>
+        <torusGeometry args={[0.23, 0.035, 12, 96]} />
+        <meshBasicMaterial
+          color={item.accent}
+          transparent
+          opacity={0.92}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      {jet && (
+        <>
+          <mesh position={[0, 0.85, 0]}>
+            <coneGeometry args={[0.08, profile.jetLength ?? 1.6, 16, 1, true]} />
+            <meshBasicMaterial
+              color={item.accent}
+              transparent
+              opacity={0.38}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+          <group ref={knots}>
+            {[-0.45, 0, 0.45].map((y) => (
+              <mesh key={y} position={[0, y, 0]}>
+                <sphereGeometry args={[0.035, 8, 6]} />
+                <meshBasicMaterial color={item.accent} />
+              </mesh>
+            ))}
+          </group>
+        </>
+      )}
     </group>
   );
 }
 
-function BlackHoleDetail({ item, profile, scale }: { item: ObservedObject; profile: ObservedVisualProfile; scale: number }) {
+function BlackHoleDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
   const merger = useRef<THREE.Group>(null);
   const companion = useRef<THREE.Group>(null);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
-    if (merger.current) { const decay = 0.38 + 0.2 * (0.5 + 0.5 * Math.sin(t * 0.45)); merger.current.rotation.y = t * 1.5; merger.current.scale.setScalar(decay); }
+    if (merger.current) {
+      const decay = 0.38 + 0.2 * (0.5 + 0.5 * Math.sin(t * 0.45));
+      merger.current.rotation.y = t * 1.5;
+      merger.current.scale.setScalar(decay);
+    }
     if (companion.current) companion.current.rotation.y = t * 0.5;
   });
-  if (profile.morphology === "merger") return <group scale={scale} rotation={profile.tilt}><group ref={merger}>{[-1, 1].map((s) => <mesh key={s} position={[s * 0.55, 0, 0]}><sphereGeometry args={[s > 0 ? 0.2 : 0.17, 24, 18]} /><meshBasicMaterial color="#000000" /></mesh>)}</group><mesh rotation-x={Math.PI / 2}><ringGeometry args={[0.55, 0.58, 96]} /><meshBasicMaterial color={item.accent} transparent opacity={0.18} side={THREE.DoubleSide} depthWrite={false} /></mesh></group>;
-  if (profile.morphology === "xray-binary") return <group scale={scale} rotation={profile.tilt}><AccretionDisk item={item} profile={{ ...profile, tilt: [0, 0, 0] }} scale={0.65} jet /><group ref={companion}><mesh position={[0.78, 0, 0]}><sphereGeometry args={[0.25, 28, 20]} /><meshBasicMaterial color="#9ec5ff" /></mesh></group><mesh rotation-z={Math.PI / 2} position={[0.46, 0, 0]}><coneGeometry args={[0.12, 0.55, 14, 1, true]} /><meshBasicMaterial color={item.accent} transparent opacity={0.25} side={THREE.DoubleSide} depthWrite={false} /></mesh></group>;
-  return <AccretionDisk item={item} profile={profile} scale={scale} jet={profile.morphology === "eht-jet"} />;
+  if (profile.morphology === "merger")
+    return (
+      <group scale={scale} rotation={profile.tilt}>
+        <group ref={merger}>
+          {[-1, 1].map((s) => (
+            <mesh key={s} position={[s * 0.55, 0, 0]}>
+              <sphereGeometry args={[s > 0 ? 0.2 : 0.17, 24, 18]} />
+              <meshBasicMaterial color="#000000" />
+            </mesh>
+          ))}
+        </group>
+        <mesh rotation-x={Math.PI / 2}>
+          <ringGeometry args={[0.55, 0.58, 96]} />
+          <meshBasicMaterial
+            color={item.accent}
+            transparent
+            opacity={0.18}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+      </group>
+    );
+  if (profile.morphology === "xray-binary")
+    return (
+      <group scale={scale} rotation={profile.tilt}>
+        <AccretionDisk item={item} profile={{ ...profile, tilt: [0, 0, 0] }} scale={0.65} jet />
+        <group ref={companion}>
+          <mesh position={[0.78, 0, 0]}>
+            <sphereGeometry args={[0.25, 28, 20]} />
+            <meshBasicMaterial color="#9ec5ff" />
+          </mesh>
+        </group>
+        <mesh rotation-z={Math.PI / 2} position={[0.46, 0, 0]}>
+          <coneGeometry args={[0.12, 0.55, 14, 1, true]} />
+          <meshBasicMaterial
+            color={item.accent}
+            transparent
+            opacity={0.25}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+          />
+        </mesh>
+      </group>
+    );
+  return (
+    <AccretionDisk
+      item={item}
+      profile={profile}
+      scale={scale}
+      jet={profile.morphology === "eht-jet"}
+    />
+  );
 }
 
-function QuasarDetail({ item, profile, scale }: { item: ObservedObject; profile: ObservedVisualProfile; scale: number }) {
-  if (profile.morphology === "disturbed-quasar") return <group><NebulaDetail item={item} profile={profile} scale={scale} /><AccretionDisk item={item} profile={{ ...profile, tilt: profile.tilt }} scale={scale * 0.18} jet /></group>;
-  return <AccretionDisk item={item} profile={profile} scale={scale} jet={profile.morphology !== "unresolved-quasar"} />;
+function QuasarDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
+  if (profile.morphology === "disturbed-quasar")
+    return (
+      <group>
+        <NebulaDetail item={item} profile={profile} scale={scale} />
+        <AccretionDisk
+          item={item}
+          profile={{ ...profile, tilt: profile.tilt }}
+          scale={scale * 0.18}
+          jet
+        />
+      </group>
+    );
+  return (
+    <AccretionDisk
+      item={item}
+      profile={profile}
+      scale={scale}
+      jet={profile.morphology !== "unresolved-quasar"}
+    />
+  );
 }
 
-function StarDetail({ item, profile, scale }: { item: ObservedObject; profile: ObservedVisualProfile; scale: number }) {
+function StarDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
   const star = useRef<THREE.Mesh>(null);
-  const dustProfile = profile.morphology === "dusty-supergiant" ? profile : { ...profile, morphology: "dusty-supergiant" as const, particleCount: 900 };
+  const dustProfile =
+    profile.morphology === "dusty-supergiant"
+      ? profile
+      : { ...profile, morphology: "dusty-supergiant" as const, particleCount: 900 };
   useFrame(({ clock }) => {
     if (!star.current) return;
     star.current.rotation.y = clock.elapsedTime * (profile.spin ?? 0.02);
-    const pulse = profile.morphology === "white-dwarf" ? 1 : 1 + Math.sin(clock.elapsedTime * 0.8) * 0.025;
+    const pulse =
+      profile.morphology === "white-dwarf" ? 1 : 1 + Math.sin(clock.elapsedTime * 0.8) * 0.025;
     star.current.scale.set(pulse, pulse * 0.97, pulse * 1.02);
   });
-  return <group scale={scale} rotation={profile.tilt}><mesh ref={star}><icosahedronGeometry args={[0.34, 5]} /><meshBasicMaterial color={item.color} /></mesh>{profile.morphology !== "white-dwarf" && <NebulaDetail item={item} profile={dustProfile} scale={0.72} />}<mesh><sphereGeometry args={[0.5, 20, 14]} /><meshBasicMaterial color={item.accent} transparent opacity={0.09} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} /></mesh></group>;
+  return (
+    <group scale={scale} rotation={profile.tilt}>
+      <mesh ref={star}>
+        <icosahedronGeometry args={[0.34, 5]} />
+        <meshBasicMaterial color={item.color} />
+      </mesh>
+      {profile.morphology !== "white-dwarf" && (
+        <NebulaDetail item={item} profile={dustProfile} scale={0.72} />
+      )}
+      <mesh>
+        <sphereGeometry args={[0.5, 20, 14]} />
+        <meshBasicMaterial
+          color={item.accent}
+          transparent
+          opacity={0.09}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
+  );
 }
 
 function Detail({ item, scale }: { item: ObservedObject; scale: number }) {
   const profile = OBSERVED_VISUAL_PROFILES[item.id];
   if (!profile) return null;
-  if (["pulsar-torus", "radio-pulsar", "magnetar", "neutron-binary"].includes(profile.morphology)) return <PulsarDetail item={item} profile={profile} scale={scale} />;
-  if (["eht-ring", "eht-jet", "xray-binary", "merger"].includes(profile.morphology)) return <BlackHoleDetail item={item} profile={profile} scale={scale} />;
-  if (["quasar-jet", "blazar", "disturbed-quasar", "unresolved-quasar"].includes(profile.morphology)) return <QuasarDetail item={item} profile={profile} scale={scale} />;
-  if (["white-dwarf", "red-supergiant", "dusty-supergiant"].includes(profile.morphology)) return <StarDetail item={item} profile={profile} scale={scale} />;
+  if (["pulsar-torus", "radio-pulsar", "magnetar", "neutron-binary"].includes(profile.morphology))
+    return <PulsarDetail item={item} profile={profile} scale={scale} />;
+  if (["eht-ring", "eht-jet", "xray-binary", "merger"].includes(profile.morphology))
+    return <BlackHoleDetail item={item} profile={profile} scale={scale} />;
+  if (
+    ["quasar-jet", "blazar", "disturbed-quasar", "unresolved-quasar"].includes(profile.morphology)
+  )
+    return <QuasarDetail item={item} profile={profile} scale={scale} />;
+  if (["white-dwarf", "red-supergiant", "dusty-supergiant"].includes(profile.morphology))
+    return <StarDetail item={item} profile={profile} scale={scale} />;
   return <NebulaDetail item={item} profile={profile} scale={scale} />;
 }
 function ObjectNode({ item }: { item: ObservedObject }) {
