@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { LEGACY_BODY_RADIUS_TO_AU, LIGHT_YEARS_PER_AU, SOLAR_RADIUS_AU } from "./scale";
+import { EXO_BODY_SCALE, EXO_STAR_MAGNIFY, LIGHT_YEARS_PER_AU, SOLAR_RADIUS_AU } from "./scale";
 import { NEARBY_GALAXIES, type NamedGalaxy } from "./galaxy-catalog";
 
 // ---------------------------------------------------------------
@@ -183,7 +183,7 @@ function sys(
       e: s.e ?? 0.04 + (idx % 3) * 0.03,
       i: d2r(s.iDeg ?? (idx % 4) * 1.3),
       omega: d2r(s.omegaDeg ?? idx * 63),
-      size: s.sizeAU * LEGACY_BODY_RADIUS_TO_AU * au,
+      size: s.sizeAU * EXO_BODY_SCALE * au,
       color: s.color,
       atmosphere: s.atmosphere,
       emissive: s.emissive,
@@ -191,14 +191,14 @@ function sys(
       spinPeriod: s.spin ?? 4,
       tilt: d2r(6 + idx * 7),
       ring: s.ring ? {
-        inner: s.ring[0] * LEGACY_BODY_RADIUS_TO_AU * au,
-        outer: s.ring[1] * LEGACY_BODY_RADIUS_TO_AU * au,
+        inner: s.ring[0] * EXO_BODY_SCALE * au,
+        outer: s.ring[1] * EXO_BODY_SCALE * au,
         color: s.ring[2],
       } : undefined,
       moons: s.moons?.map(([n, dAU, szAU, c, p]) => ({
         name: n,
-        distance: dAU * LEGACY_BODY_RADIUS_TO_AU * au,
-        size: szAU * LEGACY_BODY_RADIUS_TO_AU * au,
+        distance: dAU * EXO_BODY_SCALE * au,
+        size: szAU * EXO_BODY_SCALE * au,
         color: c,
         period: p,
       })),
