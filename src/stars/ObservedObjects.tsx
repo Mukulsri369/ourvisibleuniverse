@@ -614,7 +614,7 @@ function ObjectNode({ item }: { item: ObservedObject }) {
   const physical = Math.max(item.diameterLy, 0.000000001);
   const closeScale = Math.max(
     physical,
-    item.category === "Nebula" || item.category === "Quasar" ? physical : 2e-7,
+    item.category === "Quasar" ? physical : 2e-7,
   );
   const pick = Math.max(physical, item.distance * 2e-5, 0.000001);
   const click = (e: ThreeEvent<MouseEvent>) => {
