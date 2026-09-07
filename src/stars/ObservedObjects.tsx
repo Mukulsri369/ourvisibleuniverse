@@ -223,7 +223,7 @@ function NebulaDetail({
           size={0.055}
           sizeAttenuation
           transparent
-          opacity={0.76}
+          opacity={0.9}
           alphaTest={0.015}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
@@ -234,7 +234,7 @@ function NebulaDetail({
           <lineBasicMaterial
             color={item.color}
             transparent
-            opacity={0.5}
+            opacity={0.68}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
