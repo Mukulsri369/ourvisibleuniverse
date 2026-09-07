@@ -5,7 +5,7 @@
 - [x] Add sitemap/search/camera navigation
 - [x] Add detail panel
 - [x] Verify build and browser behavior
-- [ ] Research observatory imagery and motion references for all 28 objects
-- [ ] Replace generic object shapes with morphology-specific procedural models
-- [ ] Add physically motivated compact-object animation and selected-object detail LOD
-- [ ] Verify representative objects, performance, runtime logs, and build
+- [x] Research observatory imagery and motion references for all 29 objects
+- [x] Replace generic object shapes with morphology-specific procedural models
+- [x] Add physically motivated compact-object animation and selected-object detail LOD
+- [x] Verify representative objects, performance, runtime logs, and build

@@ -677,5 +677,7 @@ export function objectPosition(
 
 export function objectVisitDistance(item: ObservedObject): number {
   if (item.diameterLy >= 0.05) return Math.max(item.diameterLy * 1.8, 0.2);
-  return Math.max(item.diameterLy * 24, 2e-7);
+  // Compact remnants use a minimum presentation scale of 2e-7 ly in the
+  // renderer. Keep the camera outside that model instead of inside its beams.
+  return Math.max(item.diameterLy * 24, 8e-7);
 }
