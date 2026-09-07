@@ -101,7 +101,7 @@ const d2r = (d: number) => (d * Math.PI) / 180;
 
 export const PA99N2_STAR = {
   name: "PA-99-N2",
-  radius: 0.5 * SOLAR_RADIUS_AU * M31_AU,
+  radius: 0.5 * SOLAR_RADIUS_AU * EXO_STAR_MAGNIFY * M31_AU,
   color: "#ffd39a",
   spectral: "K-type main sequence (lens star)",
   mass: "≈ 0.5 M☉",

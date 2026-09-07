@@ -175,7 +175,7 @@ function sys(
       spectral: star.spectral,
       mass: star.mass,
       description: star.description,
-      radius: star.radiusSolar * SOLAR_RADIUS_AU * au,
+      radius: star.radiusSolar * SOLAR_RADIUS_AU * EXO_STAR_MAGNIFY * au,
     },
     planets: specs.map((s, idx) => ({
       name: s.name,
