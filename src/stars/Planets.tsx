@@ -220,12 +220,22 @@ function getRegistry(): PlanetRegistry {
 function Planet({ def }: { def: PlanetDef }) {
   const groupRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Mesh>(null!);
+  const haloRef = useRef<THREE.Sprite>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
     const t = clock.elapsedTime;
+    // The far-away marker sprite must not wash the planet out up close:
+    // it only fades in once the disk itself is too small to see.
+    if (haloRef.current) {
+      const d = camera.position.distanceTo(groupRef.current.position);
+      const k = Math.min(1, Math.max(0, d / (def.size * 900) - 1));
+      const mat = haloRef.current.material as THREE.SpriteMaterial;
+      mat.opacity = 0.7 * k;
+      haloRef.current.visible = k > 0.01;
+    }
     const p = keplerPosition(def, phase, t);
     groupRef.current.position.copy(p);
     if (bodyRef.current) {
