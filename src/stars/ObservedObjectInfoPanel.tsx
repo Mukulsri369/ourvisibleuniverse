@@ -65,6 +65,35 @@ export function ObservedObjectInfoPanel() {
               </li>
             ))}
           </ul>
+          <div className="mt-7 text-[10px] uppercase tracking-[0.2em] text-white/40">
+            Derived figures
+          </div>
+          <ul className="mt-3 space-y-2">
+            {(
+              [
+                [
+                  "Light travel time",
+                  `${distanceLabel(item.distance).replace(" ly", "")} years — we see it as it was then`,
+                ],
+                ["Distance in parsecs", `${(item.distance / 3.26156).toExponential(2)} pc`],
+                [
+                  "Light-crossing time",
+                  item.diameterLy >= 1
+                    ? `${item.diameterLy.toLocaleString()} years across`
+                    : `${(item.diameterLy * 3.156e7).toFixed(2)} seconds across`,
+                ],
+                [
+                  "Size vs Solar System",
+                  `${(item.diameterLy / 0.0012).toFixed(item.diameterLy < 0.01 ? 3 : 0)}× Neptune's orbit`,
+                ],
+              ] as Array<[string, string]>
+            ).map(([k, v]) => (
+              <li key={k} className="flex items-baseline justify-between gap-3 text-xs">
+                <span className="text-white/45">{k}</span>
+                <span className="text-right text-white/80">{v}</span>
+              </li>
+            ))}
+          </ul>
           <div className="mt-7 rounded-lg border border-white/10 bg-white/[0.03] p-3">
             <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
               Visual interpretation

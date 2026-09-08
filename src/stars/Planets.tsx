@@ -220,10 +220,11 @@ function getRegistry(): PlanetRegistry {
 function Planet({ def }: { def: PlanetDef }) {
   const groupRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Mesh>(null!);
+  const haloRef = useRef<THREE.Sprite>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
     const t = clock.elapsedTime;
     const p = keplerPosition(def, phase, t);
@@ -232,6 +233,15 @@ function Planet({ def }: { def: PlanetDef }) {
       bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     }
     groupRef.current.getWorldPosition(tmp);
+    // The distant marker sprite must not wash the planet out up close:
+    // it only fades in once the disk itself is too small to resolve.
+    if (haloRef.current) {
+      const d = camera.position.distanceTo(tmp);
+      const k = Math.min(1, Math.max(0, d / (def.size * 1200) - 1));
+      const mat = haloRef.current.material as THREE.SpriteMaterial;
+      mat.opacity = 0.65 * k;
+      haloRef.current.visible = k > 0.01;
+    }
     const reg = getRegistry();
     let v = reg.get(def.name);
     if (!v) { v = new THREE.Vector3(); reg.set(def.name, v); }
@@ -250,9 +260,9 @@ function Planet({ def }: { def: PlanetDef }) {
 
   return (
     <group ref={groupRef}>
-      {/* halo sprite — keeps the planet visible as a colored dot from far away */}
-      <sprite scale={[Math.max(def.size * 22, 0.05), Math.max(def.size * 22, 0.05), 1]}>
-        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0.7} depthWrite={false} blending={THREE.AdditiveBlending} />
+      {/* halo sprite — only a far-away locator dot; hidden once the planet is resolvable */}
+      <sprite ref={haloRef} visible={false} scale={[Math.max(def.size * 22, 0.05), Math.max(def.size * 22, 0.05), 1]}>
+        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} />
       </sprite>
       {/* tilt + body */}
       <group rotation={[0, 0, def.tilt]}>
@@ -278,13 +288,13 @@ function Planet({ def }: { def: PlanetDef }) {
         {/* atmosphere glow — two soft shells for a limb-lit look */}
         {def.atmosphere && (
           <>
-            <mesh scale={1.03}>
+            <mesh scale={1.02}>
               <sphereGeometry args={[def.size, 24, 16]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.14} side={THREE.BackSide} depthWrite={false} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.09} side={THREE.BackSide} depthWrite={false} />
             </mesh>
-            <mesh scale={1.12}>
+            <mesh scale={1.06}>
               <sphereGeometry args={[def.size, 24, 16]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.035} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
             </mesh>
           </>
         )}

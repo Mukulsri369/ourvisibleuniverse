@@ -17,8 +17,8 @@ export const LEGACY_BODY_RADIUS_TO_AU = 1 / 180;
  * orbit, so bodies (and moon orbits) are enlarged by a fixed factor while all
  * relative proportions inside a system are preserved.
  */
-export const EXO_BODY_MAGNIFY = 500;
-export const EXO_STAR_MAGNIFY = 120;
+export const EXO_BODY_MAGNIFY = 2200;
+export const EXO_STAR_MAGNIFY = 400;
 
 /** Legacy catalog body radius/distance -> AU, including the visibility boost. */
 export const EXO_BODY_SCALE = LEGACY_BODY_RADIUS_TO_AU * EXO_BODY_MAGNIFY;

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { NamedStar } from "./data";
-import { ANDROMEDA_NAME, M31_AU, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
-import { GALAXY_BY_NAME, galaxyCenter } from "./galaxy-models";
+import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
+import { GALAXY_BY_NAME, systemViewDistance, systemWorldPosition } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition, objectVisitDistance } from "./observed-objects";
 
 export type TourStop = {
@@ -114,30 +114,31 @@ interface State {
 function withFocus(g: VisitGalaxy): VisitGalaxy {
   if (g.focus) return g;
   if (g.name === ANDROMEDA_NAME) {
+    const outer = M31_PLANETS.reduce((mx, p) => Math.max(mx, p.a), 6 * M31_AU);
     return {
       ...g,
       focus: {
         x: PA99N2_WORLD.x,
         y: PA99N2_WORLD.y,
         z: PA99N2_WORLD.z,
-        distance: 14 * M31_AU,
+        distance: outer * 3.2,
         key: PA99N2_STAR.name,
       },
     };
   }
   const model = GALAXY_BY_NAME.get(g.name);
   if (model?.system) {
-    const c = galaxyCenter(model);
-    // Aim at the galaxy centre first; the camera then locks onto the live
-    // system position published under the host star's name.
-    const sysPos = c;
+    // Aim straight at where the star system sits inside its galaxy (not the
+    // core); the camera then locks onto the live position published under the
+    // host star's name as the system orbits.
+    const sysPos = systemWorldPosition(model);
     return {
       ...g,
       focus: {
         x: sysPos.x,
         y: sysPos.y,
         z: sysPos.z,
-        distance: 16 * model.system.au,
+        distance: systemViewDistance(model),
         key: model.system.star.name,
       },
     };
