@@ -288,13 +288,13 @@ function Planet({ def }: { def: PlanetDef }) {
         {/* atmosphere glow — two soft shells for a limb-lit look */}
         {def.atmosphere && (
           <>
-            <mesh scale={1.03}>
+            <mesh scale={1.02}>
               <sphereGeometry args={[def.size, 24, 16]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.14} side={THREE.BackSide} depthWrite={false} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.09} side={THREE.BackSide} depthWrite={false} />
             </mesh>
-            <mesh scale={1.12}>
+            <mesh scale={1.06}>
               <sphereGeometry args={[def.size, 24, 16]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.035} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
             </mesh>
           </>
         )}
