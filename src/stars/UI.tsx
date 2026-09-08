@@ -77,6 +77,68 @@ export function InfoPanel() {
   );
 }
 
+/**
+ * Everything below is derived from the catalogued values already shown above
+ * (no new observations): standard relations for colour temperature, habitable
+ * zone, main-sequence lifetime and surface gravity.
+ */
+function StarDerived({ star }: { star: NamedStar }) {
+  const pc = star.distance / 3.26156;
+  const peakNm = star.temperature > 0 ? 2.8977719e6 / star.temperature : 0;
+  const hzInner = Math.sqrt(star.luminosity / 1.1);
+  const hzOuter = Math.sqrt(star.luminosity / 0.53);
+  const lifeGyr = star.luminosity > 0 ? 10 * (star.mass / star.luminosity) : 0;
+  const gravity = star.radius > 0 ? star.mass / (star.radius * star.radius) : 0;
+  const colorName =
+    star.temperature > 25000
+      ? "blue"
+      : star.temperature > 10000
+        ? "blue-white"
+        : star.temperature > 7300
+          ? "white"
+          : star.temperature > 5900
+            ? "yellow-white"
+            : star.temperature > 4700
+              ? "yellow"
+              : star.temperature > 3500
+                ? "orange"
+                : "red";
+  const rows: Array<[string, string]> = [
+    ["Light travel time", star.distance < 0.01 ? "8.3 minutes" : `${star.distance.toFixed(2)} years`],
+    ["Distance", `${pc.toFixed(2)} parsecs · ${(star.distance * 63241).toExponential(2)} AU`],
+    ["Peak colour", `${colorName}, peaking near ${Math.round(peakNm)} nm`],
+    ["Habitable zone", `${hzInner.toFixed(2)} – ${hzOuter.toFixed(2)} AU`],
+    ["Surface gravity", `${gravity.toFixed(2)} × the Sun's`],
+    [
+      "Main-sequence lifetime",
+      lifeGyr >= 1000 ? `${(lifeGyr / 1000).toFixed(1)} trillion yr` : `${lifeGyr.toFixed(1)} billion yr`,
+    ],
+    [
+      "Brightness vs Sun",
+      star.luminosity >= 1
+        ? `${star.luminosity.toLocaleString()}× brighter`
+        : `${(1 / star.luminosity).toFixed(0)}× fainter`,
+    ],
+  ];
+  return (
+    <div className="mt-7">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">Derived properties</div>
+      <ul className="mt-3 space-y-2">
+        {rows.map(([k, v]) => (
+          <li key={k} className="flex items-baseline justify-between gap-3 text-xs">
+            <span className="text-white/45">{k}</span>
+            <span className="text-right text-white/80">{v}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[11px] leading-relaxed text-white/40">
+        Values above come from published astrometry; these figures follow from them using standard
+        stellar relations.
+      </p>
+    </div>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
