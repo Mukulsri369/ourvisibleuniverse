@@ -260,9 +260,9 @@ function Planet({ def }: { def: PlanetDef }) {
 
   return (
     <group ref={groupRef}>
-      {/* halo sprite — keeps the planet visible as a colored dot from far away */}
-      <sprite scale={[Math.max(def.size * 22, 0.05), Math.max(def.size * 22, 0.05), 1]}>
-        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0.7} depthWrite={false} blending={THREE.AdditiveBlending} />
+      {/* halo sprite — only a far-away locator dot; hidden once the planet is resolvable */}
+      <sprite ref={haloRef} visible={false} scale={[Math.max(def.size * 22, 0.05), Math.max(def.size * 22, 0.05), 1]}>
+        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} />
       </sprite>
       {/* tilt + body */}
       <group rotation={[0, 0, def.tilt]}>
