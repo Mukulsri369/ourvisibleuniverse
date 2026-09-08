@@ -227,21 +227,21 @@ function Planet({ def }: { def: PlanetDef }) {
   useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
     const t = clock.elapsedTime;
-    // The far-away marker sprite must not wash the planet out up close:
-    // it only fades in once the disk itself is too small to see.
-    if (haloRef.current) {
-      const d = camera.position.distanceTo(groupRef.current.position);
-      const k = Math.min(1, Math.max(0, d / (def.size * 900) - 1));
-      const mat = haloRef.current.material as THREE.SpriteMaterial;
-      mat.opacity = 0.7 * k;
-      haloRef.current.visible = k > 0.01;
-    }
     const p = keplerPosition(def, phase, t);
     groupRef.current.position.copy(p);
     if (bodyRef.current) {
       bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     }
     groupRef.current.getWorldPosition(tmp);
+    // The distant marker sprite must not wash the planet out up close:
+    // it only fades in once the disk itself is too small to resolve.
+    if (haloRef.current) {
+      const d = camera.position.distanceTo(tmp);
+      const k = Math.min(1, Math.max(0, d / (def.size * 1200) - 1));
+      const mat = haloRef.current.material as THREE.SpriteMaterial;
+      mat.opacity = 0.65 * k;
+      haloRef.current.visible = k > 0.01;
+    }
     const reg = getRegistry();
     let v = reg.get(def.name);
     if (!v) { v = new THREE.Vector3(); reg.set(def.name, v); }
