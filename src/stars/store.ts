@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { NamedStar } from "./data";
-import { ANDROMEDA_NAME, M31_AU, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
-import { GALAXY_BY_NAME, galaxyCenter } from "./galaxy-models";
+import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
+import { GALAXY_BY_NAME, systemViewDistance, systemWorldPosition } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition, objectVisitDistance } from "./observed-objects";
 
 export type TourStop = {
