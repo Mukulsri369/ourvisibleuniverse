@@ -204,7 +204,7 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
       ["Stars", "Visit any catalogued star system"],
       ["Planets", "Follow a planet of the Solar System"],
       ["Galaxies", "Fly to a galaxy and its star system"],
-      ["Objects", "Visit nebulae, quasars, remnants and exotic stars"],
+      ["Objects", "Visit quasars, black holes, remnants and every kind of star"],
     ],
   },
 ];
