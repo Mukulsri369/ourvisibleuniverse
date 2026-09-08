@@ -741,3 +741,31 @@ export function systemOmega(m: GalaxyModel): number {
   const r = Math.max(m.system.orbitRadius, 1);
   return vFlat / r;
 }
+
+/**
+ * World position of a galaxy's star system at t = 0. GalaxyBody nests the
+ * system inside the galaxy's orientation (inclination/position angle) and a
+ * further +90° X rotation that lays the disk flat, so the camera focus has to
+ * apply the same transform instead of aiming at the galaxy's core.
+ */
+export function systemWorldPosition(m: GalaxyModel, t = 0): THREE.Vector3 {
+  const s = m.system;
+  const c = galaxyCenter(m);
+  if (!s) return c;
+  const ang = s.orbitPhase + systemOmega(m) * t;
+  const local = new THREE.Vector3(
+    Math.cos(ang) * s.orbitRadius,
+    s.orbitHeight,
+    Math.sin(ang) * s.orbitRadius,
+  );
+  local.applyQuaternion(galaxyQuat(m.inclination, m.posAngle));
+  return local.add(c);
+}
+
+/** Framing distance that fits the whole star system (outermost orbit) on screen. */
+export function systemViewDistance(m: GalaxyModel): number {
+  const s = m.system;
+  if (!s) return Math.max(m.diskRadius * 2.2, 2000);
+  const outer = s.planets.reduce((mx, p) => Math.max(mx, p.a), s.star.radius * 4);
+  return outer * 3.2;
+}
