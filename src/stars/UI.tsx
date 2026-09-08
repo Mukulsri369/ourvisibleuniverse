@@ -56,6 +56,9 @@ export function InfoPanel() {
           <div className="my-6 h-px bg-white/10" />
           <p className="text-sm leading-relaxed text-white/75">{star.description}</p>
 
+          <StarDerived star={star} />
+
+
           {star.companions?.length ? (
             <div className="mt-6">
               <div className="text-xs uppercase tracking-[0.2em] text-white/40">Companions</div>
