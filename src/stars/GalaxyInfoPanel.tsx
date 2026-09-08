@@ -163,6 +163,43 @@ export function GalaxyInfoPanel() {
   );
 }
 
+/**
+ * Figures derived from the catalogued distance and diameter using standard
+ * cosmology (Hubble constant 70 km/s/Mpc) — no invented observations.
+ */
+function GalaxyDerived({ distance, size, type }: { distance: number; size: number; type: string }) {
+  const mpc = distance / 3.26156e6;
+  const recession = mpc * 70;
+  const z = recession / 299792.458;
+  const relToMw = size / 100000;
+  const rows: Array<[string, string]> = [
+    ["Distance", `${mpc.toFixed(mpc < 10 ? 3 : 1)} Mpc · ${(distance / 3.26156).toExponential(2)} pc`],
+    ["Light we see left", `${formatLy(distance).replace(" ly", "").replace("ly", "")} years ago`],
+    ["Hubble recession", `${Math.round(recession).toLocaleString()} km/s`],
+    ["Approx. redshift z", z < 0.001 ? "<0.001 (Local Group)" : z.toFixed(3)],
+    ["Size vs Milky Way", `${relToMw.toFixed(2)}× our galaxy's diameter`],
+    ["Crossing time at light speed", `${formatLy(size).replace(" ly", "").replace("ly", "")} years`],
+    ["Morphology", type],
+  ];
+  return (
+    <div className="mt-7">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">Derived properties</div>
+      <ul className="mt-3 space-y-2">
+        {rows.map(([k, v]) => (
+          <li key={k} className="flex items-baseline justify-between gap-3 text-xs">
+            <span className="text-white/45">{k}</span>
+            <span className="text-right text-white/80">{v}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[11px] leading-relaxed text-white/40">
+        Recession speed and redshift follow from the measured distance with a Hubble constant of 70
+        km/s/Mpc; for Local Group members local motion dominates instead.
+      </p>
+    </div>
+  );
+}
+
 function GStat({ label, value }: { label: string; value: string }) {
   return (
     <div>
