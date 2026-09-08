@@ -115,6 +115,9 @@ export function GalaxyInfoPanel() {
             {overviewFor(visit.name, visit.type, visit.distance, visit.size)}
           </p>
 
+          <GalaxyDerived distance={visit.distance} size={visit.size} type={visit.type} />
+
+
           {system ? (
             <>
               <div className="mt-7 text-xs uppercase tracking-[0.2em] text-white/40">Host star</div>
