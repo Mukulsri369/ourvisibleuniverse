@@ -582,7 +582,7 @@ function AccretionDisk({
           <JetPlume
             color={item.accent}
             length={profile.jetLength ?? 1.6}
-            sizeScale={ws * scale === 0 ? ws : ws}
+            sizeScale={ws}
           />
           {[-1, 1].map((s) => (
             <mesh key={s} position={[0, (s * (profile.jetLength ?? 1.6)) / 2, 0]}>
@@ -650,7 +650,13 @@ function BlackHoleDetail({
   if (profile.morphology === "xray-binary")
     return (
       <group scale={scale} rotation={profile.tilt}>
-        <AccretionDisk item={item} profile={{ ...profile, tilt: [0, 0, 0] }} scale={0.65} jet />
+        <AccretionDisk
+          item={item}
+          profile={{ ...profile, tilt: [0, 0, 0] }}
+          scale={0.65}
+          sizeScale={scale * 0.65}
+          jet
+        />
         <group ref={companion}>
           <mesh position={[0.78, 0, 0]}>
             <sphereGeometry args={[0.25, 28, 20]} />
@@ -696,6 +702,7 @@ function QuasarDetail({
           item={item}
           profile={{ ...profile, tilt: profile.tilt }}
           scale={scale * 0.18}
+          sizeScale={scale * 0.18}
           jet
         />
       </group>
@@ -738,7 +745,7 @@ function StarDetail({
         <meshBasicMaterial color={item.color} />
       </mesh>
       {profile.morphology !== "white-dwarf" && (
-        <NebulaDetail item={item} profile={dustProfile} scale={0.72} />
+        <NebulaDetail item={item} profile={dustProfile} scale={0.72} sizeScale={scale * 0.72} />
       )}
       <mesh>
         <sphereGeometry args={[0.5, 20, 14]} />
