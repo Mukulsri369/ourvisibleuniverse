@@ -805,7 +805,8 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
     dustLanes: /spiral|lenticular|interacting/i.test(g.type),
     description: `${g.name} is a real ${g.type.toLowerCase()} galaxy about ${g.distance.toLocaleString()} light-years away. Its particle model follows the catalogued physical diameter, sky position, viewing angle, and characteristic stellar structure of its morphological class.`,
   };
-  return { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
+  const merged = { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
+  return { ...merged, system: fallbackSystem(g, merged.diskRadius, merged.morphology) };
 }
 
 /** Every named galaxy has a stable particle model; Andromeda remains bespoke. */
