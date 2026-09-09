@@ -161,7 +161,7 @@ export const useStore = create<State>((set, get) => ({
   uiHidden: false,
   cameraFree: false,
   zoomSpeed: 50,
-  systemSpeed: 50,
+  systemSpeed: 25,
   trailSize: 50,
   setSelected: (s) => set({ selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),

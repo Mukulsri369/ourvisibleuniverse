@@ -683,7 +683,97 @@ function colorTuple(hex: string): [number, number, number] {
   return [c.r, c.g, c.b];
 }
 
+function nameSeed(s: string) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function rng(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Every galaxy in the catalogue gets a representative star system so the
+ * camera always has somewhere concrete to fly to. No exoplanets are known in
+ * these galaxies, so the worlds are explicitly modelled (never flagged as
+ * confirmed) and the panel text says so.
+ */
+function fallbackSystem(g: NamedGalaxy, diskRadius: number, morphology: Morphology): GxSystem {
+  const au = LIGHT_YEARS_PER_AU;
+  const rand = rng(nameSeed(g.name));
+  const short = g.name.replace(/\s*\(.*\)\s*/, "").trim();
+  const kinds = [
+    { sp: "G2 V", mass: "1.0 M☉", radiusSolar: 1.0, color: "#ffe6b8" },
+    { sp: "K1 V", mass: "0.85 M☉", radiusSolar: 0.82, color: "#ffc98a" },
+    { sp: "F7 V", mass: "1.2 M☉", radiusSolar: 1.25, color: "#fff4de" },
+    { sp: "M2 V", mass: "0.45 M☉", radiusSolar: 0.5, color: "#ff9b6a" },
+  ];
+  const kind = kinds[Math.floor(rand() * kinds.length)];
+  const rocky = ["#c8a583", "#9fb4c6", "#c07a58", "#8fa48b"];
+  const giants = ["#d9b98a", "#a8c4d8", "#c9a0d0", "#e0c39a"];
+  const n = 4 + Math.floor(rand() * 2);
+  const specs: PlanetSpec[] = [];
+  let aAU = 0.4 + rand() * 0.5;
+  for (let i = 0; i < n; i++) {
+    const isGiant = i >= 2;
+    const period = 5 + Math.pow(aAU, 1.5) * 9;
+    specs.push({
+      name: `${short} b${i + 1}`,
+      aAU,
+      sizeAU: isGiant ? 0.05 + rand() * 0.06 : 0.008 + rand() * 0.012,
+      color: isGiant ? giants[i % giants.length] : rocky[i % rocky.length],
+      emissive: isGiant ? "#241a10" : undefined,
+      atmosphere: !isGiant && rand() < 0.5 ? "#7fb6ff" : undefined,
+      period,
+      spin: 1.6 + rand() * 3,
+      e: 0.02 + rand() * 0.08,
+      iDeg: rand() * 4,
+      omegaDeg: rand() * 360,
+      ring: isGiant && rand() < 0.4 ? [0.15, 0.26, "#c8b28d"] : undefined,
+      moons:
+        isGiant
+          ? [
+              [`${short} b${i + 1} a`, 0.17, 0.011, "#e2d6bd", 3.4],
+              [`${short} b${i + 1} b`, 0.24, 0.008, "#b0a189", 6.1],
+            ]
+          : undefined,
+      description: `Modelled ${isGiant ? "gas giant" : "rocky world"} in a representative ${kind.sp} system inside ${g.name}. No planet has yet been detected in this galaxy; the orbit follows Keplerian dynamics for the star's mass.`,
+    });
+    aAU *= 1.7 + rand() * 0.6;
+  }
+  const orbitRadius =
+    morphology === "elliptical"
+      ? diskRadius * (0.28 + rand() * 0.2)
+      : diskRadius * (0.45 + rand() * 0.25);
+  return sys(
+    au,
+    {
+      name: `${short} ★A`,
+      radiusSolar: kind.radiusSolar,
+      color: kind.color,
+      spectral: kind.sp,
+      mass: kind.mass,
+      description: `A representative ${kind.sp} star placed in ${g.name}'s disk at a realistic galactocentric radius. It is carried around the galaxy by the same rotation curve that spins the galaxy's stars.`,
+    },
+    specs,
+    { radius: orbitRadius, phase: rand() * Math.PI * 2, height: (rand() - 0.5) * diskRadius * 0.02 },
+    [aAU * 0.55, aAU * 0.85],
+  );
+}
+
 function catalogModel(g: NamedGalaxy): GalaxyModel {
+
   const morphology = morphologyFor(g.type);
   const radius = g.size * 0.5;
   const dwarf = /dwarf/i.test(g.type);
@@ -715,7 +805,8 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
     dustLanes: /spiral|lenticular|interacting/i.test(g.type),
     description: `${g.name} is a real ${g.type.toLowerCase()} galaxy about ${g.distance.toLocaleString()} light-years away. Its particle model follows the catalogued physical diameter, sky position, viewing angle, and characteristic stellar structure of its morphological class.`,
   };
-  return { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
+  const merged = { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
+  return { ...merged, system: fallbackSystem(g, merged.diskRadius, merged.morphology) };
 }
 
 /** Every named galaxy has a stable particle model; Andromeda remains bespoke. */
