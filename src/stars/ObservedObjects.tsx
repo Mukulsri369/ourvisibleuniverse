@@ -387,79 +387,222 @@ function PulsarDetail({
   );
 }
 
+/**
+ * Relativistic jet rendered as a stream of plasma knots that travel outward
+ * along the spin axis, twisting slightly — the behaviour seen in the M87 and
+ * 3C 273 time-lapse sequences rather than a static cone.
+ */
+function JetPlume({
+  color,
+  length,
+  sizeScale,
+}: {
+  color: string;
+  length: number;
+  sizeScale: number;
+}) {
+  const N = 260;
+  const { geometry, offsets, sides, radii } = useMemo(() => {
+    const rand = seeded(9137);
+    const positions = new Float32Array(N * 3);
+    const colors = new Float32Array(N * 3);
+    const offsets = new Float32Array(N);
+    const sides = new Float32Array(N);
+    const radii = new Float32Array(N);
+    const base = new THREE.Color(color);
+    for (let i = 0; i < N; i++) {
+      offsets[i] = rand();
+      sides[i] = rand() < 0.5 ? -1 : 1;
+      radii[i] = rand();
+      colors[i * 3] = base.r;
+      colors[i * 3 + 1] = base.g;
+      colors[i * 3 + 2] = base.b;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    return { geometry: g, offsets, sides, radii };
+  }, [color]);
+  const texture = useMemo(makeGlowTexture, []);
+  const base = useMemo(() => new THREE.Color(color), [color]);
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const col = geometry.getAttribute("color") as THREE.BufferAttribute;
+    const p = pos.array as Float32Array;
+    const c = col.array as Float32Array;
+    for (let i = 0; i < N; i++) {
+      const f = (offsets[i] + t * 0.16) % 1;
+      const y = sides[i] * (0.2 + f * length);
+      // Jets stay collimated near the core and flare downstream.
+      const spread = (0.012 + f * 0.09) * (0.35 + radii[i]);
+      const a = radii[i] * Math.PI * 2 + f * 6.5 * sides[i];
+      p[i * 3] = Math.cos(a) * spread;
+      p[i * 3 + 1] = y;
+      p[i * 3 + 2] = Math.sin(a) * spread;
+      const fade = (1 - f) * (0.35 + 0.65 * Math.pow(1 - f, 0.5));
+      c[i * 3] = base.r * fade;
+      c[i * 3 + 1] = base.g * fade;
+      c[i * 3 + 2] = base.b * fade;
+    }
+    pos.needsUpdate = true;
+    col.needsUpdate = true;
+  });
+  return (
+    <points geometry={geometry}>
+      <pointsMaterial
+        map={texture}
+        vertexColors
+        size={0.055 * sizeScale}
+        sizeAttenuation
+        transparent
+        opacity={0.9}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
 function AccretionDisk({
   item,
   profile,
   scale,
+  sizeScale,
   jet = false,
 }: {
   item: ObservedObject;
   profile: ObservedVisualProfile;
   scale: number;
+  sizeScale?: number;
   jet?: boolean;
 }) {
-  const disk = useRef<THREE.Group>(null);
-  const knots = useRef<THREE.Group>(null);
-  useFrame(({ clock }, dt) => {
-    if (disk.current) disk.current.rotation.z += Math.min(dt, 0.05) * (profile.spin ?? 0.2);
-    if (knots.current) knots.current.position.y = ((clock.elapsedTime * 0.24) % 1.6) - 0.8;
+  const ws = sizeScale ?? scale;
+  const N = 3200;
+  const inner = 0.235;
+  const outer = 0.72;
+  const { geometry, radii, phases, temps } = useMemo(() => {
+    const rand = seeded(profile.seed + 517);
+    const positions = new Float32Array(N * 3);
+    const colors = new Float32Array(N * 3);
+    const radii = new Float32Array(N);
+    const phases = new Float32Array(N);
+    const temps = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      // Surface density rises steeply toward the innermost stable orbit.
+      const u = Math.pow(rand(), 1.7);
+      radii[i] = inner + u * (outer - inner);
+      phases[i] = rand() * Math.PI * 2;
+      temps[i] = 1 - (radii[i] - inner) / (outer - inner);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    return { geometry: g, radii, phases, temps };
+  }, [profile.seed]);
+  const texture = useMemo(makeGlowTexture, []);
+  const hot = useMemo(() => new THREE.Color(item.accent), [item.accent]);
+  const cool = useMemo(() => new THREE.Color(item.color), [item.color]);
+  const tmp = useMemo(() => new THREE.Color(), []);
+  const spin = profile.spin ?? 0.2;
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const col = geometry.getAttribute("color") as THREE.BufferAttribute;
+    const p = pos.array as Float32Array;
+    const c = col.array as Float32Array;
+    for (let i = 0; i < N; i++) {
+      const r = radii[i];
+      // Keplerian shear: inner gas laps the outer disk, producing the
+      // stretched spiral texture seen in simulated black-hole imagery.
+      const a = phases[i] + (t * spin * 0.22) / Math.pow(r, 1.5);
+      const wobble = 1 + 0.02 * Math.sin(a * 3 + r * 30);
+      p[i * 3] = Math.cos(a) * r * wobble;
+      p[i * 3 + 1] = Math.sin(a) * r * wobble;
+      p[i * 3 + 2] = (temps[i] - 0.5) * 0.012;
+      // Relativistic Doppler beaming: the side rotating toward us is far
+      // brighter than the receding side.
+      const beam = 0.28 + 1.55 * Math.pow(0.5 + 0.5 * Math.sin(a), 2.6);
+      const bright = beam * (0.45 + 0.9 * temps[i]);
+      tmp.copy(cool).lerp(hot, Math.min(1, temps[i] * 1.15));
+      c[i * 3] = Math.min(2.2, tmp.r * bright);
+      c[i * 3 + 1] = Math.min(2.2, tmp.g * bright);
+      c[i * 3 + 2] = Math.min(2.2, tmp.b * bright);
+    }
+    pos.needsUpdate = true;
+    col.needsUpdate = true;
   });
+
   return (
     <group scale={scale} rotation={profile.tilt}>
-      <group ref={disk} rotation-x={Math.PI / 2}>
-        {[0.25, 0.34, 0.45, 0.58].map((r, n) => (
-          <mesh key={r} rotation-z={n * 0.7}>
-            <torusGeometry args={[r, 0.025 + n * 0.009, 8, 72]} />
-            <meshBasicMaterial
-              color={n < 2 ? item.accent : item.color}
-              transparent
-              opacity={0.92 - n * 0.14}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-        ))}
+      <group rotation-x={Math.PI / 2}>
+        <points geometry={geometry}>
+          <pointsMaterial
+            map={texture}
+            vertexColors
+            size={0.028 * ws}
+            sizeAttenuation
+            transparent
+            opacity={0.95}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </points>
       </group>
+      {/* event-horizon shadow */}
       <mesh>
-        <sphereGeometry args={[0.19, 32, 20]} />
+        <sphereGeometry args={[0.185, 32, 20]} />
         <meshBasicMaterial color="#000000" />
       </mesh>
-      <mesh rotation-x={Math.PI / 2}>
-        <torusGeometry args={[0.23, 0.035, 12, 96]} />
+      {/* photon ring — light bent right around the hole */}
+      <mesh>
+        <sphereGeometry args={[0.205, 40, 26]} />
         <meshBasicMaterial
           color={item.accent}
           transparent
-          opacity={0.92}
+          opacity={0.5}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      <mesh rotation-x={Math.PI / 2}>
+        <torusGeometry args={[0.222, 0.012, 12, 128]} />
+        <meshBasicMaterial
+          color={item.accent}
+          transparent
+          opacity={0.95}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
       </mesh>
       {jet && (
         <>
-          <mesh position={[0, 0.85, 0]}>
-            <coneGeometry args={[0.08, profile.jetLength ?? 1.6, 16, 1, true]} />
-            <meshBasicMaterial
-              color={item.accent}
-              transparent
-              opacity={0.38}
-              side={THREE.DoubleSide}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-          <group ref={knots}>
-            {[-0.45, 0, 0.45].map((y) => (
-              <mesh key={y} position={[0, y, 0]}>
-                <sphereGeometry args={[0.035, 8, 6]} />
-                <meshBasicMaterial color={item.accent} />
-              </mesh>
-            ))}
-          </group>
+          <JetPlume
+            color={item.accent}
+            length={profile.jetLength ?? 1.6}
+            sizeScale={ws * scale === 0 ? ws : ws}
+          />
+          {[-1, 1].map((s) => (
+            <mesh key={s} position={[0, (s * (profile.jetLength ?? 1.6)) / 2, 0]}>
+              <coneGeometry args={[0.07, profile.jetLength ?? 1.6, 18, 1, true]} />
+              <meshBasicMaterial
+                color={item.accent}
+                transparent
+                opacity={s > 0 ? 0.16 : 0.06}
+                side={THREE.DoubleSide}
+                depthWrite={false}
+                blending={THREE.AdditiveBlending}
+              />
+            </mesh>
+          ))}
         </>
       )}
     </group>
   );
 }
+
 
 function BlackHoleDetail({
   item,
