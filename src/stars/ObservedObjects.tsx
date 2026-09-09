@@ -200,31 +200,51 @@ function NebulaDetail({
   item,
   profile,
   scale,
+  sizeScale,
 }: {
   item: ObservedObject;
   profile: ObservedVisualProfile;
   scale: number;
+  /** World-space scale used for point sizing (defaults to `scale`). */
+  sizeScale?: number;
 }) {
   const geometry = useMemo(() => buildNebulaGeometry(item, profile), [item, profile]);
   const filaments = useMemo(() => buildFilaments(profile), [profile]);
   const texture = useMemo(makeGlowTexture, []);
+  const ws = sizeScale ?? scale;
   const slowlyTurning = profile.morphology === "pinwheel";
   const group = useRef<THREE.Group>(null);
   useFrame((_, dt) => {
-    if (slowlyTurning && group.current)
-      group.current.rotation.y += Math.min(dt, 0.05) * (profile.spin ?? 0.1);
+    if (!group.current) return;
+    const step = Math.min(dt, 0.05);
+    // Every cloud drifts a little: expanding remnants and outflows are never
+    // perfectly static in time-lapse imagery.
+    group.current.rotation.y += step * (slowlyTurning ? (profile.spin ?? 0.1) : 0.012);
   });
   return (
     <group ref={group} rotation={profile.tilt} scale={scale}>
+      {/* fine, bright knots */}
       <points geometry={geometry}>
         <pointsMaterial
           map={texture}
           vertexColors
-          size={0.055}
+          size={0.03 * ws}
           sizeAttenuation
           transparent
-          opacity={0.9}
-          alphaTest={0.015}
+          opacity={0.85}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+      {/* broad, faint haze — gives the soft nebular glow of long exposures */}
+      <points geometry={geometry}>
+        <pointsMaterial
+          map={texture}
+          vertexColors
+          size={0.11 * ws}
+          sizeAttenuation
+          transparent
+          opacity={0.16}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
@@ -234,7 +254,7 @@ function NebulaDetail({
           <lineBasicMaterial
             color={item.color}
             transparent
-            opacity={0.68}
+            opacity={0.5}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
@@ -277,6 +297,7 @@ function NebulaDetail({
     </group>
   );
 }
+
 
 function PulsarDetail({
   item,
