@@ -1,6 +1,55 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { OBJECT_BY_ID } from "./observed-objects";
+import { useState } from "react";
+import { OBJECT_BY_ID, type ObservedObject } from "./observed-objects";
+import { questionsFor } from "./object-questions";
 import { useStore } from "./store";
+
+function QuestionList({ item }: { item: ObservedObject }) {
+  const questions = questionsFor(item);
+  const [open, setOpen] = useState<number | null>(null);
+  if (questions.length === 0) return null;
+  return (
+    <div className="mt-7">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">Common questions</div>
+      <div className="mt-3 space-y-2">
+        {questions.map((entry, i) => {
+          const isOpen = open === i;
+          return (
+            <div
+              key={entry.q}
+              className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.03]"
+            >
+              <button
+                onClick={() => setOpen(isOpen ? null : i)}
+                aria-expanded={isOpen}
+                className="flex w-full items-start gap-2 px-3 py-2.5 text-left text-xs leading-relaxed text-white/85 transition hover:bg-white/[0.06]"
+              >
+                <span className={`mt-[2px] text-white/40 transition ${isOpen ? "rotate-90" : ""}`}>
+                  ›
+                </span>
+                <span className="flex-1">{entry.q}</span>
+              </button>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22, ease: "easeOut" }}
+                  >
+                    <p className="border-t border-white/10 px-3 py-3 text-xs leading-relaxed text-white/65">
+                      {entry.a}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 function distanceLabel(v: number) {
   if (v >= 1e9) return `${(v / 1e9).toFixed(2)} billion ly`;
