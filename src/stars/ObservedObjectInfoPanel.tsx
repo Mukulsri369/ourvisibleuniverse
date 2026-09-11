@@ -149,6 +149,7 @@ export function ObservedObjectInfoPanel() {
             </div>
             <p className="mt-2 text-xs leading-relaxed text-white/65">{item.visualNote}</p>
           </div>
+          <QuestionList item={item} />
           <div className="mt-5 text-[11px] text-white/45">
             <span className="text-white/65">Observed in:</span> {item.observed}
           </div>
