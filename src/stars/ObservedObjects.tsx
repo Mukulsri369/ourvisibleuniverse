@@ -331,9 +331,22 @@ function PulsarDetail({
   const binary = profile.morphology === "neutron-binary";
   return (
     <group scale={scale} rotation={profile.tilt}>
+      {/* the star itself is tiny and blindingly hot; a small hard sphere with a
+          bright halo reads far more like Chandra/NICER neutron-star imagery */}
       <mesh ref={glow}>
-        <sphereGeometry args={[0.1, 24, 16]} />
-        <meshBasicMaterial color={item.color} transparent opacity={0.8} />
+        <sphereGeometry args={[0.07, 24, 16]} />
+        <meshBasicMaterial color={item.color} transparent opacity={0.95} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.14, 24, 16]} />
+        <meshBasicMaterial
+          color={item.color}
+          transparent
+          opacity={0.22}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
       </mesh>
       <group ref={rotor} rotation-z={profile.beamTilt ?? 0.45}>
         {[-1, 1].map((sign) => (
@@ -344,6 +357,26 @@ function PulsarDetail({
               transparent
               opacity={0.22}
               side={THREE.DoubleSide}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
+        {/* incandescent magnetic polar caps where the beams are launched */}
+        {[-1, 1].map((sign) => (
+          <mesh key={`cap${sign}`} position={[0, sign * 0.065, 0]}>
+            <sphereGeometry args={[0.035, 14, 10]} />
+            <meshBasicMaterial color={item.accent} />
+          </mesh>
+        ))}
+        {/* closed dipole field loops of the magnetosphere */}
+        {[0, 1, 2, 3, 4, 5].map((n) => (
+          <mesh key={`fl${n}`} rotation-y={(n / 6) * Math.PI}>
+            <torusGeometry args={[0.2, 0.0035, 6, 60]} />
+            <meshBasicMaterial
+              color={item.accent}
+              transparent
+              opacity={0.3}
               depthWrite={false}
               blending={THREE.AdditiveBlending}
             />
@@ -577,6 +610,34 @@ function AccretionDisk({
           blending={THREE.AdditiveBlending}
         />
       </mesh>
+      {/* Gravitationally lensed images of the far side of the disk: strong
+          bending lifts the back of the disk over and under the shadow, the
+          signature look of ray-traced black holes and the EHT reconstruction. */}
+      {[0, Math.PI / 2].map((roll) => (
+        <mesh key={roll} rotation-z={roll}>
+          <torusGeometry args={[0.3, 0.045, 14, 128]} />
+          <meshBasicMaterial
+            color={item.accent}
+            transparent
+            opacity={0.3}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
+      {/* X-ray corona hugging the horizon */}
+      <mesh>
+        <sphereGeometry args={[0.27, 28, 20]} />
+        <meshBasicMaterial
+          color={item.accent}
+          transparent
+          opacity={0.12}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
       {jet && (
         <>
           <JetPlume
@@ -717,6 +778,55 @@ function QuasarDetail({
   );
 }
 
+/**
+ * Convecting stellar photosphere: value-noise granulation cells that boil over
+ * time, limb darkening toward the edge of the disk, and cooler spots — the
+ * look of resolved surface imagery (ALMA/VLTI Betelgeuse, SDO for the Sun)
+ * rather than a flat coloured ball.
+ */
+const STAR_VERT = `
+varying vec3 vN; varying vec3 vP; varying vec3 vView;
+void main(){
+  vN = normalize(normalMatrix * normal);
+  vP = position;
+  vec4 mv = modelViewMatrix * vec4(position,1.0);
+  vView = normalize(-mv.xyz);
+  gl_Position = projectionMatrix * mv;
+}`;
+const STAR_FRAG = `
+uniform float uTime; uniform vec3 uCool; uniform vec3 uHot;
+uniform float uGran; uniform float uSpots; uniform float uActivity;
+varying vec3 vN; varying vec3 vP; varying vec3 vView;
+float hash(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7)))*43758.5453); }
+float vnoise(vec3 p){
+  vec3 i = floor(p), f = fract(p);
+  f = f*f*(3.0-2.0*f);
+  float n000=hash(i), n100=hash(i+vec3(1,0,0)), n010=hash(i+vec3(0,1,0)), n110=hash(i+vec3(1,1,0));
+  float n001=hash(i+vec3(0,0,1)), n101=hash(i+vec3(1,0,1)), n011=hash(i+vec3(0,1,1)), n111=hash(i+vec3(1,1,1));
+  return mix(mix(mix(n000,n100,f.x),mix(n010,n110,f.x),f.y),
+             mix(mix(n001,n101,f.x),mix(n011,n111,f.x),f.y),f.z);
+}
+float fbm(vec3 p){
+  float a=0.5, s=0.0;
+  for(int i=0;i<4;i++){ s += a*vnoise(p); p*=2.03; a*=0.5; }
+  return s;
+}
+void main(){
+  vec3 q = normalize(vP);
+  float cells = fbm(q*uGran + vec3(0.0, uTime*0.05, 0.0));
+  float fine = fbm(q*uGran*2.7 + vec3(uTime*0.09, 0.0, uTime*0.04));
+  float t = clamp(cells*0.72 + fine*0.38, 0.0, 1.0);
+  // cool starspots / dust patches
+  float spot = smoothstep(0.62, 0.86, fbm(q*2.1 + vec3(11.0, uTime*0.02, 3.0)));
+  float limb = pow(max(dot(normalize(vN), normalize(vView)), 0.0), 0.55);
+  vec3 col = mix(uCool, uHot, t);
+  col = mix(col, uCool*0.42, spot*uSpots);
+  col *= 0.42 + 0.72*limb;
+  // faint chromospheric shimmer at the limb
+  col += uHot * pow(1.0 - limb, 3.0) * uActivity * 0.5;
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
 function StarDetail({
   item,
   profile,
@@ -727,37 +837,70 @@ function StarDetail({
   scale: number;
 }) {
   const star = useRef<THREE.Mesh>(null);
+  const dwarf = profile.morphology === "white-dwarf";
   const dustProfile =
     profile.morphology === "dusty-supergiant"
       ? profile
       : { ...profile, morphology: "dusty-supergiant" as const, particleCount: 900 };
+  const material = useMemo(() => {
+    const cool = new THREE.Color(item.color).multiplyScalar(dwarf ? 0.9 : 0.72);
+    const hot = new THREE.Color(item.color).lerp(new THREE.Color(item.accent), 0.35);
+    return new THREE.ShaderMaterial({
+      vertexShader: STAR_VERT,
+      fragmentShader: STAR_FRAG,
+      uniforms: {
+        uTime: { value: 0 },
+        uCool: { value: cool },
+        uHot: { value: hot.multiplyScalar(dwarf ? 1.35 : 1.15) },
+        uGran: { value: dwarf ? 16 : 6.5 },
+        uSpots: { value: dwarf ? 0.15 : 0.75 },
+        uActivity: { value: dwarf ? 0.25 : 0.6 },
+      },
+    });
+  }, [item.color, item.accent, dwarf]);
+  const corona = useMemo(makeGlowTexture, []);
   useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    material.uniforms.uTime.value = t;
     if (!star.current) return;
-    star.current.rotation.y = clock.elapsedTime * (profile.spin ?? 0.02);
-    const pulse =
-      profile.morphology === "white-dwarf" ? 1 : 1 + Math.sin(clock.elapsedTime * 0.8) * 0.025;
-    star.current.scale.set(pulse, pulse * 0.97, pulse * 1.02);
+    star.current.rotation.y = t * (profile.spin ?? 0.02);
+    // Giants and variables breathe; degenerate dwarfs do not.
+    const pulse = dwarf ? 1 : 1 + Math.sin(t * 0.55) * 0.035 + Math.sin(t * 0.21) * 0.02;
+    star.current.scale.set(pulse, pulse * 0.985, pulse * 1.01);
   });
   return (
     <group scale={scale} rotation={profile.tilt}>
-      <mesh ref={star}>
+      <mesh ref={star} material={material}>
         <icosahedronGeometry args={[0.34, 5]} />
-        <meshBasicMaterial color={item.color} />
       </mesh>
-      {profile.morphology !== "white-dwarf" && (
-        <NebulaDetail item={item} profile={dustProfile} scale={0.72} sizeScale={scale * 0.72} />
+      {/* tenuous outer atmosphere / extended envelope */}
+      {!dwarf && (
+        <mesh>
+          <sphereGeometry args={[0.4, 32, 22]} />
+          <meshBasicMaterial
+            color={item.color}
+            transparent
+            opacity={0.13}
+            side={THREE.BackSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
       )}
-      <mesh>
-        <sphereGeometry args={[0.5, 20, 14]} />
-        <meshBasicMaterial
+      {/* soft corona sprite so the star reads as luminous, not solid */}
+      <sprite scale={dwarf ? 1.5 : 2.3}>
+        <spriteMaterial
+          map={corona}
           color={item.accent}
           transparent
-          opacity={0.09}
-          side={THREE.BackSide}
+          opacity={dwarf ? 0.5 : 0.38}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
-      </mesh>
+      </sprite>
+      {!dwarf && (
+        <NebulaDetail item={item} profile={dustProfile} scale={0.72} sizeScale={scale * 0.72} />
+      )}
     </group>
   );
 }
