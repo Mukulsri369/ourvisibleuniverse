@@ -577,6 +577,34 @@ function AccretionDisk({
           blending={THREE.AdditiveBlending}
         />
       </mesh>
+      {/* Gravitationally lensed images of the far side of the disk: strong
+          bending lifts the back of the disk over and under the shadow, the
+          signature look of ray-traced black holes and the EHT reconstruction. */}
+      {[0, Math.PI / 2].map((roll) => (
+        <mesh key={roll} rotation-z={roll}>
+          <torusGeometry args={[0.3, 0.045, 14, 128]} />
+          <meshBasicMaterial
+            color={item.accent}
+            transparent
+            opacity={0.3}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      ))}
+      {/* X-ray corona hugging the horizon */}
+      <mesh>
+        <sphereGeometry args={[0.27, 28, 20]} />
+        <meshBasicMaterial
+          color={item.accent}
+          transparent
+          opacity={0.12}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
       {jet && (
         <>
           <JetPlume
