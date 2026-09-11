@@ -362,6 +362,26 @@ function PulsarDetail({
             />
           </mesh>
         ))}
+        {/* incandescent magnetic polar caps where the beams are launched */}
+        {[-1, 1].map((sign) => (
+          <mesh key={`cap${sign}`} position={[0, sign * 0.065, 0]}>
+            <sphereGeometry args={[0.035, 14, 10]} />
+            <meshBasicMaterial color={item.accent} />
+          </mesh>
+        ))}
+        {/* closed dipole field loops of the magnetosphere */}
+        {[0, 1, 2, 3, 4, 5].map((n) => (
+          <mesh key={`fl${n}`} rotation-y={(n / 6) * Math.PI} rotation-x={Math.PI / 2}>
+            <torusGeometry args={[0.2, 0.0035, 6, 60]} />
+            <meshBasicMaterial
+              color={item.accent}
+              transparent
+              opacity={0.3}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
       </group>
       {torus && (
         <>
