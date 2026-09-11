@@ -371,7 +371,7 @@ function PulsarDetail({
         ))}
         {/* closed dipole field loops of the magnetosphere */}
         {[0, 1, 2, 3, 4, 5].map((n) => (
-          <mesh key={`fl${n}`} rotation-y={(n / 6) * Math.PI} rotation-x={Math.PI / 2}>
+          <mesh key={`fl${n}`} rotation-y={(n / 6) * Math.PI}>
             <torusGeometry args={[0.2, 0.0035, 6, 60]} />
             <meshBasicMaterial
               color={item.accent}
