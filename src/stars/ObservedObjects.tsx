@@ -331,9 +331,22 @@ function PulsarDetail({
   const binary = profile.morphology === "neutron-binary";
   return (
     <group scale={scale} rotation={profile.tilt}>
+      {/* the star itself is tiny and blindingly hot; a small hard sphere with a
+          bright halo reads far more like Chandra/NICER neutron-star imagery */}
       <mesh ref={glow}>
-        <sphereGeometry args={[0.1, 24, 16]} />
-        <meshBasicMaterial color={item.color} transparent opacity={0.8} />
+        <sphereGeometry args={[0.07, 24, 16]} />
+        <meshBasicMaterial color={item.color} transparent opacity={0.95} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.14, 24, 16]} />
+        <meshBasicMaterial
+          color={item.color}
+          transparent
+          opacity={0.22}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
       </mesh>
       <group ref={rotor} rotation-z={profile.beamTilt ?? 0.45}>
         {[-1, 1].map((sign) => (
