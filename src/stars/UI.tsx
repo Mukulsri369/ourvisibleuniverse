@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
 import { AU, PLANETS } from "./Planets";
@@ -1132,7 +1133,8 @@ export function LoadingScreen({ done }: { done: boolean }) {
 // one place.
 // ---------------------------------------------------------------
 export function SiteMap() {
-  const [open, setOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(!isMobile);
   const [section, setSection] = useState<"planets" | "stars" | "galaxies" | "objects">("planets");
   const [q, setQ] = useState("");
 
@@ -1169,15 +1171,46 @@ export function SiteMap() {
       type: g.type,
     });
 
+  // Mobile collapsed state shows a compact floating button so the map is
+  // reachable without covering the canvas.
+  if (isMobile && !open) {
+    return (
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="pointer-events-auto fixed bottom-5 left-4 z-30"
+      >
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open site map"
+          title="Site map"
+          className="grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-black/60 text-white/90 shadow-lg backdrop-blur-md transition hover:bg-black/80 hover:text-white"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="pointer-events-auto fixed left-0 top-16 z-30 hidden md:block"
+      className={`pointer-events-auto fixed z-30 ${
+        isMobile
+          ? "inset-x-0 bottom-0"
+          : "left-0 top-16 w-auto"
+      }`}
     >
       <motion.div
-        animate={{ width: open ? 264 : 44 }}
+        initial={isMobile ? { y: "100%" } : false}
+        animate={isMobile ? { y: 0 } : { width: open ? 264 : 44 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className="ml-4 overflow-hidden rounded-xl border border-white/10 bg-black/55 backdrop-blur-md"
+        className={`overflow-hidden rounded-xl border border-white/10 bg-black/55 backdrop-blur-md ${
+          isMobile
+            ? "w-full max-w-full rounded-b-none border-b-0"
+            : "ml-4"
+        }`}
       >
         <button
           onClick={() => setOpen((v) => !v)}
@@ -1186,6 +1219,18 @@ export function SiteMap() {
         >
           <span className="text-base leading-none">{open ? "‹" : "☰"}</span>
           {open && <span>Site Map</span>}
+          {isMobile && open && (
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpen(false);
+              }}
+              className="ml-auto grid h-6 w-6 place-items-center rounded-full text-white/50 transition hover:bg-white/10 hover:text-white"
+              aria-label="Close site map"
+            >
+              ✕
+            </span>
+          )}
         </button>
 
         {open && (
@@ -1212,7 +1257,7 @@ export function SiteMap() {
               ))}
             </div>
 
-            <div className="max-h-[52vh] space-y-0.5 overflow-y-auto pr-1">
+            <div className={`space-y-0.5 overflow-y-auto pr-1 ${isMobile ? "max-h-[45vh]" : "max-h-[52vh]"}`}>
               {section === "planets" && (
                 <>
                   <Row label="☉ Sun" active={!visitPlanet} onClick={() => setVisitPlanet(null)} />
