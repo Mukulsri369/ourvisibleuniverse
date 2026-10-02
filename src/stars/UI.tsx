@@ -1169,6 +1169,7 @@ export function SiteMap() {
       size: g.size,
       distance: g.distance,
       type: g.type,
+      view: "overview",
     });
 
   // Mobile collapsed state shows a compact floating button so the map is
@@ -1310,8 +1311,11 @@ export function SiteMap() {
                 <>
                   <Row
                     label="✦ Milky Way"
-                    active={!visitGalaxy}
-                    onClick={() => setVisitGalaxy(null)}
+                    active={visitGalaxy?.name === "Milky Way"}
+                    onClick={() => setVisitGalaxy({
+                      name: "Milky Way", x: -26_000, y: 0, z: 0,
+                      size: 100_000, distance: 0, type: "Barred Spiral", view: "overview",
+                    })}
                   />
                   {galaxies
                     .filter((g) => match(g.name))

@@ -1,5 +1,7 @@
 # Roadmap
 
+- [x] Frame whole galaxies when chosen in the sitemap without changing star-system visits elsewhere
+
 - [x] Add real observed-object catalog
 - [x] Add procedural object rendering and interactions
 - [x] Add sitemap/search/camera navigation

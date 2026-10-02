@@ -58,6 +58,8 @@ function systemFor(name: string): SystemView | null {
 }
 
 function overviewFor(name: string, type: string, distance: number, size: number): string {
+  if (name === "Milky Way")
+    return "Our home galaxy spans roughly 100,000 light-years. The Sun travels around its center within a barred spiral disk of stars, gas, and dust.";
   if (name === ANDROMEDA_NAME)
     return "The Andromeda Galaxy is the largest member of the Local Group and our nearest large spiral, sweeping about 220,000 light-years across with roughly a trillion stars. It is approaching the Milky Way at some 110 km/s and will merge with it in about 4.5 billion years. Andromeda is the only galaxy beyond our own with a widely discussed planet candidate, PA-99-N2 b, found by gravitational microlensing.";
   const m = GALAXY_BY_NAME.get(name);
@@ -73,7 +75,7 @@ export function GalaxyInfoPanel() {
 
   const g = visit ? NAMED_GALAXIES.find((n) => n.name === visit.name) : null;
   const system = visit ? systemFor(visit.name) : null;
-  const detailed = visit ? isDetailedGalaxy(visit.name) : false;
+  const detailed = visit ? visit.name === "Milky Way" || isDetailedGalaxy(visit.name) : false;
 
   return (
     <AnimatePresence>

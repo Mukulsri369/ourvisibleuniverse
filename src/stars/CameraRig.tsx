@@ -207,10 +207,23 @@ export function CameraRig() {
     fovTarget.current = 38;
   }, [visitPlanet]);
 
-  // When user selects a galaxy to visit, orbit at a nice framing distance
+  // Frame site-map galaxies at their centers. Other galaxy interactions still
+  // retain their close-up star-system visits.
   useEffect(() => {
     if (!visitGalaxy) return;
-    const r = visitGalaxy.focus
+    const overview = visitGalaxy.view === "overview";
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    // Reserve room for the site map and the selected galaxy's information.
+    // Clamp the reservation on narrow windows so the view remains navigable.
+    const visibleWidth = Math.max(width * 0.6, width - (width >= 768 ? 264 + 380 : 0));
+    const verticalHalfFov = (42 * Math.PI) / 360;
+    const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * visibleWidth / height);
+    const limitingHalfFov = Math.min(verticalHalfFov, horizontalHalfFov);
+    const extent = visitGalaxy.size * (/Interacting/i.test(visitGalaxy.type) ? 0.95 : 0.65);
+    const r = overview
+      ? extent / Math.tan(limitingHalfFov * 0.8) + extent
+      : visitGalaxy.focus
       ? visitGalaxy.focus.distance
       : Math.max(visitGalaxy.size * 2.2, 2000);
     desired.current.radius = r;
@@ -321,6 +334,7 @@ export function CameraRig() {
       !tourActive &&
       !visitPlanet &&
       !selectedObjectId &&
+      !visitGalaxy &&
       !(selectedStar && selectedStar.name !== "Sun")
     )
       fovTarget.current = 30 + t * 60;

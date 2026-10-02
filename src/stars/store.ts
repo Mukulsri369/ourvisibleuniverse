@@ -67,6 +67,8 @@ export type VisitGalaxy = {
   size: number;
   distance: number;
   type: string;
+  /** Site map selections frame the galaxy; other selections can visit its star system. */
+  view?: "overview";
   // Optional point of interest inside the galaxy the camera should settle on
   // (e.g. Andromeda focuses the PA-99-N2 planetary system).
   focus?: { x: number; y: number; z: number; distance: number; key?: string };
@@ -112,6 +114,7 @@ interface State {
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
 // flies the camera to that system rather than the galaxy's core.
 function withFocus(g: VisitGalaxy): VisitGalaxy {
+  if (g.view === "overview") return g;
   if (g.focus) return g;
   if (g.name === ANDROMEDA_NAME) {
     const outer = M31_PLANETS.reduce((mx, p) => Math.max(mx, p.a), 6 * M31_AU);
@@ -209,7 +212,7 @@ export const useStore = create<State>((set, get) => ({
       visitPlanet: null,
       selectedObjectId: null,
       tourActive: false,
-      flyTo: g
+      flyTo: g && g.view !== "overview"
         ? (() => {
             const f = withFocus(g).focus;
             return f
