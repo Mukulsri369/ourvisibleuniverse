@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Sitemap galaxy visits use a galaxy-centered overview while scene clicks may focus a hosted star system, because the two actions have different framing goals.
