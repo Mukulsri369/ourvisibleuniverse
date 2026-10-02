@@ -153,12 +153,12 @@ export function GalaxyInfoPanel() {
                 plausible planetary architectures for scale.
               </p>
             </>
-          ) : (
+          ) : visit.name !== "Milky Way" ? (
             <p className="mt-6 text-[12px] leading-relaxed text-white/45">
               No exoplanets or individual star systems have been resolved in this galaxy yet. The visible stellar
               population is a morphology-based particle reconstruction; no fictional planetary system has been added.
             </p>
-          )}
+          ) : null}
         </motion.aside>
       )}
     </AnimatePresence>

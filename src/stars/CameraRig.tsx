@@ -220,9 +220,9 @@ export function CameraRig() {
     const verticalHalfFov = (42 * Math.PI) / 360;
     const horizontalHalfFov = Math.atan(Math.tan(verticalHalfFov) * visibleWidth / height);
     const limitingHalfFov = Math.min(verticalHalfFov, horizontalHalfFov);
-    const extent = visitGalaxy.size * (/Interacting/i.test(visitGalaxy.type) ? 0.95 : 0.65);
+    const extent = visitGalaxy.size * (/Interacting/i.test(visitGalaxy.type) ? 0.85 : 0.55);
     const r = overview
-      ? extent / Math.tan(limitingHalfFov * 0.8) + extent
+      ? extent / Math.tan(limitingHalfFov) + extent
       : visitGalaxy.focus
       ? visitGalaxy.focus.distance
       : Math.max(visitGalaxy.size * 2.2, 2000);
