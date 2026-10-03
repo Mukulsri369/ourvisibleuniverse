@@ -17,6 +17,7 @@ export function CameraRig() {
   const dragging = useRef(false);
   const last = useRef({ x: 0, y: 0 });
   const pinch = useRef<number | null>(null);
+  const followedPlanet = useRef<{ name: string; position: THREE.Vector3 } | null>(null);
   const fovTarget = useRef(40);
   const setCameraDistance = useStore((s) => s.setCameraDistance);
   const flyTo = useStore((s) => s.flyTo);
@@ -35,6 +36,13 @@ export function CameraRig() {
   // (observable-universe scale) so pulling back reveals Local Group,
   // Virgo Supercluster, and cosmic-web filaments.
   const maxR = 5e10;
+
+  const planetMinimumRadius = () => {
+    const name = useStore.getState().visitPlanet;
+    if (!name) return minR;
+    const def = PLANETS.find((p) => p.name === name) ?? M31_PLANETS.find((p) => p.name === name) ?? GX_PLANET_INDEX.get(name)?.planet;
+    return Math.max(minR, (def?.size ?? 0) * 1.5);
+  };
 
   // expose for slider
   useEffect(() => {
@@ -91,7 +99,7 @@ export function CameraRig() {
           b = e.touches[1];
         const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
         const factor = pinch.current / d;
-        desired.current.radius = Math.max(minR, Math.min(maxR, desired.current.radius * factor));
+        desired.current.radius = Math.max(planetMinimumRadius(), Math.min(maxR, desired.current.radius * factor));
         pinch.current = d;
       }
     };
