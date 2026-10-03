@@ -371,6 +371,14 @@ export function CameraRig() {
     const pos = new THREE.Vector3().setFromSpherical(spherical.current).add(target.current);
     camera.position.copy(pos);
     camera.lookAt(target.current);
+    (window as unknown as { __cameraDebug?: unknown }).__cameraDebug = {
+      planet: visitPlanet,
+      target: target.current.toArray(),
+      body: visitPlanet ? reg?.get(visitPlanet)?.toArray() : null,
+      radius: spherical.current.radius,
+      desired: desired.current.radius,
+      camera: camera.position.toArray(),
+    };
 
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
