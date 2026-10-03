@@ -204,6 +204,8 @@ export const useStore = create<State>((set, get) => ({
       tourActive: false,
       visitGalaxy: null,
       selectedObjectId: null,
+      flyTo: null,
+      cameraFree: name ? false : get().cameraFree,
     }),
   setVisitGalaxy: (g) =>
     set({

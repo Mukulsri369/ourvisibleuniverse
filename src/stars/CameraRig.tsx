@@ -77,7 +77,7 @@ export function CameraRig() {
       velocity.current.phi = -dy * 0.005;
       desired.current.theta += velocity.current.theta;
       desired.current.phi = Math.max(
-        0.15,
+        0.03,
         Math.min(Math.PI - 0.03, desired.current.phi + velocity.current.phi),
       );
     };
@@ -96,6 +96,7 @@ export function CameraRig() {
       }
     };
     const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
       if (e.touches.length === 2 && pinch.current != null) {
         const a = e.touches[0],
           b = e.touches[1];
@@ -115,6 +116,8 @@ export function CameraRig() {
     };
     const onTouchEnd = () => {
       pinch.current = null;
+      const touch = (window.event as TouchEvent | undefined)?.touches?.[0];
+      if (touch) last.current = { x: touch.clientX, y: touch.clientY };
     };
     const onSingleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
@@ -223,13 +226,14 @@ export function CameraRig() {
 
   // When user selects a planet to visit, set a close zoom
   useEffect(() => {
+    followedPlanet.current = null;
     if (!visitPlanet) return;
     const def = PLANETS.find((p) => p.name === visitPlanet);
     const m31 = def ? null : M31_PLANETS.find((p) => p.name === visitPlanet);
     const gx = def || m31 ? null : GX_PLANET_INDEX.get(visitPlanet)?.planet;
     const size = def?.size ?? m31?.size ?? gx?.size;
     if (size == null) return;
-    desired.current.radius = Math.max(minR, size * 15);
+    desired.current.radius = Math.max(minR, size * 9);
     fovTarget.current = 38;
   }, [visitPlanet]);
 
@@ -271,7 +275,7 @@ export function CameraRig() {
       const rate = (st.zoomSpeed / 50) * 1.2 * Math.min(dt, 0.1);
       const dir = (keys.current.out ? 1 : 0) - (keys.current.in ? 1 : 0);
       desired.current.radius = Math.max(
-        minR,
+        planetMinimumRadius(),
         Math.min(maxR, desired.current.radius * Math.exp(dir * rate)),
       );
     }
@@ -294,7 +298,20 @@ export function CameraRig() {
     if (visitPlanet) {
       const p = reg?.get(visitPlanet);
       if (p) {
-        target.current.lerp(p, Math.min(1, dt * 5));
+        // Carry the camera along with the moving world, then ease away the
+        // initial travel distance. Close up, never lag behind its orbit.
+        const previous = followedPlanet.current;
+        if (previous?.name === visitPlanet) {
+          target.current.addScaledVector(p.clone().sub(previous.position), 1);
+          previous.position.copy(p);
+        } else {
+          followedPlanet.current = { name: visitPlanet, position: p.clone() };
+        }
+        const distance = target.current.distanceTo(p);
+        const k = distance > Math.max(desired.current.radius * 20, 1)
+          ? 1 - Math.exp(-1.8 * Math.min(dt, 0.1))
+          : 1 - Math.exp(-6 * Math.min(dt, 0.1));
+        target.current.lerp(p, k);
       }
     } else if (visitGalaxy) {
       const f = visitGalaxy.focus;

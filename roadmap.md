@@ -1,5 +1,6 @@
 # Roadmap
 
+- [x] Focus sitemap planets, track their motion closely, and allow smooth zoom and all-angle orbiting
 - [x] Frame whole galaxies when chosen in the sitemap without changing star-system visits elsewhere
 
 - [x] Add real observed-object catalog
