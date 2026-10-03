@@ -55,6 +55,7 @@ export function CameraRig() {
   useEffect(() => {
     const el = gl.domElement;
     const onDown = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
       dragging.current = true;
       last.current = { x: e.clientX, y: e.clientY };
       el.setPointerCapture(e.pointerId);
@@ -77,14 +78,15 @@ export function CameraRig() {
       desired.current.theta += velocity.current.theta;
       desired.current.phi = Math.max(
         0.15,
-        Math.min(Math.PI - 0.15, desired.current.phi + velocity.current.phi),
+        Math.min(Math.PI - 0.03, desired.current.phi + velocity.current.phi),
       );
     };
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const speed = useStore.getState().zoomSpeed / 50;
-      const factor = Math.exp(e.deltaY * 0.0015 * speed);
-      desired.current.radius = Math.max(minR, Math.min(maxR, desired.current.radius * factor));
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
+      const factor = Math.exp(Math.max(-120, Math.min(120, dy)) * 0.0015 * speed);
+      desired.current.radius = Math.max(planetMinimumRadius(), Math.min(maxR, desired.current.radius * factor));
     };
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
@@ -101,18 +103,33 @@ export function CameraRig() {
         const factor = pinch.current / d;
         desired.current.radius = Math.max(planetMinimumRadius(), Math.min(maxR, desired.current.radius * factor));
         pinch.current = d;
+      } else if (e.touches.length === 1 && pinch.current == null) {
+        const touch = e.touches[0];
+        if (!touch) return;
+        const dx = touch.clientX - last.current.x;
+        const dy = touch.clientY - last.current.y;
+        last.current = { x: touch.clientX, y: touch.clientY };
+        desired.current.theta -= dx * 0.005;
+        desired.current.phi = Math.max(0.03, Math.min(Math.PI - 0.03, desired.current.phi - dy * 0.005));
       }
     };
     const onTouchEnd = () => {
       pinch.current = null;
+    };
+    const onSingleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        if (touch) last.current = { x: touch.clientX, y: touch.clientY };
+      }
     };
 
     el.addEventListener("pointerdown", onDown);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointermove", onMove);
     el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", onSingleTouchStart);
     el.addEventListener("touchstart", onTouchStart);
-    el.addEventListener("touchmove", onTouchMove);
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd);
     return () => {
       el.removeEventListener("pointerdown", onDown);
@@ -120,6 +137,7 @@ export function CameraRig() {
       window.removeEventListener("pointermove", onMove);
       el.removeEventListener("wheel", onWheel);
       el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchstart", onSingleTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
     };
