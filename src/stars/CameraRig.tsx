@@ -48,7 +48,7 @@ export function CameraRig() {
   useEffect(() => {
     (window as unknown as { __setZoom?: (n: number) => void }).__setZoom = (n) => {
       const r = Math.exp(Math.log(minR) + n * (Math.log(maxR) - Math.log(minR)));
-      desired.current.radius = r;
+      desired.current.radius = Math.max(planetMinimumRadius(), r);
     };
   }, []);
 
@@ -114,9 +114,9 @@ export function CameraRig() {
         desired.current.phi = Math.max(0.03, Math.min(Math.PI - 0.03, desired.current.phi - dy * 0.005));
       }
     };
-    const onTouchEnd = () => {
+    const onTouchEnd = (e: TouchEvent) => {
       pinch.current = null;
-      const touch = (window.event as TouchEvent | undefined)?.touches?.[0];
+      const touch = e.touches[0];
       if (touch) last.current = { x: touch.clientX, y: touch.clientY };
     };
     const onSingleTouchStart = (e: TouchEvent) => {
@@ -302,7 +302,7 @@ export function CameraRig() {
         // initial travel distance. Close up, never lag behind its orbit.
         const previous = followedPlanet.current;
         if (previous?.name === visitPlanet) {
-          target.current.addScaledVector(p.clone().sub(previous.position), 1);
+          target.current.add(p).sub(previous.position);
           previous.position.copy(p);
         } else {
           followedPlanet.current = { name: visitPlanet, position: p.clone() };
@@ -351,8 +351,13 @@ export function CameraRig() {
     }
 
     // ease toward desired
-    spherical.current.radius +=
-      (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
+    // Multiplicative interpolation keeps close-up zoom smooth across the
+    // enormous gap between a galaxy and a planet's surface.
+    const zoomEase = 1 - Math.exp(-4 * Math.min(dt, 0.1));
+    spherical.current.radius = Math.exp(
+      Math.log(Math.max(minR, spherical.current.radius)) +
+      (Math.log(Math.max(minR, desired.current.radius)) - Math.log(Math.max(minR, spherical.current.radius))) * zoomEase,
+    );
     spherical.current.theta +=
       (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
     spherical.current.phi += (desired.current.phi - spherical.current.phi) * Math.min(1, dt * 6);

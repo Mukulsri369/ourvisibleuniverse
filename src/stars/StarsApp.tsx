@@ -44,6 +44,7 @@ export function StarsApp() {
       }}
     >
       <Canvas
+        style={{ touchAction: "none" }}
         camera={{ fov: 40, near: 1e-11, far: 1e11, position: [4, 2, 6] }}
         // Cap the render resolution: at 1M+ particles the fill cost of a
         // 2x device-pixel-ratio buffer is the single biggest frame cost.
