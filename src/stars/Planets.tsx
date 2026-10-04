@@ -233,7 +233,6 @@ function Planet({ def }: { def: PlanetDef }) {
       bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     }
     groupRef.current.getWorldPosition(tmp);
-    if (def.name === "Earth") (window as unknown as { __earthDebug?: unknown }).__earthDebug = { world: tmp.toArray(), projected: tmp.clone().project(camera).toArray(), cameraNear: camera.near, cameraFar: camera.far };
     // The distant marker sprite must not wash the planet out up close:
     // it only fades in once the disk itself is too small to resolve.
     if (haloRef.current) {
@@ -247,7 +246,7 @@ function Planet({ def }: { def: PlanetDef }) {
     let v = reg.get(def.name);
     if (!v) { v = new THREE.Vector3(); reg.set(def.name, v); }
     v.copy(tmp);
-  });
+  }, -1);
 
   const setVisit = useStore((s) => s.setVisitPlanet);
   const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
@@ -678,12 +677,15 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
       SUN_DRIFT_DIR.y * d,
       SUN_DRIFT_DIR.z * d,
     );
+    // Commit the parent's new transform before planets publish their world
+    // positions; otherwise close-up tracking follows the previous frame.
+    ref.current.updateMatrixWorld(true);
     ref.current.getWorldPosition(tmp);
     const reg = getRegistry();
     let v = reg.get("Sun");
     if (!v) { v = new THREE.Vector3(); reg.set("Sun", v); }
     v.copy(tmp);
-  });
+  }, -2);
   return <group ref={ref}>{children}</group>;
 }
 
