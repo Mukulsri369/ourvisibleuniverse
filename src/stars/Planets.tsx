@@ -233,6 +233,7 @@ function Planet({ def }: { def: PlanetDef }) {
       bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     }
     groupRef.current.getWorldPosition(tmp);
+    if (def.name === "Earth") (window as unknown as { __earthDebug?: unknown }).__earthDebug = { world: tmp.toArray(), projected: tmp.clone().project(camera).toArray(), cameraNear: camera.near, cameraFar: camera.far };
     // The distant marker sprite must not wash the planet out up close:
     // it only fades in once the disk itself is too small to resolve.
     if (haloRef.current) {
