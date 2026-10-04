@@ -264,7 +264,7 @@ export function CameraRig() {
     fovTarget.current = 42;
   }, [visitGalaxy]);
 
-  useFrame((_, dt) => {
+  useFrame(({ scene }, dt) => {
     const reg = (window as Window).__planetPositions;
     const st = useStore.getState();
     const selectedStar = st.selectedStar;
@@ -371,6 +371,16 @@ export function CameraRig() {
     const pos = new THREE.Vector3().setFromSpherical(spherical.current).add(target.current);
     camera.position.copy(pos);
     camera.lookAt(target.current);
+    if (visitPlanet === "Earth") {
+      camera.updateMatrixWorld();
+      const meshWorld = new THREE.Vector3();
+      scene.getObjectByName("Earth")?.getWorldPosition(meshWorld);
+      (window as unknown as { __planetDebug?: unknown }).__planetDebug = {
+        camera: camera.position.toArray(), target: target.current.toArray(),
+        registry: reg?.get("Earth")?.toArray(), world: meshWorld.toArray(),
+        projected: meshWorld.project(camera).toArray(), radius: spherical.current.radius,
+      };
+    }
 
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
