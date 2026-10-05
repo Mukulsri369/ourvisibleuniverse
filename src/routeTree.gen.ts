@@ -23,9 +23,6 @@ import { Route as ScienceRouteImport } from './routes/science'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UniverseRouteImport } from './routes/universe'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
-import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
-import { Route as AuthenticatedCheckoutReturnRouteImport } from './routes/_authenticated/checkout.return'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,23 +93,6 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedCheckoutReturnRoute =
-  AuthenticatedCheckoutReturnRouteImport.update({
-    id: '/return',
-    path: '/return',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
-  } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -128,9 +108,6 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/universe': typeof UniverseRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
-  '/checkout/return': typeof AuthenticatedCheckoutReturnRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -146,9 +123,6 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/universe': typeof UniverseRoute
   '/account': typeof AuthenticatedAccountRoute
-  '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
-  '/checkout/return': typeof AuthenticatedCheckoutReturnRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -166,9 +140,6 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/universe': typeof UniverseRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
-  '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
-  '/_authenticated/checkout/return': typeof AuthenticatedCheckoutReturnRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -186,9 +157,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/universe'
     | '/account'
-    | '/checkout'
-    | '/checkout/return'
-    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -204,9 +172,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/universe'
     | '/account'
-    | '/checkout'
-    | '/checkout/return'
-    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -223,9 +188,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/universe'
     | '/_authenticated/account'
-    | '/_authenticated/checkout'
-    | '/_authenticated/checkout/return'
-    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -242,7 +204,6 @@ export interface RootRouteChildren {
   ScienceRoute: typeof ScienceRoute
   TermsRoute: typeof TermsRoute
   UniverseRoute: typeof UniverseRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -345,51 +306,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/checkout': {
-      id: '/_authenticated/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/checkout/return': {
-      id: '/_authenticated/checkout/return'
-      path: '/return'
-      fullPath: '/checkout/return'
-      preLoaderRoute: typeof AuthenticatedCheckoutReturnRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
-    }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
-interface AuthenticatedCheckoutRouteChildren {
-  AuthenticatedCheckoutReturnRoute: typeof AuthenticatedCheckoutReturnRoute
-}
-
-const AuthenticatedCheckoutRouteChildren: AuthenticatedCheckoutRouteChildren = {
-  AuthenticatedCheckoutReturnRoute: AuthenticatedCheckoutReturnRoute,
-}
-
-const AuthenticatedCheckoutRouteWithChildren =
-  AuthenticatedCheckoutRoute._addFileChildren(
-    AuthenticatedCheckoutRouteChildren,
-  )
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
-  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
-  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -409,7 +334,6 @@ const rootRouteChildren: RootRouteChildren = {
   ScienceRoute: ScienceRoute,
   TermsRoute: TermsRoute,
   UniverseRoute: UniverseRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
