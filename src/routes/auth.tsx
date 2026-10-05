@@ -1,0 +1,15 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { PublicLayout } from "@/components/site/PublicLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
+
+export const Route = createFileRoute("/auth")({ validateSearch: (s: Record<string,unknown>) => ({ next: s.next === "/universe" ? "/universe" as const : undefined }), head: () => ({ meta: [{ title: "Sign in — Our Visible Universe" },{ name:"description",content:"Sign in to access Our Visible Universe."},{ property:"og:title",content:"Sign in — Our Visible Universe"},{ property:"og:description",content:"Sign in to access Our Visible Universe."},{ property:"og:type",content:"website"},{ name:"twitter:card",content:"summary" }] }), component: AuthPage });
+function AuthPage() { const navigate=useNavigate(); const {next}=Route.useSearch(); const [email,setEmail]=useState(""); const [password,setPassword]=useState(""); const [signup,setSignup]=useState(false); const [busy,setBusy]=useState(false);
+  const submit=async(e:React.FormEvent)=>{e.preventDefault();setBusy(true);const result=signup?await supabase.auth.signUp({email,password}):await supabase.auth.signInWithPassword({email,password});setBusy(false);if(result.error){toast.error(result.error.message);return;}if(signup&&!result.data.session){toast.success("Check your email to confirm your account.");return;}await navigate({to:next??"/account"});};
+  const google=async()=>{const result=await lovable.auth.signInWithOAuth("google",{redirect_uri:`${window.location.origin}/auth${next?"?next=/universe":""}`});if(result.error)toast.error(result.error.message);};
+  return <PublicLayout><main className="mx-auto max-w-md px-5 pb-24 pt-36"><h1 className="text-4xl font-semibold">{signup?"Create your account":"Welcome back"}</h1><p className="mt-3 text-muted-foreground">Sign in to purchase or use an active access pass.</p><Button onClick={google} variant="outline" className="mt-8 w-full">Continue with Google</Button><div className="my-6 flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border"/>OR<span className="h-px flex-1 bg-border"/></div><form onSubmit={submit} className="space-y-4"><Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" required/><Input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" minLength={8} required/><Button disabled={busy} className="w-full">{busy?"Please wait…":signup?"Create account":"Sign in"}</Button></form><button onClick={()=>setSignup(v=>!v)} className="mt-6 text-sm text-primary">{signup?"Already registered? Sign in":"New here? Create an account"}</button><p className="mt-8 text-xs text-muted-foreground">By continuing, you agree to our <Link to="/terms" className="underline">Terms</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.</p></main></PublicLayout>;
+}
