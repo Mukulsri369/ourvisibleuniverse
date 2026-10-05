@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
     if (rawEnv !== "sandbox" && rawEnv !== "live") return new Response("Invalid environment", { status: 400 });
     try {
       const event = await verifyWebhook(request, rawEnv);
-      if (event.type === "checkout.session.completed" && event.data.object.payment_status !== "unpaid") {
+      if ((event.type === "checkout.session.completed" || event.type === "transaction.completed") && event.data.object.payment_status !== "unpaid") {
         await fulfill(event.data.object, rawEnv);
       }
       if (event.type === "checkout.session.async_payment_succeeded") await fulfill(event.data.object, rawEnv);

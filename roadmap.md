@@ -14,9 +14,9 @@
 - [x] Verify representative objects, performance, runtime logs, and build
 
 ## Paid access and checkout
-- [ ] Add public landing and information pages
-- [ ] Add Google and email account flows
-- [ ] Add embedded payment selection and checkout
-- [ ] Activate and extend access from verified payment confirmations
-- [ ] Protect the universe and add account status
+- [x] Add public landing and information pages
+- [x] Add Google and email account flows
+- [x] Add embedded payment selection and checkout
+- [x] Activate and extend access from verified payment confirmations
+- [x] Protect the universe and add account status
 - [ ] Verify payment, access, public pages, and mobile behavior
