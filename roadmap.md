@@ -20,3 +20,9 @@
 - [x] Activate and extend access from verified payment confirmations
 - [x] Protect the universe and add account status
 - [x] Verify payment, access, public pages, and mobile behavior
+
+## Razorpay approval preparation
+- [x] Remove the previous payment checkout and payment notifications
+- [x] Open the complete universe without payment or sign-in
+- [x] Expand public educational, pricing, FAQ, privacy, terms, and refund information
+- [ ] Connect Razorpay only after merchant approval and credentials are available
