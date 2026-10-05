@@ -8,6 +8,13 @@
       "when": 1791186510800,
       "tag": "0000_create_paid_access_passes",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791186554809,
+      "tag": "0001_add_atomic_access_activation",
+      "breakpoints": true
     }
   ]
 }

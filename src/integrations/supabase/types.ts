@@ -64,6 +64,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_access_purchase: {
+        Args: {
+          p_access_days: number
+          p_environment: string
+          p_payment_customer_id: string
+          p_payment_session_id: string
+          p_price_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       has_active_access: { Args: { check_env?: string }; Returns: boolean }
     }
     Enums: {
