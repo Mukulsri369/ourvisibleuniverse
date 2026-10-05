@@ -14,13 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      access_passes: {
+        Row: {
+          access_days: number
+          created_at: string
+          environment: string
+          expires_at: string
+          id: string
+          payment_customer_id: string | null
+          payment_session_id: string
+          price_id: string
+          starts_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_days: number
+          created_at?: string
+          environment?: string
+          expires_at: string
+          id?: string
+          payment_customer_id?: string | null
+          payment_session_id: string
+          price_id: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_days?: number
+          created_at?: string
+          environment?: string
+          expires_at?: string
+          id?: string
+          payment_customer_id?: string | null
+          payment_session_id?: string
+          price_id?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      apply_access_purchase: {
+        Args: {
+          p_access_days: number
+          p_environment: string
+          p_payment_customer_id: string
+          p_payment_session_id: string
+          p_price_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      has_active_access: { Args: { check_env?: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
