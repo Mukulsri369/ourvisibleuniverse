@@ -19,4 +19,4 @@
 - [x] Add embedded payment selection and checkout
 - [x] Activate and extend access from verified payment confirmations
 - [x] Protect the universe and add account status
-- [ ] Verify payment, access, public pages, and mobile behavior
+- [x] Verify payment, access, public pages, and mobile behavior
