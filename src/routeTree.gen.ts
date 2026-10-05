@@ -17,7 +17,10 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ScienceRouteImport } from './routes/science'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as UniverseRouteImport } from './routes/universe'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
@@ -63,9 +66,24 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScienceRoute = ScienceRouteImport.update({
   id: '/science',
   path: '/science',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UniverseRoute = UniverseRouteImport.update({
@@ -104,7 +122,10 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
+  '/terms': typeof TermsRoute
   '/universe': typeof UniverseRoute
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
@@ -119,7 +140,10 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
+  '/terms': typeof TermsRoute
   '/universe': typeof UniverseRoute
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
@@ -136,7 +160,10 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
+  '/terms': typeof TermsRoute
   '/universe': typeof UniverseRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
@@ -153,7 +180,10 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/pricing'
+    | '/privacy'
+    | '/refund-policy'
     | '/science'
+    | '/terms'
     | '/universe'
     | '/account'
     | '/checkout'
@@ -168,7 +198,10 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/pricing'
+    | '/privacy'
+    | '/refund-policy'
     | '/science'
+    | '/terms'
     | '/universe'
     | '/account'
     | '/checkout'
@@ -184,7 +217,10 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/pricing'
+    | '/privacy'
+    | '/refund-policy'
     | '/science'
+    | '/terms'
     | '/universe'
     | '/_authenticated/account'
     | '/_authenticated/checkout'
@@ -201,7 +237,10 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   ScienceRoute: typeof ScienceRoute
+  TermsRoute: typeof TermsRoute
   UniverseRoute: typeof UniverseRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -264,11 +303,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/science': {
       id: '/science'
       path: '/science'
       fullPath: '/science'
       preLoaderRoute: typeof ScienceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/universe': {
@@ -344,7 +404,10 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   ScienceRoute: ScienceRoute,
+  TermsRoute: TermsRoute,
   UniverseRoute: UniverseRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
