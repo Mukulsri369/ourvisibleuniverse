@@ -1,12 +1,13 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
 @utility bg-hero-overlay {
   background: linear-gradient(90deg, color-mix(in oklab, var(--background) 88%, transparent), color-mix(in oklab, var(--background) 30%, transparent) 58%, transparent), linear-gradient(0deg, color-mix(in oklab, var(--background) 75%, transparent), transparent 55%);
 }
 
 .prose-universe h2 { color: var(--foreground); font-size: 1.5rem; font-weight: 600; margin-bottom: .75rem; }
 .prose-universe p { line-height: 1.8; }
-@import "tailwindcss" source(none);
-@source "../src";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -8,7 +8,7 @@ async function fulfill(session: Record<string, unknown>, env: StripeEnv) {
   const priceId = metadata?.priceId;
   const sessionId = typeof session.id === "string" ? session.id : undefined;
   if (!userId || !sessionId || !isPlanId(priceId)) throw new Error("Payment is missing access metadata");
-  const customerId = typeof session.customer === "string" ? session.customer : null;
+  const customerId = typeof session.customer === "string" ? session.customer : "";
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.rpc("apply_access_purchase", {
     p_user_id: userId,
