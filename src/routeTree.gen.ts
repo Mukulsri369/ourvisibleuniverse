@@ -22,7 +22,9 @@ import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ScienceRouteImport } from './routes/science'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedUniverseRouteImport } from './routes/_authenticated/universe'
+import { Route as ApiPublicPaymentsRazorpayRouteImport } from './routes/api/public/payments/razorpay'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -88,11 +90,22 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedUniverseRoute = AuthenticatedUniverseRouteImport.update({
   id: '/universe',
   path: '/universe',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicPaymentsRazorpayRoute =
+  ApiPublicPaymentsRazorpayRouteImport.update({
+    id: '/api/public/payments/razorpay',
+    path: '/api/public/payments/razorpay',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,7 +120,9 @@ export interface FileRoutesByFullPath {
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/api/public/payments/razorpay': typeof ApiPublicPaymentsRazorpayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -122,7 +137,9 @@ export interface FileRoutesByTo {
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRoute
+  '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/api/public/payments/razorpay': typeof ApiPublicPaymentsRazorpayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -139,7 +156,9 @@ export interface FileRoutesById {
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
+  '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/universe': typeof AuthenticatedUniverseRoute
+  '/api/public/payments/razorpay': typeof ApiPublicPaymentsRazorpayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -156,7 +175,9 @@ export interface FileRouteTypes {
     | '/science'
     | '/terms'
     | '/account'
+    | '/checkout'
     | '/universe'
+    | '/api/public/payments/razorpay'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -171,7 +192,9 @@ export interface FileRouteTypes {
     | '/science'
     | '/terms'
     | '/account'
+    | '/checkout'
     | '/universe'
+    | '/api/public/payments/razorpay'
   id:
     | '__root__'
     | '/'
@@ -187,7 +210,9 @@ export interface FileRouteTypes {
     | '/science'
     | '/terms'
     | '/_authenticated/account'
+    | '/_authenticated/checkout'
     | '/_authenticated/universe'
+    | '/api/public/payments/razorpay'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -203,6 +228,7 @@ export interface RootRouteChildren {
   RefundPolicyRoute: typeof RefundPolicyRoute
   ScienceRoute: typeof ScienceRoute
   TermsRoute: typeof TermsRoute
+  ApiPublicPaymentsRazorpayRoute: typeof ApiPublicPaymentsRazorpayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -298,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/checkout': {
+      id: '/_authenticated/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/universe': {
       id: '/_authenticated/universe'
       path: '/universe'
@@ -305,16 +338,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUniverseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/payments/razorpay': {
+      id: '/api/public/payments/razorpay'
+      path: '/api/public/payments/razorpay'
+      fullPath: '/api/public/payments/razorpay'
+      preLoaderRoute: typeof ApiPublicPaymentsRazorpayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
+  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedUniverseRoute: typeof AuthenticatedUniverseRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
+  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedUniverseRoute: AuthenticatedUniverseRoute,
 }
 
@@ -334,6 +376,7 @@ const rootRouteChildren: RootRouteChildren = {
   RefundPolicyRoute: RefundPolicyRoute,
   ScienceRoute: ScienceRoute,
   TermsRoute: TermsRoute,
+  ApiPublicPaymentsRazorpayRoute: ApiPublicPaymentsRazorpayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
