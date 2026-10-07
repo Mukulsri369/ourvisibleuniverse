@@ -1,5 +1,6 @@
-- Public information uses separate searchable TanStack routes, while the full 3D experience remains at `/universe` and is open without payment during Razorpay approval.
-- Future paid access must be activated only by verified payment notifications through the existing idempotent database function; a browser return page is never proof of payment.
+- Public information uses separate searchable TanStack routes, while the 3D experience lives at `/_authenticated/universe` behind an active-pass check, because public pages must stay crawlable without loading the scene.
+- Razorpay access is granted only after server-side signature verification plus a server fetch confirming the captured payment, through the idempotent `apply_access_purchase` function, because browser checkout responses can be forged.
+- Razorpay test vs live is selected by the server-only `RAZORPAY_MODE` secret, so switching to production needs no code change.
 <!-- LOVABLE:BEGIN -->
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
