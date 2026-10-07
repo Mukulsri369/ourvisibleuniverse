@@ -25,12 +25,12 @@
 - [x] Remove the previous payment checkout and payment notifications
 - [x] Open the complete universe without payment or sign-in
 - [x] Expand public educational, pricing, FAQ, privacy, terms, and refund information
-- [ ] Connect Razorpay only after merchant approval and credentials are available
+- [x] Connect Razorpay after credentials are available
 
 ## Razorpay production integration
-- [ ] Add secure Razorpay order creation for the three fixed-term passes
-- [ ] Add Standard Checkout with cancellation and failure handling
-- [ ] Verify payment signatures and activate access idempotently
-- [ ] Restore paid-access checks, account expiry, and repeat-purchase extension
-- [ ] Support separate test and live credentials without exposing secrets
+- [x] Add secure Razorpay order creation for the three fixed-term passes
+- [x] Add Standard Checkout with cancellation and failure handling
+- [x] Verify payment signatures and activate access idempotently
+- [x] Restore paid-access checks, account expiry, and repeat-purchase extension
+- [x] Support separate test and live credentials without exposing secrets
 - [ ] Test the signed-in checkout and access flow
