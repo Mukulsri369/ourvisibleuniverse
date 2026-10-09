@@ -38,8 +38,8 @@ const plates = [
   ["Exoplanet system", "PA-99-N2 b", "2.5 million ly", "rotate-1"],
 ];
 
-function Beacon({ label }: { label: string }) {
-  return <div className="inline-flex items-center gap-3"><span className="size-2.5 animate-pulse rounded-full bg-primary" /><span className="text-sm font-semibold uppercase tracking-widest text-primary">{label}</span><span className="size-2.5 animate-pulse rounded-full bg-accent-foreground [animation-delay:0.6s]" /></div>;
+function Beacon({ label, onHero }: { label: string; onHero?: boolean }) {
+  return <div className="inline-flex items-center gap-3"><span className={`size-2.5 animate-pulse rounded-full ${onHero ? "bg-hero-foreground" : "bg-primary"}`} /><span className={`text-sm font-semibold uppercase tracking-widest ${onHero ? "text-hero-muted" : "text-primary"}`}>{label}</span><span className="size-2.5 animate-pulse rounded-full bg-accent-foreground [animation-delay:0.6s]" /></div>;
 }
 
 function Hero() {
@@ -52,7 +52,7 @@ function Hero() {
     <div className="absolute inset-0 bg-hero-overlay" />
     <div className="relative mx-auto w-full max-w-7xl px-5 lg:px-8">
       <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
-        <Beacon label="Interactive astronomy education" />
+        <Beacon onHero label="Interactive astronomy education" />
         <h1 className="mt-6 max-w-4xl text-5xl font-black leading-[1.05] text-hero-foreground sm:text-7xl lg:text-8xl">Our Visible Universe</h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-hero-muted">Learn how planetary systems, stars, galaxies and extreme cosmic objects fit together through a cinematic 3D universe grounded in real astronomical data.</p>
         <div className="mt-8 flex flex-wrap gap-3"><Button asChild size="lg" className="transition hover:scale-105"><Link to="/universe">Load universe <ArrowRight /></Link></Button><Button asChild size="lg" variant="outline" className="transition hover:scale-105"><Link to="/pricing">Get access</Link></Button><Button asChild size="lg" variant="ghost" className="text-hero-foreground"><Link to="/science">Explore the science</Link></Button></div>
