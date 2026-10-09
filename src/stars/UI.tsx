@@ -113,7 +113,14 @@ function ExoSystemSection({ star }: { star: NamedStar }) {
           {sys.planets.map((p) => (
             <li key={p.name} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-white/70">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-white">{p.name}</span>
+                <span className="text-sm text-white">
+                  {p.name}
+                  {p.observed && (
+                    <span className="ml-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-emerald-300">
+                      confirmed
+                    </span>
+                  )}
+                </span>
                 <span className={p.inHZ ? "text-emerald-300" : "text-white/50"}>{p.kind}</span>
               </div>
               <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5">
@@ -121,7 +128,7 @@ function ExoSystemSection({ star }: { star: NamedStar }) {
                 <span>e = {p.e.toFixed(2)}</span>
                 <span>P = {p.periodYears < 1 ? `${(p.periodYears * 365.25).toFixed(1)} d` : `${p.periodYears.toFixed(2)} yr`}</span>
                 <span>T_eq ≈ {Math.round(p.teqK)} K</span>
-                <span>R ≈ {p.radiusEarth.toFixed(2)} R⊕</span>
+                <span>R {p.radiusEstimated ? "≈" : "="} {p.radiusEarth.toFixed(2)} R⊕</span>
                 <span>M ≈ {p.massEarth.toFixed(1)} M⊕</span>
                 <span>ESI ≈ {p.esi.toFixed(2)}</span>
                 <span>{p.tidallyLocked ? "Tidally locked" : "Free rotation"}</span>

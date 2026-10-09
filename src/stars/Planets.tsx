@@ -520,6 +520,22 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
       y += h;
     }
     ctx.globalAlpha = 1;
+    // Fine turbulent streaks inside each band (chevron wave patterns)
+    ctx.globalAlpha = 0.18;
+    for (let i = 0; i < 260; i++) {
+      const y = rand() * H;
+      const w = 40 + rand() * 160;
+      const x = rand() * W;
+      ctx.strokeStyle = shade(rand() > 0.5 ? 1.3 : 0.75);
+      ctx.lineWidth = 1 + rand() * 2;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      for (let s = 0; s <= 8; s++) {
+        ctx.lineTo(x + (w * s) / 8, y + Math.sin(s * 1.7 + rand()) * (2 + rand() * 4));
+      }
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
     // Storm ovals (e.g. Jupiter's Great Red Spot)
     const storms = def.name === "Jupiter" ? 6 : 3;
     for (let i = 0; i < storms; i++) {
