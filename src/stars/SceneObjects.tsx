@@ -445,6 +445,7 @@ export function MilkyWay() {
         uFocus: { value: 1 },
       },
       vertexShader: /* glsl */ `
+        #include <logdepthbuf_pars_vertex>
         attribute float aSize;
         varying vec3 vColor;
         uniform float uPixelRatio;
@@ -472,13 +473,16 @@ export function MilkyWay() {
           float size = aSize * uPixelRatio * (300.0 / max(-mv.z, 1.0));
           gl_PointSize = clamp(size, 1.0, 70.0);
           gl_Position = projectionMatrix * mv;
+          #include <logdepthbuf_vertex>
         }
       `,
       fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
         uniform sampler2D uTex;
         uniform float uFocus;
         varying vec3 vColor;
         void main(){
+          #include <logdepthbuf_fragment>
           vec4 t = texture2D(uTex, gl_PointCoord);
           if (t.a < 0.04) discard;
           gl_FragColor = vec4(vColor, t.a * uFocus);

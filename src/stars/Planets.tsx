@@ -185,7 +185,7 @@ export const PLANETS: PlanetDef[] = LEGACY_PLANETS.map((p) => {
     }),
   };
 });
-export const SOLAR_MOONS = new Map(PLANETS.flatMap((p) => (p.moons ?? []).map((moon) => [`${p.name}:${moon.name}`, { planet: p, moon }] as const)));
+export const SOLAR_MOONS = new Map<string, { planet: PlanetDef; moon: MoonDef }>(PLANETS.flatMap((p) => (p.moons ?? []).map((moon) => [`${p.name}:${moon.name}`, { planet: p, moon }] as const)));
 export function solarBodySize(name: string) {
   return SOLAR_MOONS.get(name)?.moon.size ?? PLANETS.find((p) => p.name === name)?.size;
 }
@@ -761,7 +761,10 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       bodyOrientation(parent, pole);
       ref.current.position.copy(offset.applyQuaternion(pole));
     }
-    if (body.current) body.current.lookAt(new THREE.Vector3(0, 0, 0));
+    if (body.current && ref.current.parent) {
+      const center = ref.current.parent.getWorldPosition(new THREE.Vector3());
+      body.current.lookAt(center);
+    }
     // publish live world position so the moon trail can track it
     ref.current.getWorldPosition(tmp);
     const reg = getRegistry();
@@ -964,6 +967,7 @@ function useTrail(body: TrailBody) {
         uLen: { value: len },
       },
       vertexShader: /* glsl */ `
+        #include <logdepthbuf_pars_vertex>
         attribute float aIndex;
         uniform float uHead;
         uniform float uLen;
@@ -974,15 +978,18 @@ function useTrail(body: TrailBody) {
           vAge = age;
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mv;
+          #include <logdepthbuf_vertex>
           // Collapse the oldest vertex so the wrap-around segment vanishes.
           if (age > 0.995) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
         }
       `,
       fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
         uniform vec3 uColor;
         uniform float uOpacity;
         varying float vAge;
         void main(){
+          #include <logdepthbuf_fragment>
           float a = pow(1.0 - vAge, 1.6) * uOpacity;
           if (a < 0.015) discard;
           gl_FragColor = vec4(uColor, a);

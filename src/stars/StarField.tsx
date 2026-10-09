@@ -125,6 +125,7 @@ export function StarField() {
         uFocus: { value: 1 },
       },
       vertexShader: /* glsl */ `
+        #include <logdepthbuf_pars_vertex>
         attribute float aSize;
         attribute float aPhase;
         attribute float aIsBg;
@@ -151,13 +152,16 @@ export function StarField() {
           gl_PointSize = clamp(size * mix(1.0, bgFade, aIsBg * 0.6), 1.0, 80.0);
           vAlpha = clamp(1.0 - (length(mv.xyz) / 4000.0), 0.15, 1.0) * visibility;
           gl_Position = projectionMatrix * mv;
+          #include <logdepthbuf_vertex>
         }
       `,
       fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
         uniform sampler2D uTex;
         varying vec3 vColor;
         varying float vAlpha;
         void main() {
+          #include <logdepthbuf_fragment>
           vec4 tex = texture2D(uTex, gl_PointCoord);
           if (tex.a < 0.05) discard;
           gl_FragColor = vec4(vColor, tex.a * vAlpha);
