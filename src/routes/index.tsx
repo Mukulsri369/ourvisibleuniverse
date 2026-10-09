@@ -63,7 +63,7 @@ function Hero() {
   const toggle = () => { const v = refs.current[index]; if (!v) return; if (v.paused) { v.play(); setPlaying(true); } else { v.pause(); setPlaying(false); } };
   return <section className="relative flex h-screen min-h-[640px] items-end overflow-hidden pb-20">
     {heroVideos.map((src, i) => (
-      <video key={src} ref={el => { refs.current[i] = el; }} className={`absolute inset-0 size-full scale-110 object-cover transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"}`} src={src} poster={i === 0 ? hero : undefined} autoPlay={i === 0} muted playsInline preload={i === 0 ? "auto" : "metadata"} aria-hidden="true" onEnded={() => { setPlaying(true); setIndex(n => (n + 1) % heroVideos.length); }} />
+      <video key={src} ref={el => { refs.current[i] = el; }} className={`absolute inset-0 size-full scale-110 object-cover transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"}`} src={src} poster={i === 0 ? hero : undefined} autoPlay={i === 0} muted playsInline preload={i === 0 ? "auto" : "metadata"} aria-hidden="true" onTimeUpdate={e => { const v = e.currentTarget; if (i === index && v.duration - v.currentTime < 2.5) { const next = refs.current[(index + 1) % heroVideos.length]; if (next && next.preload !== "auto") next.preload = "auto"; } }} onEnded={() => { setPlaying(true); setIndex(n => (n + 1) % heroVideos.length); }} />
     ))}
     <div className="absolute inset-0 bg-hero-overlay" />
     <div className="relative mx-auto w-full max-w-7xl px-5 lg:px-8">
