@@ -217,6 +217,103 @@ function getRegistry(): PlanetRegistry {
   return window.__planetPositions;
 }
 
+// --- Atmospheric scattering -------------------------------------------------
+// Rayleigh (∝ λ⁻⁴) colours the sunlit limb, the day/night terminator glows with
+// long-wavelength light, and Mie scattering adds a forward-scattering halo
+// when looking toward the Sun. Mars is famously inverted: dusty butterscotch
+// days and blue sunsets.
+const ATMO_PRESETS: Record<string, { ray: string; sunset: string; mie: number }> = {
+  Earth: { ray: "#4f8dff", sunset: "#ff7a3c", mie: 0.55 },
+  Venus: { ray: "#f2d38c", sunset: "#ffb066", mie: 0.8 },
+  Mars: { ray: "#d9a070", sunset: "#6fa0ff", mie: 0.9 },
+  Jupiter: { ray: "#d8c3a0", sunset: "#c98a5a", mie: 0.3 },
+  Saturn: { ray: "#e6d3a3", sunset: "#c99a60", mie: 0.3 },
+  Uranus: { ray: "#9fe3ea", sunset: "#6fc0c8", mie: 0.25 },
+  Neptune: { ray: "#4d7cff", sunset: "#3355cc", mie: 0.25 },
+};
+const ATMO_VERT = /* glsl */ `
+varying vec3 vN; varying vec3 vW;
+void main(){
+  vec4 w = modelMatrix * vec4(position,1.0);
+  vW = w.xyz;
+  vN = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * viewMatrix * w;
+}`;
+const ATMO_FRAG = /* glsl */ `
+uniform vec3 uSun; uniform vec3 uRay; uniform vec3 uSunset; uniform float uMie;
+varying vec3 vN; varying vec3 vW;
+void main(){
+  vec3 N = normalize(vN);
+  vec3 V = normalize(cameraPosition - vW);
+  vec3 L = normalize(uSun - vW);
+  float nv = max(dot(N,V),0.0);
+  float rim = pow(1.0 - nv, 2.6);
+  float nl = dot(N,L);
+  float day = smoothstep(-0.2, 0.45, nl);
+  float term = exp(-pow((nl - 0.02) / 0.2, 2.0));
+  float mie = pow(max(dot(-V, L), 0.0), 10.0) * uMie;
+  vec3 col = uRay * rim * day * 1.35 + uSunset * term * rim * 1.1 + mix(uSunset, vec3(1.0), 0.5) * mie * rim;
+  float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
+  gl_FragColor = vec4(col, a);
+}`;
+
+// --- Close-up surface detail -----------------------------------------------
+// Gas giants: multi-octave turbulent bands with differential rotation and
+// churning vortices. Rocky worlds: fbm relief and crater shading. The layer
+// fades in only when the camera is close (cheap at a distance).
+const DETAIL_VERT = /* glsl */ `
+varying vec3 vP; varying vec3 vN; varying vec3 vW;
+void main(){
+  vP = normalize(position);
+  vec4 w = modelMatrix * vec4(position,1.0);
+  vW = w.xyz;
+  vN = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * viewMatrix * w;
+}`;
+const DETAIL_FRAG = /* glsl */ `
+uniform vec3 uSun; uniform float uTime; uniform float uNear; uniform float uGas; uniform float uSeed;
+uniform vec3 uTint; uniform vec3 uStorm;
+varying vec3 vP; varying vec3 vN; varying vec3 vW;
+float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
+float n3(vec3 p){
+  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
+void main(){
+  if (uNear < 0.01) discard;
+  vec3 L = normalize(uSun - vW);
+  float lit = clamp(dot(normalize(vN), L) * 0.9 + 0.15, 0.0, 1.0);
+  vec3 col; float alpha;
+  if (uGas > 0.5) {
+    float lat = vP.y;
+    float lon = atan(vP.z, vP.x);
+    // differential rotation: equator laps the poles
+    float shift = uTime * 0.02 * (1.0 - 0.6 * lat * lat);
+    vec3 q = vec3(cos(lon + shift), lat * 6.0, sin(lon + shift));
+    float warp = fbm(q * 2.5 + uSeed + vec3(0.0, uTime * 0.01, 0.0));
+    float bands = sin(lat * 38.0 + warp * 5.0) * 0.5 + 0.5;
+    float fine = fbm(q * 9.0 + warp * 2.0);
+    col = uTint * (0.75 + 0.5 * bands) * (0.85 + 0.3 * fine);
+    // Vortex storm at fixed latitude, churning
+    vec2 c = vec2(lon + shift * 0.6 - 1.2, (lat + 0.37) * 3.0);
+    float d = length(c * vec2(1.0, 2.2));
+    float sw = fbm(vec3(c * 6.0 + vec2(cos(uTime*0.3), sin(uTime*0.3)) * (1.0 - d), uSeed));
+    float storm = smoothstep(0.35, 0.0, d) * (0.6 + 0.4 * sw);
+    col = mix(col, uStorm * 1.1, storm);
+    alpha = 0.42 * uNear;
+  } else {
+    float rel = fbm(vP * 14.0 + uSeed);
+    float micro = fbm(vP * 60.0 + uSeed * 2.0);
+    float crater = smoothstep(0.62, 0.7, n3(vP * 40.0 + uSeed)) - smoothstep(0.7, 0.78, n3(vP * 40.0 + uSeed));
+    float shade = 0.7 + 0.5 * rel + 0.25 * micro + crater * 0.35;
+    col = uTint * shade;
+    alpha = 0.32 * uNear;
+  }
+  gl_FragColor = vec4(col * lit, alpha);
+}`;
+
 function Planet({ def }: { def: PlanetDef }) {
   const groupRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Mesh>(null!);
