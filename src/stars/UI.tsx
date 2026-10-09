@@ -1366,6 +1366,16 @@ export function SiteMap() {
                   );
                 })}
             </div>
+
+            <a
+              href="https://visualizemaths.ai.studio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 flex w-full items-center justify-between rounded-md border border-white/15 bg-white/5 px-2.5 py-2 text-[11px] text-white/80 transition hover:bg-white/10 hover:text-white"
+            >
+              <span>∑ Visualize astronomical maths</span>
+              <span className="text-white/40">↗</span>
+            </a>
           </div>
         )}
       </motion.div>
