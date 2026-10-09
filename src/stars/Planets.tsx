@@ -574,6 +574,35 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
       // polar ice
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.fillRect(0, 0, W, 22); ctx.fillRect(0, H - 22, W, 22);
+      // drifting white cloud decks
+      ctx.globalAlpha = 0.5;
+      for (let i = 0; i < 90; i++) {
+        const x = rand() * W, y = rand() * H;
+        const w = 30 + rand() * 120, h = 4 + rand() * 10;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, w / 2);
+        g.addColorStop(0, "rgba(255,255,255,0.9)");
+        g.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = g;
+        ctx.save(); ctx.translate(x, y); ctx.scale(1, h / w); ctx.translate(-x, -y);
+        ctx.beginPath(); ctx.arc(x, y, w / 2, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
+    if (def.name === "Venus") {
+      // thick sulphuric-acid cloud deck with horizontal chevron streaks
+      ctx.globalAlpha = 0.35;
+      for (let i = 0; i < 120; i++) {
+        const y = rand() * H;
+        ctx.strokeStyle = shade(0.85 + rand() * 0.4);
+        ctx.lineWidth = 2 + rand() * 6;
+        const x = rand() * W;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(x + 60, y - 8 + rand() * 16, x + 140, y - 8 + rand() * 16, x + 220, y);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
     }
     if (def.name === "Mars") {
       ctx.fillStyle = "rgba(255,255,255,0.75)";
