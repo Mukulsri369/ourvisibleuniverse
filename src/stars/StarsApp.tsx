@@ -21,6 +21,7 @@ import {
   SiteMap,
 } from "./UI";
 import { GalaxyInfoPanel } from "./GalaxyInfoPanel";
+import { ExoPlanetPanel } from "./ExoPlanetPanel";
 import { ObservedObjects } from "./ObservedObjects";
 import { ObservedObjectInfoPanel } from "./ObservedObjectInfoPanel";
 
@@ -86,6 +87,7 @@ export function StarsApp() {
           <MusicToggle />
           <Branding />
           <InfoPanel />
+          <ExoPlanetPanel />
           <GalaxyInfoPanel />
           <ObservedObjectInfoPanel />
         </>
