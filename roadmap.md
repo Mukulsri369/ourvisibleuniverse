@@ -1,5 +1,12 @@
 # Roadmap
 
+## Astronomical fidelity corrections
+- [ ] Correct TRAPPIST-1 physical proportions and opaque depth rendering
+- [ ] Synchronize astronomical timing and improve planet/Moon positions
+- [ ] Fade background stars during planet focus
+- [ ] Enable every represented moon's sitemap visit and details
+- [ ] Verify mathematical ratios and live planet/moon views
+
 - [x] Focus sitemap planets, track their motion closely, and allow smooth zoom and all-angle orbiting
 - [x] Frame whole galaxies when chosen in the sitemap without changing star-system visits elsewhere
 
