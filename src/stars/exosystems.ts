@@ -85,6 +85,57 @@ export function exoSystemFor(star: NamedStar): ExoSystemModel {
   const hzInner = Math.sqrt(L / 1.1);
   const hzOuter = Math.sqrt(L / 0.53);
   const snowLine = 2.7 * Math.sqrt(L);
+
+  // Real confirmed planets take precedence over the procedural model.
+  const real = REAL_SYSTEMS[star.name];
+  if (real) {
+    const planets: ExoPlanet[] = real.map((rp) => {
+      const a = rp.aAU;
+      const Teq0 = star.temperature * Math.sqrt(Rau / (2 * a));
+      const radiusEarth = rp.radiusEarth;
+      let kind: ExoKind;
+      if (Teq0 > 1500) kind = radiusEarth > 6 ? "Hot Jupiter" : "Lava world";
+      else if (a > snowLine) kind = radiusEarth > 6 ? "Gas giant" : "Ice giant";
+      else if (a >= hzInner && a <= hzOuter)
+        kind = radiusEarth < 1.3 ? "Rocky world" : radiusEarth < 2 ? "Super-Earth" : "Ocean world";
+      else if (radiusEarth > 6) kind = "Gas giant";
+      else if (radiusEarth > 3.2) kind = "Ice giant";
+      else if (radiusEarth > 2) kind = "Mini-Neptune";
+      else if (radiusEarth > 1.3) kind = "Super-Earth";
+      else kind = "Rocky world";
+      const albedo = radiusEarth > 6 ? 0.34 : kind === "Ocean world" ? 0.3 : 0.25;
+      const teqK = Teq0 * Math.pow(1 - albedo, 0.25);
+      const inHZ = a >= hzInner && a <= hzOuter;
+      const esi = Math.max(
+        0,
+        Math.pow(1 - Math.abs((radiusEarth - 1) / (radiusEarth + 1)), 0.57) *
+          Math.pow(1 - Math.abs((teqK - 255) / (teqK + 255)), 5.58 / 2),
+      );
+      const pal = COLORS[kind];
+      return {
+        name: rp.name,
+        kind,
+        aAU: a,
+        e: rp.e,
+        incl: (rand() - 0.5) * 0.06,
+        periodYears: rp.periodDays / 365.25,
+        radiusEarth,
+        massEarth: rp.massEarth,
+        teqK,
+        inHZ,
+        esi,
+        tidallyLocked: a < 0.1 * Math.sqrt(M) * 2,
+        color: pal[Math.floor(rand() * pal.length)],
+        phase: rand() * Math.PI * 2,
+        observed: true,
+        radiusEstimated: rp.radiusEstimated,
+      };
+    });
+    const sys = { star: star.name, hzInner, hzOuter, snowLine, planets };
+    cache.set(star.name, sys);
+    return sys;
+  }
+
   const isWD = /^D/.test(star.spectral);
   const isGiant = star.radius > 8;
   const hot = star.temperature > 11000;
