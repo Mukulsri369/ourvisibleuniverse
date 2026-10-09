@@ -1,3 +1,4 @@
+import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { OBJECT_BY_ID, type ObservedObject } from "./observed-objects";
@@ -71,6 +72,7 @@ export function ObservedObjectInfoPanel() {
   return (
     <AnimatePresence>
       {item && (
+        <HideablePanel resetKey={item.id} label={item.name}>{(hide) => (
         <motion.aside
           onClick={(e) => e.stopPropagation()}
           initial={{ x: 400, opacity: 0 }}
@@ -79,8 +81,10 @@ export function ObservedObjectInfoPanel() {
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="pointer-events-auto fixed right-0 top-0 z-30 h-full w-full max-w-[390px] overflow-y-auto border-l border-white/10 bg-black/80 p-7 text-white backdrop-blur-xl"
         >
+          {hide}
           <button
             onClick={() => select(null)}
+            
             aria-label="Close object details"
             className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
           >
@@ -161,7 +165,9 @@ export function ObservedObjectInfoPanel() {
               <span className="text-white/65">Catalog IDs:</span> {item.aliases.join(" · ")}
             </div>
           )}
+          <NasaResources name={item.name} />
         </motion.aside>
+        )}</HideablePanel>
       )}
     </AnimatePresence>
   );
