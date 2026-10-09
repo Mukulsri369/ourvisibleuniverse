@@ -416,7 +416,7 @@ function Planet({ def }: { def: PlanetDef }) {
     let v = reg.get(def.name);
     if (!v) { v = new THREE.Vector3(); reg.set(def.name, v); }
     v.copy(tmp);
-  }, -1);
+  }, -2);
 
   const setVisit = useStore((s) => s.setVisitPlanet);
   const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
@@ -774,7 +774,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     let v = reg.get(key);
     if (!v) { v = new THREE.Vector3(); reg.set(key, v); }
     v.copy(tmp);
-  }, -2);
+  }, -1.5);
   return (
     <group ref={ref}>
       <mesh ref={body} onClick={(e) => { e.stopPropagation(); useStore.getState().setVisitPlanet(moonKey(parent, moon.name)); }}>
