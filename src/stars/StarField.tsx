@@ -101,14 +101,16 @@ export function StarField() {
   // Avoid unused-var lints; the buffers are stored on geometry attributes
   void naturalColors; void spectralColors;
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
     spectralTarget.current = spectralMode ? 1 : 0;
-    spectralBlend.current += (spectralTarget.current - spectralBlend.current) * 0.05;
+    spectralBlend.current += (spectralTarget.current - spectralBlend.current) * (1 - Math.exp(-3 * dt));
     if (material.current) {
       material.current.uniforms.uTime.value = clock.elapsedTime;
       material.current.uniforms.uSpectral.value = spectralBlend.current;
       // read transiently so this component doesn't re-render every frame
       material.current.uniforms.uCamDist.value = useStore.getState().cameraDistance;
+      const focus = useStore.getState().visitPlanet ? 0.025 : 1;
+      material.current.uniforms.uFocus.value += (focus - material.current.uniforms.uFocus.value) * (1 - Math.exp(-1.2 * dt));
     }
   });
 
@@ -120,6 +122,7 @@ export function StarField() {
         uTex: { value: texture },
         uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
         uCamDist: { value: 8 },
+        uFocus: { value: 1 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
@@ -131,6 +134,7 @@ export function StarField() {
         uniform float uSpectral;
         uniform float uPixelRatio;
         uniform float uCamDist;
+        uniform float uFocus;
         varying vec3 vColor;
         varying float vAlpha;
         void main() {
@@ -143,7 +147,7 @@ export function StarField() {
           // Solar System, so the immediate view stays clean and planets are
           // clearly visible up close. Named stars are always visible.
           float bgFade = smoothstep(120.0, 900.0, uCamDist);
-          float visibility = mix(1.0, bgFade, aIsBg);
+          float visibility = mix(1.0, bgFade, aIsBg) * uFocus;
           gl_PointSize = clamp(size * mix(1.0, bgFade, aIsBg * 0.6), 1.0, 80.0);
           vAlpha = clamp(1.0 - (length(mv.xyz) / 4000.0), 0.15, 1.0) * visibility;
           gl_Position = projectionMatrix * mv;

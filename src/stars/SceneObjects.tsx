@@ -1,6 +1,8 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
+import { useStore } from "./store";
+import { SUN_RADIUS, simulation, bodyOrientation } from "./simulation";
 
 export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
@@ -12,15 +14,18 @@ export function Sun() {
     () => ({
       uniforms: { uTime: { value: 0 } },
       vertexShader: /* glsl */ `
+        #include <logdepthbuf_pars_vertex>
         varying vec3 vPos;
         varying vec3 vNormal;
         void main() {
           vPos = position;
           vNormal = normalize(normalMatrix * normal);
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+          #include <logdepthbuf_vertex>
         }
       `,
       fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
         uniform float uTime;
         varying vec3 vPos;
         varying vec3 vNormal;
@@ -43,6 +48,7 @@ export function Sun() {
         }
 
         void main(){
+          #include <logdepthbuf_fragment>
           vec3 p = normalize(vPos) * 2.0;
           float n = fbm(p + vec3(uTime*0.15));
           float hot = fbm(p*2.0 - vec3(uTime*0.25));
@@ -64,11 +70,14 @@ export function Sun() {
     const t = clock.elapsedTime;
     if (meshRef.current) {
       (meshRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
-      meshRef.current.rotation.y = t * 0.05;
+      const pole = new THREE.Quaternion();
+      const spin = bodyOrientation("Sun", pole);
+      meshRef.current.quaternion.copy(pole);
+      meshRef.current.rotateY(spin);
     }
     if (coronaRef.current) {
       // corona stays a visible fraction of the now much smaller Solar System
-      const s = 0.16 + Math.sin(t * 0.8) * 0.006;
+      const s = SUN_RADIUS * (5 + Math.sin(t * 0.8) * 0.1);
       coronaRef.current.scale.set(s, s, 1);
     }
   });
@@ -76,10 +85,10 @@ export function Sun() {
   return (
     <group>
       <mesh ref={meshRef}>
-        <sphereGeometry args={[0.015, 48, 32]} />
+        <sphereGeometry args={[SUN_RADIUS, 48, 32]} />
         <shaderMaterial args={[shader]} />
       </mesh>
-      <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />
+      <pointLight color="#fff4e0" intensity={2} distance={0} decay={0} />
       <sprite ref={coronaRef}>
         <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent opacity={0.35} />
       </sprite>
@@ -411,12 +420,14 @@ export function MilkyWay() {
     return CACHED_MW;
   }, []);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
     if (!groupRef.current) return;
     // Galaxy itself is fixed; differential rotation happens in the shader.
     // We only counter-rotate by the Sun's omega so the Sun (at R0) appears
     // to orbit while the bulk-flow frame stays comprehensible.
     shader.uniforms.uTime.value = clock.elapsedTime;
+    const target = useStore.getState().visitPlanet ? 0.025 : 1;
+    shader.uniforms.uFocus.value += (target - shader.uniforms.uFocus.value) * (1 - Math.exp(-1.2 * dt));
   });
 
   const shader = useMemo(
@@ -431,6 +442,7 @@ export function MilkyWay() {
         // viewer's reference (matches camera at origin).
         uOmegaSun: { value: (2 * Math.PI) / SUN_ORBIT_PERIOD_SEC },
         uDifferential: { value: 1.0 },
+        uFocus: { value: 1 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
@@ -464,11 +476,12 @@ export function MilkyWay() {
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
+        uniform float uFocus;
         varying vec3 vColor;
         void main(){
           vec4 t = texture2D(uTex, gl_PointCoord);
           if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a);
+          gl_FragColor = vec4(vColor, t.a * uFocus);
         }
       `,
       vertexColors: true,
