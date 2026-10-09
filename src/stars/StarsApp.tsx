@@ -8,6 +8,7 @@ import { DetailedGalaxies } from "./GalaxyDetail";
 import { Planets, SolarSystem, MotionTrails } from "./Planets";
 import { StarLabels, BinaryMarkers } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
+import { ExoSystem } from "./ExoSystem";
 import {
   InfoPanel,
   TopLeftControls,
@@ -59,6 +60,7 @@ export function StarsApp() {
           <Andromeda />
           <DetailedGalaxies />
           <ObservedObjects />
+          <ExoSystem />
           <SolarSystem>
             <Sun />
             <Planets />
