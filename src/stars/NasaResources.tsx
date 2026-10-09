@@ -3,74 +3,103 @@ import { useEffect, useState, type ReactNode } from "react";
 
 type NasaImage = { id: string; title: string; thumb: string; page: string; credit: string };
 
-const PLANET_PAGES = new Set(["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune", "pluto"]);
-
-/** Official NASA page for the object (planet pages are direct; everything else uses NASA's own search). */
-export function nasaLink(name: string): string {
-  const key = name.trim().toLowerCase();
-  if (PLANET_PAGES.has(key)) return `https://science.nasa.gov/${key === "pluto" ? "dwarf-planets/pluto" : key}/`;
-  if (key === "sun") return "https://science.nasa.gov/sun/";
-  if (key === "moon") return "https://science.nasa.gov/moon/";
-  if (key === "milky way") return "https://science.nasa.gov/universe/galaxies/";
-  return `https://www.nasa.gov/?search=${encodeURIComponent(name)}`;
+const PLANET_PAGES = new Set(["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"]);
+const MOONS: Record<string, string> = { moon: "moon", io: "jupiter/jupiter-moons/io", europa: "jupiter/jupiter-moons/europa", ganymede: "jupiter/jupiter-moons/ganymede", callisto: "jupiter/jupiter-moons/callisto", titan: "saturn/moons/titan", enceladus: "saturn/moons/enceladus", triton: "neptune/neptune-moons/triton", phobos: "mars/moons/phobos", deimos: "mars/moons/deimos", charon: "dwarf-planets/pluto/moons/charon" };
+const MESSIER: Record<string, number> = { andromeda: 31, "andromeda galaxy": 31, triangulum: 33, "triangulum galaxy": 33, whirlpool: 51, "whirlpool galaxy": 51, sombrero: 104, "sombrero galaxy": 104, "pinwheel galaxy": 101, "bode's galaxy": 81, "cigar galaxy": 82, "black eye galaxy": 64, "sunflower galaxy": 63, "crab nebula": 1, "crab pulsar": 1, "southern pinwheel": 83, "southern pinwheel galaxy": 83, m87: 87, "messier 87": 87, "virgo a": 87, "m87*": 87 };
+const DIRECT: Record<string, string> = {
+  sun: "https://science.nasa.gov/sun/",
+  pluto: "https://science.nasa.gov/dwarf-planets/pluto/",
+  "milky way": "https://science.nasa.gov/resource/the-milky-way-galaxy/",
+  "sagittarius a*": "https://science.nasa.gov/resource/sagittarius-a/",
+  "large magellanic cloud": "https://science.nasa.gov/missions/hubble/hubble-views-the-large-magellanic-cloud/",
+  "cygnus x-1": "https://chandra.harvard.edu/photo/2011/cygx1/",
+  betelgeuse: "https://science.nasa.gov/missions/hubble/hubble-finds-that-betelgeuses-mysterious-dimming-is-due-to-a-traumatic-outburst/",
+  "alpha centauri": "https://science.nasa.gov/missions/hubble/hubbles-best-image-of-alpha-centauri-a-and-b/",
+  "proxima centauri": "https://science.nasa.gov/resource/proxima-centauri/",
+  "3c 273": "https://science.nasa.gov/missions/hubble/hubble-sees-the-brightest-quasar-in-the-early-universe/",
+};
+const norm = (n: string) => n.trim().toLowerCase();
+/** Direct official NASA document for the object when known; otherwise the NASA library record of its best real image. */
+export function nasaLink(name: string, fallback?: string): string {
+  const key = norm(name);
+  if (PLANET_PAGES.has(key)) return `https://science.nasa.gov/${key}/`;
+  if (MOONS[key]) return `https://science.nasa.gov/${MOONS[key]}/`;
+  if (DIRECT[key]) return DIRECT[key];
+  const m = MESSIER[key] ?? Number(key.match(/^(?:m|messier)\s?(\d{1,3})$/)?.[1] ?? NaN);
+  if (m) return `https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-${m}/`;
+  if (fallback) return fallback;
+  return `https://exoplanets.nasa.gov/search/?q=${encodeURIComponent(name)}`;
 }
 
-const TELESCOPE_WORDS = /hubble|webb|jwst|chandra|spitzer|herschel|galex|wise|kepler|tess|juno|cassini|voyager|new horizons|messenger|magellan|galileo|sdo|soho|lro|mro|fermi|nustar|observatory|telescope/i;
+const TELESCOPE_WORDS = /hubble|webb|jwst|chandra|spitzer|herschel|galex|wise|kepler|tess|juno|cassini|voyager|new horizons|messenger|galileo|sdo|soho|lro|mro|fermi|nustar|telescope|observatory/i;
+const BAD = /artist|illustration|concept|animation|graphic|rendering|celebration|logo|poster|infographic|diagram|chart|simulat/i;
 const cache = new Map<string, NasaImage[]>();
 
-/** Real images from NASA's official Image and Video Library (images.nasa.gov) only. */
-async function fetchNasaImages(query: string): Promise<NasaImage[]> {
-  const hit = cache.get(query);
-  if (hit) return hit;
-  const res = await fetch(`https://images-api.nasa.gov/search?q=${encodeURIComponent(query)}&media_type=image&page_size=40`);
-  if (!res.ok) throw new Error("NASA library unavailable");
+function variants(name: string, query?: string): string[] {
+  const clean = name.replace(/[*()]/g, "").replace(/\s+/g, " ").trim();
+  const key = norm(name);
+  const v = [query, clean];
+  const m = MESSIER[key];
+  if (m) v.push(`Messier ${m}`, `M${m}`);
+  if (/galaxy/i.test(key) === false) v.push(`${clean} Hubble`, `${clean} Chandra`);
+  if (key.includes("sagittarius a")) v.push("Milky Way center Chandra", "galactic center");
+  if (key.includes("cygnus x-1")) v.push("Cygnus X-1 black hole");
+  return [...new Set(v.filter(Boolean) as string[])];
+}
+
+async function searchOnce(q: string, mustWords: string[]): Promise<{ score: number; img: NasaImage }[]> {
+  const res = await fetch(`https://images-api.nasa.gov/search?q=${encodeURIComponent(q)}&media_type=image&page_size=50`);
+  if (!res.ok) return [];
   const json = await res.json();
-  const words = query.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
   const items: Array<{ data?: any[]; links?: { href: string }[] }> = json?.collection?.items ?? [];
-  const scored = items
-    .map((it) => {
-      const d = it.data?.[0];
-      const thumb = it.links?.[0]?.href;
-      if (!d || !thumb) return null;
-      const text = `${d.title} ${d.description ?? ""} ${(d.keywords ?? []).join(" ")}`;
-      const lower = String(d.title).toLowerCase();
-      const nameScore = words.every((w) => lower.includes(w)) ? 3 : words.some((w) => lower.includes(w)) ? 1 : 0;
-      if (nameScore === 0) return null;
-      const score = nameScore + (TELESCOPE_WORDS.test(text) ? 2 : 0) - (/artist|illustration|concept|animation|graphic/i.test(text) ? 10 : 0);
-      return {
-        score,
-        img: {
-          id: d.nasa_id,
-          title: d.title,
-          thumb: thumb.replace("~thumb", "~medium"),
-          page: `https://images.nasa.gov/details/${encodeURIComponent(d.nasa_id)}`,
-          credit: d.secondary_creator || (d.center ? `NASA ${d.center}` : "NASA"),
-        } as NasaImage,
-      };
-    })
-    .filter((x): x is { score: number; img: NasaImage } => !!x && x.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .map((x) => x.img);
-  cache.set(query, scored);
-  return scored;
+  return items.flatMap((it) => {
+    const d = it.data?.[0];
+    const thumb = it.links?.find((l) => /~(medium|small|large|orig)/.test(l.href))?.href ?? it.links?.[0]?.href;
+    if (!d || !thumb) return [];
+    const text = `${d.title} ${d.description ?? ""} ${(d.keywords ?? []).join(" ")}`;
+    if (BAD.test(`${d.title} ${(d.keywords ?? []).join(" ")}`)) return [];
+    const lt = String(d.title).toLowerCase();
+    const lx = text.toLowerCase();
+    const titleHit = mustWords.length && mustWords.every((w) => lt.includes(w)) ? 4 : mustWords.some((w) => lt.includes(w)) ? 2 : 0;
+    const textHit = mustWords.every((w) => lx.includes(w)) ? 1 : 0;
+    if (!titleHit && !textHit) return [];
+    const score = titleHit + textHit + (TELESCOPE_WORDS.test(text) ? 2 : 0) - (/artist|illustration|concept/i.test(d.description ?? "") ? 4 : 0);
+    return [{ score, img: { id: d.nasa_id, title: d.title, thumb: thumb.replace(/~(thumb|small)\./, "~medium."), page: `https://images.nasa.gov/details/${encodeURIComponent(d.nasa_id)}`, credit: d.secondary_creator || d.photographer || (d.center ? `NASA ${d.center}` : "NASA") } }];
+  });
+}
+
+/** Real images from NASA's official Image and Video Library (images.nasa.gov) only. */
+async function fetchNasaImages(name: string, query?: string): Promise<NasaImage[]> {
+  const ck = `${name}|${query ?? ""}`;
+  const hit = cache.get(ck);
+  if (hit) return hit;
+  const all = new Map<string, { score: number; img: NasaImage }>();
+  for (const q of variants(name, query)) {
+    const words = q.toLowerCase().replace(/[*()]/g, "").split(/\s+/).filter((w) => w.length > 2 && !/^(hubble|chandra|planet|galaxy)$/.test(w));
+    const res = await searchOnce(q, words.length ? words : [q.toLowerCase()]);
+    for (const r of res) if (!all.has(r.img.id) || all.get(r.img.id)!.score < r.score) all.set(r.img.id, r);
+    if ([...all.values()].filter((x) => x.score >= 4).length >= 3) break;
+  }
+  const seen = new Set<string>();
+  const out = [...all.values()].sort((a, b) => b.score - a.score).map((x) => x.img).filter((i) => { const t = i.title.toLowerCase(); if (seen.has(t)) return false; seen.add(t); return true; }).slice(0, 3);
+  cache.set(ck, out);
+  return out;
 }
 
 export function NasaResources({ name, query }: { name: string; query?: string }) {
-  const q = query ?? name;
-  const [images, setImages] = useState<NasaImage[] | null>(null);
+    const [images, setImages] = useState<NasaImage[] | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let alive = true;
     setImages(null);
     setFailed(false);
-    fetchNasaImages(q)
+    fetchNasaImages(name, query)
       .then((r) => alive && setImages(r))
       .catch(() => alive && setFailed(true));
     return () => {
       alive = false;
     };
-  }, [q]);
+  }, [name, query]);
 
   return (
     <div className="mt-7">
@@ -94,7 +123,7 @@ export function NasaResources({ name, query }: { name: string; query?: string })
         </div>
       )}
       <a
-        href={nasaLink(name)}
+        href={nasaLink(name, images?.[0]?.page)}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-4 flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-xs uppercase tracking-[0.18em] text-white transition hover:bg-white/20"
