@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import type { PlanId } from "@/lib/plans";
+import type { Currency, PlanId } from "@/lib/plans";
 import { confirmRazorpayPayment, createRazorpayCheckout } from "@/lib/razorpay.functions";
 
 type RazorpayResponse = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
@@ -32,14 +32,14 @@ function loadCheckout() {
   return checkoutScript;
 }
 
-export function RazorpayCheckout({ planId, label }: { planId: PlanId; label: string }) {
+export function RazorpayCheckout({ planId, currency, label }: { planId: PlanId; currency: Currency; label: string }) {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const openCheckout = async () => {
     setBusy(true);
     try {
       await loadCheckout();
-      const order = await createRazorpayCheckout({ data: { planId } });
+      const order = await createRazorpayCheckout({ data: { planId, currency } });
       const Razorpay = window.Razorpay;
       if (!Razorpay) throw new Error("Payment window is unavailable");
       const checkout = new Razorpay({
