@@ -1,0 +1,125 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.5",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://owscsssrnfmvfkllyldt.supabase.co/auth/v1",
+    "require_oauth_client_claim": true,
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "stellar-journeys",
+      "version": "0.1.0",
+      "title": "Stellar Journeys"
+    },
+    "tools": [
+      {
+        "name": "search_catalog",
+        "title": "Search the universe catalog",
+        "description": "Search stars, galaxies and exotic objects (black holes, quasars, pulsars) shown in the 3D universe by name.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Part of an object name, e.g. 'Sirius', 'M31', 'Crab'."
+            },
+            "kind": {
+              "default": "any",
+              "description": "Restrict to one catalog.",
+              "type": "string",
+              "enum": [
+                "any",
+                "star",
+                "galaxy",
+                "object"
+              ]
+            },
+            "limit": {
+              "default": 15,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_catalog_entry",
+        "title": "Get object details",
+        "description": "Return the full scientific details of one star, galaxy or exotic object by its exact catalog name.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Exact name as returned by search_catalog."
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_access_plans",
+        "title": "List access plans",
+        "description": "List the fixed-term universe access passes with their INR and USD prices.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_access",
+        "title": "Get my access status",
+        "description": "Show whether the signed-in user has an active universe pass and when it expires.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
