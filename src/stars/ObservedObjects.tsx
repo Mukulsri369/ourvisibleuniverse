@@ -497,6 +497,86 @@ function JetPlume({
   );
 }
 
+// Camera-facing relativistic lensing layer. Approximates a ray-traced
+// Schwarzschild image analytically: black shadow (≈2.6 r_s apparent), a thin
+// photon ring at the critical impact parameter, the lensed far side of the
+// disk arching over and under the shadow, Doppler beaming (approaching side
+// brighter and bluer) and a faint Einstein ring of lensed background light.
+const LENS_VERT = /* glsl */ `
+varying vec2 vUv;
+void main() {
+  vUv = uv * 2.0 - 1.0;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+}`;
+const LENS_FRAG = /* glsl */ `
+uniform vec3 uColor;
+uniform float uTime;
+uniform float uSpin;
+varying vec2 vUv;
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1,0)), f.x), mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), f.x), f.y);
+}
+void main() {
+  // Units: 1.0 = billboard half-size; shadow edge at 0.19.
+  vec2 p = vUv;
+  float r = length(p);
+  float ang = atan(p.y, p.x);
+  float shadow = 0.19;
+  if (r < shadow) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
+  // Photon ring at the critical curve
+  float ring = exp(-pow((r - 0.205) / 0.006, 2.0)) * 1.6;
+  ring += exp(-pow((r - 0.214) / 0.003, 2.0)) * 0.8; // secondary (n=2) image
+  // Lensed far-side disk: an elliptical band squashed vertically that wraps
+  // above and below the shadow.
+  vec2 q = vec2(p.x, p.y * 1.0);
+  float rr = length(q);
+  float swirl = ang + uTime * uSpin * 0.6 / pow(max(rr, 0.2), 1.5);
+  float turb = 0.55 + 0.45 * noise(vec2(swirl * 6.0, rr * 40.0));
+  float arcBand = smoothstep(0.215, 0.24, rr) * (1.0 - smoothstep(0.30, 0.46, rr));
+  float vertical = smoothstep(0.05, 0.6, abs(p.y) / max(rr, 1e-3));
+  float arc = arcBand * vertical * turb * 0.9;
+  // Doppler beaming: approaching (left) side boosted ~ (1+beta cos)^3
+  float beta = 0.45;
+  float dop = pow(1.0 + beta * (-p.x / max(r, 1e-3)), 3.0) / 1.6;
+  vec3 hot = mix(uColor, vec3(1.0, 0.95, 0.85), 0.55);
+  vec3 col = hot * (ring + arc) * dop;
+  col = mix(col, col * vec3(0.75, 0.85, 1.25), clamp(-p.x / max(r, 1e-3), 0.0, 1.0) * 0.5);
+  // Einstein ring of lensed background light
+  float ein = exp(-pow((r - 0.52) / 0.035, 2.0)) * 0.12;
+  col += vec3(0.75, 0.82, 1.0) * ein;
+  float a = clamp(max(max(col.r, col.g), col.b), 0.0, 1.0);
+  a *= 1.0 - smoothstep(0.8, 1.0, r);
+  gl_FragColor = vec4(col, a);
+}`;
+
+function LensingHalo({ color, spin }: { color: string; spin: number }) {
+  const uniforms = useMemo(
+    () => ({ uColor: { value: new THREE.Color(color) }, uTime: { value: 0 }, uSpin: { value: spin } }),
+    [color, spin],
+  );
+  useFrame(({ clock }) => {
+    uniforms.uTime.value = clock.elapsedTime;
+  });
+  return (
+    <Billboard>
+      <mesh renderOrder={2}>
+        <planeGeometry args={[2, 2]} />
+        <shaderMaterial
+          vertexShader={LENS_VERT}
+          fragmentShader={LENS_FRAG}
+          uniforms={uniforms}
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </Billboard>
+  );
+}
+
 function AccretionDisk({
   item,
   profile,
@@ -626,6 +706,7 @@ function AccretionDisk({
           />
         </mesh>
       ))}
+      <LensingHalo color={item.accent} spin={spin} />
       {/* X-ray corona hugging the horizon */}
       <mesh>
         <sphereGeometry args={[0.27, 28, 20]} />
