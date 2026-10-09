@@ -84,6 +84,8 @@ interface State {
   cameraDistance: number;
   flyTo: { x: number; y: number; z: number; distance: number } | null;
   visitPlanet: string | null;
+  exoVisit: { star: NamedStar; planet: string } | null;
+  visitExoPlanet: (star: NamedStar, planet: string) => void;
   visitGalaxy: VisitGalaxy | null;
   selectedObjectId: string | null;
   uiHidden: boolean;
@@ -159,6 +161,18 @@ export const useStore = create<State>((set, get) => ({
   cameraDistance: 8,
   flyTo: null,
   visitPlanet: null,
+  exoVisit: null,
+  visitExoPlanet: (star, planet) =>
+    set({
+      visitPlanet: planet,
+      exoVisit: { star, planet },
+      selectedStar: null,
+      tourActive: false,
+      visitGalaxy: null,
+      selectedObjectId: null,
+      flyTo: null,
+      cameraFree: false,
+    }),
   visitGalaxy: null,
   selectedObjectId: null,
   uiHidden: false,
@@ -166,7 +180,7 @@ export const useStore = create<State>((set, get) => ({
   zoomSpeed: 50,
   systemSpeed: 25,
   trailSize: 50,
-  setSelected: (s) => set({ selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
+  setSelected: (s) => set({ exoVisit: null, selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
   startTour: () =>
     set({
@@ -191,6 +205,7 @@ export const useStore = create<State>((set, get) => ({
   flyToStar: (s) =>
     set({
       flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 },
+      exoVisit: null,
       selectedStar: s,
       visitPlanet: null,
       visitGalaxy: null,
@@ -200,6 +215,7 @@ export const useStore = create<State>((set, get) => ({
   setVisitPlanet: (name) =>
     set({
       visitPlanet: name,
+      exoVisit: null,
       selectedStar: null,
       tourActive: false,
       visitGalaxy: null,
@@ -210,6 +226,7 @@ export const useStore = create<State>((set, get) => ({
   setVisitGalaxy: (g) =>
     set({
       visitGalaxy: g ? withFocus(g) : null,
+      exoVisit: null,
       selectedStar: null,
       visitPlanet: null,
       selectedObjectId: null,
@@ -232,6 +249,7 @@ export const useStore = create<State>((set, get) => ({
     const [x, y, z] = objectPosition(item);
     set({
       selectedObjectId: id,
+      exoVisit: null,
       selectedStar: null,
       visitPlanet: null,
       visitGalaxy: null,
