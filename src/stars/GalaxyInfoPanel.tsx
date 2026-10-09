@@ -106,6 +106,7 @@ export function GalaxyInfoPanel() {
             {visit.type}
             {detailed && <span className="ml-2 text-white/60">✦ Fully modelled</span>}
           </div>
+          <NasaResources name={visit.name} alt={[`${visit.type} galaxy Hubble`, "galaxy Hubble"]} />
 
           <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
             <GStat label="Distance" value={formatLy(visit.distance)} />
@@ -163,7 +164,6 @@ export function GalaxyInfoPanel() {
               population is a morphology-based particle reconstruction; no fictional planetary system has been added.
             </p>
           ) : null}
-          <NasaResources name={visit.name} />
         </motion.aside>
         )}</HideablePanel>
       )}

@@ -41,6 +41,7 @@ export function InfoPanel() {
           <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">
             {star.constellation}
           </div>
+          <NasaResources name={star.name} query={`${star.name} star ${star.constellation}`} />
           <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
             <Stat label="Distance" value={`${star.distance.toFixed(2)} ly`} />
             <Stat label="Spectral type" value={star.spectral} />
@@ -76,7 +77,6 @@ export function InfoPanel() {
               </ul>
             </div>
           ) : null}
-          <NasaResources name={star.name} />
         </motion.aside>
         )}</HideablePanel>
       )}
@@ -826,6 +826,7 @@ export function PlanetNavigator() {
                 ✕
               </button>
             </div>
+            <NasaResources name={current.name} query={`${current.name}`} />
             <p className="mt-3 text-xs leading-relaxed text-white/70">{current.description}</p>
             <div className="mt-4 grid grid-cols-2 gap-y-2 text-[11px] text-white/70">
               <span className="text-white/40">Distance</span>
@@ -843,7 +844,6 @@ export function PlanetNavigator() {
                 </>
               ) : null}
             </div>
-            <NasaResources name={current.name} query={`${current.name}`} />
           </motion.div>
         )}
       </AnimatePresence>

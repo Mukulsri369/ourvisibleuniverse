@@ -97,6 +97,7 @@ export function ObservedObjectInfoPanel() {
           <div className="mt-1 text-xs uppercase tracking-[0.18em] text-white/45">
             {item.subtype}
           </div>
+          <NasaResources name={item.name} query={item.aliases[0]} alt={[...item.aliases, item.subtype]} />
           <div className="mt-6 grid grid-cols-2 gap-y-4">
             <Stat label="Category" value={item.category} />
             <Stat label="Distance" value={distanceLabel(item.distance)} />
@@ -165,7 +166,6 @@ export function ObservedObjectInfoPanel() {
               <span className="text-white/65">Catalog IDs:</span> {item.aliases.join(" · ")}
             </div>
           )}
-          <NasaResources name={item.name} />
         </motion.aside>
         )}</HideablePanel>
       )}
