@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { exoSystemFor } from "./exosystems";
 import { useStore } from "./store";
+import { HideablePanel } from "./NasaResources";
 
 /** Flight dossier shown while the camera is visiting an exoplanet. */
 export function ExoPlanetPanel() {
@@ -14,7 +15,7 @@ export function ExoPlanetPanel() {
   return (
     <AnimatePresence>
       {exo && sys && p && (
-        <motion.aside
+        <HideablePanel resetKey={p.name} label={p.name}>{(hide) => <motion.aside
           key={p.name}
           onClick={(e) => e.stopPropagation()}
           initial={{ x: 400, opacity: 0 }}
@@ -24,6 +25,7 @@ export function ExoPlanetPanel() {
           className="fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
           style={{ background: "rgba(8,10,24,0.78)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
         >
+          {hide}
           <button
             onClick={() => flyToStar(exo.star)}
             aria-label="Close"
@@ -89,7 +91,7 @@ export function ExoPlanetPanel() {
               Study on NASA Exoplanet Archive ↗
             </a>
           )}
-        </motion.aside>
+        </motion.aside>}</HideablePanel>
       )}
     </AnimatePresence>
   );

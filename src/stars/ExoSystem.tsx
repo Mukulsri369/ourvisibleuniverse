@@ -120,7 +120,7 @@ void main(){
     // hot jupiter: glowing dayside hot spot / thermal emission on nightside
     emit = vec3(1.0,0.35,0.1) * uHot * (0.15 + 0.5*smoothstep(0.6,1.0,ndl));
   }
-  vec3 lit = col * (0.12 + day * max(ndl, 0.0) * 1.15);
+  vec3 lit = col * (0.28 + day * max(ndl, 0.0) * 1.15);
   vec3 Hh = normalize(L + V);
   lit += vec3(1.0,0.95,0.85) * spec * pow(max(dot(N,Hh),0.0), 60.0) * day * 0.9;
   // Rayleigh limb for habitable / gas worlds
