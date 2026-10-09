@@ -15,7 +15,7 @@ export function SolarBodyPanel() {
   const body = satellite?.moon ?? planet;
   const ephemeris = !satellite || ["Moon", "Io", "Europa", "Ganymede", "Callisto"].includes(body.name);
   return <HideablePanel resetKey={visit} label={body.name}>{(hide) => (
-    <aside className="fixed right-0 top-0 z-30 max-h-[70vh] w-full max-w-[380px] overflow-y-auto border-l border-border bg-background/95 p-6 text-foreground backdrop-blur-md md:max-h-screen md:h-full">
+    <aside className="dark fixed right-0 top-0 z-30 max-h-[70vh] w-full max-w-[380px] overflow-y-auto border-l border-border bg-background/95 p-6 text-foreground backdrop-blur-md md:max-h-screen md:h-full">
       {hide}
       <Button variant="ghost" size="icon" className="absolute right-3 top-3" aria-label="Exit body visit" onClick={() => setVisit(null)}>×</Button>
       <p className="text-xs text-muted-foreground">{satellite ? `${planet.name} · Moon` : "Solar System"}</p>

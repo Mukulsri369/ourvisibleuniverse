@@ -65,6 +65,7 @@ export function InfoPanel() {
           <p className="text-sm leading-relaxed text-white/75">{star.description}</p>
 
           <StarDerived star={star} />
+          <ExoSystemSection star={star} />
 
 
           {star.companions?.length ? (

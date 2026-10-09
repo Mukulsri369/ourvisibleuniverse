@@ -5,8 +5,7 @@ import { exoSystemFor, type ExoKind, type ExoPlanet } from "./exosystems";
 import { useStore } from "./store";
 import { SYSTEM_AU, EARTH_RADIUS, SUN_RADIUS, simulation, eccentricAnomaly } from "./simulation";
 
-// Same presentation scale as the Solar System (1 AU = 0.05 ly; planets
-// enlarged for visibility), so systems compare 1:1 with ours.
+// One local presentation conversion for both AU distances and physical radii.
 const AU = SYSTEM_AU;
 const EARTH_R = EARTH_RADIUS;
 
@@ -53,12 +52,13 @@ function seedOf(name: string) {
 
 const SURF_VERT = /* glsl */ `
 #include <logdepthbuf_pars_vertex>
-varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
+varying vec3 vObj; varying vec3 vN; varying vec3 vView;
 void main(){
   vObj = normalize(position);
   vN = normalize(mat3(modelMatrix) * normal);
   vec4 w = modelMatrix * vec4(position,1.0);
-  vWorld = position;
+  vView = -(modelViewMatrix * vec4(position,1.0)).xyz;
+  vN = normalize(normalMatrix * normal);
   gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
   #include <logdepthbuf_vertex>
 }`;
@@ -67,7 +67,7 @@ const SURF_FRAG = /* glsl */ `
 #include <logdepthbuf_pars_fragment>
 uniform vec3 uColor; uniform vec3 uStar; uniform float uMode; uniform float uSeed;
 uniform float uTime; uniform float uHot; uniform float uLocked;
-varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
+varying vec3 vObj; varying vec3 vN; varying vec3 vView;
 float h(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
 float n3(vec3 p){
   vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
@@ -80,7 +80,7 @@ void main(){
   vec3 P = vObj * 2.2 + uSeed;
   vec3 L = normalize(uStar);
   vec3 N = normalize(vN);
-  vec3 V = N;
+  vec3 V = normalize(vView);
   float ndl = dot(N, L);
   float day = smoothstep(-0.08, 0.25, ndl);
   vec3 col; float spec = 0.0; vec3 emit = vec3(0.0);
@@ -180,13 +180,13 @@ function ExoBody({ p, starName, starPos, onPick }: {
       material.dispose();
     };
   }, [p.name, size, material]);
-  useFrame(({ clock }, dt) => {
+  useFrame(({ clock, camera }) => {
     if (!ref.current) return;
     const mean = p.phase + simulation.days / (p.periodYears * 365.25) * Math.PI * 2;
     const ang = eccentricAnomaly(mean, p.e);
     ref.current.position.copy(orbitPoint(p, ang, tmp));
     ref.current.getWorldPosition(world);
-    material.uniforms.uStar.value.copy(tmp).negate();
+    material.uniforms.uStar.value.copy(tmp).negate().transformDirection(camera.matrixWorldInverse);
     registry().set(p.name, world.clone());
     material.uniforms.uTime.value = clock.elapsedTime;
     // Tidally locked worlds keep one face to the star; others spin.

@@ -857,7 +857,12 @@ function MinorBodies() {
   }, []);
 
   const beltTick = useRef(0);
-  useFrame(({ clock }) => {
+  const beltMaterial = useRef<THREE.PointsMaterial>(null);
+  useFrame((_, dt) => {
+    if (beltMaterial.current) {
+      const opacity = useStore.getState().visitPlanet ? 0.015 : 0.85;
+      beltMaterial.current.opacity += (opacity - beltMaterial.current.opacity) * (1 - Math.exp(-1.2 * dt));
+    }
     // Rewriting tens of thousands of belt positions every frame is pure CPU
     // cost for motion the eye can't resolve; every 3rd frame looks identical.
     if (beltTick.current++ % 3 !== 0) return;
@@ -875,7 +880,7 @@ function MinorBodies() {
 
   return (
     <points geometry={geom} frustumCulled={false}>
-      <pointsMaterial vertexColors size={0.18 * P} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
+      <pointsMaterial ref={beltMaterial} vertexColors size={0.18 * P} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
     </points>
   );
 }
