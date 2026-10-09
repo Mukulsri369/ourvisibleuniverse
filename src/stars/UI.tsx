@@ -8,6 +8,7 @@ import { AU, PLANETS } from "./Planets";
 import { NAMED_GALAXIES } from "./Universe";
 import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
+import { exoSystemFor } from "./exosystems";
 
 export function InfoPanel() {
   const star = useStore((s) => s.selectedStar);
@@ -89,6 +90,46 @@ export function InfoPanel() {
  * (no new observations): standard relations for colour temperature, habitable
  * zone, main-sequence lifetime and surface gravity.
  */
+function ExoSystemSection({ star }: { star: NamedStar }) {
+  if (star.name === "Sun") return null;
+  const sys = exoSystemFor(star);
+  return (
+    <div className="mt-6">
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">Modelled planetary system</div>
+      <p className="mt-2 text-xs leading-relaxed text-white/50">
+        Procedurally generated from this star's real mass, luminosity and temperature — an
+        illustration of a physically plausible system, not observed planets. Green orbits lie in
+        the habitable zone ({sys.hzInner.toFixed(2)}–{sys.hzOuter.toFixed(2)} AU); snow line at{" "}
+        {sys.snowLine.toFixed(2)} AU.
+      </p>
+      {sys.planets.length === 0 ? (
+        <p className="mt-2 text-sm text-white/60">No stable orbits modelled for this star.</p>
+      ) : (
+        <ul className="mt-3 space-y-2">
+          {sys.planets.map((p) => (
+            <li key={p.name} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-white/70">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-white">{p.name}</span>
+                <span className={p.inHZ ? "text-emerald-300" : "text-white/50"}>{p.kind}</span>
+              </div>
+              <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5">
+                <span>a = {p.aAU.toFixed(3)} AU</span>
+                <span>e = {p.e.toFixed(2)}</span>
+                <span>P = {p.periodYears < 1 ? `${(p.periodYears * 365.25).toFixed(1)} d` : `${p.periodYears.toFixed(2)} yr`}</span>
+                <span>T_eq ≈ {Math.round(p.teqK)} K</span>
+                <span>R ≈ {p.radiusEarth.toFixed(2)} R⊕</span>
+                <span>M ≈ {p.massEarth.toFixed(1)} M⊕</span>
+                <span>ESI ≈ {p.esi.toFixed(2)}</span>
+                <span>{p.tidallyLocked ? "Tidally locked" : "Free rotation"}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function StarDerived({ star }: { star: NamedStar }) {
   const pc = star.distance / 3.26156;
   const peakNm = star.temperature > 0 ? 2.8977719e6 / star.temperature : 0;
