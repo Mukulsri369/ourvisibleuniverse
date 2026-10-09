@@ -93,13 +93,17 @@ export function InfoPanel() {
 function ExoSystemSection({ star }: { star: NamedStar }) {
   if (star.name === "Sun") return null;
   const sys = exoSystemFor(star);
+  const observed = sys.planets.some((p) => p.observed);
   return (
     <div className="mt-6">
-      <div className="text-xs uppercase tracking-[0.2em] text-white/40">Modelled planetary system</div>
+      <div className="text-xs uppercase tracking-[0.2em] text-white/40">
+        {observed ? "Confirmed planetary system" : "Modelled planetary system"}
+      </div>
       <p className="mt-2 text-xs leading-relaxed text-white/50">
-        Procedurally generated from this star's real mass, luminosity and temperature — an
-        illustration of a physically plausible system, not observed planets. Green orbits lie in
-        the habitable zone ({sys.hzInner.toFixed(2)}–{sys.hzOuter.toFixed(2)} AU); snow line at{" "}
+        {observed
+          ? "Real confirmed exoplanets with published orbits and sizes from the NASA Exoplanet Archive."
+          : "Procedurally generated from this star's real mass, luminosity and temperature — an illustration of a physically plausible system, not observed planets."}{" "}
+        Green orbits lie in the habitable zone ({sys.hzInner.toFixed(2)}–{sys.hzOuter.toFixed(2)} AU); snow line at{" "}
         {sys.snowLine.toFixed(2)} AU.
       </p>
       {sys.planets.length === 0 ? (
