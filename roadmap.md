@@ -33,4 +33,5 @@
 - [x] Verify payment signatures and activate access idempotently
 - [x] Restore paid-access checks, account expiry, and repeat-purchase extension
 - [x] Support separate test and live credentials without exposing secrets
-- [ ] Test the signed-in checkout and access flow
+- [x] Test sign-in protection and Razorpay test checkout launch
+- [ ] Complete one test payment, then add live credentials after Razorpay activates live mode
