@@ -396,7 +396,7 @@ export function CameraRig() {
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();
     setCameraDistance(r);
-  });
+  }, -1);
 
   return null;
 }

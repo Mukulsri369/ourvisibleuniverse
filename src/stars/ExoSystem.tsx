@@ -189,16 +189,13 @@ function ExoBody({ p, starName, starPos, onPick }: {
     ref.current.getWorldPosition(world);
     material.uniforms.uStar.value.copy(tmp).negate().transformDirection(camera.matrixWorldInverse);
     registry().set(p.name, world.clone());
-    if (useStore.getState().visitPlanet === p.name) {
-      (window as unknown as { __focusDebug: unknown }).__focusDebug = { camera: camera.position.toArray(), world: world.toArray(), separation: camera.position.distanceTo(world), visible: meshRef.current?.visible, matrix: meshRef.current?.modelViewMatrix.elements };
-    }
     material.uniforms.uTime.value = clock.elapsedTime;
     // Tidally locked worlds keep one face to the star; others spin.
     if (meshRef.current) {
       if (p.tidallyLocked) meshRef.current.lookAt(starPos);
       else meshRef.current.rotation.y = simulation.days * Math.PI * 2; // modelled one-day spin
     }
-  });
+  }, -2);
   const pick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     onPick(p.name);
