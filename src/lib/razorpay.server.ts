@@ -1,5 +1,5 @@
-import type { PlanId } from "@/lib/plans";
-import { ACCESS_PLANS, isPlanId } from "@/lib/plans";
+import type { Currency, PlanId } from "@/lib/plans";
+import { ACCESS_PLANS, isCurrency, isPlanId } from "@/lib/plans";
 
 export type RazorpayMode = "test" | "live";
 
@@ -56,20 +56,20 @@ async function razorpayRequest<T>(path: string, init: RequestInit, mode: Razorpa
   return JSON.parse(body) as T;
 }
 
-export async function createRazorpayOrder(options: { planId: PlanId; userId: string; mode?: RazorpayMode }) {
+export async function createRazorpayOrder(options: { planId: PlanId; currency: Currency; userId: string; mode?: RazorpayMode }) {
   const mode = options.mode ?? getRazorpayMode();
-  const plan = ACCESS_PLANS[options.planId];
+  const price = ACCESS_PLANS[options.planId].prices[options.currency];
   const receipt = `ovu_${crypto.randomUUID().replaceAll("-", "").slice(0, 28)}`;
   const order = await razorpayRequest<RazorpayOrder>("/orders", {
     method: "POST",
     body: JSON.stringify({
-      amount: plan.amount,
-      currency: "INR",
+      amount: price.amount,
+      currency: options.currency,
       receipt,
-      notes: { userId: options.userId, planId: options.planId },
+      notes: { userId: options.userId, planId: options.planId, currency: options.currency },
     }),
   }, mode);
-  if (order.amount !== plan.amount || order.currency !== "INR") throw new Error("Razorpay returned an unexpected order");
+  if (order.amount !== price.amount || order.currency !== options.currency) throw new Error("Razorpay returned an unexpected order");
   return order;
 }
 
@@ -104,13 +104,13 @@ export async function fulfillRazorpayPayment(options: { paymentId: string; order
   const order = await razorpayRequest<RazorpayOrder>(`/orders/${encodeURIComponent(options.orderId)}`, { method: "GET" }, options.mode);
   if (payment.order_id !== order.id || payment.id !== options.paymentId) throw new Error("Payment does not match the order");
   if (!payment.captured || payment.status !== "captured") throw new Error("Payment has not been captured");
-  if (payment.amount !== order.amount || payment.currency !== "INR" || order.currency !== "INR") throw new Error("Payment amount or currency does not match");
+  if (!isCurrency(order.currency) || payment.amount !== order.amount || payment.currency !== order.currency) throw new Error("Payment amount or currency does not match");
   const userId = order.notes?.userId;
   const planId = order.notes?.planId;
   if (!userId || !isPlanId(planId)) throw new Error("Order is missing access details");
   if (options.expectedUserId && userId !== options.expectedUserId) throw new Error("Payment belongs to a different account");
   const plan = ACCESS_PLANS[planId];
-  if (order.amount !== plan.amount) throw new Error("Payment amount does not match the selected pass");
+  if (order.amount !== plan.prices[order.currency].amount) throw new Error("Payment amount does not match the selected pass");
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: expiresAt, error } = await supabaseAdmin.rpc("apply_access_purchase", {
     p_user_id: userId,

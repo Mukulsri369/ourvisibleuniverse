@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ACCESS_PLANS, isPlanId } from "@/lib/plans";
 
-const checkoutInput = z.object({ planId: z.string() });
+const checkoutInput = z.object({ planId: z.string(), currency: z.enum(["INR", "USD"]).default("INR") });
 const verificationInput = z.object({
   razorpay_order_id: z.string().min(1).max(100),
   razorpay_payment_id: z.string().min(1).max(100),
@@ -18,7 +18,7 @@ export const createRazorpayCheckout = createServerFn({ method: "POST" })
     try {
       const { createRazorpayOrder, getRazorpayConfig, getRazorpayMode } = await import("@/lib/razorpay.server");
       const mode = getRazorpayMode();
-      const order = await createRazorpayOrder({ planId: data.planId, userId: context.userId, mode });
+      const order = await createRazorpayOrder({ planId: data.planId, currency: data.currency, userId: context.userId, mode });
       const { keyId } = getRazorpayConfig(mode);
       const { data: userData } = await context.supabase.auth.getUser();
       return {
