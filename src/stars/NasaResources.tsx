@@ -89,10 +89,12 @@ async function fetchNasaImages(name: string, query?: string): Promise<NasaImage[
 export function NasaResources({ name, query, alt }: { name: string; query?: string; alt?: string[] }) {
     const [images, setImages] = useState<NasaImage[] | null>(null);
   const [failed, setFailed] = useState(false);
+  const [related, setRelated] = useState(false);
   useEffect(() => {
     let alive = true;
     setImages(null);
     setFailed(false);
+    setRelated(false);
     (async () => {
       let r = await fetchNasaImages(name, query);
       // Broader fallbacks: catalogue aliases, then the object's class — still real NASA telescope photos.
@@ -101,7 +103,7 @@ export function NasaResources({ name, query, alt }: { name: string; query?: stri
         const more = await fetchNasaImages(a);
         r = [...r, ...more.filter((m) => !r.some((x) => x.id === m.id))].slice(0, 3);
       }
-      if (r.length === 0) r = await fetchNasaImages(/galaxy/i.test(name) ? "spiral galaxy Hubble" : "star field Hubble");
+      if (r.length === 0) { setRelated(true); r = await fetchNasaImages(/galaxy/i.test(name) ? "spiral galaxy Hubble" : "star field Hubble"); }
       return r;
     })()
       .then((r) => alive && setImages(r))
@@ -117,6 +119,9 @@ export function NasaResources({ name, query, alt }: { name: string; query?: stri
       {images === null && !failed && <p className="mt-3 text-xs text-white/45">Loading images from NASA…</p>}
       {(failed || images?.length === 0) && (
         <p className="mt-3 text-xs text-white/45">No matching NASA telescope images were found for this object.</p>
+      )}
+      {images && images.length > 0 && related && (
+        <p className="mt-2 text-[11px] text-white/45">NASA has no published photo of this exact object; showing related real telescope images of similar objects.</p>
       )}
       {images && images.length > 0 && (
         <div className="mt-3 space-y-3">
