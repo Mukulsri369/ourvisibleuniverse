@@ -28,7 +28,7 @@ export function nasaLink(name: string, fallback?: string): string {
   const m = MESSIER[key] ?? Number(key.match(/^(?:m|messier)\s?(\d{1,3})$/)?.[1] ?? NaN);
   if (m) return `https://science.nasa.gov/mission/hubble/science/explore-the-night-sky/hubble-messier-catalog/messier-${m}/`;
   if (fallback) return fallback;
-  return `https://exoplanets.nasa.gov/search/?q=${encodeURIComponent(name)}`;
+  return /galax/i.test(name) ? "https://science.nasa.gov/universe/galaxies/" : "https://science.nasa.gov/universe/stars/";
 }
 
 const TELESCOPE_WORDS = /hubble|webb|jwst|chandra|spitzer|herschel|galex|wise|kepler|tess|juno|cassini|voyager|new horizons|messenger|galileo|sdo|soho|lro|mro|fermi|nustar|telescope|observatory/i;
@@ -86,23 +86,33 @@ async function fetchNasaImages(name: string, query?: string): Promise<NasaImage[
   return out;
 }
 
-export function NasaResources({ name, query }: { name: string; query?: string }) {
+export function NasaResources({ name, query, alt }: { name: string; query?: string; alt?: string[] }) {
     const [images, setImages] = useState<NasaImage[] | null>(null);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let alive = true;
     setImages(null);
     setFailed(false);
-    fetchNasaImages(name, query)
+    (async () => {
+      let r = await fetchNasaImages(name, query);
+      // Broader fallbacks: catalogue aliases, then the object's class — still real NASA telescope photos.
+      for (const a of alt ?? []) {
+        if (r.length >= 2) break;
+        const more = await fetchNasaImages(a);
+        r = [...r, ...more.filter((m) => !r.some((x) => x.id === m.id))].slice(0, 3);
+      }
+      if (r.length === 0) r = await fetchNasaImages(/galaxy/i.test(name) ? "spiral galaxy Hubble" : "star field Hubble");
+      return r;
+    })()
       .then((r) => alive && setImages(r))
       .catch(() => alive && setFailed(true));
     return () => {
       alive = false;
     };
-  }, [name, query]);
+  }, [name, query, alt?.join("|")]);
 
   return (
-    <div className="mt-7">
+    <div className="mt-5">
       <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">Space telescope images</div>
       {images === null && !failed && <p className="mt-3 text-xs text-white/45">Loading images from NASA…</p>}
       {(failed || images?.length === 0) && (
