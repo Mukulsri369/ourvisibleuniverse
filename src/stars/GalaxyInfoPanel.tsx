@@ -1,3 +1,4 @@
+import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useStore } from "./store";
 import { GALAXY_BY_NAME } from "./galaxy-models";
@@ -80,6 +81,7 @@ export function GalaxyInfoPanel() {
   return (
     <AnimatePresence>
       {visit && (
+        <HideablePanel resetKey={visit.name} label={visit.name}>{(hide) => (
         <motion.aside
           onClick={(e) => e.stopPropagation()}
           initial={{ x: 400, opacity: 0 }}
@@ -89,8 +91,10 @@ export function GalaxyInfoPanel() {
           className="pointer-events-auto fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
           style={{ background: "rgba(8,10,24,0.78)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
         >
+          {hide}
           <button
             onClick={() => setVisitGalaxy(null)}
+            
             aria-label="Close"
             className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
           >
@@ -159,7 +163,9 @@ export function GalaxyInfoPanel() {
               population is a morphology-based particle reconstruction; no fictional planetary system has been added.
             </p>
           ) : null}
+          <NasaResources name={visit.name} />
         </motion.aside>
+        )}</HideablePanel>
       )}
     </AnimatePresence>
   );

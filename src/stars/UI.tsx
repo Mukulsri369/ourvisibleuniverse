@@ -1,3 +1,4 @@
+import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -14,20 +15,23 @@ export function InfoPanel() {
   return (
     <AnimatePresence>
       {star && (
+        <HideablePanel resetKey={star.name} label={star.name}>{(hide) => (
         <motion.aside
           initial={{ x: 400, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 400, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed right-0 top-0 z-30 h-full w-full max-w-[380px] border-l border-white/10 p-7 text-white"
+          className="fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
           style={{
             background: "rgba(8,10,24,0.78)",
             backdropFilter: "blur(18px)",
             WebkitBackdropFilter: "blur(18px)",
           }}
         >
+          {hide}
           <button
             onClick={() => setSelected(null)}
+            
             aria-label="Close"
             className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
           >
@@ -72,7 +76,9 @@ export function InfoPanel() {
               </ul>
             </div>
           ) : null}
+          <NasaResources name={star.name} />
         </motion.aside>
+        )}</HideablePanel>
       )}
     </AnimatePresence>
   );
@@ -803,7 +809,7 @@ export function PlanetNavigator() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="pointer-events-auto fixed left-[17.5rem] top-1/2 z-20 hidden w-72 -translate-y-1/2 rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
+            className="pointer-events-auto fixed left-[17.5rem] top-1/2 z-20 hidden max-h-[80vh] w-72 -translate-y-1/2 overflow-y-auto rounded-xl border border-white/10 bg-black/55 p-5 backdrop-blur-md md:block"
           >
             <div className="flex items-start justify-between">
               <div>
@@ -837,6 +843,7 @@ export function PlanetNavigator() {
                 </>
               ) : null}
             </div>
+            <NasaResources name={current.name} query={`${current.name} planet`} />
           </motion.div>
         )}
       </AnimatePresence>
