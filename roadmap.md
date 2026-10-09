@@ -35,3 +35,7 @@
 - [x] Support separate test and live credentials without exposing secrets
 - [x] Test sign-in protection and Razorpay test checkout launch
 - [ ] Complete one test payment, then add live credentials after Razorpay activates live mode
+
+## VisualizeMaths companion tool
+- [x] Add sitemap button opening visualizemaths.ai.studio in a new tab
+- [x] Mention VisualizeMaths on the landing and features pages
