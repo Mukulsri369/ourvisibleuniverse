@@ -41,7 +41,8 @@ export function CameraRig() {
     const name = useStore.getState().visitPlanet;
     if (!name) return minR;
     const def = PLANETS.find((p) => p.name === name) ?? M31_PLANETS.find((p) => p.name === name) ?? GX_PLANET_INDEX.get(name)?.planet;
-    return Math.max(minR, (def?.size ?? 0) * 1.5);
+    const exo = (window as Window).__exoSizes?.get(name);
+    return Math.max(minR, (def?.size ?? exo ?? 0) * 1.5);
   };
 
   // expose for slider
@@ -231,7 +232,7 @@ export function CameraRig() {
     const def = PLANETS.find((p) => p.name === visitPlanet);
     const m31 = def ? null : M31_PLANETS.find((p) => p.name === visitPlanet);
     const gx = def || m31 ? null : GX_PLANET_INDEX.get(visitPlanet)?.planet;
-    const size = def?.size ?? m31?.size ?? gx?.size;
+    const size = def?.size ?? m31?.size ?? gx?.size ?? (window as Window).__exoSizes?.get(visitPlanet);
     if (size == null) return;
     desired.current.radius = Math.max(minR, size * 9);
     fovTarget.current = 38;
