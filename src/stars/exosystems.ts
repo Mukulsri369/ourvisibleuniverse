@@ -1,4 +1,5 @@
 import type { NamedStar } from "./data";
+import { REAL_SYSTEMS } from "./real-exoplanets";
 
 /**
  * Deterministic procedural planetary systems for catalogue stars.
@@ -33,6 +34,10 @@ export type ExoPlanet = {
   tidallyLocked: boolean;
   color: string;
   phase: number;
+  /** true for real confirmed exoplanets (not procedurally modelled) */
+  observed?: boolean;
+  /** true when the radius is estimated from mass rather than measured */
+  radiusEstimated?: boolean;
 };
 
 export type ExoSystemModel = {
