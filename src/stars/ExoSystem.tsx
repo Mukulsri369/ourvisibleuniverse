@@ -189,6 +189,9 @@ function ExoBody({ p, starName, starPos, onPick }: {
     ref.current.getWorldPosition(world);
     material.uniforms.uStar.value.copy(tmp).negate().transformDirection(camera.matrixWorldInverse);
     registry().set(p.name, world.clone());
+    if (useStore.getState().visitPlanet === p.name) {
+      (window as unknown as { __focusDebug: unknown }).__focusDebug = { camera: camera.position.toArray(), world: world.toArray(), separation: camera.position.distanceTo(world), visible: meshRef.current?.visible, matrix: meshRef.current?.modelViewMatrix.elements };
+    }
     material.uniforms.uTime.value = clock.elapsedTime;
     // Tidally locked worlds keep one face to the star; others spin.
     if (meshRef.current) {
@@ -204,7 +207,7 @@ function ExoBody({ p, starName, starPos, onPick }: {
     <>
       <primitive object={line} />
       <group ref={ref}>
-        <mesh ref={meshRef} material={material} onClick={pick}>
+        <mesh ref={meshRef} frustumCulled={false} material={material} onClick={pick}>
           <sphereGeometry args={[size, 48, 32]} />
         </mesh>
         {/* larger invisible hit target so small worlds are clickable */}
