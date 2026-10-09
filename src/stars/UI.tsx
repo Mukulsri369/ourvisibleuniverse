@@ -136,7 +136,7 @@ function ExoSystemSection({ star }: { star: NamedStar }) {
                 <span>{p.tidallyLocked ? "Tidally locked" : "Free rotation"}</span>
               </div>
               <button
-                onClick={() => useStore.getState().visitExoPlanet(star, p.name)}
+                onClick={(e) => { e.stopPropagation(); useStore.getState().visitExoPlanet(star, p.name); }}
                 className="mt-2 w-full rounded-md border border-white/15 bg-white/5 py-1.5 text-[11px] uppercase tracking-wider text-white/80 transition hover:bg-white/15 hover:text-white"
               >
                 Fly to {p.name} →

@@ -16,6 +16,7 @@ export function ExoPlanetPanel() {
       {exo && sys && p && (
         <motion.aside
           key={p.name}
+          onClick={(e) => e.stopPropagation()}
           initial={{ x: 400, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 400, opacity: 0 }}
@@ -41,7 +42,7 @@ export function ExoPlanetPanel() {
           </div>
           <p className="mt-4 text-sm leading-relaxed text-white/70">
             A {p.kind.toLowerCase()} orbiting {exo.star.name} ({exo.star.spectral}) {exo.star.distance.toFixed(1)} light years from
-            Earth. Drag to look around — the host star shines in this world's sky.
+            Earth. Surface appearance, orbital phase and spin are models, not resolved observations.
             {!p.observed && " This planet is a physically plausible model, not an observed discovery."}
           </p>
           <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
