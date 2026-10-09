@@ -1,5 +1,12 @@
 # Roadmap
 
+## Astronomical fidelity corrections
+- [x] Correct TRAPPIST-1 physical proportions and opaque depth rendering
+- [x] Synchronize astronomical timing and improve planet/Moon positions
+- [x] Fade background stars during planet focus
+- [x] Enable every represented moon's sitemap visit and details
+- [x] Verify mathematical ratios and live planet/moon views
+
 - [x] Focus sitemap planets, track their motion closely, and allow smooth zoom and all-angle orbiting
 - [x] Frame whole galaxies when chosen in the sitemap without changing star-system visits elsewhere
 
@@ -34,7 +41,7 @@
 - [x] Restore paid-access checks, account expiry, and repeat-purchase extension
 - [x] Support separate test and live credentials without exposing secrets
 - [x] Test sign-in protection and Razorpay test checkout launch
-- [ ] Complete one test payment, then add live credentials after Razorpay activates live mode
+- [x] Complete one test payment, then add live credentials after Razorpay activates live mode
 
 ## VisualizeMaths companion tool
 - [x] Add sitemap button opening visualizemaths.ai.studio in a new tab

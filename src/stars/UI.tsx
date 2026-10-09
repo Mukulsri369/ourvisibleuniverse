@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
-import { AU, PLANETS } from "./Planets";
+import { AU, PLANETS, moonKey } from "./Planets";
+import { Button } from "@/components/ui/button";
 import { NAMED_GALAXIES } from "./Universe";
 import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
@@ -64,6 +65,7 @@ export function InfoPanel() {
           <p className="text-sm leading-relaxed text-white/75">{star.description}</p>
 
           <StarDerived star={star} />
+          <ExoSystemSection star={star} />
 
 
           {star.companions?.length ? (
@@ -134,7 +136,7 @@ function ExoSystemSection({ star }: { star: NamedStar }) {
                 <span>{p.tidallyLocked ? "Tidally locked" : "Free rotation"}</span>
               </div>
               <button
-                onClick={() => useStore.getState().visitExoPlanet(star, p.name)}
+                onClick={(e) => { e.stopPropagation(); useStore.getState().visitExoPlanet(star, p.name); }}
                 className="mt-2 w-full rounded-md border border-white/15 bg-white/5 py-1.5 text-[11px] uppercase tracking-wider text-white/80 transition hover:bg-white/15 hover:text-white"
               >
                 Fly to {p.name} →
@@ -1327,7 +1329,7 @@ export function SiteMap() {
               {section === "planets" && (
                 <>
                   <Row label="☉ Sun" active={!visitPlanet} onClick={() => setVisitPlanet(null)} />
-                  {PLANETS.filter((p) => match(p.name)).map((p) => (
+                  {PLANETS.filter((p) => match(p.name) || p.moons?.some((m) => match(m.name))).map((p) => (
                     <div key={p.name}>
                       <Row
                         label={p.name}
@@ -1336,13 +1338,14 @@ export function SiteMap() {
                         active={visitPlanet === p.name}
                         onClick={() => setVisitPlanet(p.name)}
                       />
-                      {p.moons?.map((m) => (
+                      {p.moons?.filter((m) => match(p.name) || match(m.name)).map((m) => (
                         <Row
                           key={m.name}
                           label={`↳ ${m.name}`}
                           color={m.color}
+                          active={visitPlanet === moonKey(p.name, m.name)}
                           indent
-                          onClick={() => setVisitPlanet(p.name)}
+                          onClick={() => { setVisitPlanet(moonKey(p.name, m.name)); if (isMobile) setOpen(false); }}
                         />
                       ))}
                     </div>
@@ -1457,7 +1460,7 @@ function Row({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button variant="ghost"
       onClick={onClick}
       title={label}
       className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[11px] transition ${
@@ -1472,6 +1475,6 @@ function Row({
       )}
       <span className="truncate">{label}</span>
       {sub && <span className="ml-auto shrink-0 text-[9px] text-white/35">{sub}</span>}
-    </button>
+    </Button>
   );
 }
