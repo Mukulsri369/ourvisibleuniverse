@@ -3,6 +3,12 @@ import { ArrowRight, Atom, Eye, Pause, Play, Telescope } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import hero from "@/assets/universe-hero.jpg";
 import heroVideo from "@/assets/space-hero.mp4.asset.json";
+import heroSaturn from "@/assets/hero-saturn.mp4.asset.json";
+import heroBlackhole from "@/assets/hero-blackhole.mp4.asset.json";
+import heroGalaxy from "@/assets/hero-galaxy.mp4.asset.json";
+import heroNebula from "@/assets/hero-nebula.mp4.asset.json";
+
+const heroVideos = [heroVideo.url, heroSaturn.url, heroBlackhole.url, heroGalaxy.url, heroNebula.url];
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Plans } from "@/components/site/Plans";
 import { Button } from "@/components/ui/button";
@@ -43,12 +49,22 @@ function Beacon({ label, onHero }: { label: string; onHero?: boolean }) {
 }
 
 function Hero() {
-  const ref = useRef<HTMLVideoElement>(null);
+  const refs = useRef<(HTMLVideoElement | null)[]>([]);
+  const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(true);
-  useEffect(() => { const v = ref.current; if (v) { v.muted = true; v.play().catch(() => setPlaying(false)); } }, []);
-  const toggle = () => { const v = ref.current; if (!v) return; if (v.paused) { v.play(); setPlaying(true); } else { v.pause(); setPlaying(false); } };
+  useEffect(() => {
+    refs.current.forEach((v, i) => {
+      if (!v) return;
+      v.muted = true;
+      if (i === index) v.play().catch(() => setPlaying(false));
+      else { v.pause(); v.currentTime = 0; }
+    });
+  }, [index]);
+  const toggle = () => { const v = refs.current[index]; if (!v) return; if (v.paused) { v.play(); setPlaying(true); } else { v.pause(); setPlaying(false); } };
   return <section className="relative flex h-screen min-h-[640px] items-end overflow-hidden pb-20">
-    <video ref={ref} className="absolute inset-0 size-full scale-110 object-cover" src={heroVideo.url} poster={hero} autoPlay muted loop playsInline preload="auto" aria-hidden="true" />
+    {heroVideos.map((src, i) => (
+      <video key={src} ref={el => { refs.current[i] = el; }} className={`absolute inset-0 size-full scale-110 object-cover transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"}`} src={src} poster={i === 0 ? hero : undefined} autoPlay={i === 0} muted playsInline preload={i === 0 ? "auto" : "metadata"} aria-hidden="true" onTimeUpdate={e => { const v = e.currentTarget; if (i === index && v.duration - v.currentTime < 2.5) { const next = refs.current[(index + 1) % heroVideos.length]; if (next && next.preload !== "auto") next.preload = "auto"; } }} onEnded={() => { setPlaying(true); setIndex(n => (n + 1) % heroVideos.length); }} />
+    ))}
     <div className="absolute inset-0 bg-hero-overlay" />
     <div className="relative mx-auto w-full max-w-7xl px-5 lg:px-8">
       <div className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
