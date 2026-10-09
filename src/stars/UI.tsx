@@ -843,7 +843,7 @@ export function PlanetNavigator() {
                 </>
               ) : null}
             </div>
-            <NasaResources name={current.name} query={`${current.name} planet`} />
+            <NasaResources name={current.name} query={`${current.name}`} />
           </motion.div>
         )}
       </AnimatePresence>
