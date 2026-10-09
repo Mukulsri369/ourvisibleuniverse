@@ -125,7 +125,8 @@ export function StarField() {
         uFocus: { value: 1 },
       },
       vertexShader: /* glsl */ `
-        #include <logdepthbuf_pars_vertex>
+        #include <common>
+#include <logdepthbuf_pars_vertex>
         attribute float aSize;
         attribute float aPhase;
         attribute float aIsBg;

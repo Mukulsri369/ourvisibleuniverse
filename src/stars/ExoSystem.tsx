@@ -51,6 +51,7 @@ function seedOf(name: string) {
 }
 
 const SURF_VERT = /* glsl */ `
+#include <common>
 #include <logdepthbuf_pars_vertex>
 varying vec3 vObj; varying vec3 vN; varying vec3 vView;
 void main(){

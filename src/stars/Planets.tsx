@@ -256,6 +256,7 @@ const ATMO_PRESETS: Record<string, { ray: string; sunset: string; mie: number }>
   Neptune: { ray: "#4d7cff", sunset: "#3355cc", mie: 0.25 },
 };
 const ATMO_VERT = /* glsl */ `
+#include <common>
 #include <logdepthbuf_pars_vertex>
 
 varying vec3 vN; varying vec3 vW;
@@ -292,6 +293,7 @@ void main(){
 // churning vortices. Rocky worlds: fbm relief and crater shading. The layer
 // fades in only when the camera is close (cheap at a distance).
 const DETAIL_VERT = /* glsl */ `
+#include <common>
 #include <logdepthbuf_pars_vertex>
 
 varying vec3 vP; varying vec3 vN; varying vec3 vW;
@@ -972,7 +974,8 @@ function useTrail(body: TrailBody) {
         uLen: { value: len },
       },
       vertexShader: /* glsl */ `
-        #include <logdepthbuf_pars_vertex>
+        #include <common>
+#include <logdepthbuf_pars_vertex>
         attribute float aIndex;
         uniform float uHead;
         uniform float uLen;

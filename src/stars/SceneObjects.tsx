@@ -14,7 +14,8 @@ export function Sun() {
     () => ({
       uniforms: { uTime: { value: 0 } },
       vertexShader: /* glsl */ `
-        #include <logdepthbuf_pars_vertex>
+        #include <common>
+#include <logdepthbuf_pars_vertex>
         varying vec3 vPos;
         varying vec3 vNormal;
         void main() {
@@ -445,7 +446,8 @@ export function MilkyWay() {
         uFocus: { value: 1 },
       },
       vertexShader: /* glsl */ `
-        #include <logdepthbuf_pars_vertex>
+        #include <common>
+#include <logdepthbuf_pars_vertex>
         attribute float aSize;
         varying vec3 vColor;
         uniform float uPixelRatio;
