@@ -223,6 +223,32 @@ function Planet({ def }: { def: PlanetDef }) {
   const haloRef = useRef<THREE.Sprite>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
+  const sunTmp = useMemo(() => new THREE.Vector3(), []);
+  const atmoUniforms = useMemo(() => {
+    const a = ATMO_PRESETS[def.name] ?? {
+      ray: def.atmosphere ?? "#88aaff",
+      sunset: "#ff9a5a",
+      mie: 0.4,
+    };
+    return {
+      uSun: { value: new THREE.Vector3() },
+      uRay: { value: new THREE.Color(a.ray) },
+      uSunset: { value: new THREE.Color(a.sunset) },
+      uMie: { value: a.mie },
+    };
+  }, [def]);
+  const detailUniforms = useMemo(
+    () => ({
+      uSun: { value: new THREE.Vector3() },
+      uTime: { value: 0 },
+      uNear: { value: 0 },
+      uGas: { value: GAS_GIANTS.has(def.name) ? 1 : 0 },
+      uSeed: { value: (hashSeed(def.name) % 1000) / 37 },
+      uTint: { value: new THREE.Color(def.color) },
+      uStorm: { value: new THREE.Color(def.name === "Jupiter" ? "#b5502a" : def.name === "Neptune" ? "#0d1f5c" : def.color) },
+    }),
+    [def],
+  );
 
   useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
@@ -233,10 +259,18 @@ function Planet({ def }: { def: PlanetDef }) {
       bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     }
     groupRef.current.getWorldPosition(tmp);
+    // The Sun sits at the SolarSystem group's origin.
+    if (groupRef.current.parent) groupRef.current.parent.getWorldPosition(sunTmp);
+    atmoUniforms.uSun.value.copy(sunTmp);
+    detailUniforms.uSun.value.copy(sunTmp);
+    detailUniforms.uTime.value = t;
+    const camD = camera.position.distanceTo(tmp);
+    // Detail fades in as the planet fills more of the view (LOD).
+    detailUniforms.uNear.value = 1 - Math.min(1, Math.max(0, (camD / def.size - 6) / 60));
     // The distant marker sprite must not wash the planet out up close:
     // it only fades in once the disk itself is too small to resolve.
     if (haloRef.current) {
-      const d = camera.position.distanceTo(tmp);
+      const d = camD;
       const k = Math.min(1, Math.max(0, d / (def.size * 1200) - 1));
       const mat = haloRef.current.material as THREE.SpriteMaterial;
       mat.opacity = 0.65 * k;
@@ -284,19 +318,33 @@ function Planet({ def }: { def: PlanetDef }) {
             emissive={new THREE.Color(def.emissive ?? def.color)}
             emissiveIntensity={def.emissive ? 0.12 : 0.05}
           />
+          {/* Close-up procedural detail layer (storm bands / relief) */}
+          <mesh scale={1.003}>
+            <sphereGeometry args={[def.size, 64, 48]} />
+            <shaderMaterial
+              vertexShader={DETAIL_VERT}
+              fragmentShader={DETAIL_FRAG}
+              uniforms={detailUniforms}
+              transparent
+              depthWrite={false}
+            />
+          </mesh>
         </mesh>
-        {/* atmosphere glow — two soft shells for a limb-lit look */}
+        {/* Physically-motivated atmosphere: Rayleigh-blue day limb, warm
+            terminator, Mie forward scattering — all driven by the live Sun direction. */}
         {def.atmosphere && (
-          <>
-            <mesh scale={1.02}>
-              <sphereGeometry args={[def.size, 24, 16]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.09} side={THREE.BackSide} depthWrite={false} />
-            </mesh>
-            <mesh scale={1.06}>
-              <sphereGeometry args={[def.size, 24, 16]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.035} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
-            </mesh>
-          </>
+          <mesh scale={1.045} renderOrder={1}>
+            <sphereGeometry args={[def.size, 48, 32]} />
+            <shaderMaterial
+              vertexShader={ATMO_VERT}
+              fragmentShader={ATMO_FRAG}
+              uniforms={atmoUniforms}
+              transparent
+              depthWrite={false}
+              side={THREE.FrontSide}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
         )}
         {def.ring && ringGeo && (
           <mesh geometry={ringGeo} rotation={[Math.PI / 2, 0, 0]} receiveShadow>
