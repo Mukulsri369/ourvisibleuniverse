@@ -62,9 +62,9 @@ async function searchOnce(q: string, mustWords: string[]): Promise<{ score: numb
     const lx = text.toLowerCase();
     const titleHit = mustWords.length && mustWords.every((w) => lt.includes(w)) ? 4 : mustWords.some((w) => lt.includes(w)) ? 2 : 0;
     const textHit = mustWords.every((w) => lx.includes(w)) ? 1 : 0;
-    if (!titleHit && !textHit) return [];
+    if (!titleHit) return [];
     const score = titleHit + textHit + (TELESCOPE_WORDS.test(text) ? 2 : 0) - (/artist|illustration|concept/i.test(d.description ?? "") ? 4 : 0);
-    return [{ score, img: { id: d.nasa_id, title: d.title, thumb: thumb.replace(/~(thumb|small)\./, "~medium."), page: `https://images.nasa.gov/details/${encodeURIComponent(d.nasa_id)}`, credit: d.secondary_creator || d.photographer || (d.center ? `NASA ${d.center}` : "NASA") } }];
+    return [{ score, img: { id: d.nasa_id, title: d.title, thumb: thumb.replace(/~(thumb|small|orig|large)\./, "~medium."), page: `https://images.nasa.gov/details/${encodeURIComponent(d.nasa_id)}`, credit: d.secondary_creator || d.photographer || (d.center ? `NASA ${d.center}` : "NASA") } }];
   });
 }
 
