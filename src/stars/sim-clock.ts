@@ -11,13 +11,10 @@ const J2000_MS = Date.UTC(2000, 0, 1, 12, 0, 0);
 const MS_PER_YEAR = 365.25 * 86_400_000;
 
 let simYears = (Date.now() - J2000_MS) / MS_PER_YEAR;
-let lastFrame = -1;
 let focus = 1;
 
-/** Advance once per rendered frame (idempotent within a frame). */
-export function tickSim(frame: number, dt: number) {
-  if (frame === lastFrame) return;
-  lastFrame = frame;
+/** Advance once per rendered frame (called only from <Planets />). */
+export function tickSim(dt: number) {
   const d = Math.min(dt, 0.1);
   const st = useStore.getState();
   simYears += d * (st.systemSpeed / 25) / 31.5;

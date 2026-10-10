@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber";
 import { NAMED_STARS } from "./data";
 import { spectralColor, spectralIndex, spectralIndexColor } from "./spectral";
 import { useStore } from "./store";
+import { backgroundFocus } from "./sim-clock";
 
 const BACKGROUND_COUNT = 18000;
 
@@ -109,6 +110,7 @@ export function StarField() {
       material.current.uniforms.uSpectral.value = spectralBlend.current;
       // read transiently so this component doesn't re-render every frame
       material.current.uniforms.uCamDist.value = useStore.getState().cameraDistance;
+      material.current.uniforms.uFocus.value = backgroundFocus();
     }
   });
 
@@ -120,6 +122,7 @@ export function StarField() {
         uTex: { value: texture },
         uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
         uCamDist: { value: 8 },
+        uFocus: { value: 1 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
@@ -151,12 +154,13 @@ export function StarField() {
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
+        uniform float uFocus;
         varying vec3 vColor;
         varying float vAlpha;
         void main() {
           vec4 tex = texture2D(uTex, gl_PointCoord);
           if (tex.a < 0.05) discard;
-          gl_FragColor = vec4(vColor, tex.a * vAlpha);
+          gl_FragColor = vec4(vColor, tex.a * vAlpha * uFocus);
         }
       `,
       transparent: true,
