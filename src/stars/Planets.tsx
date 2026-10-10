@@ -821,7 +821,7 @@ export function Planets() {
 // Asteroid belt (2.2–3.3 AU) + Kuiper belt (30–50 AU) as particle rings.
 // Each particle orbits the Sun on its own Keplerian period (T ∝ r^1.5),
 // so the belts shear differentially like the real thing.
-const BELT_K = 96 / Math.pow(5.2, 1.5); // matched to Jupiter's scene period
+const BELT_K = 31.5; // Kepler: P = a^1.5 years, in sim-clock units (31.5 per year)
 
 function MinorBodies() {
   const { geom, radii, thetas, heights, omegas } = useMemo(() => {
@@ -869,7 +869,8 @@ function MinorBodies() {
     // Rewriting tens of thousands of belt positions every frame is pure CPU
     // cost for motion the eye can't resolve; every 3rd frame looks identical.
     if (beltTick.current++ % 3 !== 0) return;
-    const t = clock.elapsedTime;
+    void clock;
+    const t = simTimeYears() * 31.5;
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < radii.length; i++) {
