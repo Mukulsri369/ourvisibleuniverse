@@ -1,5 +1,6 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { backgroundFocus } from "./sim-clock";
 import { useFrame } from "@react-three/fiber";
 
 export function Sun() {
@@ -417,6 +418,7 @@ export function MilkyWay() {
     // We only counter-rotate by the Sun's omega so the Sun (at R0) appears
     // to orbit while the bulk-flow frame stays comprehensible.
     shader.uniforms.uTime.value = clock.elapsedTime;
+    shader.uniforms.uFocus.value = backgroundFocus();
   });
 
   const shader = useMemo(
@@ -424,6 +426,7 @@ export function MilkyWay() {
       uniforms: {
         uTex: { value: tex },
         uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
+        uFocus: { value: 1 },
         uTime: { value: 0 },
         uVflat: { value: V_FLAT },
         uRcore: { value: R_CORE_LY },
@@ -464,11 +467,12 @@ export function MilkyWay() {
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
+        uniform float uFocus;
         varying vec3 vColor;
         void main(){
           vec4 t = texture2D(uTex, gl_PointCoord);
           if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a);
+          gl_FragColor = vec4(vColor, t.a * uFocus);
         }
       `,
       vertexColors: true,

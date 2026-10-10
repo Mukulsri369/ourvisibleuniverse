@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
-import { AU, PLANETS } from "./Planets";
+import { AU, PLANETS, moonKey } from "./Planets";
 import { NAMED_GALAXIES } from "./Universe";
 import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
@@ -1327,7 +1327,7 @@ export function SiteMap() {
               {section === "planets" && (
                 <>
                   <Row label="☉ Sun" active={!visitPlanet} onClick={() => setVisitPlanet(null)} />
-                  {PLANETS.filter((p) => match(p.name)).map((p) => (
+                  {PLANETS.filter((p) => match(p.name) || p.moons?.some((m) => match(m.name))).map((p) => (
                     <div key={p.name}>
                       <Row
                         label={p.name}
@@ -1342,7 +1342,8 @@ export function SiteMap() {
                           label={`↳ ${m.name}`}
                           color={m.color}
                           indent
-                          onClick={() => setVisitPlanet(p.name)}
+                          active={visitPlanet === moonKey(p.name, m.name)}
+                          onClick={() => setVisitPlanet(moonKey(p.name, m.name))}
                         />
                       ))}
                     </div>

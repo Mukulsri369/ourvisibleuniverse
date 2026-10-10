@@ -1,7 +1,8 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
+import { simTimeDays, simTimeYears, tickSim } from "./sim-clock";
 
 
 // Real orbital elements (relative). We scale semi-major axis (a) so the
@@ -166,9 +167,58 @@ export const PLANETS: PlanetDef[] = [
   },
 ];
 
+// Real J2000 mean elements (Standish/JPL): mean longitude L0, longitude of
+// perihelion, sidereal period (years) and sidereal rotation (hours, negative =
+// retrograde). Positions are evaluated for the live simulation date.
+export const REAL_ORBITS: Record<string, { L0: number; peri: number; years: number; rotH: number }> = {
+  Mercury: { L0: 252.25, peri: 77.46, years: 0.2408467, rotH: 1407.6 },
+  Venus: { L0: 181.98, peri: 131.6, years: 0.61519726, rotH: -5832.5 },
+  Earth: { L0: 100.46, peri: 102.94, years: 1.0000174, rotH: 23.934 },
+  Mars: { L0: 355.45, peri: 336.04, years: 1.8808476, rotH: 24.623 },
+  Jupiter: { L0: 34.4, peri: 14.73, years: 11.862615, rotH: 9.925 },
+  Saturn: { L0: 49.94, peri: 92.43, years: 29.447498, rotH: 10.656 },
+  Uranus: { L0: 313.23, peri: 170.96, years: 84.016846, rotH: -17.24 },
+  Neptune: { L0: 304.88, peri: 44.97, years: 164.79132, rotH: 16.11 },
+  Pluto: { L0: 238.93, peri: 224.07, years: 247.92065, rotH: -153.29 },
+};
+
+// Real sidereal moon periods (days); negative = retrograde orbit.
+export const MOON_DAYS: Record<string, number> = {
+  Moon: 27.3217, Phobos: 0.3189, Deimos: 1.2624,
+  Io: 1.7691, Europa: 3.5512, Ganymede: 7.1546, Callisto: 16.689,
+  Metis: 0.2948, Adrastea: 0.2983, Amalthea: 0.4982, Thebe: 0.6745,
+  Himalia: 250.56, Elara: 259.64, Pasiphae: -743.6, Carme: -702.3,
+  Mimas: 0.9424, Enceladus: 1.3702, Tethys: 1.8878, Dione: 2.7369, Rhea: 4.5182,
+  Titan: 15.945, Hyperion: 21.277, Iapetus: 79.322, Phoebe: -550.3,
+  Puck: 0.7618, Miranda: 1.4135, Ariel: 2.5204, Umbriel: 4.1442, Titania: 8.7059, Oberon: 13.4632,
+  Naiad: 0.2944, Despina: 0.3347, Galatea: 0.4287, Larissa: 0.5548, Proteus: 1.1223,
+  Triton: -5.8769, Nereid: 360.13,
+  Charon: 6.3872, Styx: 20.162, Nix: 24.855, Kerberos: 32.168, Hydra: 38.202,
+};
+// Mean longitudes at J2000 (deg) where well determined.
+const MOON_L0: Record<string, number> = { Moon: 218.316, Io: 106.08, Europa: 175.73, Ganymede: 120.56, Callisto: 84.44, Titan: 15.15 };
+
+for (const p of PLANETS) {
+  const r = REAL_ORBITS[p.name];
+  if (r) p.omega = deg(r.peri);
+}
+
+function seedAngle(name: string) {
+  let h = 7;
+  for (let i = 0; i < name.length; i++) h = (h * 131 + name.charCodeAt(i)) % 100003;
+  return (h / 100003) * Math.PI * 2;
+}
+
+/** Mean anomaly (rad) at the current simulation date. */
+function meanAnomaly(def: PlanetDef): number {
+  const r = REAL_ORBITS[def.name];
+  if (!r) return seedAngle(def.name) + (simTimeYears() / (def.period / 31.5)) * Math.PI * 2;
+  return deg(r.L0 - r.peri) + (simTimeYears() / r.years) * Math.PI * 2;
+}
+
 // Kepler's equation solver
-function keplerPosition(def: PlanetDef, phase: number, t: number): THREE.Vector3 {
-  const M = phase + (t / def.period) * Math.PI * 2;
+function keplerPosition(def: PlanetDef, _phase: number, _t: number): THREE.Vector3 {
+  const M = meanAnomaly(def);
   let E = M;
   for (let k = 0; k < 6; k++) {
     E = E - (E - def.e * Math.sin(E) - M) / (1 - def.e * Math.cos(E));
@@ -232,17 +282,22 @@ const ATMO_PRESETS: Record<string, { ray: string; sunset: string; mie: number }>
   Neptune: { ray: "#4d7cff", sunset: "#3355cc", mie: 0.25 },
 };
 const ATMO_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
 varying vec3 vN; varying vec3 vW;
 void main(){
   vec4 w = modelMatrix * vec4(position,1.0);
   vW = w.xyz;
   vN = normalize(mat3(modelMatrix) * normal);
   gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
 }`;
 const ATMO_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
 uniform vec3 uSun; uniform vec3 uRay; uniform vec3 uSunset; uniform float uMie;
 varying vec3 vN; varying vec3 vW;
 void main(){
+  #include <logdepthbuf_fragment>
   vec3 N = normalize(vN);
   vec3 V = normalize(cameraPosition - vW);
   vec3 L = normalize(uSun - vW);
@@ -262,6 +317,8 @@ void main(){
 // churning vortices. Rocky worlds: fbm relief and crater shading. The layer
 // fades in only when the camera is close (cheap at a distance).
 const DETAIL_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
 varying vec3 vP; varying vec3 vN; varying vec3 vW;
 void main(){
   vP = normalize(position);
@@ -269,8 +326,10 @@ void main(){
   vW = w.xyz;
   vN = normalize(mat3(modelMatrix) * normal);
   gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
 }`;
 const DETAIL_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
 uniform vec3 uSun; uniform float uTime; uniform float uNear; uniform float uGas; uniform float uSeed;
 uniform vec3 uTint; uniform vec3 uStorm;
 varying vec3 vP; varying vec3 vN; varying vec3 vW;
@@ -282,6 +341,7 @@ float n3(vec3 p){
 }
 float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
 void main(){
+  #include <logdepthbuf_fragment>
   if (uNear < 0.01) discard;
   vec3 L = normalize(uSun - vW);
   float lit = clamp(dot(normalize(vN), L) * 0.9 + 0.15, 0.0, 1.0);
@@ -353,7 +413,10 @@ function Planet({ def }: { def: PlanetDef }) {
     const p = keplerPosition(def, phase, t);
     groupRef.current.position.copy(p);
     if (bodyRef.current) {
-      bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
+      const rot = REAL_ORBITS[def.name];
+      bodyRef.current.rotation.y = rot
+        ? ((simTimeDays() * 24) / rot.rotH) * Math.PI * 2
+        : (t / def.spinPeriod) * Math.PI * 2;
     }
     groupRef.current.getWorldPosition(tmp);
     // The Sun sits at the SolarSystem group's origin.
@@ -705,12 +768,18 @@ export const moonKey = (parent: string, moon: string) => `${parent}:${moon}`;
 
 function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const ref = useRef<THREE.Group>(null!);
-  const phase = useMemo(() => Math.random() * Math.PI * 2, []);
+  const phase = useMemo(() => seedAngle(parent + moon.name), [parent, moon.name]);
   const tmp = useMemo(() => new THREE.Vector3(), []);
+  useEffect(() => {
+    if (!window.__exoSizes) window.__exoSizes = new Map();
+    window.__exoSizes.set(moonKey(parent, moon.name), moon.size);
+  }, [parent, moon.name, moon.size]);
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    const t = clock.elapsedTime;
-    const a = phase + (t / moon.period) * Math.PI * 2;
+    const days = MOON_DAYS[moon.name];
+    const a = days
+      ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) + (simTimeDays() / days) * Math.PI * 2
+      : phase + (clock.elapsedTime / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
     ref.current.position.set(Math.cos(a) * moon.distance, Math.sin(a) * moon.distance * Math.sin(inc), Math.sin(a) * moon.distance * Math.cos(inc));
     // publish live world position so the moon trail can track it
@@ -732,6 +801,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
 }
 
 export function Planets() {
+  useFrame((_, dt) => tickSim(dt), -2);
   const orbits = useMemo(
     () => PLANETS.map((p) => makeOrbitLine(p, "#6a8cff", 0.10)),
     [],
@@ -761,7 +831,7 @@ export function Planets() {
 // Asteroid belt (2.2–3.3 AU) + Kuiper belt (30–50 AU) as particle rings.
 // Each particle orbits the Sun on its own Keplerian period (T ∝ r^1.5),
 // so the belts shear differentially like the real thing.
-const BELT_K = 96 / Math.pow(5.2, 1.5); // matched to Jupiter's scene period
+const BELT_K = 31.5; // Kepler: P = a^1.5 years, in sim-clock units (31.5 per year)
 
 function MinorBodies() {
   const { geom, radii, thetas, heights, omegas } = useMemo(() => {
@@ -809,7 +879,8 @@ function MinorBodies() {
     // Rewriting tens of thousands of belt positions every frame is pure CPU
     // cost for motion the eye can't resolve; every 3rd frame looks identical.
     if (beltTick.current++ % 3 !== 0) return;
-    const t = clock.elapsedTime;
+    void clock;
+    const t = simTimeYears() * 31.5;
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < radii.length; i++) {
