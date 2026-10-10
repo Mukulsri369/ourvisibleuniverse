@@ -4,10 +4,12 @@ import * as THREE from "three";
 import { exoSystemFor, type ExoKind, type ExoPlanet } from "./exosystems";
 import { useStore } from "./store";
 
-// Same presentation scale as the Solar System (1 AU = 0.05 ly; planets
-// enlarged for visibility), so systems compare 1:1 with ours.
+// True proportions: orbits, planet radii and the host star all share one
+// scale (1 AU = 0.05 scene units), so size-to-distance ratios are exact.
 const AU = 0.05;
-const EARTH_R = 0.055 * 0.005;
+const EARTH_RADIUS_AU = 6371 / 149_597_870.7;
+const EARTH_R = EARTH_RADIUS_AU * AU;
+const SOLAR_R = 0.00465047 * AU;
 
 declare global {
   interface Window {
@@ -51,6 +53,8 @@ function seedOf(name: string) {
 }
 
 const SURF_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
 varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
 void main(){
   vObj = normalize(position);
@@ -58,9 +62,11 @@ void main(){
   vec4 w = modelMatrix * vec4(position,1.0);
   vWorld = w.xyz;
   gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
 }`;
 
 const SURF_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
 uniform vec3 uColor; uniform vec3 uStar; uniform float uMode; uniform float uSeed;
 uniform float uTime; uniform float uHot; uniform float uLocked;
 varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
@@ -72,6 +78,7 @@ float n3(vec3 p){
 }
 float fbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
 void main(){
+  #include <logdepthbuf_fragment>
   vec3 P = vObj * 2.2 + uSeed;
   vec3 L = normalize(uStar - vWorld);
   vec3 N = normalize(vN);
@@ -202,10 +209,35 @@ function ExoBody({ p, starName, starPos, onPick }: {
         </mesh>
         {/* larger invisible hit target so small worlds are clickable */}
         <mesh onClick={pick} visible={false}>
-          <sphereGeometry args={[Math.max(size * 4, 0.0015), 8, 6]} />
+          <sphereGeometry args={[Math.max(size * 4, Math.min(0.0015, p.aAU * AU * (1 - p.e) * 0.2)), 8, 6]} />
         </mesh>
       </group>
     </>
+  );
+}
+
+/** Host star at its true radius, coloured by its effective temperature. */
+function HostStar({ radius, temperature }: { radius: number; temperature: number }) {
+  const color = useMemo(() => {
+    const t = THREE.MathUtils.clamp(temperature, 2000, 30000);
+    // Rough blackbody tint: red dwarfs orange-red, Sun-like white-yellow, hot stars blue-white.
+    if (t < 3500) return new THREE.Color("#ff8a4a");
+    if (t < 5000) return new THREE.Color("#ffb46b");
+    if (t < 6200) return new THREE.Color("#fff1d8");
+    if (t < 9000) return new THREE.Color("#f2f4ff");
+    return new THREE.Color("#b9ccff");
+  }, [temperature]);
+  return (
+    <group>
+      <mesh>
+        <sphereGeometry args={[radius, 48, 32]} />
+        <meshBasicMaterial color={color} toneMapped={false} />
+      </mesh>
+      <mesh scale={1.25}>
+        <sphereGeometry args={[radius, 32, 20]} />
+        <meshBasicMaterial color={color} transparent opacity={0.18} side={THREE.BackSide} depthWrite={false} toneMapped={false} />
+      </mesh>
+    </group>
   );
 }
 
@@ -231,6 +263,7 @@ export function ExoSystem() {
   return (
     <group position={[star.x, star.y, star.z]}>
       <pointLight intensity={2} distance={0} decay={0} color="#fff4e0" />
+      <HostStar radius={star.radius * SOLAR_R} temperature={star.temperature} />
       <HabitableZone inner={sys.hzInner} outer={sys.hzOuter} />
       {sys.planets.map((p) => (
         <ExoBody key={p.name} p={p} starName={star.name} starPos={starPos} onPick={(n) => visitExoPlanet(star, n)} />
