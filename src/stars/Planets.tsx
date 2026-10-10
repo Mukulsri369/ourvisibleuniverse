@@ -282,17 +282,22 @@ const ATMO_PRESETS: Record<string, { ray: string; sunset: string; mie: number }>
   Neptune: { ray: "#4d7cff", sunset: "#3355cc", mie: 0.25 },
 };
 const ATMO_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
 varying vec3 vN; varying vec3 vW;
 void main(){
   vec4 w = modelMatrix * vec4(position,1.0);
   vW = w.xyz;
   vN = normalize(mat3(modelMatrix) * normal);
   gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
 }`;
 const ATMO_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
 uniform vec3 uSun; uniform vec3 uRay; uniform vec3 uSunset; uniform float uMie;
 varying vec3 vN; varying vec3 vW;
 void main(){
+  #include <logdepthbuf_fragment>
   vec3 N = normalize(vN);
   vec3 V = normalize(cameraPosition - vW);
   vec3 L = normalize(uSun - vW);
@@ -312,6 +317,8 @@ void main(){
 // churning vortices. Rocky worlds: fbm relief and crater shading. The layer
 // fades in only when the camera is close (cheap at a distance).
 const DETAIL_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
 varying vec3 vP; varying vec3 vN; varying vec3 vW;
 void main(){
   vP = normalize(position);
@@ -319,8 +326,10 @@ void main(){
   vW = w.xyz;
   vN = normalize(mat3(modelMatrix) * normal);
   gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
 }`;
 const DETAIL_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
 uniform vec3 uSun; uniform float uTime; uniform float uNear; uniform float uGas; uniform float uSeed;
 uniform vec3 uTint; uniform vec3 uStorm;
 varying vec3 vP; varying vec3 vN; varying vec3 vW;
@@ -332,6 +341,7 @@ float n3(vec3 p){
 }
 float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
 void main(){
+  #include <logdepthbuf_fragment>
   if (uNear < 0.01) discard;
   vec3 L = normalize(uSun - vW);
   float lit = clamp(dot(normalize(vN), L) * 0.9 + 0.15, 0.0, 1.0);
