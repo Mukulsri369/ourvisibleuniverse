@@ -170,7 +170,7 @@ export const PLANETS: PlanetDef[] = [
 // Real J2000 mean elements (Standish/JPL): mean longitude L0, longitude of
 // perihelion, sidereal period (years) and sidereal rotation (hours, negative =
 // retrograde). Positions are evaluated for the live simulation date.
-const REAL_ORBITS: Record<string, { L0: number; peri: number; years: number; rotH: number }> = {
+export const REAL_ORBITS: Record<string, { L0: number; peri: number; years: number; rotH: number }> = {
   Mercury: { L0: 252.25, peri: 77.46, years: 0.2408467, rotH: 1407.6 },
   Venus: { L0: 181.98, peri: 131.6, years: 0.61519726, rotH: -5832.5 },
   Earth: { L0: 100.46, peri: 102.94, years: 1.0000174, rotH: 23.934 },
@@ -183,7 +183,7 @@ const REAL_ORBITS: Record<string, { L0: number; peri: number; years: number; rot
 };
 
 // Real sidereal moon periods (days); negative = retrograde orbit.
-const MOON_DAYS: Record<string, number> = {
+export const MOON_DAYS: Record<string, number> = {
   Moon: 27.3217, Phobos: 0.3189, Deimos: 1.2624,
   Io: 1.7691, Europa: 3.5512, Ganymede: 7.1546, Callisto: 16.689,
   Metis: 0.2948, Adrastea: 0.2983, Amalthea: 0.4982, Thebe: 0.6745,

@@ -22,6 +22,7 @@ import {
 } from "./UI";
 import { GalaxyInfoPanel } from "./GalaxyInfoPanel";
 import { ExoPlanetPanel } from "./ExoPlanetPanel";
+import { SolarBodyPanel } from "./SolarBodyPanel";
 import { ObservedObjects } from "./ObservedObjects";
 import { ObservedObjectInfoPanel } from "./ObservedObjectInfoPanel";
 
@@ -88,6 +89,7 @@ export function StarsApp() {
           <Branding />
           <InfoPanel />
           <ExoPlanetPanel />
+          <SolarBodyPanel />
           <GalaxyInfoPanel />
           <ObservedObjectInfoPanel />
         </>
