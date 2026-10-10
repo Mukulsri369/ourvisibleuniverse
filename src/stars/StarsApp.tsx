@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, MilkyWay } from "./SceneObjects";
@@ -26,17 +26,6 @@ import { ObservedObjects } from "./ObservedObjects";
 import { ObservedObjectInfoPanel } from "./ObservedObjectInfoPanel";
 
 import { useStore } from "./store";
-import { simulation, DAYS_PER_SECOND } from "./simulation";
-import { SolarBodyPanel } from "./SolarBodyPanel";
-
-function SimulationClock() {
-  useEffect(() => { simulation.epoch = Date.now(); simulation.days = 0; }, []);
-  useFrame((_, dt) => {
-    simulation.days += Math.min(dt, 0.05) * DAYS_PER_SECOND * useStore.getState().systemSpeed / 25;
-    simulation.date = new Date(simulation.epoch + simulation.days * 86400000);
-  }, -3);
-  return null;
-}
 
 export function StarsApp() {
   const [loaded, setLoaded] = useState(false);
@@ -67,7 +56,6 @@ export function StarsApp() {
       >
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
-          <SimulationClock />
           <MilkyWay />
           <Universe />
           <Andromeda />
@@ -100,7 +88,6 @@ export function StarsApp() {
           <Branding />
           <InfoPanel />
           <ExoPlanetPanel />
-          <SolarBodyPanel />
           <GalaxyInfoPanel />
           <ObservedObjectInfoPanel />
         </>

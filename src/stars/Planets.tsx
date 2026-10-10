@@ -2,7 +2,6 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
-import { SYSTEM_AU, EARTH_RADIUS, simulation, planetPosition, satellitePosition, bodyOrientation, MOON_ELEMENTS } from "./simulation";
 
 
 // Real orbital elements (relative). We scale semi-major axis (a) so the
@@ -40,11 +39,11 @@ export type PlanetDef = {
 const deg = (d: number) => (d * Math.PI) / 180;
 // 1 AU = 0.05 ly places Neptune at ~1.5 ly, making the Solar System clearly
 // smaller than the distance to nearby stars (Proxima Centauri ~4.2 ly).
-export const AU = SYSTEM_AU;
+export const AU = 0.05;
 // Planets are still enlarged relative to their orbits so they stay visible when visited.
 const P = 0.005;
 
-const LEGACY_PLANETS: PlanetDef[] = [
+export const PLANETS: PlanetDef[] = [
   {
     name: "Mercury",
     a: 0.39 * AU, e: 0.2056, i: deg(7.0), omega: deg(29.1),
@@ -167,29 +166,6 @@ const LEGACY_PLANETS: PlanetDef[] = [
   },
 ];
 
-// Published sidereal periods (days), mean radii (km), and semimajor axes (AU).
-const PHYSICAL_PLANETS: Record<string, [number, number, number, number]> = {
-  Mercury:[2439.7,0.387098,87.9691,58.646], Venus:[6051.8,0.723332,224.701,-243.025],
-  Earth:[6371,1,365.256,0.99726968], Mars:[3389.5,1.523679,686.98,1.025957],
-  Jupiter:[69911,5.2044,4332.589,0.41354], Saturn:[58232,9.5826,10759.22,0.44401],
-  Uranus:[25362,19.2184,30688.5,-0.71833], Neptune:[24622,30.11,60182,0.67125], Pluto:[1188.3,39.482,90560,6.38723],
-};
-export const PLANETS: PlanetDef[] = LEGACY_PLANETS.map((p) => {
-  const [radius, a, period, spinPeriod] = PHYSICAL_PLANETS[p.name];
-  const size = radius / 6371 * EARTH_RADIUS;
-  return { ...p, a: a * AU, size, period, spinPeriod,
-    ring: p.ring ? { ...p.ring, inner: p.ring.inner / p.size * size, outer: p.ring.outer / p.size * size } : undefined,
-    moons: p.moons?.map((m) => {
-      const [r, distance, days] = MOON_ELEMENTS[m.name];
-      return { ...m, size: r / 6371 * EARTH_RADIUS, distance: distance / 149597870.7 * AU, period: days };
-    }),
-  };
-});
-export const SOLAR_MOONS = new Map<string, { planet: PlanetDef; moon: MoonDef }>(PLANETS.flatMap((p) => (p.moons ?? []).map((moon) => [`${p.name}:${moon.name}`, { planet: p, moon }] as const)));
-export function solarBodySize(name: string) {
-  return SOLAR_MOONS.get(name)?.moon.size ?? PLANETS.find((p) => p.name === name)?.size;
-}
-
 // Kepler's equation solver
 function keplerPosition(def: PlanetDef, phase: number, t: number): THREE.Vector3 {
   const M = phase + (t / def.period) * Math.PI * 2;
@@ -256,24 +232,17 @@ const ATMO_PRESETS: Record<string, { ray: string; sunset: string; mie: number }>
   Neptune: { ray: "#4d7cff", sunset: "#3355cc", mie: 0.25 },
 };
 const ATMO_VERT = /* glsl */ `
-#include <common>
-#include <logdepthbuf_pars_vertex>
-
 varying vec3 vN; varying vec3 vW;
 void main(){
   vec4 w = modelMatrix * vec4(position,1.0);
   vW = w.xyz;
   vN = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  #include <logdepthbuf_vertex>
+  gl_Position = projectionMatrix * viewMatrix * w;
 }`;
 const ATMO_FRAG = /* glsl */ `
-#include <logdepthbuf_pars_fragment>
-
 uniform vec3 uSun; uniform vec3 uRay; uniform vec3 uSunset; uniform float uMie;
 varying vec3 vN; varying vec3 vW;
 void main(){
-  #include <logdepthbuf_fragment>
   vec3 N = normalize(vN);
   vec3 V = normalize(cameraPosition - vW);
   vec3 L = normalize(uSun - vW);
@@ -293,21 +262,15 @@ void main(){
 // churning vortices. Rocky worlds: fbm relief and crater shading. The layer
 // fades in only when the camera is close (cheap at a distance).
 const DETAIL_VERT = /* glsl */ `
-#include <common>
-#include <logdepthbuf_pars_vertex>
-
 varying vec3 vP; varying vec3 vN; varying vec3 vW;
 void main(){
   vP = normalize(position);
   vec4 w = modelMatrix * vec4(position,1.0);
   vW = w.xyz;
   vN = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  #include <logdepthbuf_vertex>
+  gl_Position = projectionMatrix * viewMatrix * w;
 }`;
 const DETAIL_FRAG = /* glsl */ `
-#include <logdepthbuf_pars_fragment>
-
 uniform vec3 uSun; uniform float uTime; uniform float uNear; uniform float uGas; uniform float uSeed;
 uniform vec3 uTint; uniform vec3 uStorm;
 varying vec3 vP; varying vec3 vN; varying vec3 vW;
@@ -319,7 +282,6 @@ float n3(vec3 p){
 }
 float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
 void main(){
-  #include <logdepthbuf_fragment>
   if (uNear < 0.01) discard;
   vec3 L = normalize(uSun - vW);
   float lit = clamp(dot(normalize(vN), L) * 0.9 + 0.15, 0.0, 1.0);
@@ -353,11 +315,10 @@ void main(){
 }`;
 
 function Planet({ def }: { def: PlanetDef }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const bodyRef = useRef<THREE.Mesh>(null);
-  const haloRef = useRef<THREE.Sprite>(null);
-  const axisRef = useRef<THREE.Group>(null);
-  const phase = useMemo(() => (hashSeed(def.name) % 360) * Math.PI / 180, [def.name]);
+  const groupRef = useRef<THREE.Group>(null!);
+  const bodyRef = useRef<THREE.Mesh>(null!);
+  const haloRef = useRef<THREE.Sprite>(null!);
+  const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const sunTmp = useMemo(() => new THREE.Vector3(), []);
   const atmoUniforms = useMemo(() => {
@@ -386,13 +347,13 @@ function Planet({ def }: { def: PlanetDef }) {
     [def],
   );
 
-  useFrame(({ camera }) => {
+  useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
-    const t = simulation.days;
-    const p = planetPosition(def.name, tmp);
+    const t = clock.elapsedTime;
+    const p = keplerPosition(def, phase, t);
     groupRef.current.position.copy(p);
     if (bodyRef.current) {
-      bodyRef.current.rotation.y = bodyOrientation(def.name, axisRef.current?.quaternion ?? new THREE.Quaternion());
+      bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     }
     groupRef.current.getWorldPosition(tmp);
     // The Sun sits at the SolarSystem group's origin.
@@ -416,7 +377,7 @@ function Planet({ def }: { def: PlanetDef }) {
     let v = reg.get(def.name);
     if (!v) { v = new THREE.Vector3(); reg.set(def.name, v); }
     v.copy(tmp);
-  }, -2);
+  }, -1);
 
   const setVisit = useStore((s) => s.setVisitPlanet);
   const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
@@ -435,7 +396,7 @@ function Planet({ def }: { def: PlanetDef }) {
         <spriteMaterial map={haloTex} color={def.color} transparent opacity={0} depthWrite={false} blending={THREE.AdditiveBlending} />
       </sprite>
       {/* tilt + body */}
-      <group ref={axisRef}>
+      <group rotation={[0, 0, def.tilt]}>
         <mesh
           ref={bodyRef}
           castShadow
@@ -526,8 +487,7 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
   const W = 1024, H = 512;
   const c = document.createElement("canvas");
   c.width = W; c.height = H;
-  const ctx = c.getContext("2d");
-  if (!ctx) throw new Error("Canvas unavailable");
+  const ctx = c.getContext("2d")!;
   const rand = rng(hashSeed(def.name));
   const base = new THREE.Color(def.color);
 
@@ -674,8 +634,7 @@ function makeRingTexture(name: string, color: string): THREE.Texture {
   const W = 1024, H = 8;
   const c = document.createElement("canvas");
   c.width = W; c.height = H;
-  const ctx = c.getContext("2d");
-  if (!ctx) throw new Error("Canvas unavailable");
+  const ctx = c.getContext("2d")!;
   const rand = rng(hashSeed(name + "ring"));
   const base = new THREE.Color(color);
   ctx.clearRect(0, 0, W, H);
@@ -730,8 +689,7 @@ function makeHaloTexture(_color: string): THREE.Texture {
   const size = 64;
   const c = document.createElement("canvas");
   c.width = c.height = size;
-  const ctx = c.getContext("2d");
-  if (!ctx) throw new Error("Canvas unavailable");
+  const ctx = c.getContext("2d")!;
   const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
   g.addColorStop(0, "rgba(255,255,255,1)");
   g.addColorStop(0.3, "rgba(255,255,255,0.5)");
@@ -746,27 +704,15 @@ function makeHaloTexture(_color: string): THREE.Texture {
 export const moonKey = (parent: string, moon: string) => `${parent}:${moon}`;
 
 function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
-  const ref = useRef<THREE.Group>(null);
-  const body = useRef<THREE.Mesh>(null);
-  const phase = useMemo(() => (hashSeed(parent + moon.name) % 360) * Math.PI / 180, [parent, moon.name]);
+  const ref = useRef<THREE.Group>(null!);
+  const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
-  useFrame(() => {
+  useFrame(({ clock }) => {
     if (!ref.current) return;
-    const t = simulation.days;
-    const direction = (moon.inclination ?? 0) < 0 ? -1 : 1;
-    const a = phase + direction * (t / moon.period) * Math.PI * 2;
+    const t = clock.elapsedTime;
+    const a = phase + (t / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
-    if (satellitePosition(parent, moon.name, tmp)) ref.current.position.copy(tmp);
-    else {
-      const offset = new THREE.Vector3(Math.cos(a) * moon.distance, Math.sin(a) * moon.distance * Math.sin(inc), Math.sin(a) * moon.distance * Math.cos(inc));
-      const pole = new THREE.Quaternion();
-      bodyOrientation(parent, pole);
-      ref.current.position.copy(offset.applyQuaternion(pole));
-    }
-    if (body.current && ref.current.parent) {
-      const center = ref.current.parent.getWorldPosition(new THREE.Vector3());
-      body.current.lookAt(center);
-    }
+    ref.current.position.set(Math.cos(a) * moon.distance, Math.sin(a) * moon.distance * Math.sin(inc), Math.sin(a) * moon.distance * Math.cos(inc));
     // publish live world position so the moon trail can track it
     ref.current.getWorldPosition(tmp);
     const reg = getRegistry();
@@ -774,11 +720,11 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     let v = reg.get(key);
     if (!v) { v = new THREE.Vector3(); reg.set(key, v); }
     v.copy(tmp);
-  }, -1.5);
+  });
   return (
     <group ref={ref}>
-      <mesh ref={body} onClick={(e) => { e.stopPropagation(); useStore.getState().setVisitPlanet(moonKey(parent, moon.name)); }}>
-        <sphereGeometry args={[moon.size, 32, 24]} />
+      <mesh>
+        <sphereGeometry args={[moon.size, 16, 12]} />
         <meshStandardMaterial color={moon.color} roughness={0.95} emissive={moon.color} emissiveIntensity={0.04} />
       </mesh>
     </group>
@@ -800,7 +746,7 @@ export function Planets() {
     return q;
   }, []);
   return (
-    <group>
+    <group quaternion={quat}>
       {orbits.map((o, i) => (
         <primitive key={`orbit-${i}`} object={o} />
       ))}
@@ -815,7 +761,7 @@ export function Planets() {
 // Asteroid belt (2.2–3.3 AU) + Kuiper belt (30–50 AU) as particle rings.
 // Each particle orbits the Sun on its own Keplerian period (T ∝ r^1.5),
 // so the belts shear differentially like the real thing.
-const BELT_K = 365.256; // matched to Jupiter's scene period
+const BELT_K = 96 / Math.pow(5.2, 1.5); // matched to Jupiter's scene period
 
 function MinorBodies() {
   const { geom, radii, thetas, heights, omegas } = useMemo(() => {
@@ -859,16 +805,11 @@ function MinorBodies() {
   }, []);
 
   const beltTick = useRef(0);
-  const beltMaterial = useRef<THREE.PointsMaterial>(null);
-  useFrame((_, dt) => {
-    if (beltMaterial.current) {
-      const opacity = useStore.getState().visitPlanet ? 0.015 : 0.85;
-      beltMaterial.current.opacity += (opacity - beltMaterial.current.opacity) * (1 - Math.exp(-1.2 * dt));
-    }
+  useFrame(({ clock }) => {
     // Rewriting tens of thousands of belt positions every frame is pure CPU
     // cost for motion the eye can't resolve; every 3rd frame looks identical.
     if (beltTick.current++ % 3 !== 0) return;
-    const t = simulation.days;
+    const t = clock.elapsedTime;
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < radii.length; i++) {
@@ -882,7 +823,7 @@ function MinorBodies() {
 
   return (
     <points geometry={geom} frustumCulled={false}>
-      <pointsMaterial ref={beltMaterial} vertexColors size={0.18 * P} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
+      <pointsMaterial vertexColors size={0.18 * P} sizeAttenuation transparent opacity={0.85} depthWrite={false} />
     </points>
   );
 }
@@ -911,15 +852,15 @@ export const SUN_DRIFT_SPEED = 0.12;
 export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, -0.42, -0.91).normalize();
 
 export function SolarSystem({ children }: { children: React.ReactNode }) {
-  const ref = useRef<THREE.Group>(null);
+  const ref = useRef<THREE.Group>(null!);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   // Distance travelled so far — accumulated instead of derived from elapsed
   // time so the user-controlled speed setting can change it live.
   const dist = useRef(0);
   useFrame((_, dt) => {
     if (!ref.current) return;
-    const factor = useStore.getState().systemSpeed / 25;
-    dist.current += Math.min(dt, 0.05) * 6.3e-8 * factor;
+    const factor = useStore.getState().systemSpeed / 50;
+    dist.current += Math.min(dt, 0.1) * SUN_DRIFT_SPEED * factor;
     const d = dist.current;
     ref.current.position.set(
       SUN_DRIFT_DIR.x * d,
@@ -952,7 +893,7 @@ const MOON_TRAIL_LEN = 320;
 type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: number };
 
 function useTrail(body: TrailBody) {
-  const lineRef = useRef<THREE.Line>(null);
+  const lineRef = useRef<THREE.Line>(null!);
   const initialized = useRef(false);
   const head = useRef(0);
   const len = body.length ?? TRAIL_LEN;
@@ -974,8 +915,6 @@ function useTrail(body: TrailBody) {
         uLen: { value: len },
       },
       vertexShader: /* glsl */ `
-        #include <common>
-#include <logdepthbuf_pars_vertex>
         attribute float aIndex;
         uniform float uHead;
         uniform float uLen;
@@ -986,18 +925,15 @@ function useTrail(body: TrailBody) {
           vAge = age;
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mv;
-          #include <logdepthbuf_vertex>
           // Collapse the oldest vertex so the wrap-around segment vanishes.
           if (age > 0.995) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
         }
       `,
       fragmentShader: /* glsl */ `
-        #include <logdepthbuf_pars_fragment>
         uniform vec3 uColor;
         uniform float uOpacity;
         varying float vAge;
         void main(){
-          #include <logdepthbuf_fragment>
           float a = pow(1.0 - vAge, 1.6) * uOpacity;
           if (a < 0.015) discard;
           gl_FragColor = vec4(uColor, a);
@@ -1005,7 +941,7 @@ function useTrail(body: TrailBody) {
       `,
       transparent: true,
       depthWrite: false,
-      depthTest: true,
+      depthTest: false,
       blending: THREE.AdditiveBlending,
     });
     return { geometry: geo, material: mat };

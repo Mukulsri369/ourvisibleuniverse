@@ -45,7 +45,7 @@ export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
     { name: "TRAPPIST-1 e", aAU: 0.02925, e: 0.005, periodDays: 6.1, radiusEarth: 0.92, massEarth: 0.692 },
     { name: "TRAPPIST-1 f", aAU: 0.03849, e: 0.01, periodDays: 9.207, radiusEarth: 1.045, massEarth: 1.039 },
     { name: "TRAPPIST-1 g", aAU: 0.04683, e: 0.002, periodDays: 12.354, radiusEarth: 1.129, massEarth: 1.321 },
-    { name: "TRAPPIST-1 h", aAU: 0.06189, e: 0.006, periodDays: 18.768, radiusEarth: 0.775, massEarth: 0.326 },
+    { name: "TRAPPIST-1 h", aAU: 0.06189, e: 0.006, periodDays: 18.768, radiusEarth: 0.755, massEarth: 0.326 },
   ],
   "Epsilon Eridani": [
     { name: "Epsilon Eridani b", aAU: 3.48, e: 0.07, periodDays: 2672, radiusEarth: 11.0, massEarth: 248, radiusEstimated: true },

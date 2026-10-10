@@ -14,6 +14,4 @@
 
 - Sitemap galaxy visits use a galaxy-centered overview while scene clicks may focus a hosted star system, because the two actions have different framing goals.
 - Planet visits follow the live body position and keep orbit/zoom active, because a moving planet otherwise drifts out of the close-up view.
-- Local planetary systems use one uniform AU conversion for radii and orbital distances; a shared accumulated day clock drives astronomy-engine ephemerides and labelled satellite models, with body updates before the camera, because independent time/size boosts corrupt physical ratios.
-- Opaque close-up shaders use modelViewMatrix and logarithmic-depth chunks, because world-space float projection and mismatched depth make distant exoplanets appear transparent.
 - The MCP server (`src/lib/mcp/`, mounted at `/mcp`) requires OAuth sign-in and reads user data only through the caller's token, because pass records are private per user.

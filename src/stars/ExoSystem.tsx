@@ -3,11 +3,11 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { exoSystemFor, type ExoKind, type ExoPlanet } from "./exosystems";
 import { useStore } from "./store";
-import { SYSTEM_AU, EARTH_RADIUS, SUN_RADIUS, simulation, eccentricAnomaly } from "./simulation";
 
-// One local presentation conversion for both AU distances and physical radii.
-const AU = SYSTEM_AU;
-const EARTH_R = EARTH_RADIUS;
+// Same presentation scale as the Solar System (1 AU = 0.05 ly; planets
+// enlarged for visibility), so systems compare 1:1 with ours.
+const AU = 0.05;
+const EARTH_R = 0.055 * 0.005;
 
 declare global {
   interface Window {
@@ -51,24 +51,19 @@ function seedOf(name: string) {
 }
 
 const SURF_VERT = /* glsl */ `
-#include <common>
-#include <logdepthbuf_pars_vertex>
-varying vec3 vObj; varying vec3 vN; varying vec3 vView;
+varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
 void main(){
   vObj = normalize(position);
   vN = normalize(mat3(modelMatrix) * normal);
   vec4 w = modelMatrix * vec4(position,1.0);
-  vView = -(modelViewMatrix * vec4(position,1.0)).xyz;
-  vN = normalize(normalMatrix * normal);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-  #include <logdepthbuf_vertex>
+  vWorld = w.xyz;
+  gl_Position = projectionMatrix * viewMatrix * w;
 }`;
 
 const SURF_FRAG = /* glsl */ `
-#include <logdepthbuf_pars_fragment>
 uniform vec3 uColor; uniform vec3 uStar; uniform float uMode; uniform float uSeed;
 uniform float uTime; uniform float uHot; uniform float uLocked;
-varying vec3 vObj; varying vec3 vN; varying vec3 vView;
+varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
 float h(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
 float n3(vec3 p){
   vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
@@ -77,11 +72,10 @@ float n3(vec3 p){
 }
 float fbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
 void main(){
-  #include <logdepthbuf_fragment>
   vec3 P = vObj * 2.2 + uSeed;
-  vec3 L = normalize(uStar);
+  vec3 L = normalize(uStar - vWorld);
   vec3 N = normalize(vN);
-  vec3 V = normalize(vView);
+  vec3 V = normalize(cameraPosition - vWorld);
   float ndl = dot(N, L);
   float day = smoothstep(-0.08, 0.25, ndl);
   vec3 col; float spec = 0.0; vec3 emit = vec3(0.0);
@@ -120,7 +114,7 @@ void main(){
     // hot jupiter: glowing dayside hot spot / thermal emission on nightside
     emit = vec3(1.0,0.35,0.1) * uHot * (0.15 + 0.5*smoothstep(0.6,1.0,ndl));
   }
-  vec3 lit = col * (0.28 + day * max(ndl, 0.0) * 1.15);
+  vec3 lit = col * (0.03 + day * max(ndl, 0.0) * 1.15);
   vec3 Hh = normalize(L + V);
   lit += vec3(1.0,0.95,0.85) * spec * pow(max(dot(N,Hh),0.0), 60.0) * day * 0.9;
   // Rayleigh limb for habitable / gas worlds
@@ -163,7 +157,7 @@ function ExoBody({ p, starName, starPos, onPick }: {
         fragmentShader: SURF_FRAG,
         uniforms: {
           uColor: { value: new THREE.Color(p.color) },
-          uStar: { value: new THREE.Vector3(1, 0, 0) },
+          uStar: { value: starPos.clone() },
           uMode: { value: mode },
           uSeed: { value: seedOf(starName + p.name) },
           uTime: { value: 0 },
@@ -181,21 +175,20 @@ function ExoBody({ p, starName, starPos, onPick }: {
       material.dispose();
     };
   }, [p.name, size, material]);
-  useFrame(({ clock, camera }) => {
+  useFrame(({ clock }, dt) => {
     if (!ref.current) return;
-    const mean = p.phase + simulation.days / (p.periodYears * 365.25) * Math.PI * 2;
-    const ang = eccentricAnomaly(mean, p.e);
+    const speed = useStore.getState().systemSpeed / 25;
+    const ang = p.phase + (clock.elapsedTime * speed / (8 * Math.pow(p.periodYears, 0.5))) * Math.PI * 2 * 0.25;
     ref.current.position.copy(orbitPoint(p, ang, tmp));
     ref.current.getWorldPosition(world);
-    material.uniforms.uStar.value.copy(tmp).negate().transformDirection(camera.matrixWorldInverse);
     registry().set(p.name, world.clone());
     material.uniforms.uTime.value = clock.elapsedTime;
     // Tidally locked worlds keep one face to the star; others spin.
     if (meshRef.current) {
       if (p.tidallyLocked) meshRef.current.lookAt(starPos);
-      else meshRef.current.rotation.y = simulation.days * Math.PI * 2; // modelled one-day spin
+      else meshRef.current.rotation.y += dt * 0.3;
     }
-  }, -2);
+  });
   const pick = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     onPick(p.name);
@@ -204,7 +197,7 @@ function ExoBody({ p, starName, starPos, onPick }: {
     <>
       <primitive object={line} />
       <group ref={ref}>
-        <mesh ref={meshRef} frustumCulled={false} material={material} onClick={pick}>
+        <mesh ref={meshRef} material={material} onClick={pick}>
           <sphereGeometry args={[size, 48, 32]} />
         </mesh>
         {/* larger invisible hit target so small worlds are clickable */}
@@ -237,10 +230,6 @@ export function ExoSystem() {
   if (!star || !sys) return null;
   return (
     <group position={[star.x, star.y, star.z]}>
-      <mesh>
-        <sphereGeometry args={[star.radius * SUN_RADIUS, 40, 28]} />
-        <meshBasicMaterial color={star.temperature < 3500 ? "#ff9b65" : "#fff4e0"} />
-      </mesh>
       <pointLight intensity={2} distance={0} decay={0} color="#fff4e0" />
       <HabitableZone inner={sys.hzInner} outer={sys.hzOuter} />
       {sys.planets.map((p) => (

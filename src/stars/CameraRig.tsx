@@ -2,9 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useStore, TOUR_STOPS } from "./store";
-import { PLANETS, solarBodySize } from "./Planets";
-import { exoSystemFor } from "./exosystems";
-import { EARTH_RADIUS } from "./simulation";
+import { PLANETS } from "./Planets";
 import { M31_PLANETS } from "./andromeda-data";
 import { GX_PLANET_INDEX } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition } from "./observed-objects";
@@ -43,9 +41,8 @@ export function CameraRig() {
     const name = useStore.getState().visitPlanet;
     if (!name) return minR;
     const def = PLANETS.find((p) => p.name === name) ?? M31_PLANETS.find((p) => p.name === name) ?? GX_PLANET_INDEX.get(name)?.planet;
-    const st = useStore.getState();
-    const exo = st.exoVisit ? exoSystemFor(st.exoVisit.star).planets.find((p) => p.name === name)?.radiusEarth : undefined;
-    return Math.max(minR, (solarBodySize(name) ?? def?.size ?? (exo == null ? (window as Window).__exoSizes?.get(name) : exo * EARTH_RADIUS) ?? 0) * 1.5);
+    const exo = (window as Window).__exoSizes?.get(name);
+    return Math.max(minR, (def?.size ?? exo ?? 0) * 1.5);
   };
 
   // expose for slider
@@ -235,9 +232,7 @@ export function CameraRig() {
     const def = PLANETS.find((p) => p.name === visitPlanet);
     const m31 = def ? null : M31_PLANETS.find((p) => p.name === visitPlanet);
     const gx = def || m31 ? null : GX_PLANET_INDEX.get(visitPlanet)?.planet;
-    const exo = useStore.getState().exoVisit;
-    const exoSize = exo ? exoSystemFor(exo.star).planets.find((p) => p.name === visitPlanet)?.radiusEarth : undefined;
-    const size = solarBodySize(visitPlanet) ?? def?.size ?? m31?.size ?? gx?.size ?? (exoSize == null ? (window as Window).__exoSizes?.get(visitPlanet) : exoSize * EARTH_RADIUS);
+    const size = def?.size ?? m31?.size ?? gx?.size ?? (window as Window).__exoSizes?.get(visitPlanet);
     if (size == null) return;
     desired.current.radius = Math.max(minR, size * 9);
     fovTarget.current = 38;
@@ -371,8 +366,8 @@ export function CameraRig() {
       desired.current.theta += dt * 0.05;
     }
     if (!dragging.current) {
-      velocity.current.theta *= Math.exp(-5 * Math.min(dt, 0.05));
-      velocity.current.phi *= Math.exp(-5 * Math.min(dt, 0.05));
+      velocity.current.theta *= 0.92;
+      velocity.current.phi *= 0.92;
     }
     const pos = new THREE.Vector3().setFromSpherical(spherical.current).add(target.current);
     camera.position.copy(pos);
@@ -396,7 +391,7 @@ export function CameraRig() {
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
     pc.updateProjectionMatrix();
     setCameraDistance(r);
-  }, -1);
+  });
 
   return null;
 }
