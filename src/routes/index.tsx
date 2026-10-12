@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Atom, Eye, Pause, Play, Telescope } from "lucide-react";
+import { ArrowRight, Atom, Eye, Pause, Play, ShoppingBag, Telescope } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import hero from "@/assets/universe-hero.jpg";
 import heroVideo from "@/assets/space-hero.mp4.asset.json";
@@ -71,7 +71,7 @@ function Hero() {
         <Beacon onHero label="Interactive astronomy education" />
         <h1 className="mt-6 max-w-4xl text-5xl font-black leading-[1.05] text-hero-foreground sm:text-7xl lg:text-8xl">Our Visible Universe</h1>
         <p className="mt-6 max-w-2xl text-lg leading-8 text-hero-muted">Learn how planetary systems, stars, galaxies and extreme cosmic objects fit together through a cinematic 3D universe grounded in real astronomical data.</p>
-        <div className="mt-8 flex flex-wrap gap-3"><Button asChild size="lg" className="transition hover:scale-105"><Link to="/universe">Load universe <ArrowRight /></Link></Button><Button asChild size="lg" variant="outline" className="transition hover:scale-105"><Link to="/pricing">Get access</Link></Button><Button asChild size="lg" variant="ghost" className="text-hero-foreground"><Link to="/science">Explore the science</Link></Button></div>
+        <div className="mt-8 flex flex-wrap gap-3"><Button asChild size="lg" className="transition hover:scale-105"><Link to="/universe">Load universe <ArrowRight /></Link></Button><Button asChild size="lg" variant="outline" className="transition hover:scale-105"><Link to="/pricing">Get access</Link></Button><Button asChild size="lg" variant="outline" className="transition hover:scale-105"><a href="https://ourvisibleuniversestore.lovable.app" target="_blank" rel="noopener noreferrer"><ShoppingBag /> Visit the store</a></Button><Button asChild size="lg" variant="ghost" className="text-hero-foreground"><Link to="/science">Explore the science</Link></Button></div>
       </div>
     </div>
     <button onClick={toggle} aria-label={playing ? "Pause background video" : "Play background video"} className="absolute bottom-6 right-6 grid size-11 place-items-center rounded-full border border-hero-foreground/20 bg-hero-foreground/10 text-hero-foreground backdrop-blur-md transition hover:scale-110">{playing ? <Pause className="size-4" /> : <Play className="size-4" />}</button>
