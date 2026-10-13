@@ -8,14 +8,7 @@ export type ObjectCategory =
   | "Variable star"
   | "Dwarf star";
 export type ObjectVisual =
-  | "cloud"
-  | "shell"
-  | "bipolar"
-  | "jet"
-  | "pulsar"
-  | "blackhole"
-  | "star"
-  | "remnant";
+  "cloud" | "shell" | "bipolar" | "jet" | "pulsar" | "blackhole" | "star" | "remnant";
 
 export type ObservedObject = {
   id: string;
@@ -456,7 +449,8 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     properties: ["Radius ≈1,400 R☉", "Heavy dust-driven mass loss", "Highly irregular brightness"],
     description:
       "One of the largest known stars, shedding dense clumps and arcs of dust as it approaches the end of its life.",
-    visualNote: "The surrounding dust envelope is stylized; its true structure is clumpy and asymmetric.",
+    visualNote:
+      "The surrounding dust envelope is stylized; its true structure is clumpy and asymmetric.",
     source: "NASA Hubble / SOFIA",
   }),
   o({
@@ -476,7 +470,8 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     properties: ["Spectral type B8 Ia", "≈120,000 L☉", "Multiple-star system"],
     description:
       "A luminous blue supergiant in Orion, hot enough to shine mostly in ultraviolet light.",
-    visualNote: "Brightness and glow are compressed so the star stays visible next to fainter objects.",
+    visualNote:
+      "Brightness and glow are compressed so the star stays visible next to fainter objects.",
     source: "ESA Hipparcos / Gaia",
   }),
   o({
@@ -513,7 +508,11 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#cfe0ff",
     accent: "#ffffff",
     observed: "Ultraviolet and visible",
-    properties: ["≈200 solar masses", "Millions of times the Sun's output", "In the Tarantula Nebula"],
+    properties: [
+      "≈200 solar masses",
+      "Millions of times the Sun's output",
+      "In the Tarantula Nebula",
+    ],
     description:
       "The most massive star known, part of a dense young cluster in the Large Magellanic Cloud.",
     visualNote: "Its extreme luminosity is scaled down heavily for display.",
@@ -573,7 +572,11 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#ffd08a",
     accent: "#9ad4ff",
     observed: "Visible and infrared",
-    properties: ["Prototype of T Tauri stars", "Still accreting gas", "Associated reflection nebulosity"],
+    properties: [
+      "Prototype of T Tauri stars",
+      "Still accreting gas",
+      "Associated reflection nebulosity",
+    ],
     description:
       "A newborn star still contracting toward the main sequence, surrounded by leftover material from its birth.",
     visualNote: "The circumstellar dust is a simplified representation.",
@@ -593,7 +596,11 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#f6f2ff",
     accent: "#c4b6ff",
     observed: "Optical photometry and infrared",
-    properties: ["Deep irregular dips", "Wavelength-dependent dimming", "Dust is the favored explanation"],
+    properties: [
+      "Deep irregular dips",
+      "Wavelength-dependent dimming",
+      "Dust is the favored explanation",
+    ],
     description:
       "A star famous for sudden, uneven drops in brightness, most likely caused by passing clouds of fine dust.",
     visualNote: "The obscuring dust is illustrative; nothing has been imaged directly.",
@@ -653,7 +660,11 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#a2624a",
     accent: "#e2a37d",
     observed: "Infrared imaging and spectroscopy",
-    properties: ["Nearest brown dwarf pair", "Cloudy, banded atmospheres", "Too small to fuse hydrogen"],
+    properties: [
+      "Nearest brown dwarf pair",
+      "Cloudy, banded atmospheres",
+      "Too small to fuse hydrogen",
+    ],
     description:
       "A pair of failed stars just a few light-years away, glowing faintly in infrared with weather-like cloud bands.",
     visualNote: "Colors approximate infrared brightness, not visible light.",
@@ -693,7 +704,11 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#fff2d0",
     accent: "#ffdca0",
     observed: "Visible spectroscopy and parallax",
-    properties: ["One of the oldest known stars", "Extremely low metal content", "High-velocity halo orbit"],
+    properties: [
+      "One of the oldest known stars",
+      "Extremely low metal content",
+      "High-velocity halo orbit",
+    ],
     description:
       "A survivor from the early universe, nearly devoid of heavy elements and racing through the galactic halo.",
     visualNote: "Appearance is a plain stellar rendering; no imagery resolves its surface.",

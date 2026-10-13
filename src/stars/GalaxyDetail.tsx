@@ -38,7 +38,10 @@ function mulberry32(seed: number) {
 
 function hashSeed(s: string) {
   let h = 2166136261;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
   return h >>> 0;
 }
 
@@ -63,7 +66,13 @@ function buildGalaxy(m: GalaxyModel): Geos {
   const young = m.youngColor;
   const old = m.oldColor;
 
-  const spheroid = (count: number, radius: number, flatten: number, power: number, bright: number) => {
+  const spheroid = (
+    count: number,
+    radius: number,
+    flatten: number,
+    power: number,
+    bright: number,
+  ) => {
     const p = new Float32Array(count * 3);
     const c = new Float32Array(count * 3);
     const s = new Float32Array(count);
@@ -75,15 +84,24 @@ function buildGalaxy(m: GalaxyModel): Geos {
       p[i * 3 + 1] = r * Math.cos(phi) * flatten;
       p[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
       const b = (0.65 + rand() * 0.35) * bright;
-      c[i * 3] = old[0] * b; c[i * 3 + 1] = old[1] * b; c[i * 3 + 2] = old[2] * b;
+      c[i * 3] = old[0] * b;
+      c[i * 3 + 1] = old[1] * b;
+      c[i * 3 + 2] = old[2] * b;
       s[i] = 5 + rand() * 11;
     }
     return pack(p, c, s);
   };
 
   // ---------- disk ----------
-  if (m.morphology === "spiral" || m.morphology === "barred" || m.morphology === "irregular" || m.morphology === "interacting") {
-    const count = B(m.morphology === "irregular" ? 150_000 : m.morphology === "interacting" ? 210_000 : 240_000);
+  if (
+    m.morphology === "spiral" ||
+    m.morphology === "barred" ||
+    m.morphology === "irregular" ||
+    m.morphology === "interacting"
+  ) {
+    const count = B(
+      m.morphology === "irregular" ? 150_000 : m.morphology === "interacting" ? 210_000 : 240_000,
+    );
     const PITCH = (m.pitchDeg * Math.PI) / 180;
     const K = 1 / Math.tan(PITCH);
     const armCount = Math.max(1, m.arms);
@@ -94,7 +112,10 @@ function buildGalaxy(m: GalaxyModel): Geos {
     for (let i = 0; i < count; i++) {
       const onArm = rand() < (m.morphology === "irregular" ? 0.45 : 0.76);
       const r = -Math.log(1 - rand() * 0.999) * rScale + m.diskRadius * 0.04;
-      if (r > m.diskRadius) { i--; continue; }
+      if (r > m.diskRadius) {
+        i--;
+        continue;
+      }
       const armIdx = Math.floor(rand() * armCount);
       const base = (armIdx / armCount) * Math.PI * 2;
       const rMin = Math.max(m.diskRadius * 0.03, 1);
@@ -107,9 +128,15 @@ function buildGalaxy(m: GalaxyModel): Geos {
       const theta = ridge + noise;
       const scaleH = (rand() < 0.15 ? 0.045 : 0.012) * m.diskRadius;
       const uz = rand() - 0.5;
-      const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / (m.diskRadius * 0.45));
-      const interactingOffset = m.morphology === "interacting" ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
-      const tidalStretch = m.morphology === "interacting" ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
+      const z =
+        -Math.sign(uz) *
+        Math.log(1 - 2 * Math.abs(uz) * 0.999) *
+        scaleH *
+        Math.exp(-r / (m.diskRadius * 0.45));
+      const interactingOffset =
+        m.morphology === "interacting" ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
+      const tidalStretch =
+        m.morphology === "interacting" ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
       p[i * 3] = Math.cos(theta) * r * tidalStretch + interactingOffset;
       p[i * 3 + 1] = z;
       p[i * 3 + 2] = Math.sin(theta) * r;
@@ -119,14 +146,20 @@ function buildGalaxy(m: GalaxyModel): Geos {
       const isYoung = rand() < (onArm ? 0.34 * ridgeClose * (1 - rNorm * 0.35) : 0.05);
       const isGiant = !isYoung && rand() < 0.07;
       if (isYoung) {
-        c[i * 3] = young[0]; c[i * 3 + 1] = young[1]; c[i * 3 + 2] = young[2];
+        c[i * 3] = young[0];
+        c[i * 3 + 1] = young[1];
+        c[i * 3 + 2] = young[2];
         s[i] = 15 + rand() * 20;
       } else if (isGiant) {
-        c[i * 3] = 1.0; c[i * 3 + 1] = 0.62; c[i * 3 + 2] = 0.42;
+        c[i * 3] = 1.0;
+        c[i * 3 + 1] = 0.62;
+        c[i * 3 + 2] = 0.42;
         s[i] = 14 + rand() * 18;
       } else {
         const b = 0.66 + rand() * 0.34;
-        c[i * 3] = old[0] * b; c[i * 3 + 1] = old[1] * b; c[i * 3 + 2] = old[2] * b;
+        c[i * 3] = old[0] * b;
+        c[i * 3 + 1] = old[1] * b;
+        c[i * 3 + 2] = old[2] * b;
         s[i] = 6 + rand() * 9;
       }
     }
@@ -142,7 +175,10 @@ function buildGalaxy(m: GalaxyModel): Geos {
     const elong = m.morphology === "starburst" ? 2.6 : 1;
     for (let i = 0; i < count; i++) {
       const r = -Math.log(1 - rand() * 0.999) * m.diskRadius * 0.26;
-      if (r > m.diskRadius) { i--; continue; }
+      if (r > m.diskRadius) {
+        i--;
+        continue;
+      }
       const theta = rand() * Math.PI * 2;
       const uz = rand() - 0.5;
       const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * m.diskRadius * 0.02;
@@ -152,11 +188,15 @@ function buildGalaxy(m: GalaxyModel): Geos {
       const rNorm = Math.min(1, r / m.diskRadius);
       const isYoung = m.morphology === "starburst" && rand() < 0.4 * (1 - rNorm);
       if (isYoung) {
-        c[i * 3] = young[0]; c[i * 3 + 1] = young[1]; c[i * 3 + 2] = young[2];
+        c[i * 3] = young[0];
+        c[i * 3 + 1] = young[1];
+        c[i * 3 + 2] = young[2];
         s[i] = 16 + rand() * 22;
       } else {
         const b = 0.6 + rand() * 0.4;
-        c[i * 3] = old[0] * b; c[i * 3 + 1] = old[1] * b; c[i * 3 + 2] = old[2] * b;
+        c[i * 3] = old[0] * b;
+        c[i * 3 + 1] = old[1] * b;
+        c[i * 3 + 2] = old[2] * b;
         s[i] = 6 + rand() * 10;
       }
     }
@@ -164,13 +204,15 @@ function buildGalaxy(m: GalaxyModel): Geos {
   }
 
   // ---------- bulge ----------
-  out.push(spheroid(
-    B(m.morphology === "elliptical" ? 260_000 : 70_000),
-    m.bulgeRadius,
-    m.morphology === "elliptical" ? 0.68 : 0.55,
-    m.morphology === "elliptical" ? 1.6 : 2.3,
-    1,
-  ));
+  out.push(
+    spheroid(
+      B(m.morphology === "elliptical" ? 260_000 : 70_000),
+      m.bulgeRadius,
+      m.morphology === "elliptical" ? 0.68 : 0.55,
+      m.morphology === "elliptical" ? 1.6 : 2.3,
+      1,
+    ),
+  );
 
   // ---------- bar ----------
   if (m.barLength > 0) {
@@ -185,7 +227,9 @@ function buildGalaxy(m: GalaxyModel): Geos {
       p[i * 3] = x + (rand() - 0.5) * w * 0.4;
       p[i * 3 + 1] = (rand() - 0.5) * w * 0.35;
       p[i * 3 + 2] = (rand() - 0.5) * w;
-      c[i * 3] = old[0]; c[i * 3 + 1] = old[1] * 0.96; c[i * 3 + 2] = old[2] * 0.85;
+      c[i * 3] = old[0];
+      c[i * 3 + 1] = old[1] * 0.96;
+      c[i * 3 + 2] = old[2] * 0.85;
       s[i] = 9 + rand() * 14;
     }
     out.push(pack(p, c, s));
@@ -204,10 +248,14 @@ function buildGalaxy(m: GalaxyModel): Geos {
       p[i * 3 + 1] = (rand() - 0.5) * m.diskRadius * 0.01;
       p[i * 3 + 2] = Math.sin(theta) * r;
       if (rand() < 0.45) {
-        c[i * 3] = young[0]; c[i * 3 + 1] = young[1]; c[i * 3 + 2] = young[2];
+        c[i * 3] = young[0];
+        c[i * 3 + 1] = young[1];
+        c[i * 3 + 2] = young[2];
         s[i] = 17 + rand() * 22;
       } else {
-        c[i * 3] = old[0]; c[i * 3 + 1] = old[1]; c[i * 3 + 2] = old[2];
+        c[i * 3] = old[0];
+        c[i * 3 + 1] = old[1];
+        c[i * 3 + 2] = old[2];
         s[i] = 8 + rand() * 11;
       }
     }
@@ -216,7 +264,8 @@ function buildGalaxy(m: GalaxyModel): Geos {
 
   // ---------- HII knots ----------
   if (m.morphology !== "elliptical") {
-    const clusters = Math.round(300 * m.density), per = 24;
+    const clusters = Math.round(300 * m.density),
+      per = 24;
     const n = clusters * per;
     const p = new Float32Array(n * 3);
     const c = new Float32Array(n * 3);
@@ -229,9 +278,10 @@ function buildGalaxy(m: GalaxyModel): Geos {
       const rMin = Math.max(m.diskRadius * 0.03, 1);
       const armIdx = Math.floor(rand() * Math.max(1, m.arms));
       const base = m.arms > 0 ? (armIdx / m.arms) * Math.PI * 2 : rand() * Math.PI * 2;
-      const theta = m.arms > 0
-        ? base + K * Math.log(Math.max(r, rMin) / rMin) + (rand() - 0.5) * 0.12
-        : rand() * Math.PI * 2;
+      const theta =
+        m.arms > 0
+          ? base + K * Math.log(Math.max(r, rMin) / rMin) + (rand() - 0.5) * 0.12
+          : rand() * Math.PI * 2;
       const cx = Math.cos(theta) * r * (m.morphology === "starburst" ? 2.6 : 1);
       const cz = Math.sin(theta) * r;
       const spread = m.diskRadius * 0.012;
@@ -240,7 +290,9 @@ function buildGalaxy(m: GalaxyModel): Geos {
         p[k * 3 + 1] = (rand() - 0.5) * spread * 0.4;
         p[k * 3 + 2] = cz + (rand() - 0.5) * spread;
         const q = rand();
-        c[k * 3] = 1.0; c[k * 3 + 1] = 0.4 + q * 0.22; c[k * 3 + 2] = 0.66 + q * 0.28;
+        c[k * 3] = 1.0;
+        c[k * 3 + 1] = 0.4 + q * 0.22;
+        c[k * 3 + 2] = 0.66 + q * 0.28;
         s[k] = 22 + rand() * 30;
         k++;
       }
@@ -257,20 +309,24 @@ function buildGalaxy(m: GalaxyModel): Geos {
     const PITCH = (Math.max(m.pitchDeg, 10) * Math.PI) / 180;
     const K = 1 / Math.tan(PITCH);
     for (let i = 0; i < count; i++) {
-      const r = m.morphology === "edge-on" || m.morphology === "lenticular"
-        ? m.diskRadius * (0.72 + rand() * 0.2)
-        : m.diskRadius * (0.08 + rand() * 0.85);
+      const r =
+        m.morphology === "edge-on" || m.morphology === "lenticular"
+          ? m.diskRadius * (0.72 + rand() * 0.2)
+          : m.diskRadius * (0.08 + rand() * 0.85);
       const rMin = Math.max(m.diskRadius * 0.03, 1);
       const armIdx = Math.floor(rand() * Math.max(1, m.arms));
       const base = m.arms > 0 ? (armIdx / m.arms) * Math.PI * 2 : 0;
-      const theta = m.arms > 0
-        ? base + K * Math.log(Math.max(r, rMin) / rMin) - 0.14 + (rand() - 0.5) * 0.1
-        : rand() * Math.PI * 2;
+      const theta =
+        m.arms > 0
+          ? base + K * Math.log(Math.max(r, rMin) / rMin) - 0.14 + (rand() - 0.5) * 0.1
+          : rand() * Math.PI * 2;
       p[i * 3] = Math.cos(theta) * r * (m.morphology === "starburst" ? 2.6 : 1);
       p[i * 3 + 1] = (rand() - 0.5) * m.diskRadius * 0.008;
       p[i * 3 + 2] = Math.sin(theta) * r;
       const b = 0.1 + rand() * 0.18;
-      c[i * 3] = b * 1.0; c[i * 3 + 1] = b * 0.42; c[i * 3 + 2] = b * 0.28;
+      c[i * 3] = b * 1.0;
+      c[i * 3 + 1] = b * 0.42;
+      c[i * 3 + 2] = b * 0.28;
       s[i] = 18 + rand() * 26;
     }
     out.push(pack(p, c, s));
@@ -315,9 +371,11 @@ function makeGlowTexture(inner: string, outer: string): THREE.Texture {
 }
 
 function makeSurfaceTexture(def: GxPlanetDef, au: number): THREE.Texture {
-  const W = 512, H = 256;
+  const W = 512,
+    H = 256;
   const c = document.createElement("canvas");
-  c.width = W; c.height = H;
+  c.width = W;
+  c.height = H;
   const ctx = c.getContext("2d")!;
   const rand = mulberry32(hashSeed(def.name));
   const base = new THREE.Color(def.color);
@@ -341,28 +399,41 @@ function makeSurfaceTexture(def: GxPlanetDef, au: number): THREE.Texture {
       ctx.beginPath();
       ctx.moveTo(0, y);
       for (let x = 0; x <= W; x += 24) ctx.lineTo(x, y + Math.sin(x * 0.02 + rand()) * 2);
-      ctx.lineTo(W, y + h); ctx.lineTo(0, y + h); ctx.closePath();
+      ctx.lineTo(W, y + h);
+      ctx.lineTo(0, y + h);
+      ctx.closePath();
       ctx.fill();
       y += h;
     }
     ctx.globalAlpha = 1;
     for (let i = 0; i < 4; i++) {
-      const sx = rand() * W, sy = H * (0.25 + rand() * 0.5);
-      const rx = 14 + rand() * 34, ry = rx * 0.45;
+      const sx = rand() * W,
+        sy = H * (0.25 + rand() * 0.5);
+      const rx = 14 + rand() * 34,
+        ry = rx * 0.45;
       const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rx);
       g.addColorStop(0, i === 0 ? "#d0603a" : shade(1.3));
       g.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = g;
-      ctx.save(); ctx.translate(sx, sy); ctx.scale(1, ry / rx); ctx.translate(-sx, -sy);
-      ctx.beginPath(); ctx.arc(sx, sy, rx, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.scale(1, ry / rx);
+      ctx.translate(-sx, -sy);
+      ctx.beginPath();
+      ctx.arc(sx, sy, rx, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
   } else {
     for (let i = 0; i < 900; i++) {
-      const x = rand() * W, y = rand() * H;
+      const x = rand() * W,
+        y = rand() * H;
       const r = 2 + rand() * 22;
       ctx.globalAlpha = 0.05 + rand() * 0.18;
       ctx.fillStyle = shade(0.6 + rand() * 0.9);
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
     }
     ctx.globalAlpha = 0.5;
     ctx.fillStyle = "rgba(255,255,255,0.55)";
@@ -376,9 +447,11 @@ function makeSurfaceTexture(def: GxPlanetDef, au: number): THREE.Texture {
 }
 
 function makeRingTexture(color: string): THREE.Texture {
-  const W = 256, H = 4;
+  const W = 256,
+    H = 4;
   const c = document.createElement("canvas");
-  c.width = W; c.height = H;
+  c.width = W;
+  c.height = H;
   const ctx = c.getContext("2d")!;
   const base = new THREE.Color(color);
   const rand = mulberry32(0x51f7);
@@ -421,10 +494,12 @@ function keplerPosition(def: GxPlanetDef, phase: number, t: number, out: THREE.V
   for (let k = 0; k < 6; k++) E = E - (E - def.e * Math.sin(E) - M) / (1 - def.e * Math.cos(E));
   const xp = def.a * (Math.cos(E) - def.e);
   const zp = def.a * Math.sqrt(1 - def.e * def.e) * Math.sin(E);
-  const cw = Math.cos(def.omega), sw = Math.sin(def.omega);
+  const cw = Math.cos(def.omega),
+    sw = Math.sin(def.omega);
   const x1 = xp * cw - zp * sw;
   const z1 = xp * sw + zp * cw;
-  const ci = Math.cos(def.i), si = Math.sin(def.i);
+  const ci = Math.cos(def.i),
+    si = Math.sin(def.i);
   return out.set(x1, -z1 * si, z1 * ci);
 }
 
@@ -436,16 +511,21 @@ function makeOrbitLine(def: GxPlanetDef, color: string, opacity: number) {
     const E = (k / segs) * Math.PI * 2;
     const xp = def.a * (Math.cos(E) - def.e);
     const zp = def.a * Math.sqrt(1 - def.e * def.e) * Math.sin(E);
-    const cw = Math.cos(def.omega), sw = Math.sin(def.omega);
+    const cw = Math.cos(def.omega),
+      sw = Math.sin(def.omega);
     const x1 = xp * cw - zp * sw;
     const z1 = xp * sw + zp * cw;
-    const ci = Math.cos(def.i), si = Math.sin(def.i);
+    const ci = Math.cos(def.i),
+      si = Math.sin(def.i);
     v.set(x1, -z1 * si, z1 * ci);
     pts.push(v.x, v.y, v.z);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-  return new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
+  return new THREE.Line(
+    g,
+    new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false }),
+  );
 }
 
 function GxMoon({ moon, parent }: { moon: GxMoonDef; parent: string }) {
@@ -466,7 +546,10 @@ function GxMoon({ moon, parent }: { moon: GxMoonDef; parent: string }) {
     const reg = getRegistry();
     const key = `${parent} · ${moon.name}`;
     let v = reg.get(key);
-    if (!v) { v = new THREE.Vector3(); reg.set(key, v); }
+    if (!v) {
+      v = new THREE.Vector3();
+      reg.set(key, v);
+    }
     v.copy(tmp);
   });
   return (
@@ -485,9 +568,15 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
   const local = useMemo(() => new THREE.Vector3(), []);
   const setVisit = useStore((s) => s.setVisitPlanet);
   const surface = useMemo(() => makeSurfaceTexture(def, au), [def, au]);
-  const haloTex = useMemo(() => makeGlowTexture("rgba(255,255,255,0.9)", "rgba(255,255,255,0)"), []);
+  const haloTex = useMemo(
+    () => makeGlowTexture("rgba(255,255,255,0.9)", "rgba(255,255,255,0)"),
+    [],
+  );
   const ringTex = useMemo(() => (def.ring ? makeRingTexture(def.ring.color) : null), [def]);
-  const ringGeo = useMemo(() => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 128) : null), [def]);
+  const ringGeo = useMemo(
+    () => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 128) : null),
+    [def],
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -497,21 +586,40 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
     groupRef.current.getWorldPosition(tmp);
     const reg = getRegistry();
     let v = reg.get(def.name);
-    if (!v) { v = new THREE.Vector3(); reg.set(def.name, v); }
+    if (!v) {
+      v = new THREE.Vector3();
+      reg.set(def.name, v);
+    }
     v.copy(tmp);
   });
 
   return (
     <group ref={groupRef}>
       <sprite scale={[def.size * 18, def.size * 18, 1]}>
-        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0.55} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <spriteMaterial
+          map={haloTex}
+          color={def.color}
+          transparent
+          opacity={0.55}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
       </sprite>
       <group rotation={[0, 0, def.tilt]}>
         <mesh
           ref={bodyRef}
-          onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-          onPointerOut={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = ""; }}
-          onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); setVisit(def.name); }}
+          onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            document.body.style.cursor = "pointer";
+          }}
+          onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            document.body.style.cursor = "";
+          }}
+          onClick={(e: ThreeEvent<MouseEvent>) => {
+            e.stopPropagation();
+            setVisit(def.name);
+          }}
         >
           <sphereGeometry args={[def.size, 40, 40]} />
           <meshStandardMaterial
@@ -526,21 +634,43 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
           <>
             <mesh scale={1.04}>
               <sphereGeometry args={[def.size, 28, 28]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.15} side={THREE.BackSide} depthWrite={false} />
+              <meshBasicMaterial
+                color={def.atmosphere}
+                transparent
+                opacity={0.15}
+                side={THREE.BackSide}
+                depthWrite={false}
+              />
             </mesh>
             <mesh scale={1.14}>
               <sphereGeometry args={[def.size, 28, 28]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+              <meshBasicMaterial
+                color={def.atmosphere}
+                transparent
+                opacity={0.07}
+                side={THREE.BackSide}
+                depthWrite={false}
+                blending={THREE.AdditiveBlending}
+              />
             </mesh>
           </>
         )}
         {def.ring && ringGeo && (
           <mesh geometry={ringGeo} rotation={[Math.PI / 2, 0, 0]}>
-            <meshBasicMaterial map={ringTex ?? undefined} color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.9} depthWrite={false} />
+            <meshBasicMaterial
+              map={ringTex ?? undefined}
+              color={def.ring.color}
+              side={THREE.DoubleSide}
+              transparent
+              opacity={0.9}
+              depthWrite={false}
+            />
           </mesh>
         )}
       </group>
-      {def.moons?.map((mn) => <GxMoon key={mn.name} moon={mn} parent={def.name} />)}
+      {def.moons?.map((mn) => (
+        <GxMoon key={mn.name} moon={mn} parent={def.name} />
+      ))}
     </group>
   );
 }
@@ -588,7 +718,14 @@ function GxBelt({ system }: { system: GxSystemDef }) {
   });
   return (
     <points geometry={geom} frustumCulled={false}>
-      <pointsMaterial color="#9db6c8" size={0.012 * au} sizeAttenuation transparent opacity={0.8} depthWrite={false} />
+      <pointsMaterial
+        color="#9db6c8"
+        size={0.012 * au}
+        sizeAttenuation
+        transparent
+        opacity={0.8}
+        depthWrite={false}
+      />
     </points>
   );
 }
@@ -604,7 +741,10 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
   const world = useMemo(() => new THREE.Vector3(), []);
   const glowTex = useMemo(() => makeGlowTexture("rgba(255,215,160,1)", "rgba(255,140,50,0)"), []);
   const orbits = useMemo(
-    () => s.planets.map((p) => makeOrbitLine(p, p.confirmed ? "#ffd8a0" : "#5f7fb5", p.confirmed ? 0.5 : 0.22)),
+    () =>
+      s.planets.map((p) =>
+        makeOrbitLine(p, p.confirmed ? "#ffd8a0" : "#5f7fb5", p.confirmed ? 0.5 : 0.22),
+      ),
     [s],
   );
   const omega = useMemo(() => systemOmega(m), [m]);
@@ -621,7 +761,10 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
       groupRef.current.getWorldPosition(world);
       const reg = getRegistry();
       let v = reg.get(s.star.name);
-      if (!v) { v = new THREE.Vector3(); reg.set(s.star.name, v); }
+      if (!v) {
+        v = new THREE.Vector3();
+        reg.set(s.star.name, v);
+      }
       v.copy(world);
     }
     if (starRef.current) starRef.current.rotation.y = t * 0.05;
@@ -631,27 +774,48 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
     <group ref={groupRef}>
       <mesh
         ref={starRef}
-        onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-        onPointerOut={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = ""; }}
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          document.body.style.cursor = "";
+        }}
       >
         <sphereGeometry args={[s.star.radius, 40, 40]} />
         <meshBasicMaterial color={s.star.color} />
       </mesh>
       <pointLight color={s.star.color} intensity={6} distance={40 * s.au} decay={1.4} />
       <sprite scale={[s.star.radius * 9, s.star.radius * 9, 1]}>
-        <spriteMaterial map={glowTex} transparent opacity={0.45} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <spriteMaterial
+          map={glowTex}
+          transparent
+          opacity={0.45}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
       </sprite>
-      {orbits.map((o, i) => <primitive key={i} object={o} />)}
-      {s.planets.map((p) => <GxPlanet key={p.name} def={p} au={s.au} />)}
+      {orbits.map((o, i) => (
+        <primitive key={i} object={o} />
+      ))}
+      {s.planets.map((p) => (
+        <GxPlanet key={p.name} def={p} au={s.au} />
+      ))}
       <GxBelt system={s} />
       <Billboard>
         <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-          <div style={{
-            transform: "translate(0px, -44px)",
-            color: "#ffe6c0", fontSize: 11, letterSpacing: 1.3,
-            fontFamily: "Inter, system-ui, sans-serif", whiteSpace: "nowrap",
-            textShadow: "0 0 12px rgba(255,180,90,0.8)",
-          }}>
+          <div
+            style={{
+              transform: "translate(0px, -44px)",
+              color: "#ffe6c0",
+              fontSize: 11,
+              letterSpacing: 1.3,
+              fontFamily: "Inter, system-ui, sans-serif",
+              whiteSpace: "nowrap",
+              textShadow: "0 0 12px rgba(255,180,90,0.8)",
+            }}
+          >
             {s.star.name}
           </div>
         </Html>
@@ -720,7 +884,9 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
     [tex, vFlat, rCore],
   );
 
-  useFrame(({ clock }) => { shader.uniforms.uTime.value = clock.elapsedTime; });
+  useFrame(({ clock }) => {
+    shader.uniforms.uTime.value = clock.elapsedTime;
+  });
 
   return (
     <group
@@ -734,7 +900,13 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
           </points>
         ))}
         <sprite scale={[m.bulgeRadius * 1.6, m.bulgeRadius * 1.6, 1]}>
-          <spriteMaterial map={coreTex} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.8} />
+          <spriteMaterial
+            map={coreTex}
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            opacity={0.8}
+          />
         </sprite>
         {m.system && <GxSystem m={m} system={m.system} />}
       </group>
@@ -765,7 +937,10 @@ function GalaxyGate({ m }: { m: GalaxyModel }) {
   // Give the camera a moment to start moving before paying for the build.
   const [armed, setArmed] = useState(false);
   useEffect(() => {
-    if (!(selectedByUser || near)) { setArmed(false); return; }
+    if (!(selectedByUser || near)) {
+      setArmed(false);
+      return;
+    }
     const id = setTimeout(() => setArmed(true), 120);
     return () => clearTimeout(id);
   }, [selectedByUser, near]);
@@ -777,7 +952,9 @@ function GalaxyGate({ m }: { m: GalaxyModel }) {
 export function DetailedGalaxies() {
   return (
     <group>
-      {GALAXY_MODELS.map((m) => <GalaxyGate key={m.key} m={m} />)}
+      {GALAXY_MODELS.map((m) => (
+        <GalaxyGate key={m.key} m={m} />
+      ))}
     </group>
   );
 }

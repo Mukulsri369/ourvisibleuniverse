@@ -1,2 +1,39 @@
-import { createFileRoute } from "@tanstack/react-router"; import { InfoPage } from "@/components/site/InfoPage"; import { Plans } from "@/components/site/Plans";
-export const Route=createFileRoute("/pricing")({head:()=>({meta:[{title:"Pricing — Our Visible Universe"},{name:"description",content:"Choose 30, 180 or 365 days of access to Our Visible Universe with a one-time payment."},{property:"og:title",content:"Pricing — Our Visible Universe"},{property:"og:description",content:"Choose 30, 180 or 365 days of access with a one-time payment."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:()=> <InfoPage eyebrow="Pricing" title="Pay once. Explore freely." intro="Every pass opens the complete educational universe. There are no automatic renewals or hidden plan changes."><Plans/><section><h2>How access works</h2><p>Sign in, choose a pass and pay securely through Razorpay. Access begins once payment is confirmed and lasts for the purchased number of days. Buying another pass extends your current expiry date.</p></section></InfoPage>});
+import { createFileRoute } from "@tanstack/react-router";
+import { InfoPage } from "@/components/site/InfoPage";
+import { Plans } from "@/components/site/Plans";
+export const Route = createFileRoute("/pricing")({
+  head: () => ({
+    meta: [
+      { title: "Pricing — Our Visible Universe" },
+      {
+        name: "description",
+        content:
+          "Choose 30, 180 or 365 days of access to Our Visible Universe with a one-time payment.",
+      },
+      { property: "og:title", content: "Pricing — Our Visible Universe" },
+      {
+        property: "og:description",
+        content: "Choose 30, 180 or 365 days of access with a one-time payment.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: () => (
+    <InfoPage
+      eyebrow="Pricing"
+      title="Pay once. Explore freely."
+      intro="Every pass opens the complete educational universe. There are no automatic renewals or hidden plan changes."
+    >
+      <Plans />
+      <section>
+        <h2>How access works</h2>
+        <p>
+          Sign in, choose a pass and pay securely through Razorpay. Access begins once payment is
+          confirmed and lasts for the purchased number of days. Buying another pass extends your
+          current expiry date.
+        </p>
+      </section>
+    </InfoPage>
+  ),
+});

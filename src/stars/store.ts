@@ -180,7 +180,8 @@ export const useStore = create<State>((set, get) => ({
   zoomSpeed: 50,
   systemSpeed: 25,
   trailSize: 50,
-  setSelected: (s) => set({ exoVisit: null, selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
+  setSelected: (s) =>
+    set({ exoVisit: null, selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
   startTour: () =>
     set({
@@ -231,14 +232,15 @@ export const useStore = create<State>((set, get) => ({
       visitPlanet: null,
       selectedObjectId: null,
       tourActive: false,
-      flyTo: g && g.view !== "overview"
-        ? (() => {
-            const f = withFocus(g).focus;
-            return f
-              ? { x: f.x, y: f.y, z: f.z, distance: f.distance }
-              : { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 2000) };
-          })()
-        : null,
+      flyTo:
+        g && g.view !== "overview"
+          ? (() => {
+              const f = withFocus(g).focus;
+              return f
+                ? { x: f.x, y: f.y, z: f.z, distance: f.distance }
+                : { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 2000) };
+            })()
+          : null,
     }),
   setSelectedObject: (id) => {
     const item = id ? OBJECT_BY_ID.get(id) : undefined;

@@ -5,42 +5,92 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyAccess } from "@/lib/razorpay.functions";
 
-type Access = { access_days: number; expires_at: string; price_id: string; starts_at: string; status: string } | null | undefined;
+type Access =
+  | { access_days: number; expires_at: string; price_id: string; starts_at: string; status: string }
+  | null
+  | undefined;
 
 export const Route = createFileRoute("/_authenticated/account")({
-  head: () => ({ meta: [
-    { title: "Your account — Our Visible Universe" },
-    { name: "description", content: "View your universe access pass and expiry date." },
-    { property: "og:title", content: "Your account — Our Visible Universe" },
-    { property: "og:description", content: "View your universe access pass and expiry date." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Your account — Our Visible Universe" },
+      { name: "description", content: "View your universe access pass and expiry date." },
+      { property: "og:title", content: "Your account — Our Visible Universe" },
+      { property: "og:description", content: "View your universe access pass and expiry date." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AccountPage,
 });
 
 function AccountPage() {
   const navigate = useNavigate();
   const [access, setAccess] = useState<Access>();
-  useEffect(() => { void getMyAccess().then(r => setAccess(r.access)).catch(() => setAccess(null)); }, []);
-  const active = Boolean(access && access.status === "active" && new Date(access.expires_at) > new Date());
-  const days = access ? Math.max(0, Math.ceil((new Date(access.expires_at).getTime() - Date.now()) / 86400000)) : 0;
-  return <PublicLayout><main className="mx-auto max-w-4xl px-5 pb-24 pt-36">
-    <p className="text-sm font-semibold uppercase text-primary">Your account</p>
-    <h1 className="mt-3 text-4xl font-semibold">Universe access</h1>
-    <section className="mt-10 border border-border bg-card p-7">
-      <p className="text-sm text-muted-foreground">Current status</p>
-      <p className="mt-2 text-2xl font-semibold">{access === undefined ? "Checking…" : active ? "Active" : "No active pass"}</p>
-      {active && access && <div className="mt-7 grid gap-5 sm:grid-cols-3">
-        <div><p className="text-sm text-muted-foreground">Remaining</p><p className="mt-1 text-xl">{days} days</p></div>
-        <div><p className="text-sm text-muted-foreground">Last pass</p><p className="mt-1 text-xl">{access.access_days} days</p></div>
-        <div><p className="text-sm text-muted-foreground">Access until</p><p className="mt-1 text-xl">{new Date(access.expires_at).toLocaleDateString()}</p></div>
-      </div>}
-      <div className="mt-8 flex flex-wrap gap-3">
-        {active ? <Button asChild><Link to="/universe">Open universe</Link></Button> : <Button asChild><Link to="/pricing">Choose a pass</Link></Button>}
-        {active && <Button asChild variant="outline"><Link to="/pricing">Extend access</Link></Button>}
-        <Button variant="outline" onClick={async () => { await supabase.auth.signOut(); await navigate({ to: "/" }); }}>Sign out</Button>
-      </div>
-    </section>
-  </main></PublicLayout>;
+  useEffect(() => {
+    void getMyAccess()
+      .then((r) => setAccess(r.access))
+      .catch(() => setAccess(null));
+  }, []);
+  const active = Boolean(
+    access && access.status === "active" && new Date(access.expires_at) > new Date(),
+  );
+  const days = access
+    ? Math.max(0, Math.ceil((new Date(access.expires_at).getTime() - Date.now()) / 86400000))
+    : 0;
+  return (
+    <PublicLayout>
+      <main className="mx-auto max-w-4xl px-5 pb-24 pt-36">
+        <p className="text-sm font-semibold uppercase text-primary">Your account</p>
+        <h1 className="mt-3 text-4xl font-semibold">Universe access</h1>
+        <section className="mt-10 border border-border bg-card p-7">
+          <p className="text-sm text-muted-foreground">Current status</p>
+          <p className="mt-2 text-2xl font-semibold">
+            {access === undefined ? "Checking…" : active ? "Active" : "No active pass"}
+          </p>
+          {active && access && (
+            <div className="mt-7 grid gap-5 sm:grid-cols-3">
+              <div>
+                <p className="text-sm text-muted-foreground">Remaining</p>
+                <p className="mt-1 text-xl">{days} days</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Last pass</p>
+                <p className="mt-1 text-xl">{access.access_days} days</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Access until</p>
+                <p className="mt-1 text-xl">{new Date(access.expires_at).toLocaleDateString()}</p>
+              </div>
+            </div>
+          )}
+          <div className="mt-8 flex flex-wrap gap-3">
+            {active ? (
+              <Button asChild>
+                <Link to="/universe">Open universe</Link>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/pricing">Choose a pass</Link>
+              </Button>
+            )}
+            {active && (
+              <Button asChild variant="outline">
+                <Link to="/pricing">Extend access</Link>
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                await navigate({ to: "/" });
+              }}
+            >
+              Sign out
+            </Button>
+          </div>
+        </section>
+      </main>
+    </PublicLayout>
+  );
 }

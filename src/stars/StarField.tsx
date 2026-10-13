@@ -48,8 +48,12 @@ export function StarField() {
       positions[i * 3 + 2] = s.z;
       const cNat = spectralColor(s.spectral);
       const cSpec = spectralIndexColor(spectralIndex(s.spectral));
-      natural[i * 3] = cNat.r; natural[i * 3 + 1] = cNat.g; natural[i * 3 + 2] = cNat.b;
-      spectral[i * 3] = cSpec.r; spectral[i * 3 + 1] = cSpec.g; spectral[i * 3 + 2] = cSpec.b;
+      natural[i * 3] = cNat.r;
+      natural[i * 3 + 1] = cNat.g;
+      natural[i * 3 + 2] = cNat.b;
+      spectral[i * 3] = cSpec.r;
+      spectral[i * 3 + 1] = cSpec.g;
+      spectral[i * 3 + 2] = cSpec.b;
       // size from magnitude: brighter (lower mag) => larger
       const mag = Math.min(10, Math.max(-2, s.magnitude));
       sizes[i] = Math.max(3, 14 - mag * 1.3);
@@ -61,7 +65,7 @@ export function StarField() {
     // around the Sun: exponential radial profile + sech-like vertical
     // scale-height (~300 ly). 1 scene unit = 1 light-year.
     const SCALE_H = 700;
-    const R_MAX = 14000;     // local neighborhood we render in detail
+    const R_MAX = 14000; // local neighborhood we render in detail
     for (let j = 0; j < BACKGROUND_COUNT; j++) {
       const i = NAMED_STARS.length + j;
       // exponential-ish radial distribution in the galactic plane —
@@ -78,16 +82,30 @@ export function StarField() {
       positions[i * 3 + 2] = Math.sin(theta) * rClamped;
       // realistic spectral mix in the solar neighborhood (~76% M, 12% K, etc.)
       const roll = Math.random();
-      const cls = roll < 0.76 ? "M" : roll < 0.88 ? "K" : roll < 0.955 ? "G" : roll < 0.985 ? "F" : roll < 0.995 ? "A" : "B";
+      const cls =
+        roll < 0.76
+          ? "M"
+          : roll < 0.88
+            ? "K"
+            : roll < 0.955
+              ? "G"
+              : roll < 0.985
+                ? "F"
+                : roll < 0.995
+                  ? "A"
+                  : "B";
       const cNat = spectralColor(cls);
       const cSpec = spectralIndexColor(spectralIndex(cls));
-      natural[i * 3] = cNat.r; natural[i * 3 + 1] = cNat.g; natural[i * 3 + 2] = cNat.b;
-      spectral[i * 3] = cSpec.r; spectral[i * 3 + 1] = cSpec.g; spectral[i * 3 + 2] = cSpec.b;
+      natural[i * 3] = cNat.r;
+      natural[i * 3 + 1] = cNat.g;
+      natural[i * 3 + 2] = cNat.b;
+      spectral[i * 3] = cSpec.r;
+      spectral[i * 3 + 1] = cSpec.g;
+      spectral[i * 3 + 2] = cSpec.b;
       sizes[i] = 1 + Math.random() * 2.2;
       phase[i] = Math.random() * Math.PI * 2;
       isBg[i] = 1;
     }
-
 
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -100,7 +118,8 @@ export function StarField() {
   }, []);
 
   // Avoid unused-var lints; the buffers are stored on geometry attributes
-  void naturalColors; void spectralColors;
+  void naturalColors;
+  void spectralColors;
 
   useFrame(({ clock }) => {
     spectralTarget.current = spectralMode ? 1 : 0;

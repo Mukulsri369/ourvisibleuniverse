@@ -3,7 +3,10 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ACCESS_PLANS, isPlanId } from "@/lib/plans";
 
-const checkoutInput = z.object({ planId: z.string(), currency: z.enum(["INR", "USD"]).default("INR") });
+const checkoutInput = z.object({
+  planId: z.string(),
+  currency: z.enum(["INR", "USD"]).default("INR"),
+});
 const verificationInput = z.object({
   razorpay_order_id: z.string().min(1).max(100),
   razorpay_payment_id: z.string().min(1).max(100),
@@ -12,13 +15,19 @@ const verificationInput = z.object({
 
 export const createRazorpayCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(input => checkoutInput.parse(input))
+  .inputValidator((input) => checkoutInput.parse(input))
   .handler(async ({ data, context }) => {
     if (!isPlanId(data.planId)) throw new Error("Invalid access pass");
     try {
-      const { createRazorpayOrder, getRazorpayConfig, getRazorpayMode } = await import("@/lib/razorpay.server");
+      const { createRazorpayOrder, getRazorpayConfig, getRazorpayMode } =
+        await import("@/lib/razorpay.server");
       const mode = getRazorpayMode();
-      const order = await createRazorpayOrder({ planId: data.planId, currency: data.currency, userId: context.userId, mode });
+      const order = await createRazorpayOrder({
+        planId: data.planId,
+        currency: data.currency,
+        userId: context.userId,
+        mode,
+      });
       const { keyId } = getRazorpayConfig(mode);
       const { data: userData } = await context.supabase.auth.getUser();
       return {
@@ -38,10 +47,11 @@ export const createRazorpayCheckout = createServerFn({ method: "POST" })
 
 export const confirmRazorpayPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(input => verificationInput.parse(input))
+  .inputValidator((input) => verificationInput.parse(input))
   .handler(async ({ data, context }) => {
     try {
-      const { fulfillRazorpayPayment, getRazorpayMode, verifyRazorpaySignature } = await import("@/lib/razorpay.server");
+      const { fulfillRazorpayPayment, getRazorpayMode, verifyRazorpaySignature } =
+        await import("@/lib/razorpay.server");
       const mode = getRazorpayMode();
       const valid = await verifyRazorpaySignature({
         orderId: data.razorpay_order_id,
@@ -59,7 +69,9 @@ export const confirmRazorpayPayment = createServerFn({ method: "POST" })
       return { success: true as const, expiresAt: result.expiresAt };
     } catch (error) {
       console.error("Unable to confirm Razorpay payment", error);
-      throw new Error("We could not confirm this payment. If you were charged, contact support before trying again.");
+      throw new Error(
+        "We could not confirm this payment. If you were charged, contact support before trying again.",
+      );
     }
   });
 

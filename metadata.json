@@ -1,0 +1,6 @@
+{
+  "name": "Our Visible Universe",
+  "description": "Explore a 3D visualization of 100,000 stars, offering an immersive cinematic space journey.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

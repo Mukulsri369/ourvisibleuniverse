@@ -1,2 +1,49 @@
-import { createFileRoute } from "@tanstack/react-router"; import { InfoPage } from "@/components/site/InfoPage";
-export const Route=createFileRoute("/terms")({head:()=>({meta:[{title:"Terms of Use — Our Visible Universe"},{name:"description",content:"Terms governing access to Our Visible Universe."},{property:"og:title",content:"Terms of Use — Our Visible Universe"},{property:"og:description",content:"Terms governing access to Our Visible Universe."},{property:"og:type",content:"article"},{name:"twitter:card",content:"summary"}]}),component:()=> <InfoPage eyebrow="Legal" title="Terms of Use" intro="Last updated: 5 October 2026"><section><h2>Access passes</h2><p>Passes provide personal access for the stated fixed period after payment confirmation through Razorpay. They do not renew automatically and may not be shared, resold or transferred.</p></section><section><h2>Acceptable use</h2><p>You may use the experience for personal education and exploration. You must not disrupt the service, evade security controls, scrape protected content, reverse engineer security systems or use the service unlawfully.</p></section><section><h2>Scientific and service limits</h2><p>The experience is educational and visual. It is not a professional scientific instrument. Measurements and models may change as knowledge and the product improve. Availability may occasionally be interrupted for maintenance or circumstances beyond reasonable control.</p></section><section><h2>Governing contact</h2><p>The service is operated by Mukul Srivastava in Chandigarh, India. Contact ourvisibleuniverse@gmail.com with questions.</p></section></InfoPage>});
+import { createFileRoute } from "@tanstack/react-router";
+import { InfoPage } from "@/components/site/InfoPage";
+export const Route = createFileRoute("/terms")({
+  head: () => ({
+    meta: [
+      { title: "Terms of Use — Our Visible Universe" },
+      { name: "description", content: "Terms governing access to Our Visible Universe." },
+      { property: "og:title", content: "Terms of Use — Our Visible Universe" },
+      { property: "og:description", content: "Terms governing access to Our Visible Universe." },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <InfoPage eyebrow="Legal" title="Terms of Use" intro="Last updated: 5 October 2026">
+      <section>
+        <h2>Access passes</h2>
+        <p>
+          Passes provide personal access for the stated fixed period after payment confirmation
+          through Razorpay. They do not renew automatically and may not be shared, resold or
+          transferred.
+        </p>
+      </section>
+      <section>
+        <h2>Acceptable use</h2>
+        <p>
+          You may use the experience for personal education and exploration. You must not disrupt
+          the service, evade security controls, scrape protected content, reverse engineer security
+          systems or use the service unlawfully.
+        </p>
+      </section>
+      <section>
+        <h2>Scientific and service limits</h2>
+        <p>
+          The experience is educational and visual. It is not a professional scientific instrument.
+          Measurements and models may change as knowledge and the product improve. Availability may
+          occasionally be interrupted for maintenance or circumstances beyond reasonable control.
+        </p>
+      </section>
+      <section>
+        <h2>Governing contact</h2>
+        <p>
+          The service is operated by Mukul Srivastava in Chandigarh, India. Contact
+          ourvisibleuniverse@gmail.com with questions.
+        </p>
+      </section>
+    </InfoPage>
+  ),
+});

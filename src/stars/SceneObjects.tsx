@@ -7,7 +7,10 @@ export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
   const coronaRef = useRef<THREE.Sprite>(null!);
 
-  const coronaTex = useMemo(() => makeRadialTexture("rgba(255,180,80,1)", "rgba(255,100,30,0)"), []);
+  const coronaTex = useMemo(
+    () => makeRadialTexture("rgba(255,180,80,1)", "rgba(255,100,30,0)"),
+    [],
+  );
 
   const shader = useMemo(
     () => ({
@@ -82,7 +85,13 @@ export function Sun() {
       </mesh>
       <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />
       <sprite ref={coronaRef}>
-        <spriteMaterial map={coronaTex} blending={THREE.AdditiveBlending} depthWrite={false} transparent opacity={0.35} />
+        <spriteMaterial
+          map={coronaTex}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          transparent
+          opacity={0.35}
+        />
       </sprite>
     </group>
   );
@@ -102,9 +111,11 @@ function makeRadialTexture(inner: string, outer: string): THREE.Texture {
 }
 
 function makeFlareTexture(): THREE.Texture {
-  const w = 512, h = 32;
+  const w = 512,
+    h = 32;
   const canvas = document.createElement("canvas");
-  canvas.width = w; canvas.height = h;
+  canvas.width = w;
+  canvas.height = h;
   const ctx = canvas.getContext("2d")!;
   const g = ctx.createLinearGradient(0, 0, w, 0);
   g.addColorStop(0, "rgba(255,200,120,0)");
@@ -144,12 +155,20 @@ export function OortCloud() {
   useFrame(({ camera }) => {
     if (!ref.current) return;
     const d = camera.position.length();
-    const opacity = Math.max(0, Math.min(0.6, (d - 0.3) / 5)) * Math.max(0, Math.min(1, (60 - d) / 60));
+    const opacity =
+      Math.max(0, Math.min(0.6, (d - 0.3) / 5)) * Math.max(0, Math.min(1, (60 - d) / 60));
     (ref.current.material as THREE.PointsMaterial).opacity = opacity;
   });
   return (
     <points ref={ref} geometry={geometry}>
-      <pointsMaterial color="#88aaff" size={0.05} sizeAttenuation transparent opacity={0} depthWrite={false} />
+      <pointsMaterial
+        color="#88aaff"
+        size={0.05}
+        sizeAttenuation
+        transparent
+        opacity={0}
+        depthWrite={false}
+      />
     </points>
   );
 }
@@ -210,7 +229,7 @@ export function MilkyWay() {
 
   const { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo } = useMemo(() => {
     if (CACHED_MW) return CACHED_MW;
-    const rand = mulberry32(0xC0FFEE43);
+    const rand = mulberry32(0xc0ffee43);
 
     // ---- Log-spiral disk with 2 major + 2 minor arms ----
     // theta = k * ln(r / r0), pitch angle p ≈ 12.5° → k = 1/tan(p) ≈ 4.51.
@@ -234,10 +253,14 @@ export function MilkyWay() {
       // biased outward so the outer branches are noticeably fuller.
       const u = rand();
       // Mix two exponentials: dominant long scale + a heavier outer tail.
-      const r = (u < 0.7)
-        ? -Math.log(1 - rand() * 0.999) * 8500 + 1500
-        : -Math.log(1 - rand() * 0.999) * 14000 + 6000;
-      if (r > DISK_RADIUS) { i--; continue; }
+      const r =
+        u < 0.7
+          ? -Math.log(1 - rand() * 0.999) * 8500 + 1500
+          : -Math.log(1 - rand() * 0.999) * 14000 + 6000;
+      if (r > DISK_RADIUS) {
+        i--;
+        continue;
+      }
 
       // Arm selection weighted by strength
       let armIdx = 0;
@@ -246,7 +269,10 @@ export function MilkyWay() {
         let pick = rand() * totalW;
         for (let a = 0; a < ARM_OFFSETS.length; a++) {
           pick -= ARM_STRENGTH[a];
-          if (pick <= 0) { armIdx = a; break; }
+          if (pick <= 0) {
+            armIdx = a;
+            break;
+          }
         }
       } else {
         armIdx = Math.floor(rand() * ARM_OFFSETS.length);
@@ -265,7 +291,8 @@ export function MilkyWay() {
       const isThick = rand() < 0.12;
       const scaleH = isThick ? 1000 : DISK_SCALE_HEIGHT;
       const uz = rand() - 0.5;
-      const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / 20000);
+      const z =
+        -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / 20000);
 
       dPos[i * 3] = Math.cos(theta) * r;
       dPos[i * 3 + 1] = z;
@@ -279,10 +306,14 @@ export function MilkyWay() {
       const isYoung = rand() < youngProb;
       const isRedGiant = !isYoung && rand() < 0.06;
       if (isYoung) {
-        dCol[i * 3] = 0.75; dCol[i * 3 + 1] = 0.85; dCol[i * 3 + 2] = 1.0;
+        dCol[i * 3] = 0.75;
+        dCol[i * 3 + 1] = 0.85;
+        dCol[i * 3 + 2] = 1.0;
         dSize[i] = 18 + rand() * 22;
       } else if (isRedGiant) {
-        dCol[i * 3] = 1.0; dCol[i * 3 + 1] = 0.65; dCol[i * 3 + 2] = 0.45;
+        dCol[i * 3] = 1.0;
+        dCol[i * 3 + 1] = 0.65;
+        dCol[i * 3 + 2] = 0.45;
         dSize[i] = 16 + rand() * 18;
       } else {
         const inner = 1 - rNorm;
@@ -324,19 +355,25 @@ export function MilkyWay() {
 
     // ---- Central Bar (~8000 ly long, oriented ~27° from Sun-GC line) ----
     const barCount = 22000;
-    const barLen = 8000, barWidth = 1500, barHeight = 700;
+    const barLen = 8000,
+      barWidth = 1500,
+      barHeight = 700;
     const barAngle = (27 * Math.PI) / 180;
-    const cosA = Math.cos(barAngle), sinA = Math.sin(barAngle);
+    const cosA = Math.cos(barAngle),
+      sinA = Math.sin(barAngle);
     const barPos = new Float32Array(barCount * 3);
     const barCol = new Float32Array(barCount * 3);
     const barSize = new Float32Array(barCount);
     for (let i = 0; i < barCount; i++) {
       // Prolate ellipsoid distribution
       const u = rand() - 0.5;
-      const v = (rand() - 0.5);
-      const w = (rand() - 0.5);
+      const v = rand() - 0.5;
+      const w = rand() - 0.5;
       const density = Math.exp(-(u * u * 4 + v * v * 6 + w * w * 6));
-      if (rand() > density) { i--; continue; }
+      if (rand() > density) {
+        i--;
+        continue;
+      }
       const lx = u * barLen;
       const lz = v * barWidth;
       const ly = w * barHeight;
@@ -400,7 +437,9 @@ export function MilkyWay() {
       hPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       hPos[i * 3 + 1] = r * Math.cos(phi);
       hPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      hCol[i * 3] = 0.95; hCol[i * 3 + 1] = 0.88; hCol[i * 3 + 2] = 0.72;
+      hCol[i * 3] = 0.95;
+      hCol[i * 3 + 1] = 0.88;
+      hCol[i * 3 + 2] = 0.72;
       hSize[i] = 4 + rand() * 8;
     }
     const haloGeo = new THREE.BufferGeometry();
@@ -506,7 +545,12 @@ export function MilkyWay() {
           <meshBasicMaterial color="#ffe6b0" />
         </mesh>
         <sprite scale={[3500, 3500, 1]}>
-          <spriteMaterial map={coreTex} blending={THREE.AdditiveBlending} transparent depthWrite={false} />
+          <spriteMaterial
+            map={coreTex}
+            blending={THREE.AdditiveBlending}
+            transparent
+            depthWrite={false}
+          />
         </sprite>
       </group>
       <SolarOrbitRing radius={26000} />
@@ -526,7 +570,16 @@ function SolarOrbitRing({ radius }: { radius: number }) {
     g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
     return g;
   }, [radius]);
-  const mat = useMemo(() => new THREE.LineBasicMaterial({ color: "#3a5aaa", transparent: true, opacity: 0.18, depthWrite: false }), []);
+  const mat = useMemo(
+    () =>
+      new THREE.LineBasicMaterial({
+        color: "#3a5aaa",
+        transparent: true,
+        opacity: 0.18,
+        depthWrite: false,
+      }),
+    [],
+  );
   const line = useMemo(() => new THREE.Line(geo, mat), [geo, mat]);
   return <primitive object={line} />;
 }
@@ -548,4 +601,3 @@ function makeStarSprite(): THREE.Texture {
 }
 
 export const GalaxyBackdrop = MilkyWay;
-

@@ -16,11 +16,21 @@ export default defineTool({
       .order("expires_at", { ascending: false });
     if (error) throw new ToolError(error.message);
     const now = Date.now();
-    const passes = (data ?? []).map((p) => ({ days: p.access_days, startsAt: p.starts_at, expiresAt: p.expires_at, status: p.status }));
-    const active = passes.find((p) => p.status === "active" && new Date(p.expiresAt).getTime() > now);
+    const passes = (data ?? []).map((p) => ({
+      days: p.access_days,
+      startsAt: p.starts_at,
+      expiresAt: p.expires_at,
+      status: p.status,
+    }));
+    const active = passes.find(
+      (p) => p.status === "active" && new Date(p.expiresAt).getTime() > now,
+    );
     const text = active
       ? `Active pass until ${active.expiresAt} (${Math.ceil((new Date(active.expiresAt).getTime() - now) / 86400000)} days left).`
       : "No active pass. See list_access_plans.";
-    return { content: [{ type: "text", text }], structuredContent: { active: Boolean(active), passes } };
+    return {
+      content: [{ type: "text", text }],
+      structuredContent: { active: Boolean(active), passes },
+    };
   },
 });

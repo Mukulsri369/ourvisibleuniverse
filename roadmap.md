@@ -14,6 +14,7 @@
 - [x] Verify representative objects, performance, runtime logs, and build
 
 ## Paid access and checkout
+
 - [x] Add public landing and information pages
 - [x] Add Google and email account flows
 - [x] Add embedded payment selection and checkout
@@ -22,12 +23,14 @@
 - [x] Verify payment, access, public pages, and mobile behavior
 
 ## Razorpay approval preparation
+
 - [x] Remove the previous payment checkout and payment notifications
 - [x] Open the complete universe without payment or sign-in
 - [x] Expand public educational, pricing, FAQ, privacy, terms, and refund information
 - [x] Connect Razorpay after credentials are available
 
 ## Razorpay production integration
+
 - [x] Add secure Razorpay order creation for the three fixed-term passes
 - [x] Add Standard Checkout with cancellation and failure handling
 - [x] Verify payment signatures and activate access idempotently
@@ -37,5 +40,6 @@
 - [ ] Complete one test payment, then add live credentials after Razorpay activates live mode
 
 ## VisualizeMaths companion tool
+
 - [x] Add sitemap button opening visualizemaths.ai.studio in a new tab
 - [x] Mention VisualizeMaths on the landing and features pages

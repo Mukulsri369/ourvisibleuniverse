@@ -1,2 +1,50 @@
-import { createFileRoute } from "@tanstack/react-router"; import { InfoPage } from "@/components/site/InfoPage";
-export const Route=createFileRoute("/refund-policy")({head:()=>({meta:[{title:"Refund Policy — Our Visible Universe"},{name:"description",content:"Refund and cancellation policy for Our Visible Universe access passes."},{property:"og:title",content:"Refund Policy — Our Visible Universe"},{property:"og:description",content:"Refund and cancellation policy for Our Visible Universe access passes."},{property:"og:type",content:"article"},{name:"twitter:card",content:"summary"}]}),component:()=> <InfoPage eyebrow="Legal" title="Refund and Cancellation Policy" intro="Last updated: 5 October 2026"><section><h2>No recurring cancellation</h2><p>Access passes are one-time purchases and do not renew automatically, so there is no subscription to cancel. Access ends automatically after the purchased number of days.</p></section><section><h2>Activated access</h2><p>Payments are non-refundable after access is activated, except where required by applicable law or for duplicate, failed or incorrect charges. Approved refunds are returned to the original payment method within 5–7 working days.</p></section><section><h2>Payment support</h2><p>Contact ourvisibleuniverse@gmail.com promptly with the account email and relevant date if a problem occurs. Never send card numbers, passwords or bank credentials.</p></section></InfoPage>});
+import { createFileRoute } from "@tanstack/react-router";
+import { InfoPage } from "@/components/site/InfoPage";
+export const Route = createFileRoute("/refund-policy")({
+  head: () => ({
+    meta: [
+      { title: "Refund Policy — Our Visible Universe" },
+      {
+        name: "description",
+        content: "Refund and cancellation policy for Our Visible Universe access passes.",
+      },
+      { property: "og:title", content: "Refund Policy — Our Visible Universe" },
+      {
+        property: "og:description",
+        content: "Refund and cancellation policy for Our Visible Universe access passes.",
+      },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <InfoPage
+      eyebrow="Legal"
+      title="Refund and Cancellation Policy"
+      intro="Last updated: 5 October 2026"
+    >
+      <section>
+        <h2>No recurring cancellation</h2>
+        <p>
+          Access passes are one-time purchases and do not renew automatically, so there is no
+          subscription to cancel. Access ends automatically after the purchased number of days.
+        </p>
+      </section>
+      <section>
+        <h2>Activated access</h2>
+        <p>
+          Payments are non-refundable after access is activated, except where required by applicable
+          law or for duplicate, failed or incorrect charges. Approved refunds are returned to the
+          original payment method within 5–7 working days.
+        </p>
+      </section>
+      <section>
+        <h2>Payment support</h2>
+        <p>
+          Contact ourvisibleuniverse@gmail.com promptly with the account email and relevant date if
+          a problem occurs. Never send card numbers, passwords or bank credentials.
+        </p>
+      </section>
+    </InfoPage>
+  ),
+});

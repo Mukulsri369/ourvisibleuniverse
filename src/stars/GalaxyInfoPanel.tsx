@@ -27,7 +27,13 @@ export function galaxyOrder<T extends { name: string; distance: number }>(a: T, 
 
 type SystemView = {
   star: { name: string; spectral: string; mass: string; description: string };
-  planets: Array<{ name: string; au: number; confirmed: boolean; moons: number; description: string }>;
+  planets: Array<{
+    name: string;
+    au: number;
+    confirmed: boolean;
+    moons: number;
+    description: string;
+  }>;
 };
 
 function systemFor(name: string): SystemView | null {
@@ -65,7 +71,7 @@ function overviewFor(name: string, type: string, distance: number, size: number)
     return "The Andromeda Galaxy is the largest member of the Local Group and our nearest large spiral, sweeping about 220,000 light-years across with roughly a trillion stars. It is approaching the Milky Way at some 110 km/s and will merge with it in about 4.5 billion years. Andromeda is the only galaxy beyond our own with a widely discussed planet candidate, PA-99-N2 b, found by gravitational microlensing.";
   const m = GALAXY_BY_NAME.get(name);
   if (m) return m.description;
-    return `${name} is a ${type.toLowerCase()} galaxy about ${formatLy(distance)} away, spanning roughly ${formatLy(
+  return `${name} is a ${type.toLowerCase()} galaxy about ${formatLy(distance)} away, spanning roughly ${formatLy(
     size,
   )}. Its stars are shown as a detailed particle model at the galaxy's measured position and physical scale. No individual exoplanet system has been resolved there, so none is invented.`;
 }
@@ -81,91 +87,121 @@ export function GalaxyInfoPanel() {
   return (
     <AnimatePresence>
       {visit && (
-        <HideablePanel resetKey={visit.name} label={visit.name}>{(hide) => (
-        <motion.aside
-          onClick={(e) => e.stopPropagation()}
-          initial={{ x: 400, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 400, opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="pointer-events-auto fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
-          style={{ background: "rgba(8,10,24,0.78)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
-        >
-          {hide}
-          <button
-            onClick={() => setVisitGalaxy(null)}
-            
-            aria-label="Close"
-            className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
-          >
-            ✕
-          </button>
-          <div className="text-[10px] uppercase tracking-[0.25em] text-white/40">Now Viewing</div>
-          <h2 className="mt-1 pr-10 text-3xl font-light tracking-wide">{visit.name}</h2>
-          <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">
-            {visit.type}
-            {detailed && <span className="ml-2 text-white/60">✦ Fully modelled</span>}
-          </div>
-          <NasaResources name={visit.name} alt={[`${visit.type} galaxy Hubble`, "galaxy Hubble"]} />
+        <HideablePanel resetKey={visit.name} label={visit.name}>
+          {(hide) => (
+            <motion.aside
+              onClick={(e) => e.stopPropagation()}
+              initial={{ x: 400, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 400, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="pointer-events-auto fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
+              style={{
+                background: "rgba(8,10,24,0.78)",
+                backdropFilter: "blur(18px)",
+                WebkitBackdropFilter: "blur(18px)",
+              }}
+            >
+              {hide}
+              <button
+                onClick={() => setVisitGalaxy(null)}
 
-          <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
-            <GStat label="Distance" value={formatLy(visit.distance)} />
-            <GStat label="Diameter" value={formatLy(visit.size)} />
-            {g && <GStat label="Galactic l, b" value={`${g.l.toFixed(1)}°, ${g.b.toFixed(1)}°`} />}
-            {g?.inclination !== undefined && <GStat label="Inclination" value={`${g.inclination}°`} />}
-            <GStat label="Light travel time" value={`${formatLy(visit.distance).replace(" ly", " yr").replace("ly", "yr")}`} />
-            <GStat label="Star system" value={system ? system.star.name : "Not modelled"} />
-          </div>
-
-          <div className="my-6 h-px bg-white/10" />
-          <p className="text-sm leading-relaxed text-white/75">
-            {overviewFor(visit.name, visit.type, visit.distance, visit.size)}
-          </p>
-
-          <GalaxyDerived distance={visit.distance} size={visit.size} type={visit.type} />
-
-
-          {system ? (
-            <>
-              <div className="mt-7 text-xs uppercase tracking-[0.2em] text-white/40">Host star</div>
-              <div className="mt-2 text-base font-light">{system.star.name}</div>
-              <div className="text-[11px] text-white/45">
-                {system.star.spectral} · {system.star.mass}
+                aria-label="Close"
+                className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                ✕
+              </button>
+              <div className="text-[10px] uppercase tracking-[0.25em] text-white/40">
+                Now Viewing
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-white/70">{system.star.description}</p>
-
-              <div className="mt-7 text-xs uppercase tracking-[0.2em] text-white/40">
-                Planets ({system.planets.length})
+              <h2 className="mt-1 pr-10 text-3xl font-light tracking-wide">{visit.name}</h2>
+              <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">
+                {visit.type}
+                {detailed && <span className="ml-2 text-white/60">✦ Fully modelled</span>}
               </div>
-              <ul className="mt-3 space-y-3">
-                {system.planets.map((p) => (
-                  <li key={p.name} className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-sm text-white/90">{p.name}</span>
-                      <span className="shrink-0 text-[10px] text-white/40">{p.au.toFixed(2)} AU</span>
-                    </div>
-                    <div className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-white/40">
-                      {p.confirmed ? "Observed candidate" : "Modelled world"}
-                      {p.moons > 0 && ` · ${p.moons} moon${p.moons > 1 ? "s" : ""}`}
-                    </div>
-                    <p className="mt-1.5 text-[12px] leading-relaxed text-white/65">{p.description}</p>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-5 text-[11px] leading-relaxed text-white/40">
-                Only a couple of extragalactic planet candidates are known (PA-99-N2 b in Andromeda and M51-ULS-1b in
-                the Whirlpool). Systems marked "modelled" are built around real catalogued stars in each galaxy, with
-                plausible planetary architectures for scale.
+              <NasaResources
+                name={visit.name}
+                alt={[`${visit.type} galaxy Hubble`, "galaxy Hubble"]}
+              />
+
+              <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
+                <GStat label="Distance" value={formatLy(visit.distance)} />
+                <GStat label="Diameter" value={formatLy(visit.size)} />
+                {g && (
+                  <GStat label="Galactic l, b" value={`${g.l.toFixed(1)}°, ${g.b.toFixed(1)}°`} />
+                )}
+                {g?.inclination !== undefined && (
+                  <GStat label="Inclination" value={`${g.inclination}°`} />
+                )}
+                <GStat
+                  label="Light travel time"
+                  value={`${formatLy(visit.distance).replace(" ly", " yr").replace("ly", "yr")}`}
+                />
+                <GStat label="Star system" value={system ? system.star.name : "Not modelled"} />
+              </div>
+
+              <div className="my-6 h-px bg-white/10" />
+              <p className="text-sm leading-relaxed text-white/75">
+                {overviewFor(visit.name, visit.type, visit.distance, visit.size)}
               </p>
-            </>
-          ) : visit.name !== "Milky Way" ? (
-            <p className="mt-6 text-[12px] leading-relaxed text-white/45">
-              No exoplanets or individual star systems have been resolved in this galaxy yet. The visible stellar
-              population is a morphology-based particle reconstruction; no fictional planetary system has been added.
-            </p>
-          ) : null}
-        </motion.aside>
-        )}</HideablePanel>
+
+              <GalaxyDerived distance={visit.distance} size={visit.size} type={visit.type} />
+
+              {system ? (
+                <>
+                  <div className="mt-7 text-xs uppercase tracking-[0.2em] text-white/40">
+                    Host star
+                  </div>
+                  <div className="mt-2 text-base font-light">{system.star.name}</div>
+                  <div className="text-[11px] text-white/45">
+                    {system.star.spectral} · {system.star.mass}
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-white/70">
+                    {system.star.description}
+                  </p>
+
+                  <div className="mt-7 text-xs uppercase tracking-[0.2em] text-white/40">
+                    Planets ({system.planets.length})
+                  </div>
+                  <ul className="mt-3 space-y-3">
+                    {system.planets.map((p) => (
+                      <li
+                        key={p.name}
+                        className="rounded-lg border border-white/10 bg-white/[0.03] p-3"
+                      >
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="text-sm text-white/90">{p.name}</span>
+                          <span className="shrink-0 text-[10px] text-white/40">
+                            {p.au.toFixed(2)} AU
+                          </span>
+                        </div>
+                        <div className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-white/40">
+                          {p.confirmed ? "Observed candidate" : "Modelled world"}
+                          {p.moons > 0 && ` · ${p.moons} moon${p.moons > 1 ? "s" : ""}`}
+                        </div>
+                        <p className="mt-1.5 text-[12px] leading-relaxed text-white/65">
+                          {p.description}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-5 text-[11px] leading-relaxed text-white/40">
+                    Only a couple of extragalactic planet candidates are known (PA-99-N2 b in
+                    Andromeda and M51-ULS-1b in the Whirlpool). Systems marked "modelled" are built
+                    around real catalogued stars in each galaxy, with plausible planetary
+                    architectures for scale.
+                  </p>
+                </>
+              ) : visit.name !== "Milky Way" ? (
+                <p className="mt-6 text-[12px] leading-relaxed text-white/45">
+                  No exoplanets or individual star systems have been resolved in this galaxy yet.
+                  The visible stellar population is a morphology-based particle reconstruction; no
+                  fictional planetary system has been added.
+                </p>
+              ) : null}
+            </motion.aside>
+          )}
+        </HideablePanel>
       )}
     </AnimatePresence>
   );
@@ -181,12 +217,18 @@ function GalaxyDerived({ distance, size, type }: { distance: number; size: numbe
   const z = recession / 299792.458;
   const relToMw = size / 100000;
   const rows: Array<[string, string]> = [
-    ["Distance", `${mpc.toFixed(mpc < 10 ? 3 : 1)} Mpc · ${(distance / 3.26156).toExponential(2)} pc`],
+    [
+      "Distance",
+      `${mpc.toFixed(mpc < 10 ? 3 : 1)} Mpc · ${(distance / 3.26156).toExponential(2)} pc`,
+    ],
     ["Light we see left", `${formatLy(distance).replace(" ly", "").replace("ly", "")} years ago`],
     ["Hubble recession", `${Math.round(recession).toLocaleString()} km/s`],
     ["Approx. redshift z", z < 0.001 ? "<0.001 (Local Group)" : z.toFixed(3)],
     ["Size vs Milky Way", `${relToMw.toFixed(2)}× our galaxy's diameter`],
-    ["Crossing time at light speed", `${formatLy(size).replace(" ly", "").replace("ly", "")} years`],
+    [
+      "Crossing time at light speed",
+      `${formatLy(size).replace(" ly", "").replace("ly", "")} years`,
+    ],
     ["Morphology", type],
   ];
   return (

@@ -17,7 +17,7 @@ let focus = 1;
 export function tickSim(dt: number) {
   const d = Math.min(dt, 0.1);
   const st = useStore.getState();
-  simYears += d * (st.systemSpeed / 25) / 31.5;
+  simYears += (d * (st.systemSpeed / 25)) / 31.5;
   // Background stars/galaxy fade while visiting a planet, moon or exoplanet.
   const target = st.visitPlanet ? 0.12 : 1;
   focus += (target - focus) * (1 - Math.exp(-1.5 * d));

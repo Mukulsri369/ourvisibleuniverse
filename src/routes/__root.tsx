@@ -40,7 +40,9 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error instanceof Error ? error : new Error(String(error)), { boundary: "tanstack_root_error_component" });
+    reportLovableError(error instanceof Error ? error : new Error(String(error)), {
+      boundary: "tanstack_root_error_component",
+    });
   }, [error]);
 
   return (
@@ -80,14 +82,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Our Visible Universe — Interactive 3D Space Map" },
-      { name: "description", content: "Explore a 3D visualization of 100,000 stars, offering an immersive cinematic space journey." },
+      {
+        name: "description",
+        content:
+          "Explore a 3D visualization of 100,000 stars, offering an immersive cinematic space journey.",
+      },
       { name: "author", content: "Our Visible Universe" },
       { property: "og:title", content: "Our Visible Universe" },
-      { property: "og:description", content: "Explore a 3D visualization of 100,000 stars, offering an immersive cinematic space journey." },
+      {
+        property: "og:description",
+        content:
+          "Explore a 3D visualization of 100,000 stars, offering an immersive cinematic space journey.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Our Visible Universe" },
-      { name: "twitter:description", content: "Explore a 3D visualization of 100,000 stars, offering an immersive cinematic space journey." },
+      {
+        name: "twitter:description",
+        content:
+          "Explore a 3D visualization of 100,000 stars, offering an immersive cinematic space journey.",
+      },
     ],
     links: [
       {

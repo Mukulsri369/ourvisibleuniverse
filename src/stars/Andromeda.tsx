@@ -65,7 +65,7 @@ let CACHED_M31: Geos | null = null;
 
 function buildAndromeda(): Geos {
   if (CACHED_M31) return CACHED_M31;
-  const rand = mulberry32(0xA11D0E31);
+  const rand = mulberry32(0xa11d0e31);
 
   const pack = (pos: Float32Array, col: Float32Array, size: Float32Array) => {
     const g = new THREE.BufferGeometry();
@@ -88,16 +88,26 @@ function buildAndromeda(): Geos {
   const dSize = new Float32Array(diskCount);
   for (let i = 0; i < diskCount; i++) {
     const onArm = rand() < 0.74;
-    const r = rand() < 0.62
-      ? -Math.log(1 - rand() * 0.999) * 15_000 + 5_000
-      : -Math.log(1 - rand() * 0.999) * 26_000 + 14_000;
-    if (r > M31_DISK_RADIUS) { i--; continue; }
+    const r =
+      rand() < 0.62
+        ? -Math.log(1 - rand() * 0.999) * 15_000 + 5_000
+        : -Math.log(1 - rand() * 0.999) * 26_000 + 14_000;
+    if (r > M31_DISK_RADIUS) {
+      i--;
+      continue;
+    }
 
     let armIdx = 0;
     if (onArm) {
       const total = ARM_STR.reduce((a, b) => a + b, 0);
       let pick = rand() * total;
-      for (let a = 0; a < ARMS.length; a++) { pick -= ARM_STR[a]; if (pick <= 0) { armIdx = a; break; } }
+      for (let a = 0; a < ARMS.length; a++) {
+        pick -= ARM_STR[a];
+        if (pick <= 0) {
+          armIdx = a;
+          break;
+        }
+      }
     } else {
       armIdx = Math.floor(rand() * ARMS.length);
     }
@@ -112,7 +122,8 @@ function buildAndromeda(): Geos {
     const thick = rand() < 0.14;
     const scaleH = thick ? 1400 : 380;
     const uz = rand() - 0.5;
-    const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / 40_000);
+    const z =
+      -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * scaleH * Math.exp(-r / 40_000);
 
     dPos[i * 3] = Math.cos(theta) * r;
     dPos[i * 3 + 1] = z;
@@ -124,10 +135,14 @@ function buildAndromeda(): Geos {
     const isYoung = rand() < (onArm ? 0.26 * ridgeClose * (1 - rNorm * 0.4) : 0.04);
     const isGiant = !isYoung && rand() < 0.08;
     if (isYoung) {
-      dCol[i * 3] = 0.78; dCol[i * 3 + 1] = 0.86; dCol[i * 3 + 2] = 1.0;
+      dCol[i * 3] = 0.78;
+      dCol[i * 3 + 1] = 0.86;
+      dCol[i * 3 + 2] = 1.0;
       dSize[i] = 16 + rand() * 20;
     } else if (isGiant) {
-      dCol[i * 3] = 1.0; dCol[i * 3 + 1] = 0.62; dCol[i * 3 + 2] = 0.42;
+      dCol[i * 3] = 1.0;
+      dCol[i * 3 + 1] = 0.62;
+      dCol[i * 3 + 2] = 0.42;
       dSize[i] = 16 + rand() * 18;
     } else {
       const inner = 1 - rNorm;
@@ -158,10 +173,14 @@ function buildAndromeda(): Geos {
     rPos[i * 3 + 2] = Math.sin(theta) * r;
     const young = rand() < 0.45;
     if (young) {
-      rCol[i * 3] = 0.72; rCol[i * 3 + 1] = 0.84; rCol[i * 3 + 2] = 1.0;
+      rCol[i * 3] = 0.72;
+      rCol[i * 3 + 1] = 0.84;
+      rCol[i * 3 + 2] = 1.0;
       rSize[i] = 18 + rand() * 24;
     } else {
-      rCol[i * 3] = 1.0; rCol[i * 3 + 1] = 0.84; rCol[i * 3 + 2] = 0.66;
+      rCol[i * 3] = 1.0;
+      rCol[i * 3 + 1] = 0.84;
+      rCol[i * 3 + 2] = 0.66;
       rSize[i] = 8 + rand() * 12;
     }
   }
@@ -189,26 +208,39 @@ function buildAndromeda(): Geos {
 
   // ---- Short inner bar ----
   const barCount = 16_000;
-  const barLen = 9000, barWidth = 2000, barHeight = 900;
+  const barLen = 9000,
+    barWidth = 2000,
+    barHeight = 900;
   const barAngle = (22 * Math.PI) / 180;
-  const ca = Math.cos(barAngle), sa = Math.sin(barAngle);
+  const ca = Math.cos(barAngle),
+    sa = Math.sin(barAngle);
   const aPos = new Float32Array(barCount * 3);
   const aCol = new Float32Array(barCount * 3);
   const aSize = new Float32Array(barCount);
   for (let i = 0; i < barCount; i++) {
-    const u = rand() - 0.5, v = rand() - 0.5, w = rand() - 0.5;
-    if (rand() > Math.exp(-(u * u * 4 + v * v * 6 + w * w * 6))) { i--; continue; }
-    const lx = u * barLen, lz = v * barWidth, ly = w * barHeight;
+    const u = rand() - 0.5,
+      v = rand() - 0.5,
+      w = rand() - 0.5;
+    if (rand() > Math.exp(-(u * u * 4 + v * v * 6 + w * w * 6))) {
+      i--;
+      continue;
+    }
+    const lx = u * barLen,
+      lz = v * barWidth,
+      ly = w * barHeight;
     aPos[i * 3] = lx * ca - lz * sa;
     aPos[i * 3 + 1] = ly;
     aPos[i * 3 + 2] = lx * sa + lz * ca;
-    aCol[i * 3] = 1.0; aCol[i * 3 + 1] = 0.8; aCol[i * 3 + 2] = 0.54;
+    aCol[i * 3] = 1.0;
+    aCol[i * 3 + 1] = 0.8;
+    aCol[i * 3 + 2] = 0.54;
     aSize[i] = 10 + rand() * 16;
   }
   const barGeo = pack(aPos, aCol, aSize);
 
   // ---- HII knots clumped along the ring ----
-  const clusters = 560, per = 28;
+  const clusters = 560,
+    per = 28;
   const hn = clusters * per;
   const hPos = new Float32Array(hn * 3);
   const hCol = new Float32Array(hn * 3);
@@ -217,7 +249,8 @@ function buildAndromeda(): Geos {
   for (let c = 0; c < clusters; c++) {
     const r = M31_RING_RADIUS + (rand() - 0.5) * 6000;
     const theta = rand() * Math.PI * 2;
-    const cx = Math.cos(theta) * r, cz = Math.sin(theta) * r;
+    const cx = Math.cos(theta) * r,
+      cz = Math.sin(theta) * r;
     for (let k = 0; k < per; k++) {
       hPos[hi * 3] = cx + (rand() - 0.5) * 700;
       hPos[hi * 3 + 1] = (rand() - 0.5) * 300;
@@ -244,7 +277,9 @@ function buildAndromeda(): Geos {
     loPos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
     loPos[i * 3 + 1] = r * Math.cos(phi);
     loPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-    loCol[i * 3] = 0.96; loCol[i * 3 + 1] = 0.88; loCol[i * 3 + 2] = 0.72;
+    loCol[i * 3] = 0.96;
+    loCol[i * 3 + 1] = 0.88;
+    loCol[i * 3 + 2] = 0.72;
     loSize[i] = 4 + rand() * 9;
   }
   const haloGeo = pack(loPos, loCol, loSize);
@@ -263,7 +298,9 @@ function buildAndromeda(): Geos {
     duPos[i * 3 + 1] = (rand() - 0.5) * 500;
     duPos[i * 3 + 2] = Math.sin(theta) * r;
     const b = 0.09 + rand() * 0.17;
-    duCol[i * 3] = b; duCol[i * 3 + 1] = b * 0.42; duCol[i * 3 + 2] = b * 0.3;
+    duCol[i * 3] = b;
+    duCol[i * 3 + 1] = b * 0.42;
+    duCol[i * 3 + 2] = b * 0.3;
     duSize[i] = 18 + rand() * 26;
   }
   const dustGeo = pack(duPos, duCol, duSize);
@@ -274,7 +311,7 @@ function buildAndromeda(): Geos {
   const saCol = new Float32Array(satCount * 3);
   const saSize = new Float32Array(satCount);
   const companions = [
-    { cx: 16_000, cy: 4_000, cz: -9_000, radius: 3_200 },   // M32 (compact elliptical)
+    { cx: 16_000, cy: 4_000, cz: -9_000, radius: 3_200 }, // M32 (compact elliptical)
     { cx: -22_000, cy: -6_000, cz: 14_000, radius: 8_500 }, // NGC 205 / M110
   ];
   for (let i = 0; i < satCount; i++) {
@@ -286,7 +323,9 @@ function buildAndromeda(): Geos {
       saPos[i * 3] = c.cx + r * Math.sin(phi) * Math.cos(theta);
       saPos[i * 3 + 1] = c.cy + r * Math.cos(phi);
       saPos[i * 3 + 2] = c.cz + r * Math.sin(phi) * Math.sin(theta);
-      saCol[i * 3] = 1.0; saCol[i * 3 + 1] = 0.86; saCol[i * 3 + 2] = 0.68;
+      saCol[i * 3] = 1.0;
+      saCol[i * 3 + 1] = 0.86;
+      saCol[i * 3 + 2] = 0.68;
       saSize[i] = 5 + rand() * 10;
     } else {
       // Giant Stellar Stream — a tidal arc wrapping the southern halo
@@ -297,7 +336,9 @@ function buildAndromeda(): Geos {
       saPos[i * 3 + 1] = (rand() - 0.5) * 8_000 - 6_000 * t;
       saPos[i * 3 + 2] = Math.sin(ang) * r + (rand() - 0.5) * 6_000;
       const b = 0.5 + rand() * 0.4;
-      saCol[i * 3] = b * 0.96; saCol[i * 3 + 1] = b * 0.86; saCol[i * 3 + 2] = b * 0.7;
+      saCol[i * 3] = b * 0.96;
+      saCol[i * 3 + 1] = b * 0.86;
+      saCol[i * 3 + 2] = b * 0.7;
       saSize[i] = 3 + rand() * 7;
     }
   }
@@ -344,10 +385,12 @@ function keplerPosition(def: M31PlanetDef, phase: number, t: number): THREE.Vect
   for (let k = 0; k < 6; k++) E = E - (E - def.e * Math.sin(E) - M) / (1 - def.e * Math.cos(E));
   const xp = def.a * (Math.cos(E) - def.e);
   const zp = def.a * Math.sqrt(1 - def.e * def.e) * Math.sin(E);
-  const cw = Math.cos(def.omega), sw = Math.sin(def.omega);
+  const cw = Math.cos(def.omega),
+    sw = Math.sin(def.omega);
   const x1 = xp * cw - zp * sw;
   const z1 = xp * sw + zp * cw;
-  const ci = Math.cos(def.i), si = Math.sin(def.i);
+  const ci = Math.cos(def.i),
+    si = Math.sin(def.i);
   return new THREE.Vector3(x1, -z1 * si, z1 * ci);
 }
 
@@ -358,15 +401,20 @@ function makeOrbitLine(def: M31PlanetDef, color: string, opacity: number) {
     const E = (k / segs) * Math.PI * 2;
     const xp = def.a * (Math.cos(E) - def.e);
     const zp = def.a * Math.sqrt(1 - def.e * def.e) * Math.sin(E);
-    const cw = Math.cos(def.omega), sw = Math.sin(def.omega);
+    const cw = Math.cos(def.omega),
+      sw = Math.sin(def.omega);
     const x1 = xp * cw - zp * sw;
     const z1 = xp * sw + zp * cw;
-    const ci = Math.cos(def.i), si = Math.sin(def.i);
+    const ci = Math.cos(def.i),
+      si = Math.sin(def.i);
     pts.push(x1, -z1 * si, z1 * ci);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-  return new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
+  return new THREE.Line(
+    g,
+    new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false }),
+  );
 }
 
 function getRegistry(): Map<string, THREE.Vector3> {
@@ -376,14 +424,19 @@ function getRegistry(): Map<string, THREE.Vector3> {
 
 function hashSeed(s: string) {
   let h = 2166136261;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
   return h >>> 0;
 }
 
 function makeSurfaceTexture(def: M31PlanetDef): THREE.Texture {
-  const W = 512, H = 256;
+  const W = 512,
+    H = 256;
   const c = document.createElement("canvas");
-  c.width = W; c.height = H;
+  c.width = W;
+  c.height = H;
   const ctx = c.getContext("2d")!;
   const rand = mulberry32(hashSeed(def.name));
   const base = new THREE.Color(def.color);
@@ -407,28 +460,41 @@ function makeSurfaceTexture(def: M31PlanetDef): THREE.Texture {
       ctx.beginPath();
       ctx.moveTo(0, y);
       for (let x = 0; x <= W; x += 24) ctx.lineTo(x, y + Math.sin(x * 0.02 + rand()) * 2);
-      ctx.lineTo(W, y + h); ctx.lineTo(0, y + h); ctx.closePath();
+      ctx.lineTo(W, y + h);
+      ctx.lineTo(0, y + h);
+      ctx.closePath();
       ctx.fill();
       y += h;
     }
     ctx.globalAlpha = 1;
     for (let i = 0; i < 4; i++) {
-      const sx = rand() * W, sy = H * (0.25 + rand() * 0.5);
-      const rx = 14 + rand() * 34, ry = rx * 0.45;
+      const sx = rand() * W,
+        sy = H * (0.25 + rand() * 0.5);
+      const rx = 14 + rand() * 34,
+        ry = rx * 0.45;
       const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rx);
       g.addColorStop(0, i === 0 ? "#d0603a" : shade(1.3));
       g.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = g;
-      ctx.save(); ctx.translate(sx, sy); ctx.scale(1, ry / rx); ctx.translate(-sx, -sy);
-      ctx.beginPath(); ctx.arc(sx, sy, rx, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.scale(1, ry / rx);
+      ctx.translate(-sx, -sy);
+      ctx.beginPath();
+      ctx.arc(sx, sy, rx, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     }
   } else {
     for (let i = 0; i < 900; i++) {
-      const x = rand() * W, y = rand() * H;
+      const x = rand() * W,
+        y = rand() * H;
       const r = 2 + rand() * 22;
       ctx.globalAlpha = 0.05 + rand() * 0.18;
       ctx.fillStyle = shade(0.6 + rand() * 0.9);
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
     }
     ctx.globalAlpha = 0.5;
     ctx.fillStyle = "rgba(255,255,255,0.55)";
@@ -442,12 +508,14 @@ function makeSurfaceTexture(def: M31PlanetDef): THREE.Texture {
 }
 
 function makeRingTexture(color: string): THREE.Texture {
-  const W = 256, H = 4;
+  const W = 256,
+    H = 4;
   const c = document.createElement("canvas");
-  c.width = W; c.height = H;
+  c.width = W;
+  c.height = H;
   const ctx = c.getContext("2d")!;
   const base = new THREE.Color(color);
-  const rand = mulberry32(0x51F7);
+  const rand = mulberry32(0x51f7);
   for (let x = 0; x < W; x++) {
     const t = x / W;
     let a = 0.25 + rand() * 0.6;
@@ -490,7 +558,10 @@ function M31Moon({ moon, parent }: { moon: M31MoonDef; parent: string }) {
     const reg = getRegistry();
     const key = `${parent} · ${moon.name}`;
     let v = reg.get(key);
-    if (!v) { v = new THREE.Vector3(); reg.set(key, v); }
+    if (!v) {
+      v = new THREE.Vector3();
+      reg.set(key, v);
+    }
     v.copy(tmp);
   });
   return (
@@ -508,9 +579,15 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const setVisit = useStore((s) => s.setVisitPlanet);
   const surface = useMemo(() => makeSurfaceTexture(def), [def]);
-  const haloTex = useMemo(() => makeGlowTexture("rgba(255,255,255,0.9)", "rgba(255,255,255,0)"), []);
+  const haloTex = useMemo(
+    () => makeGlowTexture("rgba(255,255,255,0.9)", "rgba(255,255,255,0)"),
+    [],
+  );
   const ringTex = useMemo(() => (def.ring ? makeRingTexture(def.ring.color) : null), [def]);
-  const ringGeo = useMemo(() => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 160) : null), [def]);
+  const ringGeo = useMemo(
+    () => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 160) : null),
+    [def],
+  );
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
@@ -520,21 +597,40 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
     groupRef.current.getWorldPosition(tmp);
     const reg = getRegistry();
     let v = reg.get(def.name);
-    if (!v) { v = new THREE.Vector3(); reg.set(def.name, v); }
+    if (!v) {
+      v = new THREE.Vector3();
+      reg.set(def.name, v);
+    }
     v.copy(tmp);
   });
 
   return (
     <group ref={groupRef}>
       <sprite scale={[def.size * 20, def.size * 20, 1]}>
-        <spriteMaterial map={haloTex} color={def.color} transparent opacity={0.6} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <spriteMaterial
+          map={haloTex}
+          color={def.color}
+          transparent
+          opacity={0.6}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
       </sprite>
       <group rotation={[0, 0, def.tilt]}>
         <mesh
           ref={bodyRef}
-          onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-          onPointerOut={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = ""; }}
-          onClick={(e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); setVisit(def.name); }}
+          onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            document.body.style.cursor = "pointer";
+          }}
+          onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            document.body.style.cursor = "";
+          }}
+          onClick={(e: ThreeEvent<MouseEvent>) => {
+            e.stopPropagation();
+            setVisit(def.name);
+          }}
         >
           <sphereGeometry args={[def.size, 48, 48]} />
           <meshStandardMaterial
@@ -549,21 +645,43 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
           <>
             <mesh scale={1.04}>
               <sphereGeometry args={[def.size, 32, 32]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.15} side={THREE.BackSide} depthWrite={false} />
+              <meshBasicMaterial
+                color={def.atmosphere}
+                transparent
+                opacity={0.15}
+                side={THREE.BackSide}
+                depthWrite={false}
+              />
             </mesh>
             <mesh scale={1.14}>
               <sphereGeometry args={[def.size, 32, 32]} />
-              <meshBasicMaterial color={def.atmosphere} transparent opacity={0.07} side={THREE.BackSide} depthWrite={false} blending={THREE.AdditiveBlending} />
+              <meshBasicMaterial
+                color={def.atmosphere}
+                transparent
+                opacity={0.07}
+                side={THREE.BackSide}
+                depthWrite={false}
+                blending={THREE.AdditiveBlending}
+              />
             </mesh>
           </>
         )}
         {def.ring && ringGeo && (
           <mesh geometry={ringGeo} rotation={[Math.PI / 2, 0, 0]}>
-            <meshBasicMaterial map={ringTex ?? undefined} color={def.ring.color} side={THREE.DoubleSide} transparent opacity={0.9} depthWrite={false} />
+            <meshBasicMaterial
+              map={ringTex ?? undefined}
+              color={def.ring.color}
+              side={THREE.DoubleSide}
+              transparent
+              opacity={0.9}
+              depthWrite={false}
+            />
           </mesh>
         )}
       </group>
-      {def.moons?.map((m) => <M31Moon key={m.name} moon={m} parent={def.name} />)}
+      {def.moons?.map((m) => (
+        <M31Moon key={m.name} moon={m} parent={def.name} />
+      ))}
     </group>
   );
 }
@@ -608,7 +726,14 @@ function M31Belt() {
   });
   return (
     <points geometry={geom} frustumCulled={false}>
-      <pointsMaterial color="#9db6c8" size={0.012 * M31_AU} sizeAttenuation transparent opacity={0.8} depthWrite={false} />
+      <pointsMaterial
+        color="#9db6c8"
+        size={0.012 * M31_AU}
+        sizeAttenuation
+        transparent
+        opacity={0.8}
+        depthWrite={false}
+      />
     </points>
   );
 }
@@ -618,7 +743,10 @@ function PA99N2System() {
   const glowTex = useMemo(() => makeGlowTexture("rgba(255,210,150,1)", "rgba(255,140,50,0)"), []);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const orbits = useMemo(
-    () => M31_PLANETS.map((p) => makeOrbitLine(p, p.confirmed ? "#ffd8a0" : "#5f7fb5", p.confirmed ? 0.5 : 0.22)),
+    () =>
+      M31_PLANETS.map((p) =>
+        makeOrbitLine(p, p.confirmed ? "#ffd8a0" : "#5f7fb5", p.confirmed ? 0.5 : 0.22),
+      ),
     [],
   );
 
@@ -640,7 +768,10 @@ function PA99N2System() {
     }
     const reg = getRegistry();
     let v = reg.get(PA99N2_STAR.name);
-    if (!v) { v = new THREE.Vector3(); reg.set(PA99N2_STAR.name, v); }
+    if (!v) {
+      v = new THREE.Vector3();
+      reg.set(PA99N2_STAR.name, v);
+    }
     v.copy(sysRef.current ? sysWorld : PA99N2_WORLD);
   });
 
@@ -648,14 +779,24 @@ function PA99N2System() {
     <group ref={sysRef} position={PA99N2_LOCAL.toArray()}>
       <mesh
         ref={starRef}
-        onPointerOver={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = "pointer"; }}
-        onPointerOut={(e: ThreeEvent<PointerEvent>) => { e.stopPropagation(); document.body.style.cursor = ""; }}
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          document.body.style.cursor = "";
+        }}
         onClick={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           setVisitGalaxy({
             name: ANDROMEDA_NAME,
-            x: M31_CENTER.x, y: M31_CENTER.y, z: M31_CENTER.z,
-            size: M31_DISK_RADIUS * 2, distance: M31_DISTANCE, type: "Barred Spiral",
+            x: M31_CENTER.x,
+            y: M31_CENTER.y,
+            z: M31_CENTER.z,
+            size: M31_DISK_RADIUS * 2,
+            distance: M31_DISTANCE,
+            type: "Barred Spiral",
           });
         }}
       >
@@ -664,19 +805,34 @@ function PA99N2System() {
       </mesh>
       <pointLight color="#ffd0a0" intensity={6} distance={20 * M31_AU} decay={1.4} />
       <sprite scale={[PA99N2_STAR.radius * 9, PA99N2_STAR.radius * 9, 1]}>
-        <spriteMaterial map={glowTex} transparent opacity={0.45} depthWrite={false} blending={THREE.AdditiveBlending} />
+        <spriteMaterial
+          map={glowTex}
+          transparent
+          opacity={0.45}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
       </sprite>
-      {orbits.map((o, i) => <primitive key={i} object={o} />)}
-      {M31_PLANETS.map((p) => <M31Planet key={p.name} def={p} />)}
+      {orbits.map((o, i) => (
+        <primitive key={i} object={o} />
+      ))}
+      {M31_PLANETS.map((p) => (
+        <M31Planet key={p.name} def={p} />
+      ))}
       <M31Belt />
       <Billboard>
         <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-          <div style={{
-            transform: `translate(${PA99N2_STAR.radius * 0.02}px, -46px)`,
-            color: "#ffe6c0", fontSize: 11, letterSpacing: 1.4,
-            fontFamily: "Inter, system-ui, sans-serif", whiteSpace: "nowrap",
-            textShadow: "0 0 12px rgba(255,180,90,0.8)",
-          }}>
+          <div
+            style={{
+              transform: `translate(${PA99N2_STAR.radius * 0.02}px, -46px)`,
+              color: "#ffe6c0",
+              fontSize: 11,
+              letterSpacing: 1.4,
+              fontFamily: "Inter, system-ui, sans-serif",
+              whiteSpace: "nowrap",
+              textShadow: "0 0 12px rgba(255,180,90,0.8)",
+            }}
+          >
             PA-99-N2
           </div>
         </Html>
@@ -700,13 +856,22 @@ function M31FarGlow() {
   });
   return (
     <sprite ref={ref} scale={[260_000, 130_000, 1]}>
-      <spriteMaterial map={tex} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0} />
+      <spriteMaterial
+        map={tex}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        opacity={0}
+      />
     </sprite>
   );
 }
 
 export function Andromeda() {
-  const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo, dustGeo, satGeo } = useMemo(buildAndromeda, []);
+  const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo, dustGeo, satGeo } = useMemo(
+    buildAndromeda,
+    [],
+  );
   const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeGlowTexture("rgba(255,226,178,1)", "rgba(255,150,60,0)"), []);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
@@ -777,8 +942,12 @@ export function Andromeda() {
     e.stopPropagation();
     setVisitGalaxy({
       name: ANDROMEDA_NAME,
-      x: M31_CENTER.x, y: M31_CENTER.y, z: M31_CENTER.z,
-      size: M31_DISK_RADIUS * 2, distance: M31_DISTANCE, type: "Barred Spiral",
+      x: M31_CENTER.x,
+      y: M31_CENTER.y,
+      z: M31_CENTER.z,
+      size: M31_DISK_RADIUS * 2,
+      distance: M31_DISTANCE,
+      type: "Barred Spiral",
     });
   };
 
@@ -799,7 +968,12 @@ export function Andromeda() {
         </mesh>
         <M31FarGlow />
         <sprite scale={[9000, 9000, 1]}>
-          <spriteMaterial map={coreTex} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+          <spriteMaterial
+            map={coreTex}
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
         </sprite>
         <PA99N2System />
         {/* generous invisible pick target so M31 stays clickable from afar */}

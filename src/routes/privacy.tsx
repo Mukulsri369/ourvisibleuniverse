@@ -1,2 +1,54 @@
-import { createFileRoute } from "@tanstack/react-router"; import { InfoPage } from "@/components/site/InfoPage";
-export const Route=createFileRoute("/privacy")({head:()=>({meta:[{title:"Privacy Policy — Our Visible Universe"},{name:"description",content:"Privacy practices for Our Visible Universe."},{property:"og:title",content:"Privacy Policy — Our Visible Universe"},{property:"og:description",content:"Privacy practices for Our Visible Universe."},{property:"og:type",content:"article"},{name:"twitter:card",content:"summary"}]}),component:()=> <InfoPage eyebrow="Legal" title="Privacy Policy" intro="Last updated: 5 October 2026"><section><h2>Information we process</h2><p>We process your account email, sign-in identifier, payment and order references, purchased access duration and access expiry, plus basic technical information needed for security.</p></section><section><h2>Why we use it</h2><p>Information is used to secure your account, confirm purchases, grant access, prevent abuse and provide support.</p></section><section><h2>Payments</h2><p>Payments are processed by Razorpay. Card, UPI and bank details are entered with Razorpay and are not stored by this website.</p></section><section><h2>Sharing and retention</h2><p>We share information only with providers needed for sign-in, hosting and payments, or when required by law. Records are retained only as needed for security, support and legal obligations.</p></section><section><h2>Your choices</h2><p>You may request access, correction or deletion of eligible personal information by emailing ourvisibleuniverse@gmail.com.</p></section></InfoPage>});
+import { createFileRoute } from "@tanstack/react-router";
+import { InfoPage } from "@/components/site/InfoPage";
+export const Route = createFileRoute("/privacy")({
+  head: () => ({
+    meta: [
+      { title: "Privacy Policy — Our Visible Universe" },
+      { name: "description", content: "Privacy practices for Our Visible Universe." },
+      { property: "og:title", content: "Privacy Policy — Our Visible Universe" },
+      { property: "og:description", content: "Privacy practices for Our Visible Universe." },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: () => (
+    <InfoPage eyebrow="Legal" title="Privacy Policy" intro="Last updated: 5 October 2026">
+      <section>
+        <h2>Information we process</h2>
+        <p>
+          We process your account email, sign-in identifier, payment and order references, purchased
+          access duration and access expiry, plus basic technical information needed for security.
+        </p>
+      </section>
+      <section>
+        <h2>Why we use it</h2>
+        <p>
+          Information is used to secure your account, confirm purchases, grant access, prevent abuse
+          and provide support.
+        </p>
+      </section>
+      <section>
+        <h2>Payments</h2>
+        <p>
+          Payments are processed by Razorpay. Card, UPI and bank details are entered with Razorpay
+          and are not stored by this website.
+        </p>
+      </section>
+      <section>
+        <h2>Sharing and retention</h2>
+        <p>
+          We share information only with providers needed for sign-in, hosting and payments, or when
+          required by law. Records are retained only as needed for security, support and legal
+          obligations.
+        </p>
+      </section>
+      <section>
+        <h2>Your choices</h2>
+        <p>
+          You may request access, correction or deletion of eligible personal information by
+          emailing ourvisibleuniverse@gmail.com.
+        </p>
+      </section>
+    </InfoPage>
+  ),
+});

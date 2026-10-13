@@ -15,5 +15,30 @@ export default defineConfig({
   },
   vite: {
     plugins: [mcpPlugin()],
+    build: {
+      rolldownOptions: {
+        checks: {
+          moduleLevelDirective: false,
+        },
+        onLog(level, log, defaultHandler) {
+          if (
+            log.code === "MODULE_LEVEL_DIRECTIVE" ||
+            (typeof log.message === "string" && log.message.includes('"use client"'))
+          ) {
+            return;
+          }
+          defaultHandler(level, log);
+        },
+        onwarn(warning, defaultHandler) {
+          if (
+            warning.code === "MODULE_LEVEL_DIRECTIVE" ||
+            (typeof warning.message === "string" && warning.message.includes('"use client"'))
+          ) {
+            return;
+          }
+          defaultHandler(warning);
+        },
+      },
+    },
   },
 });

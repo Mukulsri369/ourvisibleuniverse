@@ -22,7 +22,6 @@ import { NEARBY_GALAXIES, type NamedGalaxy } from "./galaxy-catalog";
 // converting from standard galactic coords where l=0 points toward GC.
 // ---------------------------------------------------------------
 
-
 function toXYZ(l: number, b: number, d: number): THREE.Vector3 {
   const lr = (l * Math.PI) / 180;
   const br = (b * Math.PI) / 180;
@@ -40,12 +39,18 @@ function makeSpiralGalaxyTexture(color = "#dfe6ff"): THREE.Texture {
   c.width = c.height = size;
   const ctx = c.getContext("2d")!;
   ctx.clearRect(0, 0, size, size);
-  const cx = size / 2, cy = size / 2;
+  const cx = size / 2,
+    cy = size / 2;
   // core glow
   const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
   core.addColorStop(0, "rgba(255,240,210,1)");
   core.addColorStop(0.15, "rgba(255,220,170,0.85)");
-  core.addColorStop(0.45, color.replace(")", ",0.35)").replace("#", "rgba(").length > 4 ? "rgba(200,220,255,0.35)" : "rgba(200,220,255,0.35)");
+  core.addColorStop(
+    0.45,
+    color.replace(")", ",0.35)").replace("#", "rgba(").length > 4
+      ? "rgba(200,220,255,0.35)"
+      : "rgba(200,220,255,0.35)",
+  );
   core.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = core;
   ctx.fillRect(0, 0, size, size);
@@ -56,7 +61,7 @@ function makeSpiralGalaxyTexture(color = "#dfe6ff"): THREE.Texture {
     for (let i = 0; i < 2600; i++) {
       const t = i / 2600;
       const r = 8 + t * (size * 0.48);
-      const theta = (a * Math.PI) + t * 6.5 + (Math.random() - 0.5) * 0.35;
+      const theta = a * Math.PI + t * 6.5 + (Math.random() - 0.5) * 0.35;
       const x = cx + Math.cos(theta) * r;
       const y = cy + Math.sin(theta) * r;
       const alpha = (1 - t) * 0.6;
@@ -76,7 +81,8 @@ function makeEllipticalGalaxyTexture(): THREE.Texture {
   const c = document.createElement("canvas");
   c.width = c.height = size;
   const ctx = c.getContext("2d")!;
-  const cx = size / 2, cy = size / 2;
+  const cx = size / 2,
+    cy = size / 2;
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
   g.addColorStop(0, "rgba(255,240,210,1)");
   g.addColorStop(0.3, "rgba(255,210,150,0.7)");
@@ -121,7 +127,12 @@ function makeDotTexture(): THREE.Texture {
   return new THREE.CanvasTexture(c);
 }
 
-function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
+function NamedGalaxyDisc({
+  g,
+  spiralTex,
+  ellipTex,
+  irrTex,
+}: {
   g: NamedGalaxy;
   spiralTex: THREE.Texture;
   ellipTex: THREE.Texture;
@@ -169,8 +180,12 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
     e.stopPropagation();
     setVisitGalaxy({
       name: g.name,
-      x: pos.x, y: pos.y, z: pos.z,
-      size: g.size, distance: g.distance, type: g.type,
+      x: pos.x,
+      y: pos.y,
+      z: pos.z,
+      size: g.size,
+      distance: g.distance,
+      type: g.type,
     });
   };
   return (
@@ -212,7 +227,8 @@ function NamedGalaxyDisc({ g, spiralTex, ellipTex, irrTex }: {
           >
             {g.name}
             <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>
-              {g.type} · {g.distance >= 1_000_000
+              {g.type} ·{" "}
+              {g.distance >= 1_000_000
                 ? (g.distance / 1_000_000).toFixed(2) + " Mly"
                 : (g.distance / 1000).toFixed(0) + " kly"}
             </div>
@@ -244,14 +260,17 @@ function useCosmicWeb() {
     // Filament seeds — clumps that galaxies gravitate toward
     const seeds: THREE.Vector3[] = [];
     for (let i = 0; i < 220; i++) {
-      const u = Math.random(), v = Math.random();
+      const u = Math.random(),
+        v = Math.random();
       const theta = 2 * Math.PI * u;
       const phi = Math.acos(2 * v - 1);
-      seeds.push(new THREE.Vector3(
-        Math.sin(phi) * Math.cos(theta),
-        Math.cos(phi),
-        Math.sin(phi) * Math.sin(theta),
-      ));
+      seeds.push(
+        new THREE.Vector3(
+          Math.sin(phi) * Math.cos(theta),
+          Math.cos(phi),
+          Math.sin(phi) * Math.sin(theta),
+        ),
+      );
     }
     const geoms: THREE.BufferGeometry[] = [];
     const sizes: number[] = [];
@@ -265,7 +284,9 @@ function useCosmicWeb() {
         // filament clustering: pick a random direction, but 70% of the time
         // bias toward the nearest seed direction
         let dir = new THREE.Vector3(
-          Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5,
+          Math.random() - 0.5,
+          Math.random() - 0.5,
+          Math.random() - 0.5,
         ).normalize();
         if (Math.random() < 0.72) {
           const seed = seeds[Math.floor(Math.random() * seeds.length)];
@@ -282,9 +303,13 @@ function useCosmicWeb() {
         // Color: mix warm (elliptical/old) and cool (spiral) galaxies
         const warm = Math.random() < s.warm;
         if (warm) {
-          col[i * 3] = 1.0; col[i * 3 + 1] = 0.82; col[i * 3 + 2] = 0.55;
+          col[i * 3] = 1.0;
+          col[i * 3 + 1] = 0.82;
+          col[i * 3 + 2] = 0.55;
         } else {
-          col[i * 3] = 0.82; col[i * 3 + 1] = 0.88; col[i * 3 + 2] = 1.0;
+          col[i * 3] = 0.82;
+          col[i * 3 + 1] = 0.88;
+          col[i * 3 + 2] = 1.0;
         }
       }
       const geo = new THREE.BufferGeometry();
@@ -301,16 +326,20 @@ function CosmicWeb() {
   const { geoms, sizes } = useCosmicWeb();
   const tex = useMemo(makeDotTexture, []);
   const materials = useMemo(
-    () => sizes.map((s) => new THREE.PointsMaterial({
-      map: tex,
-      size: s,
-      sizeAttenuation: true,
-      vertexColors: true,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      opacity: 0.9,
-    })),
+    () =>
+      sizes.map(
+        (s) =>
+          new THREE.PointsMaterial({
+            map: tex,
+            size: s,
+            sizeAttenuation: true,
+            vertexColors: true,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            opacity: 0.9,
+          }),
+      ),
     [tex, sizes],
   );
   return (
@@ -383,7 +412,13 @@ function MilkyWayFarSprite() {
   });
   return (
     <sprite ref={ref} position={[-26000, 0, 0]} scale={[100_000, 100_000, 1]}>
-      <spriteMaterial map={tex} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0} />
+      <spriteMaterial
+        map={tex}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        opacity={0}
+      />
     </sprite>
   );
 }
@@ -400,7 +435,13 @@ export function Universe() {
       {/* Andromeda is rendered in full particle detail by <Andromeda />, so
           its low-resolution stand-in disc is skipped here. */}
       {NEARBY_GALAXIES.filter((g) => g.name !== "Andromeda (M31)").map((g) => (
-        <NamedGalaxyDisc key={g.name} g={g} spiralTex={spiralTex} ellipTex={ellipTex} irrTex={irrTex} />
+        <NamedGalaxyDisc
+          key={g.name}
+          g={g}
+          spiralTex={spiralTex}
+          ellipTex={ellipTex}
+          irrTex={irrTex}
+        />
       ))}
     </group>
   );

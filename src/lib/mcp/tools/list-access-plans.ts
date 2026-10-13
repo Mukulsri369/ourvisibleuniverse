@@ -8,9 +8,23 @@ export default defineTool({
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: () => {
-    const plans = Object.values(ACCESS_PLANS).map((p) => ({ id: p.id, name: p.name, days: p.days, note: p.note, inr: p.prices.INR.label, usd: p.prices.USD.label }));
+    const plans = Object.values(ACCESS_PLANS).map((p) => ({
+      id: p.id,
+      name: p.name,
+      days: p.days,
+      note: p.note,
+      inr: p.prices.INR.label,
+      usd: p.prices.USD.label,
+    }));
     return {
-      content: [{ type: "text", text: plans.map((p) => `${p.name}: ${p.inr} / ${p.usd} (${p.note})`).join("\n") + "\nOne-time payment, no auto-renewal. Buy at https://ourvisibleuniverse.in/pricing" }],
+      content: [
+        {
+          type: "text",
+          text:
+            plans.map((p) => `${p.name}: ${p.inr} / ${p.usd} (${p.note})`).join("\n") +
+            "\nOne-time payment, no auto-renewal. Buy at https://ourvisibleuniverse.in/pricing",
+        },
+      ],
       structuredContent: { plans },
     };
   },

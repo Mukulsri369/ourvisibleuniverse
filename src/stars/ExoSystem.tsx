@@ -39,7 +39,7 @@ function orbitPoint(p: ExoPlanet, ang: number, out: THREE.Vector3) {
 // 0 rocky, 1 habitable/ocean, 2 lava, 3 gas giant / hot jupiter, 4 ice giant
 function surfaceMode(p: ExoPlanet): number {
   const k: ExoKind = p.kind;
-  if (k === "Lava world" || p.teqK > 1100 && p.radiusEarth < 2.5) return 2;
+  if (k === "Lava world" || (p.teqK > 1100 && p.radiusEarth < 2.5)) return 2;
   if (k === "Hot Jupiter" || k === "Gas giant") return 3;
   if (k === "Ice giant" || k === "Mini-Neptune" || k === "Warm Neptune") return 4;
   if (k === "Ocean world" || p.inHZ) return 1;
@@ -133,7 +133,12 @@ void main(){
   gl_FragColor = vec4(lit + emit, 1.0);
 }`;
 
-function ExoBody({ p, starName, starPos, onPick }: {
+function ExoBody({
+  p,
+  starName,
+  starPos,
+  onPick,
+}: {
   p: ExoPlanet;
   starName: string;
   starPos: THREE.Vector3;
@@ -145,7 +150,8 @@ function ExoBody({ p, starName, starPos, onPick }: {
   const world = useMemo(() => new THREE.Vector3(), []);
   const line = useMemo(() => {
     const pts: THREE.Vector3[] = [];
-    for (let i = 0; i <= 160; i++) pts.push(orbitPoint(p, (i / 160) * Math.PI * 2, new THREE.Vector3()));
+    for (let i = 0; i <= 160; i++)
+      pts.push(orbitPoint(p, (i / 160) * Math.PI * 2, new THREE.Vector3()));
     const g = new THREE.BufferGeometry().setFromPoints(pts);
     const m = new THREE.LineBasicMaterial({
       color: p.inHZ ? "#5cf08a" : "#8aa0c8",
@@ -185,7 +191,9 @@ function ExoBody({ p, starName, starPos, onPick }: {
   useFrame(({ clock }, dt) => {
     if (!ref.current) return;
     const speed = useStore.getState().systemSpeed / 25;
-    const ang = p.phase + (clock.elapsedTime * speed / (8 * Math.pow(p.periodYears, 0.5))) * Math.PI * 2 * 0.25;
+    const ang =
+      p.phase +
+      ((clock.elapsedTime * speed) / (8 * Math.pow(p.periodYears, 0.5))) * Math.PI * 2 * 0.25;
     ref.current.position.copy(orbitPoint(p, ang, tmp));
     ref.current.getWorldPosition(world);
     registry().set(p.name, world.clone());
@@ -209,7 +217,9 @@ function ExoBody({ p, starName, starPos, onPick }: {
         </mesh>
         {/* larger invisible hit target so small worlds are clickable */}
         <mesh onClick={pick} visible={false}>
-          <sphereGeometry args={[Math.max(size * 4, Math.min(0.0015, p.aAU * AU * (1 - p.e) * 0.2)), 8, 6]} />
+          <sphereGeometry
+            args={[Math.max(size * 4, Math.min(0.0015, p.aAU * AU * (1 - p.e) * 0.2)), 8, 6]}
+          />
         </mesh>
       </group>
     </>
@@ -235,7 +245,14 @@ function HostStar({ radius, temperature }: { radius: number; temperature: number
       </mesh>
       <mesh scale={1.25}>
         <sphereGeometry args={[radius, 32, 20]} />
-        <meshBasicMaterial color={color} transparent opacity={0.18} side={THREE.BackSide} depthWrite={false} toneMapped={false} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0.18}
+          side={THREE.BackSide}
+          depthWrite={false}
+          toneMapped={false}
+        />
       </mesh>
     </group>
   );
@@ -246,7 +263,13 @@ function HabitableZone({ inner, outer }: { inner: number; outer: number }) {
   return (
     <mesh rotation-x={-Math.PI / 2}>
       <ringGeometry args={[inner * AU, outer * AU, 128]} />
-      <meshBasicMaterial color="#3ddc84" transparent opacity={0.07} side={THREE.DoubleSide} depthWrite={false} />
+      <meshBasicMaterial
+        color="#3ddc84"
+        transparent
+        opacity={0.07}
+        side={THREE.DoubleSide}
+        depthWrite={false}
+      />
     </mesh>
   );
 }
@@ -258,7 +281,10 @@ export function ExoSystem() {
   const visitExoPlanet = useStore((s) => s.visitExoPlanet);
   const star = selected ?? exoVisit?.star ?? null;
   const sys = useMemo(() => (star && star.name !== "Sun" ? exoSystemFor(star) : null), [star]);
-  const starPos = useMemo(() => new THREE.Vector3(star?.x ?? 0, star?.y ?? 0, star?.z ?? 0), [star]);
+  const starPos = useMemo(
+    () => new THREE.Vector3(star?.x ?? 0, star?.y ?? 0, star?.z ?? 0),
+    [star],
+  );
   if (!star || !sys) return null;
   return (
     <group position={[star.x, star.y, star.z]}>
@@ -266,7 +292,13 @@ export function ExoSystem() {
       <HostStar radius={star.radius * SOLAR_R} temperature={star.temperature} />
       <HabitableZone inner={sys.hzInner} outer={sys.hzOuter} />
       {sys.planets.map((p) => (
-        <ExoBody key={p.name} p={p} starName={star.name} starPos={starPos} onPick={(n) => visitExoPlanet(star, n)} />
+        <ExoBody
+          key={p.name}
+          p={p}
+          starName={star.name}
+          starPos={starPos}
+          onPick={(n) => visitExoPlanet(star, n)}
+        />
       ))}
     </group>
   );

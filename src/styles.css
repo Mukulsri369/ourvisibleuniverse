@@ -3,11 +3,29 @@
 @import "tw-animate-css";
 
 @utility bg-hero-overlay {
-  background: linear-gradient(90deg, color-mix(in oklab, var(--hero-overlay) 88%, transparent), color-mix(in oklab, var(--hero-overlay) 28%, transparent) 58%, transparent), linear-gradient(0deg, color-mix(in oklab, var(--hero-overlay) 78%, transparent), transparent 55%);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--hero-overlay) 88%, transparent),
+      color-mix(in oklab, var(--hero-overlay) 28%, transparent) 58%,
+      transparent
+    ),
+    linear-gradient(
+      0deg,
+      color-mix(in oklab, var(--hero-overlay) 78%, transparent),
+      transparent 55%
+    );
 }
 
-.prose-universe h2 { color: var(--foreground); font-size: 1.5rem; font-weight: 600; margin-bottom: .75rem; }
-.prose-universe p { line-height: 1.8; }
+.prose-universe h2 {
+  color: var(--foreground);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.prose-universe p {
+  line-height: 1.8;
+}
 
 @custom-variant dark (&:is(.dark *));
 

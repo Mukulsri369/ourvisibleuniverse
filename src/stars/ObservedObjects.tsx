@@ -298,7 +298,6 @@ function NebulaDetail({
   );
 }
 
-
 function PulsarDetail({
   item,
   profile,
@@ -554,7 +553,11 @@ void main() {
 
 function LensingHalo({ color, spin }: { color: string; spin: number }) {
   const uniforms = useMemo(
-    () => ({ uColor: { value: new THREE.Color(color) }, uTime: { value: 0 }, uSpin: { value: spin } }),
+    () => ({
+      uColor: { value: new THREE.Color(color) },
+      uTime: { value: 0 },
+      uSpin: { value: spin },
+    }),
     [color, spin],
   );
   useFrame(({ clock }) => {
@@ -721,11 +724,7 @@ function AccretionDisk({
       </mesh>
       {jet && (
         <>
-          <JetPlume
-            color={item.accent}
-            length={profile.jetLength ?? 1.6}
-            sizeScale={ws}
-          />
+          <JetPlume color={item.accent} length={profile.jetLength ?? 1.6} sizeScale={ws} />
           {[-1, 1].map((s) => (
             <mesh key={s} position={[0, (s * (profile.jetLength ?? 1.6)) / 2, 0]}>
               <coneGeometry args={[0.07, profile.jetLength ?? 1.6, 18, 1, true]} />
@@ -744,7 +743,6 @@ function AccretionDisk({
     </group>
   );
 }
-
 
 function BlackHoleDetail({
   item,
@@ -1007,10 +1005,7 @@ function ObjectNode({ item }: { item: ObservedObject }) {
   const [hover, setHover] = useState(false);
   const position = objectPosition(item);
   const physical = Math.max(item.diameterLy, 0.000000001);
-  const closeScale = Math.max(
-    physical,
-    item.category === "Quasar" ? physical : 2e-7,
-  );
+  const closeScale = Math.max(physical, item.category === "Quasar" ? physical : 2e-7);
   const pick = Math.max(physical, item.distance * 2e-5, 0.000001);
   const click = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();

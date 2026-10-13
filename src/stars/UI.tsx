@@ -16,70 +16,71 @@ export function InfoPanel() {
   return (
     <AnimatePresence>
       {star && (
-        <HideablePanel resetKey={star.name} label={star.name}>{(hide) => (
-        <motion.aside
-          initial={{ x: 400, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          exit={{ x: 400, opacity: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
-          style={{
-            background: "rgba(8,10,24,0.78)",
-            backdropFilter: "blur(18px)",
-            WebkitBackdropFilter: "blur(18px)",
-          }}
-        >
-          {hide}
-          <button
-            onClick={() => setSelected(null)}
-            
-            aria-label="Close"
-            className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
-          >
-            ✕
-          </button>
-          <h2 className="pr-10 text-3xl font-light tracking-wide">{star.name}</h2>
-          <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">
-            {star.constellation}
-          </div>
-          <NasaResources name={star.name} query={`${star.name} star ${star.constellation}`} />
-          <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
-            <Stat label="Distance" value={`${star.distance.toFixed(2)} ly`} />
-            <Stat label="Spectral type" value={star.spectral} />
-            <Stat label="App. magnitude" value={star.magnitude.toFixed(2)} />
-            <Stat label="Abs. magnitude" value={star.absMagnitude.toFixed(2)} />
-            <Stat label="Mass" value={`${star.mass} M☉`} />
-            <Stat label="Radius" value={`${star.radius} R☉`} />
-            <Stat label="Temperature" value={`${star.temperature.toLocaleString()} K`} />
-            <Stat label="Luminosity" value={`${star.luminosity} L☉`} />
-            <Stat label="Right ascension" value={star.ra} />
-            <Stat label="Declination" value={star.dec} />
-            <Stat
-              label="Galactic l, b"
-              value={`${star.galacticL.toFixed(1)}°, ${star.galacticB.toFixed(1)}°`}
-            />
-            <Stat label="Known planets" value={String(star.planets)} />
-          </div>
-          <div className="my-6 h-px bg-white/10" />
-          <p className="text-sm leading-relaxed text-white/75">{star.description}</p>
+        <HideablePanel resetKey={star.name} label={star.name}>
+          {(hide) => (
+            <motion.aside
+              initial={{ x: 400, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 400, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
+              style={{
+                background: "rgba(8,10,24,0.78)",
+                backdropFilter: "blur(18px)",
+                WebkitBackdropFilter: "blur(18px)",
+              }}
+            >
+              {hide}
+              <button
+                onClick={() => setSelected(null)}
 
-          <StarDerived star={star} />
+                aria-label="Close"
+                className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                ✕
+              </button>
+              <h2 className="pr-10 text-3xl font-light tracking-wide">{star.name}</h2>
+              <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/40">
+                {star.constellation}
+              </div>
+              <NasaResources name={star.name} query={`${star.name} star ${star.constellation}`} />
+              <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
+                <Stat label="Distance" value={`${star.distance.toFixed(2)} ly`} />
+                <Stat label="Spectral type" value={star.spectral} />
+                <Stat label="App. magnitude" value={star.magnitude.toFixed(2)} />
+                <Stat label="Abs. magnitude" value={star.absMagnitude.toFixed(2)} />
+                <Stat label="Mass" value={`${star.mass} M☉`} />
+                <Stat label="Radius" value={`${star.radius} R☉`} />
+                <Stat label="Temperature" value={`${star.temperature.toLocaleString()} K`} />
+                <Stat label="Luminosity" value={`${star.luminosity} L☉`} />
+                <Stat label="Right ascension" value={star.ra} />
+                <Stat label="Declination" value={star.dec} />
+                <Stat
+                  label="Galactic l, b"
+                  value={`${star.galacticL.toFixed(1)}°, ${star.galacticB.toFixed(1)}°`}
+                />
+                <Stat label="Known planets" value={String(star.planets)} />
+              </div>
+              <div className="my-6 h-px bg-white/10" />
+              <p className="text-sm leading-relaxed text-white/75">{star.description}</p>
 
+              <StarDerived star={star} />
 
-          {star.companions?.length ? (
-            <div className="mt-6">
-              <div className="text-xs uppercase tracking-[0.2em] text-white/40">Companions</div>
-              <ul className="mt-2 space-y-1 text-sm text-white/70">
-                {star.companions.map((c) => (
-                  <li key={c.name}>
-                    {c.name} <span className="text-white/40">— {c.spectral}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </motion.aside>
-        )}</HideablePanel>
+              {star.companions?.length ? (
+                <div className="mt-6">
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/40">Companions</div>
+                  <ul className="mt-2 space-y-1 text-sm text-white/70">
+                    {star.companions.map((c) => (
+                      <li key={c.name}>
+                        {c.name} <span className="text-white/40">— {c.spectral}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </motion.aside>
+          )}
+        </HideablePanel>
       )}
     </AnimatePresence>
   );
@@ -103,15 +104,18 @@ function ExoSystemSection({ star }: { star: NamedStar }) {
         {observed
           ? "Real confirmed exoplanets with published orbits and sizes from the NASA Exoplanet Archive."
           : "Procedurally generated from this star's real mass, luminosity and temperature — an illustration of a physically plausible system, not observed planets."}{" "}
-        Green orbits lie in the habitable zone ({sys.hzInner.toFixed(2)}–{sys.hzOuter.toFixed(2)} AU); snow line at{" "}
-        {sys.snowLine.toFixed(2)} AU.
+        Green orbits lie in the habitable zone ({sys.hzInner.toFixed(2)}–{sys.hzOuter.toFixed(2)}{" "}
+        AU); snow line at {sys.snowLine.toFixed(2)} AU.
       </p>
       {sys.planets.length === 0 ? (
         <p className="mt-2 text-sm text-white/60">No stable orbits modelled for this star.</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {sys.planets.map((p) => (
-            <li key={p.name} className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-white/70">
+            <li
+              key={p.name}
+              className="rounded-lg border border-white/10 bg-white/5 p-3 text-xs text-white/70"
+            >
               <div className="flex items-center justify-between">
                 <span className="text-sm text-white">
                   {p.name}
@@ -126,9 +130,16 @@ function ExoSystemSection({ star }: { star: NamedStar }) {
               <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5">
                 <span>a = {p.aAU.toFixed(3)} AU</span>
                 <span>e = {p.e.toFixed(2)}</span>
-                <span>P = {p.periodYears < 1 ? `${(p.periodYears * 365.25).toFixed(1)} d` : `${p.periodYears.toFixed(2)} yr`}</span>
+                <span>
+                  P ={" "}
+                  {p.periodYears < 1
+                    ? `${(p.periodYears * 365.25).toFixed(1)} d`
+                    : `${p.periodYears.toFixed(2)} yr`}
+                </span>
                 <span>T_eq ≈ {Math.round(p.teqK)} K</span>
-                <span>R {p.radiusEstimated ? "≈" : "="} {p.radiusEarth.toFixed(2)} R⊕</span>
+                <span>
+                  R {p.radiusEstimated ? "≈" : "="} {p.radiusEarth.toFixed(2)} R⊕
+                </span>
                 <span>M ≈ {p.massEarth.toFixed(1)} M⊕</span>
                 <span>ESI ≈ {p.esi.toFixed(2)}</span>
                 <span>{p.tidallyLocked ? "Tidally locked" : "Free rotation"}</span>
@@ -169,14 +180,19 @@ function StarDerived({ star }: { star: NamedStar }) {
                 ? "orange"
                 : "red";
   const rows: Array<[string, string]> = [
-    ["Light travel time", star.distance < 0.01 ? "8.3 minutes" : `${star.distance.toFixed(2)} years`],
+    [
+      "Light travel time",
+      star.distance < 0.01 ? "8.3 minutes" : `${star.distance.toFixed(2)} years`,
+    ],
     ["Distance", `${pc.toFixed(2)} parsecs · ${(star.distance * 63241).toExponential(2)} AU`],
     ["Peak colour", `${colorName}, peaking near ${Math.round(peakNm)} nm`],
     ["Habitable zone", `${hzInner.toFixed(2)} – ${hzOuter.toFixed(2)} AU`],
     ["Surface gravity", `${gravity.toFixed(2)} × the Sun's`],
     [
       "Main-sequence lifetime",
-      lifeGyr >= 1000 ? `${(lifeGyr / 1000).toFixed(1)} trillion yr` : `${lifeGyr.toFixed(1)} billion yr`,
+      lifeGyr >= 1000
+        ? `${(lifeGyr / 1000).toFixed(1)} trillion yr`
+        : `${lifeGyr.toFixed(1)} billion yr`,
     ],
     [
       "Brightness vs Sun",
@@ -1171,7 +1187,9 @@ export function LoadingScreen({ done }: { done: boolean }) {
             ))}
           </div>
           <div className="relative text-center">
-            <h1 className="text-5xl font-extralight tracking-[0.3em] md:text-7xl">OUR VISIBLE UNIVERSE</h1>
+            <h1 className="text-5xl font-extralight tracking-[0.3em] md:text-7xl">
+              OUR VISIBLE UNIVERSE
+            </h1>
             <p className="mt-4 text-xs uppercase tracking-[0.3em] text-white/50">
               An interactive map from nearby worlds to the cosmic horizon
             </p>
@@ -1251,7 +1269,14 @@ export function SiteMap() {
           title="Site map"
           className="grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-black/60 text-white/90 shadow-lg backdrop-blur-md transition hover:bg-black/80 hover:text-white"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M3 6h18M3 12h18M3 18h18" />
           </svg>
         </button>
@@ -1263,9 +1288,7 @@ export function SiteMap() {
     <div
       onClick={(e) => e.stopPropagation()}
       className={`pointer-events-auto fixed z-30 ${
-        isMobile
-          ? "inset-x-0 bottom-0"
-          : "left-0 top-16 w-auto"
+        isMobile ? "inset-x-0 bottom-0" : "left-0 top-16 w-auto"
       }`}
     >
       <motion.div
@@ -1273,9 +1296,7 @@ export function SiteMap() {
         animate={isMobile ? { y: 0 } : { width: open ? 264 : 44 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
         className={`overflow-hidden rounded-xl border border-white/10 bg-black/55 backdrop-blur-md ${
-          isMobile
-            ? "w-full max-w-full rounded-b-none border-b-0"
-            : "ml-4"
+          isMobile ? "w-full max-w-full rounded-b-none border-b-0" : "ml-4"
         }`}
       >
         <button
@@ -1323,31 +1344,35 @@ export function SiteMap() {
               ))}
             </div>
 
-            <div className={`space-y-0.5 overflow-y-auto pr-1 ${isMobile ? "max-h-[45vh]" : "max-h-[52vh]"}`}>
+            <div
+              className={`space-y-0.5 overflow-y-auto pr-1 ${isMobile ? "max-h-[45vh]" : "max-h-[52vh]"}`}
+            >
               {section === "planets" && (
                 <>
                   <Row label="☉ Sun" active={!visitPlanet} onClick={() => setVisitPlanet(null)} />
-                  {PLANETS.filter((p) => match(p.name) || p.moons?.some((m) => match(m.name))).map((p) => (
-                    <div key={p.name}>
-                      <Row
-                        label={p.name}
-                        sub={`${(p.a / AU).toFixed(2)} AU`}
-                        color={p.color}
-                        active={visitPlanet === p.name}
-                        onClick={() => setVisitPlanet(p.name)}
-                      />
-                      {p.moons?.map((m) => (
+                  {PLANETS.filter((p) => match(p.name) || p.moons?.some((m) => match(m.name))).map(
+                    (p) => (
+                      <div key={p.name}>
                         <Row
-                          key={m.name}
-                          label={`↳ ${m.name}`}
-                          color={m.color}
-                          indent
-                          active={visitPlanet === moonKey(p.name, m.name)}
-                          onClick={() => setVisitPlanet(moonKey(p.name, m.name))}
+                          label={p.name}
+                          sub={`${(p.a / AU).toFixed(2)} AU`}
+                          color={p.color}
+                          active={visitPlanet === p.name}
+                          onClick={() => setVisitPlanet(p.name)}
                         />
-                      ))}
-                    </div>
-                  ))}
+                        {p.moons?.map((m) => (
+                          <Row
+                            key={m.name}
+                            label={`↳ ${m.name}`}
+                            color={m.color}
+                            indent
+                            active={visitPlanet === moonKey(p.name, m.name)}
+                            onClick={() => setVisitPlanet(moonKey(p.name, m.name))}
+                          />
+                        ))}
+                      </div>
+                    ),
+                  )}
                 </>
               )}
 
@@ -1378,10 +1403,18 @@ export function SiteMap() {
                   <Row
                     label="✦ Milky Way"
                     active={visitGalaxy?.name === "Milky Way"}
-                    onClick={() => setVisitGalaxy({
-                      name: "Milky Way", x: -26_000, y: 0, z: 0,
-                      size: 100_000, distance: 0, type: "Barred Spiral", view: "overview",
-                    })}
+                    onClick={() =>
+                      setVisitGalaxy({
+                        name: "Milky Way",
+                        x: -26_000,
+                        y: 0,
+                        z: 0,
+                        size: 100_000,
+                        distance: 0,
+                        type: "Barred Spiral",
+                        view: "overview",
+                      })
+                    }
                   />
                   {galaxies
                     .filter((g) => match(g.name))

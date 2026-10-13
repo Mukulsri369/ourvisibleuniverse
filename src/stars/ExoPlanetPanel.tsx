@@ -21,7 +21,11 @@ export function ExoPlanetPanel() {
           exit={{ x: 400, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
           className="fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
-          style={{ background: "rgba(8,10,24,0.78)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)" }}
+          style={{
+            background: "rgba(8,10,24,0.78)",
+            backdropFilter: "blur(18px)",
+            WebkitBackdropFilter: "blur(18px)",
+          }}
         >
           <button
             onClick={() => flyToStar(exo.star)}
@@ -30,29 +34,54 @@ export function ExoPlanetPanel() {
           >
             ✕
           </button>
-          <div className="text-xs uppercase tracking-[0.25em] text-white/40">Exoplanet · {exo.star.name}</div>
+          <div className="text-xs uppercase tracking-[0.25em] text-white/40">
+            Exoplanet · {exo.star.name}
+          </div>
           <h2 className="mt-2 text-3xl font-light">{p.name}</h2>
           <div className="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-wider">
-            <span className={`rounded-full border px-2 py-0.5 ${p.observed ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/20 bg-white/5 text-white/60"}`}>
+            <span
+              className={`rounded-full border px-2 py-0.5 ${p.observed ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/20 bg-white/5 text-white/60"}`}
+            >
               {p.observed ? "Confirmed (NASA Exoplanet Archive)" : "Modelled"}
             </span>
-            <span className="rounded-full border border-sky-400/40 bg-sky-400/10 px-2 py-0.5 text-sky-300">ESI {p.esi.toFixed(2)}</span>
-            {p.inHZ && <span className="rounded-full border border-emerald-400/40 px-2 py-0.5 text-emerald-300">Habitable zone</span>}
+            <span className="rounded-full border border-sky-400/40 bg-sky-400/10 px-2 py-0.5 text-sky-300">
+              ESI {p.esi.toFixed(2)}
+            </span>
+            {p.inHZ && (
+              <span className="rounded-full border border-emerald-400/40 px-2 py-0.5 text-emerald-300">
+                Habitable zone
+              </span>
+            )}
           </div>
           <p className="mt-4 text-sm leading-relaxed text-white/70">
-            A {p.kind.toLowerCase()} orbiting {exo.star.name} ({exo.star.spectral}) {exo.star.distance.toFixed(1)} light years from
-            Earth. Drag to look around — the host star shines in this world's sky.
-            {!p.observed && " This planet is a physically plausible model, not an observed discovery."}
+            A {p.kind.toLowerCase()} orbiting {exo.star.name} ({exo.star.spectral}){" "}
+            {exo.star.distance.toFixed(1)} light years from Earth. Drag to look around — the host
+            star shines in this world's sky.
+            {!p.observed &&
+              " This planet is a physically plausible model, not an observed discovery."}
           </p>
           <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
             <Stat label="Type" value={p.kind} />
             <Stat label="Orbit" value={`${p.aAU.toFixed(3)} AU`} />
-            <Stat label="Period" value={p.periodYears < 1 ? `${(p.periodYears * 365.25).toFixed(1)} days` : `${p.periodYears.toFixed(2)} yr`} />
+            <Stat
+              label="Period"
+              value={
+                p.periodYears < 1
+                  ? `${(p.periodYears * 365.25).toFixed(1)} days`
+                  : `${p.periodYears.toFixed(2)} yr`
+              }
+            />
             <Stat label="Eccentricity" value={p.e.toFixed(2)} />
-            <Stat label={p.radiusEstimated ? "Radius (est.)" : "Radius"} value={`${p.radiusEarth.toFixed(2)} R⊕`} />
+            <Stat
+              label={p.radiusEstimated ? "Radius (est.)" : "Radius"}
+              value={`${p.radiusEarth.toFixed(2)} R⊕`}
+            />
             <Stat label="Mass" value={`${p.massEarth.toFixed(1)} M⊕`} />
             <Stat label="Surface gravity" value={`${g.toFixed(2)} g`} />
-            <Stat label="Temperature" value={`${Math.round(p.teqK)} K / ${Math.round(p.teqK - 273.15)} °C`} />
+            <Stat
+              label="Temperature"
+              value={`${Math.round(p.teqK)} K / ${Math.round(p.teqK - 273.15)} °C`}
+            />
             <Stat label="Rotation" value={p.tidallyLocked ? "Tidally locked" : "Free rotation"} />
             <Stat label="Host star" value={`${Math.round(exo.star.temperature)} K`} />
           </div>

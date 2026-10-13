@@ -11,7 +11,8 @@ export default defineMcp({
   name: "stellar-journeys",
   title: "Stellar Journeys",
   version: "0.1.0",
-  instructions: "Tools for Our Visible Universe: search and read the scientific catalog of stars, galaxies and exotic objects, view access pass prices, and check the signed-in user's pass status.",
+  instructions:
+    "Tools for Our Visible Universe: search and read the scientific catalog of stars, galaxies and exotic objects, view access pass prices, and check the signed-in user's pass status.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",

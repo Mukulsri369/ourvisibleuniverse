@@ -5,7 +5,15 @@ import * as THREE from "three";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore } from "./store";
 
-function StarLabel({ star, hovered, setHovered }: { star: NamedStar; hovered: string | null; setHovered: (n: string | null) => void }) {
+function StarLabel({
+  star,
+  hovered,
+  setHovered,
+}: {
+  star: NamedStar;
+  hovered: string | null;
+  setHovered: (n: string | null) => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const groupRef = useRef<THREE.Group>(null!);
   const setSelected = useStore((s) => s.setSelected);
@@ -45,7 +53,12 @@ function StarLabel({ star, hovered, setHovered }: { star: NamedStar; hovered: st
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       <Billboard>
-        <Html center distanceFactor={undefined} zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
+        <Html
+          center
+          distanceFactor={undefined}
+          zIndexRange={[10, 0]}
+          style={{ pointerEvents: "none" }}
+        >
           <div
             ref={ref}
             style={{
@@ -93,7 +106,11 @@ function BinaryOrbit({ center, color }: { center: [number, number, number]; colo
     if (!ref.current) return;
     const t = clock.elapsedTime * 0.6;
     const r = 0.5;
-    ref.current.position.set(center[0] + Math.cos(t) * r, center[1] + Math.sin(t) * r * 0.4, center[2]);
+    ref.current.position.set(
+      center[0] + Math.cos(t) * r,
+      center[1] + Math.sin(t) * r * 0.4,
+      center[2],
+    );
   });
   return (
     <mesh ref={ref}>

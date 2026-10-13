@@ -155,8 +155,17 @@ export function exoSystemFor(star: NamedStar): ExoSystemModel {
     const Teq0 = star.temperature * Math.sqrt(Rau / (2 * a));
     if (Teq0 > 1500) kind = r < 0.25 ? "Hot Jupiter" : "Lava world";
     else if (beyondSnow) kind = r < 0.55 ? "Gas giant" : "Ice giant";
-    else if (a >= hzInner && a <= hzOuter) kind = r < 0.35 ? "Ocean world" : r < 0.7 ? "Super-Earth" : "Rocky world";
-    else kind = r < 0.35 ? "Rocky world" : r < 0.65 ? "Super-Earth" : r < 0.85 ? "Mini-Neptune" : "Warm Neptune";
+    else if (a >= hzInner && a <= hzOuter)
+      kind = r < 0.35 ? "Ocean world" : r < 0.7 ? "Super-Earth" : "Rocky world";
+    else
+      kind =
+        r < 0.35
+          ? "Rocky world"
+          : r < 0.65
+            ? "Super-Earth"
+            : r < 0.85
+              ? "Mini-Neptune"
+              : "Warm Neptune";
 
     const radiusEarth =
       kind === "Hot Jupiter" || kind === "Gas giant"
@@ -169,7 +178,11 @@ export function exoSystemFor(star: NamedStar): ExoSystemModel {
               ? 1.3 + rand() * 0.6
               : 0.5 + rand() * 0.7;
     const massEarth =
-      radiusEarth > 6 ? 60 + rand() * 900 : radiusEarth > 2 ? 4 + radiusEarth * radiusEarth * 1.2 : Math.pow(radiusEarth, 3.7);
+      radiusEarth > 6
+        ? 60 + rand() * 900
+        : radiusEarth > 2
+          ? 4 + radiusEarth * radiusEarth * 1.2
+          : Math.pow(radiusEarth, 3.7);
     const albedo = radiusEarth > 6 ? 0.34 : kind === "Ocean world" ? 0.3 : 0.25;
     const teqK = Teq0 * Math.pow(1 - albedo, 0.25);
     const inHZ = a >= hzInner && a <= hzOuter;
