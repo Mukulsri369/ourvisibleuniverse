@@ -434,8 +434,19 @@ function seedAngle(name: string) {
 function meanAnomaly(def: PlanetDef): number {
   const r = REAL_ORBITS[def.name];
   if (!r) return seedAngle(def.name) + (simTimeYears() / (def.period / 31.5)) * Math.PI * 2;
-  return deg(r.L0 - r.peri) + (simTimeYears() / r.years) * Math.PI * 2;
+  const boost = OUTER_ORBIT_BOOST[def.name] ?? 1;
+  return deg(r.L0 - r.peri) + ((simTimeYears() * boost) / r.years) * Math.PI * 2;
 }
+
+// Outer worlds take decades to circle the Sun; speed up their revolution so
+// it is visibly animated (positions still start from today's real longitude).
+const OUTER_ORBIT_BOOST: Record<string, number> = {
+  Jupiter: 4,
+  Saturn: 6,
+  Uranus: 10,
+  Neptune: 14,
+  Pluto: 18,
+};
 
 // Kepler's equation solver
 function keplerPosition(def: PlanetDef, _phase: number, _t: number): THREE.Vector3 {
@@ -1326,7 +1337,7 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 const TRAIL_LEN = 2400;
 // Moons move fast around their planet, so their trails are much shorter —
 // just enough to sketch the little helix they trace around the planet's path.
-const MOON_TRAIL_LEN = 320;
+const MOON_TRAIL_LEN = 1500;
 
 type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: number };
 

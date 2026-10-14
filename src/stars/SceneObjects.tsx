@@ -16,15 +16,19 @@ export function Sun() {
     () => ({
       uniforms: { uTime: { value: 0 } },
       vertexShader: /* glsl */ `
+        #include <common>
+        #include <logdepthbuf_pars_vertex>
         varying vec3 vPos;
         varying vec3 vNormal;
         void main() {
           vPos = position;
           vNormal = normalize(normalMatrix * normal);
           gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+          #include <logdepthbuf_vertex>
         }
       `,
       fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
         uniform float uTime;
         varying vec3 vPos;
         varying vec3 vNormal;
@@ -47,6 +51,7 @@ export function Sun() {
         }
 
         void main(){
+          #include <logdepthbuf_fragment>
           vec3 p = normalize(vPos) * 2.0;
           float n = fbm(p + vec3(uTime*0.15));
           float hot = fbm(p*2.0 - vec3(uTime*0.25));
@@ -55,8 +60,9 @@ export function Sun() {
           vec3 hi   = vec3(1.0, 0.95, 0.6);
           vec3 col = mix(deep, mid, smoothstep(0.2, 0.6, n));
           col = mix(col, hi, smoothstep(0.55, 0.95, hot));
-          float fres = pow(1.0 - max(dot(vNormal, vec3(0,0,1)), 0.0), 2.0);
-          col += vec3(1.0,0.5,0.2) * fres * 0.6;
+          // physical limb darkening instead of an artificial glowing rim
+          float mu = max(dot(vNormal, vec3(0,0,1)), 0.0);
+          col *= 0.55 + 0.45 * mu;
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -81,18 +87,9 @@ export function Sun() {
     <group>
       <mesh ref={meshRef}>
         <sphereGeometry args={[0.015, 48, 32]} />
-        <shaderMaterial args={[shader]} />
+        <shaderMaterial args={[shader]} depthWrite depthTest transparent={false} />
       </mesh>
       <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />
-      <sprite ref={coronaRef}>
-        <spriteMaterial
-          map={coronaTex}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          transparent
-          opacity={0.35}
-        />
-      </sprite>
     </group>
   );
 }
