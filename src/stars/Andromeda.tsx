@@ -1,7 +1,8 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Billboard, Html } from "@react-three/drei";
+import { Billboard } from "@react-three/drei";
+import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
 import {
   ANDROMEDA_NAME,

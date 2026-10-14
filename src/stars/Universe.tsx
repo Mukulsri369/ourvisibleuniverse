@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Billboard, Html } from "@react-three/drei";
+import { Billboard } from "@react-three/drei";
+import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
 import { GALAXY_BY_NAME } from "./galaxy-models";
 import { NEARBY_GALAXIES, type NamedGalaxy } from "./galaxy-catalog";
