@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, Orbit, X } from "lucide-react";
+import { Menu, Orbit, ShoppingBag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -26,14 +26,20 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${overHero ? "border-transparent bg-transparent" : "border-border/60 bg-background/80 backdrop-blur-xl"}`}
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
+        overHero
+          ? "border-transparent bg-transparent"
+          : "border-white/10 bg-slate-950/80 backdrop-blur-xl text-slate-100"
+      }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
         <Link
           to="/"
-          className={`flex items-center gap-2 font-semibold transition-transform hover:scale-105 ${overHero ? "text-hero-foreground" : "text-foreground"}`}
+          className={`flex items-center gap-2 font-semibold transition-transform hover:scale-105 ${
+            overHero ? "text-hero-foreground" : "text-white"
+          }`}
         >
-          <Orbit className="size-6 text-primary" />
+          <Orbit className="size-6 text-cyan-400" />
           Our Visible Universe
         </Link>
         <nav className="hidden items-center gap-7 md:flex">
@@ -41,17 +47,42 @@ export function SiteHeader() {
             <Link
               key={to}
               to={to}
-              className={`text-sm transition hover:scale-105 ${overHero ? "text-hero-muted hover:text-hero-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`text-sm transition hover:scale-105 ${
+                overHero
+                  ? "text-hero-muted hover:text-hero-foreground"
+                  : "text-slate-300 hover:text-white"
+              }`}
             >
               {label}
             </Link>
           ))}
         </nav>
-        <div className="hidden gap-2 md:flex">
-          <Button asChild variant="ghost" className={overHero ? "text-hero-foreground" : ""}>
+        <div className="hidden items-center gap-2 md:flex">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-border hover:border-cyan-400 hover:text-cyan-300"
+          >
+            <a
+              href="https://ourvisibleuniverse.store"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5"
+            >
+              <ShoppingBag className="size-3.5 text-cyan-400" />
+              <span>Store</span>
+            </a>
+          </Button>
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className={overHero ? "text-hero-foreground" : ""}
+          >
             <Link to="/account">Account</Link>
           </Button>
-          <Button asChild>
+          <Button asChild size="sm">
             <Link to="/universe">Explore universe</Link>
           </Button>
         </div>
@@ -66,23 +97,39 @@ export function SiteHeader() {
         </Button>
       </div>
       {open && (
-        <nav className="border-t border-border bg-background p-5 md:hidden">
+        <nav className="border-t border-white/10 bg-slate-950/95 backdrop-blur-2xl p-5 md:hidden">
           {links.map(([to, label]) => (
             <Link
               key={to}
               to={to}
               onClick={() => setOpen(false)}
-              className="block border-b border-border py-3 text-foreground"
+              className="block border-b border-white/10 py-3 text-slate-200 hover:text-white"
             >
               {label}
             </Link>
           ))}
-          <Button asChild variant="outline" className="mt-5 w-full">
+          <Button
+            asChild
+            variant="outline"
+            className="mt-5 w-full border-cyan-500/30 text-cyan-300"
+          >
+            <a
+              href="https://ourvisibleuniverse.store"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2"
+            >
+              <ShoppingBag className="size-4 text-cyan-400" />
+              <span>Visit Official Store</span>
+            </a>
+          </Button>
+          <Button asChild variant="ghost" className="mt-2 w-full">
             <Link to="/account" onClick={() => setOpen(false)}>
               Account
             </Link>
           </Button>
-          <Button asChild className="mt-3 w-full">
+          <Button asChild className="mt-2 w-full">
             <Link to="/universe" onClick={() => setOpen(false)}>
               Explore universe
             </Link>
