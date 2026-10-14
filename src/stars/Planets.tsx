@@ -434,8 +434,19 @@ function seedAngle(name: string) {
 function meanAnomaly(def: PlanetDef): number {
   const r = REAL_ORBITS[def.name];
   if (!r) return seedAngle(def.name) + (simTimeYears() / (def.period / 31.5)) * Math.PI * 2;
-  return deg(r.L0 - r.peri) + (simTimeYears() / r.years) * Math.PI * 2;
+  const boost = OUTER_ORBIT_BOOST[def.name] ?? 1;
+  return deg(r.L0 - r.peri) + ((simTimeYears() * boost) / r.years) * Math.PI * 2;
 }
+
+// Outer worlds take decades to circle the Sun; speed up their revolution so
+// it is visibly animated (positions still start from today's real longitude).
+const OUTER_ORBIT_BOOST: Record<string, number> = {
+  Jupiter: 4,
+  Saturn: 6,
+  Uranus: 10,
+  Neptune: 14,
+  Pluto: 18,
+};
 
 // Kepler's equation solver
 function keplerPosition(def: PlanetDef, _phase: number, _t: number): THREE.Vector3 {
@@ -1068,6 +1079,17 @@ function makeHaloTexture(_color: string): THREE.Texture {
 
 export const moonKey = (parent: string, moon: string) => `${parent}:${moon}`;
 
+const TRAIL_SAMPLES = new Map<string, number[]>();
+const trailSamples = () => TRAIL_SAMPLES;
+function getTrailSamples(key: string) {
+  let s = TRAIL_SAMPLES.get(key);
+  if (!s) {
+    s = [];
+    TRAIL_SAMPLES.set(key, s);
+  }
+  return s;
+}
+
 function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const ref = useRef<THREE.Group>(null!);
   const phase = useMemo(() => seedAngle(parent + moon.name), [parent, moon.name]);
@@ -1076,29 +1098,64 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     if (!window.__exoSizes) window.__exoSizes = new Map();
     window.__exoSizes.set(moonKey(parent, moon.name), moon.size);
   }, [parent, moon.name, moon.size]);
+  const prev = useRef<{ days: number; parent: THREE.Vector3 } | null>(null);
+  const local = useMemo(() => new THREE.Vector3(), []);
+  const parentPos = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const days = MOON_DAYS[moon.name];
-    const a = days
-      ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) +
-        (simTimeDays() / days) * Math.PI * 2
-      : phase + (clock.elapsedTime / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
-    ref.current.position.set(
-      Math.cos(a) * moon.distance,
-      Math.sin(a) * moon.distance * Math.sin(inc),
-      Math.sin(a) * moon.distance * Math.cos(inc),
-    );
-    // publish live world position so the moon trail can track it
+    const angleAt = (simD: number) =>
+      days
+        ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) +
+          (simD / days) * Math.PI * 2
+        : phase + (clock.elapsedTime / moon.period) * Math.PI * 2;
+    const setLocal = (out: THREE.Vector3, a: number) =>
+      out.set(
+        Math.cos(a) * moon.distance,
+        Math.sin(a) * moon.distance * Math.sin(inc),
+        Math.sin(a) * moon.distance * Math.cos(inc),
+      );
+    const nowD = simTimeDays();
+    setLocal(ref.current.position, angleAt(nowD));
     ref.current.getWorldPosition(tmp);
-    const reg = getRegistry();
     const key = moonKey(parent, moon.name);
+    const reg = getRegistry();
     let v = reg.get(key);
     if (!v) {
       v = new THREE.Vector3();
       reg.set(key, v);
     }
     v.copy(tmp);
+
+    // Fast moons sweep tens of degrees per frame; sub-sample the true orbit
+    // between frames so the trail is a smooth curve instead of a zig-zag.
+    const par = ref.current.parent;
+    if (!par) return;
+    par.getWorldPosition(parentPos);
+    const p0 = prev.current;
+    const samples = getTrailSamples(key);
+    if (p0 && days) {
+      const dA = Math.abs(((nowD - p0.days) / days) * Math.PI * 2);
+      const n = Math.min(64, Math.max(1, Math.ceil(dA / deg(2.5))));
+      for (let k = 1; k <= n; k++) {
+        const f = k / n;
+        setLocal(local, angleAt(p0.days + (nowD - p0.days) * f));
+        local.applyMatrix4(par.matrixWorld);
+        local.x += (p0.parent.x - parentPos.x) * (1 - f);
+        local.y += (p0.parent.y - parentPos.y) * (1 - f);
+        local.z += (p0.parent.z - parentPos.z) * (1 - f);
+        samples.push(local.x, local.y, local.z);
+      }
+      if (samples.length > 3 * 4096) samples.splice(0, samples.length - 3 * 4096);
+    } else {
+      samples.push(tmp.x, tmp.y, tmp.z);
+    }
+    if (!prev.current) prev.current = { days: nowD, parent: parentPos.clone() };
+    else {
+      prev.current.days = nowD;
+      prev.current.parent.copy(parentPos);
+    }
   });
   return (
     <group ref={ref}>
@@ -1280,7 +1337,7 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 const TRAIL_LEN = 2400;
 // Moons move fast around their planet, so their trails are much shorter —
 // just enough to sketch the little helix they trace around the planet's path.
-const MOON_TRAIL_LEN = 320;
+const MOON_TRAIL_LEN = 1500;
 
 type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: number };
 
@@ -1341,14 +1398,43 @@ function useTrail(body: TrailBody) {
 
   const tick = useRef(0);
   useFrame(() => {
+    const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const arr = attr.array as Float32Array;
+    // Moons publish sub-sampled orbit points; consume them all every frame.
+    const queued = trailSamples().get(body.name);
+    if (queued) {
+      if (queued.length === 0) return;
+      let start = 0;
+      if (!initialized.current) {
+        for (let i = 0; i < len; i++) {
+          arr[i * 3] = queued[0];
+          arr[i * 3 + 1] = queued[1];
+          arr[i * 3 + 2] = queued[2];
+        }
+        initialized.current = true;
+        start = 3;
+      }
+      const from = Math.max(start, queued.length - len * 3);
+      for (let j = from; j < queued.length; j += 3) {
+        head.current = (head.current + 1) % len;
+        const h = head.current * 3;
+        arr[h] = queued[j];
+        arr[h + 1] = queued[j + 1];
+        arr[h + 2] = queued[j + 2];
+      }
+      queued.length = 0;
+      const anyAttr = attr as unknown as { clearUpdateRanges?: () => void };
+      anyAttr.clearUpdateRanges?.();
+      attr.needsUpdate = true;
+      material.uniforms.uHead.value = head.current;
+      return;
+    }
     // Trails advance on every other frame: same visual path, half the
     // per-frame work across ~30 tracked bodies.
     if (tick.current++ % 2 !== 0) return;
     const reg = (window as Window).__planetPositions;
     const p = reg?.get(body.name);
     if (!p) return;
-    const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
-    const arr = attr.array as Float32Array;
     if (!initialized.current) {
       for (let i = 0; i < len; i++) {
         arr[i * 3] = p.x;
