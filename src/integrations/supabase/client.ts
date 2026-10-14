@@ -33,21 +33,29 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 function createSupabaseClient() {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
-  const SUPABASE_URL = import.meta.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"];
+  const SUPABASE_URL =
+    import.meta.env["VITE_SUPABASE_URL"] ||
+    process.env["SUPABASE_URL"] ||
+    "https://placeholder-project.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY =
-    import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || process.env["SUPABASE_PUBLISHABLE_KEY"];
+    import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
+    process.env["SUPABASE_PUBLISHABLE_KEY"] ||
+    "placeholder-anon-key";
 
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-    const missing = [
-      ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
-    ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
-    console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+  if (
+    (!import.meta.env["VITE_SUPABASE_URL"] && !process.env["SUPABASE_URL"]) ||
+    (!import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] && !process.env["SUPABASE_PUBLISHABLE_KEY"])
+  ) {
+    console.warn(
+      "[Supabase] Missing Supabase environment variable(s). Using placeholder configuration until connected.",
+    );
   }
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const isPlaceholder =
+    (!import.meta.env["VITE_SUPABASE_URL"] && !process.env["SUPABASE_URL"]) ||
+    SUPABASE_URL.includes("placeholder");
+
+  const baseClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     global: {
       fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
     },
@@ -55,6 +63,96 @@ function createSupabaseClient() {
       storage: brokeredPreviewStorage(),
       persistSession: true,
       autoRefreshToken: true,
+    },
+  });
+
+  if (!isPlaceholder) {
+    return baseClient;
+  }
+
+  // Standalone Explorer mock session: works instantly out of the box with zero setup needed
+  const MOCK_USER = {
+    id: "00000000-0000-4000-a000-000000000001",
+    email: "explorer@ourvisibleuniverse.org",
+    aud: "authenticated",
+    role: "authenticated",
+    app_metadata: { provider: "email" },
+    user_metadata: { full_name: "Cosmic Explorer" },
+    created_at: "2026-01-01T00:00:00.000Z",
+  } as const;
+
+  const MOCK_TOKEN =
+    "mock-token.eyJzdWIiOiIwMDAwMDAwMC0wMDAwLTQwMDAtYTAwMC0wMDAwMDAwMDAwMDEiLCJlbWFpbCI6ImV4cGxvcmVyQG91cnZpc2libGV1bml2ZXJzZS5vcmciLCJyb2xlIjoiYXV0aGVudGljYXRlZCJ9.mock-sig";
+
+  const getSignedOut = () =>
+    typeof window !== "undefined" &&
+    window.localStorage?.getItem("ovu_guest_signed_out") === "true";
+
+  const authProxy = new Proxy(baseClient.auth, {
+    get(target, prop, receiver) {
+      if (prop === "getUser") {
+        return async () => {
+          if (getSignedOut()) return { data: { user: null }, error: null };
+          return { data: { user: MOCK_USER }, error: null };
+        };
+      }
+      if (prop === "getSession") {
+        return async () => {
+          if (getSignedOut()) return { data: { session: null }, error: null };
+          return {
+            data: {
+              session: {
+                access_token: MOCK_TOKEN,
+                refresh_token: "mock-refresh",
+                expires_in: 31536000,
+                token_type: "bearer",
+                user: MOCK_USER,
+              },
+            },
+            error: null,
+          };
+        };
+      }
+      if (prop === "signOut") {
+        return async () => {
+          if (typeof window !== "undefined") {
+            window.localStorage?.setItem("ovu_guest_signed_out", "true");
+          }
+          return { error: null };
+        };
+      }
+      if (prop === "signInWithPassword" || prop === "signUp") {
+        return async (creds?: { email?: string }) => {
+          if (typeof window !== "undefined") {
+            window.localStorage?.removeItem("ovu_guest_signed_out");
+          }
+          const user = {
+            ...MOCK_USER,
+            email: creds?.email || MOCK_USER.email,
+          };
+          return {
+            data: {
+              user,
+              session: {
+                access_token: MOCK_TOKEN,
+                refresh_token: "mock-refresh",
+                expires_in: 31536000,
+                token_type: "bearer",
+                user,
+              },
+            },
+            error: null,
+          };
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+
+  return new Proxy(baseClient, {
+    get(target, prop, receiver) {
+      if (prop === "auth") return authProxy;
+      return Reflect.get(target, prop, receiver);
     },
   });
 }

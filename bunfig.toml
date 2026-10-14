@@ -1,2 +1,2 @@
-# Configuration for Bun runtime in Lovable
 [install]
+exact = false

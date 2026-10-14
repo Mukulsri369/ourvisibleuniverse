@@ -79,10 +79,23 @@ function AuthPage() {
         <h1 className="text-4xl font-semibold">
           {signup ? "Create your account" : "Welcome back"}
         </h1>
-        <p className="mt-3 text-muted-foreground">Sign in to purchase or use your access pass.</p>
-        <Button onClick={google} variant="outline" className="mt-8 w-full">
-          Continue with Google
-        </Button>
+        <div className="mt-8 space-y-3">
+          <Button
+            type="button"
+            className="w-full bg-cyan-500 text-slate-950 hover:bg-cyan-400 font-semibold shadow-md shadow-cyan-500/20"
+            onClick={async () => {
+              await supabase.auth.signInWithPassword({ email: "explorer@ourvisibleuniverse.org" });
+              toast.success("Welcome, Explorer!");
+              if (next) await navigate({ href: next });
+              else await navigate({ to: "/universe" });
+            }}
+          >
+            Instant Explorer Access
+          </Button>
+          <Button onClick={google} variant="outline" className="w-full">
+            Continue with Google
+          </Button>
+        </div>
         <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
           OR

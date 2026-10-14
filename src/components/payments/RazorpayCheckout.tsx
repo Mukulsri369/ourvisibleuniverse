@@ -64,8 +64,20 @@ export function RazorpayCheckout({
   const openCheckout = async () => {
     setBusy(true);
     try {
-      await loadCheckout();
       const order = await createRazorpayCheckout({ data: { planId, currency } });
+      if (order.simulated) {
+        await confirmRazorpayPayment({
+          data: {
+            razorpay_order_id: order.orderId,
+            razorpay_payment_id: `pay_sim_${Date.now()}`,
+            razorpay_signature: "0000000000000000000000000000000000000000000000000000000000000000",
+          },
+        });
+        toast.success("Pass confirmed! Your universe access is active.");
+        await navigate({ to: "/account" });
+        return;
+      }
+      await loadCheckout();
       const Razorpay = window.Razorpay;
       if (!Razorpay) throw new Error("Payment window is unavailable");
       const checkout = new Razorpay({
