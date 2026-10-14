@@ -1076,29 +1076,64 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     if (!window.__exoSizes) window.__exoSizes = new Map();
     window.__exoSizes.set(moonKey(parent, moon.name), moon.size);
   }, [parent, moon.name, moon.size]);
+  const prev = useRef<{ days: number; parent: THREE.Vector3 } | null>(null);
+  const local = useMemo(() => new THREE.Vector3(), []);
+  const parentPos = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const days = MOON_DAYS[moon.name];
-    const a = days
-      ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) +
-        (simTimeDays() / days) * Math.PI * 2
-      : phase + (clock.elapsedTime / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
-    ref.current.position.set(
-      Math.cos(a) * moon.distance,
-      Math.sin(a) * moon.distance * Math.sin(inc),
-      Math.sin(a) * moon.distance * Math.cos(inc),
-    );
-    // publish live world position so the moon trail can track it
+    const angleAt = (simD: number) =>
+      days
+        ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) +
+          (simD / days) * Math.PI * 2
+        : phase + (clock.elapsedTime / moon.period) * Math.PI * 2;
+    const setLocal = (out: THREE.Vector3, a: number) =>
+      out.set(
+        Math.cos(a) * moon.distance,
+        Math.sin(a) * moon.distance * Math.sin(inc),
+        Math.sin(a) * moon.distance * Math.cos(inc),
+      );
+    const nowD = simTimeDays();
+    setLocal(ref.current.position, angleAt(nowD));
     ref.current.getWorldPosition(tmp);
-    const reg = getRegistry();
     const key = moonKey(parent, moon.name);
+    const reg = getRegistry();
     let v = reg.get(key);
     if (!v) {
       v = new THREE.Vector3();
       reg.set(key, v);
     }
     v.copy(tmp);
+
+    // Fast moons sweep tens of degrees per frame; sub-sample the true orbit
+    // between frames so the trail is a smooth curve instead of a zig-zag.
+    const par = ref.current.parent;
+    if (!par) return;
+    par.getWorldPosition(parentPos);
+    const p0 = prev.current;
+    const samples = getTrailSamples(key);
+    if (p0 && days) {
+      const dA = Math.abs(((nowD - p0.days) / days) * Math.PI * 2);
+      const n = Math.min(64, Math.max(1, Math.ceil(dA / deg(2.5))));
+      for (let k = 1; k <= n; k++) {
+        const f = k / n;
+        setLocal(local, angleAt(p0.days + (nowD - p0.days) * f));
+        local.applyMatrix4(par.matrixWorld);
+        local.x += (p0.parent.x - parentPos.x) * (1 - f);
+        local.y += (p0.parent.y - parentPos.y) * (1 - f);
+        local.z += (p0.parent.z - parentPos.z) * (1 - f);
+        samples.push(local.x, local.y, local.z);
+      }
+      if (samples.length > 3 * 4096) samples.splice(0, samples.length - 3 * 4096);
+    } else {
+      samples.push(tmp.x, tmp.y, tmp.z);
+    }
+    if (!prev.current) prev.current = { days: nowD, parent: parentPos.clone() };
+    else {
+      prev.current.days = nowD;
+      prev.current.parent.copy(parentPos);
+    }
   });
   return (
     <group ref={ref}>
