@@ -1068,6 +1068,17 @@ function makeHaloTexture(_color: string): THREE.Texture {
 
 export const moonKey = (parent: string, moon: string) => `${parent}:${moon}`;
 
+const TRAIL_SAMPLES = new Map<string, number[]>();
+const trailSamples = () => TRAIL_SAMPLES;
+function getTrailSamples(key: string) {
+  let s = TRAIL_SAMPLES.get(key);
+  if (!s) {
+    s = [];
+    TRAIL_SAMPLES.set(key, s);
+  }
+  return s;
+}
+
 function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const ref = useRef<THREE.Group>(null!);
   const phase = useMemo(() => seedAngle(parent + moon.name), [parent, moon.name]);
@@ -1376,14 +1387,43 @@ function useTrail(body: TrailBody) {
 
   const tick = useRef(0);
   useFrame(() => {
+    const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const arr = attr.array as Float32Array;
+    // Moons publish sub-sampled orbit points; consume them all every frame.
+    const queued = trailSamples().get(body.name);
+    if (queued) {
+      if (queued.length === 0) return;
+      let start = 0;
+      if (!initialized.current) {
+        for (let i = 0; i < len; i++) {
+          arr[i * 3] = queued[0];
+          arr[i * 3 + 1] = queued[1];
+          arr[i * 3 + 2] = queued[2];
+        }
+        initialized.current = true;
+        start = 3;
+      }
+      const from = Math.max(start, queued.length - len * 3);
+      for (let j = from; j < queued.length; j += 3) {
+        head.current = (head.current + 1) % len;
+        const h = head.current * 3;
+        arr[h] = queued[j];
+        arr[h + 1] = queued[j + 1];
+        arr[h + 2] = queued[j + 2];
+      }
+      queued.length = 0;
+      const anyAttr = attr as unknown as { clearUpdateRanges?: () => void };
+      anyAttr.clearUpdateRanges?.();
+      attr.needsUpdate = true;
+      material.uniforms.uHead.value = head.current;
+      return;
+    }
     // Trails advance on every other frame: same visual path, half the
     // per-frame work across ~30 tracked bodies.
     if (tick.current++ % 2 !== 0) return;
     const reg = (window as Window).__planetPositions;
     const p = reg?.get(body.name);
     if (!p) return;
-    const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
-    const arr = attr.array as Float32Array;
     if (!initialized.current) {
       for (let i = 0; i < len; i++) {
         arr[i * 3] = p.x;
