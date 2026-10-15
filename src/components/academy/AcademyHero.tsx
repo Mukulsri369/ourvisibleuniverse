@@ -111,7 +111,8 @@ function Earth3D({ isMobile }: { isMobile: boolean }) {
       <mesh ref={earthRef} scale={isMobile ? 1.8 : 1.9}>
         <sphereGeometry args={[1, 48, 48]} />
         <meshStandardMaterial
-          map={earthTexture}
+          {...(earthTexture ? { map: earthTexture } : {})}
+          color={earthTexture ? "#ffffff" : "#0f3a68"}
           roughness={0.65}
           metalness={0.1}
           emissive="#001830"

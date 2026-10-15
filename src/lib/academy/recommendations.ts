@@ -11,6 +11,7 @@ export interface Recommendation {
 export function getAdaptiveRecommendations(progress: UserProgress): Recommendation[] {
   const recommendations: Recommendation[] = [];
   const module01Progress = progress.moduleProgress["01"]?.status;
+  const module02Progress = progress.moduleProgress["02"]?.status;
   const module13Progress = progress.moduleProgress["13"]?.status;
   const module19Progress = progress.moduleProgress["19"]?.status;
 
@@ -28,15 +29,29 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
-    // When Module 01 is completed, recommend The Night Sky next!
+  } else if (module02Progress !== "completed") {
+    // When Module 01 is completed and 02 is not, recommend The Night Sky!
     const mod02 = ACADEMY_MODULES.find((m) => m.id === "02");
     if (mod02) {
       recommendations.push({
         module: mod02,
         reason:
-          "Now that you know your cosmic coordinates, look up to navigate the night sky, locate Polaris, and map the constellations.",
+          module02Progress === "in_progress"
+            ? "Continue navigating the night sky in your 360° virtual planetarium dome."
+            : "Now that you know your cosmic coordinates, look up to navigate the night sky, locate Polaris, and map the constellations.",
         badge: "Next Adventure",
+        priority: "primary",
+      });
+    }
+  } else {
+    // When Module 02 is completed, recommend Module 03: Cosmic Distances & Scale!
+    const mod03 = ACADEMY_MODULES.find((m) => m.id === "03");
+    if (mod03) {
+      recommendations.push({
+        module: mod03,
+        reason:
+          "Now that you can read the night sky, plunge into the mind-bending gulfs of empty space: Astronomical Units, light-years, and parsecs.",
+        badge: "Next Step: Scale",
         priority: "primary",
       });
     }

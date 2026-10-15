@@ -198,7 +198,7 @@ export function LearningModuleCard({
         )}
 
         {/* Action Button */}
-        {module.id === "01" ? (
+        {module.id === "01" || module.id === "02" ? (
           <Button
             size="sm"
             onClick={() => onSelectModule && onSelectModule(module)}

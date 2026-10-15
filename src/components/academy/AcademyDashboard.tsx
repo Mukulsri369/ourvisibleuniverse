@@ -12,6 +12,7 @@ import { ProgressTracker } from "./ProgressTracker";
 import { AchievementDisplay } from "./AchievementDisplay";
 import { AccessibilityControls } from "./AccessibilityControls";
 import { LessonLayout } from "./LessonLayout";
+import { Module02Layout } from "./Module02Layout";
 import { Link } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -45,6 +46,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   const [activeLessonModule, setActiveLessonModule] = useState<ModuleContract | null>(() => {
     if (initialModuleId === "01") {
       return ACADEMY_MODULES.find((m) => m.id === "01") || null;
+    }
+    if (initialModuleId === "02") {
+      return ACADEMY_MODULES.find((m) => m.id === "02") || null;
     }
     return null;
   });
@@ -80,7 +84,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   };
 
   const handleSelectModule = (module: ModuleContract) => {
-    if (module.id === "01") {
+    if (module.id === "01" || module.id === "02") {
       setActiveLessonModule(module);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -112,7 +116,43 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (mod.id === "01") {
+              if (mod.id === "01" || mod.id === "02") {
+                setActiveLessonModule(mod);
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 02: The Night Sky & Constellations
+  if (activeLessonModule && activeLessonModule.id === "02") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module02Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "02"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (mod.id === "01" || mod.id === "02") {
                 setActiveLessonModule(mod);
               } else {
                 setActiveLessonModule(null);
@@ -169,13 +209,14 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             </div>
 
             <div className="flex-shrink-0">
-              {primaryRecommendation.module.id === "01" ? (
+              {primaryRecommendation.module.id === "01" ||
+              primaryRecommendation.module.id === "02" ? (
                 <Button
                   size="lg"
                   onClick={() => handleSelectModule(primaryRecommendation.module)}
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-md shadow-cyan-500/25 border-none"
                 >
-                  <span>Start Module 01</span>
+                  <span>Start Module {primaryRecommendation.module.id}</span>
                   <ArrowRight className="size-4 ml-2" />
                 </Button>
               ) : primaryRecommendation.module.id === "13" ? (

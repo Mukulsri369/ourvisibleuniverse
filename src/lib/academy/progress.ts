@@ -40,12 +40,19 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
     description: "Tested a hands-on cosmic parameter experiment.",
     icon: "🔬",
   },
+  {
+    id: "module_02_complete",
+    title: "Master Stargazer",
+    description: "Mapped constellations and found Polaris in the virtual planetarium.",
+    icon: "✨",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
   selectedLevel: "explorer", // default Space Explorer (Classes 4-6)
   moduleProgress: {
     "01": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "02": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
   },
@@ -125,6 +132,9 @@ export function useAcademyProgress() {
         if (resolvedStatus === "completed") {
           if (moduleId === "01" && !newAchievements.includes("module_01_complete")) {
             newAchievements.push("module_01_complete");
+          }
+          if (moduleId === "02" && !newAchievements.includes("module_02_complete")) {
+            newAchievements.push("module_02_complete");
           }
           if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
             newAchievements.push("galaxy_voyager");

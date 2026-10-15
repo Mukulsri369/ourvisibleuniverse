@@ -151,6 +151,15 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.$RefreshReg$ = window.$RefreshReg$ || function() {};
+              window.$RefreshSig$ = window.$RefreshSig$ || function() { return function(type) { return type; }; };
+              window.__vite_plugin_react_preamble_installed__ = true;
+            `,
+          }}
+        />
         <HeadContent />
       </head>
       <body>

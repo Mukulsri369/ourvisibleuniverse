@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { AcademyDashboard } from "@/components/academy/AcademyDashboard";
+import { Button } from "@/components/ui/button";
 
 interface LearnSearchParams {
   module?: string;
@@ -32,6 +33,34 @@ export const Route = createFileRoute("/learn")({
     ],
   }),
   component: LearnRouteComponent,
+  errorComponent: ({ error, reset }) => (
+    <PublicLayout>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center">
+        <h2 className="text-2xl font-bold text-white mb-2">Cosmic Learning Academy</h2>
+        <p className="text-sm text-slate-400 mb-6 max-w-md">
+          Something went wrong while loading this learning module. You can try refreshing or return
+          home.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.location.reload();
+              } else {
+                reset();
+              }
+            }}
+            className="bg-cyan-600 hover:bg-cyan-500 text-white"
+          >
+            Reload Module
+          </Button>
+          <Button asChild variant="outline" className="border-white/10 text-white">
+            <Link to="/">Go Home</Link>
+          </Button>
+        </div>
+      </div>
+    </PublicLayout>
+  ),
 });
 
 function LearnRouteComponent() {
