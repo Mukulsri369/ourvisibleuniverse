@@ -1,3 +1,4 @@
+import type React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -612,7 +613,7 @@ function Scene({ v }: { v: Visual }) {
             [68, "#a855f7", "Dark energy 68%"],
             [27, "#3b82f6", "Dark matter 27%"],
             [5, "#facc15", "Normal matter 5%"],
-          ].reduce<{ el: JSX.Element[]; acc: number }>(
+          ].reduce<{ el: React.ReactElement[]; acc: number }>(
             (o, [p, c, l], k) => {
               const a0 = (o.acc / 100) * Math.PI * 2;
               const a1 = ((o.acc + (p as number)) / 100) * Math.PI * 2;
