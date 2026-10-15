@@ -13,12 +13,18 @@ import {
   ShoppingBag,
   ArrowUpRight,
   Shuffle,
+  Instagram,
+  RefreshCw,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Plans } from "@/components/site/Plans";
 import { Button } from "@/components/ui/button";
-import { STORE_CATALOG, getRandomStoreProducts, type StoreProduct } from "@/lib/store-products";
+import {
+  AUTHENTIC_STORE_SEED,
+  fetchLiveStoreProducts,
+  type StoreProduct,
+} from "@/lib/store-products";
 
 import parentKidImg from "@/assets/images/parent_kid_stargazing_1791934612266.jpg";
 import saturnRingsImg from "@/assets/images/saturn_rings_cosmic_1791934612062.jpg";
@@ -160,16 +166,72 @@ const testimonials = [
 function Index() {
   const [activeScaleIndex, setActiveScaleIndex] = useState(0);
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(() =>
-    STORE_CATALOG.slice(0, 6),
+    AUTHENTIC_STORE_SEED.slice(0, 6),
   );
+  const [allProducts, setAllProducts] = useState<StoreProduct[]>(AUTHENTIC_STORE_SEED);
+  const [isLoadingStore, setIsLoadingStore] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  // Randomize catalog on client after hydration to avoid SSR mismatch
+  // Automatically load authentic live products and prices from ourvisibleuniverse.store
   useEffect(() => {
-    setStoreProducts(getRandomStoreProducts());
+    let isMounted = true;
+    setIsLoadingStore(true);
+    fetchLiveStoreProducts()
+      .then((products) => {
+        if (!isMounted) return;
+        if (products && products.length > 0) {
+          setAllProducts(products);
+          setStoreProducts(products.slice(0, 6));
+        }
+        setIsLoadingStore(false);
+      })
+      .catch((err) => {
+        console.warn("Could not fetch live store products, preserving authentic seed:", err);
+        if (isMounted) setIsLoadingStore(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  const handleCategoryFilter = (catKey: string) => {
+    setActiveCategory(catKey);
+    if (catKey === "all") {
+      setStoreProducts(allProducts.slice(0, 6));
+    } else if (catKey === "projectors") {
+      const filtered = allProducts.filter(
+        (p) =>
+          p.category.toLowerCase().includes("projector") ||
+          p.name.toLowerCase().includes("projector"),
+      );
+      setStoreProducts((filtered.length ? filtered : allProducts).slice(0, 6));
+    } else if (catKey === "aurora") {
+      const filtered = allProducts.filter(
+        (p) =>
+          p.category.toLowerCase().includes("aurora") ||
+          p.category.toLowerCase().includes("light") ||
+          p.name.toLowerCase().includes("aurora") ||
+          p.name.toLowerCase().includes("lamp"),
+      );
+      setStoreProducts((filtered.length ? filtered : allProducts).slice(0, 6));
+    } else if (catKey === "decor") {
+      const filtered = allProducts.filter(
+        (p) =>
+          p.category.toLowerCase().includes("decor") ||
+          p.category.toLowerCase().includes("clock") ||
+          p.category.toLowerCase().includes("art") ||
+          p.category.toLowerCase().includes("poster") ||
+          p.category.toLowerCase().includes("book"),
+      );
+      setStoreProducts((filtered.length ? filtered : allProducts).slice(0, 6));
+    }
+  };
+
   const shuffleProducts = () => {
-    setStoreProducts(getRandomStoreProducts());
+    const pool = activeCategory === "all" ? allProducts : storeProducts;
+    const shuffled = [...pool].sort(() => 0.5 - Math.random());
+    setStoreProducts(shuffled.slice(0, 6));
   };
 
   return (
@@ -212,6 +274,69 @@ function Index() {
                   <h4 className="text-sm font-semibold text-white">Single One-Time Pass</h4>
                   <p className="text-xs text-slate-400">No sneaky monthly auto-billing</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= COSMIC LEARNING ACADEMY SHOWCASE ================= */}
+        <section className="relative overflow-hidden border-t border-cyan-500/30 bg-gradient-to-b from-cyan-950/40 via-slate-950/80 to-slate-950/40 backdrop-blur-xl py-20">
+          <div className="absolute top-0 right-1/4 size-96 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+          <div className="mx-auto max-w-7xl px-5 lg:px-8 relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 rounded-3xl border border-cyan-500/40 bg-slate-900/70 p-8 sm:p-12 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1 text-xs font-semibold text-cyan-300 mb-4">
+                  <Sparkles className="size-3.5 text-cyan-400" />
+                  <span>Now Open • 24 Progressive Astronomy Modules</span>
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Cosmic Learning Academy
+                </h2>
+                <p className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
+                  Transform astronomy learning with our interactive curriculum: 6 celestial stages,
+                  3 age-adaptive learning levels (Classes 1–3, 4–6, 7–10), hands-on cosmic physics
+                  experiments, and 3D planetary explorations.
+                </p>
+
+                <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-300">
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                    <CheckCircle2 className="size-3.5 text-cyan-400" />
+                    <span>Age-Adaptive Physics</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                    <CheckCircle2 className="size-3.5 text-cyan-400" />
+                    <span>Local-First Progress</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                    <CheckCircle2 className="size-3.5 text-cyan-400" />
+                    <span>Verified NASA Grounding</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row lg:flex-col gap-3 flex-shrink-0">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-8 py-6 text-base shadow-lg shadow-cyan-500/25 border-none transition-transform hover:scale-105"
+                >
+                  <Link to="/learn">
+                    <Compass className="size-5 mr-2" />
+                    <span>Enter Cosmic Academy</span>
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-cyan-400 font-semibold px-6 py-6 text-sm"
+                >
+                  <Link to="/galaxies">
+                    <span>Explore Galaxies (3D)</span>
+                    <ArrowRight className="size-4 ml-2 text-cyan-400" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -545,10 +670,10 @@ function Index() {
           </div>
         </section>
 
-        {/* ================= DEDICATED STORE SECTION ================= */}
+        {/* ================= DEDICATED AUTHENTIC STORE SECTION ================= */}
         <section
           id="store"
-          className="border-t border-white/10 bg-slate-950/50 backdrop-blur-md py-24"
+          className="border-t border-white/10 bg-slate-950/60 backdrop-blur-md py-24"
         >
           <div className="mx-auto max-w-7xl px-5 lg:px-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -558,16 +683,21 @@ function Index() {
                   <span>The Official Stargazer's Store</span>
                 </div>
                 <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-                  Bring the Wonder of the Night Sky Home.
+                  Authentic Space Gear & Cosmic Lighting.
                 </h2>
                 <p className="mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-                  Alongside our digital 3D cosmos, Our Visible Universe curates real physical
-                  equipment for young stargazers and astronomy families. From beginner refractor
-                  telescopes that reveal Saturn's rings from your terrace, to certified
-                  4.5-billion-year-old iron meteorite specimens, precision planispheres, and
-                  illuminated star globes. Every item is verified for optical quality and durability
-                  so you receive something worth keeping under the real night sky.
+                  Direct from{" "}
+                  <span className="font-semibold text-cyan-400">ourvisibleuniverse.store</span>.
+                  Every item and live price below is verified authentic — from high-definition
+                  galaxy projectors and 3-in-1 aurora northern lights lamps, to textured lunar
+                  surface wall clocks and curated celestial literature. Click{" "}
+                  <strong>Buy Now</strong> on any item to open its dedicated page in our official
+                  store.
                 </p>
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">
+                  <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Auto-synced with live catalog & prices from ourvisibleuniverse.store</span>
+                </div>
               </div>
 
               {/* Actions: Visit Store & Shuffle */}
@@ -598,70 +728,148 @@ function Index() {
               </div>
             </div>
 
-            {/* Randomized Product Grid */}
-            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {storeProducts.map((p) => (
-                <a
-                  key={p.id}
-                  href={p.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-slate-900/80 hover:shadow-xl hover:shadow-cyan-500/10"
+            {/* Category Filter Pills */}
+            <div className="mt-8 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-2">
+                Filter:
+              </span>
+              {[
+                { key: "all", label: "All Authentic Products" },
+                { key: "projectors", label: "Galaxy Projectors" },
+                { key: "aurora", label: "Aurora Lamps & Lights" },
+                { key: "decor", label: "Space Décor & Clocks" },
+              ].map((cat) => (
+                <button
+                  key={cat.key}
+                  type="button"
+                  onClick={() => handleCategoryFilter(cat.key)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+                    activeCategory === cat.key
+                      ? "bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/25"
+                      : "border border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10 hover:text-white"
+                  }`}
                 >
-                  <div>
-                    {/* Product Image */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-950">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        referrerPolicy="no-referrer"
-                      />
-                      <span className="absolute top-3 left-3 rounded-full border border-white/15 bg-black/75 px-3 py-1 text-[11px] font-semibold text-cyan-300 backdrop-blur-md">
-                        {p.badge}
-                      </span>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-6">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
-                        {p.category}
-                      </span>
-                      <h3 className="mt-2 text-lg font-bold text-white transition-colors group-hover:text-cyan-300">
-                        {p.name}
-                      </h3>
-                      <p className="mt-2 text-xs leading-relaxed text-slate-300 line-clamp-2">
-                        {p.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Pricing and Action Footer */}
-                  <div className="flex items-center justify-between border-t border-white/10 px-6 py-4 bg-slate-950/40">
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-mono text-lg font-bold text-white">{p.price}</span>
-                      {p.originalPrice && (
-                        <span className="font-mono text-xs text-slate-400 line-through">
-                          {p.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    <span className="inline-flex items-center text-xs font-semibold text-cyan-400 group-hover:translate-x-0.5 transition-transform">
-                      View in Store <ArrowUpRight className="ml-1 size-3.5" />
-                    </span>
-                  </div>
-                </a>
+                  {cat.label}
+                </button>
               ))}
+            </div>
+
+            {/* Product Grid */}
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {isLoadingStore && storeProducts.length === 0
+                ? Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="aspect-[4/5] animate-pulse rounded-3xl border border-white/10 bg-slate-900/40 p-6"
+                    />
+                  ))
+                : storeProducts.map((p) => (
+                    <div
+                      key={p.id}
+                      className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-slate-900/80 hover:shadow-2xl hover:shadow-cyan-500/10"
+                    >
+                      <div>
+                        {/* Product Image Link */}
+                        <a
+                          href={p.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="relative block aspect-[4/3] w-full overflow-hidden bg-slate-950 cursor-pointer"
+                          title={`View ${p.name} on ourvisibleuniverse.store`}
+                        >
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            referrerPolicy="no-referrer"
+                            loading="lazy"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-50" />
+                          <span className="absolute top-3 left-3 rounded-full border border-cyan-400/30 bg-slate-950/90 px-3 py-1 text-[11px] font-semibold text-cyan-300 backdrop-blur-md flex items-center gap-1.5 shadow-sm">
+                            <ShieldCheck className="size-3 text-cyan-400" />
+                            {p.badge}
+                          </span>
+                          <span className="absolute top-3 right-3 rounded-full border border-emerald-500/30 bg-slate-950/90 px-2.5 py-0.5 text-[10px] font-mono text-emerald-400 backdrop-blur-md">
+                            Verified Authentic
+                          </span>
+                        </a>
+
+                        {/* Content */}
+                        <div className="p-6">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold uppercase tracking-wider text-cyan-400">
+                              {p.category}
+                            </span>
+                            <span className="text-[11px] font-mono text-slate-400">
+                              ourvisibleuniverse.store
+                            </span>
+                          </div>
+                          <a
+                            href={p.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-2 block"
+                          >
+                            <h3 className="text-base font-bold text-white transition-colors group-hover:text-cyan-300 line-clamp-2">
+                              {p.name}
+                            </h3>
+                          </a>
+                          <p className="mt-2 text-xs leading-relaxed text-slate-300 line-clamp-2">
+                            {p.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Pricing and Action Footer with Buy Now */}
+                      <div className="flex items-center justify-between border-t border-white/10 px-6 py-4 bg-slate-950/50">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
+                            Store Price
+                          </span>
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-mono text-lg font-bold text-white">
+                              {p.price}
+                            </span>
+                            {p.originalPrice && (
+                              <span className="font-mono text-xs text-slate-400 line-through">
+                                {p.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Button
+                            asChild
+                            size="sm"
+                            className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl shadow-md shadow-cyan-500/20 transition-all hover:scale-105 active:scale-95"
+                          >
+                            <a
+                              href={p.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5"
+                            >
+                              <ShoppingBag className="size-3.5" />
+                              <span>Buy Now</span>
+                              <ArrowUpRight className="size-3" />
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
             </div>
 
             {/* Bottom Store Highlight Banner */}
             <div className="mt-12 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-slate-900/70 to-cyan-950/40 backdrop-blur-md p-8 sm:p-10 text-center">
               <h3 className="text-2xl font-bold text-white sm:text-3xl">
-                Looking for Specific Telescope Optics or Meteorite Certificates?
+                Explore the Complete Space Decor & Lighting Catalog
               </h3>
               <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
-                Browse our full catalog on our dedicated online storefront with secure checkout,
-                direct customer support, and guaranteed safe delivery across India and worldwide.
+                Browse our full collection of astronomical decor, galaxy projectors, meteorite
+                specimens, and cosmic gifts on our official store with secure Indian & international
+                checkout.
               </p>
               <div className="mt-6 flex flex-wrap justify-center gap-4">
                 <Button
@@ -694,6 +902,73 @@ function Index() {
                     Explore VisualizeMaths Engine <ArrowRight className="ml-1.5 size-4" />
                   </a>
                 </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= DEDICATED INSTAGRAM COMMUNITY CARD ================= */}
+        <section
+          id="instagram"
+          className="border-t border-white/10 bg-slate-950/80 backdrop-blur-md py-20"
+        >
+          <div className="mx-auto max-w-7xl px-5 lg:px-8">
+            <div className="relative overflow-hidden rounded-3xl border border-pink-500/30 bg-gradient-to-br from-purple-950/50 via-slate-950/90 to-pink-950/40 p-8 sm:p-12 backdrop-blur-xl shadow-2xl shadow-pink-950/20">
+              {/* Cosmic gradient orbs */}
+              <div className="pointer-events-none absolute -top-24 -right-24 size-80 rounded-full bg-pink-500/15 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-purple-500/15 blur-3xl" />
+
+              <div className="relative z-10 flex flex-col items-center justify-between gap-8 md:flex-row text-center md:text-left">
+                <div className="max-w-2xl">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/15 px-3.5 py-1 text-xs font-semibold text-pink-300">
+                    <Instagram className="size-3.5 text-pink-400" />
+                    <span>Join Our Astronomy Community</span>
+                  </div>
+                  <h2 className="mt-4 text-3xl font-black text-white sm:text-4xl">
+                    Follow{" "}
+                    <span className="bg-gradient-to-r from-pink-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">
+                      @our_visibleuniverse
+                    </span>{" "}
+                    on Instagram
+                  </h2>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
+                    Get daily high-resolution deep space imagery from the James Webb & Hubble
+                    telescopes, celestial event calendars, backyard stargazing tips, and early drops
+                    from our authentic space store.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center md:justify-start items-center gap-4 text-xs text-slate-400">
+                    <span className="flex items-center gap-1.5 text-slate-300">
+                      <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Daily Space Discoveries
+                    </span>
+                    <span>•</span>
+                    <span>Astrophotography Guides</span>
+                    <span>•</span>
+                    <span>Authentic Store Highlights</span>
+                  </div>
+                </div>
+
+                <div className="shrink-0 flex flex-col items-center gap-2">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-400 hover:via-rose-400 hover:to-purple-500 text-white font-bold px-8 py-6 rounded-2xl shadow-xl shadow-pink-500/25 transition-all hover:scale-105 active:scale-95 text-base"
+                  >
+                    <a
+                      href="https://www.instagram.com/our_visibleuniverse"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2.5"
+                    >
+                      <Instagram className="size-5" />
+                      <span>Follow @our_visibleuniverse</span>
+                      <ArrowUpRight className="size-4" />
+                    </a>
+                  </Button>
+                  <p className="text-[11px] text-slate-400">
+                    Opens instagram.com/our_visibleuniverse
+                  </p>
+                </div>
               </div>
             </div>
           </div>

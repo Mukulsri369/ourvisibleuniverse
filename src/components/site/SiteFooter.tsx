@@ -41,6 +41,24 @@ export function SiteFooter() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm text-slate-400">
+            <Link
+              to="/learn"
+              className="text-cyan-400 hover:text-cyan-300 transition-colors font-bold flex items-center gap-1"
+            >
+              <span>Cosmic Academy</span>
+              <span className="text-[10px] bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/30">
+                New
+              </span>
+            </Link>
+            <Link
+              to="/visible-universe-history"
+              className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
+            >
+              Cosmic History
+            </Link>
+            <Link to="/galaxies" className="hover:text-white transition-colors">
+              Galaxies (3D)
+            </Link>
             <Link to="/about" className="hover:text-white transition-colors">
               About
             </Link>
@@ -67,10 +85,29 @@ export function SiteFooter() {
             >
               Physical Store ↗
             </a>
+            <a
+              href="https://www.instagram.com/our_visibleuniverse"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-400 hover:text-pink-300 hover:underline transition-colors flex items-center gap-1"
+            >
+              Instagram @our_visibleuniverse ↗
+            </a>
           </div>
           <div className="text-sm text-slate-400 md:text-right">
             <p>Support: ourvisibleuniverse@gmail.com</p>
-            <p className="mt-2">Chandigarh, India</p>
+            <p className="mt-1 text-slate-300">
+              Instagram:{" "}
+              <a
+                href="https://www.instagram.com/our_visibleuniverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-pink-400 hover:text-pink-300 underline"
+              >
+                @our_visibleuniverse
+              </a>
+            </p>
+            <p className="mt-1">Chandigarh, India</p>
           </div>
         </div>
       </div>
