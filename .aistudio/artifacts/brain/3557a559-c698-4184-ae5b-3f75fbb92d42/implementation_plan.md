@@ -1,151 +1,131 @@
-# Mobile Sticky Cosmic Animation, Student Concept Spotlights (NASA & Wikipedia), and Chapter FAQs
+# Dark Space Theme & 3D Celestial Parallax Background (Earth, Venus, Mars)
 
-Redesign the Visible Universe History page so high school students (grades 10–11) have an engaging, interactive learning experience on both mobile and desktop. On mobile devices, the dynamic cosmic visualizer stays pinned at the top of the viewport with collapsible controls as students scroll through chapters, while highlighted scientific terms (e.g., Redshift, Cosmic Microwave Background, Epicycles) open dedicated concept sheets with NASA and Wikipedia references, and each chapter features an expandable student FAQ accordion.
+Transform the landing page into an immersive deep cosmic dark space experience featuring a dedicated Three.js / WebGL background scene where high-fidelity 3D rotating spheres for **Earth**, **Venus**, and **Mars** smoothly pop out and orbit with scroll-driven parallax as the user navigates from the top hero down to the footer.
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> The following product and design choices were confirmed during Phase 1 clarification:
+> The following design choices were confirmed during Phase 1 clarification:
 >
-> - **Mobile Animation Visibility**: Sticky top viewport with collapsible controls while scrolling, ensuring students can observe the changing cosmic model at the top of their screen without losing their reading place.
-> - **Concept Spotlights**: Highlighted interactive concept buttons embedded directly into the narrative that open a quick slide-up knowledge sheet with a student-friendly explanation, key formulas, and verified direct links to NASA and Wikipedia.
-> - **Chapter Inquiry Format**: Standard expandable FAQ accordions at the conclusion of each chapter answering authentic questions 10th and 11th graders ask about astronomical models and physical evidence.
+> - **Celestial Spheres**: High-resolution 3D celestial spheres with physical rotation, procedural atmospheric glow, cloud layers, and surface detail (oceans/continents for Earth, sulfur cloud layers for Venus, red iron rust & polar cap for Mars).
+> - **Motion & Trajectory**: Parallax drift emerging along viewport edges, orbiting gently with physics-based inertia and scroll position tracking that persists down through every content section.
+> - **Cosmic Atmosphere**: Deep cosmic obsidian background (`#05070d`) layered with an animated twinkling multi-depth starfield and subtle nebula gradient dust.
 
-- **Confirmed Decision 1**: Sticky mobile simulation deck anchored beneath the navigation header (`sticky top-14 z-30 lg:top-28`) with an adaptive height (`h-44` to `h-52` on mobile) and a quick tap-to-collapse toggle to respect the mobile 15% sticky guideline when reading long text.
-- **Confirmed Decision 2**: Centralized scientific knowledge repository (`src/lib/cosmic-concepts.ts`) mapping terms like _Redshift_, _Hubble's Law_, _Cosmic Microwave Background_, _Gravitational Lensing_, _Inflation_, and _Epicycles_ to student-level explanations and curated official NASA and Wikipedia destinations.
-- **Confirmed Decision 3**: Engaging chapter FAQ data added to every history chapter in `src/lib/visible-universe-history-data.ts`, addressing common misconceptions (e.g., "Why does light stretch?", "How could Eratosthenes measure Earth with just sticks and shadows?", "What does space expand into?").
+- **Confirmed Decision 1**: Three.js WebGL canvas pinned in a fixed background layer behind the landing page with zero pointer-events blocking, running an optimized requestAnimationFrame loop with smooth damping (`THREE.MathUtils.damp`).
+- **Confirmed Decision 2**: Dark space overhaul for all landing page cards, sections, and header/footer using semi-transparent glassmorphism (`bg-slate-900/50 backdrop-blur-md border border-white/10`) allowing celestial motion to shine through between content blocks without sacrificing readability.
+- **Confirmed Decision 3**: Responsive scaling and performance guards (`prefers-reduced-motion` detection, DPR clamping at 2, automatic disposal on unmount).
 
 ---
 
 ## 1. Overview & Core Concept
 
-- **What It Does**: Upgrades the 26-epoch history of cosmic models into a classroom-ready, mobile-friendly interactive textbook. As students scroll down through chapters on smartphones, the visualizer remains pinned at the top, synchronizing its dynamic 3D/2D animation to whichever epoch is in view. Key scientific terms are highlighted as interactive beacons that open quick reference drawers linking directly to official NASA science missions and Wikipedia articles. Each chapter concludes with expandable FAQ inquiries designed for high school physics and astronomy curricula.
-- **Target Audience & Persona**: 10th and 11th-grade students (ages 15–17), science teachers, and curious stargazers seeking rigorous yet accessible historical cosmology.
-- **Key Value**: Bridges visual intuition and academic research. Students see how the geometric model looks in motion while having instant access to verified scientific literature without leaving their flow.
+- **What It Does**: Replaces the default mixed-brightness theme on the homepage with a unified, cinematic dark space theme. Mounts a fixed background 3D canvas that renders an animated starfield along with three distinct celestial bodies—Earth, Venus, and Mars. As the visitor scrolls down through the sections (Hero, Parent Trust, Why Parents Feel Proud, Store Showcase, Interactive Scales, Pricing & Passes, FAQs, Footer), the planets dynamically emerge, rotate on their natural axial tilts, and gently drift along parallax orbits flanking the content.
+- **Target Audience & Persona**: Parents and curious kids exploring the value proposition of _Our Visible Universe_. The cosmic immersion sparks wonder while conveying scientific rigor and premium quality.
+- **Key Value**: Delivers immediate emotional impact and visual proof of the platform's 3D universe capabilities right on the landing page, dramatically increasing parent engagement and pass conversion.
 
 ---
 
 ## 2. User Experience & Visual Design
 
-### Mobile Layout Ergonomics & Thumb Zone
+### Key User Flows
 
-```
-+-------------------------------------------------+  ^
-| Top Site Header (Brand + Store CTA)             |  | 56px sticky top-0
-+-------------------------------------------------+  v
-| [STICKY MOBILE VIEWPORT]                        |  ^
-|  • Compact 3D/Canvas Simulation (h-44 / h-50)   |  | Pinned sticky top-14
-|  • Active Chapter Tag + Era Badge               |  | (15-20% height,
-|  • [Collapse / Expand] Toggle Button            |  | tap to minimize)
-+-------------------------------------------------+  v
-| [CHRONOLOGICAL CHAPTER NARRATIVE]               |  ^
-|  • Chapter 18: Hubble & Redshift Expansion      |  |
-|  • Highlighted Concept: [⚡ Redshift (NASA/Wiki)]|  | Scrollable Stream
-|  • Historical context & physical evidence       |  | (Touch-friendly 44px
-|  • [?] Curious Minds: Student FAQs (Accordion)  |  | hitboxes, readable
-|  • [Next Chapter →] Touch Navigation            |  | 16px body prose)
-+-------------------------------------------------+  v
-```
+1. **Initial Load (Hero Viewport)**:
+   - Deep obsidian space background with multi-tier twinkling stars.
+   - SpaceEdu hero headline and interactive video/3D preview remain the primary focal anchor.
+   - In the peripheral background, Earth is positioned gracefully with its atmospheric glow and rotating cloud decks.
+2. **Scroll Descent (Parent Trust & Benefits Sections)**:
+   - As the user scrolls past the trust markers into "Why Parents Feel Proud", **Venus** smoothly pops out from the right flank, glowing in warm golden sulfuric tones with rapid atmospheric rotation.
+   - **Earth** glides with parallax depth, appearing to orbit behind the bento grid cards.
+3. **Mid-Scroll (Store & Scale Exploration Sections)**:
+   - Passing into the Official Store Showcase and Scale Explorer, **Mars** emerges from the lower left with its distinctive rusty-orange hue, polar ice cap, and subtle cratered surface.
+   - All three planets maintain continuous gentle orbital rotation and independent parallax vertical velocities.
+4. **Footer & Access Passes**:
+   - Near the bottom pricing cards and footer, the planets reach a harmonized cosmic configuration, providing a celestial backdrop for the final call to action.
 
 ### Visual Identity & Theme Tokens
 
-- **Dominant Canvas**: Obsidian slate (`#020617` / `#0B0F19`) providing high contrast for glowing planetary orbits, starfields, and spectral wave diagrams.
-- **Concept Highlight Badges**: Laser-cyan and violet interactive underline buttons (`text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 hover:bg-cyan-500/20`) with external link mini-indicators, inviting exploration without cluttering prose.
-- **Concept Sheet Modal**: Smooth slide-up bottom sheet on mobile (`rounded-t-3xl backdrop-blur-xl bg-slate-950/95 border-t border-cyan-500/30`) with drag/close handle, a clear 2-paragraph student explanation, "Key Takeaway for Exams", and dual external action buttons (NASA Official Mission Site + Wikipedia Academic Reference).
-- **Chapter FAQ Accordions**: Clean card drawers (`bg-slate-900/50 border border-white/10 rounded-2xl p-4`) with smooth chevron expansion and clear, friendly Q&A explanations.
+- **Background Canvas**: `#04060b` to `#080d1a` deep void gradient.
+- **Surface Elevation**: Dark frosted glass cards (`bg-slate-950/60 backdrop-blur-lg border border-white/10`).
+- **Typography & Contrast**: Crisp white headings (`text-white`), muted blue-gray metadata (`text-slate-400`), and laser-cyan / amber accents (`text-cyan-400`, `text-amber-400`) adhering to WCAG AA contrast.
+- **Motion Rhythm**: Compositor-friendly transforms and damp-interpolated scroll offsets ensuring constant 60 FPS performance.
 
 ---
 
 ## 3. Key Product Decisions & Trade-Offs
 
-- **Decision 1: Sticky Top Viewport vs Fullscreen Video Switcher on Mobile**
-  - _Chosen Approach_: A dedicated sticky container pinned at `top-14` on mobile with a compact canvas height (`h-48`) and a "Compact / Minimize" control pill.
-  - _Why_: Allows students to read the explanatory text, evidence, and questions while continuously watching the astronomical model rotate or expand.
-  - _Alternatives Considered_: Inline visualizer repeated in every chapter (wasteful WebGL contexts and memory leaks) or fixed floating picture-in-picture (blocks reading text).
+- **Decision 1: Fixed Background Three.js Layer vs Inline Canvas per Section**
+  - _Chosen Approach_: A single, persistent fixed-position background Three.js canvas (`fixed inset-0 pointer-events-none z-0`) covering the entire viewport.
+  - _Why_: A single WebGL context is significantly more performant than multiple canvas instances, ensures zero context-switching overhead, and creates seamless continuous orbital motion across scroll boundaries.
+  - _Alternatives Considered_: CSS 3D transforms or multiple canvases (discarded due to lack of true lighting/rotation and memory overhead).
 
-- **Decision 2: Interactive Concept Sheets vs Raw External Links**
-  - _Chosen Approach_: Clicking highlighted concepts opens a styled in-app modal sheet with an immediate 10th-11th grade explanation, accompanied by direct buttons to NASA and Wikipedia.
-  - _Why_: Clicking directly out to an external website forces the student away from the app and breaks their focus. The sheet provides instant clarity and lets them choose whether to dive deeper into NASA or Wikipedia.
-  - _Alternatives Considered_: Direct anchor links (causes navigation friction and lost scroll position).
+- **Decision 2: Procedural PBR Textures vs External Image Textures**
+  - _Chosen Approach_: Procedural HTML5 2D canvas generation utilizing the project's tested texture generation algorithms from `src/stars/Planets.tsx`.
+  - _Why_: Guarantees zero 404 errors, zero network latency, instant initial paint, and crisp grazing-angle sharpness with anisotropic filtering.
+  - _Alternatives Considered_: External JPG/PNG planet textures from unverified CDNs (banned by skills and fragile in offline/preview environments).
 
-- **Decision 3: Curated Educational FAQs per Chapter**
-  - _Chosen Approach_: Integrate structured FAQ pairs (`question`, `answer`, `targetStandard`) into each chapter in `visible-universe-history-data.ts`.
-  - _Why_: Aligns with high school science curricula (CBSE/ICSE 10th-11th, AP Physics/Astronomy, NGSS) and addresses the most common student misconceptions.
+- **Decision 3: Scroll Synchronization Architecture**
+  - _Chosen Approach_: Passive window scroll listener updating normalized progress `[0, 1]` with lerped smoothing (`requestAnimationFrame` + `MathUtils.damp`).
+  - _Why_: Eliminates jitter and scroll-jacking. Natural browser scrolling is completely preserved, and planets respond fluidly even with touch trackpads or wheel flicks.
 
 ---
 
 ## 4. Technical Architecture & Data Strategy
 
-### System & State Flow Diagram
+### Component Architecture & Visual Flow
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                   VisibleUniverseHistory Route                         │
+│                        Landing Page (Index Route)                      │
 │                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ State Management:                                                │  │
-│  │  • activeChapterId: number (updated via IntersectionObserver)   │  │
-│  │  • selectedConcept: CosmicConcept | null                         │  │
-│  │  • isMobileVisualizerCollapsed: boolean                          │  │
-│  │  • expandedFaqId: string | null                                  │  │
+│  │ CosmicBackgroundCanvas (Fixed, z-0, WebGL Three.js)              │  │
+│  │  ├─ Multi-depth Twinkling Starfield Points (3,000 particles)     │  │
+│  │  ├─ Dynamic Nebula Dust Particle Clouds                          │  │
+│  │  ├─ Earth Mesh (Axial tilt 23.4°, ocean/continents, cloud deck)  │  │
+│  │  ├─ Venus Mesh (Axial tilt 177°, sulfuric cloud bands, glow)     │  │
+│  │  └─ Mars Mesh (Axial tilt 25.2°, rust red surface, polar cap)   │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
-│                                │                                       │
-│          ┌─────────────────────┴─────────────────────┐                 │
-│          ▼                                           ▼                 │
-│  ┌──────────────────────────────┐       ┌───────────────────────────┐  │
-│  │ Mobile Sticky Visualizer     │       │ Desktop 2-Column Grid     │  │
-│  │  • sticky top-14 (h-48)      │       │  • Col 1: Sticky 3D Deck  │  │
-│  │  • Chapter metadata bar      │       │  • Col 2: Chapter Stream  │  │
-│  │  • Smooth canvas rendering   │       └───────────────────────────┘  │
-│  └──────────────────────────────┘                                      │
-│                                │                                       │
-│          ┌─────────────────────┴─────────────────────┐                 │
-│          ▼                                           ▼                 │
-│  ┌──────────────────────────────┐       ┌───────────────────────────┐  │
-│  │ Chapter Narrative Stream     │       │ CosmicConceptSheet Modal  │  │
-│  │  • Highlighted Concept Words │──────▶│  • 10th-11th Explanation  │  │
-│  │  • Evidence & Context        │       │  • NASA Science Link      │  │
-│  │  • Expandable FAQ Accordion  │       │  • Wikipedia Deep Dive    │  │
-│  └──────────────────────────────┘       └───────────────────────────┘  │
+│                                                                        │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │ DOM Content Layers (Relative, z-10, Pointer-Events-Auto)         │  │
+│  │  ├─ SiteHeader (Glassmorphic dark bar + Store button)            │  │
+│  │  ├─ SpaceEduHero (Hero banner & 3D preview)                      │  │
+│  │  ├─ Parent Trust Bar (100% Ad-free, NASA data, one-time pass)   │  │
+│  │  ├─ Why Parents Feel Proud (Bento grid on translucent cards)     │  │
+│  │  ├─ Official Store Showcase (Curated mix of verified products)   │  │
+│  │  ├─ Scale Explorer & Celestial Highlights                        │  │
+│  │  ├─ Parent Testimonials & Transparent Pricing Passes             │  │
+│  │  ├─ FAQ Accordion & Closing Stargazer CTA                        │  │
+│  │  └─ SiteFooter (Dark cosmic footer with links & store button)    │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### New Modules & Data Structures
+### Component Details
 
-1. **`src/lib/cosmic-concepts.ts`**:
-   - Contains educational definitions, exam relevance, NASA URLs, and Wikipedia URLs for terms including:
-     - `redshift`: Doppler vs cosmological expansion, Hubble's discovery, NASA Webb redshift measurements.
-     - `cosmic-microwave-background`: Penzias & Wilson, COBE/WMAP/Planck, 2.725 K afterglow.
-     - `dark-matter`: Vera Rubin, galactic rotation curves, gravitational lensing.
-     - `dark-energy`: Type Ia supernovae, accelerating universe, Nobel Prize 2011.
-     - `epicycles`: Ptolemaic deferent and epicycle mechanism, explaining retrograde motion.
-     - `heliocentrism`: Aristarchus & Copernicus, retrograde motion naturally solved.
-     - `spacetime-curvature`: Einstein's General Relativity, 1919 solar eclipse test.
-     - `gravitational-lensing`: Light deflection around massive clusters, Einstein rings.
-     - `eratosthenes-earth-radius`: Shadow angles at Alexandria & Syene, geometry of a sphere.
-     - `kepler-laws`: Elliptical orbits, equal areas in equal times, harmonic orbital periods.
+1. **`src/components/site/CosmicBackgroundCanvas.tsx`**:
+   - Manages Three.js scene, perspective camera, and WebGLRenderer.
+   - Builds procedural textures for Earth (blue oceans, green/brown continents, cloud layer with opacity, atmosphere rim glow), Venus (warm amber cloud swirl), and Mars (red-orange cratered terrain and polar ice).
+   - Generates 3,000 instanced starfield points with variable twinkle frequencies.
+   - Listens to scroll events using a smoothed progress variable, mapping scroll depth to target orbital coordinates $(x, y, z)$ for each planet.
+   - Continuous subtle self-rotation on each planet's axis.
+   - Cleanup hook disposing of geometries, materials, and textures on unmount.
 
-2. **`src/components/history/CosmicConceptSheet.tsx`**:
-   - Slide-up bottom sheet (mobile) and centered dialog (desktop).
-   - Shows concept name, simple high-school level breakdown, "Why It Matters in 11th Grade Physics", official NASA button with badge icon, and Wikipedia button.
-
-3. **`src/components/history/ChapterFaqAccordion.tsx`**:
-   - Clean, accessible accordion component with smooth chevron toggle and high-contrast answers.
+2. **`src/routes/index.tsx` & Layout Styling**:
+   - Enforce dark theme tokens on the landing page container: `bg-[#04060b] text-slate-100`.
+   - Update cards, headers, and sections to use dark glassmorphism (`bg-slate-900/40 border-white/10 text-white`).
+   - Retain full functionality of store showcase, shuffle button, pricing tabs, and links.
 
 ---
 
 ## 5. Implementation Steps & Verification Plan
 
-1. **Step 1: Create `src/lib/cosmic-concepts.ts`**
-   - Populate high school curriculum concepts with verified NASA and Wikipedia URLs.
-2. **Step 2: Enrich `visible-universe-history-data.ts`**
-   - Add high-school curiosity questions and concept tags to all chapters.
-3. **Step 3: Create `CosmicConceptSheet.tsx` & `ChapterFaqAccordion.tsx`**
-   - Implement the slide-up modal sheet and clean FAQ accordion.
-4. **Step 4: Update `visible-universe-history.tsx`**
-   - Build the mobile sticky top visualizer with collapsible controls (`sticky top-14 z-30`).
-   - Wire concept highlight click handlers to open `CosmicConceptSheet`.
-   - Embed `ChapterFaqAccordion` at the bottom of each chapter.
-5. **Step 5: Verification & Quality Assurance**
+1. **Step 1: Create `CosmicBackgroundCanvas.tsx`**
+   - Implement Three.js setup with procedural planet generation (Earth, Venus, Mars) and starfield.
+   - Integrate scroll position tracking with spring/damp kinematics.
+2. **Step 2: Update Landing Page Theme in `src/routes/index.tsx` & `PublicLayout.tsx`**
+   - Mount `CosmicBackgroundCanvas` behind page content.
+   - Adjust section backgrounds to transparent/dark glassmorphic layers so background planets remain visible during scroll.
+3. **Step 3: Verification & Polish**
    - Run `lint_applet` and `compile_applet`.
-   - Verify mobile viewport layout, touch targets ($\ge 44\text{px}$), and smooth sticky transitions.
+   - Test smooth rendering, scroll responsiveness, mobile breakpoints, and absence of hydration/SSR mismatches.

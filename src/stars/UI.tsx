@@ -1,7 +1,6 @@
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Compass, Telescope } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
@@ -1461,15 +1460,13 @@ export function SiteMap() {
             </div>
 
             <a
-              href="/visible-universe-history"
-              className="mt-2 flex w-full items-center justify-between rounded-md border border-cyan-500/30 bg-cyan-950/40 px-2.5 py-2 text-[11px] text-cyan-200 transition hover:bg-cyan-900/60 hover:text-white shadow-sm"
-              title="Visible Universe History — How Humanity Discovered the Cosmos"
+              href="/history"
+              target="_blank"
+              rel="noopener"
+              className="mt-2 flex w-full items-center justify-between rounded-md border border-white/15 bg-white/5 px-2.5 py-2 text-[11px] text-white/80 transition hover:bg-white/10 hover:text-white"
             >
-              <span className="flex items-center gap-1.5 font-medium">
-                <Compass className="size-3.5 text-cyan-400" />
-                <span>Visible Universe History</span>
-              </span>
-              <span className="text-cyan-400/60 text-xs">→</span>
+              <span>📜 Universe history</span>
+              <span className="text-white/40">↗</span>
             </a>
 
             <a
