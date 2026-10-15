@@ -368,9 +368,11 @@ export const ACADEMY_MODULES: ModuleContract[] = [
     recommendedOrder: 10,
     difficultyLevels: ["Intermediate", "Advanced"],
     learningObjectives: [
-      "Trace the life cycle of low-mass stars like our Sun up to planetary nebulae",
+      "Trace the life cycle of low-mass stars like our Sun up to planetary nebulae and white dwarfs",
       "Examine the core-collapse supernova process for massive stars (>8 solar masses)",
-      "Understand nucleosynthesis and how every heavy element in your body was forged in stars",
+      "Explain why the Sun will NEVER explode as a supernova",
+      "Understand the stellar lifetime relationship τ ∝ M^(-2.5) and its physical limitations",
+      "Identify how compact remnants (white dwarfs, neutron stars, black holes) are supported against gravity",
     ],
     prerequisites: ["09"],
     route: "/learn?module=10",
@@ -381,13 +383,28 @@ export const ACADEMY_MODULES: ModuleContract[] = [
     },
     scientificSources: [
       {
-        title: "Hubble Stars & Stellar Evolution",
-        organization: "Hubble",
+        title: "NASA Astrophysics: How Do Stars Form, Live, and Die?",
+        organization: "NASA",
+        url: "https://science.nasa.gov/astrophysics/focus-areas/how-do-stars-form-and-evolve/",
+      },
+      {
+        title: "ESA Hubble Science: Star Birth, Evolution, and Stellar Remnants",
+        organization: "ESA",
         url: "https://hubblesite.org/science/stars-and-nebulae",
       },
+      {
+        title: "Chandra X-Ray Observatory: Supernovae, Pulsars & Stellar Black Holes",
+        organization: "NASA Chandra",
+        url: "https://chandra.harvard.edu/xray_sources/supernovas.html",
+      },
+      {
+        title: "MESA: Modules for Experiments in Stellar Astrophysics",
+        organization: "MESA Project",
+        url: "https://docs.mesastar.org/",
+      },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
   {
     id: "11",

@@ -66,6 +66,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
     description: "Decoded star spectra, blackbody radiation, and the Hertzsprung–Russell diagram.",
     icon: "🔥",
   },
+  {
+    id: "stellar_evolution_master",
+    title: "Stellar Evolution Master",
+    description:
+      "Traced stellar lifecycles from molecular clouds to supernovae and black holes across cosmic time.",
+    icon: "💥",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -79,6 +86,7 @@ const DEFAULT_PROGRESS: UserProgress = {
     "07": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "08": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "09": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "10": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
   },
@@ -170,6 +178,9 @@ export function useAcademyProgress() {
           }
           if (moduleId === "09" && !newAchievements.includes("stellar_astrophysicist")) {
             newAchievements.push("stellar_astrophysicist");
+          }
+          if (moduleId === "10" && !newAchievements.includes("stellar_evolution_master")) {
+            newAchievements.push("stellar_evolution_master");
           }
           if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
             newAchievements.push("galaxy_voyager");

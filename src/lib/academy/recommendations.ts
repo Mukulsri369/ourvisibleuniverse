@@ -130,6 +130,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["10"]?.status !== "completed") {
+    // Recommend Stage 3 Module 10: Birth, Life & Death of Stars
+    const mod10 = ACADEMY_MODULES.find((m) => m.id === "10");
+    if (mod10) {
+      recommendations.push({
+        module: mod10,
+        reason:
+          progress.moduleProgress["10"]?.status === "in_progress"
+            ? "Continue following stellar evolutionary tracks, testing core cutaway layers, and predicting supernova fates."
+            : "Follow the dramatic lifecycles of stars driven by initial birth mass: molecular clouds, red giants, planetary nebulae, supernovae, and black holes!",
+        badge: "Stellar Lifecycles",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies)
