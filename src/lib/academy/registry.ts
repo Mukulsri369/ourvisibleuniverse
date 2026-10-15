@@ -285,7 +285,7 @@ export const ACADEMY_MODULES: ModuleContract[] = [
       "Understand why planets fall around the Sun without crashing, and how spacecraft navigate using gravitational slingshots.",
     stageId: 2,
     recommendedOrder: 8,
-    difficultyLevels: ["Intermediate", "Advanced"],
+    difficultyLevels: ["Beginner", "Intermediate", "Advanced"],
     learningObjectives: [
       "State and interpret Kepler's three laws of planetary motion",
       "Understand escape velocity and orbital insertion velocities",
@@ -305,8 +305,8 @@ export const ACADEMY_MODULES: ModuleContract[] = [
         url: "https://science.nasa.gov/learn/basics-of-space-flight/",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
 
   // STAGE 3: THE LIFE OF STARS

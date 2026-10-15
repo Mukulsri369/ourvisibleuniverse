@@ -330,7 +330,7 @@ export function Module07Layout({
             className="bg-amber-600 hover:bg-amber-500 text-white font-semibold shadow-lg shadow-amber-500/20"
           >
             <a href="/learn?module=08">
-              Preview Module 08 <ArrowRight className="size-4 ml-1.5" />
+              Start Module 08 <ArrowRight className="size-4 ml-1.5" />
             </a>
           </Button>
           <Button

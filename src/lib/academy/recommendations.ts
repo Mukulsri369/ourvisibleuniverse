@@ -16,6 +16,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
   const module05Progress = progress.moduleProgress["05"]?.status;
   const module06Progress = progress.moduleProgress["06"]?.status;
   const module07Progress = progress.moduleProgress["07"]?.status;
+  const module08Progress = progress.moduleProgress["08"]?.status;
   const module13Progress = progress.moduleProgress["13"]?.status;
   const module19Progress = progress.moduleProgress["19"]?.status;
 
@@ -98,6 +99,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
             ? "Continue peering into the Sun's core, nuclear fusion reactor, and defending satellites against solar storms."
             : "Explore the nuclear fusion engine powering the solar system, peel open internal layers, and simulate solar storms.",
         badge: "Stellar Powerhouse",
+        priority: "primary",
+      });
+    }
+  } else if (module08Progress !== "completed") {
+    // Recommend Stage 2 Module 08: Gravity, Orbits & Motion
+    const mod08 = ACADEMY_MODULES.find((m) => m.id === "08");
+    if (mod08) {
+      recommendations.push({
+        module: mod08,
+        reason:
+          module08Progress === "in_progress"
+            ? "Continue simulating N-body orbits, verifying Kepler's laws, and testing multi-body stability."
+            : "Master universal gravitation, orbital insertion velocities, escape trajectories, and multi-body barycenters in the 3D physics lab.",
+        badge: "Orbital Mechanics",
         priority: "primary",
       });
     }
