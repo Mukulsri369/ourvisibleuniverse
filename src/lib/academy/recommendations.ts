@@ -14,6 +14,8 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
   const module02Progress = progress.moduleProgress["02"]?.status;
   const module04Progress = progress.moduleProgress["04"]?.status;
   const module05Progress = progress.moduleProgress["05"]?.status;
+  const module06Progress = progress.moduleProgress["06"]?.status;
+  const module07Progress = progress.moduleProgress["07"]?.status;
   const module13Progress = progress.moduleProgress["13"]?.status;
   const module19Progress = progress.moduleProgress["19"]?.status;
 
@@ -71,15 +73,31 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
+  } else if (module06Progress !== "completed") {
     // Recommend Stage 2 Module 06: Explore the Solar System
     const mod06 = ACADEMY_MODULES.find((m) => m.id === "06");
     if (mod06) {
       recommendations.push({
         module: mod06,
         reason:
-          "Now that you understand our home world and Moon, venture outward to explore the 8 major planets, gas giants, and Kuiper belt!",
+          module06Progress === "in_progress"
+            ? "Continue your 3D exploration of orbital mechanics, the 8 planets, dwarf worlds, and planetary rings."
+            : "Now that you understand our home world and Moon, venture outward to explore the 8 major planets, gas giants, and Kuiper belt!",
         badge: "Solar System Tour",
+        priority: "primary",
+      });
+    }
+  } else if (module07Progress !== "completed") {
+    // Recommend Stage 2 Module 07: The Sun: Our Star
+    const mod07 = ACADEMY_MODULES.find((m) => m.id === "07");
+    if (mod07) {
+      recommendations.push({
+        module: mod07,
+        reason:
+          module07Progress === "in_progress"
+            ? "Continue peering into the Sun's core, nuclear fusion reactor, and defending satellites against solar storms."
+            : "Explore the nuclear fusion engine powering the solar system, peel open internal layers, and simulate solar storms.",
+        badge: "Stellar Powerhouse",
         priority: "primary",
       });
     }

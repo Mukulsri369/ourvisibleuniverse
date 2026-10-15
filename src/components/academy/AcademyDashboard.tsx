@@ -16,6 +16,7 @@ import { Module02Layout } from "./Module02Layout";
 import { Module04Layout } from "./Module04Layout";
 import { Module05Layout } from "./Module05Layout";
 import { Module06Layout } from "./Module06Layout";
+import { Module07Layout } from "./Module07Layout";
 import { Link } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -62,6 +63,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     if (initialModuleId === "06") {
       return ACADEMY_MODULES.find((m) => m.id === "06") || null;
     }
+    if (initialModuleId === "07") {
+      return ACADEMY_MODULES.find((m) => m.id === "07") || null;
+    }
     return null;
   });
 
@@ -96,7 +100,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   };
 
   const handleSelectModule = (module: ModuleContract) => {
-    if (["01", "02", "04", "05", "06"].includes(module.id)) {
+    if (["01", "02", "04", "05", "06", "07"].includes(module.id)) {
       setActiveLessonModule(module);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -276,7 +280,44 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06"].includes(mod.id)) {
+              if (["01", "02", "04", "05", "06", "07"].includes(mod.id)) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 07: The Sun: Our Star
+  if (activeLessonModule && activeLessonModule.id === "07") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module07Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "07"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (["01", "02", "04", "05", "06", "07"].includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -334,10 +375,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             </div>
 
             <div className="flex-shrink-0">
-              {primaryRecommendation.module.id === "01" ||
-              primaryRecommendation.module.id === "02" ||
-              primaryRecommendation.module.id === "04" ||
-              primaryRecommendation.module.id === "05" ? (
+              {["01", "02", "04", "05", "06", "07"].includes(primaryRecommendation.module.id) ? (
                 <Button
                   size="lg"
                   onClick={() => handleSelectModule(primaryRecommendation.module)}

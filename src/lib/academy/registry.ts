@@ -239,8 +239,8 @@ export const ACADEMY_MODULES: ModuleContract[] = [
         url: "https://nssdc.gsfc.nasa.gov/planetary/planetfact.html",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
   {
     id: "07",
@@ -252,7 +252,7 @@ export const ACADEMY_MODULES: ModuleContract[] = [
       "Peer inside the Sun's core, radiative zone, convection cells, and dynamic magnetic flares.",
     stageId: 2,
     recommendedOrder: 7,
-    difficultyLevels: ["Intermediate"],
+    difficultyLevels: ["Beginner", "Intermediate", "Advanced"],
     learningObjectives: [
       "Describe the proton-proton nuclear fusion chain that powers the Sun",
       "Trace the 11-year solar sunspot and magnetic activity cycle",
@@ -272,8 +272,8 @@ export const ACADEMY_MODULES: ModuleContract[] = [
         url: "https://sdo.gsfc.nasa.gov/",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
   {
     id: "08",
