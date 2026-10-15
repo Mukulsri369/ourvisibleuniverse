@@ -169,8 +169,8 @@ export const ACADEMY_MODULES: ModuleContract[] = [
         url: "https://science.nasa.gov/ems/",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
 
   // STAGE 2: OUR COSMIC NEIGHBORHOOD

@@ -46,6 +46,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
     description: "Mapped constellations and found Polaris in the virtual planetarium.",
     icon: "✨",
   },
+  {
+    id: "speed_of_light_master",
+    title: "Speed of Light Master",
+    description:
+      "Mastered how light bridges cosmic distances and looked 13 billion years into the past.",
+    icon: "⚡",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -53,6 +60,7 @@ const DEFAULT_PROGRESS: UserProgress = {
   moduleProgress: {
     "01": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "02": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "04": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
   },
@@ -135,6 +143,9 @@ export function useAcademyProgress() {
           }
           if (moduleId === "02" && !newAchievements.includes("module_02_complete")) {
             newAchievements.push("module_02_complete");
+          }
+          if (moduleId === "04" && !newAchievements.includes("speed_of_light_master")) {
+            newAchievements.push("speed_of_light_master");
           }
           if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
             newAchievements.push("galaxy_voyager");

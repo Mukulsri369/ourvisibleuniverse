@@ -12,10 +12,11 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
   const recommendations: Recommendation[] = [];
   const module01Progress = progress.moduleProgress["01"]?.status;
   const module02Progress = progress.moduleProgress["02"]?.status;
+  const module04Progress = progress.moduleProgress["04"]?.status;
   const module13Progress = progress.moduleProgress["13"]?.status;
   const module19Progress = progress.moduleProgress["19"]?.status;
 
-  // 1. If Module 01 not completed
+  // 1. Core Progressive Track
   if (module01Progress !== "completed") {
     const mod01 = ACADEMY_MODULES.find((m) => m.id === "01");
     if (mod01) {
@@ -30,7 +31,6 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
       });
     }
   } else if (module02Progress !== "completed") {
-    // When Module 01 is completed and 02 is not, recommend The Night Sky!
     const mod02 = ACADEMY_MODULES.find((m) => m.id === "02");
     if (mod02) {
       recommendations.push({
@@ -43,15 +43,28 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
-    // When Module 02 is completed, recommend Module 03: Cosmic Distances & Scale!
-    const mod03 = ACADEMY_MODULES.find((m) => m.id === "03");
-    if (mod03) {
+  } else if (module04Progress !== "completed") {
+    const mod04 = ACADEMY_MODULES.find((m) => m.id === "04");
+    if (mod04) {
       recommendations.push({
-        module: mod03,
+        module: mod04,
         reason:
-          "Now that you can read the night sky, plunge into the mind-bending gulfs of empty space: Astronomical Units, light-years, and parsecs.",
-        badge: "Next Step: Scale",
+          module04Progress === "in_progress"
+            ? "Continue exploring how light bridges cosmic distances and peering into the past in the 3D Light-Travel simulation."
+            : "Explore the cosmic speed limit (c = 300,000 km/s), electromagnetic spectra, and why telescopes are real time machines.",
+        badge: "Recommended Next",
+        priority: "primary",
+      });
+    }
+  } else {
+    // Recommend Stage 2 Module 05: Earth, Moon & Eclipses
+    const mod05 = ACADEMY_MODULES.find((m) => m.id === "05");
+    if (mod05) {
+      recommendations.push({
+        module: mod05,
+        reason:
+          "Now that you understand light and observation, explore the orbital choreography of Earth and the Moon, lunar phases, and eclipses.",
+        badge: "Stage 2 Gateway",
         priority: "primary",
       });
     }

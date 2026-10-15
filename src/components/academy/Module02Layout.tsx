@@ -312,38 +312,71 @@ export function Module02Layout({
         <SourceInformationPanel sources={MODULE_02_SOURCES} />
       </section>
 
-      {/* 7. Next Recommended Step Banner: Module 03 Cosmic Distances & Scale */}
+      {/* 7. Next Recommended Step Banner: Module 04 Light, Time & Cosmic Observation */}
       <section className="rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-900/80 p-6 sm:p-8 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
         <div className="flex items-start gap-4">
-          <div className="size-12 rounded-2xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
-            <Compass className="size-6 text-indigo-400" />
+          <div className="size-12 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center flex-shrink-0">
+            <Compass className="size-6 text-cyan-400" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-indigo-400 bg-indigo-500/10 border border-indigo-500/30 px-2.5 py-0.5 rounded-full uppercase">
+              <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 rounded-full uppercase">
                 Up Next on Your Cosmic Journey
               </span>
-              <span className="text-xs text-amber-300 font-semibold">Stage 01 • Module 03</span>
+              <span className="text-xs text-amber-300 font-semibold">Stage 01 • Module 04</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
-              Module 03: Cosmic Distances & Scale
+              Module 04: Light, Time & Cosmic Observation
             </h3>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Now that you can navigate the night sky, plunge into the mind-bending gulfs of empty
-              space: Astronomical Units (AU), light-years, and parsecs!
+              Now that you can navigate the night sky, discover why the speed of light turns every
+              telescope into a genuine time machine!
             </p>
           </div>
         </div>
 
-        <div className="flex-shrink-0">
-          <Button
-            size="lg"
-            onClick={onBackToMap}
-            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold shadow-lg"
-          >
-            <span>Return to Cosmic Map</span>
-            <ArrowRight className="size-4 ml-2" />
-          </Button>
+        <div className="flex-shrink-0 flex flex-wrap gap-2">
+          {onSelectNextModule ? (
+            <Button
+              size="lg"
+              onClick={() => {
+                const targetMod = nextRecommended?.module || {
+                  id: "04",
+                  slug: "light-time-and-cosmic-observation",
+                  number: 4,
+                  title: "Light, Time & Cosmic Observation",
+                  subtitle: "Looking outward is looking backward in time",
+                  description:
+                    "Discover why the speed of light turns every telescope into a genuine time machine.",
+                  stageId: 1,
+                  recommendedOrder: 4,
+                  difficultyLevels: ["Intermediate"],
+                  learningObjectives: [],
+                  prerequisites: ["03"],
+                  route: "/learn?module=04",
+                  estimatedMinutes: 20,
+                  visualAssets: { iconName: "Eye", badgeColor: "" },
+                  scientificSources: [],
+                  status: "ready",
+                  version: "1.0.0",
+                };
+                onSelectNextModule(targetMod);
+              }}
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg"
+            >
+              <span>Start Module 04: Light & Time</span>
+              <ArrowRight className="size-4 ml-2" />
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              onClick={onBackToMap}
+              className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold shadow-lg"
+            >
+              <span>Return to Cosmic Map</span>
+              <ArrowRight className="size-4 ml-2" />
+            </Button>
+          )}
         </div>
       </section>
     </div>
