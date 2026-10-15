@@ -178,27 +178,27 @@ export function AcademyHero({ onStartExploring, onViewMap }: AcademyHeroProps) {
             dpr={[1, 1.5]}
             gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
           >
-          <color attach="background" args={["#020617"]} />
-          <Stars
-            radius={120}
-            depth={60}
-            count={isMobile ? 1200 : 2800}
-            factor={4}
-            saturation={0.5}
-            fade
-            speed={1}
-          />
-          <SceneLights />
-          <Earth3D isMobile={isMobile} />
-          <OrbitControls
-            enableZoom={false}
-            enablePan={false}
-            autoRotate
-            autoRotateSpeed={0.8}
-            maxPolarAngle={Math.PI / 1.7}
-            minPolarAngle={Math.PI / 2.5}
-          />
-        </Canvas>
+            <color attach="background" args={["#020617"]} />
+            <Stars
+              radius={120}
+              depth={60}
+              count={isMobile ? 1200 : 2800}
+              factor={4}
+              saturation={0.5}
+              fade
+              speed={1}
+            />
+            <SceneLights />
+            <Earth3D isMobile={isMobile} />
+            <OrbitControls
+              enableZoom={false}
+              enablePan={false}
+              autoRotate
+              autoRotateSpeed={0.8}
+              maxPolarAngle={Math.PI / 1.7}
+              minPolarAngle={Math.PI / 2.5}
+            />
+          </Canvas>
         )}
       </div>
 
