@@ -3,11 +3,14 @@ import type { ScientificSource } from "@/lib/academy/types";
 import { ExternalLink, BookCheck, Sparkles, ShieldCheck } from "lucide-react";
 
 interface SourceInformationPanelProps {
-  sources: ScientificSource[];
-  funFacts: string[];
+  sources?: ScientificSource[];
+  funFacts?: string[];
 }
 
-export function SourceInformationPanel({ sources, funFacts }: SourceInformationPanelProps) {
+export function SourceInformationPanel({
+  sources = [],
+  funFacts = [],
+}: SourceInformationPanelProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Discovery Facts */}
