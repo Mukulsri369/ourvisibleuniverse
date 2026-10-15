@@ -6,14 +6,31 @@ import type {
   ModuleStatus,
   UserProgress,
 } from "@/lib/academy/types";
+import { MODULE_01_SUBLESSONS } from "@/lib/academy/lessons/module-01-our-place";
 import { LessonHero } from "./LessonHero";
-import { ScientificVisualization } from "./ScientificVisualization";
+import { CosmicZoomVisualizer3D } from "./CosmicZoomVisualizer3D";
+import { HierarchySequencer } from "./HierarchySequencer";
+import { TaxonomyChallenge } from "./TaxonomyChallenge";
 import { InteractiveExperiment } from "./InteractiveExperiment";
 import { KnowledgeCheck } from "./KnowledgeCheck";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { ModuleNavigation } from "./ModuleNavigation";
 import { LearningLevelSelector } from "./LearningLevelSelector";
-import { BookOpen, Check, HelpCircle, Lightbulb, Compass, ArrowRight } from "lucide-react";
+import {
+  BookOpen,
+  CheckCircle2,
+  Sparkles,
+  Layers,
+  HelpCircle,
+  Compass,
+  ArrowRight,
+  ChevronRight,
+  Flame,
+  Globe,
+  Orbit,
+  Disc,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface LessonLayoutProps {
   module: ModuleContract;
@@ -46,17 +63,25 @@ export function LessonLayout({
   const moduleProgress = progress.moduleProgress[module.id];
   const isCompleted = moduleProgress?.status === "completed";
 
-  const [activeTab, setActiveTab] = useState<"lesson" | "explore" | "experiment" | "quiz">(
-    "lesson",
-  );
+  const [activeSubLessonIndex, setActiveSubLessonIndex] = useState(0);
+  const activeSubLesson = MODULE_01_SUBLESSONS[activeSubLessonIndex];
+  const activeSubContent = activeSubLesson.content[level];
 
-  // Track exploration completion
+  // Track exploration completion milestones
   const handleVisualizationInteract = () => {
-    onUpdateModuleProgress(module.id, 40, "in_progress");
+    onUpdateModuleProgress(module.id, 50, "in_progress");
+  };
+
+  const handleHierarchyComplete = () => {
+    onUpdateModuleProgress(module.id, 65, "in_progress");
+  };
+
+  const handleTaxonomyComplete = () => {
+    onUpdateModuleProgress(module.id, 80, "in_progress");
   };
 
   const handleExperimentComplete = () => {
-    onUpdateModuleProgress(module.id, 70, "in_progress");
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   const handleQuizComplete = (score: number, total: number) => {
@@ -74,7 +99,7 @@ export function LessonLayout({
   };
 
   return (
-    <div className="space-y-10 pb-16">
+    <div className="space-y-12 pb-20">
       {/* Step A: Cinematic Curiosity Hook & Lesson Header */}
       <LessonHero
         title={module.title}
@@ -87,114 +112,164 @@ export function LessonLayout({
         onBackToMap={onBackToMap}
       />
 
-      {/* Floating Level Switcher Toolbar */}
+      {/* Level Selection Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl">
         <div className="flex items-center gap-2 text-xs text-slate-300">
-          <span className="font-semibold text-white">Current Age Level:</span>
-          <span>Switch level to adapt text & questions seamlessly</span>
+          <span className="font-semibold text-white">Age Adaptive Mode:</span>
+          <span>Switch level to adapt text, mathematics & quiz questions</span>
         </div>
         <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} compact />
       </div>
 
-      {/* Step B: Simple Concept Introduction */}
+      {/* 6 Structured Sub-Lessons Stepper */}
       <section className="rounded-3xl border border-white/10 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-xl">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-xs font-mono font-bold text-sky-400 bg-sky-500/10 border border-sky-500/30 px-2.5 py-0.5 rounded-full">
-            Step B: Concept Introduction
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 rounded-full uppercase">
+                Curriculum Syllabus • 6 Core Lessons
+              </span>
+              <span className="text-xs text-slate-400">Step-by-Step Cosmic Hierarchy</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
+              Lesson 0{activeSubLesson.number}: {activeSubLesson.title}
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">{activeSubLesson.subtitle}</p>
+          </div>
+
+          <span className="text-xs font-mono text-cyan-300 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+            {activeSubLessonIndex + 1} of {MODULE_01_SUBLESSONS.length} Lessons
           </span>
-          <span className="text-xs text-slate-400">Core Foundations</span>
         </div>
 
-        <h2 className="text-2xl font-bold text-white mb-4">Understanding Our Cosmic Coordinates</h2>
+        {/* 6 Sub-Lesson Tab Buttons */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-6">
+          {MODULE_01_SUBLESSONS.map((sl, idx) => {
+            const active = idx === activeSubLessonIndex;
+            return (
+              <button
+                key={sl.id}
+                onClick={() => setActiveSubLessonIndex(idx)}
+                className={`p-3 rounded-xl border text-left transition-all ${
+                  active
+                    ? "bg-cyan-500/20 border-cyan-400 text-white shadow-md ring-1 ring-cyan-400/30"
+                    : "bg-white/[0.02] border-white/5 text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <span className="text-[10px] font-mono font-bold text-cyan-400 block mb-0.5">
+                  Lesson 0{sl.number}
+                </span>
+                <span className="text-xs font-bold block line-clamp-1 text-white">{sl.title}</span>
+              </button>
+            );
+          })}
+        </div>
 
-        {/* Core Concept Bullets */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-          {content.coreConcepts.map((concept, idx) => (
-            <div
-              key={idx}
-              className="rounded-xl border border-white/10 bg-white/[0.02] p-4 flex items-start gap-2.5"
-            >
-              <div className="size-5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold">
-                {idx + 1}
+        {/* Active Sub-Lesson Educational Content Card */}
+        <div className="rounded-2xl border border-white/10 bg-slate-950 p-6 sm:p-8 space-y-6">
+          {/* Main Summary */}
+          <div className="border-b border-white/10 pb-5">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 block mb-1">
+              Core Concept Summary
+            </span>
+            <p className="text-base sm:text-lg text-slate-100 font-medium leading-relaxed">
+              {activeSubContent.summary}
+            </p>
+          </div>
+
+          {/* Deep Dive Narrative */}
+          <div className="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed space-y-3">
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider">
+              Observational Deep Dive
+            </h4>
+            <p>{activeSubContent.deepDive}</p>
+          </div>
+
+          {/* Side-by-Side: Did You Know & Math/Analogy */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 text-xs text-amber-200 leading-relaxed flex items-start gap-2.5">
+              <Sparkles className="size-4 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-amber-300 block mb-0.5">Cosmic Curiosity:</span>
+                <span>{activeSubContent.didYouKnow}</span>
               </div>
-              <p className="text-xs text-slate-200 leading-relaxed font-medium">{concept}</p>
             </div>
-          ))}
-        </div>
 
-        {/* Explanatory Narrative Body */}
-        <div className="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed space-y-4">
-          <p>{content.explanatoryText}</p>
-          {content.depthNotes && (
-            <div className="rounded-xl bg-indigo-500/10 border border-indigo-500/20 p-4 text-xs text-indigo-200 leading-relaxed">
-              <span className="font-bold text-indigo-300 block mb-1">
-                Deeper Astrophysical Context:
-              </span>
-              <p>{content.depthNotes}</p>
+            <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4 text-xs text-cyan-200 font-mono leading-relaxed flex items-start gap-2.5">
+              <Compass className="size-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-cyan-300 block mb-0.5">
+                  Scale & Dimension Note:
+                </span>
+                <span>{activeSubContent.mathOrAnalogy}</span>
+              </div>
             </div>
-          )}
-          {content.mathExplanation && (
-            <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4 text-xs text-cyan-200 font-mono leading-relaxed">
-              <span className="font-bold text-cyan-300 block mb-1">
-                Mathematical Scale Insight:
-              </span>
-              <p>{content.mathExplanation}</p>
-            </div>
-          )}
+          </div>
+
+          {/* Sub-lesson Stepper Navigation */}
+          <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setActiveSubLessonIndex((p) => Math.max(0, p - 1))}
+              disabled={activeSubLessonIndex === 0}
+              className="text-xs border-white/10 text-slate-300"
+            >
+              Previous Lesson
+            </Button>
+
+            <span className="text-xs text-slate-400 italic">{activeSubContent.takeaway}</span>
+
+            <Button
+              size="sm"
+              onClick={() =>
+                setActiveSubLessonIndex((p) => Math.min(MODULE_01_SUBLESSONS.length - 1, p + 1))
+              }
+              disabled={activeSubLessonIndex === MODULE_01_SUBLESSONS.length - 1}
+              className="text-xs bg-cyan-600 hover:bg-cyan-500 text-white font-semibold"
+            >
+              Next Lesson
+              <ChevronRight className="size-3.5 ml-1" />
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* Step C: Interactive Scientific Visualization */}
+      {/* Signature 3D Experience: Cinematic Cosmic Zoom-Out */}
       <section>
-        <ScientificVisualization onInteract={handleVisualizationInteract} />
+        <CosmicZoomVisualizer3D
+          onInteract={handleVisualizationInteract}
+          onLayerChange={(layerIndex) => {
+            // Synchronize sublesson if appropriate
+            if (layerIndex < MODULE_01_SUBLESSONS.length) {
+              setActiveSubLessonIndex(layerIndex);
+            }
+          }}
+        />
       </section>
 
-      {/* Step D: Guided Exploration Prompts */}
-      <section className="rounded-3xl border border-white/10 bg-slate-900/40 p-6 sm:p-8 backdrop-blur-xl">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-mono font-bold text-purple-400 bg-purple-500/10 border border-purple-500/30 px-2.5 py-0.5 rounded-full">
-            Step D: Guided Cosmic Exploration
+      {/* Interactive Hands-On Activities Suite */}
+      <section className="space-y-8">
+        <div className="border-b border-white/10 pb-3">
+          <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">
+            Hands-On Interactive Laboratory
           </span>
-          <span className="text-xs text-slate-400">Observational Prompts</span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
+            Experiments & Challenges
+          </h2>
         </div>
-        <h3 className="text-xl font-bold text-white mb-4">Three Cosmic Questions to Investigate</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-            <span className="text-2xl mb-2 block">1️⃣</span>
-            <h4 className="text-sm font-bold text-white">Compare Earth to the Solar System</h4>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Notice how the distance from Earth to the Kuiper Belt (100 AU) is over 10 million
-              times larger than Earth itself. Space between planets is almost entirely empty!
-            </p>
-          </div>
+        {/* Activity 1: Rebuild the Cosmic Hierarchy */}
+        <HierarchySequencer onSuccess={handleHierarchyComplete} />
 
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-            <span className="text-2xl mb-2 block">2️⃣</span>
-            <h4 className="text-sm font-bold text-white">Locate the Orion-Cygnus Arm</h4>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              We are not at the center of the Milky Way! We live roughly 26,000 light-years out in
-              the galactic suburbs, in a quiet, stable lane perfect for life to evolve.
-            </p>
-          </div>
+        {/* Activity 2: Celestial Taxonomy Challenge */}
+        <TaxonomyChallenge onSuccess={handleTaxonomyComplete} />
 
-          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-            <span className="text-2xl mb-2 block">3️⃣</span>
-            <h4 className="text-sm font-bold text-white">Laniakea Cosmic Watershed</h4>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-              Just like raindrops flowing into rivers, our Milky Way and 100,000 other galaxies are
-              gravitationally flowing toward the Great Attractor in the Laniakea Supercluster.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Step E: Hands-on Cosmic Experiment Sandbox */}
-      <section>
+        {/* Activity 3: Speed of Light Travel Time Laboratory */}
         <InteractiveExperiment onCompleteExperiment={handleExperimentComplete} />
       </section>
 
-      {/* Step F: Knowledge Check Quiz */}
+      {/* Science Knowledge Check Quiz */}
       <section>
         <KnowledgeCheck
           quizId={lesson.lessonId}
@@ -203,12 +278,12 @@ export function LessonLayout({
         />
       </section>
 
-      {/* Step G: Discovery Facts & Primary Scientific Sources */}
+      {/* Primary Scientific Sources & Discovery Facts */}
       <section>
         <SourceInformationPanel sources={lesson.scientificSources} funFacts={content.funFacts} />
       </section>
 
-      {/* Step H: Completion & Adaptive Recommendations */}
+      {/* Step H: Completion & Next Recommended Module */}
       <section>
         <ModuleNavigation
           currentModule={module}

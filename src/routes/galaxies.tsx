@@ -234,6 +234,11 @@ function Galaxy3DView({ galaxy }: { galaxy: GalaxyItem }) {
 
 function GalaxiesRouteComponent() {
   const [selectedGalaxy, setSelectedGalaxy] = useState<GalaxyItem>(FEATURED_GALAXIES[0]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <PublicLayout>
@@ -306,24 +311,30 @@ function GalaxiesRouteComponent() {
 
               {/* 3D Canvas Area */}
               <div className="relative h-[400px] sm:h-[480px] w-full rounded-2xl bg-slate-950/90 border border-white/10 overflow-hidden">
-                <Canvas
-                  camera={{ position: [0, 3.5, 6], fov: 45 }}
-                  dpr={[1, 1.5]}
-                  gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-                >
-                  <color attach="background" args={["#030712"]} />
-                  <Stars radius={90} depth={50} count={1400} factor={3} fade />
-                  <ambientLight intensity={0.5} />
-                  <pointLight position={[0, 0, 0]} intensity={3} color="#ffffff" />
-                  <Galaxy3DView galaxy={selectedGalaxy} />
-                  <OrbitControls
-                    enableZoom={true}
-                    maxDistance={12}
-                    minDistance={2}
-                    autoRotate
-                    autoRotateSpeed={0.5}
-                  />
-                </Canvas>
+                {mounted ? (
+                  <Canvas
+                    camera={{ position: [0, 3.5, 6], fov: 45 }}
+                    dpr={[1, 1.5]}
+                    gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
+                  >
+                    <color attach="background" args={["#030712"]} />
+                    <Stars radius={90} depth={50} count={1400} factor={3} fade />
+                    <ambientLight intensity={0.5} />
+                    <pointLight position={[0, 0, 0]} intensity={3} color="#ffffff" />
+                    <Galaxy3DView galaxy={selectedGalaxy} />
+                    <OrbitControls
+                      enableZoom={true}
+                      maxDistance={12}
+                      minDistance={2}
+                      autoRotate
+                      autoRotateSpeed={0.5}
+                    />
+                  </Canvas>
+                ) : (
+                  <div className="w-full h-full bg-[#030712] flex items-center justify-center text-xs text-cyan-400 font-mono">
+                    Initializing 3D Galaxy Viewer...
+                  </div>
+                )}
 
                 {/* Overlay Prompt */}
                 <div className="absolute bottom-3 inset-x-0 flex justify-center pointer-events-none">

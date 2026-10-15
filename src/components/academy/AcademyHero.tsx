@@ -158,8 +158,10 @@ interface AcademyHeroProps {
 export function AcademyHero({ onStartExploring, onViewMap }: AcademyHeroProps) {
   const [skipped, setSkipped] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener("resize", check);
@@ -170,11 +172,12 @@ export function AcademyHero({ onStartExploring, onViewMap }: AcademyHeroProps) {
     <section className="relative min-h-[92vh] w-full overflow-hidden flex flex-col items-center justify-center bg-slate-950 text-white">
       {/* Background 3D Space Canvas */}
       <div className="absolute inset-0 z-0 pointer-events-auto">
-        <Canvas
-          camera={{ position: [0, 1.2, isMobile ? 5.2 : 4.4], fov: 45 }}
-          dpr={[1, 1.5]}
-          gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
-        >
+        {mounted && (
+          <Canvas
+            camera={{ position: [0, 1.2, isMobile ? 5.2 : 4.4], fov: 45 }}
+            dpr={[1, 1.5]}
+            gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
+          >
           <color attach="background" args={["#020617"]} />
           <Stars
             radius={120}
@@ -196,6 +199,7 @@ export function AcademyHero({ onStartExploring, onViewMap }: AcademyHeroProps) {
             minPolarAngle={Math.PI / 2.5}
           />
         </Canvas>
+        )}
       </div>
 
       {/* Radial overlay gradient to guarantee legible text */}

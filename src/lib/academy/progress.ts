@@ -88,10 +88,11 @@ function saveStoredProgress(progress: UserProgress) {
 }
 
 export function useAcademyProgress() {
-  const [progress, setProgress] = useState<UserProgress>(loadStoredProgress);
+  // Always initialize with DEFAULT_PROGRESS during SSR and initial hydration
+  const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
 
   useEffect(() => {
-    // Sync on mount in case of SSR hydration
+    // Hydrate stored progress from localStorage after client mount
     setProgress(loadStoredProgress());
   }, []);
 

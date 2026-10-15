@@ -28,6 +28,18 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else {
+    // When Module 01 is completed, recommend The Night Sky next!
+    const mod02 = ACADEMY_MODULES.find((m) => m.id === "02");
+    if (mod02) {
+      recommendations.push({
+        module: mod02,
+        reason:
+          "Now that you know your cosmic coordinates, look up to navigate the night sky, locate Polaris, and map the constellations.",
+        badge: "Next Adventure",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies)
