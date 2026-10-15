@@ -73,6 +73,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Traced stellar lifecycles from molecular clouds to supernovae and black holes across cosmic time.",
     icon: "💥",
   },
+  {
+    id: "nebula_cluster_master",
+    title: "Master of Nebulae & Clusters",
+    description:
+      "Explored volumetric gas, dust extinction, Jeans collapse, and the wonders of open and globular clusters.",
+    icon: "🌌",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -87,6 +94,7 @@ const DEFAULT_PROGRESS: UserProgress = {
     "08": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "09": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "10": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "11": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
   },
@@ -181,6 +189,9 @@ export function useAcademyProgress() {
           }
           if (moduleId === "10" && !newAchievements.includes("stellar_evolution_master")) {
             newAchievements.push("stellar_evolution_master");
+          }
+          if (moduleId === "11" && !newAchievements.includes("nebula_cluster_master")) {
+            newAchievements.push("nebula_cluster_master");
           }
           if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
             newAchievements.push("galaxy_voyager");

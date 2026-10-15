@@ -20,6 +20,7 @@ import { Module07Layout } from "./Module07Layout";
 import { Module08Layout } from "./Module08Layout";
 import { Module09Layout } from "./Module09Layout";
 import { Module10Layout } from "./Module10Layout";
+import { Module11Layout } from "./Module11Layout";
 import { Link } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -109,7 +110,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   };
 
   const handleSelectModule = (module: ModuleContract) => {
-    if (["01", "02", "04", "05", "06", "07", "08", "09", "10"].includes(module.id)) {
+    if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(module.id)) {
       setActiveLessonModule(module);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -400,7 +401,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10"].includes(mod.id)) {
+              if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -437,7 +438,44 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10"].includes(mod.id)) {
+              if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(mod.id)) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 11: Nebulae & Star Clusters
+  if (activeLessonModule && activeLessonModule.id === "11") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module11Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "11"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {

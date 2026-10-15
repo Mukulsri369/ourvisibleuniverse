@@ -144,6 +144,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["11"]?.status !== "completed") {
+    // Recommend Stage 3 Module 11: Nebulae & Star Clusters
+    const mod11 = ACADEMY_MODULES.find((m) => m.id === "11");
+    if (mod11) {
+      recommendations.push({
+        module: mod11,
+        reason:
+          progress.moduleProgress["11"]?.status === "in_progress"
+            ? "Continue flying through volumetric nebulae, testing gravitational collapse, and decoding false color filters."
+            : "Explore the glowing gas and dust clouds where new star systems coalesce into open and globular clusters, and decode the science of astronomical imaging filters!",
+        badge: "Stellar Nurseries",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies)
