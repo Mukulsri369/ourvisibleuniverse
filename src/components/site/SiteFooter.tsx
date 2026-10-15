@@ -44,6 +44,12 @@ export function SiteFooter() {
             <Link to="/about" className="hover:text-white transition-colors">
               About
             </Link>
+            <Link
+              to="/visible-universe-history"
+              className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
+            >
+              Cosmic History
+            </Link>
             <Link to="/contact" className="hover:text-white transition-colors">
               Contact
             </Link>
@@ -67,10 +73,29 @@ export function SiteFooter() {
             >
               Physical Store ↗
             </a>
+            <a
+              href="https://www.instagram.com/our_visibleuniverse"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-400 hover:text-pink-300 hover:underline transition-colors flex items-center gap-1"
+            >
+              Instagram @our_visibleuniverse ↗
+            </a>
           </div>
           <div className="text-sm text-slate-400 md:text-right">
             <p>Support: ourvisibleuniverse@gmail.com</p>
-            <p className="mt-2">Chandigarh, India</p>
+            <p className="mt-1 text-slate-300">
+              Instagram:{" "}
+              <a
+                href="https://www.instagram.com/our_visibleuniverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-pink-400 hover:text-pink-300 underline"
+              >
+                @our_visibleuniverse
+              </a>
+            </p>
+            <p className="mt-1">Chandigarh, India</p>
           </div>
         </div>
       </div>
