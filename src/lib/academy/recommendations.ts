@@ -160,7 +160,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
     }
   }
 
-  // 2. Recommend Module 13 (Galaxies)
+  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14 (Black Holes & Neutron Stars)
   if (module13Progress !== "completed") {
     const mod13 = ACADEMY_MODULES.find((m) => m.id === "13");
     if (mod13) {
@@ -169,6 +169,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason: "Explore spiral arms, galactic cores, and interactive 3D models of real galaxies.",
         badge: "Interactive 3D",
         priority: module01Progress === "completed" ? "primary" : "secondary",
+      });
+    }
+  } else {
+    const mod14 = ACADEMY_MODULES.find((m) => m.id === "14");
+    if (mod14) {
+      recommendations.push({
+        module: mod14,
+        reason:
+          "Now that you understand galactic structures and central supermassive black holes, delve into extreme relativity, pulsars, and spacetime singularities!",
+        badge: "Extreme Physics",
+        priority: "primary",
       });
     }
   }

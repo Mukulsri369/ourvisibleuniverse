@@ -21,7 +21,7 @@ import { Module08Layout } from "./Module08Layout";
 import { Module09Layout } from "./Module09Layout";
 import { Module10Layout } from "./Module10Layout";
 import { Module11Layout } from "./Module11Layout";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Sparkles,
   Compass,
@@ -50,6 +50,14 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     exportProgressJSON,
     resetProgress,
   } = useAcademyProgress();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (initialModuleId === "13") {
+      void navigate({ to: "/galaxies" });
+    }
+  }, [initialModuleId, navigate]);
 
   const [activeLessonModule, setActiveLessonModule] = useState<ModuleContract | null>(() => {
     if (initialModuleId === "01") {
@@ -110,6 +118,10 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   };
 
   const handleSelectModule = (module: ModuleContract) => {
+    if (module.id === "13") {
+      void navigate({ to: "/galaxies" });
+      return;
+    }
     if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(module.id)) {
       setActiveLessonModule(module);
       window.scrollTo({ top: 0, behavior: "smooth" });
