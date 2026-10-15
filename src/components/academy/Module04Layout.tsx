@@ -316,10 +316,8 @@ export function Module04Layout({
                 prerequisites: ["01"],
                 route: "/learn?module=05",
                 estimatedMinutes: 18,
-                visualAssets: { iconName: "Moon", badgeColor: "" },
-                scientificSources: [],
-                status: "coming_soon",
-                version: "0.9.0",
+                status: "ready",
+                version: "1.0.0",
               },
               reason:
                 "Now that you understand light and observation, explore the orbital choreography of Earth and the Moon, lunar phases, and eclipses.",
@@ -375,11 +373,8 @@ export function Module04Layout({
                     learningObjectives: [],
                     prerequisites: ["01"],
                     route: "/learn?module=05",
-                    estimatedMinutes: 18,
-                    visualAssets: { iconName: "Moon", badgeColor: "" },
-                    scientificSources: [],
-                    status: "coming_soon",
-                    version: "0.9.0",
+                    status: "ready",
+                    version: "1.0.0",
                   });
                 } else {
                   onBackToMap();

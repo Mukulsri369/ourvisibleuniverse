@@ -53,6 +53,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Mastered how light bridges cosmic distances and looked 13 billion years into the past.",
     icon: "⚡",
   },
+  {
+    id: "earth_moon_master",
+    title: "Earth & Moon Master",
+    description:
+      "Mastered Earth's axial tilt, seasonal solstices, lunar phases, and eclipse geometry.",
+    icon: "🌑",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -61,6 +68,7 @@ const DEFAULT_PROGRESS: UserProgress = {
     "01": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "02": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "04": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "05": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
   },
@@ -146,6 +154,9 @@ export function useAcademyProgress() {
           }
           if (moduleId === "04" && !newAchievements.includes("speed_of_light_master")) {
             newAchievements.push("speed_of_light_master");
+          }
+          if (moduleId === "05" && !newAchievements.includes("earth_moon_master")) {
+            newAchievements.push("earth_moon_master");
           }
           if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
             newAchievements.push("galaxy_voyager");

@@ -184,13 +184,15 @@ export const ACADEMY_MODULES: ModuleContract[] = [
       "Explore lunar phases, tidal locking, and the rare geometry that produces solar and lunar eclipses.",
     stageId: 2,
     recommendedOrder: 5,
-    difficultyLevels: ["Beginner"],
+    difficultyLevels: ["Beginner", "Intermediate"],
     learningObjectives: [
       "Demonstrate why the Moon exhibits changing illumination phases",
       "Distinguish between total, partial, and annular solar eclipses",
       "Explain the tidal gravitational interactions between Earth and Moon",
+      "Model how Earth's 23.44° axial tilt drives seasonal solstices and equinoxes",
+      "Understand why the 5.145° lunar orbit inclination prevents monthly eclipses",
     ],
-    prerequisites: ["01"],
+    prerequisites: ["01", "04"],
     route: "/learn?module=05",
     estimatedMinutes: 18,
     visualAssets: {
@@ -204,8 +206,8 @@ export const ACADEMY_MODULES: ModuleContract[] = [
         url: "https://science.nasa.gov/eclipses/",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
   {
     id: "06",

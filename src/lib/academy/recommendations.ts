@@ -13,6 +13,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
   const module01Progress = progress.moduleProgress["01"]?.status;
   const module02Progress = progress.moduleProgress["02"]?.status;
   const module04Progress = progress.moduleProgress["04"]?.status;
+  const module05Progress = progress.moduleProgress["05"]?.status;
   const module13Progress = progress.moduleProgress["13"]?.status;
   const module19Progress = progress.moduleProgress["19"]?.status;
 
@@ -56,15 +57,29 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
+  } else if (module05Progress !== "completed") {
     // Recommend Stage 2 Module 05: Earth, Moon & Eclipses
     const mod05 = ACADEMY_MODULES.find((m) => m.id === "05");
     if (mod05) {
       recommendations.push({
         module: mod05,
         reason:
-          "Now that you understand light and observation, explore the orbital choreography of Earth and the Moon, lunar phases, and eclipses.",
+          module05Progress === "in_progress"
+            ? "Continue your 3D exploration of Earth's axial tilt, seasonal solstices, lunar phases, and eclipses."
+            : "Explore Earth's 23.44° axial tilt, true day/night rotation, the 5.145° lunar orbit inclination, and eclipse geometry.",
         badge: "Stage 2 Gateway",
+        priority: "primary",
+      });
+    }
+  } else {
+    // Recommend Stage 2 Module 06: Explore the Solar System
+    const mod06 = ACADEMY_MODULES.find((m) => m.id === "06");
+    if (mod06) {
+      recommendations.push({
+        module: mod06,
+        reason:
+          "Now that you understand our home world and Moon, venture outward to explore the 8 major planets, gas giants, and Kuiper belt!",
+        badge: "Solar System Tour",
         priority: "primary",
       });
     }
