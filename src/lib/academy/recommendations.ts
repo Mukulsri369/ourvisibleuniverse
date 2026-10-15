@@ -116,6 +116,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["09"]?.status !== "completed") {
+    // Recommend Stage 3 Module 09: Stars: Colors, Sizes & Temperatures
+    const mod09 = ACADEMY_MODULES.find((m) => m.id === "09");
+    if (mod09) {
+      recommendations.push({
+        module: mod09,
+        reason:
+          progress.moduleProgress["09"]?.status === "in_progress"
+            ? "Continue comparing stars in the 3D Stellar Museum, testing blackbody spectra, and plotting stars on the H-R diagram."
+            : "Step into Stage 3: compare 3D stellar models, explore Wien's law & blackbody radiation, and decode the Hertzsprung-Russell diagram!",
+        badge: "Stage 3 Gateway",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies)

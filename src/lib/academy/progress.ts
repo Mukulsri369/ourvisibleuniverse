@@ -60,6 +60,12 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Mastered Earth's axial tilt, seasonal solstices, lunar phases, and eclipse geometry.",
     icon: "🌑",
   },
+  {
+    id: "stellar_astrophysicist",
+    title: "Stellar Astrophysicist",
+    description: "Decoded star spectra, blackbody radiation, and the Hertzsprung–Russell diagram.",
+    icon: "🔥",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -69,6 +75,10 @@ const DEFAULT_PROGRESS: UserProgress = {
     "02": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "04": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "05": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "06": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "07": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "08": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "09": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
     "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
   },
@@ -157,6 +167,9 @@ export function useAcademyProgress() {
           }
           if (moduleId === "05" && !newAchievements.includes("earth_moon_master")) {
             newAchievements.push("earth_moon_master");
+          }
+          if (moduleId === "09" && !newAchievements.includes("stellar_astrophysicist")) {
+            newAchievements.push("stellar_astrophysicist");
           }
           if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
             newAchievements.push("galaxy_voyager");
