@@ -279,6 +279,69 @@ function Index() {
           </div>
         </section>
 
+        {/* ================= COSMIC LEARNING ACADEMY SHOWCASE ================= */}
+        <section className="relative overflow-hidden border-t border-cyan-500/30 bg-gradient-to-b from-cyan-950/40 via-slate-950/80 to-slate-950/40 backdrop-blur-xl py-20">
+          <div className="absolute top-0 right-1/4 size-96 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
+          <div className="mx-auto max-w-7xl px-5 lg:px-8 relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 rounded-3xl border border-cyan-500/40 bg-slate-900/70 p-8 sm:p-12 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1 text-xs font-semibold text-cyan-300 mb-4">
+                  <Sparkles className="size-3.5 text-cyan-400" />
+                  <span>Now Open • 24 Progressive Astronomy Modules</span>
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                  Cosmic Learning Academy
+                </h2>
+                <p className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
+                  Transform astronomy learning with our interactive curriculum: 6 celestial stages,
+                  3 age-adaptive learning levels (Classes 1–3, 4–6, 7–10), hands-on cosmic physics
+                  experiments, and 3D planetary explorations.
+                </p>
+
+                <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-300">
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                    <CheckCircle2 className="size-3.5 text-cyan-400" />
+                    <span>Age-Adaptive Physics</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                    <CheckCircle2 className="size-3.5 text-cyan-400" />
+                    <span>Local-First Progress</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+                    <CheckCircle2 className="size-3.5 text-cyan-400" />
+                    <span>Verified NASA Grounding</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row lg:flex-col gap-3 flex-shrink-0">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-8 py-6 text-base shadow-lg shadow-cyan-500/25 border-none transition-transform hover:scale-105"
+                >
+                  <Link to="/learn">
+                    <Compass className="size-5 mr-2" />
+                    <span>Enter Cosmic Academy</span>
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-cyan-400 font-semibold px-6 py-6 text-sm"
+                >
+                  <Link to="/galaxies">
+                    <span>Explore Galaxies (3D)</span>
+                    <ArrowRight className="size-4 ml-2 text-cyan-400" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ================= WHY PARENTS FEEL PROUD SECTION ================= */}
         <section
           id="parents"

@@ -41,14 +41,26 @@ export function SiteFooter() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm text-slate-400">
-            <Link to="/about" className="hover:text-white transition-colors">
-              About
+            <Link
+              to="/learn"
+              className="text-cyan-400 hover:text-cyan-300 transition-colors font-bold flex items-center gap-1"
+            >
+              <span>Cosmic Academy</span>
+              <span className="text-[10px] bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/30">
+                New
+              </span>
             </Link>
             <Link
               to="/visible-universe-history"
               className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
             >
               Cosmic History
+            </Link>
+            <Link to="/galaxies" className="hover:text-white transition-colors">
+              Galaxies (3D)
+            </Link>
+            <Link to="/about" className="hover:text-white transition-colors">
+              About
             </Link>
             <Link to="/contact" className="hover:text-white transition-colors">
               Contact

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const links = [
+  ["/learn", "Cosmic Learning Academy"],
   ["/features", "Features"],
   ["/science", "Science"],
   ["/visible-universe-history", "History"],
@@ -43,20 +44,25 @@ export function SiteHeader() {
           <Orbit className="size-6 text-cyan-400" />
           Our Visible Universe
         </Link>
-        <nav className="hidden items-center gap-7 md:flex">
-          {links.map(([to, label]) => (
-            <Link
-              key={to}
-              to={to}
-              className={`text-sm transition hover:scale-105 ${
-                overHero
-                  ? "text-hero-muted hover:text-hero-foreground"
-                  : "text-slate-300 hover:text-white"
-              }`}
-            >
-              {label}
-            </Link>
-          ))}
+        <nav className="hidden items-center gap-6 md:flex">
+          {links.map(([to, label]) => {
+            const isAcademy = to === "/learn";
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`text-sm transition hover:scale-105 ${
+                  isAcademy
+                    ? "font-bold text-cyan-300 hover:text-cyan-200 bg-cyan-500/15 border border-cyan-500/40 px-3 py-1 rounded-full shadow-sm shadow-cyan-500/20"
+                    : overHero
+                      ? "text-hero-muted hover:text-hero-foreground"
+                      : "text-slate-300 hover:text-white"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
           <Button
@@ -99,16 +105,23 @@ export function SiteHeader() {
       </div>
       {open && (
         <nav className="border-t border-white/10 bg-slate-950/95 backdrop-blur-2xl p-5 md:hidden">
-          {links.map(([to, label]) => (
-            <Link
-              key={to}
-              to={to}
-              onClick={() => setOpen(false)}
-              className="block border-b border-white/10 py-3 text-slate-200 hover:text-white"
-            >
-              {label}
-            </Link>
-          ))}
+          {links.map(([to, label]) => {
+            const isAcademy = to === "/learn";
+            return (
+              <Link
+                key={to}
+                to={to}
+                onClick={() => setOpen(false)}
+                className={`block py-3 transition-colors ${
+                  isAcademy
+                    ? "text-cyan-300 font-bold bg-cyan-500/15 border border-cyan-500/30 px-3.5 rounded-xl my-1.5 shadow-sm shadow-cyan-500/10"
+                    : "border-b border-white/10 text-slate-200 hover:text-white"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
           <Button
             asChild
             variant="outline"

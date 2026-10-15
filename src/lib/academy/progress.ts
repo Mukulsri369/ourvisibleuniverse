@@ -1,0 +1,246 @@
+import { useEffect, useState, useCallback } from "react";
+import type { Achievement, LearningLevel, ModuleStatus, UserProgress } from "./types";
+
+const STORAGE_KEY = "cosmic_academy_user_progress_v1";
+
+export const INITIAL_ACHIEVEMENTS: Achievement[] = [
+  {
+    id: "welcome_explorer",
+    title: "First Stargazer",
+    description: "Began your journey into the Cosmic Learning Academy.",
+    icon: "🌟",
+  },
+  {
+    id: "module_01_complete",
+    title: "Cosmic Citizen",
+    description: "Learned your true celestial address in the universe.",
+    icon: "🌍",
+  },
+  {
+    id: "galaxy_voyager",
+    title: "Galactic Navigator",
+    description: "Explored spiral, elliptical, and deep sky galaxies.",
+    icon: "🌀",
+  },
+  {
+    id: "time_traveler",
+    title: "Cosmic Historian",
+    description: "Traveled 13.8 billion years across visible cosmic history.",
+    icon: "⏳",
+  },
+  {
+    id: "quiz_ace",
+    title: "Master Cosmologist",
+    description: "Scored 100% on a science knowledge check.",
+    icon: "🏆",
+  },
+  {
+    id: "curious_mind",
+    title: "Curious Observer",
+    description: "Tested a hands-on cosmic parameter experiment.",
+    icon: "🔬",
+  },
+];
+
+const DEFAULT_PROGRESS: UserProgress = {
+  selectedLevel: "explorer", // default Space Explorer (Classes 4-6)
+  moduleProgress: {
+    "01": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+  },
+  completedLessons: [],
+  quizScores: {},
+  bookmarks: [],
+  lastOpenedModuleId: "01",
+  achievements: ["welcome_explorer"],
+  lastUpdated: new Date().toISOString(),
+};
+
+function loadStoredProgress(): UserProgress {
+  if (typeof window === "undefined") return DEFAULT_PROGRESS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return DEFAULT_PROGRESS;
+    const parsed = JSON.parse(raw);
+    return {
+      ...DEFAULT_PROGRESS,
+      ...parsed,
+      moduleProgress: {
+        ...DEFAULT_PROGRESS.moduleProgress,
+        ...(parsed.moduleProgress || {}),
+      },
+      achievements: Array.from(new Set([...(parsed.achievements || []), "welcome_explorer"])),
+    };
+  } catch (err) {
+    console.error("Failed to parse academy progress from localStorage", err);
+    return DEFAULT_PROGRESS;
+  }
+}
+
+function saveStoredProgress(progress: UserProgress) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  } catch (err) {
+    console.error("Failed to save academy progress to localStorage", err);
+  }
+}
+
+export function useAcademyProgress() {
+  const [progress, setProgress] = useState<UserProgress>(loadStoredProgress);
+
+  useEffect(() => {
+    // Sync on mount in case of SSR hydration
+    setProgress(loadStoredProgress());
+  }, []);
+
+  const setLearningLevel = useCallback((level: LearningLevel) => {
+    setProgress((prev) => {
+      const next: UserProgress = {
+        ...prev,
+        selectedLevel: level,
+        lastUpdated: new Date().toISOString(),
+      };
+      saveStoredProgress(next);
+      return next;
+    });
+  }, []);
+
+  const setModuleProgress = useCallback(
+    (moduleId: string, percent: number, status?: ModuleStatus) => {
+      setProgress((prev) => {
+        const current = prev.moduleProgress[moduleId] || {
+          status: "not_started",
+          percent: 0,
+          lastOpenedAt: new Date().toISOString(),
+        };
+        const newPercent = Math.min(100, Math.max(current.percent, percent));
+        const resolvedStatus: ModuleStatus =
+          status ||
+          (newPercent >= 100 ? "completed" : newPercent > 0 ? "in_progress" : "not_started");
+
+        const newAchievements = [...prev.achievements];
+        if (resolvedStatus === "completed") {
+          if (moduleId === "01" && !newAchievements.includes("module_01_complete")) {
+            newAchievements.push("module_01_complete");
+          }
+          if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
+            newAchievements.push("galaxy_voyager");
+          }
+          if (moduleId === "19" && !newAchievements.includes("time_traveler")) {
+            newAchievements.push("time_traveler");
+          }
+        }
+
+        const next: UserProgress = {
+          ...prev,
+          lastOpenedModuleId: moduleId,
+          achievements: newAchievements,
+          moduleProgress: {
+            ...prev.moduleProgress,
+            [moduleId]: {
+              status: resolvedStatus,
+              percent: newPercent,
+              lastOpenedAt: new Date().toISOString(),
+              completedAt:
+                resolvedStatus === "completed" ? new Date().toISOString() : current.completedAt,
+            },
+          },
+          lastUpdated: new Date().toISOString(),
+        };
+        saveStoredProgress(next);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const recordQuizResult = useCallback((quizId: string, score: number, total: number) => {
+    setProgress((prev) => {
+      const existing = prev.quizScores[quizId];
+      const attempts = (existing?.attempts || 0) + 1;
+      const bestScore = existing ? Math.max(existing.score, score) : score;
+
+      const newAchievements = [...prev.achievements];
+      if (score === total && !newAchievements.includes("quiz_ace")) {
+        newAchievements.push("quiz_ace");
+      }
+
+      const next: UserProgress = {
+        ...prev,
+        achievements: newAchievements,
+        quizScores: {
+          ...prev.quizScores,
+          [quizId]: {
+            score: bestScore,
+            total,
+            attempts,
+          },
+        },
+        lastUpdated: new Date().toISOString(),
+      };
+      saveStoredProgress(next);
+      return next;
+    });
+  }, []);
+
+  const toggleBookmark = useCallback((moduleId: string) => {
+    setProgress((prev) => {
+      const bookmarks = prev.bookmarks.includes(moduleId)
+        ? prev.bookmarks.filter((id) => id !== moduleId)
+        : [...prev.bookmarks, moduleId];
+      const next: UserProgress = {
+        ...prev,
+        bookmarks,
+        lastUpdated: new Date().toISOString(),
+      };
+      saveStoredProgress(next);
+      return next;
+    });
+  }, []);
+
+  const unlockAchievement = useCallback((achievementId: string) => {
+    setProgress((prev) => {
+      if (prev.achievements.includes(achievementId)) return prev;
+      const next: UserProgress = {
+        ...prev,
+        achievements: [...prev.achievements, achievementId],
+        lastUpdated: new Date().toISOString(),
+      };
+      saveStoredProgress(next);
+      return next;
+    });
+  }, []);
+
+  const exportProgressJSON = useCallback(() => {
+    const dataStr =
+      "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(progress, null, 2));
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute(
+      "download",
+      `cosmic-academy-progress-${progress.selectedLevel}.json`,
+    );
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }, [progress]);
+
+  const resetProgress = useCallback(() => {
+    saveStoredProgress(DEFAULT_PROGRESS);
+    setProgress(DEFAULT_PROGRESS);
+  }, []);
+
+  return {
+    progress,
+    selectedLevel: progress.selectedLevel,
+    setLearningLevel,
+    setModuleProgress,
+    recordQuizResult,
+    toggleBookmark,
+    unlockAchievement,
+    exportProgressJSON,
+    resetProgress,
+  };
+}
