@@ -463,31 +463,48 @@ export const ACADEMY_MODULES: ModuleContract[] = [
     title: "Exoplanets & Alien Worlds",
     subtitle: "Transit photometry, radial velocity, and the search for habitable zones",
     description:
-      "Discover thousands of confirmed worlds beyond our solar system, from hot Jupiters to rocky habitable exoplanets.",
+      "Discover thousands of confirmed worlds beyond our solar system: model transit light curve dips, track stellar Doppler wobbles, and chart circumstellar habitable zones with NASA data.",
     stageId: 3,
     recommendedOrder: 12,
-    difficultyLevels: ["Intermediate"],
+    difficultyLevels: ["Beginner", "Intermediate", "Advanced"],
     learningObjectives: [
-      "Understand the transit method and Kepler/TESS light curves",
-      "Define circumstellar habitable zones (Goldilocks zones)",
-      "Analyze atmospheric transmission spectra for bio-signatures",
+      "Understand transit photometry and calculate planetary radii using light curve dips ΔF/F = (Rp/R*)²",
+      "Model stellar radial velocity Doppler wobbles and compute minimum planetary mass (Mp sin i)",
+      "Define circumstellar habitable zones (Goldilocks zones) across M, K, G, and F host stars",
+      "Investigate confirmed benchmark systems: TRAPPIST-1, Proxima Centauri b, 51 Pegasi b, and Kepler-452b",
+      "Analyze atmospheric transmission spectroscopy and the detection of water vapor and clouds",
     ],
     prerequisites: ["06", "09"],
     route: "/learn?module=12",
-    estimatedMinutes: 22,
+    estimatedMinutes: 24,
     visualAssets: {
       iconName: "Globe2",
       badgeColor: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
     },
     scientificSources: [
       {
-        title: "NASA Exoplanet Archive & Exploration",
-        organization: "NASA",
-        url: "https://exoplanets.nasa.gov/",
+        title: "NASA Exoplanet Archive: Confirmed Planets Data Table",
+        organization: "NASA / Caltech IPAC",
+        url: "https://exoplanetarchive.ipac.caltech.edu/",
+      },
+      {
+        title: "Mayor & Queloz (1995) A Jupiter-Mass Companion to a Solar-Type Star",
+        organization: "Nature (Vol 378, pp 355–359)",
+        url: "https://www.nature.com/articles/378355a0",
+      },
+      {
+        title: "Gillon et al. (2017) Seven temperate terrestrial planets around TRAPPIST-1",
+        organization: "Nature (Vol 542, pp 456–460)",
+        url: "https://www.nature.com/articles/nature21360",
+      },
+      {
+        title: "Kopparapu et al. (2013) Habitable Zones around Main-Sequence Stars: New Estimates",
+        organization: "The Astrophysical Journal (ApJ 765, 131)",
+        url: "https://iopscience.iop.org/article/10.1088/0004-637X/765/2/131",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
 
   // STAGE 4: GALAXIES & EXTREME OBJECTS
@@ -1109,16 +1126,19 @@ export const ACADEMY_MODULES: ModuleContract[] = [
     title: "Cosmic Physics Laboratory & Challenges",
     subtitle: "Interactive simulations, orbital puzzles, and master challenges",
     description:
-      "Put your knowledge into practice in a physics sandbox: balance solar systems, escape black holes, and calculate cosmic scales.",
+      "Synthesize all 23 previous modules inside an interactive astrophysical playground: model N-body solar systems, flat rotation curves, stellar remnants, relativistic black holes, Friedmann cosmology, and interplanetary trajectories.",
     stageId: 6,
     recommendedOrder: 24,
-    difficultyLevels: ["Advanced"],
+    difficultyLevels: ["Beginner", "Intermediate", "Advanced"],
     learningObjectives: [
-      "Apply orbital physics principles to stabilize multi-planet systems",
-      "Analyze spectral lines to identify unknown stellar compositions",
-      "Complete the Capstone Space Scientist Assessment",
+      "Simulate N-body planetary systems, orbital resonances, and apply Kepler's Laws",
+      "Model galactic rotation curves and quantify the gravitational contribution of dark matter",
+      "Track stellar evolution, nucleosynthetic burning, and remnants across the Chandrasekhar and TOV limits",
+      "Explore Schwarzschild event horizons, photon spheres, ISCO, and Einstein gravitational lensing",
+      "Solve the Friedmann cosmological equation for scale factor a(t) and analyze dark energy expansion",
+      "Calculate Hohmann interplanetary transfer burns and complete the Grand Capstone Challenge suite",
     ],
-    prerequisites: ["08", "14", "18"],
+    prerequisites: ["08", "14", "18", "22", "23"],
     route: "/learn?module=24",
     estimatedMinutes: 35,
     visualAssets: {
@@ -1127,13 +1147,33 @@ export const ACADEMY_MODULES: ModuleContract[] = [
     },
     scientificSources: [
       {
-        title: "Astrophysics Data System & Lab Resources",
+        title: "Astrophysics Data System (ADS) Digital Library",
         organization: "NASA",
         url: "https://ui.adsabs.harvard.edu/",
       },
+      {
+        title: "NASA Exoplanet Archive & Transit Ephemerides",
+        organization: "NASA",
+        url: "https://exoplanetarchive.ipac.caltech.edu/",
+      },
+      {
+        title: "European Space Agency (ESA) Gaia Science Archive",
+        organization: "ESA",
+        url: "https://www.cosmos.esa.int/web/gaia/data-release-3",
+      },
+      {
+        title: "Hubble & James Webb Space Telescope Science Releases",
+        organization: "JWST",
+        url: "https://webbtelescope.org/resource-gallery",
+      },
+      {
+        title: "International Astronomical Union (IAU) Astronomical Standards",
+        organization: "IAU",
+        url: "https://www.iau.org/science/scientific_bodies/commissions/",
+      },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
 ];
 

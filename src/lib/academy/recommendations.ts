@@ -172,6 +172,34 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["12"]?.status !== "completed") {
+    // Recommend Stage 3 Module 12: Exoplanets & Alien Worlds
+    const mod12 = ACADEMY_MODULES.find((m) => m.id === "12");
+    if (mod12) {
+      recommendations.push({
+        module: mod12,
+        reason:
+          progress.moduleProgress["12"]?.status === "in_progress"
+            ? "Continue measuring transit dips, tracking stellar Doppler wobbles, and charting habitable zones."
+            : "Discover thousands of confirmed worlds beyond our solar system, model transit light curves, and test circumstellar habitable zones in the Exoplanet Discovery Lab!",
+        badge: "Alien Worlds",
+        priority: "primary",
+      });
+    }
+  } else if (module13Progress !== "completed") {
+    // Recommend Stage 4 Module 13: Learn About Galaxies
+    const mod13 = ACADEMY_MODULES.find((m) => m.id === "13");
+    if (mod13) {
+      recommendations.push({
+        module: mod13,
+        reason:
+          module13Progress === "in_progress"
+            ? "Continue exploring spiral arms, galactic bars, and central supermassive black holes."
+            : "Step into Stage 4: inspect spiral morphology, starburst arms, and central supermassive black holes in the 3D Galaxy Viewer!",
+        badge: "Stage 4 Gateway",
+        priority: "primary",
+      });
+    }
   } else if (progress.moduleProgress["14"]?.status !== "completed") {
     // Recommend Stage 4 Module 14: Black Holes & Neutron Stars
     const mod14 = ACADEMY_MODULES.find((m) => m.id === "14");
@@ -312,6 +340,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["24"]?.status !== "completed") {
+    // Recommend Stage 6 Module 24: Cosmic Physics Laboratory & Challenges (Capstone)
+    const mod24 = ACADEMY_MODULES.find((m) => m.id === "24");
+    if (mod24) {
+      recommendations.push({
+        module: mod24,
+        reason:
+          progress.moduleProgress["24"]?.status === "in_progress"
+            ? "Continue your Capstone physics experiments: run 10 astrophysical labs and solve the Grand Cosmic Challenges!"
+            : "Launch the Capstone Physics Laboratory: Conduct 10 interactive physics experiments, solve the Grand Cosmos Challenge, and claim your Cosmic Explorer Certificate!",
+        badge: "Grand Capstone",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17/18/19
@@ -432,6 +474,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Investigate life in the cosmos: extremophiles, ocean worlds, circumstellar habitable zones, and biosignature science!",
         badge: "Astrobiologist",
+        priority: "primary",
+      });
+    }
+  } else if (progress.moduleProgress["24"]?.status !== "completed") {
+    const mod24 = ACADEMY_MODULES.find((m) => m.id === "24");
+    if (mod24) {
+      recommendations.push({
+        module: mod24,
+        reason:
+          "Tackle the Grand Capstone: 10 interactive physics simulations and earn your Cosmic Explorer Certificate!",
+        badge: "Grand Capstone",
         priority: "primary",
       });
     }

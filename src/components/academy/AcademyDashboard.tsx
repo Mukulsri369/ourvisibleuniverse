@@ -22,6 +22,7 @@ import { Module08Layout } from "./Module08Layout";
 import { Module09Layout } from "./Module09Layout";
 import { Module10Layout } from "./Module10Layout";
 import { Module11Layout } from "./Module11Layout";
+import { Module12Layout } from "./Module12Layout";
 import { Module14Layout } from "./Module14Layout";
 import { Module15Layout } from "./Module15Layout";
 import { Module16Layout } from "./Module16Layout";
@@ -32,6 +33,7 @@ import { Module20Layout } from "./Module20Layout";
 import { Module21Layout } from "./Module21Layout";
 import { Module22Layout } from "./Module22Layout";
 import { Module23Layout } from "./Module23Layout";
+import { Module24Layout } from "./Module24Layout";
 import { Link, useNavigate } from "@tanstack/react-router";
 
 const ACTIVE_MODULE_IDS = [
@@ -46,6 +48,7 @@ const ACTIVE_MODULE_IDS = [
   "09",
   "10",
   "11",
+  "12",
   "14",
   "15",
   "16",
@@ -56,6 +59,7 @@ const ACTIVE_MODULE_IDS = [
   "21",
   "22",
   "23",
+  "24",
 ];
 import {
   Sparkles,
@@ -95,36 +99,6 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   }, [initialModuleId, navigate]);
 
   const [activeLessonModule, setActiveLessonModule] = useState<ModuleContract | null>(() => {
-    if (initialModuleId === "01") {
-      return ACADEMY_MODULES.find((m) => m.id === "01") || null;
-    }
-    if (initialModuleId === "02") {
-      return ACADEMY_MODULES.find((m) => m.id === "02") || null;
-    }
-    if (initialModuleId === "04") {
-      return ACADEMY_MODULES.find((m) => m.id === "04") || null;
-    }
-    if (initialModuleId === "05") {
-      return ACADEMY_MODULES.find((m) => m.id === "05") || null;
-    }
-    if (initialModuleId === "06") {
-      return ACADEMY_MODULES.find((m) => m.id === "06") || null;
-    }
-    if (initialModuleId === "07") {
-      return ACADEMY_MODULES.find((m) => m.id === "07") || null;
-    }
-    if (initialModuleId === "08") {
-      return ACADEMY_MODULES.find((m) => m.id === "08") || null;
-    }
-    if (initialModuleId === "09") {
-      return ACADEMY_MODULES.find((m) => m.id === "09") || null;
-    }
-    if (initialModuleId === "10") {
-      return ACADEMY_MODULES.find((m) => m.id === "10") || null;
-    }
-    if (initialModuleId === "11") {
-      return ACADEMY_MODULES.find((m) => m.id === "11") || null;
-    }
     if (initialModuleId && ACTIVE_MODULE_IDS.includes(initialModuleId)) {
       return ACADEMY_MODULES.find((m) => m.id === initialModuleId) || null;
     }
@@ -582,6 +556,43 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     );
   }
 
+  // If viewing Module 12: Exoplanets & Alien Worlds
+  if (activeLessonModule && activeLessonModule.id === "12") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module12Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "12"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   // If viewing Module 14: Black Holes & Neutron Stars
   if (activeLessonModule && activeLessonModule.id === "14") {
     return (
@@ -956,6 +967,28 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     );
   }
 
+  // If viewing Module 24: Cosmic Physics Laboratory & Challenges (Capstone)
+  if (activeLessonModule && activeLessonModule.id === "24") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${
+          settings.fontSize === "large" ? "text-base" : "text-sm"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module24Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200 ${
@@ -1000,18 +1033,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             </div>
 
             <div className="flex-shrink-0">
-              {["01", "02", "04", "05", "06", "07", "08", "09"].includes(
-                primaryRecommendation.module.id,
-              ) ? (
-                <Button
-                  size="lg"
-                  onClick={() => handleSelectModule(primaryRecommendation.module)}
-                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-md shadow-cyan-500/25 border-none"
-                >
-                  <span>Start Module {primaryRecommendation.module.id}</span>
-                  <ArrowRight className="size-4 ml-2" />
-                </Button>
-              ) : primaryRecommendation.module.id === "13" ? (
+              {primaryRecommendation.module.id === "13" ? (
                 <Button
                   asChild
                   size="lg"
@@ -1022,16 +1044,14 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                     <ExternalLink className="size-4 ml-2" />
                   </Link>
                 </Button>
-              ) : primaryRecommendation.module.id === "19" ? (
+              ) : ACTIVE_MODULE_IDS.includes(primaryRecommendation.module.id) ? (
                 <Button
-                  asChild
                   size="lg"
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold shadow-md"
+                  onClick={() => handleSelectModule(primaryRecommendation.module)}
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-md shadow-cyan-500/25 border-none"
                 >
-                  <Link to="/visible-universe-history">
-                    <span>View Cosmic History</span>
-                    <ExternalLink className="size-4 ml-2" />
-                  </Link>
+                  <span>Start Module {primaryRecommendation.module.id}</span>
+                  <ArrowRight className="size-4 ml-2" />
                 </Button>
               ) : (
                 <Button
