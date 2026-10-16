@@ -1,12 +1,14 @@
 {
   "version": 1,
-  "sdk_version": "3.0.5",
+  "sdk_version": "3.1.0",
   "path": "/mcp",
   "auth": {
     "type": "oauth",
     "issuer": "https://owscsssrnfmvfkllyldt.supabase.co/auth/v1",
     "require_oauth_client_claim": true,
-    "accepted_audiences": ["authenticated"]
+    "accepted_audiences": [
+      "authenticated"
+    ]
   },
   "mcp": {
     "server": {
@@ -37,7 +39,12 @@
               "default": "any",
               "description": "Restrict to one catalog.",
               "type": "string",
-              "enum": ["any", "star", "galaxy", "object"]
+              "enum": [
+                "any",
+                "star",
+                "galaxy",
+                "object"
+              ]
             },
             "limit": {
               "default": 15,
@@ -46,7 +53,9 @@
               "maximum": 50
             }
           },
-          "required": ["query"],
+          "required": [
+            "query"
+          ],
           "additionalProperties": false
         },
         "outputSchema": null
@@ -70,7 +79,9 @@
               "description": "Exact name as returned by search_catalog."
             }
           },
-          "required": ["name"],
+          "required": [
+            "name"
+          ],
           "additionalProperties": false
         },
         "outputSchema": null
