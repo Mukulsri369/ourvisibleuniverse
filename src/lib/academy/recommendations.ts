@@ -298,6 +298,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["23"]?.status !== "completed") {
+    // Recommend Stage 6 Module 23: Life Beyond Earth & Astrobiology
+    const mod23 = ACADEMY_MODULES.find((m) => m.id === "23");
+    if (mod23) {
+      recommendations.push({
+        module: mod23,
+        reason:
+          progress.moduleProgress["23"]?.status === "in_progress"
+            ? "Continue probing alien worlds: test habitability criteria, explore Europa's ocean interior, and analyze biosignatures!"
+            : "Enter the Astrobiology Frontier: Design habitable worlds in 3D, explore Europa & Enceladus ocean plumes, and hunt for biosignatures!",
+        badge: "Astrobiologist",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17/18/19
@@ -407,6 +421,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Relive humanity's greatest adventures: Apollo, Voyagers, Mars rovers, Chandrayaan-3, and deep space mission design!",
         badge: "Flight Director",
+        priority: "primary",
+      });
+    }
+  } else if (progress.moduleProgress["23"]?.status !== "completed") {
+    const mod23 = ACADEMY_MODULES.find((m) => m.id === "23");
+    if (mod23) {
+      recommendations.push({
+        module: mod23,
+        reason:
+          "Investigate life in the cosmos: extremophiles, ocean worlds, circumstellar habitable zones, and biosignature science!",
+        badge: "Astrobiologist",
         priority: "primary",
       });
     }
