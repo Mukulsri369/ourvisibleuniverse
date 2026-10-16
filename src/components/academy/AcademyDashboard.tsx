@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { ACADEMY_STAGES, ACADEMY_MODULES } from "@/lib/academy/registry";
 import { MODULE_01_LESSON } from "@/lib/academy/lessons/module-01-our-place";
 import { useAcademyProgress } from "@/lib/academy/progress";
@@ -11,30 +11,91 @@ import { LearningStageCard } from "./LearningStageCard";
 import { ProgressTracker } from "./ProgressTracker";
 import { AchievementDisplay } from "./AchievementDisplay";
 import { AccessibilityControls } from "./AccessibilityControls";
-import { LessonLayout } from "./LessonLayout";
-import { Module02Layout } from "./Module02Layout";
-import { Module03Layout } from "./Module03Layout";
-import { Module04Layout } from "./Module04Layout";
-import { Module05Layout } from "./Module05Layout";
-import { Module06Layout } from "./Module06Layout";
-import { Module07Layout } from "./Module07Layout";
-import { Module08Layout } from "./Module08Layout";
-import { Module09Layout } from "./Module09Layout";
-import { Module10Layout } from "./Module10Layout";
-import { Module11Layout } from "./Module11Layout";
-import { Module12Layout } from "./Module12Layout";
-import { Module14Layout } from "./Module14Layout";
-import { Module15Layout } from "./Module15Layout";
-import { Module16Layout } from "./Module16Layout";
-import { Module17Layout } from "./Module17Layout";
-import { Module18Layout } from "./Module18Layout";
-import { Module19Layout } from "./Module19Layout";
-import { Module20Layout } from "./Module20Layout";
-import { Module21Layout } from "./Module21Layout";
-import { Module22Layout } from "./Module22Layout";
-import { Module23Layout } from "./Module23Layout";
-import { Module24Layout } from "./Module24Layout";
 import { Link, useNavigate } from "@tanstack/react-router";
+import {
+  Sparkles,
+  Compass,
+  ArrowRight,
+  X,
+  ExternalLink,
+  BookOpen,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  Orbit,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+// Lazy-loaded module layouts to optimize initial bundle size and isolate module evaluation
+const LessonLayout = lazy(() =>
+  import("./LessonLayout").then((m) => ({ default: m.LessonLayout })),
+);
+const Module02Layout = lazy(() =>
+  import("./Module02Layout").then((m) => ({ default: m.Module02Layout })),
+);
+const Module03Layout = lazy(() =>
+  import("./Module03Layout").then((m) => ({ default: m.Module03Layout })),
+);
+const Module04Layout = lazy(() =>
+  import("./Module04Layout").then((m) => ({ default: m.Module04Layout })),
+);
+const Module05Layout = lazy(() =>
+  import("./Module05Layout").then((m) => ({ default: m.Module05Layout })),
+);
+const Module06Layout = lazy(() =>
+  import("./Module06Layout").then((m) => ({ default: m.Module06Layout })),
+);
+const Module07Layout = lazy(() =>
+  import("./Module07Layout").then((m) => ({ default: m.Module07Layout })),
+);
+const Module08Layout = lazy(() =>
+  import("./Module08Layout").then((m) => ({ default: m.Module08Layout })),
+);
+const Module09Layout = lazy(() =>
+  import("./Module09Layout").then((m) => ({ default: m.Module09Layout })),
+);
+const Module10Layout = lazy(() =>
+  import("./Module10Layout").then((m) => ({ default: m.Module10Layout })),
+);
+const Module11Layout = lazy(() =>
+  import("./Module11Layout").then((m) => ({ default: m.Module11Layout })),
+);
+const Module12Layout = lazy(() =>
+  import("./Module12Layout").then((m) => ({ default: m.Module12Layout })),
+);
+const Module14Layout = lazy(() =>
+  import("./Module14Layout").then((m) => ({ default: m.Module14Layout })),
+);
+const Module15Layout = lazy(() =>
+  import("./Module15Layout").then((m) => ({ default: m.Module15Layout })),
+);
+const Module16Layout = lazy(() =>
+  import("./Module16Layout").then((m) => ({ default: m.Module16Layout })),
+);
+const Module17Layout = lazy(() =>
+  import("./Module17Layout").then((m) => ({ default: m.Module17Layout })),
+);
+const Module18Layout = lazy(() =>
+  import("./Module18Layout").then((m) => ({ default: m.Module18Layout })),
+);
+const Module19Layout = lazy(() =>
+  import("./Module19Layout").then((m) => ({ default: m.Module19Layout })),
+);
+const Module20Layout = lazy(() =>
+  import("./Module20Layout").then((m) => ({ default: m.Module20Layout })),
+);
+const Module21Layout = lazy(() =>
+  import("./Module21Layout").then((m) => ({ default: m.Module21Layout })),
+);
+const Module22Layout = lazy(() =>
+  import("./Module22Layout").then((m) => ({ default: m.Module22Layout })),
+);
+const Module23Layout = lazy(() =>
+  import("./Module23Layout").then((m) => ({ default: m.Module23Layout })),
+);
+const Module24Layout = lazy(() =>
+  import("./Module24Layout").then((m) => ({ default: m.Module24Layout })),
+);
 
 const ACTIVE_MODULE_IDS = [
   "01",
@@ -61,18 +122,79 @@ const ACTIVE_MODULE_IDS = [
   "23",
   "24",
 ];
-import {
-  Sparkles,
-  Compass,
-  ArrowRight,
-  X,
-  ExternalLink,
-  BookOpen,
-  Clock,
-  ShieldCheck,
-  CheckCircle2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+function ModuleLoadingFallback({ title }: { title: string }) {
+  return (
+    <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 text-center">
+      <div className="relative mb-4">
+        <div className="size-12 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
+        <Orbit className="size-5 text-cyan-400 absolute inset-0 m-auto" />
+      </div>
+      <p className="text-sm font-bold text-white tracking-wide">{title}</p>
+      <p className="text-xs text-slate-400 mt-1">
+        Calibrating physical parameters and celestial coordinates...
+      </p>
+    </div>
+  );
+}
+
+// Unified renderer for active module layouts
+function renderActiveModule(
+  moduleId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  props: any,
+) {
+  switch (moduleId) {
+    case "01":
+      return <LessonLayout {...props} lesson={MODULE_01_LESSON} />;
+    case "02":
+      return <Module02Layout {...props} />;
+    case "03":
+      return <Module03Layout {...props} />;
+    case "04":
+      return <Module04Layout {...props} />;
+    case "05":
+      return <Module05Layout {...props} />;
+    case "06":
+      return <Module06Layout {...props} />;
+    case "07":
+      return <Module07Layout {...props} />;
+    case "08":
+      return <Module08Layout {...props} />;
+    case "09":
+      return <Module09Layout {...props} />;
+    case "10":
+      return <Module10Layout {...props} />;
+    case "11":
+      return <Module11Layout {...props} />;
+    case "12":
+      return <Module12Layout {...props} />;
+    case "14":
+      return <Module14Layout {...props} />;
+    case "15":
+      return <Module15Layout {...props} />;
+    case "16":
+      return <Module16Layout {...props} />;
+    case "17":
+      return <Module17Layout {...props} />;
+    case "18":
+      return <Module18Layout {...props} />;
+    case "19":
+      return <Module19Layout {...props} />;
+    case "20":
+      return <Module20Layout {...props} />;
+    case "21":
+      return <Module21Layout {...props} />;
+    case "22":
+      return <Module22Layout {...props} />;
+    case "23":
+      return <Module23Layout {...props} />;
+    case "24":
+      return <Module24Layout {...props} />;
+    default:
+      return null;
+  }
+}
 
 interface AcademyDashboardProps {
   initialModuleId?: string | null;
@@ -129,9 +251,11 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   };
 
   const handleSelectStage = (stageId: number) => {
-    const el = document.getElementById(`stage-${stageId}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (typeof document !== "undefined") {
+      const el = document.getElementById(`stage-${stageId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     }
   };
 
@@ -142,755 +266,43 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     }
     if (ACTIVE_MODULE_IDS.includes(module.id)) {
       setActiveLessonModule(module);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
     } else {
       setPreviewModule(module);
     }
   };
 
-  // If viewing an active lesson (e.g. Module 01)
-  if (activeLessonModule && activeLessonModule.id === "01") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <LessonLayout
-            module={activeLessonModule}
-            lesson={MODULE_01_LESSON}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "01"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
+  // If viewing an active module, render with isolated Suspense boundary and sleek fallback
+  if (activeLessonModule) {
+    const layoutProps = {
+      module: activeLessonModule,
+      progress,
+      onSetLearningLevel: setLearningLevel,
+      onUpdateModuleProgress: setModuleProgress,
+      onRecordQuiz: recordQuizResult,
+      onBackToMap: () => setActiveLessonModule(null),
+      nextRecommended:
+        primaryRecommendation && primaryRecommendation.module.id !== activeLessonModule.id
+          ? {
+              module: primaryRecommendation.module,
+              reason: primaryRecommendation.reason,
             }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
+          : undefined,
+      onSelectNextModule: (mod: ModuleContract) => {
+        if (ACTIVE_MODULE_IDS.includes(mod.id)) {
+          setActiveLessonModule(mod);
+          if (typeof window !== "undefined") {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        } else {
+          setActiveLessonModule(null);
+          setPreviewModule(mod);
+        }
+      },
+    };
 
-  // If viewing Module 02: The Night Sky & Constellations
-  if (activeLessonModule && activeLessonModule.id === "02") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module02Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "02"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 03: Cosmic Distances & Scale
-  if (activeLessonModule && activeLessonModule.id === "03") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module03Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "03"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 04: Light, Time & Cosmic Observation
-  if (activeLessonModule && activeLessonModule.id === "04") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module04Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "04"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 05: Earth, Moon & Eclipses
-  if (activeLessonModule && activeLessonModule.id === "05") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module05Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "05"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 06: Explore the Solar System
-  if (activeLessonModule && activeLessonModule.id === "06") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module06Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "06"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 07: The Sun: Our Star
-  if (activeLessonModule && activeLessonModule.id === "07") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module07Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "07"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 08: Gravity, Orbits & Motion
-  if (activeLessonModule && activeLessonModule.id === "08") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module08Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "08"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 09: Stars: Colors, Sizes & Temperatures
-  if (activeLessonModule && activeLessonModule.id === "09") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module09Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "09"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 10: Birth, Life & Death of Stars
-  if (activeLessonModule && activeLessonModule.id === "10") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module10Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "10"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 11: Nebulae & Star Clusters
-  if (activeLessonModule && activeLessonModule.id === "11") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module11Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "11"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 12: Exoplanets & Alien Worlds
-  if (activeLessonModule && activeLessonModule.id === "12") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module12Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "12"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 14: Black Holes & Neutron Stars
-  if (activeLessonModule && activeLessonModule.id === "14") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module14Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "14"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 15: Galaxy Groups, Clusters & Cosmic Web
-  if (activeLessonModule && activeLessonModule.id === "15") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module15Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "15"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 16: Dark Matter & Dark Energy
-  if (activeLessonModule && activeLessonModule.id === "16") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module16Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "16"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 17: Big Bang & Cosmic Evolution
-  if (activeLessonModule && activeLessonModule.id === "17") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module17Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "17"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 18: The Expanding Universe
-  if (activeLessonModule && activeLessonModule.id === "18") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module18Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "18"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 19: Visible Universe History
-  if (activeLessonModule && activeLessonModule.id === "19") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module19Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "19"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 20: The Future of the Universe
-  if (activeLessonModule && activeLessonModule.id === "20") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module20Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "20"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 21: Telescopes & How We Discover Space
-  if (activeLessonModule && activeLessonModule.id === "21") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module21Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "21"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 22: Space Missions & Human Exploration
-  if (activeLessonModule && activeLessonModule.id === "22") {
     return (
       <div
         className={`min-h-screen bg-slate-950 text-slate-100 ${
@@ -898,92 +310,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module22Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "22"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 23: Life Beyond Earth & Astrobiology
-  if (activeLessonModule && activeLessonModule.id === "23") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${
-          settings.fontSize === "large" ? "text-base" : "text-sm"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module23Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-            nextRecommended={
-              primaryRecommendation && primaryRecommendation.module.id !== "23"
-                ? {
-                    module: primaryRecommendation.module,
-                    reason: primaryRecommendation.reason,
-                  }
-                : undefined
-            }
-            onSelectNextModule={(mod) => {
-              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
-                setActiveLessonModule(mod);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                setActiveLessonModule(null);
-                setPreviewModule(mod);
-              }
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  // If viewing Module 24: Cosmic Physics Laboratory & Challenges (Capstone)
-  if (activeLessonModule && activeLessonModule.id === "24") {
-    return (
-      <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${
-          settings.fontSize === "large" ? "text-base" : "text-sm"
-        }`}
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-          <Module24Layout
-            module={activeLessonModule}
-            progress={progress}
-            onSetLearningLevel={setLearningLevel}
-            onUpdateModuleProgress={setModuleProgress}
-            onRecordQuiz={recordQuizResult}
-            onBackToMap={() => setActiveLessonModule(null)}
-          />
+          <Suspense fallback={<ModuleLoadingFallback title={activeLessonModule.title} />}>
+            {renderActiveModule(activeLessonModule.id, layoutProps)}
+          </Suspense>
         </div>
       </div>
     );

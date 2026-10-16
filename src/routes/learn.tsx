@@ -8,6 +8,7 @@ interface LearnSearchParams {
 }
 
 export const Route = createFileRoute("/learn")({
+  ssr: false,
   validateSearch: (search: Record<string, unknown>): LearnSearchParams => ({
     module: typeof search.module === "string" ? search.module : undefined,
   }),
