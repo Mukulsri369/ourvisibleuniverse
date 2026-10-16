@@ -115,6 +115,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Mastered the Hubble–Lemaître Law, cosmological redshift wave-stretching, and cosmic horizons.",
     icon: "🔭",
   },
+  {
+    id: "cosmological_historian",
+    title: "Cosmological Historian",
+    description:
+      "Explored how human cosmology evolved from geocentric epicycles to heliocentrism, universal gravitation, and the relativistic expanding cosmos.",
+    icon: "📜",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -245,8 +252,14 @@ export function useAcademyProgress() {
           if (moduleId === "16" && !newAchievements.includes("dark_sector_explorer")) {
             newAchievements.push("dark_sector_explorer");
           }
-          if (moduleId === "19" && !newAchievements.includes("time_traveler")) {
-            newAchievements.push("time_traveler");
+          if (moduleId === "17" && !newAchievements.includes("cosmic_time_traveler")) {
+            newAchievements.push("cosmic_time_traveler");
+          }
+          if (moduleId === "18" && !newAchievements.includes("cosmic_expansion_observer")) {
+            newAchievements.push("cosmic_expansion_observer");
+          }
+          if (moduleId === "19" && !newAchievements.includes("cosmological_historian")) {
+            newAchievements.push("cosmological_historian");
           }
         }
 

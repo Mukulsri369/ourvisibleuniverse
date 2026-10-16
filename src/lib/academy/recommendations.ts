@@ -242,9 +242,23 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["19"]?.status !== "completed") {
+    // Recommend Stage 5 Module 19: Visible Universe History
+    const mod19 = ACADEMY_MODULES.find((m) => m.id === "19");
+    if (mod19) {
+      recommendations.push({
+        module: mod19,
+        reason:
+          progress.moduleProgress["19"]?.status === "in_progress"
+            ? "Continue investigating the evolution of cosmological ideas from Ptolemaic epicycles to heliocentrism and modern space observatories."
+            : "Complete Stage 5: Discover how human understanding of the cosmos transformed across millennia in the 3D Historical Model Comparator!",
+        badge: "Historical Cosmologist",
+        priority: "primary",
+      });
+    }
   }
 
-  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17/18
+  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17/18/19
   if (module13Progress !== "completed") {
     const mod13 = ACADEMY_MODULES.find((m) => m.id === "13");
     if (mod13) {
@@ -299,7 +313,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
+  } else if (progress.moduleProgress["18"]?.status !== "completed") {
     const mod18 = ACADEMY_MODULES.find((m) => m.id === "18");
     if (mod18) {
       recommendations.push({
@@ -310,17 +324,15 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  }
-
-  // 3. Recommend Module 19 (Visible Universe History)
-  if (module19Progress !== "completed") {
+  } else if (progress.moduleProgress["19"]?.status !== "completed") {
     const mod19 = ACADEMY_MODULES.find((m) => m.id === "19");
     if (mod19) {
       recommendations.push({
         module: mod19,
-        reason: "Journey 13.8 billion years across cosmic history with real redshift timelines.",
-        badge: "Cosmic Epochs",
-        priority: "secondary",
+        reason:
+          "Trace humanity's quest to understand the universe: inspect 3D Ptolemaic, Copernican, and modern cosmological models in the Historical Comparator!",
+        badge: "Historical Cosmologist",
+        priority: "primary",
       });
     }
   }

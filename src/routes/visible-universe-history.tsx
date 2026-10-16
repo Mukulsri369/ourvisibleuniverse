@@ -262,6 +262,15 @@ function VisibleUniverseHistoryPage() {
               </button>
 
               <Link
+                to="/learn"
+                search={{ module: "19" }}
+                className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-950/40 px-6 py-3.5 text-sm font-semibold text-amber-200 shadow-lg shadow-amber-950/40 transition hover:bg-amber-900/50 hover:text-white"
+              >
+                <GraduationCap className="size-4 text-amber-300" />
+                <span>Cosmic Academy: Module 19</span>
+              </Link>
+
+              <Link
                 to="/universe"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
