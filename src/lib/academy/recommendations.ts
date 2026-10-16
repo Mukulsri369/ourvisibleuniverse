@@ -251,8 +251,22 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           progress.moduleProgress["19"]?.status === "in_progress"
             ? "Continue investigating the evolution of cosmological ideas from Ptolemaic epicycles to heliocentrism and modern space observatories."
-            : "Complete Stage 5: Discover how human understanding of the cosmos transformed across millennia in the 3D Historical Model Comparator!",
+            : "Discover how human understanding of the cosmos transformed across millennia in the 3D Historical Model Comparator!",
         badge: "Historical Cosmologist",
+        priority: "primary",
+      });
+    }
+  } else if (progress.moduleProgress["20"]?.status !== "completed") {
+    // Recommend Stage 5 Module 20: The Future of the Universe
+    const mod20 = ACADEMY_MODULES.find((m) => m.id === "20");
+    if (mod20) {
+      recommendations.push({
+        module: mod20,
+        reason:
+          progress.moduleProgress["20"]?.status === "in_progress"
+            ? "Continue journeying into deep cosmic time: explore the Sun's evolution, the Milkomeda merger, and cosmic Heat Death in the Future Chronology Lab."
+            : "Complete Stage 5: Journey into deep cosmic time across logarithmic eons—from the Sun's red giant phase and Milkomeda to the Degenerate Era, Heat Death, and ultimate cosmic fates!",
+        badge: "Cosmic Deep Time",
         priority: "primary",
       });
     }
@@ -332,6 +346,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Trace humanity's quest to understand the universe: inspect 3D Ptolemaic, Copernican, and modern cosmological models in the Historical Comparator!",
         badge: "Historical Cosmologist",
+        priority: "primary",
+      });
+    }
+  } else if (progress.moduleProgress["20"]?.status !== "completed") {
+    const mod20 = ACADEMY_MODULES.find((m) => m.id === "20");
+    if (mod20) {
+      recommendations.push({
+        module: mod20,
+        reason:
+          "Ascend to the cosmic finale: explore stellar evolution, the Milkomeda merger, the Degenerate Era, and Heat Death in the Future Chronology Lab!",
+        badge: "Cosmic Deep Time",
         priority: "primary",
       });
     }

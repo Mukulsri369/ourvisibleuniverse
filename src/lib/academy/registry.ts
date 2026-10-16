@@ -865,33 +865,62 @@ export const ACADEMY_MODULES: ModuleContract[] = [
     slug: "the-future-of-the-universe",
     number: 20,
     title: "The Future of the Universe",
-    subtitle: "From the Stelliferous Era to the Heat Death and Big Freeze",
+    subtitle:
+      "From stellar evolution and Milkomeda to the Degenerate Era, Heat Death, and cosmic fate",
     description:
-      "Contemplate astronomical time scales spanning trillions of years as stars exhaust their fuel into the cosmic night.",
+      "Journey across logarithmic timescales into deep cosmic time: explore the Sun's post-main-sequence evolution, the collision of galaxies, declining star formation, the 5 physical eras of Adams & Laughlin, and the thermodynamic fate of spacetime.",
     stageId: 5,
     recommendedOrder: 20,
-    difficultyLevels: ["Advanced"],
+    difficultyLevels: ["Beginner", "Intermediate", "Advanced"],
     learningObjectives: [
-      "Delineate the 5 cosmological eras of Fred Adams and Gregory Laughlin",
-      "Explore the degenerate era, black hole era, and final dark era",
-      "Discuss modern hypotheses on the ultimate fate of spacetime",
+      "Trace the Sun's modeled evolutionary stages from hydrogen exhaustion to red giant, helium flash, and white dwarf",
+      "Analyze the long-term future of Earth, ocean desiccation, and the debate over orbital expansion vs tidal engulfment",
+      "Simulate the dynamic coalescence of the Milky Way and Andromeda ('Milkomeda') and understand why stars rarely collide",
+      "Relate stellar mass to main-sequence lifetime (t_ms ∝ M^(-2.5)) and observe the extinction sequence of stellar populations",
+      "Interpret the Madau-Dickinson curve and the decline of cosmic star formation rates from Cosmic Noon to the end of starbursts",
+      "Delineate the 5 cosmological eras of Adams & Laughlin: Stelliferous, Degenerate, Black Hole, and Dark Era",
+      "Apply the Second Law of Thermodynamics (dS ≥ 0) and Helmholtz free energy to the concept of cosmic Heat Death",
+      "Compare how dark energy equation of state w = P/ρ dictates cosmic destiny (Big Freeze vs Big Rip vs Big Crunch)",
     ],
-    prerequisites: ["17", "18"],
+    prerequisites: ["17", "18", "19"],
     route: "/learn?module=20",
-    estimatedMinutes: 20,
+    estimatedMinutes: 28,
     visualAssets: {
-      iconName: "Hourglass",
-      badgeColor: "bg-slate-500/10 text-slate-300 border-slate-500/30",
+      iconName: "Clock",
+      badgeColor: "bg-purple-500/10 text-purple-400 border-purple-500/30",
     },
     scientificSources: [
       {
-        title: "Ultimate Fate of the Universe",
-        organization: "Wikipedia",
-        url: "https://en.wikipedia.org/wiki/Ultimate_fate_of_the_universe",
+        title: "A Dying Universe: The Long-Term Fate and Evolution of Astrophysical Objects",
+        organization:
+          "Fred C. Adams & Gregory Laughlin / Reviews of Modern Physics (Rev. Mod. Phys. 69, 337)",
+        url: "https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.69.337",
+      },
+      {
+        title: "Our Sun. III. Present and Future",
+        organization:
+          "I.-J. Sackmann, A. I. Boothroyd & K. E. Kraemer / The Astrophysical Journal (ApJ 418, 457)",
+        url: "https://ui.adsabs.harvard.edu/abs/1993ApJ...418..457S",
+      },
+      {
+        title: "Distant Future of the Sun and Earth Revisited",
+        organization: "K.-P. Schröder & Robert Connon Smith / MNRAS (MNRAS 386, 155)",
+        url: "https://academic.oup.com/mnras/article/386/1/155/1466396",
+      },
+      {
+        title: "The M31 Velocity Vector: Orbital Evolution and Collision with the Milky Way",
+        organization: "R. P. van der Marel et al. / The Astrophysical Journal (ApJ 753, 9)",
+        url: "https://iopscience.iop.org/article/10.1088/0004-637X/753/1/9",
+      },
+      {
+        title: "Phantom Energy and Cosmic Doomsday (The Big Rip)",
+        organization:
+          "R. R. Caldwell, M. Kamionkowski & N. N. Weinberg / Physical Review Letters (PRL 91, 071301)",
+        url: "https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.91.071301",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
 
   // STAGE 6: BECOME A SPACE SCIENTIST
