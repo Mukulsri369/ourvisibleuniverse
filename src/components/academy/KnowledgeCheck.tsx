@@ -6,10 +6,17 @@ import { Button } from "@/components/ui/button";
 interface KnowledgeCheckProps {
   quizId: string;
   questions: QuizQuestion[];
-  onCompleteQuiz: (score: number, total: number) => void;
+  onCompleteQuiz?: (score: number, total: number) => void;
+  onComplete?: (score: number, total: number) => void;
+  currentLevel?: string;
 }
 
-export function KnowledgeCheck({ quizId, questions, onCompleteQuiz }: KnowledgeCheckProps) {
+export function KnowledgeCheck({
+  quizId,
+  questions,
+  onCompleteQuiz,
+  onComplete,
+}: KnowledgeCheckProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -34,7 +41,10 @@ export function KnowledgeCheck({ quizId, questions, onCompleteQuiz }: KnowledgeC
   const handleSubmit = () => {
     setSubmitted(true);
     const score = calculateScore();
-    onCompleteQuiz(score, questions.length);
+    const callback = onCompleteQuiz || onComplete;
+    if (callback) {
+      callback(score, questions.length);
+    }
   };
 
   const handleRetry = () => {

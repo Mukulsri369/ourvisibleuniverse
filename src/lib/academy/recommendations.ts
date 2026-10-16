@@ -284,6 +284,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["22"]?.status !== "completed") {
+    // Recommend Stage 6 Module 22: Space Missions & Human Exploration
+    const mod22 = ACADEMY_MODULES.find((m) => m.id === "22");
+    if (mod22) {
+      recommendations.push({
+        module: mod22,
+        reason:
+          progress.moduleProgress["22"]?.status === "in_progress"
+            ? "Continue exploring the Spaceflight Museum: inspect 3D spacecraft, simulate gravity assist slingshots, and plan Mars transfers!"
+            : "Launch into Stage 6 Space Missions: Inspect 3D procedural spacecraft models, chart interplanetary trajectories, and command mission architectures!",
+        badge: "Flight Director",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17/18/19
@@ -382,6 +396,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Command the Virtual Astronomy Observatory: explore aperture physics, multi-wavelength imaging, and astronomical spectroscopy!",
         badge: "Virtual Astronomer",
+        priority: "primary",
+      });
+    }
+  } else if (progress.moduleProgress["22"]?.status !== "completed") {
+    const mod22 = ACADEMY_MODULES.find((m) => m.id === "22");
+    if (mod22) {
+      recommendations.push({
+        module: mod22,
+        reason:
+          "Relive humanity's greatest adventures: Apollo, Voyagers, Mars rovers, Chandrayaan-3, and deep space mission design!",
+        badge: "Flight Director",
         priority: "primary",
       });
     }

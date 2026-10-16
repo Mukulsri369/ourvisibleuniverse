@@ -30,6 +30,7 @@ import { Module18Layout } from "./Module18Layout";
 import { Module19Layout } from "./Module19Layout";
 import { Module20Layout } from "./Module20Layout";
 import { Module21Layout } from "./Module21Layout";
+import { Module22Layout } from "./Module22Layout";
 import { Link, useNavigate } from "@tanstack/react-router";
 
 const ACTIVE_MODULE_IDS = [
@@ -52,6 +53,7 @@ const ACTIVE_MODULE_IDS = [
   "19",
   "20",
   "21",
+  "22",
 ];
 import {
   Sparkles,
@@ -853,6 +855,45 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             onBackToMap={() => setActiveLessonModule(null)}
             nextRecommended={
               primaryRecommendation && primaryRecommendation.module.id !== "21"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 22: Space Missions & Human Exploration
+  if (activeLessonModule && activeLessonModule.id === "22") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${
+          settings.fontSize === "large" ? "text-base" : "text-sm"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module22Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "22"
                 ? {
                     module: primaryRecommendation.module,
                     reason: primaryRecommendation.reason,
