@@ -214,9 +214,23 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["17"]?.status !== "completed") {
+    // Recommend Stage 5 Module 17: Big Bang & Cosmic Evolution
+    const mod17 = ACADEMY_MODULES.find((m) => m.id === "17");
+    if (mod17) {
+      recommendations.push({
+        module: mod17,
+        reason:
+          progress.moduleProgress["17"]?.status === "in_progress"
+            ? "Continue your journey through 13.8 billion years of cosmic evolution in the Cosmic Time Machine."
+            : "Step into Stage 5: Journey from the Planck era and BBN to the Cosmic Microwave Background, the Dark Ages, and the birth of first stars in the Cosmic Time Machine!",
+        badge: "Cosmic Time Machine",
+        priority: "primary",
+      });
+    }
   }
 
-  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16
+  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17
   if (module13Progress !== "completed") {
     const mod13 = ACADEMY_MODULES.find((m) => m.id === "13");
     if (mod13) {
@@ -249,7 +263,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
+  } else if (progress.moduleProgress["16"]?.status !== "completed") {
     const mod16 = ACADEMY_MODULES.find((m) => m.id === "16");
     if (mod16) {
       recommendations.push({
@@ -257,6 +271,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Decode the 95% invisible cosmos: simulate galaxy rotation curves with dark halos and track the cosmic acceleration driving our universe's destiny!",
         badge: "Dark Sector Lab",
+        priority: "primary",
+      });
+    }
+  } else {
+    const mod17 = ACADEMY_MODULES.find((m) => m.id === "17");
+    if (mod17) {
+      recommendations.push({
+        module: mod17,
+        reason:
+          "Ascend to Stage 5: Explore the full 13.8 billion year history of cosmic evolution, from primordial nucleosynthesis and the CMB to the first stars!",
+        badge: "Cosmic Chronology",
         priority: "primary",
       });
     }

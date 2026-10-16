@@ -101,6 +101,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Decoded galactic rotation curves, dark matter halo profiles, and cosmic expansion acceleration.",
     icon: "🔮",
   },
+  {
+    id: "cosmic_time_traveler",
+    title: "Cosmic Chronologist",
+    description:
+      "Traced 13.8 billion years of cosmic evolution from the Big Bang through the CMB, Cosmic Dawn, and galaxy formation.",
+    icon: "⏳",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -120,6 +127,7 @@ const DEFAULT_PROGRESS: UserProgress = {
     "14": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "15": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "16": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "17": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "19": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
   },
   completedLessons: [],
