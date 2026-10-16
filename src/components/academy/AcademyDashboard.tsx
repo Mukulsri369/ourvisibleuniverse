@@ -25,6 +25,7 @@ import { Module14Layout } from "./Module14Layout";
 import { Module15Layout } from "./Module15Layout";
 import { Module16Layout } from "./Module16Layout";
 import { Module17Layout } from "./Module17Layout";
+import { Module18Layout } from "./Module18Layout";
 import { Link, useNavigate } from "@tanstack/react-router";
 
 const ACTIVE_MODULE_IDS = [
@@ -42,6 +43,7 @@ const ACTIVE_MODULE_IDS = [
   "15",
   "16",
   "17",
+  "18",
 ];
 import {
   Sparkles,
@@ -658,6 +660,43 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             onBackToMap={() => setActiveLessonModule(null)}
             nextRecommended={
               primaryRecommendation && primaryRecommendation.module.id !== "17"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 18: The Expanding Universe
+  if (activeLessonModule && activeLessonModule.id === "18") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module18Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "18"
                 ? {
                     module: primaryRecommendation.module,
                     reason: primaryRecommendation.reason,

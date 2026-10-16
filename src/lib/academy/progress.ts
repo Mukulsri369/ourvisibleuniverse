@@ -108,6 +108,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Traced 13.8 billion years of cosmic evolution from the Big Bang through the CMB, Cosmic Dawn, and galaxy formation.",
     icon: "⏳",
   },
+  {
+    id: "cosmic_expansion_observer",
+    title: "Cosmic Surveyor",
+    description:
+      "Mastered the Hubble–Lemaître Law, cosmological redshift wave-stretching, and cosmic horizons.",
+    icon: "🔭",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -128,6 +135,7 @@ const DEFAULT_PROGRESS: UserProgress = {
     "15": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "16": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "17": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "18": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "19": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
   },
   completedLessons: [],

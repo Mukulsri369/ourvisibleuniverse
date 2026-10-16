@@ -228,9 +228,23 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["18"]?.status !== "completed") {
+    // Recommend Stage 5 Module 18: The Expanding Universe
+    const mod18 = ACADEMY_MODULES.find((m) => m.id === "18");
+    if (mod18) {
+      recommendations.push({
+        module: mod18,
+        reason:
+          progress.moduleProgress["18"]?.status === "in_progress"
+            ? "Continue exploring the Hubble–Lemaître expansion, wavelength stretching, and cosmological horizons."
+            : "Investigate cosmic metric expansion: observe receding galaxies, stretch light wavelengths, and explore why bound systems stay intact in the 3D Expansion Observatory!",
+        badge: "Cosmic Expansion Observatory",
+        priority: "primary",
+      });
+    }
   }
 
-  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17
+  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17/18
   if (module13Progress !== "completed") {
     const mod13 = ACADEMY_MODULES.find((m) => m.id === "13");
     if (mod13) {
@@ -274,7 +288,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
+  } else if (progress.moduleProgress["17"]?.status !== "completed") {
     const mod17 = ACADEMY_MODULES.find((m) => m.id === "17");
     if (mod17) {
       recommendations.push({
@@ -282,6 +296,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Ascend to Stage 5: Explore the full 13.8 billion year history of cosmic evolution, from primordial nucleosynthesis and the CMB to the first stars!",
         badge: "Cosmic Chronology",
+        priority: "primary",
+      });
+    }
+  } else {
+    const mod18 = ACADEMY_MODULES.find((m) => m.id === "18");
+    if (mod18) {
+      recommendations.push({
+        module: mod18,
+        reason:
+          "Master the Hubble–Lemaître Law, cosmological redshift, lookback times, and the true meaning of cosmic horizons in the 3D Expansion Observatory!",
+        badge: "Cosmic Surveyor",
         priority: "primary",
       });
     }
