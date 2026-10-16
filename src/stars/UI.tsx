@@ -1,7 +1,7 @@
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Compass, Telescope } from "lucide-react";
+import { Compass, Telescope, Orbit } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
@@ -13,6 +13,7 @@ import { exoSystemFor } from "./exosystems";
 import { scaleManager } from "@/lib/astronomy/scale-manager";
 import { GaiaAtlasPanel } from "./GaiaAtlasPanel";
 import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
+import { SolarSystemController } from "./SolarSystemController";
 
 export function InfoPanel() {
   const star = useStore((s) => s.selectedStar);
@@ -347,6 +348,7 @@ export function TopLeftControls() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [gaiaAtlasOpen, setGaiaAtlasOpen] = useState(false);
+  const [solarControllerOpen, setSolarControllerOpen] = useState(false);
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -367,6 +369,13 @@ export function TopLeftControls() {
         <span className="font-mono text-[10px] font-bold tracking-tight">
           {scaleMode === "true_scale" ? "1:1" : "VIS"}
         </span>
+      </IconButton>
+      <IconButton
+        title="NASA JPL Horizons Solar System Time, Ephemerides & Dynamics"
+        onClick={() => setSolarControllerOpen((v) => !v)}
+        active={solarControllerOpen}
+      >
+        <Orbit className="h-4 w-4 text-emerald-400" />
       </IconButton>
       <IconButton
         title="ESA Gaia DR3 Star Atlas, Proper Motion & Benchmarks"
@@ -434,6 +443,10 @@ export function TopLeftControls() {
           <path d="M12 17h.01" />
         </svg>
       </IconButton>
+      <SolarSystemController
+        open={solarControllerOpen}
+        onClose={() => setSolarControllerOpen(false)}
+      />
       <GaiaAtlasPanel open={gaiaAtlasOpen} onClose={() => setGaiaAtlasOpen(false)} />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />

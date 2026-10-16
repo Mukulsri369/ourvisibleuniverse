@@ -122,6 +122,27 @@ interface State {
   setZoomSpeed: (n: number) => void;
   setSystemSpeed: (n: number) => void;
   setTrailSize: (n: number) => void;
+  // NASA JPL Horizons Solar System enhancements
+  showOrbits: boolean;
+  showVelocityVectors: boolean;
+  showLagrangePoints: boolean;
+  showBarycenterMarkers: boolean;
+  showInterplanetaryDistances: boolean;
+  distanceTargetPlanet: string;
+  showResonanceOverlay: boolean;
+  planetVisibilityMagnification: number;
+  showGalacticDrift: boolean;
+  ephemerisModel: "horizons_de440" | "analytical_osculating";
+  toggleOrbits: () => void;
+  toggleVelocityVectors: () => void;
+  toggleLagrangePoints: () => void;
+  toggleBarycenterMarkers: () => void;
+  toggleInterplanetaryDistances: () => void;
+  setDistanceTargetPlanet: (name: string) => void;
+  toggleResonanceOverlay: () => void;
+  setPlanetVisibilityMagnification: (n: number) => void;
+  toggleGalacticDrift: () => void;
+  setEphemerisModel: (model: "horizons_de440" | "analytical_osculating") => void;
 }
 
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
@@ -196,6 +217,16 @@ export const useStore = create<State>((set, get) => ({
   starLODTier: "standard",
   showSkyDirectionLayer: true,
   showProceduralStars: true,
+  showOrbits: true,
+  showVelocityVectors: false,
+  showLagrangePoints: false,
+  showBarycenterMarkers: false,
+  showInterplanetaryDistances: false,
+  distanceTargetPlanet: "Mars",
+  showResonanceOverlay: false,
+  planetVisibilityMagnification: 1.0,
+  showGalacticDrift: true,
+  ephemerisModel: "horizons_de440",
   setScaleMode: (mode) => set({ scaleMode: mode }),
   toggleScaleMode: () =>
     set((st) => ({ scaleMode: st.scaleMode === "enhanced" ? "true_scale" : "enhanced" })),
@@ -288,4 +319,16 @@ export const useStore = create<State>((set, get) => ({
   setZoomSpeed: (n) => set({ zoomSpeed: n }),
   setSystemSpeed: (n) => set({ systemSpeed: n }),
   setTrailSize: (n) => set({ trailSize: n }),
+  toggleOrbits: () => set((st) => ({ showOrbits: !st.showOrbits })),
+  toggleVelocityVectors: () => set((st) => ({ showVelocityVectors: !st.showVelocityVectors })),
+  toggleLagrangePoints: () => set((st) => ({ showLagrangePoints: !st.showLagrangePoints })),
+  toggleBarycenterMarkers: () =>
+    set((st) => ({ showBarycenterMarkers: !st.showBarycenterMarkers })),
+  toggleInterplanetaryDistances: () =>
+    set((st) => ({ showInterplanetaryDistances: !st.showInterplanetaryDistances })),
+  setDistanceTargetPlanet: (name) => set({ distanceTargetPlanet: name }),
+  toggleResonanceOverlay: () => set((st) => ({ showResonanceOverlay: !st.showResonanceOverlay })),
+  setPlanetVisibilityMagnification: (n) => set({ planetVisibilityMagnification: n }),
+  toggleGalacticDrift: () => set((st) => ({ showGalacticDrift: !st.showGalacticDrift })),
+  setEphemerisModel: (model) => set({ ephemerisModel: model }),
 }));

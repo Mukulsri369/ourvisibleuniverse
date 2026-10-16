@@ -2,6 +2,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AU, MOON_DAYS, PLANETS, REAL_ORBITS } from "./Planets";
 import { useStore } from "./store";
+import { getSimulationDate, getSimulationJd } from "./sim-clock";
+import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
+import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
 
 const fmtDays = (d: number) =>
   Math.abs(d) < 2
@@ -23,6 +26,30 @@ export function SolarBodyPanel() {
   const orbit = REAL_ORBITS[planet.name];
   const title = moon ? moon.name : planet.name;
   const md = moon ? MOON_DAYS[moon.name] : undefined;
+
+  // Authoritative physical data from JPL
+  const planetPhys = JPL_PLANETS_PHYSICAL[planet.name];
+  const moonPhys = planetPhys?.moons.find((m) => m.name === moonName);
+
+  // Live ephemeris state
+  const jd = getSimulationJd();
+  let state = null;
+  try {
+    state = jplEphemerisManager.getPlanetState(planet.name, jd);
+  } catch {
+    /* fallback */
+  }
+
+  // Interplanetary distance to Earth
+  let earthDist = null;
+  if (!moon && planet.name !== "Earth") {
+    try {
+      earthDist = jplEphemerisManager.computeDistance("Earth", planet.name, jd);
+    } catch {
+      /* fallback */
+    }
+  }
+
   return (
     <AnimatePresence>
       <HideablePanel resetKey={visit} label={title}>
@@ -33,9 +60,9 @@ export function SolarBodyPanel() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 400, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="fixed right-0 top-0 z-30 h-full w-full max-w-[380px] overflow-y-auto border-l border-white/10 p-7 text-white"
+            className="fixed right-0 top-0 z-30 h-full w-full max-w-[390px] overflow-y-auto border-l border-white/10 p-7 text-white"
             style={{
-              background: "rgba(8,10,24,0.78)",
+              background: "rgba(8,10,24,0.85)",
               backdropFilter: "blur(18px)",
               WebkitBackdropFilter: "blur(18px)",
             }}
@@ -48,46 +75,147 @@ export function SolarBodyPanel() {
             >
               ✕
             </button>
-            <div className="text-xs uppercase tracking-[0.25em] text-white/40">
-              {moon ? `Moon of ${planet.name}` : "Solar System planet"}
+
+            {/* Provenance badge */}
+            <div className="flex items-center gap-2">
+              <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+                NASA JPL DE440
+              </span>
+              <span className="text-[11px] text-white/40">
+                {moon ? `Moon of ${planet.name}` : `${planetPhys?.type ?? "planet"} world`}
+              </span>
             </div>
+
             <h2 className="mt-2 text-3xl font-light">{title}</h2>
+
             <NasaResources name={title} query={moon ? `${moon.name} moon` : planet.name} />
-            {!moon && (
-              <p className="mt-3 text-sm leading-relaxed text-white/70">{planet.description}</p>
+
+            <p className="mt-3 text-sm leading-relaxed text-white/70">
+              {moon
+                ? (moonPhys?.description ?? "Natural satellite")
+                : (planetPhys?.description ?? planet.description)}
+            </p>
+
+            {/* Dynamic Ephemeris State Vectors */}
+            {state && (
+              <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
+                <div className="text-[10px] uppercase tracking-wider text-emerald-400 font-medium">
+                  Instantaneous Ephemeris State (JPL)
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-white/40">Sun Distance:</span>{" "}
+                    <span className="font-mono text-white/90">
+                      {state.distanceSunAu.toFixed(3)} AU
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-white/40">Orbital Speed:</span>{" "}
+                    <span className="font-mono text-white/90">
+                      {state.speedKmS.toFixed(2)} km/s
+                    </span>
+                  </div>
+                  {earthDist && (
+                    <div className="col-span-2">
+                      <span className="text-white/40">Earth Distance:</span>{" "}
+                      <span className="font-mono text-cyan-300">
+                        {earthDist.distanceAu.toFixed(3)} AU ({earthDist.lightTravelTimeFormatted})
+                      </span>
+                    </div>
+                  )}
+                  <div className="col-span-2 text-[10px] text-white/40">
+                    Barycentric: X: {state.xAu.toFixed(3)} · Y: {state.yAu.toFixed(3)} · Z:{" "}
+                    {state.zAu.toFixed(3)} AU
+                  </div>
+                </div>
+              </div>
             )}
-            <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+
+            {/* Scientific Physical Properties */}
+            <div className="mt-5 grid grid-cols-2 gap-2.5 text-sm">
               {moon ? (
                 <>
                   <Stat label="Orbits" value={planet.name} />
-                  {md !== undefined && <Stat label="Orbital period" value={fmtDays(md)} />}
-                  {md !== undefined && (
-                    <Stat label="Direction" value={md < 0 ? "Retrograde" : "Prograde"} />
-                  )}
+                  <Stat
+                    label="Orbital Period"
+                    value={fmtDays(moonPhys?.orbitalPeriodDays ?? md ?? 0)}
+                  />
+                  <Stat
+                    label="Direction"
+                    value={
+                      (moonPhys?.orbitalPeriodDays ?? md ?? 1) < 0 ? "Retrograde ↺" : "Prograde ↻"
+                    }
+                  />
+                  <Stat
+                    label="Inclination (Laplace)"
+                    value={`${(moonPhys?.inclinationDeg ?? ((moon.inclination ?? 0) * 180) / Math.PI).toFixed(2)}°`}
+                  />
+                  <Stat
+                    label="Mean Radius"
+                    value={moonPhys ? `${moonPhys.radiusKm.toFixed(1)} km` : "N/A"}
+                  />
+                  <Stat
+                    label="Orbit Semi-Major"
+                    value={moonPhys ? `${(moonPhys.semiMajorAxisKm / 1e3).toFixed(1)}k km` : "N/A"}
+                  />
+                  <Stat
+                    label="Tidal Locking"
+                    value={moonPhys?.tidallyLocked ? "1:1 Synchronous" : "Asynchronous"}
+                  />
                 </>
               ) : (
                 <>
-                  <Stat label="Distance" value={`${(planet.a / AU).toFixed(2)} AU`} />
-                  <Stat label="Eccentricity" value={planet.e.toFixed(4)} />
-                  {orbit && <Stat label="Year" value={fmtDays(orbit.years * 365.25)} />}
-                  {orbit && (
-                    <Stat
-                      label="Day (sidereal)"
-                      value={`${fmtDays(orbit.rotH / 24)}${orbit.rotH < 0 ? " retro." : ""}`}
-                    />
-                  )}
                   <Stat
-                    label="Axial tilt"
-                    value={`${((planet.tilt * 180) / Math.PI).toFixed(1)}°`}
+                    label="Mean Radius"
+                    value={planetPhys ? `${planetPhys.radiusKm.toLocaleString()} km` : "N/A"}
                   />
-                  <Stat label="Moons shown" value={`${planet.moons?.length ?? 0}`} />
+                  <Stat label="Semi-Major Axis" value={`${(planet.a / AU).toFixed(3)} AU`} />
+                  <Stat label="Eccentricity" value={planet.e.toFixed(4)} />
+                  <Stat
+                    label="Orbital Period"
+                    value={orbit ? fmtDays(orbit.years * 365.25) : "N/A"}
+                  />
+                  <Stat
+                    label="Sidereal Day"
+                    value={
+                      planetPhys
+                        ? `${fmtDays(planetPhys.siderealRotationHours / 24)}${planetPhys.siderealRotationHours < 0 ? " (retro)" : ""}`
+                        : "N/A"
+                    }
+                  />
+                  <Stat
+                    label="Axial Tilt (Obliquity)"
+                    value={
+                      planetPhys
+                        ? `${planetPhys.axialTiltDeg.toFixed(2)}°`
+                        : `${((planet.tilt * 180) / Math.PI).toFixed(1)}°`
+                    }
+                  />
+                  <Stat
+                    label="Surface Gravity"
+                    value={planetPhys ? `${planetPhys.surfaceGravityMS2.toFixed(2)} m/s²` : "N/A"}
+                  />
+                  <Stat
+                    label="Escape Velocity"
+                    value={planetPhys ? `${planetPhys.escapeVelocityKmS.toFixed(1)} km/s` : "N/A"}
+                  />
+                  <Stat
+                    label="Rings Architecture"
+                    value={planetPhys?.rings ? planetPhys.rings.features[0] : "None"}
+                  />
+                  <Stat
+                    label="Moons System"
+                    value={`${planetPhys?.moons.length ?? planet.moons?.length ?? 0} shown`}
+                  />
                 </>
               )}
             </div>
+
+            {/* Moon selector */}
             {!moon && planet.moons?.length ? (
               <div className="mt-5">
                 <div className="text-[10px] uppercase tracking-wider text-white/40">
-                  Visit a moon
+                  Visit Moons
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {planet.moons.map((m) => (
@@ -102,10 +230,19 @@ export function SolarBodyPanel() {
                 </div>
               </div>
             ) : null}
-            <p className="mt-5 text-[11px] leading-relaxed text-white/40">
-              Positions are computed for today's date from real orbital elements; speeds use real
-              orbital and rotation periods.
-            </p>
+
+            {/* NASA Outbound Link */}
+            <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+              <a
+                href={`https://ssd.jpl.nasa.gov/horizons/app.html#/`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2 text-[11px]"
+              >
+                View in NASA JPL Horizons Database ↗
+              </a>
+              <span className="text-[10px] text-white/40">DE440 Standard</span>
+            </div>
           </motion.aside>
         )}
       </HideablePanel>
@@ -117,7 +254,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-white/10 bg-white/5 p-2.5">
       <div className="text-[10px] uppercase tracking-wider text-white/40">{label}</div>
-      <div className="mt-0.5 text-white/90">{value}</div>
+      <div className="mt-0.5 text-white/90 font-medium text-xs truncate">{value}</div>
     </div>
   );
 }

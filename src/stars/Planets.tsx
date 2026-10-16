@@ -2,7 +2,11 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
-import { simTimeDays, simTimeYears, tickSim } from "./sim-clock";
+import { getSimulationJd, simTimeDays, simTimeYears, tickSim } from "./sim-clock";
+import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
+import { computeMoonRelativeState } from "@/lib/astronomy/jpl/horizons-ephemeris";
+import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
+import { SolarSystemOverlays } from "./SolarSystemOverlays";
 
 // Real orbital elements (relative). We scale semi-major axis (a) so the
 // entire Solar System fits realistically in the star field:
@@ -696,8 +700,9 @@ function Planet({ def }: { def: PlanetDef }) {
   );
 
   const scaleMode = useStore((s) => s.scaleMode);
+  const planetVisibilityMagnification = useStore((s) => s.planetVisibilityMagnification);
   const effectiveA = getPlanetEffectiveA(def, scaleMode);
-  const effectiveSize = getPlanetEffectiveSize(def, scaleMode);
+  const effectiveSize = getPlanetEffectiveSize(def, scaleMode) * planetVisibilityMagnification;
   const sizeRatio = effectiveSize / def.size;
 
   useEffect(() => {
@@ -708,8 +713,19 @@ function Planet({ def }: { def: PlanetDef }) {
   useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
     const t = clock.elapsedTime;
-    const p = keplerPosition(def, phase, t, effectiveA);
+    const jd = getSimulationJd();
+    const auScale = scaleMode === "true_scale" ? scaleManager.getRenderAU("true_scale") : AU;
+
+    // NASA JPL Horizons DE440 state vector
+    let p: THREE.Vector3;
+    try {
+      const state = jplEphemerisManager.getPlanetState(def.name, jd);
+      p = new THREE.Vector3(state.xAu * auScale, state.zAu * auScale, state.yAu * auScale);
+    } catch {
+      p = keplerPosition(def, phase, t, effectiveA);
+    }
     groupRef.current.position.copy(p);
+
     if (bodyRef.current) {
       const rot = REAL_ORBITS[def.name];
       bodyRef.current.rotation.y = rot
@@ -1149,28 +1165,41 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const ref = useRef<THREE.Group>(null!);
   const phase = useMemo(() => seedAngle(parent + moon.name), [parent, moon.name]);
   const tmp = useMemo(() => new THREE.Vector3(), []);
+  const mag = useStore((s) => s.planetVisibilityMagnification);
+
   useEffect(() => {
     if (!window.__exoSizes) window.__exoSizes = new Map();
-    window.__exoSizes.set(moonKey(parent, moon.name), moon.size);
-  }, [parent, moon.name, moon.size]);
+    window.__exoSizes.set(moonKey(parent, moon.name), moon.size * mag);
+  }, [parent, moon.name, moon.size, mag]);
+
   const prev = useRef<{ days: number; parent: THREE.Vector3 } | null>(null);
   const local = useMemo(() => new THREE.Vector3(), []);
   const parentPos = useMemo(() => new THREE.Vector3(), []);
+
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    const days = MOON_DAYS[moon.name];
-    const inc = moon.inclination ?? 0;
-    const angleAt = (simD: number) =>
-      days
+    const phys = JPL_PLANETS_PHYSICAL[parent]?.moons.find((m) => m.name === moon.name);
+    const inc = phys ? (phys.inclinationDeg * Math.PI) / 180 : (moon.inclination ?? 0);
+    const days = phys ? phys.orbitalPeriodDays : MOON_DAYS[moon.name];
+
+    const angleAt = (simD: number) => {
+      if (phys) {
+        const sign = days < 0 ? -1 : 1; // retrograde support (e.g. Triton)
+        return phase + sign * (simD / Math.abs(days)) * Math.PI * 2;
+      }
+      return days
         ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) +
-          (simD / days) * Math.PI * 2
+            (simD / days) * Math.PI * 2
         : phase + (clock.elapsedTime / moon.period) * Math.PI * 2;
+    };
+
     const setLocal = (out: THREE.Vector3, a: number) =>
       out.set(
         Math.cos(a) * moon.distance,
         Math.sin(a) * moon.distance * Math.sin(inc),
         Math.sin(a) * moon.distance * Math.cos(inc),
       );
+
     const nowD = simTimeDays();
     setLocal(ref.current.position, angleAt(nowD));
     ref.current.getWorldPosition(tmp);
@@ -1212,8 +1241,9 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       prev.current.parent.copy(parentPos);
     }
   });
+
   return (
-    <group ref={ref}>
+    <group ref={ref} scale={[mag, mag, mag]}>
       <mesh>
         <sphereGeometry args={[moon.size, 16, 12]} />
         <meshStandardMaterial
@@ -1230,31 +1260,32 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
 export function Planets() {
   useFrame((_, dt) => tickSim(dt), -2);
   const scaleMode = useStore((s) => s.scaleMode);
+  const showOrbits = useStore((s) => s.showOrbits);
+
   const orbits = useMemo(
     () =>
       PLANETS.map((p) => {
         const effA = getPlanetEffectiveA(p, scaleMode);
-        return makeOrbitLine(p, "#6a8cff", 0.1, effA);
+        return makeOrbitLine(p, "#6a8cff", 0.12, effA);
       }),
     [scaleMode],
   );
+
   // Tilt the entire planetary + belt system so its orbital-plane normal
-  // aligns with the Sun's galactic drift direction. The Sun then travels
-  // perpendicular to the ecliptic (edge-on through the galaxy), producing
-  // the classic "vortex" helix of real Solar System motion.
+  // aligns with the Sun's galactic drift direction.
   const quat = useMemo(() => {
     const q = new THREE.Quaternion();
     q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), SUN_DRIFT_DIR.clone().normalize());
     return q;
   }, []);
+
   return (
     <group quaternion={quat}>
-      {orbits.map((o, i) => (
-        <primitive key={`orbit-${i}`} object={o} />
-      ))}
+      {showOrbits && orbits.map((o, i) => <primitive key={`orbit-${i}`} object={o} />)}
       {PLANETS.map((p) => (
         <Planet key={p.name} def={p} />
       ))}
+      <SolarSystemOverlays />
       <MinorBodies />
     </group>
   );
@@ -1367,15 +1398,19 @@ export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, -0.42, -0.91).normalize();
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
   const tmp = useMemo(() => new THREE.Vector3(), []);
-  // Distance travelled so far — accumulated instead of derived from elapsed
-  // time so the user-controlled speed setting can change it live.
   const dist = useRef(0);
+  const showGalacticDrift = useStore((s) => s.showGalacticDrift);
+
   useFrame((_, dt) => {
     if (!ref.current) return;
-    const factor = useStore.getState().systemSpeed / 50;
-    dist.current += Math.min(dt, 0.1) * SUN_DRIFT_SPEED * factor;
-    const d = dist.current;
-    ref.current.position.set(SUN_DRIFT_DIR.x * d, SUN_DRIFT_DIR.y * d, SUN_DRIFT_DIR.z * d);
+    if (showGalacticDrift) {
+      const factor = useStore.getState().systemSpeed / 50;
+      dist.current += Math.min(dt, 0.1) * SUN_DRIFT_SPEED * factor;
+      const d = dist.current;
+      ref.current.position.set(SUN_DRIFT_DIR.x * d, SUN_DRIFT_DIR.y * d, SUN_DRIFT_DIR.z * d);
+    } else {
+      ref.current.position.set(0, 0, 0);
+    }
     // Commit the parent's new transform before planets publish their world
     // positions; otherwise close-up tracking follows the previous frame.
     ref.current.updateMatrixWorld(true);
