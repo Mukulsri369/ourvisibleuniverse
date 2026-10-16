@@ -392,10 +392,10 @@ export function computePlanetStateVector(
   // Compute osculating elements at epoch T
   let a = el.a0 + el.aDot * T;
   let e = el.e0 + el.eDot * T;
-  let I = (el.I0 + el.IDot * T) * DEG2RAD;
+  const I = (el.I0 + el.IDot * T) * DEG2RAD;
   let L = (el.L0 + el.LDot * T) * DEG2RAD;
-  let longPeri = (el.peri0 + el.periDot * T) * DEG2RAD;
-  let longNode = (el.node0 + el.nodeDot * T) * DEG2RAD;
+  const longPeri = (el.peri0 + el.periDot * T) * DEG2RAD;
+  const longNode = (el.node0 + el.nodeDot * T) * DEG2RAD;
 
   // Add outer-planet perturbation corrections if defined
   if (el.b !== undefined && el.c !== undefined && el.s !== undefined && el.f !== undefined) {
