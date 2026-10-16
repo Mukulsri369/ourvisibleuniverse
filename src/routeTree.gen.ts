@@ -16,13 +16,16 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as GalaxiesRouteImport } from './routes/galaxies'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as LearnRouteImport } from './routes/learn'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ScienceRouteImport } from './routes/science'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VisibleUniverseHistoryRouteImport } from './routes/visible-universe-history'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
@@ -64,9 +67,19 @@ const FeaturesRoute = FeaturesRouteImport.update({
   path: '/features',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalaxiesRoute = GalaxiesRouteImport.update({
+  id: '/galaxies',
+  path: '/galaxies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -97,6 +110,11 @@ const ScienceRoute = ScienceRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VisibleUniverseHistoryRoute = VisibleUniverseHistoryRouteImport.update({
+  id: '/visible-universe-history',
+  path: '/visible-universe-history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -139,13 +157,16 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/galaxies': typeof GalaxiesRoute
   '/history': typeof HistoryRoute
+  '/learn': typeof LearnRoute
   '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
+  '/visible-universe-history': typeof VisibleUniverseHistoryRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
@@ -160,13 +181,16 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/galaxies': typeof GalaxiesRoute
   '/history': typeof HistoryRoute
+  '/learn': typeof LearnRoute
   '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
+  '/visible-universe-history': typeof VisibleUniverseHistoryRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
@@ -183,13 +207,16 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
+  '/galaxies': typeof GalaxiesRoute
   '/history': typeof HistoryRoute
+  '/learn': typeof LearnRoute
   '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
+  '/visible-universe-history': typeof VisibleUniverseHistoryRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
@@ -206,13 +233,16 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/features'
+    | '/galaxies'
     | '/history'
+    | '/learn'
     | '/mcp'
     | '/pricing'
     | '/privacy'
     | '/refund-policy'
     | '/science'
     | '/terms'
+    | '/visible-universe-history'
     | '/.well-known/oauth-protected-resource'
     | '/account'
     | '/checkout'
@@ -227,13 +257,16 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/features'
+    | '/galaxies'
     | '/history'
+    | '/learn'
     | '/mcp'
     | '/pricing'
     | '/privacy'
     | '/refund-policy'
     | '/science'
     | '/terms'
+    | '/visible-universe-history'
     | '/.well-known/oauth-protected-resource'
     | '/account'
     | '/checkout'
@@ -249,13 +282,16 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/features'
+    | '/galaxies'
     | '/history'
+    | '/learn'
     | '/mcp'
     | '/pricing'
     | '/privacy'
     | '/refund-policy'
     | '/science'
     | '/terms'
+    | '/visible-universe-history'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/account'
     | '/_authenticated/checkout'
@@ -272,13 +308,16 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
+  GalaxiesRoute: typeof GalaxiesRoute
   HistoryRoute: typeof HistoryRoute
+  LearnRoute: typeof LearnRoute
   McpRoute: typeof McpRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ScienceRoute: typeof ScienceRoute
   TermsRoute: typeof TermsRoute
+  VisibleUniverseHistoryRoute: typeof VisibleUniverseHistoryRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicPaymentsRazorpayRoute: typeof ApiPublicPaymentsRazorpayRoute
@@ -335,11 +374,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galaxies': {
+      id: '/galaxies'
+      path: '/galaxies'
+      fullPath: '/galaxies'
+      preLoaderRoute: typeof GalaxiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history': {
       id: '/history'
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -382,6 +435,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visible-universe-history': {
+      id: '/visible-universe-history'
+      path: '/visible-universe-history'
+      fullPath: '/visible-universe-history'
+      preLoaderRoute: typeof VisibleUniverseHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource': {
@@ -452,13 +512,16 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
+  GalaxiesRoute: GalaxiesRoute,
   HistoryRoute: HistoryRoute,
+  LearnRoute: LearnRoute,
   McpRoute: McpRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ScienceRoute: ScienceRoute,
   TermsRoute: TermsRoute,
+  VisibleUniverseHistoryRoute: VisibleUniverseHistoryRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
