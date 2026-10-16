@@ -21,6 +21,7 @@ import { Module08Layout } from "./Module08Layout";
 import { Module09Layout } from "./Module09Layout";
 import { Module10Layout } from "./Module10Layout";
 import { Module11Layout } from "./Module11Layout";
+import { Module14Layout } from "./Module14Layout";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -84,6 +85,15 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     if (initialModuleId === "09") {
       return ACADEMY_MODULES.find((m) => m.id === "09") || null;
     }
+    if (initialModuleId === "10") {
+      return ACADEMY_MODULES.find((m) => m.id === "10") || null;
+    }
+    if (initialModuleId === "11") {
+      return ACADEMY_MODULES.find((m) => m.id === "11") || null;
+    }
+    if (initialModuleId === "14") {
+      return ACADEMY_MODULES.find((m) => m.id === "14") || null;
+    }
     return null;
   });
 
@@ -122,7 +132,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
       void navigate({ to: "/galaxies" });
       return;
     }
-    if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(module.id)) {
+    if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14"].includes(module.id)) {
       setActiveLessonModule(module);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -487,7 +497,48 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(mod.id)) {
+              if (
+                ["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14"].includes(mod.id)
+              ) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 14: Black Holes & Neutron Stars
+  if (activeLessonModule && activeLessonModule.id === "14") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module14Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "14"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (
+                ["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14"].includes(mod.id)
+              ) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {

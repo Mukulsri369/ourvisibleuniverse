@@ -198,7 +198,7 @@ export function LearningModuleCard({
         )}
 
         {/* Action Button */}
-        {module.id === "01" || module.id === "02" || module.id === "04" || module.id === "05" ? (
+        {isReady && module.id !== "13" && module.id !== "19" ? (
           <Button
             size="sm"
             onClick={() => onSelectModule && onSelectModule(module)}

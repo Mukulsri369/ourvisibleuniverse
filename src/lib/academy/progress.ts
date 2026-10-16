@@ -80,30 +80,38 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Explored volumetric gas, dust extinction, Jeans collapse, and the wonders of open and globular clusters.",
     icon: "🌌",
   },
+  {
+    id: "black_hole_pioneer",
+    title: "Extreme Relativist",
+    description:
+      "Mastered Schwarzschild radii, pulsar magnetic poles, and gravitational waves in the Extreme Objects Laboratory.",
+    icon: "🕳️",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
   selectedLevel: "explorer", // default Space Explorer (Classes 4-6)
   moduleProgress: {
-    "01": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "02": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "04": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "05": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "06": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "07": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "08": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "09": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "10": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "11": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "13": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
-    "19": { status: "not_started", percent: 0, lastOpenedAt: new Date().toISOString() },
+    "01": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "02": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "04": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "05": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "06": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "07": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "08": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "09": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "10": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "11": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "13": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "14": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "19": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
   },
   completedLessons: [],
   quizScores: {},
   bookmarks: [],
   lastOpenedModuleId: "01",
   achievements: ["welcome_explorer"],
-  lastUpdated: new Date().toISOString(),
+  lastUpdated: "2026-01-01T00:00:00.000Z",
 };
 
 function loadStoredProgress(): UserProgress {

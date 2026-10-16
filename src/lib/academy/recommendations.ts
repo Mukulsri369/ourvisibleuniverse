@@ -158,6 +158,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["14"]?.status !== "completed") {
+    // Recommend Stage 4 Module 14: Black Holes & Neutron Stars
+    const mod14 = ACADEMY_MODULES.find((m) => m.id === "14");
+    if (mod14) {
+      recommendations.push({
+        module: mod14,
+        reason:
+          progress.moduleProgress["14"]?.status === "in_progress"
+            ? "Continue investigating event horizons, pulsar beams, and gravitational waves in the Extreme Objects Lab."
+            : "Step into Stage 4: investigate event horizons, gravitational lensing, pulsar lighthouses, and spacetime ripples in the Extreme Objects Laboratory!",
+        badge: "Extreme Relativist",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies) or post-completion Module 14 (Black Holes & Neutron Stars)
