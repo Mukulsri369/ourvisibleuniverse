@@ -270,6 +270,20 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["21"]?.status !== "completed") {
+    // Recommend Stage 6 Module 21: Telescopes & How We Discover Space
+    const mod21 = ACADEMY_MODULES.find((m) => m.id === "21");
+    if (mod21) {
+      recommendations.push({
+        module: mod21,
+        reason:
+          progress.moduleProgress["21"]?.status === "in_progress"
+            ? "Continue commanding the Virtual Astronomy Observatory: test optical apertures, pierce dusty nebulae, and decode cosmic spectra!"
+            : "Step into Stage 6: Command optical, infrared, radio, and X-ray telescopes in the Virtual Observatory Lab to decode the hidden universe!",
+        badge: "Virtual Astronomer",
+        priority: "primary",
+      });
+    }
   }
 
   // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16/17/18/19
@@ -357,6 +371,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Ascend to the cosmic finale: explore stellar evolution, the Milkomeda merger, the Degenerate Era, and Heat Death in the Future Chronology Lab!",
         badge: "Cosmic Deep Time",
+        priority: "primary",
+      });
+    }
+  } else if (progress.moduleProgress["21"]?.status !== "completed") {
+    const mod21 = ACADEMY_MODULES.find((m) => m.id === "21");
+    if (mod21) {
+      recommendations.push({
+        module: mod21,
+        reason:
+          "Command the Virtual Astronomy Observatory: explore aperture physics, multi-wavelength imaging, and astronomical spectroscopy!",
+        badge: "Virtual Astronomer",
         priority: "primary",
       });
     }
