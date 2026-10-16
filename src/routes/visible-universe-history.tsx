@@ -525,7 +525,9 @@ function VisibleUniverseHistoryPage() {
                   <article
                     key={ch.id}
                     data-chapter-id={ch.id}
-                    ref={(el) => (chapterRefs.current[ch.id] = el)}
+                    ref={(el) => {
+                      chapterRefs.current[ch.id] = el;
+                    }}
                     className={`relative rounded-3xl border transition-all duration-300 p-5 sm:p-8 backdrop-blur-md ${
                       isActive
                         ? "border-cyan-500/40 bg-slate-900/80 shadow-2xl shadow-cyan-950/30 ring-1 ring-cyan-500/20"

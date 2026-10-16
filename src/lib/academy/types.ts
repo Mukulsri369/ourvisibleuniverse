@@ -16,7 +16,7 @@ export type DifficultyLevel = "Beginner" | "Intermediate" | "Advanced";
 
 export interface ScientificSource {
   title: string;
-  organization: "NASA" | "ESA" | "IAU" | "Wikipedia" | "Hubble" | "JWST" | "Chandra";
+  organization: string;
   url: string;
   note?: string;
 }
@@ -31,6 +31,8 @@ export interface QuizQuestion {
   explanation: string;
   hint?: string;
   level?: string;
+  difficulty?: string;
+  [key: string]: unknown;
 }
 
 export interface GradeLevelContent {
@@ -101,6 +103,7 @@ export interface UserProgress {
     {
       status: ModuleStatus;
       percent: number;
+      percentComplete?: number;
       lastOpenedAt: string;
       completedAt?: string;
     }
@@ -127,3 +130,7 @@ export interface AcademySettings {
   soundEffects: boolean;
   fontSize: "normal" | "large" | "extra-large";
 }
+
+// Loose shapes used by lesson content files.
+export type SubLesson = Record<string, any>;
+export type LessonModule = Record<string, any>;

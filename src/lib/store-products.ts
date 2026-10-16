@@ -218,6 +218,11 @@ export async function fetchLiveStoreProducts(): Promise<StoreProduct[]> {
       featured?: boolean;
       product_images?: RawProductImage[];
       categories?: { name?: string };
+      name?: string;
+      currency?: string;
+      short_description?: string;
+      affiliate_url?: string;
+      amazon_url?: string;
     }
 
     const parsed: StoreProduct[] = (rawData as RawProductItem[]).map((item) => {
@@ -231,7 +236,7 @@ export async function fetchLiveStoreProducts(): Promise<StoreProduct[]> {
         .map((img) => img.image_url)
         .filter((url): url is string => Boolean(url));
 
-      const priceNum = typeof item.price === "number" ? item.price : parseFloat(item.price) || 999;
+      const priceNum = typeof item.price === "number" ? item.price : parseFloat(item.price ?? "") || 999;
       const originalPriceNum = Math.round(priceNum * 1.3 + 99);
 
       let badge = "Authentic Store Item";
@@ -247,9 +252,9 @@ export async function fetchLiveStoreProducts(): Promise<StoreProduct[]> {
       }
 
       return {
-        id: item.id,
-        name: item.name,
-        slug: item.slug,
+        id: item.id ?? item.slug ?? "",
+        name: item.name ?? item.title ?? "",
+        slug: item.slug ?? "",
         category: catName,
         price: formatProductPrice(priceNum, item.currency || "INR"),
         rawPrice: priceNum,
@@ -261,7 +266,7 @@ export async function fetchLiveStoreProducts(): Promise<StoreProduct[]> {
         description:
           item.short_description?.replace(/\\n/g, " ").trim() ||
           "Authentic astronomy and space decor item from the official Our Visible Universe store.",
-        url: getProductStoreUrl(item.slug),
+        url: getProductStoreUrl(item.slug ?? ""),
         affiliateUrl: item.affiliate_url || item.amazon_url || undefined,
       };
     });
