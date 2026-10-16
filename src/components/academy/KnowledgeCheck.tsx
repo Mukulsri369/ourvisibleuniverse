@@ -31,7 +31,9 @@ export function KnowledgeCheck({
   const calculateScore = () => {
     let score = 0;
     questions.forEach((q, idx) => {
-      if (selectedAnswers[idx] === q.correctIndex) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const correct = q.correctIndex !== undefined ? q.correctIndex : (q as any).correctAnswerIndex;
+      if (selectedAnswers[idx] === correct) {
         score++;
       }
     });
@@ -109,7 +111,15 @@ export function KnowledgeCheck({
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {q.options.map((opt, optIdx) => {
                       const isSelected = userAnswer === optIdx;
-                      const isCorrectOption = optIdx === q.correctIndex;
+                      const fallbackCorrect =
+                        "correctAnswerIndex" in q &&
+                        typeof (q as { correctAnswerIndex?: unknown }).correctAnswerIndex ===
+                          "number"
+                          ? (q as { correctAnswerIndex: number }).correctAnswerIndex
+                          : undefined;
+                      const correct =
+                        q.correctIndex !== undefined ? q.correctIndex : fallbackCorrect;
+                      const isCorrectOption = optIdx === correct;
 
                       let optionStyle =
                         "border-white/10 bg-white/[0.02] text-slate-300 hover:bg-white/5 hover:text-white";

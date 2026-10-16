@@ -25,9 +25,12 @@ export interface QuizQuestion {
   id: string;
   question: string;
   options: string[];
-  correctIndex: number;
+  correctIndex?: number;
+  correctAnswer?: number;
+  correctAnswerIndex?: number;
   explanation: string;
   hint?: string;
+  level?: string;
 }
 
 export interface GradeLevelContent {

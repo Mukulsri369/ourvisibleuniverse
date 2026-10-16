@@ -721,3 +721,5 @@ export const MODULE_07_LESSON: LessonModule = {
     },
   },
 };
+
+export const MODULE_07_QUIZ = MODULE_07_LESSON.gradeLevelContent.Intermediate.quizQuestions;

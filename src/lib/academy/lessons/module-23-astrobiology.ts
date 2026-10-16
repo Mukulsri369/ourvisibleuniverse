@@ -731,6 +731,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "Any molecular system containing water and carbon-based proteins",
       "A thermodynamic structure that creates order without expelling heat",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "NASA defines life as 'a self-sustaining chemical system capable of Darwinian evolution.' This captures both the metabolic aspect (self-sustaining) and the informational/adaptive aspect (Darwinian evolution).",
@@ -746,6 +747,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "Water is a polar molecule with a wide 100°C liquid range and high dielectric constant that dissolves diverse salts and organics",
       "Water is the only liquid in the universe that can bond with silicon",
     ],
+    correctIndex: 2,
     correctAnswer: 2,
     explanation:
       "Water's polarity, wide liquid temperature range (0°C to 100°C at 1 atm), high dielectric constant, and ability to form extensive hydrogen-bonding networks make it uniquely capable of dissolving metabolites and structuring lipid bilayers.",
@@ -761,6 +763,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "Periodic volcanic eruptions that coat the ice with black dust",
       "The gravitational tug of Jupiter pulling Earth in and out of the habitable zone",
     ],
+    correctIndex: 0,
     correctAnswer: 0,
     explanation:
       "The carbonate-silicate cycle acts as a planetary thermostat: temperature increases speed up silicate weathering, scrubbing CO2 from the air; cooling stops weathering while volcanic outgassing rebuilds greenhouse gases.",
@@ -776,6 +779,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "Nuclear fusion reactions occurring inside their silicate mantles",
       "High concentrations of liquid petroleum acting as antifreeze",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "Orbital resonances (such as Europa's resonance with Io and Ganymede) keep their orbits eccentric. As they orbit massive gas giants, gravitational tidal forces continuously stretch and squeeze them, dissipating heat internally.",
@@ -791,6 +795,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "They cause the exoplanet to emit bright green laser light into space",
       "They prove that trees and mammals must be physically present",
     ],
+    correctIndex: 0,
     correctAnswer: 0,
     explanation:
       "Oxygen and methane chemically react and destroy one another. Their coexistence in large quantities indicates thermodynamic chemical disequilibrium, requiring rapid, continuous replenishment—a classic hallmark of a biosphere.",
@@ -806,6 +811,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "Habitable applies only to planets orbiting Sun-like G-stars, while inhabited applies to moons",
       "There is no distinction; any habitable planet automatically evolves life within 100 years",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "Habitability indicates physical/chemical conditions (liquid water, temperature, energy) where life could survive. However, abiogenesis (the origin of life) is a separate process; a world can be completely habitable yet entirely sterile.",
@@ -821,6 +827,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "f_p and n_e: The fraction of stars with planets and the number of habitable-zone rocky planets per star",
       "f_c: The fraction of civilizations that transmit radio signals",
     ],
+    correctIndex: 2,
     correctAnswer: 2,
     explanation:
       "Exoplanet transit and radial velocity surveys have proven that nearly all stars host planets (f_p ~ 1) and that rocky planets in the habitable zone are common (n_e ~ 0.2 to 0.5). The biological and sociological terms remain completely unknown.",
@@ -836,6 +843,7 @@ export const MODULE_23_QUIZ: QuizQuestion[] = [
       "Microbes might mutate and escape into Earth's drinking water",
       "The United Nations requires international consensus before any scientific paper is published",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "Astrobiology requires extreme caution because nature has numerous non-biological ways to produce gases (serpentinization, volcanism, photochemistry) and instruments can suffer spectral blending or calibration artifacts.",

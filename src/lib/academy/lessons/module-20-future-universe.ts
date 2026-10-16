@@ -1200,6 +1200,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "Because space is running out of cold air",
       "Because the Sun is moving closer to Earth",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "As the Sun fuses hydrogen into helium, the helium ash packs into the core, causing it to shrink slightly, heat up, and fuse hydrogen even faster!",
@@ -1215,6 +1216,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "Both galaxies will instantly vanish into a giant black hole",
       "Earth will be instantly flung into deep space at the speed of light",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "Because stars are separated by light-years of empty space, almost no stars will actually collide. The two galaxies will gravitationally merge into a giant elliptical galaxy!",
@@ -1229,6 +1231,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "Tiny red dwarf stars",
       "Supergiant red stars",
     ],
+    correctIndex: 2,
     correctAnswer: 2,
     explanation:
       "Tiny red dwarf stars burn their fuel so slowly and efficiently that they can live for tens of trillions of years—thousands of times longer than our Sun!",
@@ -1244,6 +1247,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "The Earth's magnetic core will freeze solid in 200 million years, stripping the atmosphere",
       "Asteroids from the Kuiper belt will bombard Earth continuously",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "Standard solar models show that solar luminosity increases by ~10% per billion years. In ~1 to 1.5 Gyr, the increased heat will vaporize Earth's oceans into the stratosphere, where UV photolysis causes permanent water loss.",
@@ -1259,6 +1263,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "The entire universe is filled with hot quark-gluon plasma",
       "Dark energy reverses and collapses all matter in seconds",
     ],
+    correctIndex: 1,
     correctAnswer: 1,
     explanation:
       "In the Degenerate Era, all regular hydrogen-burning stars have died. The universe is populated solely by cooling degenerate remnants, brown dwarfs, and black holes, while protons may slowly decay.",
@@ -1274,6 +1279,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "Friction between planets generates so much heat that space catches on fire",
       "Atoms stop moving because quantum mechanics is repealed",
     ],
+    correctIndex: 0,
     correctAnswer: 0,
     explanation:
       "The Second Law states that entropy increases (dS ≥ 0). When all temperature differences smooth out into thermal equilibrium, usable free energy reaches zero, and no thermodynamic work or computation can occur.",
@@ -1289,6 +1295,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "w = -1.0 (Cosmological constant / vacuum energy)",
       "w < -1.0 (Phantom energy, where energy density grows with scale factor a)",
     ],
+    correctIndex: 3,
     correctAnswer: 3,
     explanation:
       "For phantom energy (w < -1), the energy density scales as ρ ∝ a^(-3(1+w)), which increases as the universe expands. This drives the scale factor and expansion rate to infinity at a finite future time, ripping apart all bound systems.",
@@ -1304,6 +1311,7 @@ export const MODULE_20_QUIZ: QuizQuestion[] = [
       "t_evap ∝ M³ (Cubic: t_evap = 5120 π G² M³ / (ℏ c⁴))",
       "t_evap ∝ e^(M / M_Planck)",
     ],
+    correctIndex: 2,
     correctAnswer: 2,
     explanation:
       "Because black hole temperature is inversely proportional to mass (T_H ∝ 1/M) and luminosity scales as L ∝ A T⁴ ∝ M² (1/M)⁴ ∝ 1/M², the mass-loss rate is dM/dt ∝ - 1/M². Integrating gives t_evap ∝ M³.",
