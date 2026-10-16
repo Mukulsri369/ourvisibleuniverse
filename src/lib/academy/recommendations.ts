@@ -200,9 +200,23 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["16"]?.status !== "completed") {
+    // Recommend Stage 4 Module 16: Dark Matter & Dark Energy
+    const mod16 = ACADEMY_MODULES.find((m) => m.id === "16");
+    if (mod16) {
+      recommendations.push({
+        module: mod16,
+        reason:
+          progress.moduleProgress["16"]?.status === "in_progress"
+            ? "Continue testing Vera Rubin's rotation curves, dark halos, and accelerating cosmic expansion."
+            : "Investigate the 95% invisible universe: flat galaxy rotation curves, gravitational lensing, and cosmic acceleration in the Dark Sector Physics Bench!",
+        badge: "Dark Sector Bench",
+        priority: "primary",
+      });
+    }
   }
 
-  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15
+  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15/16
   if (module13Progress !== "completed") {
     const mod13 = ACADEMY_MODULES.find((m) => m.id === "13");
     if (mod13) {
@@ -224,7 +238,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
-  } else {
+  } else if (progress.moduleProgress["15"]?.status !== "completed") {
     const mod15 = ACADEMY_MODULES.find((m) => m.id === "15");
     if (mod15) {
       recommendations.push({
@@ -232,6 +246,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Map the grandest cosmic tapestry: filamentary bridges, colossal supervoids, and dark matter scaffolding connecting galaxy clusters across gigaparsecs!",
         badge: "Large Scale Structure",
+        priority: "primary",
+      });
+    }
+  } else {
+    const mod16 = ACADEMY_MODULES.find((m) => m.id === "16");
+    if (mod16) {
+      recommendations.push({
+        module: mod16,
+        reason:
+          "Decode the 95% invisible cosmos: simulate galaxy rotation curves with dark halos and track the cosmic acceleration driving our universe's destiny!",
+        badge: "Dark Sector Lab",
         priority: "primary",
       });
     }

@@ -648,28 +648,56 @@ export const ACADEMY_MODULES: ModuleContract[] = [
       "Explore the astronomical evidence from galactic rotation curves and accelerating expansion that revealed unseen forces.",
     stageId: 4,
     recommendedOrder: 16,
-    difficultyLevels: ["Advanced"],
+    difficultyLevels: ["Intermediate", "Advanced"],
     learningObjectives: [
-      "Review Vera Rubin's discovery of flat galactic rotation curves",
-      "Explain gravitational lensing measurements of dark matter halos",
-      "Describe Type Ia supernovae evidence for accelerated expansion",
+      "Analyze Vera Rubin's flat rotation curves and distinguish Keplerian decline from dark halo dynamics",
+      "Model spherical dark matter halos and compute enclosed mass profiles M(r) vs radius",
+      "Examine the Bullet Cluster (1E 0657-56) as empirical proof of collisionless particle dark matter",
+      "Understand Fritz Zwicky's 1933 Virial Theorem mass estimates in the Coma Cluster",
+      "Measure cosmic acceleration using Type Ia supernova standard candles and cosmological redshift",
+      "Compare Friedmann cosmological histories: ΛCDM, matter-only, recollapsing, and phantom energy",
+      "Differentiate the attractive gravitational nature of dark matter from the repulsive negative pressure of dark energy",
+      "Bust common cosmic myths and explore open frontiers in modern cosmological physics",
     ],
-    prerequisites: ["13", "15"],
+    prerequisites: ["13", "14", "15"],
     route: "/learn?module=16",
     estimatedMinutes: 25,
     visualAssets: {
-      iconName: "HelpCircle",
+      iconName: "Compass",
       badgeColor: "bg-violet-500/10 text-violet-400 border-violet-500/30",
     },
     scientificSources: [
       {
-        title: "Dark Energy, Dark Matter Overview",
-        organization: "NASA",
-        url: "https://science.nasa.gov/astrophysics/focus-areas/what-is-dark-energy/",
+        title: "Rubin & Ford (1970) Rotation of the Andromeda Nebula from a Spectroscopic Survey",
+        organization: "Astrophysical Journal (ApJ 159, 379)",
+        url: "https://ui.adsabs.harvard.edu/abs/1970ApJ...159..379R",
+      },
+      {
+        title:
+          "Perlmutter et al. (1999) Measurements of Omega and Lambda from 42 High-Redshift Supernovae",
+        organization: "The Supernova Cosmology Project / Astrophysical Journal",
+        url: "https://ui.adsabs.harvard.edu/abs/1999ApJ...517..565P",
+      },
+      {
+        title:
+          "Riess et al. (1998) Observational Evidence from Supernovae for an Accelerating Universe",
+        organization: "High-Z Supernova Search Team / Astronomical Journal",
+        url: "https://ui.adsabs.harvard.edu/abs/1998AJ....116.1009R",
+      },
+      {
+        title:
+          "Clowe et al. (2006) A Direct Empirical Proof of the Existence of Dark Matter (The Bullet Cluster)",
+        organization: "Astrophysical Journal Letters (ApJL 648, L109)",
+        url: "https://ui.adsabs.harvard.edu/abs/2006ApJ...648L.109C",
+      },
+      {
+        title: "Planck Collaboration (2018) Planck 2018 Results. VI. Cosmological Parameters",
+        organization: "Astronomy & Astrophysics (A&A 641, A6)",
+        url: "https://www.aanda.org/articles/aa/full_html/2020/09/aa33880-18/aa33880-18.html",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
 
   // STAGE 5: UNDERSTANDING THE UNIVERSE

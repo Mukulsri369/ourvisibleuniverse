@@ -23,9 +23,24 @@ import { Module10Layout } from "./Module10Layout";
 import { Module11Layout } from "./Module11Layout";
 import { Module14Layout } from "./Module14Layout";
 import { Module15Layout } from "./Module15Layout";
+import { Module16Layout } from "./Module16Layout";
 import { Link, useNavigate } from "@tanstack/react-router";
 
-const ACTIVE_MODULE_IDS = ["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14", "15"];
+const ACTIVE_MODULE_IDS = [
+  "01",
+  "02",
+  "04",
+  "05",
+  "06",
+  "07",
+  "08",
+  "09",
+  "10",
+  "11",
+  "14",
+  "15",
+  "16",
+];
 import {
   Sparkles,
   Compass,
@@ -567,6 +582,43 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             onBackToMap={() => setActiveLessonModule(null)}
             nextRecommended={
               primaryRecommendation && primaryRecommendation.module.id !== "15"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 16: Dark Matter & Dark Energy
+  if (activeLessonModule && activeLessonModule.id === "16") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module16Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "16"
                 ? {
                     module: primaryRecommendation.module,
                     reason: primaryRecommendation.reason,

@@ -94,6 +94,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Navigated from the Local Group through galaxy clusters, superclusters, and cosmic voids to map the large-scale scaffolding of the universe.",
     icon: "🕸️",
   },
+  {
+    id: "dark_sector_explorer",
+    title: "Dark Sector Cosmologist",
+    description:
+      "Decoded galactic rotation curves, dark matter halo profiles, and cosmic expansion acceleration.",
+    icon: "🔮",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -112,6 +119,7 @@ const DEFAULT_PROGRESS: UserProgress = {
     "13": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "14": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "15": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "16": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "19": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
   },
   completedLessons: [],
@@ -211,6 +219,15 @@ export function useAcademyProgress() {
           }
           if (moduleId === "13" && !newAchievements.includes("galaxy_voyager")) {
             newAchievements.push("galaxy_voyager");
+          }
+          if (moduleId === "14" && !newAchievements.includes("black_hole_pioneer")) {
+            newAchievements.push("black_hole_pioneer");
+          }
+          if (moduleId === "15" && !newAchievements.includes("cosmic_web_cartographer")) {
+            newAchievements.push("cosmic_web_cartographer");
+          }
+          if (moduleId === "16" && !newAchievements.includes("dark_sector_explorer")) {
+            newAchievements.push("dark_sector_explorer");
           }
           if (moduleId === "19" && !newAchievements.includes("time_traveler")) {
             newAchievements.push("time_traveler");
