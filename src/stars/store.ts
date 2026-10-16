@@ -93,6 +93,9 @@ interface State {
   zoomSpeed: number;
   systemSpeed: number;
   trailSize: number;
+  scaleMode: "enhanced" | "true_scale";
+  setScaleMode: (mode: "enhanced" | "true_scale") => void;
+  toggleScaleMode: () => void;
   setSelected: (s: NamedStar | null) => void;
   toggleSpectral: () => void;
   startTour: () => void;
@@ -180,6 +183,10 @@ export const useStore = create<State>((set, get) => ({
   zoomSpeed: 50,
   systemSpeed: 25,
   trailSize: 50,
+  scaleMode: "enhanced",
+  setScaleMode: (mode) => set({ scaleMode: mode }),
+  toggleScaleMode: () =>
+    set((st) => ({ scaleMode: st.scaleMode === "enhanced" ? "true_scale" : "enhanced" })),
   setSelected: (s) =>
     set({ exoVisit: null, selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),

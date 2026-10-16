@@ -2,7 +2,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { useStore, TOUR_STOPS } from "./store";
-import { PLANETS } from "./Planets";
+import { PLANETS, getPlanetEffectiveSize } from "./Planets";
 import { M31_PLANETS } from "./andromeda-data";
 import { GX_PLANET_INDEX } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition } from "./observed-objects";
@@ -44,8 +44,11 @@ export function CameraRig() {
       PLANETS.find((p) => p.name === name) ??
       M31_PLANETS.find((p) => p.name === name) ??
       GX_PLANET_INDEX.get(name)?.planet;
+    const currentScaleMode = useStore.getState().scaleMode;
     const exo = (window as Window).__exoSizes?.get(name);
-    return Math.max(minR, (def?.size ?? exo ?? 0) * 1.5);
+    const effSize =
+      exo ?? (def && "aAU" in def ? getPlanetEffectiveSize(def, currentScaleMode) : def?.size) ?? 0;
+    return Math.max(minR, effSize * 1.5);
   };
 
   // expose for slider
@@ -237,19 +240,25 @@ export function CameraRig() {
     return () => clearTimeout(id);
   }, [tourActive, tourStop, setTourCaption, setTourStop, stopTour]);
 
-  // When user selects a planet to visit, set a close zoom
+  const scaleMode = useStore((s) => s.scaleMode);
+
+  // When user selects a planet to visit or toggles scale mode, set an appropriate close zoom
   useEffect(() => {
     followedPlanet.current = null;
     if (!visitPlanet) return;
     const def = PLANETS.find((p) => p.name === visitPlanet);
     const m31 = def ? null : M31_PLANETS.find((p) => p.name === visitPlanet);
     const gx = def || m31 ? null : GX_PLANET_INDEX.get(visitPlanet)?.planet;
-    const size =
-      def?.size ?? m31?.size ?? gx?.size ?? (window as Window).__exoSizes?.get(visitPlanet);
-    if (size == null) return;
-    desired.current.radius = Math.max(minR, size * 9);
+    const exo = (window as Window).__exoSizes?.get(visitPlanet);
+    const effSize =
+      exo ??
+      (def && "aAU" in def ? getPlanetEffectiveSize(def, scaleMode) : def?.size) ??
+      m31?.size ??
+      gx?.size;
+    if (effSize == null) return;
+    desired.current.radius = Math.max(minR, effSize * 9);
     fovTarget.current = 38;
-  }, [visitPlanet]);
+  }, [visitPlanet, scaleMode]);
 
   // Frame site-map galaxies at their centers. Other galaxy interactions still
   // retain their close-up star-system visits.

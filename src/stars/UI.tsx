@@ -10,6 +10,7 @@ import { NAMED_GALAXIES } from "./Universe";
 import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
 import { exoSystemFor } from "./exosystems";
+import { scaleManager } from "@/lib/astronomy/scale-manager";
 
 export function InfoPanel() {
   const star = useStore((s) => s.selectedStar);
@@ -235,6 +236,8 @@ export function TopLeftControls() {
   const toggleSpectral = useStore((s) => s.toggleSpectral);
   const cameraFree = useStore((s) => s.cameraFree);
   const toggleCameraFree = useStore((s) => s.toggleCameraFree);
+  const scaleMode = useStore((s) => s.scaleMode);
+  const toggleScaleMode = useStore((s) => s.toggleScaleMode);
   const [searchOpen, setSearchOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
@@ -245,6 +248,19 @@ export function TopLeftControls() {
     >
       <IconButton title="Toggle Spectral Colors" onClick={toggleSpectral} active={spectralMode}>
         <SpectrumIcon />
+      </IconButton>
+      <IconButton
+        title={
+          scaleMode === "enhanced"
+            ? "Scale: Enhanced Visibility (Click to switch to True Scientific Scale 1:1)"
+            : "Scale: True Scientific Scale 1:1 (Click to switch to Enhanced Visibility)"
+        }
+        onClick={toggleScaleMode}
+        active={scaleMode === "true_scale"}
+      >
+        <span className="font-mono text-[10px] font-bold tracking-tight">
+          {scaleMode === "true_scale" ? "1:1" : "VIS"}
+        </span>
       </IconButton>
       <IconButton
         title="Search all celestial objects"
@@ -318,6 +334,7 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
     title: "Toolbar",
     items: [
       ["Spectrum", "Toggle true spectral star colours"],
+      ["VIS / 1:1", "Switch between Enhanced Visibility and True Scientific Scale"],
       ["Search", "Find any star, planet, galaxy or observed object"],
       ["Square", "Stop the camera in space (free look)"],
       ["Maximize", "Full screen — press Esc to exit"],
@@ -454,6 +471,9 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
   const setSystemSpeed = useStore((s) => s.setSystemSpeed);
   const trailSize = useStore((s) => s.trailSize);
   const setTrailSize = useStore((s) => s.setTrailSize);
+  const scaleMode = useStore((s) => s.scaleMode);
+  const setScaleMode = useStore((s) => s.setScaleMode);
+
   return (
     <AnimatePresence>
       {open && (
@@ -461,7 +481,7 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          className="absolute left-0 top-12 w-72 rounded-xl border border-white/10 bg-black/70 p-4 backdrop-blur-md"
+          className="absolute left-0 top-12 w-80 rounded-xl border border-white/10 bg-black/85 p-4 backdrop-blur-md"
         >
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Settings</span>
@@ -472,6 +492,40 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
             >
               ✕
             </button>
+          </div>
+
+          <div className="mb-4 border-b border-white/10 pb-3">
+            <div className="mb-1 text-[11px] font-medium text-white/90">Scale & Presentation</div>
+            <div className="mb-2 text-[10px] text-white/50 leading-relaxed">
+              Underlying positions use double precision (ICRS/IAU coordinates). Presentation
+              controls display magnification.
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setScaleMode("enhanced")}
+                className={`rounded-lg border px-2.5 py-2 text-left text-xs transition ${
+                  scaleMode === "enhanced"
+                    ? "border-cyan-400/50 bg-cyan-400/15 text-cyan-200"
+                    : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <div className="font-semibold">Enhanced</div>
+                <div className="text-[9px] text-white/40 mt-0.5">Visitable orbits & radii</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setScaleMode("true_scale")}
+                className={`rounded-lg border px-2.5 py-2 text-left text-xs transition ${
+                  scaleMode === "true_scale"
+                    ? "border-emerald-400/50 bg-emerald-400/15 text-emerald-200"
+                    : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <div className="font-semibold">True Scale 1:1</div>
+                <div className="text-[9px] text-white/40 mt-0.5">Physical dimensions</div>
+              </button>
+            </div>
           </div>
           <Slider
             label="Zoom speed"
@@ -738,19 +792,36 @@ export function TourCaption() {
 
 export function ScaleIndicator() {
   const d = useStore((s) => s.cameraDistance);
-  const label =
-    d < 5
-      ? `${d.toFixed(1)} light-years`
-      : d < 50
-        ? `${Math.round(d)} light-years`
-        : d < 500
-          ? `${Math.round(d / 10) * 10} light-years`
-          : d < 5000
-            ? `${Math.round(d / 100) * 100} light-years`
-            : `${(d / 1000).toFixed(1)}k light-years`;
+  const scaleMode = useStore((s) => s.scaleMode);
+  const toggleScaleMode = useStore((s) => s.toggleScaleMode);
+  const info = scaleManager.formatIndicator(d, scaleMode);
+
   return (
-    <div className="pointer-events-none fixed bottom-5 left-1/2 z-20 -translate-x-1/2 text-[11px] uppercase tracking-[0.3em] text-white/50">
-      {label}
+    <div className="pointer-events-auto fixed bottom-5 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1.5 select-none">
+      <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/75 px-3.5 py-1.5 shadow-xl backdrop-blur-md">
+        <span className="text-[10px] uppercase tracking-[0.22em] text-white/85 font-medium">
+          {info.regimeName}
+        </span>
+        <span className="text-white/25 text-[10px]">|</span>
+        <span className="font-mono text-[11px] text-cyan-300 font-semibold tracking-wide">
+          {info.distanceLabel}
+        </span>
+        <span className="text-white/25 text-[10px]">|</span>
+        <button
+          onClick={toggleScaleMode}
+          title={info.modeDescription}
+          className={`cursor-pointer rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider transition ${
+            scaleMode === "enhanced"
+              ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/35 hover:bg-cyan-500/30"
+              : "bg-emerald-500/20 text-emerald-300 border border-emerald-400/35 hover:bg-emerald-500/30"
+          }`}
+        >
+          {scaleMode === "enhanced" ? "Enhanced" : "True Scale"}
+        </button>
+      </div>
+      <div className="pointer-events-none text-[9px] uppercase tracking-[0.2em] text-white/45">
+        {info.regimeSubtitle}
+      </div>
     </div>
   );
 }

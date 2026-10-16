@@ -18,9 +18,14 @@ export type MoonDef = {
   inclination?: number;
 };
 
+import { scaleManager } from "@/lib/astronomy/scale-manager";
+import { METERS_PER_LIGHT_YEAR } from "@/lib/astronomy/constants";
+
 export type PlanetDef = {
   name: string;
   a: number; // semi-major axis (scene units)
+  aAU?: number; // physical semi-major axis (AU)
+  radiusKm?: number; // physical mean radius (km)
   e: number; // eccentricity
   i: number; // orbital inclination (rad)
   omega: number; // argument of perihelion (rad)
@@ -47,6 +52,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Mercury",
     a: 0.39 * AU,
+    aAU: 0.387098,
+    radiusKm: 2439.7,
     e: 0.2056,
     i: deg(7.0),
     omega: deg(29.1),
@@ -61,6 +68,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Venus",
     a: 0.72 * AU,
+    aAU: 0.723332,
+    radiusKm: 6051.8,
     e: 0.0068,
     i: deg(3.39),
     omega: deg(54.9),
@@ -76,6 +85,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Earth",
     a: 1.0 * AU,
+    aAU: 1.00000261,
+    radiusKm: 6371.0,
     e: 0.0167,
     i: 0,
     omega: deg(114.2),
@@ -91,6 +102,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Mars",
     a: 1.52 * AU,
+    aAU: 1.523679,
+    radiusKm: 3389.5,
     e: 0.0934,
     i: deg(1.85),
     omega: deg(286.5),
@@ -110,6 +123,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Jupiter",
     a: 5.2 * AU,
+    aAU: 5.204267,
+    radiusKm: 71492,
     e: 0.0489,
     i: deg(1.31),
     omega: deg(273.9),
@@ -182,6 +197,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Saturn",
     a: 9.58 * AU,
+    aAU: 9.5826,
+    radiusKm: 58232,
     e: 0.0565,
     i: deg(2.49),
     omega: deg(339.4),
@@ -237,6 +254,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Uranus",
     a: 19.2 * AU,
+    aAU: 19.2294,
+    radiusKm: 25362,
     e: 0.0457,
     i: deg(0.77),
     omega: deg(96.99),
@@ -267,6 +286,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Neptune",
     a: 30.05 * AU,
+    aAU: 30.0699,
+    radiusKm: 24622,
     e: 0.0113,
     i: deg(1.77),
     omega: deg(273.2),
@@ -312,6 +333,8 @@ export const PLANETS: PlanetDef[] = [
   {
     name: "Pluto",
     a: 39.5 * AU,
+    aAU: 39.482,
+    radiusKm: 1188.3,
     e: 0.2488,
     i: deg(17.16),
     omega: deg(113.76),
@@ -448,8 +471,30 @@ const OUTER_ORBIT_BOOST: Record<string, number> = {
   Pluto: 18,
 };
 
+export function getPlanetEffectiveA(def: PlanetDef, scaleMode: "enhanced" | "true_scale"): number {
+  if (scaleMode === "true_scale" && def.aAU != null) {
+    return def.aAU * scaleManager.getRenderAU("true_scale");
+  }
+  return def.a;
+}
+
+export function getPlanetEffectiveSize(
+  def: PlanetDef,
+  scaleMode: "enhanced" | "true_scale",
+): number {
+  if (scaleMode === "true_scale" && def.radiusKm != null) {
+    return (def.radiusKm * 1_000) / METERS_PER_LIGHT_YEAR;
+  }
+  return def.size;
+}
+
 // Kepler's equation solver
-function keplerPosition(def: PlanetDef, _phase: number, _t: number): THREE.Vector3 {
+function keplerPosition(
+  def: PlanetDef,
+  _phase: number,
+  _t: number,
+  effectiveA = def.a,
+): THREE.Vector3 {
   const M = meanAnomaly(def);
   let E = M;
   for (let k = 0; k < 6; k++) {
@@ -458,8 +503,8 @@ function keplerPosition(def: PlanetDef, _phase: number, _t: number): THREE.Vecto
   const cosE = Math.cos(E),
     sinE = Math.sin(E);
   // perifocal plane (x toward perihelion, z perpendicular)
-  const xp = def.a * (cosE - def.e);
-  const zp = def.a * Math.sqrt(1 - def.e * def.e) * sinE;
+  const xp = effectiveA * (cosE - def.e);
+  const zp = effectiveA * Math.sqrt(1 - def.e * def.e) * sinE;
   // rotate by argument of perihelion (around Y)
   const cw = Math.cos(def.omega),
     sw = Math.sin(def.omega);
@@ -472,13 +517,13 @@ function keplerPosition(def: PlanetDef, _phase: number, _t: number): THREE.Vecto
 }
 
 // Build an elliptical orbit line (real Kepler ellipse — not a perfect circle)
-function makeOrbitLine(def: PlanetDef, color: string, opacity: number) {
+function makeOrbitLine(def: PlanetDef, color: string, opacity: number, effectiveA = def.a) {
   const segments = 256;
   const pts: number[] = [];
   for (let k = 0; k <= segments; k++) {
     const E = (k / segments) * Math.PI * 2;
-    const xp = def.a * (Math.cos(E) - def.e);
-    const zp = def.a * Math.sqrt(1 - def.e * def.e) * Math.sin(E);
+    const xp = effectiveA * (Math.cos(E) - def.e);
+    const zp = effectiveA * Math.sqrt(1 - def.e * def.e) * Math.sin(E);
     const cw = Math.cos(def.omega),
       sw = Math.sin(def.omega);
     const x1 = xp * cw - zp * sw;
@@ -650,10 +695,20 @@ function Planet({ def }: { def: PlanetDef }) {
     [def],
   );
 
+  const scaleMode = useStore((s) => s.scaleMode);
+  const effectiveA = getPlanetEffectiveA(def, scaleMode);
+  const effectiveSize = getPlanetEffectiveSize(def, scaleMode);
+  const sizeRatio = effectiveSize / def.size;
+
+  useEffect(() => {
+    if (!window.__exoSizes) window.__exoSizes = new Map();
+    window.__exoSizes.set(def.name, effectiveSize);
+  }, [def.name, effectiveSize]);
+
   useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
     const t = clock.elapsedTime;
-    const p = keplerPosition(def, phase, t);
+    const p = keplerPosition(def, phase, t, effectiveA);
     groupRef.current.position.copy(p);
     if (bodyRef.current) {
       const rot = REAL_ORBITS[def.name];
@@ -669,12 +724,12 @@ function Planet({ def }: { def: PlanetDef }) {
     detailUniforms.uTime.value = t;
     const camD = camera.position.distanceTo(tmp);
     // Detail fades in as the planet fills more of the view (LOD).
-    detailUniforms.uNear.value = 1 - Math.min(1, Math.max(0, (camD / def.size - 6) / 60));
+    detailUniforms.uNear.value = 1 - Math.min(1, Math.max(0, (camD / effectiveSize - 6) / 60));
     // The distant marker sprite must not wash the planet out up close:
     // it only fades in once the disk itself is too small to resolve.
     if (haloRef.current) {
       const d = camD;
-      const k = Math.min(1, Math.max(0, d / (def.size * 1200) - 1));
+      const k = Math.min(1, Math.max(0, d / (effectiveSize * 1200) - 1));
       const mat = haloRef.current.material as THREE.SpriteMaterial;
       mat.opacity = 0.65 * k;
       haloRef.current.visible = k > 0.01;
@@ -706,7 +761,7 @@ function Planet({ def }: { def: PlanetDef }) {
       <sprite
         ref={haloRef}
         visible={false}
-        scale={[Math.max(def.size * 22, 0.05), Math.max(def.size * 22, 0.05), 1]}
+        scale={[Math.max(effectiveSize * 22, 0.05), Math.max(effectiveSize * 22, 0.05), 1]}
       >
         <spriteMaterial
           map={haloTex}
@@ -718,7 +773,7 @@ function Planet({ def }: { def: PlanetDef }) {
         />
       </sprite>
       {/* tilt + body */}
-      <group rotation={[0, 0, def.tilt]}>
+      <group rotation={[0, 0, def.tilt]} scale={[sizeRatio, sizeRatio, sizeRatio]}>
         <mesh
           ref={bodyRef}
           castShadow
@@ -1174,7 +1229,15 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
 
 export function Planets() {
   useFrame((_, dt) => tickSim(dt), -2);
-  const orbits = useMemo(() => PLANETS.map((p) => makeOrbitLine(p, "#6a8cff", 0.1)), []);
+  const scaleMode = useStore((s) => s.scaleMode);
+  const orbits = useMemo(
+    () =>
+      PLANETS.map((p) => {
+        const effA = getPlanetEffectiveA(p, scaleMode);
+        return makeOrbitLine(p, "#6a8cff", 0.1, effA);
+      }),
+    [scaleMode],
+  );
   // Tilt the entire planetary + belt system so its orbital-plane normal
   // aligns with the Sun's galactic drift direction. The Sun then travels
   // perpendicular to the ecliptic (edge-on through the galaxy), producing

@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "tsx scripts/astronomy-validation.ts",
+    "test:qa": "tsx scripts/qa-audit-test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

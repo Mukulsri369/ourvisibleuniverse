@@ -45,12 +45,14 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Kepler's Third Law",
         formula: "T² = (4π² / G·M) · a³",
-        explanation: "The square of the orbital period T is directly proportional to the cube of semi-major axis a.",
+        explanation:
+          "The square of the orbital period T is directly proportional to the cube of semi-major axis a.",
       },
       {
         name: "Specific Orbital Energy",
         formula: "ε = v²/2 - G·M/r = -G·M / (2a)",
-        explanation: "Total energy per unit mass is conserved along an unperturbed Keplerian orbit.",
+        explanation:
+          "Total energy per unit mass is conserved along an unperturbed Keplerian orbit.",
       },
     ],
   },
@@ -78,7 +80,8 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Circular Velocity Decomposition",
         formula: "v_circ²(r) = v_bulge²(r) + v_disk²(r) + v_halo²(r)",
-        explanation: "Total gravitational acceleration is the sum of baryonic and dark matter components.",
+        explanation:
+          "Total gravitational acceleration is the sum of baryonic and dark matter components.",
       },
       {
         name: "Isothermal Halo Profile",
@@ -116,12 +119,14 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Mass-Luminosity Relation",
         formula: "L / L☉ ≈ (M / M☉)^3.5  (for 0.43 < M/M☉ < 20)",
-        explanation: "Radiation pressure and core temperature drive extreme luminosity in massive stars.",
+        explanation:
+          "Radiation pressure and core temperature drive extreme luminosity in massive stars.",
       },
       {
         name: "Chandrasekhar Mass Limit",
         formula: "M_Ch ≈ 1.44 M☉",
-        explanation: "Maximum mass supportable by degenerate electron pressure before core collapse.",
+        explanation:
+          "Maximum mass supportable by degenerate electron pressure before core collapse.",
       },
     ],
   },
@@ -148,12 +153,14 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Tidal Radius (Roche Limit)",
         formula: "r_tidal ≈ R_sep · (M_satellite / 3 M_host)^(1/3)",
-        explanation: "Distance from satellite core where host tidal force overcomes satellite self-gravity.",
+        explanation:
+          "Distance from satellite core where host tidal force overcomes satellite self-gravity.",
       },
       {
         name: "Dynamical Friction Force",
         formula: "F_df ∝ - (G² · M² · ρ) / v² · ln(Λ)",
-        explanation: "Gravitational wake behind a massive body decelerates its orbit through the background halo.",
+        explanation:
+          "Gravitational wake behind a massive body decelerates its orbit through the background halo.",
       },
     ],
   },
@@ -217,17 +224,20 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Wien's Displacement Law",
         formula: "λ_peak · T = 2.89777 × 10^(-3) m·K",
-        explanation: "The peak emission wavelength is inversely proportional to blackbody absolute temperature.",
+        explanation:
+          "The peak emission wavelength is inversely proportional to blackbody absolute temperature.",
       },
       {
         name: "Stefan-Boltzmann Law",
         formula: "F = σ · T⁴  (σ = 5.670 × 10^(-8) W/(m²·K⁴))",
-        explanation: "Total radiant energy emitted per unit surface area scales with the fourth power of temperature.",
+        explanation:
+          "Total radiant energy emitted per unit surface area scales with the fourth power of temperature.",
       },
       {
         name: "Redshift Parameter",
         formula: "z = (λ_observed - λ_rest) / λ_rest ≈ v / c",
-        explanation: "Fractional wavelength shift induced by relative radial velocity or cosmic expansion.",
+        explanation:
+          "Fractional wavelength shift induced by relative radial velocity or cosmic expansion.",
       },
     ],
   },
@@ -254,12 +264,14 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Transit Depth",
         formula: "ΔF / F_star = (R_planet / R_star)²",
-        explanation: "The fractional decrease in stellar flux during transit equals the ratio of cross-sectional areas.",
+        explanation:
+          "The fractional decrease in stellar flux during transit equals the ratio of cross-sectional areas.",
       },
       {
         name: "Radial Velocity Semi-Amplitude",
         formula: "K = (2π·G / P)^(1/3) · [M_p·sin(i) / M_star^(2/3)] · (1 - e²)^(-1/2)",
-        explanation: "The peak Doppler reflex velocity of the host star caused by the orbiting planet.",
+        explanation:
+          "The peak Doppler reflex velocity of the host star caused by the orbiting planet.",
       },
     ],
   },
@@ -291,7 +303,8 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Flatness Condition",
         formula: "Ω_total = Ω_m + Ω_r + Ω_Λ + Ω_k = 1.0",
-        explanation: "Critical density condition determining the global geometry of spatial slices.",
+        explanation:
+          "Critical density condition determining the global geometry of spatial slices.",
       },
     ],
   },
@@ -318,12 +331,14 @@ export const LAB_DEFINITIONS: LabDefinition[] = [
       {
         name: "Hohmann Transfer Semi-Major Axis",
         formula: "a_trans = (r₁ + r₂) / 2",
-        explanation: "The transfer orbit connects the periapsis at inner planet r₁ to apoapsis at outer planet r₂.",
+        explanation:
+          "The transfer orbit connects the periapsis at inner planet r₁ to apoapsis at outer planet r₂.",
       },
       {
         name: "Tsiolkovsky Rocket Equation",
         formula: "Δv = I_sp · g₀ · ln(m₀ / m_f)",
-        explanation: "Maximum velocity change achievable from reaction mass expulsion with effective exhaust velocity.",
+        explanation:
+          "Maximum velocity change achievable from reaction mass expulsion with effective exhaust velocity.",
       },
       {
         name: "Transfer Duration",
@@ -367,7 +382,12 @@ export interface FinalChallengeStep {
   title: string;
   scenario: string;
   taskPrompt: string;
-  calculatorType: "transit_depth" | "orbital_resonance" | "dark_matter_ratio" | "schwarzschild_radius" | "hohmann_deltav";
+  calculatorType:
+    | "transit_depth"
+    | "orbital_resonance"
+    | "dark_matter_ratio"
+    | "schwarzschild_radius"
+    | "hohmann_deltav";
   targetValues: {
     label: string;
     target: number;
@@ -499,13 +519,9 @@ export const FINAL_CHALLENGE_STEPS: FinalChallengeStep[] = [
 export const MODULE_24_QUIZ: QuizQuestion[] = [
   {
     id: "q24-1",
-    question: "According to Kepler's Third Law, if Planet Alpha is 4 times farther from its star than Planet Beta, how many times longer is its orbital period?",
-    options: [
-      "2 times longer",
-      "4 times longer",
-      "8 times longer",
-      "16 times longer",
-    ],
+    question:
+      "According to Kepler's Third Law, if Planet Alpha is 4 times farther from its star than Planet Beta, how many times longer is its orbital period?",
+    options: ["2 times longer", "4 times longer", "8 times longer", "16 times longer"],
     correctIndex: 2,
     explanation:
       "By Kepler's Third Law, T² ∝ a³. If distance a increases by a factor of 4, a³ = 4³ = 64. Taking the square root gives T = sqrt(64) = 8 times longer.",
@@ -513,7 +529,8 @@ export const MODULE_24_QUIZ: QuizQuestion[] = [
   },
   {
     id: "q24-2",
-    question: "Why do spiral galaxies maintain flat rotation curves at large radii instead of declining like planets in the Solar System?",
+    question:
+      "Why do spiral galaxies maintain flat rotation curves at large radii instead of declining like planets in the Solar System?",
     options: [
       "Solar radiation pressure pushes outer stars faster",
       "An extended, massive Dark Matter halo envelops the galaxy",
@@ -527,7 +544,8 @@ export const MODULE_24_QUIZ: QuizQuestion[] = [
   },
   {
     id: "q24-3",
-    question: "What physical boundary marks the point of no return around a non-rotating black hole?",
+    question:
+      "What physical boundary marks the point of no return around a non-rotating black hole?",
     options: [
       "The accretion disc inner edge",
       "The photon sphere at 1.5 r_s",
@@ -541,7 +559,8 @@ export const MODULE_24_QUIZ: QuizQuestion[] = [
   },
   {
     id: "q24-4",
-    question: "If a star's surface temperature doubles from 3,000 K to 6,000 K, what happens to its radiant energy flux per unit surface area?",
+    question:
+      "If a star's surface temperature doubles from 3,000 K to 6,000 K, what happens to its radiant energy flux per unit surface area?",
     options: [
       "It doubles (2×)",
       "It quadruples (4×)",
@@ -569,7 +588,8 @@ export const MODULE_24_QUIZ: QuizQuestion[] = [
   },
   {
     id: "q24-6",
-    question: "In standard ΛCDM cosmology, what causes the current accelerated expansion of the universe?",
+    question:
+      "In standard ΛCDM cosmology, what causes the current accelerated expansion of the universe?",
     options: [
       "Radiation from ancient supernovae",
       "Gravitational repulsion of dark matter particles",
@@ -583,7 +603,8 @@ export const MODULE_24_QUIZ: QuizQuestion[] = [
   },
   {
     id: "q24-7",
-    question: "Why is a Hohmann transfer orbit the most fuel-efficient trajectory between two coplanar circular orbits?",
+    question:
+      "Why is a Hohmann transfer orbit the most fuel-efficient trajectory between two coplanar circular orbits?",
     options: [
       "It travels in a direct straight line between planets",
       "It uses an ellipse tangent to both the departure and arrival orbits, minimizing impulsive Δv",
@@ -597,7 +618,8 @@ export const MODULE_24_QUIZ: QuizQuestion[] = [
   },
   {
     id: "q24-8",
-    question: "What is the primary nucleosynthetic reason massive stars collapse when their core produces Iron (Fe)?",
+    question:
+      "What is the primary nucleosynthetic reason massive stars collapse when their core produces Iron (Fe)?",
     options: [
       "Iron is radioactive and explodes spontaneously",
       "Iron fusion is endothermic (absorbs energy instead of releasing it), halting thermal pressure",
