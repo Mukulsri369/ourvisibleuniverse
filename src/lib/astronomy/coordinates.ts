@@ -62,6 +62,36 @@ export function icrsToGalactic(raDeg: number, decDeg: number): { l: number; b: n
 }
 
 /**
+ * Transforms IAU Galactic coordinates (l, b) to ICRS equatorial coordinates (RA, Dec) at J2000.
+ * @param lDeg Galactic longitude in degrees (0 to 360)
+ * @param bDeg Galactic latitude in degrees (-90 to +90)
+ * @returns { ra: number, dec: number } Right Ascension and Declination in degrees
+ */
+export function galacticToIcrs(lDeg: number, bDeg: number): { ra: number; dec: number } {
+  const l = lDeg * DEG_TO_RAD;
+  const b = bDeg * DEG_TO_RAD;
+
+  const sinB = Math.sin(b);
+  const cosB = Math.cos(b);
+  const deltaL = l - THETA_0_RAD;
+
+  const sinDec = sinB * SIN_DEC_NGP + cosB * COS_DEC_NGP * Math.cos(deltaL);
+  const decRad = Math.asin(Math.max(-1, Math.min(1, sinDec)));
+
+  const y = cosB * Math.sin(deltaL);
+  const x = sinB * COS_DEC_NGP - cosB * SIN_DEC_NGP * Math.cos(deltaL);
+
+  let raRad = RA_NGP_RAD + Math.atan2(y, x);
+  if (raRad < 0) raRad += 2 * Math.PI;
+  if (raRad >= 2 * Math.PI) raRad -= 2 * Math.PI;
+
+  return {
+    ra: raRad * RAD_TO_DEG,
+    dec: decRad * RAD_TO_DEG,
+  };
+}
+
+/**
  * Converts Galactic coordinates (l, b, distance) to 3D Cartesian coordinates.
  * @param lDeg Galactic longitude in degrees (0 to 360)
  * @param bDeg Galactic latitude in degrees (-90 to +90)
@@ -240,3 +270,16 @@ export function schwarzschildRadiusLy(massSolar: number): number {
   const rMeters = schwarzschildRadiusMeters(massKg);
   return rMeters / METERS_PER_LIGHT_YEAR;
 }
+
+export const coordinates = {
+  icrsToGalactic,
+  galacticToIcrs,
+  galacticToCartesian,
+  sphericalToCartesian: galacticToCartesian,
+  solveKepler,
+  trueAnomalyFromEccentric,
+  keplerianOrbitalPositionAU,
+  calculateLuminosity,
+  schwarzschildRadiusMeters,
+  schwarzschildRadiusLy,
+};

@@ -94,8 +94,16 @@ interface State {
   systemSpeed: number;
   trailSize: number;
   scaleMode: "enhanced" | "true_scale";
+  properMotionYears: number;
+  starLODTier: "mobile" | "standard" | "high" | "benchmark";
+  showSkyDirectionLayer: boolean;
+  showProceduralStars: boolean;
   setScaleMode: (mode: "enhanced" | "true_scale") => void;
   toggleScaleMode: () => void;
+  setProperMotionYears: (years: number) => void;
+  setStarLODTier: (tier: "mobile" | "standard" | "high" | "benchmark") => void;
+  toggleSkyDirectionLayer: () => void;
+  toggleProceduralStars: () => void;
   setSelected: (s: NamedStar | null) => void;
   toggleSpectral: () => void;
   startTour: () => void;
@@ -184,9 +192,18 @@ export const useStore = create<State>((set, get) => ({
   systemSpeed: 25,
   trailSize: 50,
   scaleMode: "enhanced",
+  properMotionYears: 0,
+  starLODTier: "standard",
+  showSkyDirectionLayer: true,
+  showProceduralStars: true,
   setScaleMode: (mode) => set({ scaleMode: mode }),
   toggleScaleMode: () =>
     set((st) => ({ scaleMode: st.scaleMode === "enhanced" ? "true_scale" : "enhanced" })),
+  setProperMotionYears: (years) => set({ properMotionYears: years }),
+  setStarLODTier: (tier) => set({ starLODTier: tier }),
+  toggleSkyDirectionLayer: () =>
+    set((st) => ({ showSkyDirectionLayer: !st.showSkyDirectionLayer })),
+  toggleProceduralStars: () => set((st) => ({ showProceduralStars: !st.showProceduralStars })),
   setSelected: (s) =>
     set({ exoVisit: null, selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),

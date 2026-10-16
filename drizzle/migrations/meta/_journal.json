@@ -15,6 +15,13 @@
       "when": 1791186554809,
       "tag": "0001_add_atomic_access_activation",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792186554810,
+      "tag": "0002_create_astronomical_catalog_tables",
+      "breakpoints": true
     }
   ]
 }

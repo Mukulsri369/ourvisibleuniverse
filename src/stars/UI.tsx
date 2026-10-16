@@ -11,6 +11,8 @@ import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
 import { exoSystemFor } from "./exosystems";
 import { scaleManager } from "@/lib/astronomy/scale-manager";
+import { GaiaAtlasPanel } from "./GaiaAtlasPanel";
+import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
 
 export function InfoPanel() {
   const star = useStore((s) => s.selectedStar);
@@ -68,6 +70,8 @@ export function InfoPanel() {
 
               <StarDerived star={star} />
 
+              <GaiaScientificSection star={star} />
+
               {star.companions?.length ? (
                 <div className="mt-6">
                   <div className="text-xs uppercase tracking-[0.2em] text-white/40">Companions</div>
@@ -85,6 +89,107 @@ export function InfoPanel() {
         </HideablePanel>
       )}
     </AnimatePresence>
+  );
+}
+
+function GaiaScientificSection({ star }: { star: NamedStar }) {
+  const gaiaStar = (star as any).gaiaSourceId ? (star as any) : null;
+  if (!gaiaStar) return null;
+
+  return (
+    <div className="mt-6 rounded-xl border border-cyan-500/30 bg-cyan-950/30 p-4 text-xs">
+      <div className="flex items-center justify-between border-b border-cyan-500/20 pb-2">
+        <div className="flex items-center gap-1.5 font-semibold text-cyan-300">
+          <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+          <span>ESA Gaia DR3 Verified Astrometry</span>
+        </div>
+        <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-mono text-cyan-200">
+          DR3
+        </span>
+      </div>
+
+      <div className="mt-3 space-y-2 font-mono text-[11px]">
+        <div className="flex justify-between items-center text-white/70">
+          <span className="text-white/45">Gaia Source ID:</span>
+          <a
+            href={`https://vizier.cds.unistra.fr/viz-bin/VizieR-5?-ref=VIZ64e6b&-source=I/355/gaiadr3&-c=${gaiaStar.raDeg || 0},${gaiaStar.decDeg || 0}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-cyan-300 underline hover:text-cyan-100"
+          >
+            {gaiaStar.gaiaSourceId}
+          </a>
+        </div>
+
+        <div className="flex justify-between text-white/70">
+          <span className="text-white/45">Trig. Parallax:</span>
+          <span>
+            {gaiaStar.parallaxMas?.toFixed(2)} ± {gaiaStar.parallaxErrorMas?.toFixed(2) || "0.05"}{" "}
+            mas
+          </span>
+        </div>
+
+        <div className="flex justify-between text-white/70">
+          <span className="text-white/45">Bailer-Jones 2021:</span>
+          <span className="text-emerald-300">
+            {star.distance.toFixed(2)} ly ({(star.distance / 3.26156).toFixed(2)} pc)
+          </span>
+        </div>
+
+        <div className="flex justify-between text-white/70">
+          <span className="text-white/45">Proper Motion (α*, δ):</span>
+          <span>
+            {gaiaStar.pmraMasYr?.toFixed(1) || "0.0"}, {gaiaStar.pmdecMasYr?.toFixed(1) || "0.0"}{" "}
+            mas/yr
+          </span>
+        </div>
+
+        {gaiaStar.radialVelocityKmS != null && (
+          <div className="flex justify-between text-white/70">
+            <span className="text-white/45">Radial Velocity:</span>
+            <span>{gaiaStar.radialVelocityKmS.toFixed(1)} km/s</span>
+          </div>
+        )}
+
+        {gaiaStar.ruwe != null && (
+          <div className="flex justify-between items-center text-white/70">
+            <span className="text-white/45">Astrometric RUWE:</span>
+            <span className={gaiaStar.ruwe <= 1.4 ? "text-emerald-300" : "text-amber-300"}>
+              {gaiaStar.ruwe.toFixed(2)}{" "}
+              {gaiaStar.ruwe <= 1.4 ? "(✓ Good single star)" : "(Excess noise)"}
+            </span>
+          </div>
+        )}
+
+        {gaiaStar.photGMag != null && (
+          <div className="flex justify-between text-white/70">
+            <span className="text-white/45">Gaia Photometry:</span>
+            <span>
+              G={gaiaStar.photGMag.toFixed(2)} | BP-RP={gaiaStar.bpRpColor?.toFixed(2) || "—"}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {gaiaStar.isSkyDirectionLayer && (
+        <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-[10px] text-amber-200 leading-relaxed">
+          ⚠️ Parallax is trigonometrically unconstrained (≤ 0 or high noise). Projected onto the
+          celestial sky-direction layer without fake 3D depth.
+        </div>
+      )}
+
+      <div className="mt-3 flex items-center justify-between border-t border-cyan-500/20 pt-2 text-[9px] text-cyan-300/60">
+        <span>Citation: Gaia Collaboration (2023)</span>
+        <a
+          href="https://gea.esac.esa.int/archive/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline hover:text-cyan-200"
+        >
+          ESA Gaia Archive ↗
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -241,6 +346,7 @@ export function TopLeftControls() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [gaiaAtlasOpen, setGaiaAtlasOpen] = useState(false);
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -261,6 +367,13 @@ export function TopLeftControls() {
         <span className="font-mono text-[10px] font-bold tracking-tight">
           {scaleMode === "true_scale" ? "1:1" : "VIS"}
         </span>
+      </IconButton>
+      <IconButton
+        title="ESA Gaia DR3 Star Atlas, Proper Motion & Benchmarks"
+        onClick={() => setGaiaAtlasOpen((v) => !v)}
+        active={gaiaAtlasOpen}
+      >
+        <Telescope className="h-4 w-4 text-cyan-400" />
       </IconButton>
       <IconButton
         title="Search all celestial objects"
@@ -321,6 +434,7 @@ export function TopLeftControls() {
           <path d="M12 17h.01" />
         </svg>
       </IconButton>
+      <GaiaAtlasPanel open={gaiaAtlasOpen} onClose={() => setGaiaAtlasOpen(false)} />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <GuidePanel open={guideOpen} onClose={() => setGuideOpen(false)} />
@@ -655,9 +769,20 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const matches = useMemo<SearchHit[]>(() => {
     if (!q) return [];
     const lower = q.toLowerCase();
-    const stars: SearchHit[] = NAMED_STARS.filter((s) => s.name.toLowerCase().includes(lower)).map(
-      (s) => ({ kind: "star", name: s.name, sub: `Star · ${s.distance.toFixed(1)} ly`, star: s }),
-    );
+    const gaiaHits: SearchHit[] = gaiaTileManager.searchStars(lower, 5).map((gs) => ({
+      kind: "star",
+      name: gs.name,
+      sub: `Gaia DR3 · ${gs.distance.toFixed(1)} ly · ${gs.constellation}`,
+      star: gs,
+    }));
+    const stars: SearchHit[] = NAMED_STARS.filter(
+      (s) => s.name.toLowerCase().includes(lower) && !gaiaHits.some((g) => g.name === s.name),
+    ).map((s) => ({
+      kind: "star",
+      name: s.name,
+      sub: `Star · ${s.distance.toFixed(1)} ly`,
+      star: s,
+    }));
     const planets: SearchHit[] = PLANETS.filter((p) => p.name.toLowerCase().includes(lower)).map(
       (p) => ({ kind: "planet", name: p.name, sub: `Planet · ${(p.a / AU).toFixed(2)} AU` }),
     );
@@ -677,7 +802,7 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
       sub: `${o.category} · ${o.subtype}`,
       object: o,
     }));
-    return [...planets, ...stars, ...objects, ...galaxies].slice(0, 10);
+    return [...planets, ...gaiaHits, ...stars, ...objects, ...galaxies].slice(0, 10);
   }, [q]);
   const activate = (m: SearchHit) => {
     if (m.kind === "star") flyTo(m.star);

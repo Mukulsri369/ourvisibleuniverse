@@ -92,11 +92,17 @@ function StarLabel({
 
 export function StarLabels() {
   const [hovered, setHovered] = useState<string | null>(null);
+  const selectedStar = useStore((s) => s.selectedStar);
+  const isSelectedInNamed = selectedStar && NAMED_STARS.some((s) => s.name === selectedStar.name);
+
   return (
     <>
       {NAMED_STARS.map((s) => (
         <StarLabel key={s.name} star={s} hovered={hovered} setHovered={setHovered} />
       ))}
+      {selectedStar && !isSelectedInNamed && (
+        <StarLabel star={selectedStar} hovered={hovered} setHovered={setHovered} />
+      )}
     </>
   );
 }
