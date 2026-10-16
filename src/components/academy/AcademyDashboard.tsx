@@ -22,7 +22,10 @@ import { Module09Layout } from "./Module09Layout";
 import { Module10Layout } from "./Module10Layout";
 import { Module11Layout } from "./Module11Layout";
 import { Module14Layout } from "./Module14Layout";
+import { Module15Layout } from "./Module15Layout";
 import { Link, useNavigate } from "@tanstack/react-router";
+
+const ACTIVE_MODULE_IDS = ["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14", "15"];
 import {
   Sparkles,
   Compass,
@@ -91,8 +94,8 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     if (initialModuleId === "11") {
       return ACADEMY_MODULES.find((m) => m.id === "11") || null;
     }
-    if (initialModuleId === "14") {
-      return ACADEMY_MODULES.find((m) => m.id === "14") || null;
+    if (initialModuleId && ACTIVE_MODULE_IDS.includes(initialModuleId)) {
+      return ACADEMY_MODULES.find((m) => m.id === initialModuleId) || null;
     }
     return null;
   });
@@ -132,7 +135,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
       void navigate({ to: "/galaxies" });
       return;
     }
-    if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14"].includes(module.id)) {
+    if (ACTIVE_MODULE_IDS.includes(module.id)) {
       setActiveLessonModule(module);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -164,7 +167,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -201,7 +204,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -238,7 +241,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -275,7 +278,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -312,7 +315,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -349,7 +352,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -386,7 +389,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -423,7 +426,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -460,7 +463,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (["01", "02", "04", "05", "06", "07", "08", "09", "10", "11"].includes(mod.id)) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -497,9 +500,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (
-                ["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14"].includes(mod.id)
-              ) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {
@@ -536,9 +537,44 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 : undefined
             }
             onSelectNextModule={(mod) => {
-              if (
-                ["01", "02", "04", "05", "06", "07", "08", "09", "10", "11", "14"].includes(mod.id)
-              ) {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
+                setActiveLessonModule(mod);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              } else {
+                setActiveLessonModule(null);
+                setPreviewModule(mod);
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // If viewing Module 15: Galaxy Groups, Clusters & Cosmic Web
+  if (activeLessonModule && activeLessonModule.id === "15") {
+    return (
+      <div
+        className={`min-h-screen bg-slate-950 text-slate-100 ${settings.fontSize === "large" ? "text-base" : "text-sm"}`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+          <Module15Layout
+            module={activeLessonModule}
+            progress={progress}
+            onSetLearningLevel={setLearningLevel}
+            onUpdateModuleProgress={setModuleProgress}
+            onRecordQuiz={recordQuizResult}
+            onBackToMap={() => setActiveLessonModule(null)}
+            nextRecommended={
+              primaryRecommendation && primaryRecommendation.module.id !== "15"
+                ? {
+                    module: primaryRecommendation.module,
+                    reason: primaryRecommendation.reason,
+                  }
+                : undefined
+            }
+            onSelectNextModule={(mod) => {
+              if (ACTIVE_MODULE_IDS.includes(mod.id)) {
                 setActiveLessonModule(mod);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               } else {

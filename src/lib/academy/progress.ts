@@ -87,6 +87,13 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
       "Mastered Schwarzschild radii, pulsar magnetic poles, and gravitational waves in the Extreme Objects Laboratory.",
     icon: "🕳️",
   },
+  {
+    id: "cosmic_web_cartographer",
+    title: "Cosmic Web Cartographer",
+    description:
+      "Navigated from the Local Group through galaxy clusters, superclusters, and cosmic voids to map the large-scale scaffolding of the universe.",
+    icon: "🕸️",
+  },
 ];
 
 const DEFAULT_PROGRESS: UserProgress = {
@@ -104,6 +111,7 @@ const DEFAULT_PROGRESS: UserProgress = {
     "11": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "13": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "14": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
+    "15": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
     "19": { status: "not_started", percent: 0, lastOpenedAt: "2026-01-01T00:00:00.000Z" },
   },
   completedLessons: [],

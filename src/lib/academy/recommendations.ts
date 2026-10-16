@@ -172,9 +172,23 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: "primary",
       });
     }
+  } else if (progress.moduleProgress["15"]?.status !== "completed") {
+    // Recommend Stage 4 Module 15: Galaxy Groups, Clusters & Cosmic Web
+    const mod15 = ACADEMY_MODULES.find((m) => m.id === "15");
+    if (mod15) {
+      recommendations.push({
+        module: mod15,
+        reason:
+          progress.moduleProgress["15"]?.status === "in_progress"
+            ? "Continue zooming through large-scale structure, cosmic filaments, and mapping density fields."
+            : "Ascend to the largest architectural scale in the cosmos: navigate the Local Group, Virgo Cluster, Laniakea, and the cosmic web scaffolding!",
+        badge: "Cosmic Scaffolding",
+        priority: "primary",
+      });
+    }
   }
 
-  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14 (Black Holes & Neutron Stars)
+  // 2. Recommend Module 13 (Galaxies) or post-completion Module 14/15
   if (module13Progress !== "completed") {
     const mod13 = ACADEMY_MODULES.find((m) => m.id === "13");
     if (mod13) {
@@ -185,7 +199,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         priority: module01Progress === "completed" ? "primary" : "secondary",
       });
     }
-  } else {
+  } else if (progress.moduleProgress["14"]?.status !== "completed") {
     const mod14 = ACADEMY_MODULES.find((m) => m.id === "14");
     if (mod14) {
       recommendations.push({
@@ -193,6 +207,17 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
         reason:
           "Now that you understand galactic structures and central supermassive black holes, delve into extreme relativity, pulsars, and spacetime singularities!",
         badge: "Extreme Physics",
+        priority: "primary",
+      });
+    }
+  } else {
+    const mod15 = ACADEMY_MODULES.find((m) => m.id === "15");
+    if (mod15) {
+      recommendations.push({
+        module: mod15,
+        reason:
+          "Map the grandest cosmic tapestry: filamentary bridges, colossal supervoids, and dark matter scaffolding connecting galaxy clusters across gigaparsecs!",
+        badge: "Large Scale Structure",
         priority: "primary",
       });
     }
