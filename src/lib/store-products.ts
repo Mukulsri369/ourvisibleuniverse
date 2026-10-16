@@ -236,7 +236,8 @@ export async function fetchLiveStoreProducts(): Promise<StoreProduct[]> {
         .map((img) => img.image_url)
         .filter((url): url is string => Boolean(url));
 
-      const priceNum = typeof item.price === "number" ? item.price : parseFloat(item.price ?? "") || 999;
+      const priceNum =
+        typeof item.price === "number" ? item.price : parseFloat(item.price ?? "") || 999;
       const originalPriceNum = Math.round(priceNum * 1.3 + 99);
 
       let badge = "Authentic Store Item";
