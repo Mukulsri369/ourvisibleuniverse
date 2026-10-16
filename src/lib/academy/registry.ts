@@ -136,8 +136,8 @@ export const ACADEMY_MODULES: ModuleContract[] = [
         url: "https://science.nasa.gov/universe/exoplanets/how-do-we-measure-distances-in-space/",
       },
     ],
-    status: "coming_soon",
-    version: "0.9.0",
+    status: "ready",
+    version: "1.0.0",
   },
   {
     id: "04",

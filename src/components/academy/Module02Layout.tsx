@@ -341,30 +341,30 @@ export function Module02Layout({
               size="lg"
               onClick={() => {
                 const targetMod = nextRecommended?.module || {
-                  id: "04",
-                  slug: "light-time-and-cosmic-observation",
-                  number: 4,
-                  title: "Light, Time & Cosmic Observation",
-                  subtitle: "Looking outward is looking backward in time",
+                  id: "03",
+                  slug: "cosmic-distances-and-scale",
+                  number: 3,
+                  title: "Cosmic Distances & Scale",
+                  subtitle: "Astronomical Units, Light-Years and Parsecs",
                   description:
-                    "Discover why the speed of light turns every telescope into a genuine time machine.",
+                    "Grasp the mind-bending gulfs of empty space between worlds and why standard kilometers fail in deep space.",
                   stageId: 1,
-                  recommendedOrder: 4,
-                  difficultyLevels: ["Intermediate"],
+                  recommendedOrder: 3,
+                  difficultyLevels: ["Beginner", "Intermediate"],
                   learningObjectives: [],
-                  prerequisites: ["03"],
-                  route: "/learn?module=04",
+                  prerequisites: ["01"],
+                  route: "/learn?module=03",
                   estimatedMinutes: 20,
-                  visualAssets: { iconName: "Eye", badgeColor: "" },
+                  visualAssets: { iconName: "Ruler", badgeColor: "" },
                   scientificSources: [],
                   status: "ready",
                   version: "1.0.0",
                 };
                 onSelectNextModule(targetMod);
               }}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg"
+              className="bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold shadow-lg"
             >
-              <span>Start Module 04: Light & Time</span>
+              <span>Start Module 03: Cosmic Distances & Scale</span>
               <ArrowRight className="size-4 ml-2" />
             </Button>
           ) : (

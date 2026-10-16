@@ -12,6 +12,7 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
   const recommendations: Recommendation[] = [];
   const module01Progress = progress.moduleProgress["01"]?.status;
   const module02Progress = progress.moduleProgress["02"]?.status;
+  const module03Progress = progress.moduleProgress["03"]?.status;
   const module04Progress = progress.moduleProgress["04"]?.status;
   const module05Progress = progress.moduleProgress["05"]?.status;
   const module06Progress = progress.moduleProgress["06"]?.status;
@@ -44,6 +45,19 @@ export function getAdaptiveRecommendations(progress: UserProgress): Recommendati
             ? "Continue navigating the night sky in your 360° virtual planetarium dome."
             : "Now that you know your cosmic coordinates, look up to navigate the night sky, locate Polaris, and map the constellations.",
         badge: "Next Adventure",
+        priority: "primary",
+      });
+    }
+  } else if (module03Progress !== "completed") {
+    const mod03 = ACADEMY_MODULES.find((m) => m.id === "03");
+    if (mod03) {
+      recommendations.push({
+        module: mod03,
+        reason:
+          module03Progress === "in_progress"
+            ? "Continue traversing cosmic scales and experimenting with powers of ten in the Cosmic Scale Laboratory."
+            : "Explore astronomical units, light-years, the basketball solar system, and why ordinary kilometers fail in deep space.",
+        badge: "Scale Explorer",
         priority: "primary",
       });
     }
