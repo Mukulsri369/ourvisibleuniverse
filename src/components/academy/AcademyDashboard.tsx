@@ -141,7 +141,7 @@ function ModuleLoadingFallback({ title }: { title: string }) {
 // Unified renderer for active module layouts
 function renderActiveModule(
   moduleId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   props: any,
 ) {
   switch (moduleId) {

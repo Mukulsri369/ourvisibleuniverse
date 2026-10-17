@@ -352,31 +352,31 @@ export function CosmicWebExplorerModal() {
 
                     {/* Survey Checkboxes */}
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
-                      {(
-                        Object.keys(SURVEY_FOOTPRINTS) as (keyof typeof SURVEY_FOOTPRINTS)[]
-                      ).map((sId) => {
-                        const fp = SURVEY_FOOTPRINTS[sId];
-                        const isChecked = selectedSurveys[sId] ?? true;
-                        return (
-                          <div
-                            key={sId}
-                            onClick={() => toggleSurvey(sId)}
-                            className={`cursor-pointer rounded-lg border p-2.5 transition flex flex-col justify-between ${
-                              isChecked
-                                ? "border-cyan-500/50 bg-cyan-950/20 text-white"
-                                : "border-white/5 bg-slate-950/40 text-slate-500"
-                            }`}
-                          >
-                            <div className="font-semibold">{fp.name.split(" ")[0]}</div>
-                            <div className="text-[10px] text-slate-400 mt-1 line-clamp-1">
-                              {fp.geometryType.replace(/_/g, " ")}
+                      {(Object.keys(SURVEY_FOOTPRINTS) as (keyof typeof SURVEY_FOOTPRINTS)[]).map(
+                        (sId) => {
+                          const fp = SURVEY_FOOTPRINTS[sId];
+                          const isChecked = selectedSurveys[sId] ?? true;
+                          return (
+                            <div
+                              key={sId}
+                              onClick={() => toggleSurvey(sId)}
+                              className={`cursor-pointer rounded-lg border p-2.5 transition flex flex-col justify-between ${
+                                isChecked
+                                  ? "border-cyan-500/50 bg-cyan-950/20 text-white"
+                                  : "border-white/5 bg-slate-950/40 text-slate-500"
+                              }`}
+                            >
+                              <div className="font-semibold">{fp.name.split(" ")[0]}</div>
+                              <div className="text-[10px] text-slate-400 mt-1 line-clamp-1">
+                                {fp.geometryType.replace(/_/g, " ")}
+                              </div>
+                              <div className="text-[10px] text-cyan-400 mt-1 font-mono">
+                                z: {fp.redshiftRange[0]} - {fp.redshiftRange[1]}
+                              </div>
                             </div>
-                            <div className="text-[10px] text-cyan-400 mt-1 font-mono">
-                              z: {fp.redshiftRange[0]} - {fp.redshiftRange[1]}
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        },
+                      )}
                     </div>
 
                     {/* Redshift Slider Filter */}
@@ -388,8 +388,10 @@ export function CosmicWebExplorerModal() {
                         </span>
                         <span className="text-cyan-400 font-mono text-[11px]">
                           Lookback: ~
-                          {calculateCosmologicalDistances(redshiftFilter[1], currentCosmo)
-                            .lookbackTimeGyr.toFixed(2)}{" "}
+                          {calculateCosmologicalDistances(
+                            redshiftFilter[1],
+                            currentCosmo,
+                          ).lookbackTimeGyr.toFixed(2)}{" "}
                           Gyr
                         </span>
                       </div>
@@ -681,31 +683,31 @@ export function CosmicWebExplorerModal() {
                 <div className="rounded-xl border border-white/10 bg-slate-900/40 p-5 space-y-4">
                   <h4 className="font-bold text-white text-sm">Cosmology Model Parameters</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                    {(
-                      Object.keys(COSMOLOGICAL_MODELS) as (keyof typeof COSMOLOGICAL_MODELS)[]
-                    ).map((mKey) => {
-                      const m = COSMOLOGICAL_MODELS[mKey];
-                      const isSel = cosmologyModelKey === mKey;
-                      return (
-                        <div
-                          key={mKey}
-                          onClick={() => setCosmologyModelKey(mKey)}
-                          className={`cursor-pointer rounded-lg border p-3 transition ${
-                            isSel
-                              ? "border-cyan-400 bg-cyan-950/30 text-white shadow-md"
-                              : "border-white/10 bg-slate-950/40 text-slate-400 hover:text-white"
-                          }`}
-                        >
-                          <div className="font-bold text-xs">{m.name}</div>
-                          <div className="mt-1 font-mono text-[10px] text-cyan-400">
-                            H₀ = {m.h0} km/s/Mpc
+                    {(Object.keys(COSMOLOGICAL_MODELS) as (keyof typeof COSMOLOGICAL_MODELS)[]).map(
+                      (mKey) => {
+                        const m = COSMOLOGICAL_MODELS[mKey];
+                        const isSel = cosmologyModelKey === mKey;
+                        return (
+                          <div
+                            key={mKey}
+                            onClick={() => setCosmologyModelKey(mKey)}
+                            className={`cursor-pointer rounded-lg border p-3 transition ${
+                              isSel
+                                ? "border-cyan-400 bg-cyan-950/30 text-white shadow-md"
+                                : "border-white/10 bg-slate-950/40 text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            <div className="font-bold text-xs">{m.name}</div>
+                            <div className="mt-1 font-mono text-[10px] text-cyan-400">
+                              H₀ = {m.h0} km/s/Mpc
+                            </div>
+                            <div className="font-mono text-[10px] text-slate-400">
+                              Ω_m = {m.omegaM} • Ω_Λ = {m.omegaLambda}
+                            </div>
                           </div>
-                          <div className="font-mono text-[10px] text-slate-400">
-                            Ω_m = {m.omegaM} • Ω_Λ = {m.omegaLambda}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      },
+                    )}
                   </div>
 
                   {/* Interactive Redshift-Distance FLRW Calculator */}
@@ -715,7 +717,8 @@ export function CosmicWebExplorerModal() {
                         FLRW Metric Calculator at Redshift z = {calcZ.toFixed(3)}
                       </span>
                       <span className="text-slate-400 font-mono text-[11px]">
-                        Hubble Expansion Rate H(z) = {cosmoMetrics.hubbleParameterKmSPerMpc.toFixed(1)} km/s/Mpc
+                        Hubble Expansion Rate H(z) ={" "}
+                        {cosmoMetrics.hubbleParameterKmSPerMpc.toFixed(1)} km/s/Mpc
                       </span>
                     </div>
 
@@ -736,7 +739,7 @@ export function CosmicWebExplorerModal() {
                           {cosmoMetrics.comovingDistanceGly.toFixed(3)} Gly
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          {(cosmoMetrics.comovingDistanceMpc).toFixed(1)} Mpc
+                          {cosmoMetrics.comovingDistanceMpc.toFixed(1)} Mpc
                         </div>
                       </div>
 
@@ -766,7 +769,7 @@ export function CosmicWebExplorerModal() {
                           {cosmoMetrics.angularDiameterDistanceGly.toFixed(3)} Gly
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          Scale: {(cosmoMetrics.kpcPerArcsec).toFixed(2)} kpc/arcsec
+                          Scale: {cosmoMetrics.kpcPerArcsec.toFixed(2)} kpc/arcsec
                         </div>
                       </div>
                     </div>
@@ -802,7 +805,9 @@ export function CosmicWebExplorerModal() {
                         <span className="font-mono text-white">1.77 ± 0.04</span>
                       </div>
                       <div className="flex justify-between py-1 border-b border-white/5">
-                        <span className="text-slate-400">Baryon Acoustic Oscillation (BAO) Peak:</span>
+                        <span className="text-slate-400">
+                          Baryon Acoustic Oscillation (BAO) Peak:
+                        </span>
                         <span className="font-mono text-cyan-400">r ≈ 105 h⁻¹ Mpc (147 Mpc)</span>
                       </div>
                       <div className="flex justify-between py-1">
@@ -824,7 +829,9 @@ export function CosmicWebExplorerModal() {
                     </p>
                     <div className="space-y-2 text-xs">
                       <div className="flex items-center justify-between rounded bg-white/5 p-2">
-                        <span className="text-slate-300">Cosmic Volume Filling Fraction of Voids:</span>
+                        <span className="text-slate-300">
+                          Cosmic Volume Filling Fraction of Voids:
+                        </span>
                         <span className="font-mono font-bold text-purple-400">60% – 75%</span>
                       </div>
                       <div className="flex items-center justify-between rounded bg-white/5 p-2">
@@ -957,7 +964,8 @@ export function CosmicWebExplorerModal() {
                         al. (2018). "Matter and galaxy clustering", MNRAS 475, 676.
                       </p>
                       <div className="text-[10px] text-slate-400 font-mono">
-                        Bibcode: 2019ComAC...6....2N • Simulation URL: https://www.tng-project.org/data/
+                        Bibcode: 2019ComAC...6....2N • Simulation URL:
+                        https://www.tng-project.org/data/
                       </div>
                     </div>
 
@@ -967,8 +975,8 @@ export function CosmicWebExplorerModal() {
                       </div>
                       <p className="text-slate-300 text-[11px]">
                         Ahumada, R., et al. (2020). "The 16th Data Release of the Sloan Digital Sky
-                        Survey: First Results from APOGEE-2 and MaNGA", ApJS 249, 3; Alam, S., et al.
-                        (2021). PRD 103, 083533.
+                        Survey: First Results from APOGEE-2 and MaNGA", ApJS 249, 3; Alam, S., et
+                        al. (2021). PRD 103, 083533.
                       </p>
                       <div className="text-[10px] text-slate-400 font-mono">
                         Bibcode: 2020ApJS..249....3A • Sky Coverage: 14,555 deg²
@@ -984,7 +992,8 @@ export function CosmicWebExplorerModal() {
                         redshifts", MNRAS 328, 1039; Cole, S., et al. (2005). MNRAS 362, 505.
                       </p>
                       <div className="text-[10px] text-slate-400 font-mono">
-                        Bibcode: 2001MNRAS.328.1039C • Angular wedges across southern celestial hemisphere
+                        Bibcode: 2001MNRAS.328.1039C • Angular wedges across southern celestial
+                        hemisphere
                       </div>
                     </div>
 

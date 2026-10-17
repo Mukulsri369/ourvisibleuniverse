@@ -135,7 +135,9 @@ function InteractiveBlackHoleCanvas({
       uTime: { value: 0 },
       uSpin: { value: spin },
       uInclination: { value: (inclinationDeg * Math.PI) / 180 },
-      uAccretionMode: { value: accretionMode === "dormant" ? 0 : accretionMode === "active" ? 1 : 2 },
+      uAccretionMode: {
+        value: accretionMode === "dormant" ? 0 : accretionMode === "active" ? 1 : 2,
+      },
       uGeodesicMode: { value: geodesicMode === "fast" ? 0 : 1 },
     }),
     [color, spin, inclinationDeg, accretionMode, geodesicMode],
@@ -446,7 +448,11 @@ export function CompactObjectLabModal() {
                   </span>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { mode: "dormant", label: "Dormant / Isolated", desc: "No disk, pure lensing" },
+                      {
+                        mode: "dormant",
+                        label: "Dormant / Isolated",
+                        desc: "No disk, pure lensing",
+                      },
                       { mode: "active", label: "Standard Accretion", desc: "Warped disk & ISCO" },
                       { mode: "jet", label: "Relativistic Jet", desc: "Collimated plasma outflow" },
                     ].map((m) => (
@@ -550,23 +556,32 @@ export function CompactObjectLabModal() {
                 <div className="rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/20 to-black p-4 space-y-3">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-300 border-b border-white/10 pb-1.5 flex items-center justify-between">
                     <span>Relativistic Calculations</span>
-                    <span className="text-slate-400 font-mono text-[9px]">G = c = 1 Normalized</span>
+                    <span className="text-slate-400 font-mono text-[9px]">
+                      G = c = 1 Normalized
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <span className="text-[10px] text-slate-400 block">Schwarzschild Radius (Rs):</span>
+                      <span className="text-[10px] text-slate-400 block">
+                        Schwarzschild Radius (Rs):
+                      </span>
                       <span className="font-mono text-white font-bold">
                         {metrics.schwarzschildRadiusMeters >= 1.496e11
                           ? `${(metrics.schwarzschildRadiusMeters / 1.496e11).toFixed(2)} AU`
-                          : `${(metrics.schwarzschildRadiusMeters / 1000).toLocaleString(undefined, {
-                              maximumFractionDigits: 1,
-                            })} km`}
+                          : `${(metrics.schwarzschildRadiusMeters / 1000).toLocaleString(
+                              undefined,
+                              {
+                                maximumFractionDigits: 1,
+                              },
+                            )} km`}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 block">Kerr Event Horizon (R+):</span>
+                      <span className="text-[10px] text-slate-400 block">
+                        Kerr Event Horizon (R+):
+                      </span>
                       <span className="font-mono text-cyan-300 font-bold">
                         {metrics.kerrHorizonRadiusMeters >= 1.496e11
                           ? `${(metrics.kerrHorizonRadiusMeters / 1.496e11).toFixed(2)} AU`
@@ -588,23 +603,29 @@ export function CompactObjectLabModal() {
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 block">Apparent Shadow (2 b_crit):</span>
+                      <span className="text-[10px] text-slate-400 block">
+                        Apparent Shadow (2 b_crit):
+                      </span>
                       <span className="font-mono text-white font-bold">
-                        {(metrics.apparentShadowDiameterMeters / 1000 >= 1e6
+                        {metrics.apparentShadowDiameterMeters / 1000 >= 1e6
                           ? `${(metrics.apparentShadowDiameterMeters / 1.496e11).toFixed(2)} AU`
-                          : `${Math.round(metrics.apparentShadowDiameterMeters / 1000).toLocaleString()} km`)}
+                          : `${Math.round(metrics.apparentShadowDiameterMeters / 1000).toLocaleString()} km`}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 block">ISCO Gravitational Redshift:</span>
+                      <span className="text-[10px] text-slate-400 block">
+                        ISCO Gravitational Redshift:
+                      </span>
                       <span className="font-mono text-purple-300 font-bold">
                         z_grav = {metrics.gravitationalRedshiftAtISCO.toFixed(3)}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] text-slate-400 block">Doppler Beaming Boost:</span>
+                      <span className="text-[10px] text-slate-400 block">
+                        Doppler Beaming Boost:
+                      </span>
                       <span className="font-mono text-emerald-300 font-bold">
                         {doppler.intensityFactor.toFixed(2)}× intensity
                       </span>
@@ -622,7 +643,8 @@ export function CompactObjectLabModal() {
                   Verified Compact-Object Reference Gallery
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
-                  Catalogued reference examples across all 10 compact object classes with real coordinates, mass measurements, and empirical citations.
+                  Catalogued reference examples across all 10 compact object classes with real
+                  coordinates, mass measurements, and empirical citations.
                 </p>
               </div>
 
@@ -637,7 +659,9 @@ export function CompactObjectLabModal() {
                         <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400">
                           {item.category}
                         </span>
-                        <span className="text-[10px] text-slate-500">{item.distance.toLocaleString()} ly</span>
+                        <span className="text-[10px] text-slate-500">
+                          {item.distance.toLocaleString()} ly
+                        </span>
                       </div>
                       <h4 className="text-lg font-bold text-white mt-2 group-hover:text-cyan-300 transition">
                         {item.name}
@@ -661,9 +685,13 @@ export function CompactObjectLabModal() {
                           )}
                           <div className="flex justify-between text-slate-400">
                             <span>Accretion:</span>
-                            <span className={`font-mono capitalize ${
-                              item.compactPhysics.hasAccretionDisk ? "text-amber-300" : "text-emerald-400"
-                            }`}>
+                            <span
+                              className={`font-mono capitalize ${
+                                item.compactPhysics.hasAccretionDisk
+                                  ? "text-amber-300"
+                                  : "text-emerald-400"
+                              }`}
+                            >
                               {item.compactPhysics.accretionState.replace("_", " ")}
                             </span>
                           </div>
@@ -672,7 +700,10 @@ export function CompactObjectLabModal() {
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-                      <span className="text-[9px] text-slate-500 truncate max-w-[170px]" title={item.source}>
+                      <span
+                        className="text-[9px] text-slate-500 truncate max-w-[170px]"
+                        title={item.source}
+                      >
                         {item.source}
                       </span>
                       <button
@@ -699,7 +730,8 @@ export function CompactObjectLabModal() {
                   Theoretical Foundations of Relativistic Spacetime
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
-                  Mathematical rigor, general relativity invariants, and observational distinction between dormant and accreting compact bodies.
+                  Mathematical rigor, general relativity invariants, and observational distinction
+                  between dormant and accreting compact bodies.
                 </p>
               </div>
 
@@ -709,14 +741,23 @@ export function CompactObjectLabModal() {
                     1. Why Black Holes Are Not Inherently Luminous
                   </h4>
                   <p>
-                    A black hole itself has zero intrinsic surface luminosity. By definition, its interior is bounded by the event horizon $R_s = 2GM/c^2$, inside which escape velocity exceeds the speed of light. Its visual appearance in deep space depends entirely on:
+                    A black hole itself has zero intrinsic surface luminosity. By definition, its
+                    interior is bounded by the event horizon $R_s = 2GM/c^2$, inside which escape
+                    velocity exceeds the speed of light. Its visual appearance in deep space depends
+                    entirely on:
                   </p>
                   <ul className="list-disc pl-5 mt-2 space-y-1 text-xs text-slate-300">
                     <li>
-                      <strong>Accretion Environment:</strong> Quiescent, isolated black holes (such as Gaia BH1 and Gaia BH3) have no dense companion star wind or gas reservoir. They produce <em>zero hot accretion glow</em> and appear as pure gravitational light-deflecting shadows against the stellar background.
+                      <strong>Accretion Environment:</strong> Quiescent, isolated black holes (such
+                      as Gaia BH1 and Gaia BH3) have no dense companion star wind or gas reservoir.
+                      They produce <em>zero hot accretion glow</em> and appear as pure gravitational
+                      light-deflecting shadows against the stellar background.
                     </li>
                     <li>
-                      <strong>Viscous Dissipation:</strong> Accreting systems (such as Cygnus X-1 and quasars) heat infalling plasma via magnetorotational turbulence to millions of Kelvin, radiating X-rays and ultraviolet light before crossing the Innermost Stable Circular Orbit.
+                      <strong>Viscous Dissipation:</strong> Accreting systems (such as Cygnus X-1
+                      and quasars) heat infalling plasma via magnetorotational turbulence to
+                      millions of Kelvin, radiating X-rays and ultraviolet light before crossing the
+                      Innermost Stable Circular Orbit.
                     </li>
                   </ul>
                 </div>
@@ -726,17 +767,23 @@ export function CompactObjectLabModal() {
                     2. Kerr Metric &amp; Asymmetric Shadow Distortion
                   </h4>
                   <p>
-                    Rotating black holes drag spacetime itself through frame dragging (the Lense-Thirring effect). As the dimensionless spin parameter a* → 1:
+                    Rotating black holes drag spacetime itself through frame dragging (the
+                    Lense-Thirring effect). As the dimensionless spin parameter a* → 1:
                   </p>
                   <ul className="list-disc pl-5 mt-2 space-y-1 text-xs text-slate-300">
                     <li>
-                      The prograde Innermost Stable Circular Orbit contracts from 6 r_g (3 R_s) all the way down to 1.23 r_g (0.615 R_s), enabling accretion disks to reach much deeper into the gravitational potential.
+                      The prograde Innermost Stable Circular Orbit contracts from 6 r_g (3 R_s) all
+                      the way down to 1.23 r_g (0.615 R_s), enabling accretion disks to reach much
+                      deeper into the gravitational potential.
                     </li>
                     <li>
-                      The event horizon shadow becomes flattened into a characteristic D-shape silhouette on the approaching side.
+                      The event horizon shadow becomes flattened into a characteristic D-shape
+                      silhouette on the approaching side.
                     </li>
                     <li>
-                      Relativistic Doppler boosting concentrates emission into a forward beam proportional to δ^(3+α), causing the side rotating toward the observer to appear dramatically brighter and blueshifted.
+                      Relativistic Doppler boosting concentrates emission into a forward beam
+                      proportional to δ^(3+α), causing the side rotating toward the observer to
+                      appear dramatically brighter and blueshifted.
                     </li>
                   </ul>
                 </div>
@@ -746,17 +793,22 @@ export function CompactObjectLabModal() {
                     3. Neutron Star Electrodynamics &amp; Lighthouse Beams
                   </h4>
                   <p>
-                    Neutron stars pack 1.4 to 2.1 solar masses into a radius of just ~11.5 km. With magnetic dipole moments tilted at angle α to their rotational axis:
+                    Neutron stars pack 1.4 to 2.1 solar masses into a radius of just ~11.5 km. With
+                    magnetic dipole moments tilted at angle α to their rotational axis:
                   </p>
                   <ul className="list-disc pl-5 mt-2 space-y-1 text-xs text-slate-300">
                     <li>
-                      Ultra-relativistic plasma accelerates along open magnetic field lines, launching synchro-curvature radiation beams from the magnetic poles.
+                      Ultra-relativistic plasma accelerates along open magnetic field lines,
+                      launching synchro-curvature radiation beams from the magnetic poles.
                     </li>
                     <li>
-                      The light cylinder radius R_LC = c / Ω = c P / (2π) sets the boundary where co-rotation would require exceeding light speed, demarcating the wave zone.
+                      The light cylinder radius R_LC = c / Ω = c P / (2π) sets the boundary where
+                      co-rotation would require exceeding light speed, demarcating the wave zone.
                     </li>
                     <li>
-                      Thermal cooling neutron stars (like RX J1856.5-3754) lack strong active radio beams and glow unpulsed in soft X-rays, with gravitational surface deflection allowing more than 50% of the sphere to be visible at once.
+                      Thermal cooling neutron stars (like RX J1856.5-3754) lack strong active radio
+                      beams and glow unpulsed in soft X-rays, with gravitational surface deflection
+                      allowing more than 50% of the sphere to be visible at once.
                     </li>
                   </ul>
                 </div>

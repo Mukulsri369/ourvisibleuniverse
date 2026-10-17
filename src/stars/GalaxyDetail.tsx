@@ -150,7 +150,9 @@ function buildGalaxy(m: GalaxyModel): Geos {
       const flare = 1 + Math.min(2.0, r / (m.diskRadius * 0.4));
       const sigma = (m.diskRadius * (isFlocculent ? 0.12 : 0.06) * flare) / Math.max(r, rMin);
       const noise = onArm
-        ? (rand() + rand() + rand() - 1.5) * sigma * (isIrregular ? 1.6 : isFlocculent ? 1.35 : 0.85)
+        ? (rand() + rand() + rand() - 1.5) *
+          sigma *
+          (isIrregular ? 1.6 : isFlocculent ? 1.35 : 0.85)
         : (rand() - 0.5) * Math.PI * 0.95;
       const theta = ridge + noise;
       const scaleH = (rand() < 0.15 ? 0.045 : 0.012) * m.diskRadius;
@@ -161,10 +163,8 @@ function buildGalaxy(m: GalaxyModel): Geos {
         scaleH *
         Math.exp(-r / (m.diskRadius * 0.45));
 
-      const interactingOffset =
-        isInteracting ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
-      const tidalStretch =
-        isInteracting ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
+      const interactingOffset = isInteracting ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
+      const tidalStretch = isInteracting ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
 
       p[i * 3] = Math.cos(theta) * r * tidalStretch + interactingOffset;
       p[i * 3 + 1] = isDwarf ? z * 1.8 : z;
@@ -941,7 +941,11 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
         {m.system && <GxSystem m={m} system={m.system} />}
         {/* Labeled scientific reconstruction notice */}
         <Billboard position={[0, -m.diskRadius * 1.08, 0]}>
-          <Html center distanceFactor={Math.max(m.diskRadius * 6, 25000)} style={{ pointerEvents: "none" }}>
+          <Html
+            center
+            distanceFactor={Math.max(m.diskRadius * 6, 25000)}
+            style={{ pointerEvents: "none" }}
+          >
             <div className="flex flex-col items-center gap-1 rounded-md border border-cyan-500/30 bg-black/85 px-3 py-1.5 text-center shadow-lg backdrop-blur">
               <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-400" />
@@ -951,7 +955,8 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
                 {m.name} ({m.morphology.toUpperCase()})
               </div>
               <div className="max-w-[280px] text-[8.5px] text-white/50">
-                Density profile reconstructed from measured orientation (inc {m.inclination}°, PA {m.posAngle}°)
+                Density profile reconstructed from measured orientation (inc {m.inclination}°, PA{" "}
+                {m.posAngle}°)
                 {m.system ? " • Planetary systems modelled for scientific illustration" : ""}
               </div>
             </div>

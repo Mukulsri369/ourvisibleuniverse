@@ -221,13 +221,25 @@ function NebulaDetail({
     let classId = 0;
     if (item.nebulaClass === "reflection" || profile.morphology === "veil-arcs") classId = 1;
     else if (item.nebulaClass === "dark") classId = 2;
-    else if (item.nebulaClass === "planetary" || ["helix-ring", "barrel-ring", "nested-shells", "butterfly"].includes(profile.morphology)) classId = 3;
-    else if (item.nebulaClass === "supernova_remnant" || profile.morphology === "filament-remnant") classId = 4;
+    else if (
+      item.nebulaClass === "planetary" ||
+      ["helix-ring", "barrel-ring", "nested-shells", "butterfly"].includes(profile.morphology)
+    )
+      classId = 3;
+    else if (item.nebulaClass === "supernova_remnant" || profile.morphology === "filament-remnant")
+      classId = 4;
 
     return {
       uTime: { value: 0 },
       uClass: { value: classId },
-      uPalette: { value: spectral?.palette === "narrowband_sho" ? 0 : spectral?.palette === "true_color_rgb" ? 1 : 2 },
+      uPalette: {
+        value:
+          spectral?.palette === "narrowband_sho"
+            ? 0
+            : spectral?.palette === "true_color_rgb"
+              ? 1
+              : 2,
+      },
       uPrimaryColor: { value: new THREE.Color(item.color) },
       uSecondaryColor: { value: new THREE.Color(item.accent) },
       uOpticalDepth: { value: spectral?.opticalDepthTau ?? (classId === 2 ? 15.0 : 1.2) },
@@ -337,7 +349,9 @@ function NebulaDetail({
           <div className="flex flex-col items-center gap-1 rounded-md border border-purple-500/35 bg-black/85 px-3 py-1.5 text-center shadow-lg backdrop-blur">
             <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-purple-400">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-purple-400" />
-              {item.nebulaClass ? item.nebulaClass.replace("_", " ").toUpperCase() + " NEBULA" : "ASTROPHYSICAL NEBULA"}
+              {item.nebulaClass
+                ? item.nebulaClass.replace("_", " ").toUpperCase() + " NEBULA"
+                : "ASTROPHYSICAL NEBULA"}
             </div>
             <div className="text-[11px] font-medium text-white/90">{item.name}</div>
             <div className="max-w-[280px] text-[8.5px] text-white/50">

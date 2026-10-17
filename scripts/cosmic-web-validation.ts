@@ -71,14 +71,28 @@ console.log("=================================================================="
 console.log("\n1. Observational Survey Footprints & Selection Limits:");
 
 assert(Boolean(SURVEY_FOOTPRINTS.sdss_dr18), "SDSS DR18 / BOSS footprint catalogued");
-assertClose(SURVEY_FOOTPRINTS.sdss_dr18.skyCoverageDeg2, 14555, 0.01, "SDSS sky coverage is 14,555 deg² (~35% of all-sky)");
-assert(SURVEY_FOOTPRINTS.sdss_dr18.geometryType === "wedges_and_cones", "SDSS geometry accurately designated as fan wedges and cones");
+assertClose(
+  SURVEY_FOOTPRINTS.sdss_dr18.skyCoverageDeg2,
+  14555,
+  0.01,
+  "SDSS sky coverage is 14,555 deg² (~35% of all-sky)",
+);
+assert(
+  SURVEY_FOOTPRINTS.sdss_dr18.geometryType === "wedges_and_cones",
+  "SDSS geometry accurately designated as fan wedges and cones",
+);
 
 assert(Boolean(SURVEY_FOOTPRINTS["2dfgrs"]), "2dFGRS survey footprint catalogued");
-assert(SURVEY_FOOTPRINTS["2dfgrs"].geometryType === "strips", "2dFGRS geometry designated as declination strips");
+assert(
+  SURVEY_FOOTPRINTS["2dfgrs"].geometryType === "strips",
+  "2dFGRS geometry designated as declination strips",
+);
 
 assert(Boolean(SURVEY_FOOTPRINTS["2mrs"]), "2MASS 2MRS all-sky survey catalogued");
-assert(SURVEY_FOOTPRINTS["2mrs"].geometryType === "all_sky_with_zoa", "2MRS designated as all-sky bounded by Zone of Avoidance");
+assert(
+  SURVEY_FOOTPRINTS["2mrs"].geometryType === "all_sky_with_zoa",
+  "2MRS designated as all-sky bounded by Zone of Avoidance",
+);
 
 // Zone of Avoidance dust mask verification
 const surveyPointsSample = generateSurveyDistributionPoints(4000, COSMOLOGICAL_MODELS.planck2018);
@@ -87,7 +101,8 @@ assert(surveyPointsSample.count === 4000, "Generated 4,000 observational survey 
 // Verify that points with 2MRS survey code strictly satisfy |b| >= 8 deg
 let zoaViolations = 0;
 for (let i = 0; i < surveyPointsSample.count; i++) {
-  if (surveyPointsSample.surveyIndices[i] === 3) { // 2mrs code
+  if (surveyPointsSample.surveyIndices[i] === 3) {
+    // 2mrs code
     const x = surveyPointsSample.positions[i * 3];
     const y = surveyPointsSample.positions[i * 3 + 1];
     const z = surveyPointsSample.positions[i * 3 + 2];
@@ -99,7 +114,7 @@ for (let i = 0; i < surveyPointsSample.count; i++) {
       // Approximate Galactic latitude b:
       const bRad = Math.asin(
         Math.sin(decRad) * Math.sin(0.4735) +
-          Math.cos(decRad) * Math.cos(0.4735) * Math.cos(raRad - 4.936)
+          Math.cos(decRad) * Math.cos(0.4735) * Math.cos(raRad - 3.366),
       );
       const bDeg = (bRad * 180) / Math.PI;
       if (Math.abs(bDeg) < 7.9) {
@@ -108,7 +123,10 @@ for (let i = 0; i < surveyPointsSample.count; i++) {
     }
   }
 }
-assert(zoaViolations === 0, "Strict Galactic Zone of Avoidance (|b| >= 8°) fully respected: zero galaxies in dust belt");
+assert(
+  zoaViolations === 0,
+  "Strict Galactic Zone of Avoidance (|b| >= 8°) fully respected: zero galaxies in dust belt",
+);
 
 // Confirmed benchmarks in observational mode
 const virgo = COSMIC_BENCHMARKS.find((b) => b.id === "virgo_cluster");
@@ -128,22 +146,46 @@ assertClose(laniakea!.diameterMly, 520, 0.02, "Laniakea watershed diameter is 52
 // -----------------------------------------------------------------------------
 console.log("\n2. IllustrisTNG Cosmological Simulation Box (TNG300-1 Snapshot 99):");
 
-assertClose(TNG300_METADATA.boxSizeComovingMpc, 302.6, 0.01, "TNG300 box size is 302.6 comoving Mpc (205 h⁻¹ Mpc)");
-assertClose(TNG300_METADATA.boxSizeComovingMly, 987.0, 0.01, "TNG300 box size in light-years is ~987 Mly");
+assertClose(
+  TNG300_METADATA.boxSizeComovingMpc,
+  302.6,
+  0.01,
+  "TNG300 box size is 302.6 comoving Mpc (205 h⁻¹ Mpc)",
+);
+assertClose(
+  TNG300_METADATA.boxSizeComovingMly,
+  987.0,
+  0.01,
+  "TNG300 box size in light-years is ~987 Mly",
+);
 assert(TNG300_METADATA.snapshot === 99, "TNG snapshot is 99 (z = 0 present-day cosmic epoch)");
-assert(TNG300_METADATA.disclaimer.includes("does NOT correspond to real catalogued astronomical coordinates"), "Explicit scientific caveat disclaims simulation positions mapping to real sky coordinates");
+assert(
+  TNG300_METADATA.disclaimer.includes(
+    "does NOT correspond to real catalogued astronomical coordinates",
+  ),
+  "Explicit scientific caveat disclaims simulation positions mapping to real sky coordinates",
+);
 
 // Halo mass spectrum
-assert(TNG_BENCHMARK_HALOS.length >= 8, "Catalog contains >= 8 benchmark halos/groups from Subfind");
+assert(
+  TNG_BENCHMARK_HALOS.length >= 8,
+  "Catalog contains >= 8 benchmark halos/groups from Subfind",
+);
 const richCluster = TNG_BENCHMARK_HALOS[0];
-assert(richCluster.massTotalMsun > 1e15, "Richest halo is massive cluster with M_200c > 10¹⁵ M_sun");
+assert(
+  richCluster.massTotalMsun > 1e15,
+  "Richest halo is massive cluster with M_200c > 10¹⁵ M_sun",
+);
 assert(richCluster.velocityDispersionKmS > 900, "Cluster velocity dispersion is > 900 km/s");
 assert(richCluster.radiusVirialKpc > 2000, "Cluster virial radius R_200c is > 2.0 Mpc");
 
 // Cosmic Voids
 assert(TNG_BENCHMARK_VOIDS.length >= 4, "Simulation contains documented cosmic voids");
 for (const v of TNG_BENCHMARK_VOIDS) {
-  assert(v.densityContrastDelta < -0.8, `Void #${v.id} has severe underdensity (delta = ${v.densityContrastDelta} < -0.80)`);
+  assert(
+    v.densityContrastDelta < -0.8,
+    `Void #${v.id} has severe underdensity (delta = ${v.densityContrastDelta} < -0.80)`,
+  );
   assert(v.radiusMpc >= 30, `Void #${v.id} radius is >= 30 Mpc (R = ${v.radiusMpc} Mpc)`);
 }
 
@@ -151,7 +193,10 @@ for (const v of TNG_BENCHMARK_VOIDS) {
 assert(TNG_FILAMENTS.length >= 6, "Simulation contains filament skeleton segments");
 for (const f of TNG_FILAMENTS) {
   assert(f.lengthMpc > 20, `Filament #${f.id} length is ${f.lengthMpc} Mpc (> 20 Mpc)`);
-  assert(f.linearMassDensityMsunPerMpc > 1e12, `Filament #${f.id} linear density is > 10¹² M_sun/Mpc`);
+  assert(
+    f.linearMassDensityMsunPerMpc > 1e12,
+    `Filament #${f.id} linear density is > 10¹² M_sun/Mpc`,
+  );
 }
 
 // Simulation Box Point Cloud Generation
@@ -168,26 +213,48 @@ for (let i = 0; i < simBuffer.count * 3; i++) {
     outOfBoundsCount++;
   }
 }
-assert(outOfBoundsCount === 0, "All simulation particles reside strictly within the 987 Mly box boundary");
+assert(
+  outOfBoundsCount === 0,
+  "All simulation particles reside strictly within the 987 Mly box boundary",
+);
 
 // -----------------------------------------------------------------------------
 // 3. Interactive Guided Journey (6 Scale Tiers)
 // -----------------------------------------------------------------------------
 console.log("\n3. Interactive Guided Cosmic Journey (6 Stages):");
 
-assert(GUIDED_JOURNEY_STEPS.length === 6, "Guided journey comprises exactly 6 hierarchical scale stages");
+assert(
+  GUIDED_JOURNEY_STEPS.length === 6,
+  "Guided journey comprises exactly 6 hierarchical scale stages",
+);
 
-const expectedIds = ["milky_way", "local_group", "virgo_cluster", "laniakea", "cosmic_web", "observable_universe"];
+const expectedIds = [
+  "milky_way",
+  "local_group",
+  "virgo_cluster",
+  "laniakea",
+  "cosmic_web",
+  "observable_universe",
+];
 for (let i = 0; i < expectedIds.length; i++) {
-  assert(GUIDED_JOURNEY_STEPS[i].id === expectedIds[i], `Stage ${i + 1} matches ID '${expectedIds[i]}'`);
+  assert(
+    GUIDED_JOURNEY_STEPS[i].id === expectedIds[i],
+    `Stage ${i + 1} matches ID '${expectedIds[i]}'`,
+  );
 }
 
 // Monotonic scale expansion check
 for (let i = 1; i < GUIDED_JOURNEY_STEPS.length; i++) {
   const prev = GUIDED_JOURNEY_STEPS[i - 1];
   const curr = GUIDED_JOURNEY_STEPS[i];
-  assert(curr.distanceLy > prev.distanceLy, `Scale expands monotonically: ${curr.title} (${curr.scaleDescription}) > ${prev.title}`);
-  assert(curr.cameraDistance > prev.cameraDistance, `Camera distance scales appropriately: ${curr.cameraDistance.toExponential(1)} > ${prev.cameraDistance.toExponential(1)}`);
+  assert(
+    curr.distanceLy > prev.distanceLy,
+    `Scale expands monotonically: ${curr.title} (${curr.scaleDescription}) > ${prev.title}`,
+  );
+  assert(
+    curr.cameraDistance > prev.cameraDistance,
+    `Camera distance scales appropriately: ${curr.cameraDistance.toExponential(1)} > ${prev.cameraDistance.toExponential(1)}`,
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -202,29 +269,29 @@ const shoesDist = calculateCosmologicalDistances(zTest, COSMOLOGICAL_MODELS.shoe
 // Relativistic expansion inequality: D_L > D_C > c * t_L > D_A
 assert(
   planckDist.luminosityDistanceGly > planckDist.comovingDistanceGly,
-  "Relativistic FLRW inequality: D_L > D_C verified (flux dilution due to cosmological expansion)"
+  "Relativistic FLRW inequality: D_L > D_C verified (flux dilution due to cosmological expansion)",
 );
 assert(
   planckDist.comovingDistanceGly > planckDist.angularDiameterDistanceGly,
-  "Relativistic FLRW inequality: D_C > D_A verified (apparent angular size relation)"
+  "Relativistic FLRW inequality: D_C > D_A verified (apparent angular size relation)",
 );
 assertClose(
   planckDist.luminosityDistanceGly,
   planckDist.comovingDistanceGly * (1 + zTest),
   1e-6,
-  "Exact identity D_L = (1 + z) * D_C satisfied"
+  "Exact identity D_L = (1 + z) * D_C satisfied",
 );
 assertClose(
   planckDist.angularDiameterDistanceGly,
   planckDist.comovingDistanceGly / (1 + zTest),
   1e-6,
-  "Exact identity D_A = D_C / (1 + z) satisfied"
+  "Exact identity D_A = D_C / (1 + z) satisfied",
 );
 
 // Hubble Tension: Higher H_0 (SH0ES 73.04 vs Planck 67.4) yields smaller comoving distance at fixed z
 assert(
   shoesDist.comovingDistanceGly < planckDist.comovingDistanceGly,
-  "Hubble Tension demonstrated: SH0ES 2022 yields smaller comoving distance than Planck 2018"
+  "Hubble Tension demonstrated: SH0ES 2022 yields smaller comoving distance than Planck 2018",
 );
 
 // -----------------------------------------------------------------------------
@@ -237,8 +304,14 @@ for (const count of benchmarkCounts) {
   const t0 = Date.now();
   const obsPoints = generateSurveyDistributionPoints(count, COSMOLOGICAL_MODELS.planck2018);
   const dtObs = Date.now() - t0;
-  assert(obsPoints.count === count, `Survey point generator allocated ${count.toLocaleString()} points`);
-  assert(dtObs < 350, `Benchmark at ${count.toLocaleString()} points completed in ${dtObs} ms (< 350 ms)`);
+  assert(
+    obsPoints.count === count,
+    `Survey point generator allocated ${count.toLocaleString()} points`,
+  );
+  assert(
+    dtObs < 350,
+    `Benchmark at ${count.toLocaleString()} points completed in ${dtObs} ms (< 350 ms)`,
+  );
 
   // Check no NaN or Infinite coordinates
   let hasNaN = false;
@@ -248,7 +321,10 @@ for (const count of benchmarkCounts) {
       break;
     }
   }
-  assert(!hasNaN, `Point buffer at ${count.toLocaleString()} points contains 100% finite coordinates`);
+  assert(
+    !hasNaN,
+    `Point buffer at ${count.toLocaleString()} points contains 100% finite coordinates`,
+  );
 }
 
 console.log("\n================ VALIDATION SUMMARY ================");

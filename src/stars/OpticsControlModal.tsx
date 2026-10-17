@@ -149,7 +149,9 @@ export function OpticsControlModal() {
                   <Eye className="h-4 w-4 text-cyan-400" />
                   <div className="text-left">
                     <div className="font-medium">Empty Space (Vacuum)</div>
-                    <div className="text-[10px] text-white/50">Steady photometric flux (0 twinkling)</div>
+                    <div className="text-[10px] text-white/50">
+                      Steady photometric flux (0 twinkling)
+                    </div>
                   </div>
                 </button>
 
@@ -187,7 +189,8 @@ export function OpticsControlModal() {
                     className="mt-2 w-full accent-emerald-400"
                   />
                   <p className="mt-1 text-[10px] text-white/45">
-                    Modulates stellar optical path refraction matching Earth surface telescope observations.
+                    Modulates stellar optical path refraction matching Earth surface telescope
+                    observations.
                   </p>
                 </div>
               )}
@@ -323,7 +326,8 @@ export function OpticsControlModal() {
                       className="mt-1.5 w-full accent-cyan-400"
                     />
                     <p className="mt-1 text-[10px] text-white/40">
-                      Higher threshold prevents diffuse empty space from glowing, confining bloom to true stellar cores.
+                      Higher threshold prevents diffuse empty space from glowing, confining bloom to
+                      true stellar cores.
                     </p>
                   </div>
                 </div>

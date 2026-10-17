@@ -1,6 +1,6 @@
 /**
  * Precision Compact-Object Physics & Relativistic Spacetime Formulations
- * 
+ *
  * Standards & Grounding:
  *  - Schwarzschild metric (1916): R_s = 2GM / c^2
  *  - Kerr metric (1963): R_+ = (GM/c^2) * (1 + sqrt(1 - a*^2))
@@ -111,7 +111,10 @@ export function calculateErgosphereRadius(
  * For a* = +0.998 (extreme prograde): r_isco ≈ 1.23 r_g ≈ 0.615 R_s.
  * For a* = -1.0 (extreme retrograde): r_isco = 9 r_g = 4.5 R_s.
  */
-export function calculateISCORadius(massSolar: number, spinDimensionless = 0): {
+export function calculateISCORadius(
+  massSolar: number,
+  spinDimensionless = 0,
+): {
   radiusMeters: number;
   radiusInRg: number;
 } {
@@ -143,14 +146,17 @@ export function calculateISCORadius(massSolar: number, spinDimensionless = 0): {
  *  b_crit = sqrt(27) * r_g ≈ 5.196152 r_g ≈ 2.598076 R_s
  *  The apparent black hole shadow radius viewed from infinity is b_crit.
  */
-export function calculatePhotonSphere(massSolar: number, spinDimensionless = 0): {
+export function calculatePhotonSphere(
+  massSolar: number,
+  spinDimensionless = 0,
+): {
   rPhotonMeters: number;
   bCritMeters: number;
   shadowDiameterMeters: number;
 } {
   const rg = gravitationalRadius(massSolar);
   const a = Math.max(-0.998, Math.min(0.998, spinDimensionless));
-  
+
   // Equatorial prograde/retrograde photon orbit approximation
   // for a=0: r_ph = 3 r_g
   const rPhotonMeters = 3 * rg * (1 - 0.33 * a);
@@ -200,10 +206,7 @@ export function calculateDopplerBeaming(
 /**
  * Complete metrics builder for any black hole object.
  */
-export function getBlackHoleMetrics(
-  massSolar: number,
-  spinDimensionless = 0,
-): BlackHoleMetrics {
+export function getBlackHoleMetrics(massSolar: number, spinDimensionless = 0): BlackHoleMetrics {
   const massKg = massSolar * NOMINAL_SOLAR_MASS_KG;
   const rg = gravitationalRadius(massSolar);
   const rs = calculateSchwarzschildRadius(massSolar);
@@ -219,7 +222,8 @@ export function getBlackHoleMetrics(
   );
 
   // Keplerian orbital period at ISCO: T = 2*pi * sqrt(r^3 / (G*M)) + 2*pi*a*rg/c
-  const orbitalPeriod = (2 * Math.PI * Math.sqrt(Math.pow(iscoMeters, 3) / (GRAVITATIONAL_CONSTANT_SI * massKg)));
+  const orbitalPeriod =
+    2 * Math.PI * Math.sqrt(Math.pow(iscoMeters, 3) / (GRAVITATIONAL_CONSTANT_SI * massKg));
   const zISCO = calculateGravitationalRedshift(massSolar, iscoMeters);
 
   return {
@@ -303,7 +307,8 @@ export function getGravitationalWaveMetrics(
   const mTot = m1 + m2;
   const chirpMass = Math.pow(m1 * m2, 3 / 5) / Math.pow(mTot, 1 / 5);
   const radiatedMass = Math.max(0, mTot - mFinalSolar);
-  const radiatedJoules = radiatedMass * NOMINAL_SOLAR_MASS_KG * SPEED_OF_LIGHT_M_S * SPEED_OF_LIGHT_M_S;
+  const radiatedJoules =
+    radiatedMass * NOMINAL_SOLAR_MASS_KG * SPEED_OF_LIGHT_M_S * SPEED_OF_LIGHT_M_S;
 
   return {
     m1Solar: m1,
@@ -322,13 +327,16 @@ export function getGravitationalWaveMetrics(
  * with strong-field Darwin approximation):
  * alpha(b) = 4GM / (c^2 * b) * [ 1 + (15*pi / 16) * (r_g / b) ]
  */
-export function calculateGravitationalDeflectionAngle(massSolar: number, impactParameterMeters: number): number {
+export function calculateGravitationalDeflectionAngle(
+  massSolar: number,
+  impactParameterMeters: number,
+): number {
   const rg = gravitationalRadius(massSolar);
   if (impactParameterMeters <= Math.sqrt(27) * rg) {
     return Math.PI * 2; // Captured inside critical curve
   }
   const u = rg / impactParameterMeters;
   const weakDeflection = 4 * u;
-  const secondOrder = (15 * Math.PI / 16) * u * u;
+  const secondOrder = ((15 * Math.PI) / 16) * u * u;
   return weakDeflection + secondOrder;
 }

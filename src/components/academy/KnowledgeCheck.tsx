@@ -31,7 +31,6 @@ export function KnowledgeCheck({
   const calculateScore = () => {
     let score = 0;
     questions.forEach((q, idx) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const correct = q.correctIndex !== undefined ? q.correctIndex : (q as any).correctAnswerIndex;
       if (selectedAnswers[idx] === correct) {
         score++;

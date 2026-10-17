@@ -66,6 +66,9 @@ export const COSMOLOGICAL_MODELS: Record<string, CosmologicalParameters> = {
   },
 };
 
+export const COSMOLOGY_MODELS = COSMOLOGICAL_MODELS;
+export const DEFAULT_COSMOLOGY = COSMOLOGICAL_MODELS.planck2018;
+
 export interface CosmologicalDistanceResult {
   redshift: number;
   model: CosmologicalParameters;
@@ -78,6 +81,7 @@ export interface CosmologicalDistanceResult {
   lookbackTimeGyr: number; // t_L
   lookbackTimeYr: number;
   cosmicAgeAtRedshiftGyr: number; // Age of universe when photons were emitted
+  cosmicAgeAtEmissionGyr: number; // Alias for cosmicAgeAtRedshiftGyr
   currentUniverseAgeGyr: number; // t_0
   luminosityDistanceMpc: number; // D_L = (1+z) D_M
   luminosityDistanceGly: number;
@@ -88,6 +92,17 @@ export interface CosmologicalDistanceResult {
   distanceModulus: number; // mu = m - M = 5 log10(D_L / 10 pc)
   kpcPerArcsec: number; // Physical scale subtended by 1 arcsecond at z
   lyPerArcmin: number; // Physical scale subtended by 1 arcminute at z
+}
+
+/**
+ * Calculates physical diameter in light-years from observed angular diameter in arcminutes.
+ */
+export function angularSizeToPhysicalDiameterLy(
+  angularDiameterArcmin: number,
+  angularDiameterDistanceLy: number,
+): number {
+  const thetaRad = (angularDiameterArcmin / 60) * (Math.PI / 180);
+  return thetaRad * angularDiameterDistanceLy;
 }
 
 /**
@@ -103,6 +118,8 @@ export function dimensionlessHubble(z: number, params: CosmologicalParameters): 
     or * Math.pow(onePlusZ, 4) + om * Math.pow(onePlusZ, 3) + ok * Math.pow(onePlusZ, 2) + ol;
   return Math.sqrt(Math.max(e2, 1e-12));
 }
+
+export const dimensionlessHubbleE = dimensionlessHubble;
 
 /**
  * Calculates complete cosmological distances for a given redshift z and cosmological model.
@@ -132,6 +149,7 @@ export function calculateCosmologicalDistances(
       lookbackTimeGyr: 0,
       lookbackTimeYr: 0,
       cosmicAgeAtRedshiftGyr: age0,
+      cosmicAgeAtEmissionGyr: age0,
       currentUniverseAgeGyr: age0,
       luminosityDistanceMpc: 0,
       luminosityDistanceGly: 0,
@@ -181,7 +199,7 @@ export function calculateCosmologicalDistances(
   const ok = 1.0 - (om + or + ol);
 
   let dMMpc = dCMpc;
-  if (Math.abs(ok) > 1e-5) {
+  if (Math.abs(ok) > 1e-3) {
     const sqrtOk = Math.sqrt(Math.abs(ok));
     if (ok > 0) {
       // Open universe (hyperspheric)
@@ -233,6 +251,7 @@ export function calculateCosmologicalDistances(
     lookbackTimeGyr: tLookbackGyr,
     lookbackTimeYr: tLookbackYr,
     cosmicAgeAtRedshiftGyr: cosmicAgeAtRedshift,
+    cosmicAgeAtEmissionGyr: cosmicAgeAtRedshift,
     currentUniverseAgeGyr: currentAgeGyr,
     luminosityDistanceMpc: dLMpc,
     luminosityDistanceGly: dLGly,

@@ -1,6 +1,6 @@
 /**
  * Astrophysical Color Science, Blackbody Radiance & Photometric Mapping
- * 
+ *
  * References:
  * 1. Ballesteros, F. J. (2012). "New insights into black bodies". EPL 97, 34008.
  * 2. ESA Gaia DR3 Photometric & Color Specifications (Gaia Collaboration 2023).
@@ -143,7 +143,7 @@ export function magnitudeToPhotometricIntensity(
 ): { flux: number; hdrLuminance: number; pointRadius: number } {
   // Clamp magnitude for numerical stability
   const mag = Math.max(-27.0, Math.min(22.0, apparentMagnitude));
-  
+
   // Physical relative flux: F = 10^(-0.4 * (m - m0))
   const flux = Math.pow(10, -0.4 * (mag - zeroPoint));
 

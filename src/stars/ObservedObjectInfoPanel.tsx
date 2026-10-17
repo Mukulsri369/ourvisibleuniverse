@@ -177,7 +177,13 @@ export function ObservedObjectInfoPanel() {
                     )}
                   </div>
                   <p className="mt-2.5 border-t border-purple-500/20 pt-2 text-[10.5px] leading-relaxed text-purple-200/80">
-                    <span className="font-semibold text-purple-200">Scientific Calibration Notice:</span> Astrophotographic and narrowband emission composites map specific ionic transitions (Hα 656 nm, [O III] 501 nm, [S II] 672 nm) or synchrotron radiation to distinct visual channels. They do not represent human naked-eye perception in deep space.
+                    <span className="font-semibold text-purple-200">
+                      Scientific Calibration Notice:
+                    </span>{" "}
+                    Astrophotographic and narrowband emission composites map specific ionic
+                    transitions (Hα 656 nm, [O III] 501 nm, [S II] 672 nm) or synchrotron radiation
+                    to distinct visual channels. They do not represent human naked-eye perception in
+                    deep space.
                   </p>
                 </div>
               )}
@@ -196,7 +202,9 @@ export function ObservedObjectInfoPanel() {
                   <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                     {item.compactPhysics.massSolar !== undefined && (
                       <div className="rounded-lg bg-black/40 border border-white/5 p-2">
-                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">Mass:</span>
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">
+                          Mass:
+                        </span>
                         <span className="font-mono text-white font-semibold">
                           {item.compactPhysics.massSolar >= 1e6
                             ? `${(item.compactPhysics.massSolar / 1e6).toFixed(2)}M M☉`
@@ -206,7 +214,9 @@ export function ObservedObjectInfoPanel() {
                     )}
                     {item.compactPhysics.spinDimensionless !== undefined && (
                       <div className="rounded-lg bg-black/40 border border-white/5 p-2">
-                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">Kerr Spin (a*):</span>
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">
+                          Kerr Spin (a*):
+                        </span>
                         <span className="font-mono text-amber-300 font-semibold">
                           {item.compactPhysics.spinDimensionless.toFixed(2)}
                         </span>
@@ -214,7 +224,9 @@ export function ObservedObjectInfoPanel() {
                     )}
                     {item.compactPhysics.schwarzschildRadiusKm !== undefined && (
                       <div className="rounded-lg bg-black/40 border border-white/5 p-2">
-                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">Event Horizon (Rs):</span>
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">
+                          Event Horizon (Rs):
+                        </span>
                         <span className="font-mono text-cyan-200 font-semibold">
                           {item.compactPhysics.schwarzschildRadiusKm >= 1e6
                             ? `${(item.compactPhysics.schwarzschildRadiusKm / 1e6).toFixed(2)}M km`
@@ -223,10 +235,16 @@ export function ObservedObjectInfoPanel() {
                       </div>
                     )}
                     <div className="rounded-lg bg-black/40 border border-white/5 p-2">
-                      <span className="text-[9px] uppercase tracking-wider text-white/40 block">Accretion State:</span>
-                      <span className={`font-mono font-semibold capitalize ${
-                        item.compactPhysics.hasAccretionDisk ? "text-amber-300" : "text-emerald-400"
-                      }`}>
+                      <span className="text-[9px] uppercase tracking-wider text-white/40 block">
+                        Accretion State:
+                      </span>
+                      <span
+                        className={`font-mono font-semibold capitalize ${
+                          item.compactPhysics.hasAccretionDisk
+                            ? "text-amber-300"
+                            : "text-emerald-400"
+                        }`}
+                      >
                         {item.compactPhysics.accretionState.replace("_", " ")}
                       </span>
                     </div>
@@ -286,18 +304,29 @@ export function ObservedObjectInfoPanel() {
                   <div className="mt-3 border-t border-white/10 pt-2 text-[10.5px] leading-relaxed text-white/70">
                     {!item.compactPhysics.hasAccretionDisk ? (
                       <p className="text-emerald-300/90">
-                        <strong className="text-emerald-200">Non-Accreting / Dormant System:</strong> This compact body does not pull matter from its surroundings. It has NO glowing accretion disk and is rendered purely via strong-field gravitational deflection and background star lensing.
+                        <strong className="text-emerald-200">
+                          Non-Accreting / Dormant System:
+                        </strong>{" "}
+                        This compact body does not pull matter from its surroundings. It has NO
+                        glowing accretion disk and is rendered purely via strong-field gravitational
+                        deflection and background star lensing.
                       </p>
                     ) : (
                       <p className="text-amber-200/90">
-                        <strong className="text-amber-100">Active Accretion Engine:</strong> Infalling matter experiences Keplerian orbital shear, extreme viscous dissipation, gravitational redshift, and relativistic Doppler boosting.
+                        <strong className="text-amber-100">Active Accretion Engine:</strong>{" "}
+                        Infalling matter experiences Keplerian orbital shear, extreme viscous
+                        dissipation, gravitational redshift, and relativistic Doppler boosting.
                       </p>
                     )}
                   </div>
 
                   {item.compactPhysics.publishedCitation && (
-                    <div className="mt-2 text-[9.5px] text-white/40 border-t border-white/5 pt-1.5 truncate" title={item.compactPhysics.publishedCitation}>
-                      <span className="text-white/60">Citation:</span> {item.compactPhysics.publishedCitation}
+                    <div
+                      className="mt-2 text-[9.5px] text-white/40 border-t border-white/5 pt-1.5 truncate"
+                      title={item.compactPhysics.publishedCitation}
+                    >
+                      <span className="text-white/60">Citation:</span>{" "}
+                      {item.compactPhysics.publishedCitation}
                     </div>
                   )}
                 </div>

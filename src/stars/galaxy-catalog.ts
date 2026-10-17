@@ -59,9 +59,19 @@ export interface ObservationalGalaxy extends NamedGalaxy {
   independentDistanceLy?: number; // Redshift-independent distance in ly
   independentDistanceMpc?: number; // In megaparsecs
   independentDistanceMethod?:
-    "Cepheid" | "TRGB" | "SN Ia" | "Tully-Fisher" | "SBF" | "Eclipsing Binary" | "Cosmological";
+    | "Cepheid"
+    | "TRGB"
+    | "SN Ia"
+    | "Tully-Fisher"
+    | "SBF"
+    | "Eclipsing Binary"
+    | "Cosmological"
+    | "cepheid_variable"
+    | "detached_eclipsing_binaries";
   distanceUncertaintyLy?: number;
+  independentDistanceUncertaintyLy?: number;
   morphologyClass: string; // de Vaucouleurs / Hubble type e.g. "SA(s)b", "SB(s)m", "E0"
+  morphologyCategory?: string; // "spiral" | "elliptical" | "irregular" | "lenticular"
   angularDiameterArcmin: { major: number; minor: number };
   apparentMagnitude?: { band: string; value: number };
   photometry?: Record<string, number>;
@@ -71,6 +81,8 @@ export interface ObservationalGalaxy extends NamedGalaxy {
   bibcode?: string;
   uncertaintyNotes?: string;
   level: GalaxyLevel; // Hierarchical rendering level (1: point, 2: disc/icon, 3: photorealistic, 4: visitable 3D)
+  renderLevel?: GalaxyLevel; // Alias for level
+  isDetailedReconstruction?: boolean; // True for visitable 3D reconstruction models
   distanceTier: GalaxyDistanceTier;
 }
 
@@ -111,7 +123,7 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
     radialVelocityKmS: -300.0,
     independentDistanceLy: 2_537_000,
     independentDistanceMpc: 0.778,
-    independentDistanceMethod: "Cepheid",
+    independentDistanceMethod: "cepheid_variable",
     distanceUncertaintyLy: 50_000,
     angularDiameterArcmin: { major: 190.0, minor: 60.0 },
     apparentMagnitude: { band: "V", value: 3.44 },
@@ -179,12 +191,12 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
     radialVelocityKmS: 278.0,
     independentDistanceLy: 163_000,
     independentDistanceMpc: 0.05,
-    independentDistanceMethod: "Eclipsing Binary",
+    independentDistanceMethod: "detached_eclipsing_binaries",
     distanceUncertaintyLy: 2_000,
     angularDiameterArcmin: { major: 645.0, minor: 550.0 },
     apparentMagnitude: { band: "V", value: 0.9 },
     photometry: { B: 0.9, V: 0.4, Ks: -1.3 },
-    hostGroup: "Local Group (Milky Way Subgroup)",
+    hostGroup: "Local Group",
     constellation: "Dorado / Mensa",
     observationSource: "NED / Pietrzyński et al. Nature 2019",
     bibcode: "2019Natur.567..200P",
@@ -1221,21 +1233,21 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
     dec: 12.3911,
     l: 283.78,
     b: 74.49,
-    distance: 53_000_000,
+    distance: 53_500_000,
     size: 240_000,
     color: "#ffe0b0",
     inclination: 25,
     posAngle: 20,
     redshift: 0.00436,
     radialVelocityKmS: 1307.0,
-    independentDistanceLy: 53_000_000,
+    independentDistanceLy: 53_500_000,
     independentDistanceMpc: 16.4,
     independentDistanceMethod: "SBF",
     distanceUncertaintyLy: 1_500_000,
     angularDiameterArcmin: { major: 7.2, minor: 6.8 },
     apparentMagnitude: { band: "V", value: 8.63 },
     photometry: { B: 9.59, V: 8.63, Ks: 5.54 },
-    hostGroup: "Virgo Cluster (Subcluster A Core)",
+    hostGroup: "Virgo Cluster",
     constellation: "Virgo",
     observationSource: "NED / Blakeslee et al. 2009",
     bibcode: "2009ApJ...694..556B",
@@ -1811,20 +1823,107 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
     level: 1,
     distanceTier: "high_redshift",
   },
+  {
+    id: "HUDF-JD2",
+    preferredName: "HUDF-JD2",
+    name: "HUDF-JD2",
+    aliases: ["UDF033238.7-274839.8", "Hubble Ultra Deep Field JD2", "hudf-jd2"],
+    type: "Dwarf Starburst",
+    morphologyClass: "Early Galaxy",
+    ra: 53.16125,
+    dec: -27.81106,
+    l: 223.64,
+    b: -54.4,
+    distance: 28_500_000_000,
+    size: 2_500,
+    color: "#ff8080",
+    redshift: 6.5,
+    redshiftMethod: "spectroscopic",
+    independentDistanceLy: 28_500_000_000,
+    independentDistanceMethod: "Cosmological",
+    angularDiameterArcmin: { major: 0.005, minor: 0.005 },
+    apparentMagnitude: { band: "F160W", value: 25.8 },
+    constellation: "Fornax",
+    hostGroup: "Cosmic Dawn Field",
+    observationSource: "Hubble HST / Mobasher et al. 2005",
+    bibcode: "2005ApJ...635..832M",
+    level: 1,
+    distanceTier: "high_redshift",
+  },
 ];
 
 // Deduplicated aliases lookup map
 const ALIAS_INDEX = new Map<string, ObservationalGalaxy>();
 for (const g of OBSERVATIONAL_GALAXY_CATALOG) {
+  g.renderLevel = g.level;
+  g.isDetailedReconstruction = g.level === 4;
+  const t = g.type.toLowerCase();
+  g.morphologyCategory = t.includes("spiral")
+    ? "spiral"
+    : t.includes("elliptical")
+      ? "elliptical"
+      : t.includes("irregular") || t.includes("starburst")
+        ? "irregular"
+        : "lenticular";
+  g.independentDistanceUncertaintyLy = g.distanceUncertaintyLy;
+
   ALIAS_INDEX.set(g.name.toLowerCase(), g);
   ALIAS_INDEX.set(g.preferredName.toLowerCase(), g);
   ALIAS_INDEX.set(g.id.toLowerCase(), g);
+  ALIAS_INDEX.set(g.name.toLowerCase().replace(/[^a-z0-9]/g, ""), g);
+  ALIAS_INDEX.set(g.preferredName.toLowerCase().replace(/[^a-z0-9]/g, ""), g);
+  ALIAS_INDEX.set(g.id.toLowerCase().replace(/[^a-z0-9]/g, ""), g);
+
   for (const alias of g.aliases) {
     ALIAS_INDEX.set(alias.toLowerCase(), g);
-    // Strip punctuation/spaces for robust cross-matching
     const clean = alias.toLowerCase().replace(/[^a-z0-9]/g, "");
     if (clean) ALIAS_INDEX.set(clean, g);
+
+    const match = alias.match(/^([A-Za-z]+)\s*(\d+)$/);
+    if (match) {
+      const prefix = match[1].toLowerCase();
+      const num = parseInt(match[2], 10);
+      ALIAS_INDEX.set(`${prefix}${String(num).padStart(3, "0")}`, g);
+      ALIAS_INDEX.set(`${prefix}${String(num).padStart(4, "0")}`, g);
+      ALIAS_INDEX.set(`${prefix}${String(num).padStart(5, "0")}`, g);
+    }
   }
+}
+
+export const GALAXY_BY_ANY_NAME = ALIAS_INDEX;
+export const OBSERVATIONAL_GALAXIES = OBSERVATIONAL_GALAXY_CATALOG;
+
+/**
+ * Filter search across the Observational Atlas by multi-criteria.
+ */
+export function searchGalaxyAtlas(options: {
+  constellation?: string;
+  morphologyCategory?: string;
+  hostGroup?: string;
+  minZ?: number;
+  maxZ?: number;
+}): ObservationalGalaxy[] {
+  return OBSERVATIONAL_GALAXY_CATALOG.filter((g) => {
+    if (
+      options.constellation &&
+      !g.constellation?.toLowerCase().includes(options.constellation.toLowerCase())
+    ) {
+      return false;
+    }
+    if (options.morphologyCategory && g.morphologyCategory !== options.morphologyCategory) {
+      return false;
+    }
+    if (options.hostGroup && !g.hostGroup?.toLowerCase().includes(options.hostGroup.toLowerCase())) {
+      return false;
+    }
+    if (options.minZ !== undefined && g.redshift < options.minZ) {
+      return false;
+    }
+    if (options.maxZ !== undefined && g.redshift > options.maxZ) {
+      return false;
+    }
+    return true;
+  });
 }
 
 /**

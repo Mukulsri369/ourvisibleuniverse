@@ -459,12 +459,7 @@ function IllustrisTNGSimulationWeb() {
             <group key={v.id} position={centerLy}>
               <mesh>
                 <sphereGeometry args={[radiusLy, 24, 24]} />
-                <meshBasicMaterial
-                  color="#1e293b"
-                  wireframe
-                  transparent
-                  opacity={0.2}
-                />
+                <meshBasicMaterial color="#1e293b" wireframe transparent opacity={0.2} />
               </mesh>
               <Billboard>
                 <Html center distanceFactor={1e7}>

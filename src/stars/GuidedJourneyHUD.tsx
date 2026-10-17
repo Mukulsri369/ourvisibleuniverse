@@ -145,9 +145,7 @@ export function GuidedJourneyHUD() {
               Previous
             </Button>
 
-            <div className="text-[11px] text-slate-400 font-mono">
-              {currentStep.subtitle}
-            </div>
+            <div className="text-[11px] text-slate-400 font-mono">{currentStep.subtitle}</div>
 
             <Button
               size="sm"

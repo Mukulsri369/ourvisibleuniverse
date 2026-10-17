@@ -22,10 +22,7 @@ import { backgroundFocus } from "./sim-clock";
 import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
 import type { GaiaStarRecord } from "@/lib/astronomy/gaia/gaia-catalog";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  makeAntiAliasedStarTexture,
-  magnitudeToPhotometricIntensity,
-} from "./color-science";
+import { makeAntiAliasedStarTexture, magnitudeToPhotometricIntensity } from "./color-science";
 
 // Procedural background count adapted by device tier
 const PROCEDURAL_COUNT = 14000;

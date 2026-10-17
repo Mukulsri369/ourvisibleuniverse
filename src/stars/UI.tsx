@@ -1,7 +1,17 @@
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Compass, Telescope, Orbit, Sparkles, Layers, Sliders, Eye, Activity, Radio } from "lucide-react";
+import {
+  Compass,
+  Telescope,
+  Orbit,
+  Sparkles,
+  Layers,
+  Sliders,
+  Eye,
+  Activity,
+  Radio,
+} from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
@@ -1523,7 +1533,7 @@ export function LoadingScreen({ done }: { done: boolean }) {
                   left: `${(i * 37 + 13) % 100}%`,
                   top: `${(i * 59 + 29) % 100}%`,
                   opacity: 0.2 + ((i * 17) % 70) / 100,
-                  animation: `twinkle ${2 + ((i * 13) % 4)}s ease-in-out ${((i * 7) % 3)}s infinite`,
+                  animation: `twinkle ${2 + ((i * 13) % 4)}s ease-in-out ${(i * 7) % 3}s infinite`,
                 }}
               />
             ))}

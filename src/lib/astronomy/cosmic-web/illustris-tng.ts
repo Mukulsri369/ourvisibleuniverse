@@ -313,9 +313,7 @@ export const TNG_FILAMENTS: SimulationFilamentSegment[] = [
  * - Units: Comoving light-years (1 Mpc ≈ 3.26156 Mly).
  * - Distinguishes Dark Matter halos, Baryonic gas cells, and filament bridges.
  */
-export function generateSimulationBoxDistribution(
-  particleCount = 12000,
-): {
+export function generateSimulationBoxDistribution(particleCount = 12000): {
   positions: Float32Array; // Light-years centered at origin
   colors: Float32Array;
   types: Uint8Array; // 1 = dark matter halo, 2 = gas cell, 3 = filament tracer, 4 = cluster core
@@ -394,7 +392,7 @@ export function generateSimulationBoxDistribution(
       const zMpc = fil.p1[2] + (fil.p2[2] - fil.p1[2]) * t;
 
       // Cylindrical gaussian spread around filament spine (~2-4 Mpc radius)
-      const rCylMpc = (Math.pow(rand(), 1.5) * 3.5);
+      const rCylMpc = Math.pow(rand(), 1.5) * 3.5;
       const theta = rand() * Math.PI * 2;
 
       const xLy = (xMpc - HALF_BOX_MPC + rCylMpc * Math.cos(theta)) * MPC_TO_LY;

@@ -93,12 +93,9 @@ export function RenderingBenchmarkModal() {
               <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-center">
                 <div className="text-[10px] uppercase tracking-wider text-white/45">Framerate</div>
                 <div className="mt-1 font-mono text-2xl font-bold text-emerald-400">
-                  {stats.fps}{" "}
-                  <span className="text-xs font-normal text-white/40">FPS</span>
+                  {stats.fps} <span className="text-xs font-normal text-white/40">FPS</span>
                 </div>
-                <div className="mt-1 text-[10px] text-white/50">
-                  Target: 60 FPS
-                </div>
+                <div className="mt-1 text-[10px] text-white/50">Target: 60 FPS</div>
               </div>
 
               <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-center">
@@ -110,7 +107,9 @@ export function RenderingBenchmarkModal() {
               </div>
 
               <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-center">
-                <div className="text-[10px] uppercase tracking-wider text-white/45">Points / Stars</div>
+                <div className="text-[10px] uppercase tracking-wider text-white/45">
+                  Points / Stars
+                </div>
                 <div className="mt-1 font-mono text-2xl font-bold text-purple-400">
                   {(stats.pointsCount / 1000).toFixed(0)}k
                 </div>
@@ -118,7 +117,9 @@ export function RenderingBenchmarkModal() {
               </div>
 
               <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-center">
-                <div className="text-[10px] uppercase tracking-wider text-white/45">GPU Triangles</div>
+                <div className="text-[10px] uppercase tracking-wider text-white/45">
+                  GPU Triangles
+                </div>
                 <div className="mt-1 font-mono text-2xl font-bold text-amber-400">
                   {(stats.triangles / 1000).toFixed(0)}k
                 </div>
@@ -134,7 +135,8 @@ export function RenderingBenchmarkModal() {
                     Live Hardware Stress Test
                   </h3>
                   <p className="text-xs text-white/60">
-                    Measures frame time variance, shader instruction overhead, and pipeline stability.
+                    Measures frame time variance, shader instruction overhead, and pipeline
+                    stability.
                   </p>
                 </div>
                 <button
@@ -265,7 +267,9 @@ export function RenderingBenchmarkModal() {
 
             {/* Performance Engineering Highlights */}
             <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-xs text-white/60">
-              <div className="font-semibold text-white/80">Active GPU Engineering Optimizations:</div>
+              <div className="font-semibold text-white/80">
+                Active GPU Engineering Optimizations:
+              </div>
               <div className="mt-1.5 grid grid-cols-2 gap-2 text-[11px]">
                 <div>• Logarithmic Depth Buffer (1e-11 to 1e11 ly)</div>
                 <div>• Gaia DR3 Multi-Resolution Octree Tiles</div>
