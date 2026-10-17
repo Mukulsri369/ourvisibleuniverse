@@ -31,6 +31,10 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedUniverseRouteImport } from './routes/_authenticated/universe'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as ApiPublicCatalogObjectRouteImport } from './routes/api/public/catalog/object'
+import { Route as ApiPublicCatalogSearchRouteImport } from './routes/api/public/catalog/search'
+import { Route as ApiPublicCatalogSourcesRouteImport } from './routes/api/public/catalog/sources'
+import { Route as ApiPublicCatalogTilesRouteImport } from './routes/api/public/catalog/tiles'
 import { Route as ApiPublicPaymentsRazorpayRouteImport } from './routes/api/public/payments/razorpay'
 
 const IndexRoute = IndexRouteImport.update({
@@ -143,6 +147,26 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCatalogObjectRoute = ApiPublicCatalogObjectRouteImport.update({
+  id: '/api/public/catalog/object',
+  path: '/api/public/catalog/object',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCatalogSearchRoute = ApiPublicCatalogSearchRouteImport.update({
+  id: '/api/public/catalog/search',
+  path: '/api/public/catalog/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCatalogSourcesRoute = ApiPublicCatalogSourcesRouteImport.update({
+  id: '/api/public/catalog/sources',
+  path: '/api/public/catalog/sources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCatalogTilesRoute = ApiPublicCatalogTilesRouteImport.update({
+  id: '/api/public/catalog/tiles',
+  path: '/api/public/catalog/tiles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsRazorpayRoute =
   ApiPublicPaymentsRazorpayRouteImport.update({
     id: '/api/public/payments/razorpay',
@@ -172,6 +196,10 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
+  '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
+  '/api/public/catalog/sources': typeof ApiPublicCatalogSourcesRoute
+  '/api/public/catalog/tiles': typeof ApiPublicCatalogTilesRoute
   '/api/public/payments/razorpay': typeof ApiPublicPaymentsRazorpayRoute
 }
 export interface FileRoutesByTo {
@@ -196,6 +224,10 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
+  '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
+  '/api/public/catalog/sources': typeof ApiPublicCatalogSourcesRoute
+  '/api/public/catalog/tiles': typeof ApiPublicCatalogTilesRoute
   '/api/public/payments/razorpay': typeof ApiPublicPaymentsRazorpayRoute
 }
 export interface FileRoutesById {
@@ -222,6 +254,10 @@ export interface FileRoutesById {
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/universe': typeof AuthenticatedUniverseRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
+  '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
+  '/api/public/catalog/sources': typeof ApiPublicCatalogSourcesRoute
+  '/api/public/catalog/tiles': typeof ApiPublicCatalogTilesRoute
   '/api/public/payments/razorpay': typeof ApiPublicPaymentsRazorpayRoute
 }
 export interface FileRouteTypes {
@@ -248,6 +284,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/universe'
     | '/.lovable/oauth/consent'
+    | '/api/public/catalog/object'
+    | '/api/public/catalog/search'
+    | '/api/public/catalog/sources'
+    | '/api/public/catalog/tiles'
     | '/api/public/payments/razorpay'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -272,6 +312,10 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/universe'
     | '/.lovable/oauth/consent'
+    | '/api/public/catalog/object'
+    | '/api/public/catalog/search'
+    | '/api/public/catalog/sources'
+    | '/api/public/catalog/tiles'
     | '/api/public/payments/razorpay'
   id:
     | '__root__'
@@ -297,6 +341,10 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout'
     | '/_authenticated/universe'
     | '/.lovable/oauth/consent'
+    | '/api/public/catalog/object'
+    | '/api/public/catalog/search'
+    | '/api/public/catalog/sources'
+    | '/api/public/catalog/tiles'
     | '/api/public/payments/razorpay'
   fileRoutesById: FileRoutesById
 }
@@ -320,6 +368,10 @@ export interface RootRouteChildren {
   VisibleUniverseHistoryRoute: typeof VisibleUniverseHistoryRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicCatalogObjectRoute: typeof ApiPublicCatalogObjectRoute
+  ApiPublicCatalogSearchRoute: typeof ApiPublicCatalogSearchRoute
+  ApiPublicCatalogSourcesRoute: typeof ApiPublicCatalogSourcesRoute
+  ApiPublicCatalogTilesRoute: typeof ApiPublicCatalogTilesRoute
   ApiPublicPaymentsRazorpayRoute: typeof ApiPublicPaymentsRazorpayRoute
 }
 
@@ -479,6 +531,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/catalog/object': {
+      id: '/api/public/catalog/object'
+      path: '/api/public/catalog/object'
+      fullPath: '/api/public/catalog/object'
+      preLoaderRoute: typeof ApiPublicCatalogObjectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/catalog/search': {
+      id: '/api/public/catalog/search'
+      path: '/api/public/catalog/search'
+      fullPath: '/api/public/catalog/search'
+      preLoaderRoute: typeof ApiPublicCatalogSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/catalog/sources': {
+      id: '/api/public/catalog/sources'
+      path: '/api/public/catalog/sources'
+      fullPath: '/api/public/catalog/sources'
+      preLoaderRoute: typeof ApiPublicCatalogSourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/catalog/tiles': {
+      id: '/api/public/catalog/tiles'
+      path: '/api/public/catalog/tiles'
+      fullPath: '/api/public/catalog/tiles'
+      preLoaderRoute: typeof ApiPublicCatalogTilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/razorpay': {
       id: '/api/public/payments/razorpay'
       path: '/api/public/payments/razorpay'
@@ -525,6 +605,10 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicCatalogObjectRoute: ApiPublicCatalogObjectRoute,
+  ApiPublicCatalogSearchRoute: ApiPublicCatalogSearchRoute,
+  ApiPublicCatalogSourcesRoute: ApiPublicCatalogSourcesRoute,
+  ApiPublicCatalogTilesRoute: ApiPublicCatalogTilesRoute,
   ApiPublicPaymentsRazorpayRoute: ApiPublicPaymentsRazorpayRoute,
 }
 export const routeTree = rootRouteImport

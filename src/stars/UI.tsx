@@ -1,7 +1,7 @@
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Compass, Telescope, Orbit, Sparkles, Layers } from "lucide-react";
+import { Compass, Telescope, Orbit, Sparkles, Layers, Sliders, Eye, Activity } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
@@ -410,6 +410,37 @@ export function TopLeftControls() {
         <Layers className="h-4 w-4 text-violet-400" />
       </IconButton>
       <IconButton
+        title="Astrophysical Optics, Shaders & Tone Mapping Settings"
+        onClick={() => useStore.getState().setOpticsModalOpen(true)}
+      >
+        <Sliders className="h-4 w-4 text-cyan-400" />
+      </IconButton>
+      <IconButton
+        title={
+          useStore.getState().opticsPreset === "scientific"
+            ? "Visual Preset: Scientific (Click to switch to Cinematic)"
+            : "Visual Preset: Cinematic (Click to switch to Scientific)"
+        }
+        onClick={() =>
+          useStore
+            .getState()
+            .setOpticsPreset(
+              useStore.getState().opticsPreset === "scientific" ? "cinematic" : "scientific",
+            )
+        }
+        active={useStore.getState().opticsPreset === "cinematic"}
+      >
+        <span className="font-mono text-[9px] font-bold tracking-tight">
+          {useStore.getState().opticsPreset === "scientific" ? "SCI" : "CIN"}
+        </span>
+      </IconButton>
+      <IconButton
+        title="GPU & Engine Performance Benchmark (FPS, Draw Calls, Triangles, VRAM, Screenshots)"
+        onClick={() => useStore.getState().setBenchmarkModalOpen(true)}
+      >
+        <Activity className="h-4 w-4 text-emerald-400" />
+      </IconButton>
+      <IconButton
         title="Search all celestial objects"
         onClick={() => setSearchOpen((v) => !v)}
         active={searchOpen}
@@ -478,6 +509,12 @@ export function TopLeftControls() {
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <GuidePanel open={guideOpen} onClose={() => setGuideOpen(false)} />
+      {useStore((s) => s.opticsPreset) === "cinematic" && (
+        <div className="pointer-events-none ml-2 hidden items-center gap-1.5 rounded-full border border-amber-500/40 bg-black/80 px-2.5 py-1 text-[9.5px] font-medium tracking-wide text-amber-300 shadow-md backdrop-blur sm:flex">
+          <Sparkles className="h-3 w-3 text-amber-400" />
+          <span>Cinematic Enhancement Active</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -489,6 +526,8 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
     items: [
       ["Spectrum", "Toggle true spectral star colours"],
       ["VIS / 1:1", "Switch between Enhanced Visibility and True Scientific Scale"],
+      ["Sliders", "Astrophysical Optics, Shaders, Bloom & Tone Mapping controls"],
+      ["SCI / CIN", "Switch between Scientific Observation mode and Cinematic HDR preset"],
       ["Search", "Find any star, planet, galaxy or observed object"],
       ["Square", "Stop the camera in space (free look)"],
       ["Maximize", "Full screen — press Esc to exit"],
@@ -1088,9 +1127,28 @@ export function MusicToggle() {
 }
 
 export function Branding() {
+  const opticsPreset = useStore((s) => s.opticsPreset);
+  const observerMode = useStore((s) => s.observerMode);
+
   return (
-    <div className="pointer-events-none fixed bottom-5 right-6 z-20 text-[10px] uppercase tracking-[0.3em] text-white/30">
-      Our Visible Universe — A Cosmic Experiment
+    <div className="pointer-events-none fixed bottom-5 right-6 z-20 flex flex-col items-end gap-1.5 text-right">
+      <div className="text-[10px] uppercase tracking-[0.3em] text-white/30">
+        Our Visible Universe — A Cosmic Experiment
+      </div>
+      {opticsPreset === "cinematic" ? (
+        <div className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-950/70 px-2.5 py-0.5 text-[9px] font-mono text-amber-300 shadow-lg backdrop-blur">
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <span>CINEMATIC ENHANCEMENT • Contrast Boost (Non-Photometric)</span>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-950/50 px-2.5 py-0.5 text-[9px] font-mono text-cyan-300/80 shadow-lg backdrop-blur">
+          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+          <span>
+            SCIENTIFIC OBSERVATION • Pogson Flux &amp; Planckian Locus (
+            {observerMode === "vacuum" ? "Vacuum" : "Atmosphere"})
+          </span>
+        </div>
+      )}
     </div>
   );
 }

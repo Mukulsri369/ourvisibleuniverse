@@ -169,9 +169,13 @@ export function GalaxyInfoPanel() {
                     {g.hostGroup}
                   </span>
                 )}
-                {detailed && (
-                  <span className="rounded bg-amber-500/20 px-2 py-0.5 text-amber-300">
-                    ✦ Labelled 3D Model
+                {detailed ? (
+                  <span className="rounded border border-amber-500/30 bg-amber-500/15 px-2 py-0.5 text-amber-300">
+                    ✦ Reconstructed 3D Morphology
+                  </span>
+                ) : (
+                  <span className="rounded border border-violet-500/30 bg-violet-500/15 px-2 py-0.5 text-violet-300">
+                    ⟳ Reconstructed Structure
                   </span>
                 )}
               </div>
@@ -247,8 +251,15 @@ export function GalaxyInfoPanel() {
                     {overviewFor(visit.name, visit.type, visit.distance, visit.size)}
                   </p>
 
+                  <div className="mt-4 rounded-lg border border-cyan-500/25 bg-cyan-950/30 p-3 text-[11px] leading-relaxed text-cyan-200/90">
+                    <strong className="text-cyan-300">Astrophysical Reconstruction:</strong>{" "}
+                    Internal 3D stellar density distribution and dust lanes are reconstructed from
+                    measured orientation angles (inclination &amp; position angle), NED integrated
+                    photometry, and empirical de Vaucouleurs / exponential disk profiles.
+                  </div>
+
                   {g?.uncertaintyNotes && (
-                    <div className="mt-4 rounded border border-white/10 bg-white/[0.02] p-3 text-[11px] leading-relaxed text-white/60">
+                    <div className="mt-3 rounded border border-white/10 bg-white/[0.02] p-3 text-[11px] leading-relaxed text-white/60">
                       <strong className="text-white/80">Scientific Notes:</strong>{" "}
                       {g.uncertaintyNotes}
                     </div>

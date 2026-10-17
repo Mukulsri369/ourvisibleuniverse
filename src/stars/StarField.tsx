@@ -22,32 +22,17 @@ import { backgroundFocus } from "./sim-clock";
 import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
 import type { GaiaStarRecord } from "@/lib/astronomy/gaia/gaia-catalog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  makeAntiAliasedStarTexture,
+  magnitudeToPhotometricIntensity,
+} from "./color-science";
 
 // Procedural background count adapted by device tier
 const PROCEDURAL_COUNT = 14000;
 
-function makeStarTexture(): THREE.Texture {
-  const size = 128;
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, "rgba(255,255,255,1)");
-  grad.addColorStop(0.18, "rgba(255,255,255,0.95)");
-  grad.addColorStop(0.45, "rgba(255,255,255,0.35)");
-  grad.addColorStop(0.8, "rgba(255,255,255,0.06)");
-  grad.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
-}
-
 export function StarField() {
   const pointsRef = useRef<THREE.Points>(null!);
   const materialRef = useRef<THREE.ShaderMaterial>(null!);
-  const texture = useMemo(makeStarTexture, []);
 
   const isMobile = useIsMobile();
   const spectralMode = useStore((s) => s.spectralMode);
@@ -58,6 +43,17 @@ export function StarField() {
   const selectedStar = useStore((s) => s.selectedStar);
   const setSelected = useStore((s) => s.setSelected);
   const flyToStar = useStore((s) => s.flyToStar);
+
+  // Optics & Observer mode hooks
+  const observerMode = useStore((s) => s.observerMode);
+  const atmosphericScintillation = useStore((s) => s.atmosphericScintillation);
+  const opticsPreset = useStore((s) => s.opticsPreset);
+  const diffractionSpikesEnabled = useStore((s) => s.diffractionSpikesEnabled);
+
+  const texture = useMemo(
+    () => makeAntiAliasedStarTexture(diffractionSpikesEnabled),
+    [diffractionSpikesEnabled],
+  );
 
   const spectralTarget = useRef(0);
   const spectralBlend = useRef(0);
@@ -129,9 +125,9 @@ export function StarField() {
       spectralColors[i * 3 + 1] = s.spectralColorRgb.g;
       spectralColors[i * 3 + 2] = s.spectralColorRgb.b;
 
-      // Size calculation: apparent magnitude scaled
-      const mag = Math.min(14, Math.max(-2, s.magnitude));
-      sizes[i] = Math.max(2.5, 14.5 - mag * 1.15);
+      // Photometric brightness & Airy disk angular core
+      const photo = magnitudeToPhotometricIntensity(s.magnitude);
+      sizes[i] = photo.pointRadius;
       phases[i] = (i * 0.73) % (Math.PI * 2);
       isCatalogAttr[i] = 1.0;
       isSkyDirectionAttr[i] = s.isSkyDirectionLayer ? 1.0 : 0.0;
@@ -209,6 +205,9 @@ export function StarField() {
       materialRef.current.uniforms.uCamDist.value = camDist;
       materialRef.current.uniforms.uEpochYears.value = properMotionYears;
       materialRef.current.uniforms.uFocus.value = backgroundFocus();
+      materialRef.current.uniforms.uObserverMode.value = observerMode === "atmosphere" ? 1.0 : 0.0;
+      materialRef.current.uniforms.uScintillation.value = atmosphericScintillation;
+      materialRef.current.uniforms.uCinematic.value = opticsPreset === "cinematic" ? 1.0 : 0.0;
     }
   });
 
@@ -223,6 +222,9 @@ export function StarField() {
         uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
         uCamDist: { value: 8 },
         uFocus: { value: 1 },
+        uObserverMode: { value: 0 },
+        uScintillation: { value: 0.35 },
+        uCinematic: { value: 0 },
       },
       vertexShader: /* glsl */ `
         attribute vec3 aVelocity;
@@ -238,6 +240,8 @@ export function StarField() {
         uniform float uEpochYears;
         uniform float uPixelRatio;
         uniform float uCamDist;
+        uniform float uObserverMode;
+        uniform float uScintillation;
 
         varying vec3 vColor;
         varying float vAlpha;
@@ -256,11 +260,17 @@ export function StarField() {
           vIsSkyDirection = aIsSkyDirection;
 
           vec4 mv = modelViewMatrix * vec4(displacedPos, 1.0);
-          float twinkle = 0.88 + 0.22 * sin(uTime * 1.5 + aPhase);
+
+          // Photometric scintillation model:
+          // In empty space / vacuum (uObserverMode == 0.0): stars shine with steady, constant flux (NO artificial twinkling!).
+          // In atmospheric observer mode (uObserverMode == 1.0): turbulent airmass layers induce high-frequency scintillation.
+          float scintillation = (uObserverMode > 0.5)
+            ? (1.0 + uScintillation * (sin(uTime * 6.5 + aPhase * 3.1) * cos(uTime * 4.2 + aPhase * 1.7)))
+            : 1.0;
 
           // Distance and apparent magnitude scaling
           float distToCam = max(-mv.z, 0.5);
-          float size = aSize * twinkle * uPixelRatio * (340.0 / distToCam);
+          float size = aSize * scintillation * uPixelRatio * (340.0 / distToCam);
 
           // Background stars only fade in as camera pulls back from Solar System
           float bgFade = smoothstep(100.0, 800.0, uCamDist);
@@ -281,6 +291,7 @@ export function StarField() {
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
         uniform float uFocus;
+        uniform float uCinematic;
 
         varying vec3 vColor;
         varying float vAlpha;
@@ -289,7 +300,7 @@ export function StarField() {
 
         void main() {
           vec4 tex = texture2D(uTex, gl_PointCoord);
-          if (tex.a < 0.05) discard;
+          if (tex.a < 0.04) discard;
 
           // Sky direction stars have a subtle reticle halo to distinguish from 3D localized stars
           vec3 finalColor = vColor;
@@ -303,7 +314,10 @@ export function StarField() {
             alpha *= 0.65;
           }
 
-          gl_FragColor = vec4(finalColor, alpha);
+          // In Cinematic preset, boost highlight dynamic range for bloom response
+          vec3 hdrColor = mix(finalColor, finalColor * 1.35, uCinematic);
+
+          gl_FragColor = vec4(hdrColor, alpha);
         }
       `,
       transparent: true,

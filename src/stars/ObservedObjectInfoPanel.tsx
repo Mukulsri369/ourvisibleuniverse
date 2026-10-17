@@ -156,6 +156,31 @@ export function ObservedObjectInfoPanel() {
                   </li>
                 ))}
               </ul>
+              {item.category === "Nebula" && (
+                <div className="mt-7 rounded-lg border border-purple-500/30 bg-purple-500/10 p-3.5">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-purple-300">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+                    Nebula Astrophysics & Spectroscopy
+                  </div>
+                  <div className="mt-2 space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-white/50">Classification:</span>
+                      <span className="font-medium capitalize text-white">
+                        {item.nebulaClass ? item.nebulaClass.replace("_", " ") : item.subtype}
+                      </span>
+                    </div>
+                    {item.filterPalette && (
+                      <div className="flex justify-between">
+                        <span className="text-white/50">Spectral Palette:</span>
+                        <span className="font-medium text-cyan-300">{item.filterPalette}</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-2.5 border-t border-purple-500/20 pt-2 text-[10.5px] leading-relaxed text-purple-200/80">
+                    <span className="font-semibold text-purple-200">Scientific Calibration Notice:</span> Astrophotographic and narrowband emission composites map specific ionic transitions (Hα 656 nm, [O III] 501 nm, [S II] 672 nm) or synchrotron radiation to distinct visual channels. They do not represent human naked-eye perception in deep space.
+                  </p>
+                </div>
+              )}
               <div className="mt-7 rounded-lg border border-white/10 bg-white/[0.03] p-3">
                 <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
                   Visual interpretation

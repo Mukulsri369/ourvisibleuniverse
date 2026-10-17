@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OBSERVED_OBJECTS, objectPosition, type ObservedObject } from "./observed-objects";
 import { OBSERVED_VISUAL_PROFILES, type ObservedVisualProfile } from "./observed-object-visuals";
+import { VOLUMETRIC_NEBULA_SHADER, NEBULA_SPECTRAL_DATA } from "./nebula-shaders";
 import { useStore } from "./store";
 
 function seeded(seed: number) {
@@ -213,17 +214,52 @@ function NebulaDetail({
   const filaments = useMemo(() => buildFilaments(profile), [profile]);
   const texture = useMemo(makeGlowTexture, []);
   const ws = sizeScale ?? scale;
-  const slowlyTurning = profile.morphology === "pinwheel";
-  const group = useRef<THREE.Group>(null);
+  const opticsPreset = useStore((s) => s.opticsPreset);
+
+  const volumetricUniforms = useMemo(() => {
+    const spectral = NEBULA_SPECTRAL_DATA[item.id];
+    let classId = 0;
+    if (item.nebulaClass === "reflection" || profile.morphology === "veil-arcs") classId = 1;
+    else if (item.nebulaClass === "dark") classId = 2;
+    else if (item.nebulaClass === "planetary" || ["helix-ring", "barrel-ring", "nested-shells", "butterfly"].includes(profile.morphology)) classId = 3;
+    else if (item.nebulaClass === "supernova_remnant" || profile.morphology === "filament-remnant") classId = 4;
+
+    return {
+      uTime: { value: 0 },
+      uClass: { value: classId },
+      uPalette: { value: spectral?.palette === "narrowband_sho" ? 0 : spectral?.palette === "true_color_rgb" ? 1 : 2 },
+      uPrimaryColor: { value: new THREE.Color(item.color) },
+      uSecondaryColor: { value: new THREE.Color(item.accent) },
+      uOpticalDepth: { value: spectral?.opticalDepthTau ?? (classId === 2 ? 15.0 : 1.2) },
+      uTurbulence: { value: classId === 4 ? 2.8 : classId === 3 ? 1.6 : 2.0 },
+      uCinematic: { value: opticsPreset === "cinematic" ? 1.0 : 0.0 },
+    };
+  }, [item, profile, opticsPreset]);
+
   useFrame((_, dt) => {
     if (!group.current) return;
     const step = Math.min(dt, 0.05);
+    volumetricUniforms.uTime.value += step;
+    volumetricUniforms.uCinematic.value = opticsPreset === "cinematic" ? 1.0 : 0.0;
     // Every cloud drifts a little: expanding remnants and outflows are never
     // perfectly static in time-lapse imagery.
     group.current.rotation.y += step * (slowlyTurning ? (profile.spin ?? 0.1) : 0.012);
   });
   return (
     <group ref={group} rotation={profile.tilt} scale={scale}>
+      {/* Physically based volumetric gas emission & dust scattering shell */}
+      <mesh renderOrder={1}>
+        <sphereGeometry args={[0.95, 36, 28]} />
+        <shaderMaterial
+          vertexShader={VOLUMETRIC_NEBULA_SHADER.vertexShader}
+          fragmentShader={VOLUMETRIC_NEBULA_SHADER.fragmentShader}
+          uniforms={volumetricUniforms}
+          transparent
+          depthWrite={false}
+          side={THREE.DoubleSide}
+          blending={item.nebulaClass === "dark" ? THREE.NormalBlending : THREE.AdditiveBlending}
+        />
+      </mesh>
       {/* fine, bright knots */}
       <points geometry={geometry}>
         <pointsMaterial
@@ -295,6 +331,21 @@ function NebulaDetail({
             </mesh>
           );
         })}
+      {/* Scientific palette & filter notice */}
+      <Billboard position={[0, -1.08, 0]}>
+        <Html center distanceFactor={Math.max(scale * 7, 24)} style={{ pointerEvents: "none" }}>
+          <div className="flex flex-col items-center gap-1 rounded-md border border-purple-500/35 bg-black/85 px-3 py-1.5 text-center shadow-lg backdrop-blur">
+            <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-purple-400">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-purple-400" />
+              {item.nebulaClass ? item.nebulaClass.replace("_", " ").toUpperCase() + " NEBULA" : "ASTROPHYSICAL NEBULA"}
+            </div>
+            <div className="text-[11px] font-medium text-white/90">{item.name}</div>
+            <div className="max-w-[280px] text-[8.5px] text-white/50">
+              {item.filterPalette || "Multiwavelength Emission Composite"}
+            </div>
+          </div>
+        </Html>
+      </Billboard>
     </group>
   );
 }

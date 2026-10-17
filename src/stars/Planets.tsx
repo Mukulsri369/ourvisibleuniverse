@@ -589,13 +589,29 @@ void main(){
   vec3 N = normalize(vN);
   vec3 V = normalize(cameraPosition - vW);
   vec3 L = normalize(uSun - vW);
-  float nv = max(dot(N,V),0.0);
-  float rim = pow(1.0 - nv, 2.6);
+  float nv = max(dot(N,V), 0.0);
   float nl = dot(N,L);
-  float day = smoothstep(-0.2, 0.45, nl);
-  float term = exp(-pow((nl - 0.02) / 0.2, 2.0));
-  float mie = pow(max(dot(-V, L), 0.0), 10.0) * uMie;
-  vec3 col = uRay * rim * day * 1.35 + uSunset * term * rim * 1.1 + mix(uSunset, vec3(1.0), 0.5) * mie * rim;
+  float cosGamma = dot(-V, L);
+
+  // Rayleigh phase function: P_R(cosGamma) = (3/16pi) * (1 + cos^2(gamma))
+  float pRay = 0.75 * (1.0 + cosGamma * cosGamma);
+
+  // Cornette-Shanks forward Mie scattering phase function approximation
+  float g = 0.76;
+  float pMie = (1.5 * (1.0 - g * g) / (2.0 + g * g)) * (1.0 + cosGamma * cosGamma) / pow(1.0 + g * g - 2.0 * g * cosGamma, 1.5);
+
+  // Optical airmass path length along grazing limb
+  float rim = pow(1.0 - nv, 2.8);
+  float day = smoothstep(-0.15, 0.4, nl);
+  
+  // Sunset terminator optical reddening (Chappuis ozone + atmospheric extinction)
+  float term = exp(-pow((nl - 0.015) / 0.18, 2.0));
+
+  vec3 rayleighCol = uRay * pRay * rim * day * 1.45;
+  vec3 sunsetCol = uSunset * term * rim * 1.3;
+  vec3 forwardMieCol = mix(uSunset, vec3(1.0), 0.6) * pMie * uMie * rim * max(nl + 0.35, 0.0);
+
+  vec3 col = rayleighCol + sunsetCol + forwardMieCol;
   float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
   gl_FragColor = vec4(col, a);
 }`;

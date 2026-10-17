@@ -25,6 +25,9 @@ import { ExoPlanetPanel } from "./ExoPlanetPanel";
 import { SolarBodyPanel } from "./SolarBodyPanel";
 import { ObservedObjects } from "./ObservedObjects";
 import { ObservedObjectInfoPanel } from "./ObservedObjectInfoPanel";
+import { OpticsPostProcessing } from "./OpticsPostProcessing";
+import { OpticsControlModal } from "./OpticsControlModal";
+import { RenderingBenchmarkModal } from "./RenderingBenchmarkModal";
 
 import { useStore } from "./store";
 
@@ -73,6 +76,7 @@ export function StarsApp() {
           <BinaryMarkers />
           <StarLabels />
           <CameraRig />
+          <OpticsPostProcessing />
         </Suspense>
       </Canvas>
 
@@ -92,6 +96,8 @@ export function StarsApp() {
           <SolarBodyPanel />
           <GalaxyInfoPanel />
           <ObservedObjectInfoPanel />
+          <OpticsControlModal />
+          <RenderingBenchmarkModal />
         </>
       )}
       <LoadingScreen done={loaded} />

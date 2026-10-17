@@ -93,38 +93,64 @@ function buildGalaxy(m: GalaxyModel): Geos {
     return pack(p, c, s);
   };
 
-  // ---------- disk ----------
+  // ---------- disk & morphology-dependent stellar populations ----------
   if (
     m.morphology === "spiral" ||
+    m.morphology === "grand-design" ||
+    m.morphology === "flocculent" ||
     m.morphology === "barred" ||
     m.morphology === "irregular" ||
+    m.morphology === "dwarf" ||
     m.morphology === "interacting"
   ) {
+    const isGrandDesign = m.morphology === "grand-design";
+    const isFlocculent = m.morphology === "flocculent";
+    const isDwarf = m.morphology === "dwarf";
+    const isInteracting = m.morphology === "interacting";
+    const isIrregular = m.morphology === "irregular";
+
     const count = B(
-      m.morphology === "irregular" ? 150_000 : m.morphology === "interacting" ? 210_000 : 240_000,
+      isDwarf
+        ? 90_000
+        : isIrregular
+          ? 150_000
+          : isInteracting
+            ? 220_000
+            : isFlocculent
+              ? 250_000
+              : 260_000,
     );
+
     const PITCH = (m.pitchDeg * Math.PI) / 180;
     const K = 1 / Math.tan(PITCH);
-    const armCount = Math.max(1, m.arms);
+    // Flocculent galaxies have many short arm fragments (8-14), grand-design has 2-4 clean arms
+    const armCount = isFlocculent ? Math.max(8, m.arms) : isDwarf ? 1 : Math.max(1, m.arms);
     const p = new Float32Array(count * 3);
     const c = new Float32Array(count * 3);
     const s = new Float32Array(count);
-    const rScale = m.diskRadius * 0.22;
+    const rScale = m.diskRadius * (isDwarf ? 0.35 : 0.22);
+
     for (let i = 0; i < count; i++) {
-      const onArm = rand() < (m.morphology === "irregular" ? 0.45 : 0.76);
+      const onArm = isDwarf
+        ? false
+        : isFlocculent
+          ? rand() < 0.62
+          : rand() < (isIrregular ? 0.45 : isGrandDesign ? 0.84 : 0.76);
+
       const r = -Math.log(1 - rand() * 0.999) * rScale + m.diskRadius * 0.04;
       if (r > m.diskRadius) {
         i--;
         continue;
       }
+
       const armIdx = Math.floor(rand() * armCount);
       const base = (armIdx / armCount) * Math.PI * 2;
       const rMin = Math.max(m.diskRadius * 0.03, 1);
       const ridge = base + K * Math.log(Math.max(r, rMin) / rMin);
       const flare = 1 + Math.min(2.0, r / (m.diskRadius * 0.4));
-      const sigma = (m.diskRadius * 0.06 * flare) / Math.max(r, rMin);
+      const sigma = (m.diskRadius * (isFlocculent ? 0.12 : 0.06) * flare) / Math.max(r, rMin);
       const noise = onArm
-        ? (rand() + rand() + rand() - 1.5) * sigma * (m.morphology === "irregular" ? 1.6 : 0.95)
+        ? (rand() + rand() + rand() - 1.5) * sigma * (isIrregular ? 1.6 : isFlocculent ? 1.35 : 0.85)
         : (rand() - 0.5) * Math.PI * 0.95;
       const theta = ridge + noise;
       const scaleH = (rand() < 0.15 ? 0.045 : 0.012) * m.diskRadius;
@@ -134,34 +160,37 @@ function buildGalaxy(m: GalaxyModel): Geos {
         Math.log(1 - 2 * Math.abs(uz) * 0.999) *
         scaleH *
         Math.exp(-r / (m.diskRadius * 0.45));
+
       const interactingOffset =
-        m.morphology === "interacting" ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
+        isInteracting ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
       const tidalStretch =
-        m.morphology === "interacting" ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
+        isInteracting ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
+
       p[i * 3] = Math.cos(theta) * r * tidalStretch + interactingOffset;
-      p[i * 3 + 1] = z;
+      p[i * 3 + 1] = isDwarf ? z * 1.8 : z;
       p[i * 3 + 2] = Math.sin(theta) * r;
 
       const ridgeClose = Math.exp(-(noise * noise) / (2 * sigma * sigma));
       const rNorm = Math.min(1, r / m.diskRadius);
-      const isYoung = rand() < (onArm ? 0.34 * ridgeClose * (1 - rNorm * 0.35) : 0.05);
+      const isYoung = !isDwarf && rand() < (onArm ? 0.38 * ridgeClose * (1 - rNorm * 0.35) : 0.05);
       const isGiant = !isYoung && rand() < 0.07;
+
       if (isYoung) {
         c[i * 3] = young[0];
         c[i * 3 + 1] = young[1];
         c[i * 3 + 2] = young[2];
-        s[i] = 15 + rand() * 20;
+        s[i] = 16 + rand() * 20;
       } else if (isGiant) {
         c[i * 3] = 1.0;
         c[i * 3 + 1] = 0.62;
         c[i * 3 + 2] = 0.42;
         s[i] = 14 + rand() * 18;
       } else {
-        const b = 0.66 + rand() * 0.34;
+        const b = (isDwarf ? 0.52 : 0.66) + rand() * 0.34;
         c[i * 3] = old[0] * b;
         c[i * 3 + 1] = old[1] * b;
         c[i * 3 + 2] = old[2] * b;
-        s[i] = 6 + rand() * 9;
+        s[i] = (isDwarf ? 4 : 6) + rand() * 9;
       }
     }
     out.push(pack(p, c, s));
@@ -910,6 +939,24 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
           />
         </sprite>
         {m.system && <GxSystem m={m} system={m.system} />}
+        {/* Labeled scientific reconstruction notice */}
+        <Billboard position={[0, -m.diskRadius * 1.08, 0]}>
+          <Html center distanceFactor={Math.max(m.diskRadius * 6, 25000)} style={{ pointerEvents: "none" }}>
+            <div className="flex flex-col items-center gap-1 rounded-md border border-cyan-500/30 bg-black/85 px-3 py-1.5 text-center shadow-lg backdrop-blur">
+              <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                Scientific Model Reconstruction
+              </div>
+              <div className="text-[11px] font-medium text-white/90">
+                {m.name} ({m.morphology.toUpperCase()})
+              </div>
+              <div className="max-w-[280px] text-[8.5px] text-white/50">
+                Density profile reconstructed from measured orientation (inc {m.inclination}°, PA {m.posAngle}°)
+                {m.system ? " • Planetary systems modelled for scientific illustration" : ""}
+              </div>
+            </div>
+          </Html>
+        </Billboard>
       </group>
     </group>
   );

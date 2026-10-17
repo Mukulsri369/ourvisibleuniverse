@@ -156,6 +156,47 @@ interface State {
   setGalaxyCoverageDashboardOpen: (open: boolean) => void;
   setCosmologyModelKey: (key: "planck2018" | "shoes2022" | "wmap9" | "custom") => void;
   setCustomCosmology: (params: { h0: number; omegaM: number; omegaLambda: number }) => void;
+  // Optics & Advanced Rendering State
+  observerMode: "vacuum" | "atmosphere";
+  opticsPreset: "scientific" | "cinematic";
+  bloomEnabled: boolean;
+  bloomStrength: number;
+  bloomRadius: number;
+  bloomThreshold: number;
+  exposure: number;
+  toneMappingAlgorithm: "aces" | "agx" | "neutral" | "reinhard";
+  diffractionSpikesEnabled: boolean;
+  atmosphericScintillation: number;
+  renderingQualityTier: "scientific_high" | "standard" | "performance";
+  opticsModalOpen: boolean;
+  benchmarkModalOpen: boolean;
+  performanceStats: {
+    fps: number;
+    drawCalls: number;
+    triangles: number;
+    pointsCount: number;
+    memoryMb: number;
+  };
+  setObserverMode: (mode: "vacuum" | "atmosphere") => void;
+  setOpticsPreset: (preset: "scientific" | "cinematic") => void;
+  toggleBloom: () => void;
+  setBloomStrength: (v: number) => void;
+  setBloomRadius: (v: number) => void;
+  setBloomThreshold: (v: number) => void;
+  setExposure: (v: number) => void;
+  setToneMappingAlgorithm: (algo: "aces" | "agx" | "neutral" | "reinhard") => void;
+  toggleDiffractionSpikes: () => void;
+  setAtmosphericScintillation: (v: number) => void;
+  setRenderingQualityTier: (tier: "scientific_high" | "standard" | "performance") => void;
+  setOpticsModalOpen: (open: boolean) => void;
+  setBenchmarkModalOpen: (open: boolean) => void;
+  setPerformanceStats: (stats: {
+    fps: number;
+    drawCalls: number;
+    triangles: number;
+    pointsCount: number;
+    memoryMb: number;
+  }) => void;
 }
 
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
@@ -356,4 +397,47 @@ export const useStore = create<State>((set, get) => ({
   setGalaxyCoverageDashboardOpen: (open) => set({ galaxyCoverageDashboardOpen: open }),
   setCosmologyModelKey: (key) => set({ cosmologyModelKey: key }),
   setCustomCosmology: (params) => set({ customCosmology: params }),
+  // Optics & Advanced Rendering initial state & actions
+  observerMode: "vacuum",
+  opticsPreset: "scientific",
+  bloomEnabled: true,
+  bloomStrength: 0.38,
+  bloomRadius: 0.28,
+  bloomThreshold: 0.82,
+  exposure: 1.1,
+  toneMappingAlgorithm: "aces",
+  diffractionSpikesEnabled: true,
+  atmosphericScintillation: 0.35,
+  renderingQualityTier: "scientific_high",
+  opticsModalOpen: false,
+  benchmarkModalOpen: false,
+  performanceStats: {
+    fps: 60,
+    drawCalls: 18,
+    triangles: 120000,
+    pointsCount: 750000,
+    memoryMb: 85,
+  },
+  setObserverMode: (mode) => set({ observerMode: mode }),
+  setOpticsPreset: (preset) =>
+    set({
+      opticsPreset: preset,
+      bloomStrength: preset === "scientific" ? 0.38 : 0.88,
+      bloomRadius: preset === "scientific" ? 0.28 : 0.62,
+      bloomThreshold: preset === "scientific" ? 0.82 : 0.58,
+      exposure: preset === "scientific" ? 1.05 : 1.38,
+    }),
+  toggleBloom: () => set((st) => ({ bloomEnabled: !st.bloomEnabled })),
+  setBloomStrength: (v) => set({ bloomStrength: v }),
+  setBloomRadius: (v) => set({ bloomRadius: v }),
+  setBloomThreshold: (v) => set({ bloomThreshold: v }),
+  setExposure: (v) => set({ exposure: v }),
+  setToneMappingAlgorithm: (algo) => set({ toneMappingAlgorithm: algo }),
+  toggleDiffractionSpikes: () =>
+    set((st) => ({ diffractionSpikesEnabled: !st.diffractionSpikesEnabled })),
+  setAtmosphericScintillation: (v) => set({ atmosphericScintillation: v }),
+  setRenderingQualityTier: (tier) => set({ renderingQualityTier: tier }),
+  setOpticsModalOpen: (open) => set({ opticsModalOpen: open }),
+  setBenchmarkModalOpen: (open) => set({ benchmarkModalOpen: open }),
+  setPerformanceStats: (stats) => set({ performanceStats: stats }),
 }));

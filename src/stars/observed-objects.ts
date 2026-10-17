@@ -1,4 +1,5 @@
 export type ObjectCategory =
+  | "Nebula"
   | "Quasar"
   | "Neutron star"
   | "Black hole"
@@ -28,10 +29,415 @@ export type ObservedObject = {
   description: string;
   visualNote: string;
   source: string;
+  nebulaClass?: "emission" | "reflection" | "dark" | "planetary" | "supernova_remnant";
+  filterPalette?: string;
 };
 
 const o = (x: ObservedObject) => x;
 export const OBSERVED_OBJECTS: ObservedObject[] = [
+  // --- EMISSION NEBULAE (H II REGIONS) ---
+  o({
+    id: "m42",
+    name: "Orion Nebula (M42)",
+    aliases: ["NGC 1976", "Sharpless 281"],
+    category: "Nebula",
+    subtype: "Emission nebula / H II region",
+    distance: 1344,
+    l: 209.0,
+    b: -19.4,
+    diameterLy: 24,
+    visual: "cloud",
+    color: "#ff5978",
+    accent: "#3af2d7",
+    observed: "Optical Hα, [O III], infrared Spitzer/JWST",
+    properties: [
+      "Distance ≈1,344 ly",
+      "Mass ≈2,000 M☉",
+      "Ionized by Trapezium cluster",
+      "Gas: Hα 656.3 nm & [O III] 500.7 nm",
+    ],
+    description:
+      "A vast diffuse emission nebula in the Milky Way, situated south of Orion's Belt. One of the brightest nebulae visible to the naked eye.",
+    visualNote:
+      "Rendered with true optical recombination colors: characteristic ruby-red Hα wings and central turquoise [O III] ionization core.",
+    source: "NASA Hubble / ESO VLT",
+    nebulaClass: "emission",
+    filterPalette: "True Optical RGB (Hα + [O III])",
+  }),
+  o({
+    id: "m16",
+    name: "Eagle Nebula (M16)",
+    aliases: ["NGC 6611", "Sharpless 49"],
+    category: "Nebula",
+    subtype: "Emission nebula / Pillars of Creation",
+    distance: 5700,
+    l: 16.9,
+    b: 0.8,
+    diameterLy: 70,
+    visual: "cloud",
+    color: "#e89255",
+    accent: "#45b8ff",
+    observed: "Hubble SHO Narrowband & JWST NIRCam",
+    properties: [
+      "Distance ≈5,700 ly",
+      "Pillars height ≈4-5 ly",
+      "Active starburst columns",
+      "Evaporating Gaseous Globules (EGGs)",
+    ],
+    description:
+      "A young open cluster embedded in an active emission nebula, famous for the dark interstellar dust columns known as the Pillars of Creation.",
+    visualNote:
+      "Narrowband Hubble Palette (SHO): Ionized Sulfur [S II] mapped to red, Hydrogen-alpha to green, and Oxygen [O III] to blue.",
+    source: "NASA Hubble Space Telescope / JWST",
+    nebulaClass: "emission",
+    filterPalette: "Narrowband Hubble Palette (SHO)",
+  }),
+  o({
+    id: "carina",
+    name: "Carina Nebula",
+    aliases: ["NGC 3372", "Grand Nebula"],
+    category: "Nebula",
+    subtype: "Giant emission nebula complex",
+    distance: 8500,
+    l: 287.5,
+    b: -0.6,
+    diameterLy: 460,
+    visual: "cloud",
+    color: "#ff6a5c",
+    accent: "#67d8ef",
+    observed: "JWST Cosmic Cliffs & Chandra X-ray",
+    properties: [
+      "Distance ≈8,500 ly",
+      "Contains Eta Carinae & WR 25",
+      "Diameter ≈460 ly",
+      "Luminosity > 3,000,000 L☉",
+    ],
+    description:
+      "One of the largest diffuse nebulae in the sky, four times larger and far brighter than Orion, sculpted by ferocious stellar winds.",
+    visualNote:
+      "Multispectral rendering featuring photoevaporative ridges (Cosmic Cliffs) and high-energy cavities.",
+    source: "NASA JWST / Hubble",
+    nebulaClass: "emission",
+    filterPalette: "JWST/Hubble Infrared & Optical Composite",
+  }),
+
+  // --- REFLECTION NEBULAE ---
+  o({
+    id: "pleiades_nebula",
+    name: "Pleiades Reflection Nebula",
+    aliases: ["NGC 1435", "Merope Nebula", "Maia Cloud"],
+    category: "Nebula",
+    subtype: "Reflection nebula / dust veil",
+    distance: 444,
+    l: 166.7,
+    b: -23.5,
+    diameterLy: 13,
+    visual: "cloud",
+    color: "#74b3ff",
+    accent: "#b5d8ff",
+    observed: "True-color wide-field optical",
+    properties: [
+      "Distance ≈444 ly",
+      "Illuminating stars: B-type giants",
+      "Rayleigh grain scattering ∝ λ⁻⁴",
+      "Passing interstellar dust sheet",
+    ],
+    description:
+      "A delicate veil of interstellar dust currently being passed through by the Pleiades star cluster, scattering bright blue starlight.",
+    visualNote:
+      "Natural Rayleigh scattering: carbonaceous and silicate dust grains scatter short blue wavelengths with high efficiency.",
+    source: "Palomar Observatory / ESA Gaia",
+    nebulaClass: "reflection",
+    filterPalette: "True Optical RGB (Rayleigh Scattering)",
+  }),
+  o({
+    id: "witch_head",
+    name: "Witch Head Nebula",
+    aliases: ["IC 2118"],
+    category: "Nebula",
+    subtype: "Reflection nebula",
+    distance: 900,
+    l: 207.3,
+    b: -26.5,
+    diameterLy: 50,
+    visual: "cloud",
+    color: "#5b8eff",
+    accent: "#8bc2ff",
+    observed: "Optical deep exposure",
+    properties: [
+      "Distance ≈900 ly",
+      "Illuminated by Rigel (Beta Orionis)",
+      "Extremely faint surface brightness",
+      "Ancient cometary globule remnant",
+    ],
+    description:
+      "A very faint reflection nebula believed to be an ancient supernova remnant or gas cloud, illuminated by the supergiant Rigel 40 light-years away.",
+    visualNote:
+      "The blue color is produced not only by Rigel's blue starlight, but also by dust particles scattering blue light more efficiently than red.",
+    source: "NASA / APOD",
+    nebulaClass: "reflection",
+    filterPalette: "True Optical RGB",
+  }),
+
+  // --- DARK NEBULAE (MOLECULAR EXTINCTION) ---
+  o({
+    id: "horsehead",
+    name: "Horsehead Nebula",
+    aliases: ["Barnard 33", "B33"],
+    category: "Nebula",
+    subtype: "Dark molecular cloud / absorption silhouette",
+    distance: 1375,
+    l: 206.8,
+    b: -16.8,
+    diameterLy: 5,
+    visual: "cloud",
+    color: "#181216",
+    accent: "#ff4d6a",
+    observed: "Optical silhouette & infrared JWST",
+    properties: [
+      "Distance ≈1,375 ly",
+      "Visual extinction A_V > 15 mag",
+      "Dense cold gas: T ≈ 10-30 K",
+      "Silhouette against Hα emission IC 434",
+    ],
+    description:
+      "A dark nebula in the constellation Orion, seen as a silhouette rising like a seahorse against the bright reddish emission nebula IC 434.",
+    visualNote:
+      "Beer-Lambert absorption: dense microscopic dust grains completely block optical background light while showing warm infrared rim illumination.",
+    source: "NASA Hubble / ESO / JWST",
+    nebulaClass: "dark",
+    filterPalette: "Optical Extinction & Infrared Rim Composite",
+  }),
+  o({
+    id: "barnard68",
+    name: "Barnard 68",
+    aliases: ["B68", "LDN 57"],
+    category: "Nebula",
+    subtype: "Bok globule / dark absorption cloud",
+    distance: 500,
+    l: 358.5,
+    b: 7.2,
+    diameterLy: 0.5,
+    visual: "cloud",
+    color: "#0a0709",
+    accent: "#d47545",
+    observed: "Optical extinction & ESO VLT Infrared",
+    properties: [
+      "Distance ≈500 ly (very nearby)",
+      "Mass ≈2 M☉",
+      "Optical extinction A_V ≈ 35 magnitudes",
+      "Pre-stellar core ready for collapse",
+    ],
+    description:
+      "A molecular cloud or Bok globule within our galaxy so dense that not a single background star can be seen through its center at optical wavelengths.",
+    visualNote:
+      "Extreme optical extinction. At near-infrared wavelengths (2 microns) the cloud becomes transparent, revealing 1,000+ background stars.",
+    source: "European Southern Observatory (ESO VLT)",
+    nebulaClass: "dark",
+    filterPalette: "True Optical Extinction (A_V = 35 mag)",
+  }),
+
+  // --- PLANETARY NEBULAE ---
+  o({
+    id: "m57",
+    name: "Ring Nebula (M57)",
+    aliases: ["NGC 6720"],
+    category: "Nebula",
+    subtype: "Planetary nebula",
+    distance: 2570,
+    l: 63.2,
+    b: 14.0,
+    diameterLy: 2.6,
+    visual: "shell",
+    color: "#35f0c2",
+    accent: "#ff4258",
+    observed: "Hubble & JWST NIRCam/MIRI",
+    properties: [
+      "Distance ≈2,570 ly",
+      "Central star T_eff ≈ 125,000 K",
+      "Expansion rate ≈ 25 km/s",
+      "Age ≈ 4,000 years",
+    ],
+    description:
+      "A barrel-shaped planetary nebula formed when a dying red giant star expelled its outer ionized gaseous envelope into interstellar space.",
+    visualNote:
+      "Stratified thermal ionization: [O III] 500.7 nm (teal) fills the hot inner barrel, while [N II] and Hα (red) form the outer cooler ring.",
+    source: "NASA Hubble / JWST",
+    nebulaClass: "planetary",
+    filterPalette: "True Optical Recombination Stratification",
+  }),
+  o({
+    id: "helix",
+    name: "Helix Nebula",
+    aliases: ["NGC 7293", "Eye of God", "Caldwell 63"],
+    category: "Nebula",
+    subtype: "Planetary nebula / cometary knots",
+    distance: 655,
+    l: 36.1,
+    b: -57.1,
+    diameterLy: 5.7,
+    visual: "shell",
+    color: "#2ae8d4",
+    accent: "#ff4757",
+    observed: "Hubble / Spitzer Space Telescope",
+    properties: [
+      "Distance ≈655 ly (closest bright PN)",
+      "Expansion velocity ≈ 32 km/s",
+      "Over 40,000 cometary knots",
+      "Central white dwarf WD 2226-210",
+    ],
+    description:
+      "One of the closest of all bright planetary nebulae to Earth, formed by an intermediate-mass star expelling its outer layers near the end of its life.",
+    visualNote:
+      "Double-ring multi-shell structure with prominent radial cometary knots formed by stellar wind instabilities.",
+    source: "NASA Hubble Space Telescope",
+    nebulaClass: "planetary",
+    filterPalette: "Narrowband & Infrared Composite",
+  }),
+  o({
+    id: "cats_eye",
+    name: "Cat's Eye Nebula",
+    aliases: ["NGC 6543", "Caldwell 6"],
+    category: "Nebula",
+    subtype: "Concentric shell planetary nebula",
+    distance: 3300,
+    l: 96.4,
+    b: 29.9,
+    diameterLy: 0.4,
+    visual: "shell",
+    color: "#28f0bf",
+    accent: "#ff5277",
+    observed: "NASA Hubble High-Resolution Optical",
+    properties: [
+      "Distance ≈3,300 ly",
+      "Concentric mass-loss shells",
+      "Complex nested knot dynamics",
+      "Central star WR-type O7",
+    ],
+    description:
+      "A structurally complex planetary nebula exhibiting intricate knots, jets, bubbles, and sinuous arc-like features ejected at regular 1,500-year intervals.",
+    visualNote:
+      "Concentric shock rings record episodic mass-loss pulses during the star's asymptotic giant branch phase.",
+    source: "NASA Hubble",
+    nebulaClass: "planetary",
+    filterPalette: "Hubble High-Resolution Narrowband",
+  }),
+  o({
+    id: "butterfly",
+    name: "Butterfly Nebula",
+    aliases: ["NGC 6302", "Bug Nebula", "Caldwell 69"],
+    category: "Nebula",
+    subtype: "Bipolar planetary nebula",
+    distance: 3800,
+    l: 349.5,
+    b: 1.1,
+    diameterLy: 3.0,
+    visual: "bipolar",
+    color: "#ff6b81",
+    accent: "#70a1ff",
+    observed: "Hubble WFC3 Ultraviolet-Optical",
+    properties: [
+      "Distance ≈3,800 ly",
+      "Central star T_eff > 250,000 K",
+      "Gas speed > 600 km/s",
+      "Dense equatorial dust torus",
+    ],
+    description:
+      "A bipolar planetary nebula with one of the hottest known central stars in the galaxy, featuring hourglass wings of high-excitation gas.",
+    visualNote:
+      "The central star is hidden from direct view by a dense equatorial torus of dust; ionizing radiation escapes only along polar axes.",
+    source: "NASA Hubble Space Telescope",
+    nebulaClass: "planetary",
+    filterPalette: "Bipolar Narrowband Palette",
+  }),
+
+  // --- SUPERNOVA REMNANTS ---
+  o({
+    id: "m1",
+    name: "Crab Nebula (M1)",
+    aliases: ["NGC 1952", "Taurus A", "SN 1054 Remnant"],
+    category: "Nebula",
+    subtype: "Supernova remnant / pulsar wind nebula",
+    distance: 6500,
+    l: 184.6,
+    b: -5.8,
+    diameterLy: 11,
+    visual: "remnant",
+    color: "#ff4d4d",
+    accent: "#54a0ff",
+    observed: "Chandra X-ray, Hubble Optical, Webb IR",
+    properties: [
+      "Supernova explosion observed in 1054 CE",
+      "Powered by Crab Pulsar (30 rev/sec)",
+      "Continuous non-thermal synchrotron emission",
+      "Filament expansion velocity ≈ 1,500 km/s",
+    ],
+    description:
+      "The remnant of supernova SN 1054 recorded by Chinese and Arab astronomers. A central pulsar accelerates electrons to relativistic speeds, generating non-thermal blue synchrotron radiation surrounded by glowing filamentary gas.",
+    visualNote:
+      "Multiwavelength composite: diffuse interior blue is synchrotron radiation, while the intricate outer cage consists of shock-ionized filamentary loops.",
+    source: "NASA Chandra / Hubble / Spitzer",
+    nebulaClass: "supernova_remnant",
+    filterPalette: "Multiwavelength Synchrotron & Shock Composite",
+  }),
+  o({
+    id: "veil",
+    name: "Veil Nebula (Cygnus Loop)",
+    aliases: ["NGC 6960", "NGC 6992", "Witch's Broom"],
+    category: "Nebula",
+    subtype: "Supernova remnant / blast shock wave",
+    distance: 2400,
+    l: 74.0,
+    b: -8.5,
+    diameterLy: 110,
+    visual: "remnant",
+    color: "#ff4757",
+    accent: "#2ed573",
+    observed: "True Optical RGB & Hubble Narrowband",
+    properties: [
+      "Supernova progenitor exploded ≈10,000-20,000 BCE",
+      "Diameter ≈110 ly",
+      "Interstellar shock front compression",
+      "Shock velocity ≈ 120 km/s",
+    ],
+    description:
+      "The optical remnant of a massive star that exploded thousands of years ago. The expanding blast wave is colliding with surrounding interstellar gas, producing delicate glowing filaments.",
+    visualNote:
+      "Thin rope-like arcs illustrate collision fronts: emerald [O III] marks the hottest leading shock wave, followed by cooling red Hα ribbons.",
+    source: "NASA Hubble / WIYN Observatory",
+    nebulaClass: "supernova_remnant",
+    filterPalette: "True Optical Shock Emission (O III + Hα)",
+  }),
+  o({
+    id: "cas_a",
+    name: "Cassiopeia A (Cas A)",
+    aliases: ["3C 461", "G111.7-2.1"],
+    category: "Nebula",
+    subtype: "Core-collapse supernova remnant",
+    distance: 11000,
+    l: 111.7,
+    b: -2.1,
+    diameterLy: 10,
+    visual: "remnant",
+    color: "#2ed573",
+    accent: "#ffa502",
+    observed: "Chandra X-ray, Hubble, JWST MIRI",
+    properties: [
+      "Youngest Milky Way core-collapse remnant (~340 yr)",
+      "Strongest radio source outside Solar System",
+      "Reverse shock wave traveling inward",
+      "Central isolated neutron star",
+    ],
+    description:
+      "A young supernova remnant expanding at 4,000 to 6,000 km/s, intensely studied for nucleosynthesis yields of silicon, sulfur, and iron.",
+    visualNote:
+      "False-color high-energy composite: silicon and sulfur ejecta filaments rendered in gold and emerald, tracing reverse shock waves.",
+    source: "NASA Chandra / JWST / Hubble",
+    nebulaClass: "supernova_remnant",
+    filterPalette: "Chandra X-ray & JWST MIRI Nucleosynthesis Palette",
+  }),
+
+  // --- QUASARS & ACTIVE GALACTIC NUCLEI ---
   o({
     id: "3c273",
     name: "3C 273",

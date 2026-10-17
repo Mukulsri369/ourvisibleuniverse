@@ -73,10 +73,13 @@ export type GxSystem = {
 
 export type Morphology =
   | "spiral"
+  | "grand-design"
+  | "flocculent"
   | "barred"
   | "elliptical"
-  | "irregular"
   | "lenticular"
+  | "irregular"
+  | "dwarf"
   | "edge-on"
   | "starburst"
   | "interacting";
@@ -1077,16 +1080,32 @@ const MORPHOLOGY_OVERRIDES: Record<string, Partial<GalaxyModel>> = {
     haloRadius: 210_000,
   },
   "Hercules A": { morphology: "elliptical", bulgeRadius: 165_000, haloRadius: 350_000 },
+  "M51 (Whirlpool)": { morphology: "grand-design", arms: 2, pitchDeg: 19 },
+  "M101 (Pinwheel)": { morphology: "grand-design", arms: 2, pitchDeg: 18 },
+  "M63 (Sunflower)": { morphology: "flocculent", arms: 12, pitchDeg: 14 },
+  "NGC 2841": { morphology: "flocculent", arms: 10, pitchDeg: 12 },
+  "Sagittarius Dwarf": { morphology: "dwarf", arms: 0, pitchDeg: 0, density: 0.6 },
+  "Fornax Dwarf": { morphology: "dwarf", arms: 0, pitchDeg: 0, density: 0.55 },
+  "Sculptor Dwarf": { morphology: "dwarf", arms: 0, pitchDeg: 0, density: 0.5 },
 };
 
-function morphologyFor(type: string): Morphology {
-  if (/interacting/i.test(type)) return "interacting";
+function morphologyFor(type: string, name?: string): Morphology {
+  const n = (name || "").toLowerCase();
+  const t = (type || "").toLowerCase();
+  if (n.includes("whirlpool") || n.includes("pinwheel") || t.includes("grand-design") || t.includes("grand design"))
+    return "grand-design";
+  if (n.includes("sunflower") || n.includes("2841") || t.includes("flocculent"))
+    return "flocculent";
+  if (t.includes("dwarf") || t.includes("dsph") || n.includes("dwarf"))
+    return "dwarf";
+  if (/interacting|merging|colliding/i.test(type) || n.includes("antennae") || n.includes("mice"))
+    return "interacting";
   if (/starburst/i.test(type)) return "starburst";
   if (/edge-on/i.test(type)) return "edge-on";
-  if (/barred/i.test(type)) return "barred";
-  if (/lenticular/i.test(type)) return "lenticular";
+  if (/barred/i.test(type) || /sb/i.test(type)) return "barred";
+  if (/lenticular|s0/i.test(type)) return "lenticular";
   if (/elliptical|spheroidal/i.test(type)) return "elliptical";
-  if (/irregular/i.test(type)) return "irregular";
+  if (/irregular|magellanic/i.test(type)) return "irregular";
   return "spiral";
 }
 
@@ -1188,7 +1207,7 @@ function fallbackSystem(g: NamedGalaxy, diskRadius: number, morphology: Morpholo
 }
 
 function catalogModel(g: NamedGalaxy): GalaxyModel {
-  const morphology = morphologyFor(g.type);
+  const morphology = morphologyFor(g.type, g.name);
   const radius = g.size * 0.5;
   const dwarf = /dwarf/i.test(g.type);
   const oldPopulation = morphology === "elliptical" || morphology === "lenticular";
