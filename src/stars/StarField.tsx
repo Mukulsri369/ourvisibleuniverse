@@ -79,6 +79,13 @@ export function StarField() {
   // Handle LOD streaming updates based on camera motion
   const subsystems = useStore((s) => s.subsystems);
   const lodCooldown = useRef(0);
+  const refreshLOD = (dist: number, pos: { x: number; y: number; z: number }) => {
+    void gaiaTileManager
+      .updateLOD(dist, pos, () =>
+        setCatalogStars(gaiaTileManager.getConsolidatedStars(showSkyDirection)),
+      )
+      .catch(() => undefined);
+  };
 
   // Maximum buffer capacity per device tier to avoid GC reallocation
   const maxCapacity = useMemo(() => {
