@@ -80,9 +80,20 @@ export function runConsistencyValidation() {
     }
   }
 
-  assert(missingFrameCount === 0, "All objects define explicit coordinate reference frame (ICRS/FK5)", `Found ${missingFrameCount} missing`);
-  assert(missingEpochCount === 0, "All objects define explicit reference epoch (e.g. J2000.0)", `Found ${missingEpochCount} missing`);
-  assert(invalidRaDecCount === 0, "All celestial coordinates fall within physical spherical bounds [0, 360] RA, [-90, +90] Dec");
+  assert(
+    missingFrameCount === 0,
+    "All objects define explicit coordinate reference frame (ICRS/FK5)",
+    `Found ${missingFrameCount} missing`,
+  );
+  assert(
+    missingEpochCount === 0,
+    "All objects define explicit reference epoch (e.g. J2000.0)",
+    `Found ${missingEpochCount} missing`,
+  );
+  assert(
+    invalidRaDecCount === 0,
+    "All celestial coordinates fall within physical spherical bounds [0, 360] RA, [-90, +90] Dec",
+  );
 
   // 2. Duplicate Identities & Collision Detection
   console.log("\n2. Identity Deduplication & Collision Invariants:");
@@ -97,7 +108,11 @@ export function runConsistencyValidation() {
     }
   }
 
-  assert(duplicateCanonicalIds === 0, "No duplicate canonical IDs in published catalog", `Found ${duplicateCanonicalIds} duplicates`);
+  assert(
+    duplicateCanonicalIds === 0,
+    "No duplicate canonical IDs in published catalog",
+    `Found ${duplicateCanonicalIds} duplicates`,
+  );
 
   // Check that no two distinct objects share the exact same primary name
   const nameMap = new Map<string, string>();
@@ -110,7 +125,11 @@ export function runConsistencyValidation() {
       nameMap.set(key, obj.canonicalId);
     }
   }
-  assert(duplicatePrimaryNames === 0, "No duplicate primary object names across published records", `Found ${duplicatePrimaryNames} duplicate names`);
+  assert(
+    duplicatePrimaryNames === 0,
+    "No duplicate primary object names across published records",
+    `Found ${duplicatePrimaryNames} duplicate names`,
+  );
 
   // 3. Physical Boundary Invariants
   console.log("\n3. Physical Boundary & Invariant Validation:");
@@ -148,9 +167,18 @@ export function runConsistencyValidation() {
   }
 
   assert(impossibleDistances === 0, "All distance values are strictly non-negative numbers");
-  assert(impossibleVelocities === 0, "No radial velocities exceed the physical speed of light c (299,792.458 km/s)");
-  assert(impossibleMasses === 0, "All documented physical masses are strictly positive numbers (> 0 kg)");
-  assert(impossibleTemps === 0, "All thermodynamic temperatures respect third law of thermodynamics (T >= 0 K)");
+  assert(
+    impossibleVelocities === 0,
+    "No radial velocities exceed the physical speed of light c (299,792.458 km/s)",
+  );
+  assert(
+    impossibleMasses === 0,
+    "All documented physical masses are strictly positive numbers (> 0 kg)",
+  );
+  assert(
+    impossibleTemps === 0,
+    "All thermodynamic temperatures respect third law of thermodynamics (T >= 0 K)",
+  );
 
   // 4. Classification & Ontological Consistency
   console.log("\n4. Ontological & Classification Consistency:");
@@ -160,10 +188,23 @@ export function runConsistencyValidation() {
 
   const validStatuses = new Set(["observational", "inferred", "simulated", "hybrid"]);
   const validTypes = new Set([
-    "planet", "dwarf_planet", "moon", "star", "exoplanet", "brown_dwarf",
-    "white_dwarf", "neutron_star", "pulsar", "black_hole", "quasar",
-    "nebula", "galaxy", "galaxy_cluster", "cosmic_filament",
-    "solar_system_body", "supernova_remnant"
+    "planet",
+    "dwarf_planet",
+    "moon",
+    "star",
+    "exoplanet",
+    "brown_dwarf",
+    "white_dwarf",
+    "neutron_star",
+    "pulsar",
+    "black_hole",
+    "quasar",
+    "nebula",
+    "galaxy",
+    "galaxy_cluster",
+    "cosmic_filament",
+    "solar_system_body",
+    "supernova_remnant",
   ]);
 
   for (const obj of catalog) {
@@ -187,7 +228,10 @@ export function runConsistencyValidation() {
     }
   }
 
-  assert(invalidStatusCount === 0, "All records use valid epistemic status (observational/inferred/simulated/hybrid)");
+  assert(
+    invalidStatusCount === 0,
+    "All records use valid epistemic status (observational/inferred/simulated/hybrid)",
+  );
   assert(invalidExoplanetHost === 0, "All exoplanets have valid host star association");
   assert(invalidGalaxyClass === 0, "No galaxies assigned stellar spectral types");
 
@@ -212,8 +256,14 @@ export function runConsistencyValidation() {
     }
   }
 
-  assert(knownDistanceCount > 0, `Published catalog has ${knownDistanceCount} objects with calibrated 3D distances`);
-  assert(missingUncertainties === 0, "Every 3D distance specifies an astrometric determination method (e.g. parallax, cepheid, ned)");
+  assert(
+    knownDistanceCount > 0,
+    `Published catalog has ${knownDistanceCount} objects with calibrated 3D distances`,
+  );
+  assert(
+    missingUncertainties === 0,
+    "Every 3D distance specifies an astrometric determination method (e.g. parallax, cepheid, ned)",
+  );
   console.log(`  [INFO] Sky-direction projected objects: ${skyDirectionOnlyCount}`);
   console.log(`  [INFO] Categories indexed:`, categoryCounts);
 

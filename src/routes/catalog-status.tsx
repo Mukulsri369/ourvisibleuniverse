@@ -50,7 +50,9 @@ export const Route = createFileRoute("/catalog-status")({
 
 export function CatalogStatusPage() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<"overview" | "sources" | "categories" | "jobs" | "validation">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "sources" | "categories" | "jobs" | "validation"
+  >("overview");
   const [filterQuery, setFilterQuery] = useState("");
 
   const providers = useMemo(() => AstronomicalDataPipeline.getProviders(), []);
@@ -157,8 +159,9 @@ export function CatalogStatusPage() {
                 Catalog Status & Provenance Dashboard
               </h1>
               <p className="mt-2 text-sm text-slate-400 max-w-3xl">
-                Continuous ingestion monitoring, multi-catalog cross-identification, spatial indexing,
-                and empirical boundary verification across peer-reviewed astronomical databases.
+                Continuous ingestion monitoring, multi-catalog cross-identification, spatial
+                indexing, and empirical boundary verification across peer-reviewed astronomical
+                databases.
               </p>
             </div>
 
@@ -216,12 +219,8 @@ export function CatalogStatusPage() {
                 <span>Catalog Version</span>
                 <Cpu className="size-3.5 text-purple-400" />
               </div>
-              <p className="mt-2 text-2xl font-semibold tracking-tight text-purple-300">
-                v3.4.2
-              </p>
-              <p className="mt-1 text-[11px] text-slate-400">
-                AST1 Binary V1
-              </p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-purple-300">v3.4.2</p>
+              <p className="mt-1 text-[11px] text-slate-400">AST1 Binary V1</p>
             </div>
 
             <div className="rounded-xl border border-white/10 bg-slate-900/50 p-4 backdrop-blur-sm">
@@ -229,9 +228,7 @@ export function CatalogStatusPage() {
                 <span>Failed Ingestions</span>
                 <AlertTriangle className="size-3.5 text-emerald-400" />
               </div>
-              <p className="mt-2 text-2xl font-semibold tracking-tight text-emerald-400">
-                0
-              </p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-emerald-400">0</p>
               <div className="mt-1 flex items-center gap-1 text-[11px] text-emerald-400">
                 <ShieldCheck className="size-3" />
                 <span>Zero Staging Errors</span>
@@ -259,7 +256,10 @@ export function CatalogStatusPage() {
               <p className="mt-2 text-2xl font-semibold tracking-tight text-amber-300">
                 {categoryStats.unknownDistance}
               </p>
-              <p className="mt-1 text-[11px] text-slate-400" title="Projected onto sky sphere at 15,000 ly to avoid artificial 3D depth">
+              <p
+                className="mt-1 text-[11px] text-slate-400"
+                title="Projected onto sky sphere at 15,000 ly to avoid artificial 3D depth"
+              >
                 Sky-direction layer
               </p>
             </div>
@@ -330,7 +330,8 @@ export function CatalogStatusPage() {
                     Epistemic Attribution Distribution
                   </h3>
                   <p className="mt-1 text-xs text-slate-400">
-                    Rigorous epistemic segregation: no simulated models are ever mislabeled as observational fact.
+                    Rigorous epistemic segregation: no simulated models are ever mislabeled as
+                    observational fact.
                   </p>
 
                   <div className="mt-6 space-y-4">
@@ -341,7 +342,8 @@ export function CatalogStatusPage() {
                           [OBSERVATIONAL] Direct Empirical Flux
                         </span>
                         <span className="font-mono text-white">
-                          {categoryStats.directObs} ({Math.round((categoryStats.directObs / catalog.length) * 100)}%)
+                          {categoryStats.directObs} (
+                          {Math.round((categoryStats.directObs / catalog.length) * 100)}%)
                         </span>
                       </div>
                       <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
@@ -359,7 +361,8 @@ export function CatalogStatusPage() {
                           [INFERRED] Calibrated Physical Inversion
                         </span>
                         <span className="font-mono text-white">
-                          {categoryStats.inferred} ({Math.round((categoryStats.inferred / catalog.length) * 100)}%)
+                          {categoryStats.inferred} (
+                          {Math.round((categoryStats.inferred / catalog.length) * 100)}%)
                         </span>
                       </div>
                       <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
@@ -377,7 +380,8 @@ export function CatalogStatusPage() {
                           [SIMULATED] Hydrodynamic / Theoretical Model
                         </span>
                         <span className="font-mono text-white">
-                          {categoryStats.simulated} ({Math.round((categoryStats.simulated / catalog.length) * 100)}%)
+                          {categoryStats.simulated} (
+                          {Math.round((categoryStats.simulated / catalog.length) * 100)}%)
                         </span>
                       </div>
                       <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
@@ -397,7 +401,8 @@ export function CatalogStatusPage() {
                     Spatial Indexing & Binary GPU Streaming
                   </h3>
                   <p className="mt-1 text-xs text-slate-400">
-                    Zero-overhead Float32 streaming using compact binary chunks (.astrobinary) and floating-origin camera relative transforms.
+                    Zero-overhead Float32 streaming using compact binary chunks (.astrobinary) and
+                    floating-origin camera relative transforms.
                   </p>
 
                   <div className="mt-6 grid grid-cols-2 gap-3 text-xs">
@@ -434,7 +439,8 @@ export function CatalogStatusPage() {
                       Live Published Catalog Search
                     </h3>
                     <p className="text-xs text-slate-400">
-                      Query published astronomical records in memory by name, URN identifier, or class.
+                      Query published astronomical records in memory by name, URN identifier, or
+                      class.
                     </p>
                   </div>
                   <div className="w-full sm:w-72">
@@ -465,8 +471,12 @@ export function CatalogStatusPage() {
                         <tr key={item.canonicalId} className="hover:bg-white/5 transition-colors">
                           <td className="py-2 px-3 font-mono text-slate-400">{item.canonicalId}</td>
                           <td className="py-2 px-3 font-medium text-white">{item.name}</td>
-                          <td className="py-2 px-3 text-cyan-300 capitalize">{item.objectType.replace("_", " ")}</td>
-                          <td className="py-2 px-3 text-slate-300">{item.provenance.sourceCatalog}</td>
+                          <td className="py-2 px-3 text-cyan-300 capitalize">
+                            {item.objectType.replace("_", " ")}
+                          </td>
+                          <td className="py-2 px-3 text-slate-300">
+                            {item.provenance.sourceCatalog}
+                          </td>
                           <td className="py-2 px-3 font-mono text-slate-200">
                             {item.distanceLy !== null
                               ? item.distanceLy >= 1e6
@@ -572,7 +582,8 @@ export function CatalogStatusPage() {
                 Materialized Binary Sky Tiles (.astrobinary)
               </h3>
               <p className="mt-1 text-xs text-slate-400">
-                Spatial sky partitions pre-compiled into compact typed arrays for zero-CPU GPU stream uploads.
+                Spatial sky partitions pre-compiled into compact typed arrays for zero-CPU GPU
+                stream uploads.
               </p>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -605,7 +616,8 @@ export function CatalogStatusPage() {
                   Automated Consistency Invariant Engine
                 </h3>
                 <p className="mt-1 text-xs text-slate-400">
-                  Every published record is continuously evaluated against physical laws and ontological invariants.
+                  Every published record is continuously evaluated against physical laws and
+                  ontological invariants.
                 </p>
 
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -615,7 +627,9 @@ export function CatalogStatusPage() {
                       Physical Speed of Light Boundary
                     </div>
                     <p className="mt-1 text-xs text-slate-300">
-                      No radial velocities exceed 299,792.458 km/s. Cosmological recession speeds at high redshift are mapped via relativistic FLRW metric coordinates rather than naive linear kinematics.
+                      No radial velocities exceed 299,792.458 km/s. Cosmological recession speeds at
+                      high redshift are mapped via relativistic FLRW metric coordinates rather than
+                      naive linear kinematics.
                     </p>
                   </div>
 
@@ -625,7 +639,9 @@ export function CatalogStatusPage() {
                       Thermodynamic & Mass Non-Negativity
                     </div>
                     <p className="mt-1 text-xs text-slate-300">
-                      All temperatures respect the Third Law of Thermodynamics (T &ge; 0 K). All physical masses, radii, and orbital semi-major axes are strictly positive real numbers.
+                      All temperatures respect the Third Law of Thermodynamics (T &ge; 0 K). All
+                      physical masses, radii, and orbital semi-major axes are strictly positive real
+                      numbers.
                     </p>
                   </div>
 
@@ -635,7 +651,8 @@ export function CatalogStatusPage() {
                       Hierarchical Ontological Relationships
                     </div>
                     <p className="mt-1 text-xs text-slate-300">
-                      Exoplanets must be linked to parent host stars. Galaxies cannot be assigned stellar spectral classes. Moons are anchored to planetary barycenters.
+                      Exoplanets must be linked to parent host stars. Galaxies cannot be assigned
+                      stellar spectral classes. Moons are anchored to planetary barycenters.
                     </p>
                   </div>
 
@@ -645,7 +662,8 @@ export function CatalogStatusPage() {
                       Astrometric Coordinate Reference Invariance
                     </div>
                     <p className="mt-1 text-xs text-slate-300">
-                      All sky coordinates are strictly validated within spherical bounds ([0, 360] RA, [-90, +90] Dec) in the ICRS J2000.0 barycentric coordinate frame.
+                      All sky coordinates are strictly validated within spherical bounds ([0, 360]
+                      RA, [-90, +90] Dec) in the ICRS J2000.0 barycentric coordinate frame.
                     </p>
                   </div>
                 </div>
