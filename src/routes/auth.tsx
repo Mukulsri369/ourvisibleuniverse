@@ -39,7 +39,11 @@ function AuthPage() {
   const [signup, setSignup] = useState(false);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    const go = () => void (next ? navigate({ href: next }) : navigate({ to: "/universe" }));
+    const go = () => {
+      const target = next ?? sessionStorage.getItem("auth_next") ?? undefined;
+      sessionStorage.removeItem("auth_next");
+      void (target ? navigate({ href: target }) : navigate({ to: "/universe" }));
+    };
     void supabase.auth.getUser().then(({ data }) => {
       if (data.user) go();
     });
