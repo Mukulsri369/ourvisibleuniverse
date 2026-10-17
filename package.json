@@ -20,6 +20,7 @@
     "test:evolution": "tsx scripts/cosmic-evolution-validation.ts",
     "test:cosmic-web": "tsx scripts/cosmic-web-validation.ts",
     "test:lss": "tsx scripts/lss-hybrid-explorer-test.ts",
+    "test:observation": "tsx scripts/observation-layer-validation.ts",
     "ingest:catalog": "tsx scripts/ingest-astronomy-catalog.ts"
   },
   "dependencies": {

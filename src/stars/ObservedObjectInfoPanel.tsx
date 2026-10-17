@@ -4,6 +4,7 @@ import { useState } from "react";
 import { OBJECT_BY_ID, type ObservedObject } from "./observed-objects";
 import { questionsFor } from "./object-questions";
 import { useStore } from "./store";
+import { Telescope } from "lucide-react";
 
 function QuestionList({ item }: { item: ObservedObject }) {
   const questions = questionsFor(item);
@@ -68,6 +69,7 @@ function sizeLabel(v: number) {
 export function ObservedObjectInfoPanel() {
   const selectedId = useStore((s) => s.selectedObjectId);
   const select = useStore((s) => s.setSelectedObject);
+  const setObservationModalOpen = useStore((s) => s.setObservationModalOpen);
   const item = selectedId ? OBJECT_BY_ID.get(selectedId) : undefined;
   return (
     <AnimatePresence>
@@ -98,6 +100,16 @@ export function ObservedObjectInfoPanel() {
               <div className="mt-1 text-xs uppercase tracking-[0.18em] text-white/45">
                 {item.subtype}
               </div>
+
+              {/* Real Telescope Observation Layer Button */}
+              <button
+                onClick={() => setObservationModalOpen(true, item.id)}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/40 px-3.5 py-2.5 text-xs font-mono font-bold text-cyan-300 transition hover:bg-cyan-900/60 hover:text-white shadow-md shadow-cyan-950/50"
+              >
+                <Telescope className="size-4 text-cyan-400" />
+                <span>Telescope Imagery & HiPS Surveys</span>
+              </button>
+
               <NasaResources
                 name={item.name}
                 query={item.aliases[0]}

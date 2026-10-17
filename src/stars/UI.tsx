@@ -64,6 +64,13 @@ export function InfoPanel() {
                 {star.constellation}
               </div>
               <NasaResources name={star.name} query={`${star.name} star ${star.constellation}`} />
+              <button
+                onClick={() => useStore.getState().setObservationModalOpen(true, star.name)}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/40 px-3.5 py-2 text-xs font-mono font-bold text-cyan-300 transition hover:bg-cyan-900/60 hover:text-white shadow-md shadow-cyan-950/50"
+              >
+                <Telescope className="h-4 w-4 text-cyan-400" />
+                <span>Telescope Imagery & HiPS Surveys</span>
+              </button>
               <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
                 <Stat label="Distance" value={`${star.distance.toFixed(2)} ly`} />
                 <Stat label="Spectral type" value={star.spectral} />
@@ -410,6 +417,12 @@ export function TopLeftControls() {
         onClick={() => useStore.getState().setGalaxyCoverageDashboardOpen(true)}
       >
         <Compass className="h-4 w-4 text-amber-400" />
+      </IconButton>
+      <IconButton
+        title="Astronomical Observation Evidence & Sky Survey Explorer (Aladin Lite / NASA / ESO)"
+        onClick={() => useStore.getState().setObservationModalOpen(true)}
+      >
+        <Eye className="h-4 w-4 text-emerald-400" />
       </IconButton>
       <IconButton
         title="Large-Scale Structure & Cosmic Web Explorer (Mode A: Observational vs Mode B: IllustrisTNG Simulation & Guided Journey)"

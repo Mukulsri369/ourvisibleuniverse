@@ -122,6 +122,39 @@ export function icrsToGalacticSpherical(
 }
 
 /**
+ * 1b. Galactic (l, b, d) -> ICRS (RA, Dec, d)
+ * Exact inverse of icrsToGalacticSpherical using IAU 1958/J2000 standard Euler angles.
+ */
+export function galacticToIcrsSpherical(
+  lDeg: number,
+  bDeg: number,
+  distanceLy: number,
+): SphericalCoordinates {
+  const l = lDeg * DEG_TO_RAD;
+  const b = bDeg * DEG_TO_RAD;
+
+  const sinB = Math.sin(b);
+  const cosB = Math.cos(b);
+  const deltaTheta = THETA_0_RAD - l;
+
+  const sinDec = sinB * SIN_DEC_NGP + cosB * COS_DEC_NGP * Math.cos(deltaTheta);
+  const decRad = Math.asin(Math.max(-1, Math.min(1, sinDec)));
+
+  const y = cosB * Math.sin(deltaTheta);
+  const x = sinB * COS_DEC_NGP - cosB * SIN_DEC_NGP * Math.cos(deltaTheta);
+
+  let raRad = RA_NGP_RAD + Math.atan2(y, x);
+  if (raRad < 0) raRad += 2 * Math.PI;
+  if (raRad >= 2 * Math.PI) raRad -= 2 * Math.PI;
+
+  return {
+    lonDeg: raRad * RAD_TO_DEG,
+    latDeg: decRad * RAD_TO_DEG,
+    distance: distanceLy,
+  };
+}
+
+/**
  * 2. Galactic (l, b, d) -> Cartesian in Light-Years
  * Supports both standard IAU right-handed Cartesian (X toward GC) and
  * the application's scene convention (invertX: X away from GC so Sgr A* sits at -X).

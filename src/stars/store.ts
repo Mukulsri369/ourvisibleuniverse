@@ -231,6 +231,9 @@ interface State {
   setBenchmarkModalOpen: (open: boolean) => void;
   compactObjectModalOpen: boolean;
   setCompactObjectModalOpen: (open: boolean) => void;
+  observationModalOpen: boolean;
+  observationTargetId: string | null;
+  setObservationModalOpen: (open: boolean, targetId?: string | null) => void;
   setPerformanceStats: (stats: {
     fps: number;
     drawCalls: number;
@@ -618,10 +621,8 @@ export const useStore = create<State>((set, get) => ({
       },
     })),
   setRedshiftFilter: (range) => set({ redshiftFilter: range }),
-  toggleSurveyFootprints: () =>
-    set((st) => ({ showSurveyFootprints: !st.showSurveyFootprints })),
-  toggleZoneOfAvoidance: () =>
-    set((st) => ({ showZoneOfAvoidance: !st.showZoneOfAvoidance })),
+  toggleSurveyFootprints: () => set((st) => ({ showSurveyFootprints: !st.showSurveyFootprints })),
+  toggleZoneOfAvoidance: () => set((st) => ({ showZoneOfAvoidance: !st.showZoneOfAvoidance })),
   setSelectedCosmicBenchmarkId: (id) => {
     set({ selectedCosmicBenchmarkId: id });
     if (!id) return;
@@ -638,13 +639,11 @@ export const useStore = create<State>((set, get) => ({
       });
     }
   },
-  toggleCosmicBenchmarks: () =>
-    set((st) => ({ showCosmicBenchmarks: !st.showCosmicBenchmarks })),
+  toggleCosmicBenchmarks: () => set((st) => ({ showCosmicBenchmarks: !st.showCosmicBenchmarks })),
   setSimulationComponent: (comp) => set({ simulationComponent: comp }),
   toggleSimulationFilaments: () =>
     set((st) => ({ showSimulationFilaments: !st.showSimulationFilaments })),
-  toggleSimulationVoids: () =>
-    set((st) => ({ showSimulationVoids: !st.showSimulationVoids })),
+  toggleSimulationVoids: () => set((st) => ({ showSimulationVoids: !st.showSimulationVoids })),
   toggleSimulationBoundingBox: () =>
     set((st) => ({ showSimulationBoundingBox: !st.showSimulationBoundingBox })),
   setSelectedSimHaloId: (id) => set({ selectedSimHaloId: id }),
@@ -732,5 +731,9 @@ export const useStore = create<State>((set, get) => ({
   setBenchmarkModalOpen: (open) => set({ benchmarkModalOpen: open }),
   compactObjectModalOpen: false,
   setCompactObjectModalOpen: (open) => set({ compactObjectModalOpen: open }),
+  observationModalOpen: false,
+  observationTargetId: null,
+  setObservationModalOpen: (open, targetId = null) =>
+    set({ observationModalOpen: open, observationTargetId: targetId ?? null }),
   setPerformanceStats: (stats) => set({ performanceStats: stats }),
 }));

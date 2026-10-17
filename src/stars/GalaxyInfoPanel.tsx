@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
+import { Telescope, ExternalLink } from "lucide-react";
 import { useStore } from "./store";
 import { GALAXY_BY_NAME } from "./galaxy-models";
 import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR } from "./andromeda-data";
@@ -88,9 +89,10 @@ export function GalaxyInfoPanel() {
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const cosmologyModelKey = useStore((s) => s.cosmologyModelKey);
   const customCosmology = useStore((s) => s.customCosmology);
-  const [activeTab, setActiveTab] = useState<"overview" | "cosmology" | "astrometry" | "system">(
-    "overview",
-  );
+  const setObservationModalOpen = useStore((s) => s.setObservationModalOpen);
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "observation" | "cosmology" | "astrometry" | "system"
+  >("overview");
 
   const g: ObservationalGalaxy | undefined = visit ? getGalaxyByAnyName(visit.name) : undefined;
   const system = visit ? systemFor(visit.name) : null;
@@ -182,37 +184,68 @@ export function GalaxyInfoPanel() {
 
               {/* Navigation Tabs */}
               <div className="mt-5 flex border-b border-white/10 text-xs">
-                {(["overview", "cosmology", "astrometry", "system"] as const).map((tab) => {
-                  if (tab === "system" && !system && visit.name !== ANDROMEDA_NAME) return null;
-                  const label =
-                    tab === "overview"
-                      ? "Profile"
-                      : tab === "cosmology"
-                        ? "Cosmology"
-                        : tab === "astrometry"
-                          ? "Data"
-                          : "Stars & Planets";
-                  return (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`relative pb-2.5 pt-1 px-3 uppercase tracking-wider text-[11px] transition ${
-                        activeTab === tab
-                          ? "font-medium text-sky-400"
-                          : "text-white/50 hover:text-white/80"
-                      }`}
-                    >
-                      {label}
-                      {activeTab === tab && (
-                        <motion.div
-                          layoutId="activeTabUnderline"
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-400"
-                        />
-                      )}
-                    </button>
-                  );
-                })}
+                {(["overview", "observation", "cosmology", "astrometry", "system"] as const).map(
+                  (tab) => {
+                    if (tab === "system" && !system && visit.name !== ANDROMEDA_NAME) return null;
+                    const label =
+                      tab === "overview"
+                        ? "Profile"
+                        : tab === "observation"
+                          ? "Observation"
+                          : tab === "cosmology"
+                            ? "Cosmology"
+                            : tab === "astrometry"
+                              ? "Data"
+                              : "Stars & Planets";
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`relative pb-2.5 pt-1 px-3 uppercase tracking-wider text-[11px] transition ${
+                          activeTab === tab
+                            ? "font-medium text-sky-400"
+                            : "text-white/50 hover:text-white/80"
+                        }`}
+                      >
+                        {label}
+                        {activeTab === tab && (
+                          <motion.div
+                            layoutId="activeTabUnderline"
+                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-400"
+                          />
+                        )}
+                      </button>
+                    );
+                  },
+                )}
               </div>
+
+              {/* Tab: Observation */}
+              {activeTab === "observation" && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-4 space-y-4"
+                >
+                  <div className="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 space-y-2">
+                    <div className="flex items-center gap-2 font-bold text-cyan-300 font-mono">
+                      <Telescope className="size-4" />
+                      <span>Empirical Sky Surveys & HiPS Imagery</span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-slate-300">
+                      Explore multi-wavelength coverage (Optical, Infrared, Ultraviolet, Radio,
+                      X-ray) and full-resolution Aladin Lite sky mapping for {visit.name}.
+                    </p>
+                    <button
+                      onClick={() => setObservationModalOpen(true, visit.name)}
+                      className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-500 px-3 py-2 text-xs font-mono font-bold text-slate-950 hover:bg-cyan-400 transition shadow-md"
+                    >
+                      <Telescope className="size-4" />
+                      <span>Open Observation & Survey Explorer</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Tab 1: Overview */}
               {activeTab === "overview" && (

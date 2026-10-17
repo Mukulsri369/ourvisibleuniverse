@@ -28,6 +28,7 @@ import { ObservedObjectInfoPanel } from "./ObservedObjectInfoPanel";
 import { OpticsPostProcessing } from "./OpticsPostProcessing";
 import { OpticsControlModal } from "./OpticsControlModal";
 import { RenderingBenchmarkModal } from "./RenderingBenchmarkModal";
+import { ObservationEvidenceModal } from "@/components/observation/ObservationEvidenceModal";
 
 import { useStore } from "./store";
 
@@ -36,6 +37,9 @@ export function StarsApp() {
   const selected = useStore((s) => s.selectedStar);
   const setSelected = useStore((s) => s.setSelected);
   const uiHidden = useStore((s) => s.uiHidden);
+  const observationModalOpen = useStore((s) => s.observationModalOpen);
+  const observationTargetId = useStore((s) => s.observationTargetId);
+  const setObservationModalOpen = useStore((s) => s.setObservationModalOpen);
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 1500);
@@ -98,6 +102,11 @@ export function StarsApp() {
           <ObservedObjectInfoPanel />
           <OpticsControlModal />
           <RenderingBenchmarkModal />
+          <ObservationEvidenceModal
+            open={observationModalOpen}
+            onClose={() => setObservationModalOpen(false)}
+            initialTargetId={observationTargetId}
+          />
         </>
       )}
       <LoadingScreen done={loaded} />
