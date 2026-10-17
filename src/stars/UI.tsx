@@ -523,6 +523,7 @@ export function TopLeftControls() {
       <CompactObjectLabModal />
       <CosmicWebExplorerModal />
       <GuidedJourneyHUD />
+      <CosmicWebHUDOverlay />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <GuidePanel open={guideOpen} onClose={() => setGuideOpen(false)} />
@@ -1061,6 +1062,87 @@ export function ScaleIndicator() {
   );
 }
 
+export function CosmicWebHUDOverlay() {
+  const showWeb = useStore((s) => s.showCosmicWebDensity);
+  const mode = useStore((s) => s.cosmicWebMode);
+  const setMode = useStore((s) => s.setCosmicWebMode);
+  const setExplorerOpen = useStore((s) => s.setCosmicWebExplorerOpen);
+  const startGuidedJourney = useStore((s) => s.startGuidedJourney);
+  const guidedJourneyActive = useStore((s) => s.guidedJourneyActive);
+  const d = useStore((s) => s.cameraDistance);
+
+  if (!showWeb || mode === "off" || guidedJourneyActive || d < 300_000) {
+    return null;
+  }
+
+  const isObs = mode === "observational";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="pointer-events-auto fixed top-16 left-1/2 z-20 -translate-x-1/2 flex items-center gap-2 rounded-xl border border-white/15 bg-slate-950/85 px-3 py-1.5 shadow-2xl backdrop-blur-md text-xs text-white"
+    >
+      <div className="flex items-center gap-1.5">
+        <span
+          className={`size-2 rounded-full animate-pulse ${
+            isObs
+              ? "bg-cyan-400 shadow-[0_0_8px_#38bdf8]"
+              : "bg-purple-400 shadow-[0_0_8px_#c084fc]"
+          }`}
+        />
+        <span className="font-bold tracking-wide">
+          {isObs ? "MODE A: OBSERVED SURVEYS" : "MODE B: SIMULATED COSMIC WEB"}
+        </span>
+      </div>
+
+      <span className="text-white/20">|</span>
+
+      <span className="text-[10px] text-slate-300 font-mono hidden md:inline">
+        {isObs
+          ? "SDSS / 2dFGRS / 2MRS • Past Lightcone (z > 0)"
+          : "IllustrisTNG-300 Snapshot 99 • Equal-Time Box"}
+      </span>
+
+      <span className="text-white/20 hidden md:inline">|</span>
+
+      <button
+        onClick={() => setMode(isObs ? "simulation" : "observational")}
+        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold transition ${
+          isObs
+            ? "bg-purple-500/20 text-purple-300 border border-purple-400/30 hover:bg-purple-500/30"
+            : "bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 hover:bg-cyan-500/30"
+        }`}
+        title={
+          isObs
+            ? "Switch to IllustrisTNG-300 Simulation Box"
+            : "Switch to Actual Observed Galaxy Surveys"
+        }
+      >
+        Switch to {isObs ? "Mode B (Simulation)" : "Mode A (Observed)"}
+      </button>
+
+      <button
+        onClick={() => startGuidedJourney()}
+        className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-semibold text-cyan-200 border border-cyan-400/30 hover:bg-cyan-500/30 transition flex items-center gap-1"
+        title="Start Guided Cosmic Journey (6 Scale Stages)"
+      >
+        <Compass className="size-3 text-cyan-400" />
+        <span className="hidden sm:inline">Guided Journey</span>
+      </button>
+
+      <button
+        onClick={() => setExplorerOpen(true)}
+        className="p-1 text-slate-400 hover:text-white transition rounded-md hover:bg-white/10"
+        title="Open Full Large-Scale Structure Explorer"
+      >
+        <Sliders className="size-3.5" />
+      </button>
+    </motion.div>
+  );
+}
+
 // Ambient drone via WebAudio so we don't need an asset.
 function useDrone(on: boolean) {
   const ctxRef = useRef<AudioContext | null>(null);
@@ -1350,17 +1432,48 @@ export function GalaxyNavigator() {
           >
             <span>📊 Dashboard</span>
           </button>
-          <button
-            onClick={() => useStore.getState().toggleCosmicWebDensity()}
-            title="Toggle between Simulated Cosmic Web Filaments and Observed Galaxies"
-            className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
-              useStore.getState().showCosmicWebDensity
-                ? "bg-violet-500/25 text-violet-300 border border-violet-500/30"
-                : "text-white/50 hover:bg-white/5 hover:text-white"
-            }`}
-          >
-            🕸 Web {useStore.getState().showCosmicWebDensity ? "ON" : "OFF"}
-          </button>
+          <div className="flex items-center gap-1 rounded-full border border-white/15 bg-slate-950/80 px-1 py-0.5 shadow-sm">
+            <button
+              onClick={() => {
+                const mode = useStore.getState().cosmicWebMode;
+                const density = useStore.getState().showCosmicWebDensity;
+                if (!density || mode === "off") {
+                  useStore.getState().setCosmicWebMode("observational");
+                  if (!density) useStore.getState().toggleCosmicWebDensity();
+                } else if (mode === "observational") {
+                  useStore.getState().setCosmicWebMode("simulation");
+                } else {
+                  useStore.getState().setCosmicWebMode("observational");
+                  useStore.getState().toggleCosmicWebDensity();
+                }
+              }}
+              title="Toggle between Mode A (Observed Surveys), Mode B (IllustrisTNG Sim), and Off"
+              className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold transition ${
+                useStore.getState().showCosmicWebDensity &&
+                useStore.getState().cosmicWebMode === "observational"
+                  ? "bg-cyan-500/25 text-cyan-300 border border-cyan-500/40"
+                  : useStore.getState().showCosmicWebDensity &&
+                      useStore.getState().cosmicWebMode === "simulation"
+                    ? "bg-purple-500/25 text-purple-300 border border-purple-500/40"
+                    : "text-white/50 hover:bg-white/5 hover:text-white"
+              }`}
+            >
+              {useStore.getState().showCosmicWebDensity &&
+              useStore.getState().cosmicWebMode === "observational"
+                ? "🕸 Mode A: Observed"
+                : useStore.getState().showCosmicWebDensity &&
+                    useStore.getState().cosmicWebMode === "simulation"
+                  ? "🕸 Mode B: Simulation"
+                  : "🕸 Web: OFF"}
+            </button>
+            <button
+              onClick={() => useStore.getState().setCosmicWebExplorerOpen(true)}
+              title="Open Large-Scale Structure & Cosmic Web Explorer Settings"
+              className="p-1 text-slate-400 hover:text-white transition rounded-full hover:bg-white/10"
+            >
+              <Sliders className="size-3 text-cyan-400" />
+            </button>
+          </div>
           <div className="h-3 w-px bg-white/20 mx-0.5" />
           <button
             onClick={(e) => {

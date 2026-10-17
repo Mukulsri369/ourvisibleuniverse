@@ -68,6 +68,7 @@ export interface IllustrisTNGMetadata {
   citation: string;
   bibcode: string;
   disclaimer: string;
+  scientificCaveat: string;
 }
 
 export const TNG300_METADATA: IllustrisTNGMetadata = {
@@ -89,6 +90,8 @@ export const TNG300_METADATA: IllustrisTNGMetadata = {
   bibcode: "2019ComAC...6....2N",
   disclaimer:
     "Scientific Caveat: This is a statistical simulation of a 300 Mpc cosmological volume at z=0. It demonstrates cosmic web emergence, halo clustering, and void morphology under general relativity and hydrodynamics, but does NOT correspond to real catalogued astronomical coordinates on the sky.",
+  scientificCaveat:
+    "Simulation volume is an equal-time statistical realization and does NOT map to real distant sky coordinates.",
 };
 
 /**
