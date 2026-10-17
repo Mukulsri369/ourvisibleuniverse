@@ -17,6 +17,9 @@
     "test:jpl": "tsx scripts/jpl-horizons-validation.ts",
     "test:extragalactic": "tsx scripts/extragalactic-atlas-validation.ts",
     "test:compact": "tsx scripts/compact-objects-validation.ts",
+    "test:evolution": "tsx scripts/cosmic-evolution-validation.ts",
+    "test:cosmic-web": "tsx scripts/cosmic-web-validation.ts",
+    "test:lss": "tsx scripts/lss-hybrid-explorer-test.ts",
     "ingest:catalog": "tsx scripts/ingest-astronomy-catalog.ts"
   },
   "dependencies": {

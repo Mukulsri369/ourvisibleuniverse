@@ -6,6 +6,7 @@ import type {
   ModuleStatus,
   UserProgress,
 } from "@/lib/academy/types";
+import { Link } from "@tanstack/react-router";
 import {
   MODULE_17_SUBLESSONS,
   MODULE_17_QUIZ,
@@ -161,6 +162,37 @@ export function Module17Layout({
         </div>
         <LearningLevelSelector selectedLevel={level} onSelectLevel={onSetLearningLevel} />
       </section>
+
+      {/* 2b. Cosmic Evolution Interactive Experience Cross-Link Banner */}
+      <div className="bg-gradient-to-r from-cyan-950/40 via-purple-950/40 to-slate-900 border border-cyan-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-cyan-500/5">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+            <Orbit className="size-5" />
+          </div>
+          <div>
+            <div className="text-sm font-bold text-white flex items-center gap-2">
+              <span>Full 15-Stage Cosmic Evolution Experience</span>
+              <span className="text-[10px] font-mono uppercase bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                Interactive Timeline
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Explore the entire 13.8-billion-year sequence from the hot Big Bang expansion to the
+              modern cosmic web with 3 viewing modes.
+            </p>
+          </div>
+        </div>
+        <Button
+          asChild
+          size="sm"
+          className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold whitespace-nowrap"
+        >
+          <Link to="/cosmic-evolution">
+            <span>Launch Cosmic Evolution</span>
+            <ArrowRight className="size-3.5 ml-1.5" />
+          </Link>
+        </Button>
+      </div>
 
       {/* 3. Interactive Laboratory Chamber Tabs */}
       <section className="space-y-4">

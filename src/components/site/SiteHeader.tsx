@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   ["/learn", "Cosmic Learning Academy"],
+  ["/cosmic-evolution", "Cosmic Evolution"],
   ["/features", "Features"],
   ["/science", "Science"],
   ["/visible-universe-history", "History"],

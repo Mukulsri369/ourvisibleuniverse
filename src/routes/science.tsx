@@ -72,6 +72,17 @@ export const Route = createFileRoute("/science")({
           modelled. It exists to support exploration and is not presented as a confirmed discovery.
         </p>
       </section>
+      <section>
+        <h2>Cosmic Evolution: Observed Evidence vs. Simulation</h2>
+        <p>
+          Our Cosmic Evolution experience strictly separates observational empirical evidence (such
+          as the 2.7255 K Cosmic Microwave Background blackbody spectrum, BBN primordial light
+          element abundances, and JWST high-redshift galaxy spectra) from numerical simulations
+          (such as IllustrisTNG cosmological box snapshots). The Big Bang is explicitly modeled as
+          the metric expansion of space itself according to General Relativity, never as an
+          explosion into pre-existing space.
+        </p>
+      </section>
     </InfoPage>
   ),
 });

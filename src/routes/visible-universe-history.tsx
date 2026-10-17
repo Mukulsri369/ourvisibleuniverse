@@ -704,6 +704,35 @@ function VisibleUniverseHistoryPage() {
                       </ul>
                     </div>
 
+                    {/* Live Cosmic Evolution Timeline & Simulator Integration */}
+                    {ch.era === "Cosmology & Big Bang" && (
+                      <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-purple-950/30 to-slate-900/60 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                            <Sparkles className="size-3.5 text-cyan-400" />
+                            <span>
+                              Experience the Physical Simulation: 13.8 Billion Years of Cosmic
+                              Evolution
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-300">
+                            Interact with the live 15-stage timeline, CMB acoustic ripples, Pop III
+                            star formation, and IllustrisTNG cosmic web growth.
+                          </p>
+                        </div>
+                        <Button
+                          asChild
+                          size="sm"
+                          className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs whitespace-nowrap"
+                        >
+                          <Link to="/cosmic-evolution">
+                            <span>Launch Simulator</span>
+                            <ChevronRight className="size-3.5 ml-1" />
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+
                     {/* Student Inquiry & Exam Questions Accordion (Grade 10-11) */}
                     <ChapterFaqAccordion
                       faqs={faqs}

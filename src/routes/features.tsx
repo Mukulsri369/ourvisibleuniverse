@@ -64,6 +64,15 @@ export const Route = createFileRoute("/features")({
         </p>
       </section>
       <section>
+        <h2>Cosmic Evolution Interactive Experience</h2>
+        <p>
+          Travel through 13.8 billion years across 15 chronological stages from the hot Big Bang
+          expansion to the modern cosmic web. Switch between Guided Cinematic Learning, Interactive
+          Scientific Exploration, and Advanced Physics Data Mode featuring verified cosmological
+          equations, temperature scales, and IllustrisTNG simulation snapshots.
+        </p>
+      </section>
+      <section>
         <h2>Visualize the mathematics</h2>
         <p>
           Pair the universe with our companion tool,{" "}
