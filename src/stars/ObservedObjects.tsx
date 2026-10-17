@@ -216,6 +216,8 @@ function NebulaDetail({
   const texture = useMemo(makeGlowTexture, []);
   const ws = sizeScale ?? scale;
   const opticsPreset = useStore((s) => s.opticsPreset);
+  const group = useRef<THREE.Group>(null);
+  const slowlyTurning = false;
 
   const volumetricUniforms = useMemo(() => {
     const spectral = NEBULA_SPECTRAL_DATA[item.id];
