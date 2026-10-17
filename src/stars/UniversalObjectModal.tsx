@@ -40,7 +40,13 @@ export function UniversalObjectModal() {
   const isAutoOrbiting = useStore((s) => s.isAutoOrbiting);
 
   const [activeTab, setActiveTab] = useState<
-    "overview" | "scientific" | "visualization" | "observations" | "evolution" | "related" | "references"
+    | "overview"
+    | "scientific"
+    | "visualization"
+    | "observations"
+    | "evolution"
+    | "related"
+    | "references"
   >("overview");
 
   if (!open || !target) return null;
@@ -139,9 +145,7 @@ export function UniversalObjectModal() {
               </div>
 
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-light text-white tracking-wide">
-                  {target.name}
-                </h2>
+                <h2 className="text-2xl font-light text-white tracking-wide">{target.name}</h2>
                 <span className="rounded bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5 text-xs text-cyan-300 font-medium">
                   {target.category || target.type.toUpperCase()}
                 </span>
@@ -246,7 +250,9 @@ export function UniversalObjectModal() {
                 {/* Simulated detail disclaimer notice */}
                 {target.isSimulatedOrModelled && (
                   <div className="rounded-xl border border-amber-500/25 bg-amber-950/20 p-4 text-xs text-amber-200/90 leading-relaxed">
-                    <strong className="text-amber-300">Astrophysical Model Reconstruction Notice:</strong>{" "}
+                    <strong className="text-amber-300">
+                      Astrophysical Model Reconstruction Notice:
+                    </strong>{" "}
                     {target.modelledDetailsNote ||
                       "Certain internal morphological features, planetary atmospheres, or density distributions are simulated using empirical photometric models and observational orientation parameters."}
                   </div>
@@ -306,9 +312,12 @@ export function UniversalObjectModal() {
                         <td className="p-3 text-cyan-300">{target.category || target.type}</td>
                       </tr>
                       <tr>
-                        <td className="p-3 text-white/50">Physical Distance (Bailer-Jones / NED)</td>
+                        <td className="p-3 text-white/50">
+                          Physical Distance (Bailer-Jones / NED)
+                        </td>
                         <td className="p-3 text-white">
-                          {formatLy(target.distanceLy)} ({(target.distanceLy / 3.26156).toFixed(2)} pc)
+                          {formatLy(target.distanceLy)} ({(target.distanceLy / 3.26156).toFixed(2)}{" "}
+                          pc)
                         </td>
                       </tr>
                       {target.apparentMagnitude !== undefined && (
@@ -411,7 +420,10 @@ export function UniversalObjectModal() {
                           style={{
                             width: `${Math.min(
                               100,
-                              Math.max(4, (target.radiusEarth ?? (target.radiusSolar ?? 1) * 109) * 2),
+                              Math.max(
+                                4,
+                                (target.radiusEarth ?? (target.radiusSolar ?? 1) * 109) * 2,
+                              ),
                             )}%`,
                           }}
                         />

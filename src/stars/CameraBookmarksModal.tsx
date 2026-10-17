@@ -74,7 +74,8 @@ export function CameraBookmarksModal() {
                   Camera Vistas &amp; Bookmarks
                 </h2>
                 <p className="text-xs text-white/50">
-                  Instant teleportation to iconic astronomical perspectives or save custom viewpoints
+                  Instant teleportation to iconic astronomical perspectives or save custom
+                  viewpoints
                 </p>
               </div>
             </div>
@@ -136,7 +137,14 @@ export function CameraBookmarksModal() {
                     Save Current Position As Bookmark
                   </span>
                   <span className="font-mono text-white/50 text-[10px]">
-                    Current Distance: {distance >= 1e9 ? (distance / 1e9).toFixed(2) + " Gly" : distance >= 1e6 ? (distance / 1e6).toFixed(2) + " Mly" : distance >= 1 ? distance.toFixed(1) + " ly" : (distance * 63241).toFixed(2) + " AU"}
+                    Current Distance:{" "}
+                    {distance >= 1e9
+                      ? (distance / 1e9).toFixed(2) + " Gly"
+                      : distance >= 1e6
+                        ? (distance / 1e6).toFixed(2) + " Mly"
+                        : distance >= 1
+                          ? distance.toFixed(1) + " ly"
+                          : (distance * 63241).toFixed(2) + " AU"}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -196,13 +204,9 @@ export function CameraBookmarksModal() {
                       <span className="text-sm font-medium text-white group-hover:text-cyan-200">
                         {bm.title}
                       </span>
-                      <span className="font-mono text-[10px] text-white/40">
-                        {bm.subtitle}
-                      </span>
+                      <span className="font-mono text-[10px] text-white/40">{bm.subtitle}</span>
                     </div>
-                    <p className="text-xs text-white/55 line-clamp-1 mt-0.5">
-                      {bm.description}
-                    </p>
+                    <p className="text-xs text-white/55 line-clamp-1 mt-0.5">{bm.description}</p>
                   </div>
                 </div>
 
@@ -232,7 +236,8 @@ export function CameraBookmarksModal() {
                 <Bookmark className="h-8 w-8 text-white/20 mb-2" />
                 <p className="text-sm font-medium text-white/70">No custom viewpoints saved yet</p>
                 <p className="text-xs text-white/40 mt-1 max-w-sm">
-                  Navigate to any vista in the universe and click &quot;Save Current View&quot; to bookmark it for instant recall anytime.
+                  Navigate to any vista in the universe and click &quot;Save Current View&quot; to
+                  bookmark it for instant recall anytime.
                 </p>
               </div>
             )}

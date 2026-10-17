@@ -4,7 +4,8 @@ import { useState } from "react";
 import { OBJECT_BY_ID, type ObservedObject } from "./observed-objects";
 import { questionsFor } from "./object-questions";
 import { useStore } from "./store";
-import { Telescope } from "lucide-react";
+import { Telescope, FileText } from "lucide-react";
+import { createTargetFromObservedObject } from "./universal-target-factory";
 
 function QuestionList({ item }: { item: ObservedObject }) {
   const questions = questionsFor(item);
@@ -108,6 +109,16 @@ export function ObservedObjectInfoPanel() {
               >
                 <Telescope className="size-4 text-cyan-400" />
                 <span>Telescope Imagery & HiPS Surveys</span>
+              </button>
+
+              <button
+                onClick={() =>
+                  useStore.getState().setActiveUniversalTarget(createTargetFromObservedObject(item))
+                }
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2 text-xs font-mono font-medium text-white/90 transition hover:bg-white/10"
+              >
+                <FileText className="size-4 text-cyan-300" />
+                <span>Open 7-Tab Science Dossier</span>
               </button>
 
               <NasaResources

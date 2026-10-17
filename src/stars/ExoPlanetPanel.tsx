@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { exoSystemFor } from "./exosystems";
 import { useStore } from "./store";
+import { FileText } from "lucide-react";
+import { createTargetFromStar } from "./universal-target-factory";
 
 /** Flight dossier shown while the camera is visiting an exoplanet. */
 export function ExoPlanetPanel() {
@@ -106,6 +108,15 @@ export function ExoPlanetPanel() {
             className="mt-2 w-full rounded-md border border-white/15 bg-white/5 py-2 text-xs text-white/80 transition hover:bg-white/15"
           >
             Return to system orbit
+          </button>
+          <button
+            onClick={() =>
+              useStore.getState().setActiveUniversalTarget(createTargetFromStar(exo.star))
+            }
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-white/20 bg-white/5 py-2 text-xs font-mono font-medium text-white/90 transition hover:bg-white/10"
+          >
+            <FileText className="h-3.5 w-3.5 text-cyan-300" />
+            <span>Open System Science Dossier</span>
           </button>
           {p.observed && (
             <a

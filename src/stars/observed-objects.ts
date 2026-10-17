@@ -10,14 +10,7 @@ export type ObjectCategory =
   | "Variable star"
   | "Dwarf star";
 export type ObjectVisual =
-  | "cloud"
-  | "shell"
-  | "bipolar"
-  | "jet"
-  | "pulsar"
-  | "blackhole"
-  | "star"
-  | "remnant";
+  "cloud" | "shell" | "bipolar" | "jet" | "pulsar" | "blackhole" | "star" | "remnant";
 
 export type CompactPhysics = {
   compactClass:
@@ -39,13 +32,7 @@ export type CompactPhysics = {
   kerrHorizonRadiusKm?: number;
   photonSphereRadiusKm?: number;
   iscoRadiusKm?: number;
-  accretionState:
-    | "dormant"
-    | "quiescent"
-    | "low_state"
-    | "high_state"
-    | "super_eddington"
-    | "none";
+  accretionState: "dormant" | "quiescent" | "low_state" | "high_state" | "super_eddington" | "none";
   hasAccretionDisk: boolean;
   hasRelativisticJet: boolean;
   companionStar?: string;
@@ -56,11 +43,7 @@ export type CompactPhysics = {
   gwSkyAreaDeg2?: number;
   gwChirpMassSolar?: number;
   gwRadiatedEnergySolar?: number;
-  scientificConfidence:
-    | "confirmed"
-    | "high_confidence"
-    | "candidate"
-    | "localization_region";
+  scientificConfidence: "confirmed" | "high_confidence" | "candidate" | "localization_region";
   publishedCitation: string;
 };
 
@@ -699,8 +682,7 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     ],
     description:
       "A nearby young neutron star whose high-energy wind produces glowing X-ray arcs, a helical jet, and frequent internal superfluid glitches.",
-    visualNote:
-      "Inner pulsar wind nebula shows swept equatorial rings and precessing polar jet.",
+    visualNote: "Inner pulsar wind nebula shows swept equatorial rings and precessing polar jet.",
     source: "NASA Chandra / Fermi / ESA XMM-Newton",
     compactPhysics: {
       compactClass: "radio_pulsar",
@@ -889,8 +871,7 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     ],
     description:
       "Discovered by the Neil Gehrels Swift Observatory in 2020, this newborn magnetar is the youngest ever identified, bridging the evolutionary gap between rotation-powered pulsars and magnetars.",
-    visualNote:
-      "Violent youthful magnetic loops with emerging radio pulse emission.",
+    visualNote: "Violent youthful magnetic loops with emerging radio pulse emission.",
     source: "NASA Swift / Esposito et al. (2020) ApJL",
     compactPhysics: {
       compactClass: "magnetar",
@@ -935,7 +916,7 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     compactPhysics: {
       compactClass: "stellar_black_hole_dormant",
       massSolar: 9.62,
-      massSolarRange: [9.44, 9.80],
+      massSolarRange: [9.44, 9.8],
       spinDimensionless: 0.05,
       schwarzschildRadiusKm: 28.4,
       photonSphereRadiusKm: 42.6,

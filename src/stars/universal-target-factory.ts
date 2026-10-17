@@ -6,7 +6,10 @@ import { OBSERVATIONAL_GALAXY_CATALOG, type ObservationalGalaxy } from "./galaxy
 import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
 import { REAL_SYSTEMS } from "./real-exoplanets";
 
-export function createTargetFromPlanet(planetName: string, moonName?: string): UniversalTarget | null {
+export function createTargetFromPlanet(
+  planetName: string,
+  moonName?: string,
+): UniversalTarget | null {
   const planet = PLANETS.find((p) => p.name === planetName);
   if (!planet) return null;
 

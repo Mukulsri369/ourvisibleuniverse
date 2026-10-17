@@ -183,6 +183,32 @@ export function GalaxyInfoPanel() {
                 )}
               </div>
 
+              {/* 7-Tab Science Dossier Button */}
+              <button
+                onClick={() => {
+                  const targetGalaxy =
+                    g ||
+                    ({
+                      name: visit.name,
+                      preferredName: visit.name,
+                      distance: visit.distance,
+                      size: visit.size,
+                      type: visit.type,
+                      morphologyClass: visit.type,
+                      redshift: z,
+                      l: 0,
+                      b: 0,
+                    } as any);
+                  useStore
+                    .getState()
+                    .setActiveUniversalTarget(createTargetFromGalaxy(targetGalaxy));
+                }}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-mono font-medium text-white/90 transition hover:bg-white/10"
+              >
+                <FileText className="h-4 w-4 text-cyan-300" />
+                <span>Open 7-Tab Science Dossier</span>
+              </button>
+
               {/* Navigation Tabs */}
               <div className="mt-5 flex border-b border-white/10 text-xs">
                 {(["overview", "observation", "cosmology", "astrometry", "system"] as const).map(

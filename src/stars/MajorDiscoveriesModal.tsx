@@ -45,10 +45,14 @@ export function MajorDiscoveriesModal() {
       title: "Discovery of Cosmic Expansion (Hubble's Law)",
       discoverer: "Edwin Hubble & Milton Humason",
       institution: "Mount Wilson Observatory (100-inch Hooker Telescope)",
-      summary: "By measuring Cepheid variable stars in Andromeda (M31) and Triangulum (M33), Hubble confirmed galaxies are 'island universes' outside the Milky Way and that distant galaxies recede with velocities proportional to their distance.",
-      historicalContext: "Before 1925, astronomers debated during the Great Debate whether nebulae were spiral clouds within our Milky Way or distant independent galaxies. Hubble identified Cepheid variable V1 in Andromeda, resolving the debate.",
-      scientificImpact: "Overturned the static cosmological model of Einstein, leading to the formulation of the expanding universe paradigm and the theoretical foundation for the Big Bang.",
-      citation: "Hubble, E. (1929). 'A relation between distance and radial velocity among extra-galactic nebulae'. PNAS 15 (3): 168–173.",
+      summary:
+        "By measuring Cepheid variable stars in Andromeda (M31) and Triangulum (M33), Hubble confirmed galaxies are 'island universes' outside the Milky Way and that distant galaxies recede with velocities proportional to their distance.",
+      historicalContext:
+        "Before 1925, astronomers debated during the Great Debate whether nebulae were spiral clouds within our Milky Way or distant independent galaxies. Hubble identified Cepheid variable V1 in Andromeda, resolving the debate.",
+      scientificImpact:
+        "Overturned the static cosmological model of Einstein, leading to the formulation of the expanding universe paradigm and the theoretical foundation for the Big Bang.",
+      citation:
+        "Hubble, E. (1929). 'A relation between distance and radial velocity among extra-galactic nebulae'. PNAS 15 (3): 168–173.",
       targetScale: "Andromeda Galaxy (M31 · 2.537 Mly)",
       flyToAction: () => {
         setVisitPlanet(null);
@@ -72,11 +76,15 @@ export function MajorDiscoveriesModal() {
       title: "First Exoplanet Around a Sun-like Star (51 Pegasi b)",
       discoverer: "Michel Mayor & Didier Queloz",
       institution: "Observatoire de Haute-Provence (ELODIE Spectrograph)",
-      summary: "Discovered the first confirmed planet orbiting a main-sequence solar-type star: 51 Pegasi b (Dimidium), a 'Hot Jupiter' with an orbital period of only 4.23 days.",
-      historicalContext: "Standard solar system formation models assumed giant gas planets could only form beyond the ice line (~3–5 AU). The discovery of a gas giant skimming its star at 0.05 AU revolutionized planetary migration theories.",
-      scientificImpact: "Triggered the modern exoplanet revolution, leading to over 5,500 cataloged exoplanets discovered by Kepler, TESS, and radial velocity surveys.",
+      summary:
+        "Discovered the first confirmed planet orbiting a main-sequence solar-type star: 51 Pegasi b (Dimidium), a 'Hot Jupiter' with an orbital period of only 4.23 days.",
+      historicalContext:
+        "Standard solar system formation models assumed giant gas planets could only form beyond the ice line (~3–5 AU). The discovery of a gas giant skimming its star at 0.05 AU revolutionized planetary migration theories.",
+      scientificImpact:
+        "Triggered the modern exoplanet revolution, leading to over 5,500 cataloged exoplanets discovered by Kepler, TESS, and radial velocity surveys.",
       nobelPrize: "Nobel Prize in Physics (2019)",
-      citation: "Mayor, M., & Queloz, D. (1995). 'A Jupiter-mass companion to a solar-type star'. Nature 378: 355–359.",
+      citation:
+        "Mayor, M., & Queloz, D. (1995). 'A Jupiter-mass companion to a solar-type star'. Nature 378: 355–359.",
       targetScale: "51 Pegasi b Exoplanetary System (50.5 ly)",
       flyToAction: () => {
         setVisitPlanet(null);
@@ -108,11 +116,15 @@ export function MajorDiscoveriesModal() {
       title: "Discovery of Cosmic Microwave Background Radiation",
       discoverer: "Arno Penzias & Robert Wilson",
       institution: "Bell Laboratories (Holmdel Horn Antenna)",
-      summary: "Serendipitously detected an isotropic 2.725 K thermal microwave glow permeating all of space: the cooled relic radiation emitted 380,000 years after the Big Bang.",
-      historicalContext: "Penzias and Wilson initially thought the constant residual noise was pigeon droppings on the antenna dish. Meanwhile, Dicke and Peebles at Princeton were calculating the exact predicted relic radiation from primeval nucleosynthesis.",
-      scientificImpact: "Provided decisive empirical confirmation of the Big Bang over the rival Steady State cosmological theory.",
+      summary:
+        "Serendipitously detected an isotropic 2.725 K thermal microwave glow permeating all of space: the cooled relic radiation emitted 380,000 years after the Big Bang.",
+      historicalContext:
+        "Penzias and Wilson initially thought the constant residual noise was pigeon droppings on the antenna dish. Meanwhile, Dicke and Peebles at Princeton were calculating the exact predicted relic radiation from primeval nucleosynthesis.",
+      scientificImpact:
+        "Provided decisive empirical confirmation of the Big Bang over the rival Steady State cosmological theory.",
       nobelPrize: "Nobel Prize in Physics (1978)",
-      citation: "Penzias, A. A., & Wilson, R. W. (1965). 'A Measurement of Excess Antenna Temperature at 4080 Mc/s'. ApJ 142: 419–421.",
+      citation:
+        "Penzias, A. A., & Wilson, R. W. (1965). 'A Measurement of Excess Antenna Temperature at 4080 Mc/s'. ApJ 142: 419–421.",
       targetScale: "Observable Universe Recombination Horizon (46.5 Gly)",
       flyToAction: () => {
         setVisitPlanet(null);
@@ -131,10 +143,14 @@ export function MajorDiscoveriesModal() {
       title: "First Direct Image of a Black Hole Shadow (M87*)",
       discoverer: "Event Horizon Telescope (EHT) Collaboration",
       institution: "Global Very Long Baseline Interferometry (VLBI) Array",
-      summary: "Synthesized an Earth-sized telescope array to image the asymmetric photon emission ring and event horizon shadow of the 6.5-billion solar mass black hole in giant elliptical M87.",
-      historicalContext: "Black holes were considered purely mathematical solutions to Einstein's field equations for decades. EHT achieved an angular resolution of 20 microarcseconds to resolve the photon sphere.",
-      scientificImpact: "Verified general relativity under extreme gravitational field limits and confirmed Kerr metric predictions for rotating supermassive black holes.",
-      citation: "The Event Horizon Telescope Collaboration (2019). 'First M87 Event Horizon Telescope Results. I. The Shadow of the Supermassive Black Hole'. ApJL 875: L1.",
+      summary:
+        "Synthesized an Earth-sized telescope array to image the asymmetric photon emission ring and event horizon shadow of the 6.5-billion solar mass black hole in giant elliptical M87.",
+      historicalContext:
+        "Black holes were considered purely mathematical solutions to Einstein's field equations for decades. EHT achieved an angular resolution of 20 microarcseconds to resolve the photon sphere.",
+      scientificImpact:
+        "Verified general relativity under extreme gravitational field limits and confirmed Kerr metric predictions for rotating supermassive black holes.",
+      citation:
+        "The Event Horizon Telescope Collaboration (2019). 'First M87 Event Horizon Telescope Results. I. The Shadow of the Supermassive Black Hole'. ApJL 875: L1.",
       targetScale: "Virgo Cluster / M87* Core (53.5 Mly)",
       flyToAction: () => {
         setVisitPlanet(null);
@@ -152,11 +168,14 @@ export function MajorDiscoveriesModal() {
       title: "First Direct Detection of Gravitational Waves (GW150914)",
       discoverer: "LIGO Scientific Collaboration & Virgo Collaboration",
       institution: "Laser Interferometer Gravitational-Wave Observatory (Hanford & Livingston)",
-      summary: "Detected the catastrophic chirp signal of two stellar-mass black holes (36 M☉ and 29 M☉) merging 1.3 billion light-years away, releasing 3 solar masses of pure gravitational energy.",
-      historicalContext: "Albert Einstein predicted gravitational ripples in spacetime in 1916 but believed they were too weak to ever be measured. LIGO measured a displacement of less than 1/10,000 the diameter of a proton.",
+      summary:
+        "Detected the catastrophic chirp signal of two stellar-mass black holes (36 M☉ and 29 M☉) merging 1.3 billion light-years away, releasing 3 solar masses of pure gravitational energy.",
+      historicalContext:
+        "Albert Einstein predicted gravitational ripples in spacetime in 1916 but believed they were too weak to ever be measured. LIGO measured a displacement of less than 1/10,000 the diameter of a proton.",
       scientificImpact: "Opened the era of multi-messenger gravitational-wave astronomy.",
       nobelPrize: "Nobel Prize in Physics (2017)",
-      citation: "Abbott, B. P. et al. (2016). 'Observation of Gravitational Waves from a Binary Black Hole Merger'. Phys. Rev. Lett. 116: 061102.",
+      citation:
+        "Abbott, B. P. et al. (2016). 'Observation of Gravitational Waves from a Binary Black Hole Merger'. Phys. Rev. Lett. 116: 061102.",
       targetScale: "Cosmic Deep Space (1.3 Gly)",
       flyToAction: () => {
         setVisitPlanet(null);
@@ -174,10 +193,14 @@ export function MajorDiscoveriesModal() {
       title: "Pale Blue Dot: Earth Viewed from 6 Billion Kilometers",
       discoverer: "Voyager 1 Imaging Science Subsystem (Carl Sagan Request)",
       institution: "NASA Jet Propulsion Laboratory (JPL)",
-      summary: "As Voyager 1 completed its primary mission, its camera turned back toward the Sun across 40.5 AU (6 billion km) to take the iconic family portrait showing Earth as a suspended pixel in a scattered sunbeam.",
-      historicalContext: "Carl Sagan insisted that Voyager take one last photograph of Earth before turning off its cameras to conserve energy, inspiring humanity's consciousness of cosmic vulnerability.",
-      scientificImpact: "Remains the foundational symbol of human space exploration, cosmic perspective, and ecological stewardship.",
-      citation: "Sagan, C. (1994). 'Pale Blue Dot: A Vision of the Human Future in Space'. Random House.",
+      summary:
+        "As Voyager 1 completed its primary mission, its camera turned back toward the Sun across 40.5 AU (6 billion km) to take the iconic family portrait showing Earth as a suspended pixel in a scattered sunbeam.",
+      historicalContext:
+        "Carl Sagan insisted that Voyager take one last photograph of Earth before turning off its cameras to conserve energy, inspiring humanity's consciousness of cosmic vulnerability.",
+      scientificImpact:
+        "Remains the foundational symbol of human space exploration, cosmic perspective, and ecological stewardship.",
+      citation:
+        "Sagan, C. (1994). 'Pale Blue Dot: A Vision of the Human Future in Space'. Random House.",
       targetScale: "Outer Solar System (40 AU Heliospheric Vantage)",
       flyToAction: () => {
         setVisitPlanet("Earth");
@@ -216,7 +239,8 @@ export function MajorDiscoveriesModal() {
                   Landmark Discoveries in Observational Astrophysics
                 </h2>
                 <p className="text-xs text-white/50">
-                  Interactive guided narratives of milestones that transformed our understanding of the universe
+                  Interactive guided narratives of milestones that transformed our understanding of
+                  the universe
                 </p>
               </div>
             </div>
@@ -255,12 +279,8 @@ export function MajorDiscoveriesModal() {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs font-medium text-white line-clamp-1">
-                      {story.title}
-                    </div>
-                    <div className="text-[10px] text-white/45 truncate">
-                      {story.discoverer}
-                    </div>
+                    <div className="text-xs font-medium text-white line-clamp-1">{story.title}</div>
+                    <div className="text-[10px] text-white/45 truncate">{story.discoverer}</div>
                   </button>
                 );
               })}
@@ -274,9 +294,7 @@ export function MajorDiscoveriesModal() {
                     {activeStory.year}
                   </span>
                   <span className="text-xs text-white/40">·</span>
-                  <span className="text-xs text-white/70 font-mono">
-                    {activeStory.institution}
-                  </span>
+                  <span className="text-xs text-white/70 font-mono">{activeStory.institution}</span>
                 </div>
                 <h3 className="text-xl font-medium text-white tracking-wide">
                   {activeStory.title}
@@ -311,9 +329,7 @@ export function MajorDiscoveriesModal() {
                   <div className="text-[10px] uppercase tracking-wider text-cyan-300 font-semibold">
                     Discovery Summary
                   </div>
-                  <p className="text-sm leading-relaxed text-white/90">
-                    {activeStory.summary}
-                  </p>
+                  <p className="text-sm leading-relaxed text-white/90">{activeStory.summary}</p>
                 </div>
 
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-1.5">

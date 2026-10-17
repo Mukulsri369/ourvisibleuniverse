@@ -23,7 +23,17 @@ import {
 export interface UniversalSearchResult {
   id: string;
   name: string;
-  type: "planet" | "moon" | "star" | "exoplanet" | "galaxy" | "nebula" | "black_hole" | "quasar" | "pulsar" | "cluster";
+  type:
+    | "planet"
+    | "moon"
+    | "star"
+    | "exoplanet"
+    | "galaxy"
+    | "nebula"
+    | "black_hole"
+    | "quasar"
+    | "pulsar"
+    | "cluster";
   category: string;
   catalogId: string;
   distanceLy: number;
@@ -138,7 +148,11 @@ export function UniversalSearchModal() {
             } else if (m.name.toLowerCase().includes(q)) {
               mScore = 80;
               mReason = "Moon Name Match";
-            } else if (q.includes("moon") || q.includes("satellite") || q.includes(p.name.toLowerCase())) {
+            } else if (
+              q.includes("moon") ||
+              q.includes("satellite") ||
+              q.includes(p.name.toLowerCase())
+            ) {
               mScore = 72;
               mReason = "Parent Planet / Moon Query";
             }
@@ -204,7 +218,9 @@ export function UniversalSearchModal() {
           name: s.name,
           type: "star",
           category: `Star (${s.spectral})`,
-          catalogId: (s as any).gaiaSourceId ? `Gaia DR3 ${(s as any).gaiaSourceId}` : `HIP / HD ${s.name}`,
+          catalogId: (s as any).gaiaSourceId
+            ? `Gaia DR3 ${(s as any).gaiaSourceId}`
+            : `HIP / HD ${s.name}`,
           distanceLy: s.distance,
           distanceFormatted: formatDist(s.distance),
           spectralType: s.spectral,
@@ -459,7 +475,8 @@ export function UniversalSearchModal() {
 
     if (selectedMorphology !== "all") {
       filtered = filtered.filter(
-        (r) => r.morphology && r.morphology.toLowerCase().includes(selectedMorphology.toLowerCase()),
+        (r) =>
+          r.morphology && r.morphology.toLowerCase().includes(selectedMorphology.toLowerCase()),
       );
     }
 
@@ -517,7 +534,8 @@ export function UniversalSearchModal() {
                   Universal Astronomical Catalog Search
                 </h2>
                 <p className="text-xs text-white/50">
-                  Indexed cross-catalog queries across Stars, Exoplanets, Solar Worlds, Nebulae &amp; Galaxies
+                  Indexed cross-catalog queries across Stars, Exoplanets, Solar Worlds, Nebulae
+                  &amp; Galaxies
                 </p>
               </div>
             </div>
@@ -679,9 +697,7 @@ export function UniversalSearchModal() {
                         <span className="text-sm font-medium text-white group-hover:text-cyan-200">
                           {r.name}
                         </span>
-                        <span className="font-mono text-[10px] text-white/40">
-                          {r.catalogId}
-                        </span>
+                        <span className="font-mono text-[10px] text-white/40">{r.catalogId}</span>
                       </div>
                       <div className="text-xs text-white/50 flex flex-wrap items-center gap-x-2">
                         <span>{r.category}</span>
@@ -722,20 +738,29 @@ export function UniversalSearchModal() {
                   No cataloged celestial object found for &quot;{query}&quot;
                 </p>
                 <p className="text-xs max-w-md text-white/40">
-                  In accordance with observational astrophysics standards, no speculative objects are invented. Try searching by catalog identifiers such as &quot;M31&quot;, &quot;HD 209458&quot;, &quot;TRAPPIST-1&quot;, &quot;NGC 1952&quot;, or by celestial category.
+                  In accordance with observational astrophysics standards, no speculative objects
+                  are invented. Try searching by catalog identifiers such as &quot;M31&quot;,
+                  &quot;HD 209458&quot;, &quot;TRAPPIST-1&quot;, &quot;NGC 1952&quot;, or by
+                  celestial category.
                 </p>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
-                  {["Earth", "Jupiter", "Betelgeuse", "Andromeda", "Crab Nebula", "Sagittarius A*", "Virgo Cluster"].map(
-                    (suggest) => (
-                      <button
-                        key={suggest}
-                        onClick={() => setQuery(suggest)}
-                        className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 hover:bg-white/10 hover:text-white"
-                      >
-                        {suggest}
-                      </button>
-                    ),
-                  )}
+                  {[
+                    "Earth",
+                    "Jupiter",
+                    "Betelgeuse",
+                    "Andromeda",
+                    "Crab Nebula",
+                    "Sagittarius A*",
+                    "Virgo Cluster",
+                  ].map((suggest) => (
+                    <button
+                      key={suggest}
+                      onClick={() => setQuery(suggest)}
+                      className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-white/70 hover:bg-white/10 hover:text-white"
+                    >
+                      {suggest}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}

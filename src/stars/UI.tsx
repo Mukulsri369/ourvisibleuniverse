@@ -24,6 +24,7 @@ import { AU, PLANETS, moonKey } from "./Planets";
 import { NAMED_GALAXIES } from "./Universe";
 import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
+import { OBSERVATIONAL_GALAXY_CATALOG } from "./galaxy-catalog";
 import { exoSystemFor } from "./exosystems";
 import { scaleManager } from "@/lib/astronomy/scale-manager";
 import { GaiaAtlasPanel } from "./GaiaAtlasPanel";
@@ -33,7 +34,12 @@ import { GalaxySearchModal } from "./GalaxySearchModal";
 import { GalaxyCoverageDashboard } from "./GalaxyCoverageDashboard";
 import { CompactObjectLabModal } from "./CompactObjectLabModal";
 import { CosmicWebExplorerModal } from "./CosmicWebExplorerModal";
-import { createTargetFromStar } from "./universal-target-factory";
+import {
+  createTargetFromStar,
+  createTargetFromPlanet,
+  createTargetFromGalaxy,
+  createTargetFromObservedObject,
+} from "./universal-target-factory";
 import { GuidedJourneyHUD } from "./GuidedJourneyHUD";
 
 export function InfoPanel() {
@@ -78,7 +84,9 @@ export function InfoPanel() {
                 <span>Telescope Imagery & HiPS Surveys</span>
               </button>
               <button
-                onClick={() => useStore.getState().setActiveUniversalTarget(createTargetFromStar(star))}
+                onClick={() =>
+                  useStore.getState().setActiveUniversalTarget(createTargetFromStar(star))
+                }
                 className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2 text-xs font-mono font-medium text-white/90 transition hover:bg-white/10"
               >
                 <FileText className="h-4 w-4 text-cyan-300" />
@@ -479,6 +487,17 @@ export function TopLeftControls() {
         onClick={() => useStore.getState().setUniversalSearchOpen(true)}
       >
         <SearchIcon />
+      </IconButton>
+      <IconButton
+        title={
+          useStore((s) => s.cosmicJourneyOpen)
+            ? "Cosmic Scale Journey (Earth → Observable Universe): ACTIVE (Click to hide)"
+            : "Launch Cosmic Scale Journey: Smooth flight from Earth to the Observable Horizon"
+        }
+        onClick={() => useStore.getState().toggleCosmicJourney()}
+        active={useStore((s) => s.cosmicJourneyOpen)}
+      >
+        <Compass className="h-4 w-4 text-cyan-400" />
       </IconButton>
       <IconButton
         title="Camera Vistas & Curated Astronomical Bookmarks"
@@ -1084,10 +1103,16 @@ export function ScaleIndicator() {
   const d = useStore((s) => s.cameraDistance);
   const scaleMode = useStore((s) => s.scaleMode);
   const toggleScaleMode = useStore((s) => s.toggleScaleMode);
+  const cosmicJourneyOpen = useStore((s) => s.cosmicJourneyOpen);
+  const isMobile = useIsMobile();
   const info = scaleManager.formatIndicator(d, scaleMode);
 
   return (
-    <div className="pointer-events-auto fixed bottom-5 left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1.5 select-none">
+    <div
+      className={`pointer-events-auto fixed left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-1.5 select-none transition-all duration-300 ${
+        cosmicJourneyOpen ? (isMobile ? "bottom-32" : "bottom-28") : "bottom-5"
+      }`}
+    >
       <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/75 px-3.5 py-1.5 shadow-xl backdrop-blur-md">
         <span className="text-[10px] uppercase tracking-[0.22em] text-white/85 font-medium">
           {info.regimeName}
@@ -1737,7 +1762,9 @@ export function LoadingScreen({ done }: { done: boolean }) {
 export function SiteMap() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(!isMobile);
-  const [section, setSection] = useState<"planets" | "stars" | "galaxies" | "objects">("planets");
+  const [section, setSection] = useState<"journey" | "planets" | "stars" | "galaxies" | "objects">(
+    "journey",
+  );
   const [q, setQ] = useState("");
 
   const visitPlanet = useStore((s) => s.visitPlanet);
@@ -1749,6 +1776,9 @@ export function SiteMap() {
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const selectedObjectId = useStore((s) => s.selectedObjectId);
   const setSelectedObject = useStore((s) => s.setSelectedObject);
+  const cosmicJourneyIndex = useStore((s) => s.cosmicJourneyIndex);
+  const setCosmicJourneyIndex = useStore((s) => s.setCosmicJourneyIndex);
+  const setActiveUniversalTarget = useStore((s) => s.setActiveUniversalTarget);
 
   const lower = q.trim().toLowerCase();
   const match = (n: string) => !lower || n.toLowerCase().includes(lower);
@@ -1774,8 +1804,157 @@ export function SiteMap() {
       view: "overview",
     });
 
-  // Mobile collapsed state shows a compact floating button so the map is
-  // reachable without covering the canvas.
+  const JOURNEY_STEPS = [
+    {
+      idx: 0,
+      name: "1. Earth",
+      badge: "0.042 lt-sec",
+      desc: "Home world & biosphere",
+      action: () => setVisitPlanet("Earth"),
+    },
+    {
+      idx: 1,
+      name: "2. Moon",
+      badge: "1.28 lt-sec",
+      desc: "Tidally locked satellite",
+      action: () => setVisitPlanet("Earth:Moon"),
+    },
+    {
+      idx: 2,
+      name: "3. Solar System",
+      badge: "100 AU",
+      desc: "Sun & planetary orbits",
+      action: () => {
+        setVisitPlanet(null);
+        setSelected(null);
+        setVisitGalaxy(null);
+        setSelectedObject(null);
+        flyTo({
+          name: "Sun",
+          x: 0,
+          y: 0,
+          z: 0,
+          radius: 1,
+          temperature: 5778,
+          luminosity: 1,
+          ra: "00h 00m",
+          dec: "+00° 00'",
+          galacticL: 0,
+          galacticB: 0,
+          distance: 0,
+          spectral: "G2V",
+          planets: 8,
+          description: "Center of the Solar System.",
+        });
+      },
+    },
+    {
+      idx: 3,
+      name: "4. Nearby Stars",
+      badge: "40 ly",
+      desc: "Solar interstellar bubble",
+      action: () => {
+        setVisitPlanet(null);
+        setVisitGalaxy(null);
+        setSelectedObject(null);
+        useStore.setState({
+          flyTo: { x: 0, y: 0, z: 0, distance: 48 },
+          selectedStar: null,
+        });
+      },
+    },
+    {
+      idx: 4,
+      name: "5. Milky Way",
+      badge: "100k ly",
+      desc: "Barred spiral galaxy",
+      action: () => {
+        setVisitPlanet(null);
+        setSelected(null);
+        setSelectedObject(null);
+        setVisitGalaxy({
+          name: "Milky Way",
+          x: -26000,
+          y: 0,
+          z: 0,
+          size: 100000,
+          distance: 26000,
+          type: "Barred Spiral",
+          view: "overview",
+        });
+      },
+    },
+    {
+      idx: 5,
+      name: "6. Andromeda (M31)",
+      badge: "2.54 Mly",
+      desc: "Sister spiral galaxy",
+      action: () => {
+        setVisitPlanet(null);
+        setSelected(null);
+        setSelectedObject(null);
+        setVisitGalaxy({
+          name: "Andromeda",
+          x: -2537000,
+          y: 0,
+          z: 0,
+          size: 220000,
+          distance: 2537000,
+          type: "Spiral",
+          view: "overview",
+        });
+      },
+    },
+    {
+      idx: 6,
+      name: "7. Galaxy Clusters",
+      badge: "54 Mly",
+      desc: "Virgo supercluster core",
+      action: () => {
+        setVisitPlanet(null);
+        setSelected(null);
+        setVisitGalaxy(null);
+        setSelectedObject(null);
+        useStore.setState({
+          flyTo: { x: -1.2e7, y: 5.2e7, z: -5e6, distance: 6.5e7 },
+        });
+      },
+    },
+    {
+      idx: 7,
+      name: "8. Cosmic Web",
+      badge: "1.2 Gly",
+      desc: "Filamentary cosmic scaffolding",
+      action: () => {
+        setVisitPlanet(null);
+        setSelected(null);
+        setVisitGalaxy(null);
+        setSelectedObject(null);
+        useStore.setState({
+          flyTo: { x: 0, y: 0, z: 0, distance: 1.5e9 },
+          showCosmicWebDensity: true,
+        });
+      },
+    },
+    {
+      idx: 8,
+      name: "9. Observable Universe",
+      badge: "46.5 Gly",
+      desc: "Cosmic horizon & CMB",
+      action: () => {
+        setVisitPlanet(null);
+        setSelected(null);
+        setVisitGalaxy(null);
+        setSelectedObject(null);
+        useStore.setState({
+          flyTo: { x: 0, y: 0, z: 0, distance: 4.65e10 },
+          showCosmicWebDensity: true,
+        });
+      },
+    },
+  ];
+
+  // Mobile collapsed state shows a compact floating button
   if (isMobile && !open) {
     return (
       <div
@@ -1784,20 +1963,11 @@ export function SiteMap() {
       >
         <button
           onClick={() => setOpen(true)}
-          aria-label="Open site map"
+          aria-label="Open celestial sitemap"
           title="Site map"
-          className="grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-black/60 text-white/90 shadow-lg backdrop-blur-md transition hover:bg-black/80 hover:text-white"
+          className="grid h-12 w-12 place-items-center rounded-full border border-cyan-500/30 bg-black/75 text-cyan-300 shadow-xl backdrop-blur-md transition hover:bg-black hover:text-white"
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M3 6h18M3 12h18M3 18h18" />
-          </svg>
+          <Compass className="h-5 w-5" />
         </button>
       </div>
     );
@@ -1812,19 +1982,27 @@ export function SiteMap() {
     >
       <motion.div
         initial={isMobile ? { y: "100%" } : false}
-        animate={isMobile ? { y: 0 } : { width: open ? 264 : 44 }}
+        animate={isMobile ? { y: 0 } : { width: open ? 284 : 44 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className={`overflow-hidden rounded-xl border border-white/10 bg-black/55 backdrop-blur-md ${
+        className={`overflow-hidden rounded-xl border border-white/10 bg-black/65 backdrop-blur-xl shadow-2xl ${
           isMobile ? "w-full max-w-full rounded-b-none border-b-0" : "ml-4"
         }`}
       >
+        {/* Header Toggle */}
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-[10px] uppercase tracking-[0.25em] text-white/60 transition hover:text-white"
+          className="flex w-full items-center justify-between px-3.5 py-2.5 text-left text-[10px] uppercase tracking-[0.25em] text-white/70 transition hover:text-white"
           title={open ? "Collapse site map" : "Expand site map"}
         >
-          <span className="text-base leading-none">{open ? "‹" : "☰"}</span>
-          {open && <span>Site Map</span>}
+          <div className="flex items-center gap-2">
+            <span className="text-base leading-none text-cyan-400">{open ? "‹" : "☰"}</span>
+            {open && <span className="font-semibold text-white/90">Cosmic Sitemap</span>}
+          </div>
+          {open && (
+            <span className="rounded bg-cyan-500/15 px-1.5 py-0.5 text-[9px] font-mono font-medium text-cyan-300">
+              Atlas
+            </span>
+          )}
           {isMobile && open && (
             <span
               onClick={(e) => {
@@ -1841,34 +2019,119 @@ export function SiteMap() {
 
         {open && (
           <div className="border-t border-white/10 px-3 pb-3 pt-2">
+            {/* Search Input */}
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Filter destinations..."
-              className="mb-2 h-8 w-full rounded-full border border-white/15 bg-white/5 px-3 text-[11px] text-white outline-none placeholder:text-white/35 focus:border-white/40"
+              placeholder="Filter indexed destinations..."
+              className="mb-2 h-8 w-full rounded-full border border-white/15 bg-white/5 px-3 text-[11px] text-white outline-none placeholder:text-white/35 focus:border-cyan-400/60 transition"
             />
-            <div className="mb-2 flex gap-1">
-              {(["planets", "stars", "galaxies", "objects"] as const).map((k) => (
+
+            {/* Quick Action Pill Row */}
+            <div className="mb-2 flex gap-1 border-b border-white/10 pb-2">
+              <button
+                onClick={() => useStore.getState().setUniversalSearchOpen(true)}
+                className="flex flex-1 items-center justify-center gap-1 rounded-md border border-white/10 bg-white/5 py-1 text-[9px] font-medium text-cyan-300 hover:bg-white/10 transition"
+                title="Open Universal Search (Cmd+K)"
+              >
+                <SearchIcon />
+                <span>Search</span>
+              </button>
+              <button
+                onClick={() => useStore.getState().setBookmarksModalOpen(true)}
+                className="flex flex-1 items-center justify-center gap-1 rounded-md border border-white/10 bg-white/5 py-1 text-[9px] font-medium text-cyan-300 hover:bg-white/10 transition"
+                title="Curated Vistas & Custom Bookmarks"
+              >
+                <Bookmark className="h-3 w-3" />
+                <span>Vistas</span>
+              </button>
+              <button
+                onClick={() => useStore.getState().setDiscoveriesModalOpen(true)}
+                className="flex flex-1 items-center justify-center gap-1 rounded-md border border-white/10 bg-white/5 py-1 text-[9px] font-medium text-amber-300 hover:bg-white/10 transition"
+                title="Landmark Astrophysics Discoveries Timeline"
+              >
+                <Award className="h-3 w-3" />
+                <span>History</span>
+              </button>
+            </div>
+
+            {/* Category Navigation Tabs */}
+            <div className="mb-2 flex gap-1 overflow-x-auto no-scrollbar">
+              {(["journey", "planets", "stars", "galaxies", "objects"] as const).map((k) => (
                 <button
                   key={k}
                   onClick={() => setSection(k)}
-                  className={`flex-1 rounded-full px-1.5 py-1 text-[9px] uppercase tracking-[0.12em] transition ${
+                  className={`flex-1 rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.1em] font-medium whitespace-nowrap transition ${
                     section === k
-                      ? "bg-white/15 text-white"
+                      ? "bg-cyan-500/20 text-cyan-200 border border-cyan-500/30 font-semibold"
                       : "text-white/45 hover:bg-white/5 hover:text-white/80"
                   }`}
                 >
-                  {k}
+                  {k === "journey" ? "Scale" : k}
                 </button>
               ))}
             </div>
 
+            {/* Section Item Lists */}
             <div
-              className={`space-y-0.5 overflow-y-auto pr-1 ${isMobile ? "max-h-[45vh]" : "max-h-[52vh]"}`}
+              className={`space-y-0.5 overflow-y-auto pr-1 ${
+                isMobile ? "max-h-[45vh]" : "max-h-[50vh]"
+              }`}
             >
+              {/* Section 0: Cosmic Scale Journey */}
+              {section === "journey" && (
+                <div className="space-y-1">
+                  <div className="px-2 py-1 text-[9px] uppercase tracking-[0.18em] text-cyan-300/70 font-semibold flex items-center justify-between">
+                    <span>9 Cosmic Scale Levels</span>
+                    <span className="font-mono text-white/40">Step {cosmicJourneyIndex + 1}/9</span>
+                  </div>
+                  {JOURNEY_STEPS.filter((st) => match(st.name) || match(st.desc)).map((st) => (
+                    <div
+                      key={st.idx}
+                      onClick={() => {
+                        setCosmicJourneyIndex(st.idx);
+                        st.action();
+                      }}
+                      className={`group flex items-center justify-between rounded-lg p-2 text-left cursor-pointer transition ${
+                        cosmicJourneyIndex === st.idx
+                          ? "bg-cyan-950/40 border border-cyan-500/40 text-white"
+                          : "border border-transparent hover:bg-white/5 text-white/70 hover:text-white"
+                      }`}
+                    >
+                      <div>
+                        <div className="text-[11px] font-medium text-white flex items-center gap-1.5">
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              cosmicJourneyIndex === st.idx
+                                ? "bg-cyan-400 animate-pulse"
+                                : "bg-white/25"
+                            }`}
+                          />
+                          <span>{st.name}</span>
+                        </div>
+                        <div className="text-[9px] text-white/40 pl-3">{st.desc}</div>
+                      </div>
+                      <span className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[9px] text-cyan-300 shrink-0">
+                        {st.badge}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Section 1: Planets & Moons */}
               {section === "planets" && (
                 <>
-                  <Row label="☉ Sun" active={!visitPlanet} onClick={() => setVisitPlanet(null)} />
+                  <Row
+                    label="☉ Sun"
+                    sub="G2V Star · Origin"
+                    active={!visitPlanet}
+                    onClick={() => setVisitPlanet(null)}
+                    onDossier={() => {
+                      const sun = NAMED_STARS.find((s) => s.name === "Sun");
+                      if (sun) setActiveUniversalTarget(createTargetFromStar(sun));
+                    }}
+                  />
                   {PLANETS.filter((p) => match(p.name) || p.moons?.some((m) => match(m.name))).map(
                     (p) => (
                       <div key={p.name}>
@@ -1878,6 +2141,10 @@ export function SiteMap() {
                           color={p.color}
                           active={visitPlanet === p.name}
                           onClick={() => setVisitPlanet(p.name)}
+                          onDossier={() => {
+                            const t = createTargetFromPlanet(p.name);
+                            if (t) setActiveUniversalTarget(t);
+                          }}
                         />
                         {p.moons?.map((m) => (
                           <Row
@@ -1887,6 +2154,10 @@ export function SiteMap() {
                             indent
                             active={visitPlanet === moonKey(p.name, m.name)}
                             onClick={() => setVisitPlanet(moonKey(p.name, m.name))}
+                            onDossier={() => {
+                              const t = createTargetFromPlanet(p.name, m.name);
+                              if (t) setActiveUniversalTarget(t);
+                            }}
                           />
                         ))}
                       </div>
@@ -1895,15 +2166,19 @@ export function SiteMap() {
                 </>
               )}
 
+              {/* Section 2: Stars */}
               {section === "stars" && (
                 <>
                   <Row
                     label="☉ Back to the Sun"
+                    sub="0.00 ly"
                     active={!selected}
                     onClick={() => setSelected(null)}
                   />
                   {stars
-                    .filter((s) => match(s.name))
+                    .filter(
+                      (s) => match(s.name) || match(s.spectral) || match(s.constellation || ""),
+                    )
                     .map((s) => (
                       <Row
                         key={s.name}
@@ -1912,15 +2187,18 @@ export function SiteMap() {
                         color="#cfe0ff"
                         active={selected?.name === s.name}
                         onClick={() => flyTo(s)}
+                        onDossier={() => setActiveUniversalTarget(createTargetFromStar(s))}
                       />
                     ))}
                 </>
               )}
 
+              {/* Section 3: Galaxies */}
               {section === "galaxies" && (
                 <>
                   <Row
                     label="✦ Milky Way"
+                    sub="Barred Spiral · 0 ly"
                     active={visitGalaxy?.name === "Milky Way"}
                     onClick={() =>
                       setVisitGalaxy({
@@ -1934,9 +2212,13 @@ export function SiteMap() {
                         view: "overview",
                       })
                     }
+                    onDossier={() => {
+                      const mw = OBSERVATIONAL_GALAXY_CATALOG.find((g) => g.name === "Milky Way");
+                      if (mw) setActiveUniversalTarget(createTargetFromGalaxy(mw));
+                    }}
                   />
                   {galaxies
-                    .filter((g) => match(g.name))
+                    .filter((g) => match(g.name) || match(g.type))
                     .map((g) => (
                       <Row
                         key={g.name}
@@ -1945,11 +2227,16 @@ export function SiteMap() {
                         color={g.color}
                         active={visitGalaxy?.name === g.name}
                         onClick={() => goGalaxy(g)}
+                        onDossier={() => {
+                          const gx = OBSERVATIONAL_GALAXY_CATALOG.find((x) => x.name === g.name);
+                          if (gx) setActiveUniversalTarget(createTargetFromGalaxy(gx));
+                        }}
                       />
                     ))}
                 </>
               )}
 
+              {/* Section 4: Deep-Space Observed Objects */}
               {section === "objects" &&
                 OBJECT_CATEGORIES.map((category) => {
                   const items = OBSERVED_OBJECTS.filter(
@@ -1960,7 +2247,7 @@ export function SiteMap() {
                   if (!items.length) return null;
                   return (
                     <div key={category} className="pb-2">
-                      <div className="px-2 pb-1 pt-2 text-[9px] uppercase tracking-[0.18em] text-white/35">
+                      <div className="px-2 pb-1 pt-2 text-[9px] uppercase tracking-[0.18em] text-cyan-300/60 font-semibold">
                         {category}
                       </div>
                       {items.map((o) => (
@@ -1971,6 +2258,9 @@ export function SiteMap() {
                           color={o.color}
                           active={selectedObjectId === o.id}
                           onClick={() => setSelectedObject(o.id)}
+                          onDossier={() =>
+                            setActiveUniversalTarget(createTargetFromObservedObject(o))
+                          }
                         />
                       ))}
                     </div>
@@ -1978,42 +2268,45 @@ export function SiteMap() {
                 })}
             </div>
 
-            <button
-              onClick={() => {
-                useStore.getState().setCompactObjectModalOpen(true);
-                setOpen(false);
-              }}
-              className="mt-2 flex w-full items-center justify-between rounded-md border border-purple-500/30 bg-purple-950/40 px-2.5 py-2 text-[11px] text-purple-200 transition hover:bg-purple-900/60 hover:text-white shadow-sm"
-              title="Compact Objects Reference Gallery & Relativistic Ray-Tracing Lab"
-            >
-              <span className="flex items-center gap-1.5 font-medium">
-                <Radio className="size-3.5 text-purple-400" />
-                <span>Compact Objects Gallery & Lab</span>
-              </span>
-              <span className="text-purple-400/60 text-xs">→</span>
-            </button>
+            {/* Bottom External Modules & Labs */}
+            <div className="mt-2 space-y-1.5 border-t border-white/10 pt-2">
+              <button
+                onClick={() => {
+                  useStore.getState().setCompactObjectModalOpen(true);
+                  setOpen(false);
+                }}
+                className="flex w-full items-center justify-between rounded-md border border-purple-500/30 bg-purple-950/40 px-2.5 py-1.5 text-[11px] text-purple-200 transition hover:bg-purple-900/60 hover:text-white shadow-sm"
+                title="Compact Objects Reference Gallery & Relativistic Ray-Tracing Lab"
+              >
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Radio className="size-3 text-purple-400" />
+                  <span>Compact Objects Lab</span>
+                </span>
+                <span className="text-purple-400/60 text-xs">→</span>
+              </button>
 
-            <a
-              href="/visible-universe-history"
-              className="mt-2 flex w-full items-center justify-between rounded-md border border-cyan-500/30 bg-cyan-950/40 px-2.5 py-2 text-[11px] text-cyan-200 transition hover:bg-cyan-900/60 hover:text-white shadow-sm"
-              title="Visible Universe History — How Humanity Discovered the Cosmos"
-            >
-              <span className="flex items-center gap-1.5 font-medium">
-                <Compass className="size-3.5 text-cyan-400" />
-                <span>Visible Universe History</span>
-              </span>
-              <span className="text-cyan-400/60 text-xs">→</span>
-            </a>
+              <a
+                href="/visible-universe-history"
+                className="flex w-full items-center justify-between rounded-md border border-cyan-500/30 bg-cyan-950/40 px-2.5 py-1.5 text-[11px] text-cyan-200 transition hover:bg-cyan-900/60 hover:text-white shadow-sm"
+                title="Visible Universe History — How Humanity Discovered the Cosmos"
+              >
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Compass className="size-3 text-cyan-400" />
+                  <span>Universe History</span>
+                </span>
+                <span className="text-cyan-400/60 text-xs">→</span>
+              </a>
 
-            <a
-              href="https://visualizemaths.ai.studio"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 flex w-full items-center justify-between rounded-md border border-white/15 bg-white/5 px-2.5 py-2 text-[11px] text-white/80 transition hover:bg-white/10 hover:text-white"
-            >
-              <span>∑ Visualize astronomical maths</span>
-              <span className="text-white/40">↗</span>
-            </a>
+              <a
+                href="https://visualizemaths.ai.studio"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-between rounded-md border border-white/15 bg-white/5 px-2.5 py-1.5 text-[10px] text-white/80 transition hover:bg-white/10 hover:text-white"
+              >
+                <span>∑ Visualize astronomy maths</span>
+                <span className="text-white/40">↗</span>
+              </a>
+            </div>
           </div>
         )}
       </motion.div>
@@ -2028,6 +2321,7 @@ function Row({
   active,
   indent,
   onClick,
+  onDossier,
 }: {
   label: string;
   sub?: string;
@@ -2035,23 +2329,42 @@ function Row({
   active?: boolean;
   indent?: boolean;
   onClick: () => void;
+  onDossier?: () => void;
 }) {
   return (
-    <button
-      onClick={onClick}
-      title={label}
-      className={`flex w-full items-center gap-2 rounded-md px-2 py-1 text-left text-[11px] transition ${
+    <div
+      className={`group flex w-full items-center justify-between rounded-md px-2 py-1 text-left text-[11px] transition ${
         indent ? "pl-5" : ""
-      } ${active ? "bg-white/15 text-white" : "text-white/60 hover:bg-white/5 hover:text-white"}`}
+      } ${active ? "bg-cyan-500/20 text-white border border-cyan-500/30" : "text-white/70 hover:bg-white/5 hover:text-white"}`}
     >
-      {color && (
-        <span
-          className="inline-block h-2 w-2 shrink-0 rounded-full"
-          style={{ background: color, boxShadow: `0 0 6px ${color}` }}
-        />
+      <button
+        onClick={onClick}
+        title={`Fly to ${label}`}
+        className="flex flex-1 items-center gap-2 truncate text-left"
+      >
+        {color && (
+          <span
+            className="inline-block h-2 w-2 shrink-0 rounded-full"
+            style={{ background: color, boxShadow: `0 0 6px ${color}` }}
+          />
+        )}
+        <span className="truncate">{label}</span>
+        {sub && (
+          <span className="ml-auto shrink-0 pr-1 text-[9px] text-white/40 font-mono">{sub}</span>
+        )}
+      </button>
+      {onDossier && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDossier();
+          }}
+          title={`Open 7-Tab Science Dossier for ${label}`}
+          className="ml-1 opacity-0 group-hover:opacity-100 grid h-5 w-5 place-items-center rounded text-cyan-300 hover:bg-cyan-500/20 transition shrink-0"
+        >
+          <FileText className="h-3 w-3" />
+        </button>
       )}
-      <span className="truncate">{label}</span>
-      {sub && <span className="ml-auto shrink-0 text-[9px] text-white/35">{sub}</span>}
-    </button>
+    </div>
   );
 }

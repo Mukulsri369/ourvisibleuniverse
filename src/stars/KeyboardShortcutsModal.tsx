@@ -122,13 +122,15 @@ export function KeyboardShortcutsModal() {
                 <div className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3">
                   <span className="font-semibold text-white">Scroll Wheel / Trackpad Pinch:</span>
                   <span className="text-white/60">
-                    Continuous smooth logarithmic zoom spanning 20 orders of magnitude from planetary surfaces to cosmic horizon.
+                    Continuous smooth logarithmic zoom spanning 20 orders of magnitude from
+                    planetary surfaces to cosmic horizon.
                   </span>
                 </div>
                 <div className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3">
                   <span className="font-semibold text-white">Direct Object Click:</span>
                   <span className="text-white/60">
-                    Click any star, planet, or deep space marker to initiate a cinematic fly-to inspection.
+                    Click any star, planet, or deep space marker to initiate a cinematic fly-to
+                    inspection.
                   </span>
                 </div>
               </div>
@@ -143,11 +145,15 @@ export function KeyboardShortcutsModal() {
               <div className="space-y-2 text-white/80">
                 <div className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3">
                   <span className="font-semibold text-white">Single Finger Drag:</span>
-                  <span className="text-white/60">Rotate perspective smoothly around celestial anchor.</span>
+                  <span className="text-white/60">
+                    Rotate perspective smoothly around celestial anchor.
+                  </span>
                 </div>
                 <div className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3">
                   <span className="font-semibold text-white">Two Finger Pinch:</span>
-                  <span className="text-white/60">Natural pinch-to-zoom with adaptive rate scaling.</span>
+                  <span className="text-white/60">
+                    Natural pinch-to-zoom with adaptive rate scaling.
+                  </span>
                 </div>
               </div>
             </div>

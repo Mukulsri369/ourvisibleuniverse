@@ -29,6 +29,12 @@ import { OpticsPostProcessing } from "./OpticsPostProcessing";
 import { OpticsControlModal } from "./OpticsControlModal";
 import { RenderingBenchmarkModal } from "./RenderingBenchmarkModal";
 import { ObservationEvidenceModal } from "@/components/observation/ObservationEvidenceModal";
+import { CosmicJourneyNavigator } from "./CosmicJourneyNavigator";
+import { UniversalSearchModal } from "./UniversalSearchModal";
+import { UniversalObjectModal } from "./UniversalObjectModal";
+import { CameraBookmarksModal } from "./CameraBookmarksModal";
+import { KeyboardShortcutsModal } from "./KeyboardShortcutsModal";
+import { MajorDiscoveriesModal } from "./MajorDiscoveriesModal";
 
 import { useStore } from "./store";
 
@@ -93,6 +99,7 @@ export function StarsApp() {
           <TopLeftControls />
           <ZoomSlider />
           <ScaleIndicator />
+          <CosmicJourneyNavigator />
           <MusicToggle />
           <Branding />
           <InfoPanel />
@@ -102,6 +109,11 @@ export function StarsApp() {
           <ObservedObjectInfoPanel />
           <OpticsControlModal />
           <RenderingBenchmarkModal />
+          <UniversalSearchModal />
+          <UniversalObjectModal />
+          <CameraBookmarksModal />
+          <KeyboardShortcutsModal />
+          <MajorDiscoveriesModal />
           <ObservationEvidenceModal
             open={observationModalOpen}
             onClose={() => setObservationModalOpen(false)}

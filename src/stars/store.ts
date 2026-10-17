@@ -271,6 +271,9 @@ interface State {
   setCosmicJourneyIndex: (idx: number) => void;
   nextCosmicJourneyStep: () => void;
   prevCosmicJourneyStep: () => void;
+  cosmicJourneyOpen: boolean;
+  setCosmicJourneyOpen: (open: boolean) => void;
+  toggleCosmicJourney: () => void;
 }
 
 export type UniversalTargetType =
@@ -346,7 +349,8 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     id: "bm_earth_moon",
     title: "Earth–Moon Orbital Gateway",
     subtitle: "Inner Solar System · 1.58e-5 ly",
-    description: "Framing the blue marble and its ancient tidal companion in low interplanetary vantage.",
+    description:
+      "Framing the blue marble and its ancient tidal companion in low interplanetary vantage.",
     radius: 4.5e-7,
     theta: 0.8,
     phi: 1.45,
@@ -359,7 +363,8 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     id: "bm_saturn_rings",
     title: "Saturn's Ring Plane Grazing View",
     subtitle: "Gas Giant Ring Dynamics · 9.58 AU",
-    description: "Viewing the Cassini Division and thousand ringlets from grazing ring-plane elevation.",
+    description:
+      "Viewing the Cassini Division and thousand ringlets from grazing ring-plane elevation.",
     radius: 3.2e-6,
     theta: 1.25,
     phi: 1.52,
@@ -384,7 +389,8 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     id: "bm_orion_nebula",
     title: "Orion Nebula (M42) Gas Nursery",
     subtitle: "Stellar Creche & Trapezium · 1,344 ly",
-    description: "Volumetric HII photo-ionized gas glowing in Balmer hydrogen and forbidden oxygen lines.",
+    description:
+      "Volumetric HII photo-ionized gas glowing in Balmer hydrogen and forbidden oxygen lines.",
     radius: 28,
     theta: 0.4,
     phi: 1.2,
@@ -410,7 +416,8 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     id: "bm_local_group",
     title: "Local Group Spiral Panorama",
     subtitle: "Milky Way & Andromeda · 2.54 Mly",
-    description: "The two giant spiral galaxies approaching each other at 110 km/s in the Local Void.",
+    description:
+      "The two giant spiral galaxies approaching each other at 110 km/s in the Local Void.",
     radius: 3.2e6,
     theta: 0.5,
     phi: 1.15,
@@ -422,7 +429,8 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     id: "bm_virgo_cluster",
     title: "Virgo Cluster Heart & M87",
     subtitle: "Local Supercluster Core · 54 Mly",
-    description: "1,500 galaxies bound in hot 10-million-Kelvin intracluster gas surrounding giant elliptical M87.",
+    description:
+      "1,500 galaxies bound in hot 10-million-Kelvin intracluster gas surrounding giant elliptical M87.",
     radius: 4.5e7,
     theta: 1.1,
     phi: 1.05,
@@ -434,7 +442,8 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     id: "bm_cosmic_web",
     title: "Observable Horizon & Cosmic Web",
     subtitle: "Particle Horizon & CMB · 46.5 Gly",
-    description: "The cosmic web of dark matter filaments bounded by the 380,000-year recombination sphere.",
+    description:
+      "The cosmic web of dark matter filaments bounded by the 380,000-year recombination sphere.",
     radius: 4.65e10,
     theta: 0.78,
     phi: 1.2,
@@ -948,7 +957,8 @@ export const useStore = create<State>((set, get) => ({
     set((st) => ({ resetOrientationTrigger: st.resetOrientationTrigger + 1 })),
   cameraBookmarks: (() => {
     try {
-      const stored = typeof window !== "undefined" ? localStorage.getItem("ov_camera_bookmarks") : null;
+      const stored =
+        typeof window !== "undefined" ? localStorage.getItem("ov_camera_bookmarks") : null;
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -1031,6 +1041,9 @@ export const useStore = create<State>((set, get) => ({
   explanationLevel: "standard",
   setExplanationLevel: (lvl) => set({ explanationLevel: lvl }),
   cosmicJourneyIndex: 0,
+  cosmicJourneyOpen: true,
+  setCosmicJourneyOpen: (open) => set({ cosmicJourneyOpen: open }),
+  toggleCosmicJourney: () => set((st) => ({ cosmicJourneyOpen: !st.cosmicJourneyOpen })),
   setCosmicJourneyIndex: (idx) => set({ cosmicJourneyIndex: Math.max(0, Math.min(8, idx)) }),
   nextCosmicJourneyStep: () =>
     set((st) => ({ cosmicJourneyIndex: Math.min(8, st.cosmicJourneyIndex + 1) })),

@@ -8,6 +8,8 @@ import {
   Pause,
   Maximize2,
   Minimize2,
+  X,
+  Compass,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -32,6 +34,8 @@ export function CosmicJourneyNavigator() {
   const setIndex = useStore((s) => s.setCosmicJourneyIndex);
   const nextStep = useStore((s) => s.nextCosmicJourneyStep);
   const prevStep = useStore((s) => s.prevCosmicJourneyStep);
+  const isOpen = useStore((s) => s.cosmicJourneyOpen);
+  const setIsOpen = useStore((s) => s.setCosmicJourneyOpen);
   const setVisitPlanet = useStore((s) => s.setVisitPlanet);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const setSelected = useStore((s) => s.setSelected);
@@ -51,7 +55,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "0.00 seconds (Origin)",
       cameraDistance: 1.8e-7,
       fov: 34,
-      description: "Our blue marble. The only known world harboring life, enveloped in a delicate nitrogen-oxygen atmosphere.",
+      description:
+        "Our blue marble. The only known world harboring life, enveloped in a delicate nitrogen-oxygen atmosphere.",
       keyTarget: "Earth",
       category: "solar_system",
       action: () => {
@@ -67,7 +72,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "1.28 light-seconds",
       cameraDistance: 6.5e-8,
       fov: 32,
-      description: "Tidally locked ancient companion formed by a giant impact with protoplanet Theia ~4.5 billion years ago.",
+      description:
+        "Tidally locked ancient companion formed by a giant impact with protoplanet Theia ~4.5 billion years ago.",
       keyTarget: "Moon",
       category: "solar_system",
       action: () => {
@@ -83,7 +89,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "8.3 light-minutes (Sun) to 14 light-hours (Kuiper)",
       cameraDistance: 0.0035,
       fov: 42,
-      description: "The Sun containing 99.86% of the system mass, circled by eight major planets, asteroid belts, and cometary reservoirs.",
+      description:
+        "The Sun containing 99.86% of the system mass, circled by eight major planets, asteroid belts, and cometary reservoirs.",
       keyTarget: "Sun",
       category: "solar_system",
       action: () => {
@@ -119,7 +126,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "4.24 yr (Proxima) to 38 yr",
       cameraDistance: 55,
       fov: 44,
-      description: "Local Interstellar Cloud within the Local Bubble: Alpha Centauri, Sirius, Vega, Procyon, and TRAPPIST-1.",
+      description:
+        "Local Interstellar Cloud within the Local Bubble: Alpha Centauri, Sirius, Vega, Procyon, and TRAPPIST-1.",
       keyTarget: "Local Bubble",
       category: "stars",
       action: () => {
@@ -141,7 +149,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "26,000 yr (Galactic Core)",
       cameraDistance: 160_000,
       fov: 48,
-      description: "200 to 400 billion stars revolving around the central supermassive black hole Sagittarius A* (4.15M solar masses).",
+      description:
+        "200 to 400 billion stars revolving around the central supermassive black hole Sagittarius A* (4.15M solar masses).",
       keyTarget: "Sagittarius A*",
       category: "galaxy",
       action: () => {
@@ -169,7 +178,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "2.54 Million Years Lookback",
       cameraDistance: 3_200_000,
       fov: 48,
-      description: "Giant sister spiral containing ~1 trillion stars. Approaching our galaxy at 110 km/s on a collision course in 4.5 Gyr.",
+      description:
+        "Giant sister spiral containing ~1 trillion stars. Approaching our galaxy at 110 km/s on a collision course in 4.5 Gyr.",
       keyTarget: "M31 Andromeda",
       category: "extragalactic",
       action: () => {
@@ -197,7 +207,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "54 Million Years Lookback (z=0.0038)",
       cameraDistance: 70_000_000,
       fov: 50,
-      description: "Gravitationally bound swarms of 1,500+ galaxies embedded in hot X-ray plasma and massive dark matter halos.",
+      description:
+        "Gravitationally bound swarms of 1,500+ galaxies embedded in hot X-ray plasma and massive dark matter halos.",
       keyTarget: "Virgo Cluster / M87",
       category: "extragalactic",
       action: () => {
@@ -219,7 +230,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "1.2 Billion Years Lookback (z ≈ 0.1)",
       cameraDistance: 1_800_000_000,
       fov: 52,
-      description: "Vast scaffolding of dark matter filaments, sheets, and empty voids formed by primordial acoustic density oscillations.",
+      description:
+        "Vast scaffolding of dark matter filaments, sheets, and empty voids formed by primordial acoustic density oscillations.",
       keyTarget: "Filament Nodes & Voids",
       category: "cosmology",
       action: () => {
@@ -242,7 +254,8 @@ export function CosmicJourneyNavigator() {
       lightTime: "13.8 Billion Years (z ≈ 1100 Recombination)",
       cameraDistance: 4.65e10,
       fov: 54,
-      description: "The spherical boundary enclosing ~2 trillion galaxies and the 2.725 K relic radiation of the Big Bang recombination epoch.",
+      description:
+        "The spherical boundary enclosing ~2 trillion galaxies and the 2.725 K relic radiation of the Big Bang recombination epoch.",
       keyTarget: "CMB Surface of Last Scattering",
       category: "cosmology",
       action: () => {
@@ -285,6 +298,28 @@ export function CosmicJourneyNavigator() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex]);
 
+  if (!isOpen) {
+    return (
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className={`pointer-events-auto fixed left-1/2 z-30 -translate-x-1/2 transition-all ${
+          isMobile ? "bottom-5" : "bottom-6"
+        }`}
+      >
+        <button
+          onClick={() => setIsOpen(true)}
+          className="flex items-center gap-2 rounded-full border border-cyan-500/40 bg-black/85 px-4 py-2 text-xs font-medium text-cyan-300 shadow-2xl backdrop-blur-xl transition hover:border-cyan-400 hover:bg-black hover:text-white"
+        >
+          <Compass className="h-4 w-4 text-cyan-400 animate-spin-slow" />
+          <span>Cosmic Scale Journey (Earth → Observable Universe)</span>
+          <span className="rounded bg-cyan-500/20 px-2 py-0.5 text-[10px] font-mono font-bold text-cyan-200">
+            Step {currentIndex + 1}/9
+          </span>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -292,7 +327,7 @@ export function CosmicJourneyNavigator() {
         isMobile ? "bottom-14" : "bottom-6"
       }`}
     >
-      <div className="rounded-2xl border border-white/15 bg-black/80 shadow-2xl backdrop-blur-xl overflow-hidden transition-all duration-300">
+      <div className="rounded-2xl border border-white/15 bg-black/85 shadow-2xl backdrop-blur-xl overflow-hidden transition-all duration-300">
         {/* Top Header / Context Row */}
         <div className="flex items-center justify-between border-b border-white/10 px-4 py-2 text-xs">
           <div className="flex items-center gap-2">
@@ -327,7 +362,20 @@ export function CosmicJourneyNavigator() {
               title={collapsed ? "Expand Scale Details" : "Collapse to Compact Bar"}
               className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 text-white/60 hover:bg-white/10 hover:text-white"
             >
-              {collapsed ? <Maximize2 className="h-3.5 w-3.5" /> : <Minimize2 className="h-3.5 w-3.5" />}
+              {collapsed ? (
+                <Maximize2 className="h-3.5 w-3.5" />
+              ) : (
+                <Minimize2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+
+            {/* Close Toggle */}
+            <button
+              onClick={() => setIsOpen(false)}
+              title="Close Cosmic Journey Bar (Can reopen from Toolbar or Site Map)"
+              className="grid h-7 w-7 place-items-center rounded-lg border border-white/10 text-white/60 hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -348,9 +396,7 @@ export function CosmicJourneyNavigator() {
                     <h3 className="text-sm md:text-base font-medium text-white tracking-wide">
                       {currentStep.name}
                     </h3>
-                    <span className="text-xs text-cyan-300 font-mono">
-                      {currentStep.subtitle}
-                    </span>
+                    <span className="text-xs text-cyan-300 font-mono">{currentStep.subtitle}</span>
                   </div>
                   <p className="text-xs text-white/60 line-clamp-2 max-w-xl">
                     {currentStep.description}
@@ -399,7 +445,9 @@ export function CosmicJourneyNavigator() {
                   </span>
                   <div
                     className={`mt-1 h-1 w-full rounded-full transition-all ${
-                      active ? "bg-cyan-400 shadow-[0_0_8px_#22d3ee]" : "bg-white/15 group-hover:bg-white/30"
+                      active
+                        ? "bg-cyan-400 shadow-[0_0_8px_#22d3ee]"
+                        : "bg-white/15 group-hover:bg-white/30"
                     }`}
                   />
                 </button>
