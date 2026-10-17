@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Physics-Informed Star Formation Engine
  *

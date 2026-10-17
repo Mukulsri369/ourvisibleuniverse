@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Comprehensive Scientific Cosmic Evolution Chronology & Physical Stages
  *

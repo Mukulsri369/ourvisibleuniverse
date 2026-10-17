@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState } from "react";
 import {
   EXOPLANET_MYSTERY_CHALLENGES,

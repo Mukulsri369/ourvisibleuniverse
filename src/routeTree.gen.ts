@@ -12,8 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AstrophysicsLabRouteImport } from './routes/astrophysics-lab'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CatalogStatusRouteImport } from './routes/catalog-status'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CosmicEvolutionRouteImport } from './routes/cosmic-evolution'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GalaxiesRouteImport } from './routes/galaxies'
@@ -51,14 +54,29 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AstrophysicsLabRoute = AstrophysicsLabRouteImport.update({
+  id: '/astrophysics-lab',
+  path: '/astrophysics-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CatalogStatusRoute = CatalogStatusRouteImport.update({
+  id: '/catalog-status',
+  path: '/catalog-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CosmicEvolutionRoute = CosmicEvolutionRouteImport.update({
+  id: '/cosmic-evolution',
+  path: '/cosmic-evolution',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -177,8 +195,11 @@ const ApiPublicPaymentsRazorpayRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
+  '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
+  '/cosmic-evolution': typeof CosmicEvolutionRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/galaxies': typeof GalaxiesRoute
@@ -205,8 +226,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
+  '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
+  '/cosmic-evolution': typeof CosmicEvolutionRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/galaxies': typeof GalaxiesRoute
@@ -235,8 +259,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
+  '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
+  '/cosmic-evolution': typeof CosmicEvolutionRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/galaxies': typeof GalaxiesRoute
@@ -265,8 +292,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/astrophysics-lab'
     | '/auth'
+    | '/catalog-status'
     | '/contact'
+    | '/cosmic-evolution'
     | '/faq'
     | '/features'
     | '/galaxies'
@@ -293,8 +323,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/astrophysics-lab'
     | '/auth'
+    | '/catalog-status'
     | '/contact'
+    | '/cosmic-evolution'
     | '/faq'
     | '/features'
     | '/galaxies'
@@ -322,8 +355,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/astrophysics-lab'
     | '/auth'
+    | '/catalog-status'
     | '/contact'
+    | '/cosmic-evolution'
     | '/faq'
     | '/features'
     | '/galaxies'
@@ -352,8 +388,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AstrophysicsLabRoute: typeof AstrophysicsLabRoute
   AuthRoute: typeof AuthRoute
+  CatalogStatusRoute: typeof CatalogStatusRoute
   ContactRoute: typeof ContactRoute
+  CosmicEvolutionRoute: typeof CosmicEvolutionRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   GalaxiesRoute: typeof GalaxiesRoute
@@ -398,6 +437,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/astrophysics-lab': {
+      id: '/astrophysics-lab'
+      path: '/astrophysics-lab'
+      fullPath: '/astrophysics-lab'
+      preLoaderRoute: typeof AstrophysicsLabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -405,11 +451,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/catalog-status': {
+      id: '/catalog-status'
+      path: '/catalog-status'
+      fullPath: '/catalog-status'
+      preLoaderRoute: typeof CatalogStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cosmic-evolution': {
+      id: '/cosmic-evolution'
+      path: '/cosmic-evolution'
+      fullPath: '/cosmic-evolution'
+      preLoaderRoute: typeof CosmicEvolutionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -588,8 +648,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AstrophysicsLabRoute: AstrophysicsLabRoute,
   AuthRoute: AuthRoute,
+  CatalogStatusRoute: CatalogStatusRoute,
   ContactRoute: ContactRoute,
+  CosmicEvolutionRoute: CosmicEvolutionRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   GalaxiesRoute: GalaxiesRoute,
