@@ -39,9 +39,14 @@ function AuthPage() {
   const [signup, setSignup] = useState(false);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
+    const go = () => void (next ? navigate({ href: next }) : navigate({ to: "/universe" }));
     void supabase.auth.getUser().then(({ data }) => {
-      if (data.user) void (next ? navigate({ href: next }) : navigate({ to: "/account" }));
+      if (data.user) go();
     });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) go();
+    });
+    return () => sub.subscription.unsubscribe();
   }, [navigate, next]);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,13 +70,22 @@ function AuthPage() {
       return;
     }
     if (next) await navigate({ href: next });
-    else await navigate({ to: "/account" });
+    else await navigate({ to: "/universe" });
   };
   const google = async () => {
+    if (next) sessionStorage.setItem("auth_next", next);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth${next ? `?next=${encodeURIComponent(next)}` : ""}`,
+      redirect_uri: window.location.origin + "/auth",
     });
-    if (result.error) toast.error(result.error.message);
+    if (result.error) {
+      toast.error(result.error.message);
+      return;
+    }
+    if (result.redirected) return;
+    const saved = next ?? sessionStorage.getItem("auth_next") ?? undefined;
+    sessionStorage.removeItem("auth_next");
+    if (saved) await navigate({ href: saved });
+    else await navigate({ to: "/universe" });
   };
   return (
     <PublicLayout>
