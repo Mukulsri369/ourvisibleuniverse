@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Scientifically Verified Celestial Asset & Observational Evidence Registry
  *

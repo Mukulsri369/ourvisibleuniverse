@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";

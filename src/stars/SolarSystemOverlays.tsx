@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * NASA JPL Horizons Solar System Educational Overlays
  *

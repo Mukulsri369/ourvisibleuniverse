@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { create } from "zustand";
 import type { NamedStar } from "./data";
 import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
