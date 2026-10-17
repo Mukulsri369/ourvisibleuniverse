@@ -78,18 +78,31 @@ function AuthPage() {
   };
   const google = async () => {
     if (next) sessionStorage.setItem("auth_next", next);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/auth",
-    });
-    if (result.error) {
-      toast.error(result.error.message);
-      return;
+    setBusy(true);
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/auth",
+      });
+      if (result.error) {
+        toast.error(result.error.message || "Google sign-in failed. Please try again.");
+        return;
+      }
+      if (result.redirected) return;
+      const { data } = await supabase.auth.getSession();
+      if (!data.session) {
+        toast.error("Google sign-in didn't finish. Please try again.");
+        return;
+      }
+      const saved = next ?? sessionStorage.getItem("auth_next") ?? "/universe";
+      sessionStorage.removeItem("auth_next");
+      toast.success("Signed in");
+      // Full navigation guarantees the protected area sees the fresh session.
+      window.location.assign(saved);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Google sign-in failed.");
+    } finally {
+      setBusy(false);
     }
-    if (result.redirected) return;
-    const saved = next ?? sessionStorage.getItem("auth_next") ?? undefined;
-    sessionStorage.removeItem("auth_next");
-    if (saved) await navigate({ href: saved });
-    else await navigate({ to: "/universe" });
   };
   return (
     <PublicLayout>
