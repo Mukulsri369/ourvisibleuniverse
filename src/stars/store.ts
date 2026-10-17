@@ -241,7 +241,208 @@ interface State {
     pointsCount: number;
     memoryMb: number;
   }) => void;
+
+  // --- Upgraded Camera Navigation & Interaction State ---
+  cameraMode: "orbit" | "free" | "follow";
+  setCameraMode: (mode: "orbit" | "free" | "follow") => void;
+  isAutoOrbiting: boolean;
+  toggleAutoOrbit: () => void;
+  resetOrientationTrigger: number;
+  resetCameraOrientation: () => void;
+  cameraBookmarks: CameraBookmark[];
+  saveCameraBookmark: (title: string, description: string) => void;
+  deleteCameraBookmark: (id: string) => void;
+  loadCameraBookmark: (bm: CameraBookmark) => void;
+  bookmarksModalOpen: boolean;
+  setBookmarksModalOpen: (open: boolean) => void;
+  shortcutsModalOpen: boolean;
+  setShortcutsModalOpen: (open: boolean) => void;
+  universalSearchOpen: boolean;
+  setUniversalSearchOpen: (open: boolean) => void;
+  discoveriesModalOpen: boolean;
+  setDiscoveriesModalOpen: (open: boolean) => void;
+  universalObjectModalOpen: boolean;
+  setUniversalObjectModalOpen: (open: boolean) => void;
+  activeUniversalTarget: UniversalTarget | null;
+  setActiveUniversalTarget: (t: UniversalTarget | null) => void;
+  explanationLevel: "explorer" | "standard" | "advanced";
+  setExplanationLevel: (lvl: "explorer" | "standard" | "advanced") => void;
+  cosmicJourneyIndex: number;
+  setCosmicJourneyIndex: (idx: number) => void;
+  nextCosmicJourneyStep: () => void;
+  prevCosmicJourneyStep: () => void;
 }
+
+export type UniversalTargetType =
+  | "planet"
+  | "moon"
+  | "star"
+  | "exoplanet"
+  | "galaxy"
+  | "nebula"
+  | "black_hole"
+  | "quasar"
+  | "pulsar"
+  | "cluster";
+
+export interface UniversalTarget {
+  id: string;
+  name: string;
+  type: UniversalTargetType;
+  subtitle?: string;
+  category?: string;
+  distanceLy: number;
+  apparentMagnitude?: number;
+  absoluteMagnitude?: number;
+  radiusKm?: number;
+  radiusSolar?: number;
+  radiusEarth?: number;
+  massSolar?: number;
+  massEarth?: number;
+  temperatureK?: number;
+  spectralType?: string;
+  constellation?: string;
+  ra?: string;
+  dec?: string;
+  galacticL?: number;
+  galacticB?: number;
+  redshift?: number;
+  morphology?: string;
+  parentName?: string;
+  parentType?: string;
+  children?: { id: string; name: string; type: UniversalTargetType; distance?: string }[];
+  description: {
+    explorer: string;
+    standard: string;
+    advanced: string;
+  };
+  formationAndEvolution: string;
+  telescopeObservations: string;
+  isSimulatedOrModelled?: boolean;
+  modelledDetailsNote?: string;
+  citations: string[];
+  rawEntity?: any;
+}
+
+export interface CameraBookmark {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  radius: number;
+  theta: number;
+  phi: number;
+  target: { x: number; y: number; z: number };
+  fov?: number;
+  category: "solar_system" | "stars" | "deep_space" | "cosmology" | "user";
+  visitPlanet?: string | null;
+  visitGalaxy?: VisitGalaxy | null;
+  selectedObjectId?: string | null;
+  selectedStar?: NamedStar | null;
+}
+
+export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
+  {
+    id: "bm_earth_moon",
+    title: "Earth–Moon Orbital Gateway",
+    subtitle: "Inner Solar System · 1.58e-5 ly",
+    description: "Framing the blue marble and its ancient tidal companion in low interplanetary vantage.",
+    radius: 4.5e-7,
+    theta: 0.8,
+    phi: 1.45,
+    target: { x: 0, y: 0, z: 0 },
+    fov: 34,
+    category: "solar_system",
+    visitPlanet: "Earth",
+  },
+  {
+    id: "bm_saturn_rings",
+    title: "Saturn's Ring Plane Grazing View",
+    subtitle: "Gas Giant Ring Dynamics · 9.58 AU",
+    description: "Viewing the Cassini Division and thousand ringlets from grazing ring-plane elevation.",
+    radius: 3.2e-6,
+    theta: 1.25,
+    phi: 1.52,
+    target: { x: 0, y: 0, z: 0 },
+    fov: 32,
+    category: "solar_system",
+    visitPlanet: "Saturn",
+  },
+  {
+    id: "bm_trappist_1",
+    title: "TRAPPIST-1 Red Dwarf System",
+    subtitle: "Compact Habitable Architecture · 40.7 ly",
+    description: "Seven Earth-sized worlds orbiting an ultra-cool red dwarf in resonant chain.",
+    radius: 3.5,
+    theta: 0.6,
+    phi: 1.35,
+    target: { x: -3.8, y: -24.6, z: 32.1 },
+    fov: 36,
+    category: "stars",
+  },
+  {
+    id: "bm_orion_nebula",
+    title: "Orion Nebula (M42) Gas Nursery",
+    subtitle: "Stellar Creche & Trapezium · 1,344 ly",
+    description: "Volumetric HII photo-ionized gas glowing in Balmer hydrogen and forbidden oxygen lines.",
+    radius: 28,
+    theta: 0.4,
+    phi: 1.2,
+    target: { x: -650, y: -450, z: -1080 },
+    fov: 40,
+    category: "deep_space",
+    selectedObjectId: "m42",
+  },
+  {
+    id: "bm_sgra",
+    title: "Sagittarius A* Event Horizon",
+    subtitle: "Galactic Center Singularity · 26,000 ly",
+    description: "4.15 million solar masses at the kinematic center of the Milky Way galaxy.",
+    radius: 0.25,
+    theta: 0.9,
+    phi: 1.4,
+    target: { x: -26000, y: 0, z: 0 },
+    fov: 38,
+    category: "deep_space",
+    selectedObjectId: "sgra",
+  },
+  {
+    id: "bm_local_group",
+    title: "Local Group Spiral Panorama",
+    subtitle: "Milky Way & Andromeda · 2.54 Mly",
+    description: "The two giant spiral galaxies approaching each other at 110 km/s in the Local Void.",
+    radius: 3.2e6,
+    theta: 0.5,
+    phi: 1.15,
+    target: { x: -1.2e6, y: 0, z: 0 },
+    fov: 48,
+    category: "cosmology",
+  },
+  {
+    id: "bm_virgo_cluster",
+    title: "Virgo Cluster Heart & M87",
+    subtitle: "Local Supercluster Core · 54 Mly",
+    description: "1,500 galaxies bound in hot 10-million-Kelvin intracluster gas surrounding giant elliptical M87.",
+    radius: 4.5e7,
+    theta: 1.1,
+    phi: 1.05,
+    target: { x: -1.2e7, y: 5.2e7, z: -5e6 },
+    fov: 50,
+    category: "cosmology",
+  },
+  {
+    id: "bm_cosmic_web",
+    title: "Observable Horizon & Cosmic Web",
+    subtitle: "Particle Horizon & CMB · 46.5 Gly",
+    description: "The cosmic web of dark matter filaments bounded by the 380,000-year recombination sphere.",
+    radius: 4.65e10,
+    theta: 0.78,
+    phi: 1.2,
+    target: { x: 0, y: 0, z: 0 },
+    fov: 52,
+    category: "cosmology",
+  },
+];
 
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
 // flies the camera to that system rather than the galaxy's core.
@@ -736,4 +937,103 @@ export const useStore = create<State>((set, get) => ({
   setObservationModalOpen: (open, targetId = null) =>
     set({ observationModalOpen: open, observationTargetId: targetId ?? null }),
   setPerformanceStats: (stats) => set({ performanceStats: stats }),
+
+  // --- Upgraded Camera Navigation & Interaction State ---
+  cameraMode: "orbit",
+  setCameraMode: (mode) => set({ cameraMode: mode }),
+  isAutoOrbiting: false,
+  toggleAutoOrbit: () => set((st) => ({ isAutoOrbiting: !st.isAutoOrbiting })),
+  resetOrientationTrigger: 0,
+  resetCameraOrientation: () =>
+    set((st) => ({ resetOrientationTrigger: st.resetOrientationTrigger + 1 })),
+  cameraBookmarks: (() => {
+    try {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("ov_camera_bookmarks") : null;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      /* ignore */
+    }
+    return DEFAULT_CAMERA_BOOKMARKS;
+  })(),
+  saveCameraBookmark: (title, description) => {
+    const currentDist = get().cameraDistance;
+    const newBm: CameraBookmark = {
+      id: "bm_user_" + Date.now(),
+      title: title || "Custom Viewpoint",
+      subtitle: `User Bookmark · ${currentDist >= 1e9 ? (currentDist / 1e9).toFixed(2) + " Gly" : currentDist >= 1e6 ? (currentDist / 1e6).toFixed(2) + " Mly" : currentDist >= 1 ? currentDist.toFixed(1) + " ly" : (currentDist * 63241).toFixed(2) + " AU"}`,
+      description: description || "Custom vantage point saved during exploration.",
+      radius: currentDist,
+      theta: 0.8,
+      phi: 1.4,
+      target: { x: 0, y: 0, z: 0 },
+      category: "user",
+      visitPlanet: get().visitPlanet,
+      visitGalaxy: get().visitGalaxy,
+      selectedObjectId: get().selectedObjectId,
+      selectedStar: get().selectedStar,
+    };
+    const updated = [newBm, ...get().cameraBookmarks];
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ov_camera_bookmarks", JSON.stringify(updated));
+      }
+    } catch {
+      /* ignore */
+    }
+    set({ cameraBookmarks: updated });
+  },
+  deleteCameraBookmark: (id) => {
+    const updated = get().cameraBookmarks.filter((b) => b.id !== id);
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ov_camera_bookmarks", JSON.stringify(updated));
+      }
+    } catch {
+      /* ignore */
+    }
+    set({ cameraBookmarks: updated });
+  },
+  loadCameraBookmark: (bm) => {
+    if (bm.visitPlanet) {
+      get().setVisitPlanet(bm.visitPlanet);
+    } else if (bm.visitGalaxy) {
+      get().setVisitGalaxy(bm.visitGalaxy);
+    } else if (bm.selectedObjectId) {
+      get().setSelectedObject(bm.selectedObjectId);
+    } else if (bm.selectedStar) {
+      get().flyToStar(bm.selectedStar);
+    } else {
+      set({
+        flyTo: { x: bm.target.x, y: bm.target.y, z: bm.target.z, distance: bm.radius },
+        visitPlanet: null,
+        visitGalaxy: null,
+        selectedObjectId: null,
+        selectedStar: null,
+      });
+    }
+  },
+  bookmarksModalOpen: false,
+  setBookmarksModalOpen: (open) => set({ bookmarksModalOpen: open }),
+  shortcutsModalOpen: false,
+  setShortcutsModalOpen: (open) => set({ shortcutsModalOpen: open }),
+  universalSearchOpen: false,
+  setUniversalSearchOpen: (open) => set({ universalSearchOpen: open }),
+  discoveriesModalOpen: false,
+  setDiscoveriesModalOpen: (open) => set({ discoveriesModalOpen: open }),
+  universalObjectModalOpen: false,
+  setUniversalObjectModalOpen: (open) => set({ universalObjectModalOpen: open }),
+  activeUniversalTarget: null,
+  setActiveUniversalTarget: (t) =>
+    set({ activeUniversalTarget: t, universalObjectModalOpen: Boolean(t) }),
+  explanationLevel: "standard",
+  setExplanationLevel: (lvl) => set({ explanationLevel: lvl }),
+  cosmicJourneyIndex: 0,
+  setCosmicJourneyIndex: (idx) => set({ cosmicJourneyIndex: Math.max(0, Math.min(8, idx)) }),
+  nextCosmicJourneyStep: () =>
+    set((st) => ({ cosmicJourneyIndex: Math.min(8, st.cosmicJourneyIndex + 1) })),
+  prevCosmicJourneyStep: () =>
+    set((st) => ({ cosmicJourneyIndex: Math.max(0, st.cosmicJourneyIndex - 1) })),
 }));

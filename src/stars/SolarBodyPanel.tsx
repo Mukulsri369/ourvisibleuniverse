@@ -5,6 +5,8 @@ import { useStore } from "./store";
 import { getSimulationDate, getSimulationJd } from "./sim-clock";
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
 import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
+import { FileText } from "lucide-react";
+import { createTargetFromPlanet } from "./universal-target-factory";
 
 const fmtDays = (d: number) =>
   Math.abs(d) < 2
@@ -89,6 +91,17 @@ export function SolarBodyPanel() {
             <h2 className="mt-2 text-3xl font-light">{title}</h2>
 
             <NasaResources name={title} query={moon ? `${moon.name} moon` : planet.name} />
+
+            <button
+              onClick={() => {
+                const t = createTargetFromPlanet(planet.name, moon?.name);
+                if (t) useStore.getState().setActiveUniversalTarget(t);
+              }}
+              className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-mono font-medium text-white/90 transition hover:bg-white/10"
+            >
+              <FileText className="h-4 w-4 text-cyan-300" />
+              <span>Open 7-Tab Science Dossier</span>
+            </button>
 
             <p className="mt-3 text-sm leading-relaxed text-white/70">
               {moon

@@ -30,12 +30,23 @@ export function CameraRig() {
   const visitPlanet = useStore((s) => s.visitPlanet);
   const visitGalaxy = useStore((s) => s.visitGalaxy);
   const selectedObjectId = useStore((s) => s.selectedObjectId);
+  const isAutoOrbiting = useStore((s) => s.isAutoOrbiting);
+  const resetOrientationTrigger = useStore((s) => s.resetOrientationTrigger);
 
   const minR = 1e-10;
   // Zoom range spans from inside the Solar System out to ~50 Gly
   // (observable-universe scale) so pulling back reveals Local Group,
   // Virgo Supercluster, and cosmic-web filaments.
   const maxR = 5e10;
+
+  useEffect(() => {
+    if (resetOrientationTrigger > 0) {
+      desired.current.phi = Math.PI / 2.2;
+      desired.current.theta = 0;
+      velocity.current.theta = 0;
+      velocity.current.phi = 0;
+    }
+  }, [resetOrientationTrigger]);
 
   const planetMinimumRadius = () => {
     const name = useStore.getState().visitPlanet;
@@ -80,8 +91,12 @@ export function CameraRig() {
       const dx = e.clientX - last.current.x;
       const dy = e.clientY - last.current.y;
       last.current = { x: e.clientX, y: e.clientY };
-      velocity.current.theta = -dx * 0.005;
-      velocity.current.phi = -dy * 0.005;
+
+      const currentR = desired.current.radius;
+      // Adaptive angular speed: reduce sensitivity when inspecting planets close-up
+      const sensitivity = currentR < 1e-5 ? 0.0028 : currentR > 1e6 ? 0.004 : 0.005;
+      velocity.current.theta = -dx * sensitivity;
+      velocity.current.phi = -dy * sensitivity;
       desired.current.theta += velocity.current.theta;
       desired.current.phi = Math.max(
         0.03,
@@ -92,7 +107,12 @@ export function CameraRig() {
       e.preventDefault();
       const speed = useStore.getState().zoomSpeed / 50;
       const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
-      const factor = Math.exp(Math.max(-120, Math.min(120, dy)) * 0.0015 * speed);
+      // Logarithmic damping avoids nausea and uncontrolled overshooting
+      const dampFactor = Math.min(
+        1.2,
+        Math.max(0.65, 0.9 + Math.log10(Math.max(1e-10, desired.current.radius)) * 0.015),
+      );
+      const factor = Math.exp(Math.max(-100, Math.min(100, dy)) * 0.0014 * speed * dampFactor);
       desired.current.radius = Math.max(
         planetMinimumRadius(),
         Math.min(maxR, desired.current.radius * factor),
@@ -181,6 +201,37 @@ export function CameraRig() {
       if ((e.key === "s" || e.key === "S") && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         useStore.getState().toggleCameraFree();
+      }
+      // O = toggle auto orbit
+      if ((e.key === "o" || e.key === "O") && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        useStore.getState().toggleAutoOrbit();
+      }
+      // R = reset orientation
+      if ((e.key === "r" || e.key === "R") && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        useStore.getState().resetCameraOrientation();
+      }
+      // ? = keyboard & gestures accessibility helper
+      if (e.key === "?" && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        useStore.getState().setShortcutsModalOpen(true);
+      }
+      // / or Ctrl+K = universal search
+      if (
+        (e.key === "/" || ((e.key === "k" || e.key === "K") && (e.ctrlKey || e.metaKey))) &&
+        !e.shiftKey
+      ) {
+        e.preventDefault();
+        useStore.getState().setUniversalSearchOpen(true);
+      }
+      // Escape = clear selections
+      if (e.key === "Escape") {
+        useStore.getState().setSelected(null);
+        useStore.getState().setVisitPlanet(null);
+        useStore.getState().setVisitGalaxy(null);
+        useStore.getState().setSelectedObject(null);
+        useStore.getState().setUniversalObjectModalOpen(false);
       }
     };
     const up = (e: KeyboardEvent) => {
@@ -387,8 +438,8 @@ export function CameraRig() {
     spherical.current.theta +=
       (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
     spherical.current.phi += (desired.current.phi - spherical.current.phi) * Math.min(1, dt * 6);
-    if (tourActive) {
-      desired.current.theta += dt * 0.05;
+    if (tourActive || (isAutoOrbiting && !dragging.current)) {
+      desired.current.theta += dt * (tourActive ? 0.05 : 0.06);
     }
     if (!dragging.current) {
       velocity.current.theta *= 0.92;
@@ -414,7 +465,21 @@ export function CameraRig() {
       fovTarget.current = 30 + t * 60;
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
-    pc.updateProjectionMatrix();
+
+    // Dynamic near/far clipping plane adjustment to prevent clipping or z-fighting
+    const targetNear = Math.max(1e-11, Math.min(0.08, r * 1e-4));
+    const targetFar = Math.max(1e5, Math.min(1e12, r * 1e4));
+    if (
+      Math.abs(pc.near - targetNear) / targetNear > 0.4 ||
+      Math.abs(pc.far - targetFar) / targetFar > 0.4
+    ) {
+      pc.near = targetNear;
+      pc.far = targetFar;
+      pc.updateProjectionMatrix();
+    } else {
+      pc.updateProjectionMatrix();
+    }
+
     setCameraDistance(r);
   });
 

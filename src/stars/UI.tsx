@@ -11,6 +11,11 @@ import {
   Eye,
   Activity,
   Radio,
+  Bookmark,
+  Award,
+  RotateCcw,
+  Keyboard,
+  FileText,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
@@ -28,6 +33,7 @@ import { GalaxySearchModal } from "./GalaxySearchModal";
 import { GalaxyCoverageDashboard } from "./GalaxyCoverageDashboard";
 import { CompactObjectLabModal } from "./CompactObjectLabModal";
 import { CosmicWebExplorerModal } from "./CosmicWebExplorerModal";
+import { createTargetFromStar } from "./universal-target-factory";
 import { GuidedJourneyHUD } from "./GuidedJourneyHUD";
 
 export function InfoPanel() {
@@ -70,6 +76,13 @@ export function InfoPanel() {
               >
                 <Telescope className="h-4 w-4 text-cyan-400" />
                 <span>Telescope Imagery & HiPS Surveys</span>
+              </button>
+              <button
+                onClick={() => useStore.getState().setActiveUniversalTarget(createTargetFromStar(star))}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3.5 py-2 text-xs font-mono font-medium text-white/90 transition hover:bg-white/10"
+              >
+                <FileText className="h-4 w-4 text-cyan-300" />
+                <span>Open 7-Tab Science Dossier</span>
               </button>
               <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
                 <Stat label="Distance" value={`${star.distance.toFixed(2)} ly`} />
@@ -462,17 +475,45 @@ export function TopLeftControls() {
         <Activity className="h-4 w-4 text-emerald-400" />
       </IconButton>
       <IconButton
-        title="Compact Objects & Relativistic Ray-Tracing Lab (Black Holes, Pulsars, Quasars, Magnetars, GW)"
-        onClick={() => useStore.getState().setCompactObjectModalOpen(true)}
-      >
-        <Radio className="h-4 w-4 text-purple-400" />
-      </IconButton>
-      <IconButton
-        title="Search all celestial objects"
-        onClick={() => setSearchOpen((v) => !v)}
-        active={searchOpen}
+        title="Universal Indexed Celestial Search (Names, Aliases, Catalogs, Morphologies, Redshifts)"
+        onClick={() => useStore.getState().setUniversalSearchOpen(true)}
       >
         <SearchIcon />
+      </IconButton>
+      <IconButton
+        title="Camera Vistas & Curated Astronomical Bookmarks"
+        onClick={() => useStore.getState().setBookmarksModalOpen(true)}
+      >
+        <Bookmark className="h-4 w-4 text-cyan-300" />
+      </IconButton>
+      <IconButton
+        title="Landmark Discoveries in Observational Astrophysics (Hubble, Mayor, Penzias, EHT, LIGO)"
+        onClick={() => useStore.getState().setDiscoveriesModalOpen(true)}
+      >
+        <Award className="h-4 w-4 text-amber-400" />
+      </IconButton>
+      <IconButton
+        title={
+          useStore.getState().isAutoOrbiting
+            ? "Auto-Orbit Object: ACTIVE (Click to pause)"
+            : "Auto-Orbit Object: INACTIVE (Click to start smooth orbit)"
+        }
+        onClick={() => useStore.getState().toggleAutoOrbit()}
+        active={useStore.getState().isAutoOrbiting}
+      >
+        <Orbit className="h-4 w-4 text-sky-400" />
+      </IconButton>
+      <IconButton
+        title="Reset Camera Orientation to Galactic & Ecliptic North"
+        onClick={() => useStore.getState().resetCameraOrientation()}
+      >
+        <RotateCcw className="h-4 w-4 text-white/70" />
+      </IconButton>
+      <IconButton
+        title="Interaction, Keyboard Shortcuts & Accessibility Guide (?)"
+        onClick={() => useStore.getState().setShortcutsModalOpen(true)}
+      >
+        <Keyboard className="h-4 w-4 text-emerald-400" />
       </IconButton>
       <IconButton
         title={

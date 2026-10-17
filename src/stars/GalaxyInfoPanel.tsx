@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
-import { Telescope, ExternalLink } from "lucide-react";
+import { Telescope, ExternalLink, FileText } from "lucide-react";
 import { useStore } from "./store";
+import { createTargetFromGalaxy } from "./universal-target-factory";
 import { GALAXY_BY_NAME } from "./galaxy-models";
 import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR } from "./andromeda-data";
 import { NAMED_GALAXIES } from "./Universe";
