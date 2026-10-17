@@ -1193,6 +1193,7 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
   const dwarf = /dwarf/i.test(g.type);
   const oldPopulation = morphology === "elliptical" || morphology === "lenticular";
   const oldColor = colorTuple(g.color);
+  const obs = g as Partial<import("./galaxy-catalog").ObservationalGalaxy>;
   const base: GalaxyModel = {
     key: `catalog-${g.name
       .toLowerCase()
@@ -1227,18 +1228,17 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
           ? 32
           : 0,
     barLength: morphology === "barred" ? radius * 0.42 : 0,
-    // Selected models are built one at a time; dwarfs need fewer points while
-    // giant galaxies receive enough particles to retain their structure.
     density: dwarf ? 0.12 : Math.min(0.42, 0.2 + g.size / 1_000_000),
     youngColor: oldPopulation ? [0.9, 0.86, 0.76] : [0.7, 0.84, 1.0],
     oldColor,
     coreColor: oldPopulation ? "rgba(255,220,170,1)" : "rgba(255,235,205,1)",
     rotPeriod: 480 + Math.sqrt(Math.max(radius, 1)) * 2.2,
     dustLanes: /spiral|lenticular|interacting/i.test(g.type),
-    description: `${g.name} is a real ${g.type.toLowerCase()} galaxy about ${g.distance.toLocaleString()} light-years away. Its particle model follows the catalogued physical diameter, sky position, viewing angle, and characteristic stellar structure of its morphological class.`,
+    description: `${g.name} is a real ${g.type.toLowerCase()} galaxy about ${g.distance.toLocaleString()} light-years away${obs.hostGroup ? ` in the ${obs.hostGroup}` : ""}. Its observational model reflects catalogued physical diameter, sky position, and morphological class from NASA/IPAC NED. In accordance with strict scientific integrity, no fictional internal exoplanets or speculative star catalogs are invented for unresolved galaxies.`,
   };
   const merged = { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
-  return { ...merged, system: fallbackSystem(g, merged.diskRadius, merged.morphology) };
+  // Only curated models carry visitable planetary systems; others retain purely observational reconstruction
+  return merged;
 }
 
 /** Every named galaxy has a stable particle model; Andromeda remains bespoke. */

@@ -5,35 +5,33 @@ import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
 import { GALAXY_BY_NAME } from "./galaxy-models";
-import { NEARBY_GALAXIES, type NamedGalaxy } from "./galaxy-catalog";
+import { NEARBY_GALAXIES, type NamedGalaxy, type ObservationalGalaxy } from "./galaxy-catalog";
 
 // ---------------------------------------------------------------
-// UNIVERSE — everything beyond the Milky Way.
+// OBSERVATIONAL UNIVERSE ATLAS — HIERARCHICAL RENDERING
 //
-// The Sun sits at the scene origin, 1 scene unit = 1 light-year.
-// This module plots:
-//   • Local Group galaxies (Andromeda, Triangulum, LMC, SMC, …)
-//   • The Virgo Supercluster region (~50–100 Mly)
-//   • Cosmic-web filaments of galaxies (Laniakea → observable universe)
-//   • The observable-universe boundary sphere (~46.5 Gly)
+// Levels:
+//   LEVEL 1: Catalog Point (Correct observed sky direction, magnitude/distance scaling)
+//   LEVEL 2: Angular Extent & Morphological Profile (Inclination & PA alignment)
+//   LEVEL 3: Photorealistic Visual Representation (Multi-wavelength core, arms, dust)
+//   LEVEL 4: Detailed 3D Reconstruction Handover (Curated particle models)
 //
-// Positions of named galaxies come from real galactic coordinates
-// (l, b, distance) converted to XYZ. Our x-axis points AWAY from the
-// galactic center (Sgr A* is at (-26000, 0, 0)), so we flip x when
-// converting from standard galactic coords where l=0 points toward GC.
+// Positions of named galaxies come from real equatorial/galactic coordinates
+// (RA/Dec -> l, b -> XYZ at measured distance).
+// Toggleable between observed galaxies and simulated cosmic-web filaments.
 // ---------------------------------------------------------------
 
-function toXYZ(l: number, b: number, d: number): THREE.Vector3 {
+export function toXYZ(l: number, b: number, d: number): THREE.Vector3 {
   const lr = (l * Math.PI) / 180;
   const br = (b * Math.PI) / 180;
-  // Flip x so galactic-center direction (l=0) points to -x (matches GALACTIC_CENTER)
+  // Flip x so galactic-center direction (l=0) points to -x (matches GALACTIC_CENTER at (-26000, 0, 0))
   const x = -d * Math.cos(br) * Math.cos(lr);
   const y = d * Math.sin(br);
   const z = d * Math.cos(br) * Math.sin(lr);
   return new THREE.Vector3(x, y, z);
 }
 
-// Procedural spiral-galaxy sprite (top-down) — used for face-on discs
+// Procedural spiral-galaxy texture
 function makeSpiralGalaxyTexture(color = "#dfe6ff"): THREE.Texture {
   const size = 256;
   const c = document.createElement("canvas");
@@ -42,41 +40,114 @@ function makeSpiralGalaxyTexture(color = "#dfe6ff"): THREE.Texture {
   ctx.clearRect(0, 0, size, size);
   const cx = size / 2,
     cy = size / 2;
-  // core glow
+  // Core glow
   const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
-  core.addColorStop(0, "rgba(255,240,210,1)");
-  core.addColorStop(0.15, "rgba(255,220,170,0.85)");
-  core.addColorStop(
-    0.45,
-    color.replace(")", ",0.35)").replace("#", "rgba(").length > 4
-      ? "rgba(200,220,255,0.35)"
-      : "rgba(200,220,255,0.35)",
-  );
+  core.addColorStop(0, "rgba(255,242,215,1)");
+  core.addColorStop(0.18, "rgba(255,220,170,0.85)");
+  core.addColorStop(0.48, "rgba(195,220,255,0.35)");
   core.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = core;
   ctx.fillRect(0, 0, size, size);
-  // spiral arms
+
+  // Spiral arms with HII star-forming clusters
   ctx.globalCompositeOperation = "lighter";
   const arms = 2;
   for (let a = 0; a < arms; a++) {
-    for (let i = 0; i < 2600; i++) {
-      const t = i / 2600;
-      const r = 8 + t * (size * 0.48);
-      const theta = a * Math.PI + t * 6.5 + (Math.random() - 0.5) * 0.35;
+    for (let i = 0; i < 2800; i++) {
+      const t = i / 2800;
+      const r = 8 + t * (size * 0.46);
+      const theta = a * Math.PI + t * 6.5 + (Math.random() - 0.5) * 0.32;
       const x = cx + Math.cos(theta) * r;
       const y = cy + Math.sin(theta) * r;
-      const alpha = (1 - t) * 0.6;
-      ctx.fillStyle = `rgba(200,220,255,${alpha})`;
+      const alpha = (1 - t) * 0.65;
+      ctx.fillStyle = i % 5 === 0 ? `rgba(255,180,200,${alpha})` : `rgba(200,225,255,${alpha})`;
       ctx.beginPath();
-      ctx.arc(x, y, 1 + Math.random() * 1.4, 0, Math.PI * 2);
+      ctx.arc(x, y, 1 + Math.random() * 1.5, 0, Math.PI * 2);
       ctx.fill();
     }
   }
+
+  // Dust lane absorption
+  ctx.globalCompositeOperation = "destination-out";
+  for (let a = 0; a < arms; a++) {
+    for (let i = 0; i < 600; i++) {
+      const t = i / 600;
+      const r = 16 + t * (size * 0.38);
+      const theta = a * Math.PI + t * 6.4 + 0.18 + (Math.random() - 0.5) * 0.12;
+      const x = cx + Math.cos(theta) * r;
+      const y = cy + Math.sin(theta) * r;
+      ctx.fillStyle = "rgba(0,0,0,0.18)";
+      ctx.beginPath();
+      ctx.arc(x, y, 2 + Math.random() * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
   const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
   tex.needsUpdate = true;
   return tex;
 }
 
+// Procedural barred spiral galaxy texture
+function makeBarredSpiralTexture(): THREE.Texture {
+  const size = 256;
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d")!;
+  const cx = size / 2,
+    cy = size / 2;
+
+  // Central stellar bar
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(0.35);
+  const barGrad = ctx.createLinearGradient(-size * 0.28, 0, size * 0.28, 0);
+  barGrad.addColorStop(0, "rgba(255,230,190,0)");
+  barGrad.addColorStop(0.3, "rgba(255,240,210,0.7)");
+  barGrad.addColorStop(0.5, "rgba(255,255,240,0.95)");
+  barGrad.addColorStop(0.7, "rgba(255,240,210,0.7)");
+  barGrad.addColorStop(1, "rgba(255,230,190,0)");
+  ctx.fillStyle = barGrad;
+  ctx.fillRect(-size * 0.28, -size * 0.05, size * 0.56, size * 0.1);
+  ctx.restore();
+
+  // Core glow
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.45);
+  g.addColorStop(0, "rgba(255,245,220,1)");
+  g.addColorStop(0.2, "rgba(255,220,170,0.8)");
+  g.addColorStop(0.5, "rgba(190,210,255,0.25)");
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+
+  // Arms launching from bar ends
+  ctx.globalCompositeOperation = "lighter";
+  for (let arm = 0; arm < 2; arm++) {
+    const baseTheta = 0.35 + arm * Math.PI;
+    const startX = cx + Math.cos(baseTheta) * (size * 0.26);
+    const startY = cy + Math.sin(baseTheta) * (size * 0.26);
+    for (let i = 0; i < 1800; i++) {
+      const t = i / 1800;
+      const r = t * (size * 0.32);
+      const theta = baseTheta + Math.PI / 2 + t * 4.2 + (Math.random() - 0.5) * 0.28;
+      const x = startX + Math.cos(theta) * r;
+      const y = startY + Math.sin(theta) * r;
+      const a = (1 - t) * 0.6;
+      ctx.fillStyle = `rgba(195,220,255,${a})`;
+      ctx.beginPath();
+      ctx.arc(x, y, 1.2 + Math.random() * 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+// Procedural elliptical galaxy texture
 function makeEllipticalGalaxyTexture(): THREE.Texture {
   const size = 256;
   const c = document.createElement("canvas");
@@ -85,33 +156,60 @@ function makeEllipticalGalaxyTexture(): THREE.Texture {
   const cx = size / 2,
     cy = size / 2;
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
-  g.addColorStop(0, "rgba(255,240,210,1)");
-  g.addColorStop(0.3, "rgba(255,210,150,0.7)");
-  g.addColorStop(0.7, "rgba(200,150,90,0.15)");
+  g.addColorStop(0, "rgba(255,245,220,1)");
+  g.addColorStop(0.15, "rgba(255,225,175,0.85)");
+  g.addColorStop(0.35, "rgba(255,200,140,0.5)");
+  g.addColorStop(0.65, "rgba(210,160,100,0.12)");
   g.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, size, size);
-  return new THREE.CanvasTexture(c);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
+// Procedural irregular / starburst galaxy texture
 function makeIrregularTexture(): THREE.Texture {
   const size = 256;
   const c = document.createElement("canvas");
   c.width = c.height = size;
   const ctx = c.getContext("2d")!;
   ctx.globalCompositeOperation = "lighter";
-  for (let i = 0; i < 1400; i++) {
-    const r = Math.random() * size * 0.4;
+  for (let i = 0; i < 1800; i++) {
+    const r = Math.random() * size * 0.42;
     const theta = Math.random() * Math.PI * 2;
     const x = size / 2 + Math.cos(theta) * r;
-    const y = size / 2 + Math.sin(theta) * r * 0.7;
-    const a = (1 - r / (size * 0.4)) * 0.6;
-    ctx.fillStyle = `rgba(220,220,255,${a})`;
+    const y = size / 2 + Math.sin(theta) * r * 0.72;
+    const a = (1 - r / (size * 0.42)) * 0.65;
+    const isKnot = Math.random() < 0.2;
+    ctx.fillStyle = isKnot ? `rgba(255,190,210,${a})` : `rgba(215,230,255,${a})`;
     ctx.beginPath();
-    ctx.arc(x, y, 1.5 + Math.random() * 2.5, 0, Math.PI * 2);
+    ctx.arc(x, y, 1.2 + Math.random() * (isKnot ? 2.8 : 1.8), 0, Math.PI * 2);
     ctx.fill();
   }
-  return new THREE.CanvasTexture(c);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// Procedural high-z / quasar point texture
+function makeHighZTexture(): THREE.Texture {
+  const size = 128;
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d")!;
+  const cx = size / 2,
+    cy = size / 2;
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.45);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.2, "rgba(255,120,120,0.9)");
+  g.addColorStop(0.5, "rgba(255,70,70,0.3)");
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
 function makeDotTexture(): THREE.Texture {
@@ -125,46 +223,78 @@ function makeDotTexture(): THREE.Texture {
   g.addColorStop(1, "rgba(255,220,180,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, size, size);
-  return new THREE.CanvasTexture(c);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
-function NamedGalaxyDisc({
+// -----------------------------------------------------------------------------
+// Hierarchical Galaxy Node Component
+// -----------------------------------------------------------------------------
+
+function ObservationalGalaxyNode({
   g,
   spiralTex,
+  barredTex,
   ellipTex,
   irrTex,
+  highZTex,
 }: {
-  g: NamedGalaxy;
+  g: ObservationalGalaxy;
   spiralTex: THREE.Texture;
+  barredTex: THREE.Texture;
   ellipTex: THREE.Texture;
   irrTex: THREE.Texture;
+  highZTex: THREE.Texture;
 }) {
   const pos = useMemo(() => toXYZ(g.l, g.b, g.distance), [g]);
-  const tex = /Spiral|Barred|Lenticular|Starburst|Interacting/i.test(g.type)
-    ? spiralTex
-    : /Elliptical/i.test(g.type)
-      ? ellipTex
-      : irrTex;
+  const isHighZ = g.distanceTier === "high_redshift" || g.redshift > 5.0;
+  const isBarred = /Barred/i.test(g.type) || /SB/i.test(g.morphologyClass);
+  const isElliptical = /Elliptical|Lenticular/i.test(g.type) || /^E|^S0/i.test(g.morphologyClass);
+  const isIrregular = /Irregular|Starburst/i.test(g.type) || /dIrr|IBm/i.test(g.morphologyClass);
+
+  const tex = isHighZ
+    ? highZTex
+    : isBarred
+      ? barredTex
+      : isElliptical
+        ? ellipTex
+        : isIrregular
+          ? irrTex
+          : spiralTex;
+
   const meshRef = useRef<THREE.Mesh>(null!);
   const matRef = useRef<THREE.MeshBasicMaterial>(null!);
-  // Galaxies that have a full particle model fade their stand-in disc out
-  // as the camera approaches, so the detailed build takes over cleanly.
-  const hasDetail = GALAXY_BY_NAME.has(g.name);
   const [hovered, setHovered] = useState(false);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
+
+  // Check if this galaxy has a full 3D particle model (Level 4)
+  const hasDetail = GALAXY_BY_NAME.has(g.name);
+
   const rot = useMemo(() => {
-    const incl = ((g.inclination ?? 0) * Math.PI) / 180;
+    const incl = ((g.inclination ?? 45) * Math.PI) / 180;
     const pa = ((g.posAngle ?? 0) * Math.PI) / 180;
     return new THREE.Euler(incl, 0, pa);
   }, [g]);
-  // Pick radius scales with distance so far galaxies remain hoverable.
-  const pickRadius = Math.max(g.size * 0.6, g.distance * 0.02);
+
+  // Dynamic scale ensuring distant galaxies remain distinguishable without popping
+  const renderSize = useMemo(() => {
+    if (isHighZ) return Math.max(g.size * 200, g.distance * 0.008);
+    return Math.max(g.size, g.distance * 0.001);
+  }, [g, isHighZ]);
+
+  const pickRadius = Math.max(renderSize * 0.6, g.distance * 0.015);
+
   useFrame(({ camera }) => {
-    if (!hasDetail || !matRef.current) return;
+    if (!matRef.current) return;
     const d = camera.position.distanceTo(pos);
-    const fade = Math.min(1, Math.max(0, (d - g.size * 3) / (g.size * 8)));
-    matRef.current.opacity = fade;
-    matRef.current.transparent = true;
+    if (hasDetail) {
+      // Fade out the 2D disc smoothly as camera approaches Level 4 3D particle model
+      const fade = Math.min(1, Math.max(0, (d - g.size * 2.5) / (g.size * 7)));
+      matRef.current.opacity = fade;
+    } else {
+      matRef.current.opacity = 0.95;
+    }
   });
 
   const onOver = (e: ThreeEvent<PointerEvent>) => {
@@ -189,10 +319,18 @@ function NamedGalaxyDisc({
       type: g.type,
     });
   };
+
+  const distLabel =
+    g.distance >= 1_000_000_000
+      ? (g.distance / 1_000_000_000).toFixed(2) + " Gly"
+      : g.distance >= 1_000_000
+        ? (g.distance / 1_000_000).toFixed(2) + " Mly"
+        : (g.distance / 1000).toFixed(0) + " kly";
+
   return (
     <group position={pos}>
       <mesh ref={meshRef} rotation={rot} frustumCulled={false}>
-        <planeGeometry args={[g.size, g.size]} />
+        <planeGeometry args={[renderSize, renderSize]} />
         <meshBasicMaterial
           ref={matRef}
           map={tex}
@@ -203,35 +341,51 @@ function NamedGalaxyDisc({
           side={THREE.DoubleSide}
         />
       </mesh>
-      {/* invisible hover/click target */}
+
+      {/* Invisible pick target */}
       <mesh onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
-        <sphereGeometry args={[pickRadius, 12, 12]} />
+        <sphereGeometry args={[pickRadius, 10, 10]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
+
+      {/* Interactive Tooltip HUD */}
       <Billboard>
-        <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
+        <Html center zIndexRange={[15, 0]} style={{ pointerEvents: "none" }}>
           <div
             style={{
               opacity: hovered ? 1 : 0,
-              transform: "translate(10px, -10px)",
+              transform: "translate(12px, -12px)",
               color: "#ffffff",
               fontSize: 13,
               fontFamily: "Inter, system-ui, sans-serif",
               letterSpacing: 0.5,
               whiteSpace: "nowrap",
-              padding: "3px 8px",
-              borderLeft: "1px solid rgba(255,255,255,0.9)",
-              background: "rgba(0,0,0,0.6)",
-              textShadow: "0 0 10px rgba(160,200,255,0.6)",
-              transition: "opacity 150ms",
+              padding: "5px 10px",
+              borderLeft: "2px solid rgba(120,180,255,0.9)",
+              background: "rgba(6,9,22,0.85)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+              transition: "opacity 150ms ease-out",
             }}
           >
-            {g.name}
-            <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>
-              {g.type} ·{" "}
-              {g.distance >= 1_000_000
-                ? (g.distance / 1_000_000).toFixed(2) + " Mly"
-                : (g.distance / 1000).toFixed(0) + " kly"}
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-white">{g.name}</span>
+              {hasDetail && (
+                <span className="rounded bg-sky-500/20 px-1 py-0.5 text-[9px] uppercase tracking-wider text-sky-300">
+                  ✦ 3D Model
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: 10, opacity: 0.75, marginTop: 3 }}>
+              {g.morphologyClass ? `${g.morphologyClass} · ` : ""}
+              {g.type} · {distLabel}
+            </div>
+            <div style={{ fontSize: 9, opacity: 0.55, marginTop: 1 }}>
+              {g.redshift < 0
+                ? `z = ${g.redshift.toFixed(6)} (Blueshifted)`
+                : `z = ${g.redshift.toFixed(g.redshift > 1 ? 3 : 5)}`}
+              {g.hostGroup ? ` · ${g.hostGroup}` : ""}
             </div>
           </div>
         </Html>
@@ -240,15 +394,77 @@ function NamedGalaxyDisc({
   );
 }
 
+// -----------------------------------------------------------------------------
+// Large-Scale Spatial Cluster Aggregators
+// -----------------------------------------------------------------------------
+
+function ClusterAggregateBillboard({
+  name,
+  position,
+  count,
+  color,
+}: {
+  name: string;
+  position: THREE.Vector3;
+  count: number;
+  color: string;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
+
+  return (
+    <group position={position}>
+      <Billboard>
+        <Html center zIndexRange={[12, 0]} style={{ pointerEvents: "none" }}>
+          <div
+            style={{
+              padding: "2px 8px",
+              borderRadius: "4px",
+              background: "rgba(10,15,35,0.65)",
+              border: `1px solid ${color}`,
+              color: "#e2ecff",
+              fontSize: "10px",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+              opacity: 0.7,
+              pointerEvents: "auto",
+              cursor: "pointer",
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setVisitGalaxy({
+                name,
+                x: position.x,
+                y: position.y,
+                z: position.z,
+                size: 250_000,
+                distance: position.length(),
+                type: "Galaxy Cluster",
+              });
+            }}
+          >
+            {name} ({count})
+          </div>
+        </Html>
+      </Billboard>
+    </group>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Exported Ingested Galaxies Array with 3D positions
+// -----------------------------------------------------------------------------
+
 export const NAMED_GALAXIES = NEARBY_GALAXIES.map((g) => ({
   ...g,
   position: toXYZ(g.l, g.b, g.distance),
 }));
 
-// Cosmic-web / large-scale structure: a spherical shell of galaxy points
-// with filamentary clustering, out to ~1 Gly. Each point is a distant
-// galaxy. We use several logarithmic-radius shells so the eye perceives
-// depth over ~7 orders of magnitude in scale.
+// -----------------------------------------------------------------------------
+// Cosmic-Web Filaments Simulation (N-Body / Cosmological Density Simulation)
+// -----------------------------------------------------------------------------
+
 function useCosmicWeb() {
   return useMemo(() => {
     const shells = [
@@ -258,7 +474,6 @@ function useCosmicWeb() {
       { rMin: 3e9, rMax: 4.5e10, n: 46000, warm: 0.2, size: 220 }, // out to observable universe
     ];
 
-    // Filament seeds — clumps that galaxies gravitate toward
     const seeds: THREE.Vector3[] = [];
     for (let i = 0; i < 220; i++) {
       const u = Math.random(),
@@ -279,11 +494,8 @@ function useCosmicWeb() {
       const pos = new Float32Array(s.n * 3);
       const col = new Float32Array(s.n * 3);
       for (let i = 0; i < s.n; i++) {
-        // logarithmic radius so density looks even at all zoom scales
         const t = Math.random();
         const r = s.rMin * Math.pow(s.rMax / s.rMin, t);
-        // filament clustering: pick a random direction, but 70% of the time
-        // bias toward the nearest seed direction
         let dir = new THREE.Vector3(
           Math.random() - 0.5,
           Math.random() - 0.5,
@@ -301,7 +513,6 @@ function useCosmicWeb() {
         pos[i * 3] = dir.x * r;
         pos[i * 3 + 1] = dir.y * r;
         pos[i * 3 + 2] = dir.z * r;
-        // Color: mix warm (elliptical/old) and cool (spiral) galaxies
         const warm = Math.random() < s.warm;
         if (warm) {
           col[i * 3] = 1.0;
@@ -338,7 +549,7 @@ function CosmicWeb() {
             transparent: true,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
-            opacity: 0.9,
+            opacity: 0.85,
           }),
       ),
     [tex, sizes],
@@ -352,8 +563,10 @@ function CosmicWeb() {
   );
 }
 
-// Observable-universe boundary — a very faint sphere at ~46.5 Gly.
-// Rendered from the inside so you can see it when zoomed all the way out.
+// -----------------------------------------------------------------------------
+// Observable Universe Horizon Shell (46.5 Gly Comoving Boundary)
+// -----------------------------------------------------------------------------
+
 function ObservableUniverseShell() {
   const geo = useMemo(() => new THREE.SphereGeometry(4.65e10, 48, 32), []);
   const mat = useMemo(
@@ -374,7 +587,6 @@ function ObservableUniverseShell() {
         fragmentShader: /* glsl */ `
           uniform float uTime;
           varying vec3 vN;
-          // faint CMB-like temperature fluctuations
           float hash(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
           float noise(vec3 p){
             vec3 i = floor(p), f = fract(p);
@@ -398,16 +610,16 @@ function ObservableUniverseShell() {
   return <mesh geometry={geo} material={mat} frustumCulled={false} />;
 }
 
-// The Milky Way's own "own-galaxy" sprite seen from far away, so when you
-// pull back beyond the Local Group the Milky Way itself reads as a spiral
-// disc among neighbors instead of vanishing into individual stars.
+// -----------------------------------------------------------------------------
+// Milky Way Far-Field Sprite
+// -----------------------------------------------------------------------------
+
 function MilkyWayFarSprite() {
   const ref = useRef<THREE.Sprite>(null!);
   const tex = useMemo(() => makeSpiralGalaxyTexture(), []);
   useFrame(({ camera }) => {
     if (!ref.current) return;
     const d = camera.position.length();
-    // Fade in only when the camera is beyond ~200,000 ly (outside the disk)
     const a = Math.min(1, Math.max(0, (d - 200_000) / 400_000));
     (ref.current.material as THREE.SpriteMaterial).opacity = a * 0.9;
   });
@@ -424,26 +636,84 @@ function MilkyWayFarSprite() {
   );
 }
 
+// -----------------------------------------------------------------------------
+// Main Universe Component
+// -----------------------------------------------------------------------------
+
 export function Universe() {
   const spiralTex = useMemo(() => makeSpiralGalaxyTexture(), []);
-  const ellipTex = useMemo(makeEllipticalGalaxyTexture, []);
-  const irrTex = useMemo(makeIrregularTexture, []);
+  const barredTex = useMemo(() => makeBarredSpiralTexture(), []);
+  const ellipTex = useMemo(() => makeEllipticalGalaxyTexture(), []);
+  const irrTex = useMemo(() => makeIrregularTexture(), []);
+  const highZTex = useMemo(() => makeHighZTexture(), []);
+
+  const showCosmicWebDensity = useStore((s) => s.showCosmicWebDensity);
+  const showObservedGalaxies = useStore((s) => s.showObservedGalaxies);
+
+  // Cluster center positions for aggregate markers
+  const clusters = useMemo(
+    () => [
+      {
+        name: "Virgo Cluster",
+        position: toXYZ(283.8, 74.5, 54_000_000),
+        count: 16,
+        color: "#8ab4f8",
+      },
+      {
+        name: "Coma Cluster",
+        position: toXYZ(58.1, 87.9, 321_000_000),
+        count: 8,
+        color: "#f28b82",
+      },
+      {
+        name: "Perseus Cluster",
+        position: toXYZ(150.6, -13.3, 237_000_000),
+        count: 6,
+        color: "#fdd663",
+      },
+      {
+        name: "Fornax Cluster",
+        position: toXYZ(238.0, -54.6, 58_000_000),
+        count: 5,
+        color: "#81c995",
+      },
+    ],
+    [],
+  );
+
   return (
     <group>
       <ObservableUniverseShell />
-      <CosmicWeb />
+      {showCosmicWebDensity && <CosmicWeb />}
       <MilkyWayFarSprite />
-      {/* Andromeda is rendered in full particle detail by <Andromeda />, so
-          its low-resolution stand-in disc is skipped here. */}
-      {NEARBY_GALAXIES.filter((g) => g.name !== "Andromeda (M31)").map((g) => (
-        <NamedGalaxyDisc
-          key={g.name}
-          g={g}
-          spiralTex={spiralTex}
-          ellipTex={ellipTex}
-          irrTex={irrTex}
-        />
-      ))}
+
+      {/* Observed Extragalactic Catalog Nodes */}
+      {showObservedGalaxies && (
+        <group>
+          {NEARBY_GALAXIES.filter((g) => g.name !== "Andromeda (M31)").map((g) => (
+            <ObservationalGalaxyNode
+              key={g.id ?? g.name}
+              g={g}
+              spiralTex={spiralTex}
+              barredTex={barredTex}
+              ellipTex={ellipTex}
+              irrTex={irrTex}
+              highZTex={highZTex}
+            />
+          ))}
+
+          {/* Spatial cluster aggregate labels for large scales */}
+          {clusters.map((c) => (
+            <ClusterAggregateBillboard
+              key={c.name}
+              name={c.name}
+              position={c.position}
+              count={c.count}
+              color={c.color}
+            />
+          ))}
+        </group>
+      )}
     </group>
   );
 }

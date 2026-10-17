@@ -1,7 +1,7 @@
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Compass, Telescope, Orbit } from "lucide-react";
+import { Compass, Telescope, Orbit, Sparkles, Layers } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
@@ -14,6 +14,8 @@ import { scaleManager } from "@/lib/astronomy/scale-manager";
 import { GaiaAtlasPanel } from "./GaiaAtlasPanel";
 import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
 import { SolarSystemController } from "./SolarSystemController";
+import { GalaxySearchModal } from "./GalaxySearchModal";
+import { GalaxyCoverageDashboard } from "./GalaxyCoverageDashboard";
 
 export function InfoPanel() {
   const star = useStore((s) => s.selectedStar);
@@ -385,6 +387,29 @@ export function TopLeftControls() {
         <Telescope className="h-4 w-4 text-cyan-400" />
       </IconButton>
       <IconButton
+        title="Observational Extragalactic Atlas Search (NASA/IPAC NED)"
+        onClick={() => useStore.getState().setGalaxyAtlasSearchOpen(true)}
+      >
+        <Sparkles className="h-4 w-4 text-sky-400" />
+      </IconButton>
+      <IconButton
+        title="Galaxy Coverage & Cosmological Distance Dashboard"
+        onClick={() => useStore.getState().setGalaxyCoverageDashboardOpen(true)}
+      >
+        <Compass className="h-4 w-4 text-amber-400" />
+      </IconButton>
+      <IconButton
+        title={
+          useStore.getState().showCosmicWebDensity
+            ? "Simulated Cosmic Web Density: ON (Click to toggle)"
+            : "Simulated Cosmic Web Density: OFF (Click to toggle)"
+        }
+        onClick={() => useStore.getState().toggleCosmicWebDensity()}
+        active={useStore.getState().showCosmicWebDensity}
+      >
+        <Layers className="h-4 w-4 text-violet-400" />
+      </IconButton>
+      <IconButton
         title="Search all celestial objects"
         onClick={() => setSearchOpen((v) => !v)}
         active={searchOpen}
@@ -448,6 +473,8 @@ export function TopLeftControls() {
         onClose={() => setSolarControllerOpen(false)}
       />
       <GaiaAtlasPanel open={gaiaAtlasOpen} onClose={() => setGaiaAtlasOpen(false)} />
+      <GalaxySearchModal />
+      <GalaxyCoverageDashboard />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <GuidePanel open={guideOpen} onClose={() => setGuideOpen(false)} />
@@ -799,14 +826,28 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
     const planets: SearchHit[] = PLANETS.filter((p) => p.name.toLowerCase().includes(lower)).map(
       (p) => ({ kind: "planet", name: p.name, sub: `Planet · ${(p.a / AU).toFixed(2)} AU` }),
     );
-    const galaxies: SearchHit[] = NAMED_GALAXIES.filter((g) =>
-      g.name.toLowerCase().includes(lower),
-    ).map((g) => ({
-      kind: "galaxy",
-      name: g.name,
-      sub: `Galaxy · ${g.distance >= 1_000_000 ? (g.distance / 1_000_000).toFixed(2) + " Mly" : (g.distance / 1000).toFixed(0) + " kly"}`,
-      galaxy: g,
-    }));
+    const galaxies: SearchHit[] = NAMED_GALAXIES.filter((g) => {
+      const gAny = g as any;
+      const aliases: string[] = gAny.aliases ?? [];
+      const pref: string = gAny.preferredName ?? "";
+      return (
+        g.name.toLowerCase().includes(lower) ||
+        pref.toLowerCase().includes(lower) ||
+        aliases.some((a) => a.toLowerCase().includes(lower))
+      );
+    }).map((g) => {
+      const gAny = g as any;
+      const zStr =
+        gAny.redshift !== undefined
+          ? ` · z=${gAny.redshift < 0 ? gAny.redshift.toFixed(4) : gAny.redshift.toFixed(3)}`
+          : "";
+      return {
+        kind: "galaxy" as const,
+        name: g.name,
+        sub: `${g.type} · ${g.distance >= 1_000_000_000 ? (g.distance / 1_000_000_000).toFixed(2) + " Gly" : g.distance >= 1_000_000 ? (g.distance / 1_000_000).toFixed(2) + " Mly" : (g.distance / 1000).toFixed(0) + " kly"}${zStr}`,
+        galaxy: g,
+      };
+    });
     const objects: SearchHit[] = OBSERVED_OBJECTS.filter((o) =>
       [o.name, o.category, o.subtype, ...o.aliases].some((v) => v.toLowerCase().includes(lower)),
     ).map((o) => ({
@@ -1218,8 +1259,34 @@ export function GalaxyNavigator() {
       >
         <div className="flex max-w-[min(92vw,940px)] items-center gap-1 overflow-x-auto rounded-full border border-white/10 bg-black/50 px-2 py-1.5 backdrop-blur-md">
           <span className="whitespace-nowrap px-2 text-[10px] uppercase tracking-[0.25em] text-white/40">
-            Visit Galaxy
+            Observational Atlas
           </span>
+          <button
+            onClick={() => useStore.getState().setGalaxyAtlasSearchOpen(true)}
+            title="Multi-dimensional Observational Galaxy Search (Name, Redshift, Distance, Morphology, Cluster)"
+            className="flex items-center gap-1 whitespace-nowrap rounded-full bg-sky-500/20 px-2.5 py-1 text-[11px] font-medium text-sky-300 transition hover:bg-sky-500/30"
+          >
+            <span>🔍 Search Atlas</span>
+          </button>
+          <button
+            onClick={() => useStore.getState().setGalaxyCoverageDashboardOpen(true)}
+            title="Galaxy Coverage & Cosmological Distance Dashboard"
+            className="flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-500/20 px-2.5 py-1 text-[11px] font-medium text-amber-300 transition hover:bg-amber-500/30"
+          >
+            <span>📊 Dashboard</span>
+          </button>
+          <button
+            onClick={() => useStore.getState().toggleCosmicWebDensity()}
+            title="Toggle between Simulated Cosmic Web Filaments and Observed Galaxies"
+            className={`whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] transition ${
+              useStore.getState().showCosmicWebDensity
+                ? "bg-violet-500/25 text-violet-300 border border-violet-500/30"
+                : "text-white/50 hover:bg-white/5 hover:text-white"
+            }`}
+          >
+            🕸 Web {useStore.getState().showCosmicWebDensity ? "ON" : "OFF"}
+          </button>
+          <div className="h-3 w-px bg-white/20 mx-0.5" />
           <button
             onClick={(e) => {
               e.stopPropagation();

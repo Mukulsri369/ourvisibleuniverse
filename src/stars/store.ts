@@ -143,6 +143,19 @@ interface State {
   setPlanetVisibilityMagnification: (n: number) => void;
   toggleGalacticDrift: () => void;
   setEphemerisModel: (model: "horizons_de440" | "analytical_osculating") => void;
+  // Observational Galaxy Atlas & Cosmology enhancements
+  showCosmicWebDensity: boolean;
+  showObservedGalaxies: boolean;
+  galaxyAtlasSearchOpen: boolean;
+  galaxyCoverageDashboardOpen: boolean;
+  cosmologyModelKey: "planck2018" | "shoes2022" | "wmap9" | "custom";
+  customCosmology: { h0: number; omegaM: number; omegaLambda: number };
+  toggleCosmicWebDensity: () => void;
+  toggleObservedGalaxies: () => void;
+  setGalaxyAtlasSearchOpen: (open: boolean) => void;
+  setGalaxyCoverageDashboardOpen: (open: boolean) => void;
+  setCosmologyModelKey: (key: "planck2018" | "shoes2022" | "wmap9" | "custom") => void;
+  setCustomCosmology: (params: { h0: number; omegaM: number; omegaLambda: number }) => void;
 }
 
 // Andromeda has a fully modelled star system (PA-99-N2), so visiting it
@@ -331,4 +344,16 @@ export const useStore = create<State>((set, get) => ({
   setPlanetVisibilityMagnification: (n) => set({ planetVisibilityMagnification: n }),
   toggleGalacticDrift: () => set((st) => ({ showGalacticDrift: !st.showGalacticDrift })),
   setEphemerisModel: (model) => set({ ephemerisModel: model }),
+  showCosmicWebDensity: true,
+  showObservedGalaxies: true,
+  galaxyAtlasSearchOpen: false,
+  galaxyCoverageDashboardOpen: false,
+  cosmologyModelKey: "planck2018",
+  customCosmology: { h0: 70.0, omegaM: 0.3, omegaLambda: 0.7 },
+  toggleCosmicWebDensity: () => set((st) => ({ showCosmicWebDensity: !st.showCosmicWebDensity })),
+  toggleObservedGalaxies: () => set((st) => ({ showObservedGalaxies: !st.showObservedGalaxies })),
+  setGalaxyAtlasSearchOpen: (open) => set({ galaxyAtlasSearchOpen: open }),
+  setGalaxyCoverageDashboardOpen: (open) => set({ galaxyCoverageDashboardOpen: open }),
+  setCosmologyModelKey: (key) => set({ cosmologyModelKey: key }),
+  setCustomCosmology: (params) => set({ customCosmology: params }),
 }));
