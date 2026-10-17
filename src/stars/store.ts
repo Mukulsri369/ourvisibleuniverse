@@ -274,6 +274,8 @@ interface State {
   cosmicJourneyOpen: boolean;
   setCosmicJourneyOpen: (open: boolean) => void;
   toggleCosmicJourney: () => void;
+  catalogDashboardOpen: boolean;
+  setCatalogDashboardOpen: (open: boolean) => void;
 }
 
 export type UniversalTargetType =

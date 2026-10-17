@@ -59,6 +59,9 @@ export function SiteFooter() {
             <Link to="/galaxies" className="hover:text-white transition-colors">
               Galaxies (3D)
             </Link>
+            <Link to="/catalog-status" className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium">
+              Catalog Status
+            </Link>
             <Link to="/about" className="hover:text-white transition-colors">
               About
             </Link>
