@@ -181,6 +181,127 @@ export function ObservedObjectInfoPanel() {
                   </p>
                 </div>
               )}
+              {item.compactPhysics && (
+                <div className="mt-7 rounded-xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-slate-950/60 to-purple-950/30 p-4 shadow-lg backdrop-blur">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300">
+                      <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                      Relativistic Compact Physics
+                    </div>
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-white/10 text-cyan-200 border border-white/10">
+                      {item.compactPhysics.scientificConfidence}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    {item.compactPhysics.massSolar !== undefined && (
+                      <div className="rounded-lg bg-black/40 border border-white/5 p-2">
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">Mass:</span>
+                        <span className="font-mono text-white font-semibold">
+                          {item.compactPhysics.massSolar >= 1e6
+                            ? `${(item.compactPhysics.massSolar / 1e6).toFixed(2)}M M☉`
+                            : `${item.compactPhysics.massSolar.toLocaleString()} M☉`}
+                        </span>
+                      </div>
+                    )}
+                    {item.compactPhysics.spinDimensionless !== undefined && (
+                      <div className="rounded-lg bg-black/40 border border-white/5 p-2">
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">Kerr Spin (a*):</span>
+                        <span className="font-mono text-amber-300 font-semibold">
+                          {item.compactPhysics.spinDimensionless.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    {item.compactPhysics.schwarzschildRadiusKm !== undefined && (
+                      <div className="rounded-lg bg-black/40 border border-white/5 p-2">
+                        <span className="text-[9px] uppercase tracking-wider text-white/40 block">Event Horizon (Rs):</span>
+                        <span className="font-mono text-cyan-200 font-semibold">
+                          {item.compactPhysics.schwarzschildRadiusKm >= 1e6
+                            ? `${(item.compactPhysics.schwarzschildRadiusKm / 1e6).toFixed(2)}M km`
+                            : `${item.compactPhysics.schwarzschildRadiusKm.toLocaleString()} km`}
+                        </span>
+                      </div>
+                    )}
+                    <div className="rounded-lg bg-black/40 border border-white/5 p-2">
+                      <span className="text-[9px] uppercase tracking-wider text-white/40 block">Accretion State:</span>
+                      <span className={`font-mono font-semibold capitalize ${
+                        item.compactPhysics.hasAccretionDisk ? "text-amber-300" : "text-emerald-400"
+                      }`}>
+                        {item.compactPhysics.accretionState.replace("_", " ")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Pulsar Specific Metrics */}
+                  {item.compactPhysics.pulsarSpinPeriodSec !== undefined && (
+                    <div className="mt-2.5 p-2.5 rounded-lg bg-black/30 border border-cyan-500/20 text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-white/50">Spin Period (P):</span>
+                        <span className="font-mono text-cyan-300 font-medium">
+                          {item.compactPhysics.pulsarSpinPeriodSec < 0.1
+                            ? `${(item.compactPhysics.pulsarSpinPeriodSec * 1000).toFixed(2)} ms`
+                            : `${item.compactPhysics.pulsarSpinPeriodSec.toFixed(4)} s`}
+                        </span>
+                      </div>
+                      {item.compactPhysics.pulsarMagneticFieldGauss && (
+                        <div className="flex justify-between">
+                          <span className="text-white/50">Dipole B-Field:</span>
+                          <span className="font-mono text-purple-300 font-medium">
+                            {item.compactPhysics.pulsarMagneticFieldGauss.toExponential(1)} Gauss
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Gravitational Wave Specific Metrics */}
+                  {item.compactPhysics.gwSkyAreaDeg2 !== undefined && (
+                    <div className="mt-2.5 p-2.5 rounded-lg bg-black/30 border border-purple-500/20 text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-white/50">90% Sky Localization:</span>
+                        <span className="font-mono text-purple-300 font-medium">
+                          {item.compactPhysics.gwSkyAreaDeg2} deg²
+                        </span>
+                      </div>
+                      {item.compactPhysics.gwChirpMassSolar && (
+                        <div className="flex justify-between">
+                          <span className="text-white/50">Chirp Mass (ℳ):</span>
+                          <span className="font-mono text-amber-300 font-medium">
+                            {item.compactPhysics.gwChirpMassSolar} M☉
+                          </span>
+                        </div>
+                      )}
+                      {item.compactPhysics.gwRadiatedEnergySolar && (
+                        <div className="flex justify-between">
+                          <span className="text-white/50">Radiated Energy:</span>
+                          <span className="font-mono text-cyan-300 font-medium">
+                            {item.compactPhysics.gwRadiatedEnergySolar} M☉ c²
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Accretion & Lensing Distinction Note */}
+                  <div className="mt-3 border-t border-white/10 pt-2 text-[10.5px] leading-relaxed text-white/70">
+                    {!item.compactPhysics.hasAccretionDisk ? (
+                      <p className="text-emerald-300/90">
+                        <strong className="text-emerald-200">Non-Accreting / Dormant System:</strong> This compact body does not pull matter from its surroundings. It has NO glowing accretion disk and is rendered purely via strong-field gravitational deflection and background star lensing.
+                      </p>
+                    ) : (
+                      <p className="text-amber-200/90">
+                        <strong className="text-amber-100">Active Accretion Engine:</strong> Infalling matter experiences Keplerian orbital shear, extreme viscous dissipation, gravitational redshift, and relativistic Doppler boosting.
+                      </p>
+                    )}
+                  </div>
+
+                  {item.compactPhysics.publishedCitation && (
+                    <div className="mt-2 text-[9.5px] text-white/40 border-t border-white/5 pt-1.5 truncate" title={item.compactPhysics.publishedCitation}>
+                      <span className="text-white/60">Citation:</span> {item.compactPhysics.publishedCitation}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="mt-7 rounded-lg border border-white/10 bg-white/[0.03] p-3">
                 <div className="text-[10px] uppercase tracking-[0.18em] text-white/40">
                   Visual interpretation

@@ -3,6 +3,7 @@ import type { NamedStar } from "./data";
 import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
 import { GALAXY_BY_NAME, systemViewDistance, systemWorldPosition } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition, objectVisitDistance } from "./observed-objects";
+import { COSMIC_BENCHMARKS } from "@/lib/astronomy/cosmic-web/survey-catalogs";
 
 export type TourStop = {
   name: string;
@@ -156,6 +157,44 @@ interface State {
   setGalaxyCoverageDashboardOpen: (open: boolean) => void;
   setCosmologyModelKey: (key: "planck2018" | "shoes2022" | "wmap9" | "custom") => void;
   setCustomCosmology: (params: { h0: number; omegaM: number; omegaLambda: number }) => void;
+  // Large-Scale Structure & Hybrid Cosmic Web Explorer State
+  cosmicWebMode: "observational" | "simulation" | "off";
+  selectedSurveys: Record<string, boolean>;
+  redshiftFilter: [number, number];
+  showSurveyFootprints: boolean;
+  showZoneOfAvoidance: boolean;
+  selectedCosmicBenchmarkId: string | null;
+  showCosmicBenchmarks: boolean;
+  simulationComponent: "all" | "dark_matter" | "gas" | "filaments" | "clusters";
+  showSimulationFilaments: boolean;
+  showSimulationVoids: boolean;
+  showSimulationBoundingBox: boolean;
+  selectedSimHaloId: number | null;
+  selectedSimVoidId: number | null;
+  catalogDensityLevel: number;
+  cosmicWebExplorerOpen: boolean;
+  guidedJourneyActive: boolean;
+  guidedJourneyStep: number;
+  setCosmicWebMode: (mode: "observational" | "simulation" | "off") => void;
+  toggleSurvey: (survey: string) => void;
+  setRedshiftFilter: (range: [number, number]) => void;
+  toggleSurveyFootprints: () => void;
+  toggleZoneOfAvoidance: () => void;
+  setSelectedCosmicBenchmarkId: (id: string | null) => void;
+  toggleCosmicBenchmarks: () => void;
+  setSimulationComponent: (comp: "all" | "dark_matter" | "gas" | "filaments" | "clusters") => void;
+  toggleSimulationFilaments: () => void;
+  toggleSimulationVoids: () => void;
+  toggleSimulationBoundingBox: () => void;
+  setSelectedSimHaloId: (id: number | null) => void;
+  setSelectedSimVoidId: (id: number | null) => void;
+  setCatalogDensityLevel: (level: number) => void;
+  setCosmicWebExplorerOpen: (open: boolean) => void;
+  startGuidedJourney: () => void;
+  setGuidedJourneyStep: (step: number) => void;
+  nextGuidedJourneyStep: () => void;
+  prevGuidedJourneyStep: () => void;
+  stopGuidedJourney: () => void;
   // Optics & Advanced Rendering State
   observerMode: "vacuum" | "atmosphere";
   opticsPreset: "scientific" | "cinematic";
@@ -190,6 +229,8 @@ interface State {
   setRenderingQualityTier: (tier: "scientific_high" | "standard" | "performance") => void;
   setOpticsModalOpen: (open: boolean) => void;
   setBenchmarkModalOpen: (open: boolean) => void;
+  compactObjectModalOpen: boolean;
+  setCompactObjectModalOpen: (open: boolean) => void;
   setPerformanceStats: (stats: {
     fps: number;
     drawCalls: number;
@@ -236,6 +277,153 @@ function withFocus(g: VisitGalaxy): VisitGalaxy {
   }
   return g;
 }
+
+function toGalacticXYZ(l: number, b: number, d: number) {
+  const lr = (l * Math.PI) / 180;
+  const br = (b * Math.PI) / 180;
+  const x = -d * Math.cos(br) * Math.cos(lr);
+  const y = d * Math.sin(br);
+  const z = d * Math.cos(br) * Math.sin(lr);
+  return { x, y, z };
+}
+
+export interface GuidedJourneyStep {
+  id: string;
+  title: string;
+  subtitle: string;
+  scaleDescription: string;
+  distanceLy: number;
+  cameraDistance: number;
+  targetPos: { x: number; y: number; z: number };
+  lookbackTimeText: string;
+  redshiftText: string;
+  cosmicEpoch: string;
+  scientificDescription: string;
+  keyPhenomena: string[];
+}
+
+export const GUIDED_JOURNEY_STEPS: GuidedJourneyStep[] = [
+  {
+    id: "milky_way",
+    title: "1. The Milky Way Galaxy",
+    subtitle: "Our Home Stellar Island",
+    scaleDescription: "100,000 Light-Years (30 kpc)",
+    distanceLy: 100_000,
+    cameraDistance: 160_000,
+    targetPos: { x: -26000, y: 0, z: 0 },
+    lookbackTimeText: "0 to 100,000 Years",
+    redshiftText: "z ≈ 0.000",
+    cosmicEpoch: "Present Day (t = 13.8 Gyr)",
+    scientificDescription:
+      "A barred spiral galaxy (SBbc) containing 200–400 billion stars and 100+ billion planets. The Sun orbits 26,000 light-years from the supermassive black hole Sagittarius A* (4.15 million solar masses) at 220 km/s.",
+    keyPhenomena: [
+      "Stellar thin & thick disks",
+      "Spiral density waves (Scutum-Centaurus, Perseus arms)",
+      "Central supermassive black hole (Sgr A*)",
+      "Dark matter halo (~10^12 M_sun)",
+    ],
+  },
+  {
+    id: "local_group",
+    title: "2. The Local Group",
+    subtitle: "Gravitationally Bound Family",
+    scaleDescription: "10 Million Light-Years (3 Mpc)",
+    distanceLy: 10_000_000,
+    cameraDistance: 8_000_000,
+    targetPos: { x: 0, y: 0, z: 0 },
+    lookbackTimeText: "0 to 10 Million Years",
+    redshiftText: "z ≈ -0.001 to +0.001",
+    cosmicEpoch: "Present Epoch Bound Structure",
+    scientificDescription:
+      "A gravitationally bound cluster of 80+ galaxies dominated by two behemoths: the Milky Way and Andromeda (M31, 2.537 Mly). M31 is approaching us at ~300 km/s (negative redshift) and will merge with the Milky Way in ~4.5 billion years.",
+    keyPhenomena: [
+      "Milky Way – Andromeda gravitational infall",
+      "Triangulum (M33) and dwarf spheroidal satellites",
+      "Intragroup hot plasma & Magellanic Stream",
+      "Gravitational decoupling from Hubble cosmic expansion",
+    ],
+  },
+  {
+    id: "virgo_cluster",
+    title: "3. The Virgo Cluster & Supercluster",
+    subtitle: "The Local Cosmic Metropolis",
+    scaleDescription: "54 Million Light-Years (16.5 Mpc)",
+    distanceLy: 54_000_000,
+    cameraDistance: 35_000_000,
+    targetPos: toGalacticXYZ(283.8, 74.5, 54_000_000),
+    lookbackTimeText: "54 Million Years",
+    redshiftText: "z = 0.0038 (v_rec ≈ 1,150 km/s)",
+    cosmicEpoch: "Local Supercluster Virialized Core",
+    scientificDescription:
+      "The massive physical heart of our local extragalactic environment. Contains over 1,500 member galaxies dominated by giant elliptical M87 (hosting a 6.5-billion solar mass black hole). Its gravitational pull produces a ~200 km/s 'Virgocentric infall' of the Local Group.",
+    keyPhenomena: [
+      "Giant elliptical core (M87 with relativistic jet)",
+      "High velocity dispersion (sigma ~ 700 km/s)",
+      "X-ray emitting intracluster medium (10^7 K)",
+      "Tidal stripping and ram-pressure galaxy quenching",
+    ],
+  },
+  {
+    id: "laniakea",
+    title: "4. Laniakea Supercluster Watershed",
+    subtitle: "Our Immense Cosmic Flow Basin",
+    scaleDescription: "520 Million Light-Years (160 Mpc)",
+    distanceLy: 520_000_000,
+    cameraDistance: 320_000_000,
+    targetPos: toGalacticXYZ(290.0, 40.0, 250_000_000),
+    lookbackTimeText: "250–520 Million Years",
+    redshiftText: "z ≈ 0.012 - 0.040",
+    cosmicEpoch: "Peculiar Velocity Watershed",
+    scientificDescription:
+      "Identified by Tully et al. (2014) through Cosmicflows peculiar velocity streamlines. Encompasses 100,000 galaxies across 520 Mly streaming toward the Great Attractor (Norma Cluster) and Centaurus basin. Unlike clusters, Laniakea is not gravitationally bound and will be torn apart by dark energy.",
+    keyPhenomena: [
+      "Peculiar velocity divergence boundary (watershed)",
+      "Great Attractor gravitational anomaly",
+      "Shapley Supercluster pull in background",
+      "Dark energy expansion overcoming gravitational binding",
+    ],
+  },
+  {
+    id: "cosmic_web",
+    title: "5. The Cosmic Web & Sloan Great Wall",
+    subtitle: "Filaments, Cluster Nodes & Vast Voids",
+    scaleDescription: "1.4 Billion Light-Years (430 Mpc)",
+    distanceLy: 1_400_000_000,
+    cameraDistance: 1_200_000_000,
+    targetPos: toGalacticXYZ(295.0, 67.0, 1_020_000_000),
+    lookbackTimeText: "1.0–1.4 Billion Years",
+    redshiftText: "z ≈ 0.073 - 0.100",
+    cosmicEpoch: "Large-Scale Structure Web",
+    scientificDescription:
+      "The fundamental architecture of matter in the cosmos. Massive dark matter filaments act as gravitational highways channeling gas and galaxies into rich nodes (Coma, Perseus), while gigantic underdense voids (such as the 330 Mly Boötes Void) occupy over 60% of cosmic volume. Mapped by SDSS DR18 and 2dFGRS surveys.",
+    keyPhenomena: [
+      "Sloan Great Wall (1.37 Gly sheet of galaxies)",
+      "Boötes Void (330 Mly near-empty sphere)",
+      "Anisotropic gravitational collapse along Zel'dovich pancakes",
+      "Two-point galaxy correlation xi(r) = (r_0/r)^1.8",
+    ],
+  },
+  {
+    id: "observable_universe",
+    title: "6. The Observable Universe Horizon",
+    subtitle: "Comoving Particle Horizon & Cosmic Dawn",
+    scaleDescription: "93 Billion Light-Years Diameter (46.5 Gly Radius)",
+    distanceLy: 46_500_000_000,
+    cameraDistance: 42_000_000_000,
+    targetPos: { x: 0, y: 0, z: 0 },
+    lookbackTimeText: "13.8 Billion Years (Cosmic Dawn)",
+    redshiftText: "z = 1,100 (CMB Recombination)",
+    cosmicEpoch: "Cosmic Recombination (t = 380,000 yr)",
+    scientificDescription:
+      "The boundary of everything we can causally observe. Because space has expanded during light's 13.8 billion-year journey, the comoving radius is now 46.5 billion light-years (4.4e26 m). At this outer shell lies the Cosmic Microwave Background (z=1100), the afterglow of the Big Bang when electrons and protons first formed neutral hydrogen atoms.",
+    keyPhenomena: [
+      "Comoving particle horizon (46.5 Gly from FLRW metric)",
+      "Expanding space distinction: D_L > D_C > c*t_L > D_A",
+      "Cosmic Microwave Background (CMB, T = 2.7255 K)",
+      "Cosmic Dawn (JWST record galaxies at z > 14)",
+    ],
+  },
+];
 
 export const useStore = create<State>((set, get) => ({
   selectedStar: null,
@@ -397,6 +585,109 @@ export const useStore = create<State>((set, get) => ({
   setGalaxyCoverageDashboardOpen: (open) => set({ galaxyCoverageDashboardOpen: open }),
   setCosmologyModelKey: (key) => set({ cosmologyModelKey: key }),
   setCustomCosmology: (params) => set({ customCosmology: params }),
+  // Large-Scale Structure & Hybrid Cosmic Web Explorer
+  cosmicWebMode: "observational",
+  selectedSurveys: {
+    sdss_dr18: true,
+    "2dfgrs": true,
+    "2mrs": true,
+    cosmicflows: true,
+    deep_fields: true,
+  },
+  redshiftFilter: [0, 1.0],
+  showSurveyFootprints: true,
+  showZoneOfAvoidance: true,
+  selectedCosmicBenchmarkId: null,
+  showCosmicBenchmarks: true,
+  simulationComponent: "all",
+  showSimulationFilaments: true,
+  showSimulationVoids: true,
+  showSimulationBoundingBox: true,
+  selectedSimHaloId: null,
+  selectedSimVoidId: null,
+  catalogDensityLevel: 15000,
+  cosmicWebExplorerOpen: false,
+  guidedJourneyActive: false,
+  guidedJourneyStep: 0,
+  setCosmicWebMode: (mode) => set({ cosmicWebMode: mode }),
+  toggleSurvey: (survey) =>
+    set((st) => ({
+      selectedSurveys: {
+        ...st.selectedSurveys,
+        [survey]: !st.selectedSurveys[survey],
+      },
+    })),
+  setRedshiftFilter: (range) => set({ redshiftFilter: range }),
+  toggleSurveyFootprints: () =>
+    set((st) => ({ showSurveyFootprints: !st.showSurveyFootprints })),
+  toggleZoneOfAvoidance: () =>
+    set((st) => ({ showZoneOfAvoidance: !st.showZoneOfAvoidance })),
+  setSelectedCosmicBenchmarkId: (id) => {
+    set({ selectedCosmicBenchmarkId: id });
+    if (!id) return;
+    const bench = COSMIC_BENCHMARKS.find((b) => b.id === id);
+    if (bench) {
+      const pos = toGalacticXYZ(bench.l, bench.b, bench.distanceGlyPlanck * 1e9);
+      set({
+        flyTo: {
+          x: pos.x,
+          y: pos.y,
+          z: pos.z,
+          distance: Math.max(bench.diameterMly * 1.5e6, 500000),
+        },
+      });
+    }
+  },
+  toggleCosmicBenchmarks: () =>
+    set((st) => ({ showCosmicBenchmarks: !st.showCosmicBenchmarks })),
+  setSimulationComponent: (comp) => set({ simulationComponent: comp }),
+  toggleSimulationFilaments: () =>
+    set((st) => ({ showSimulationFilaments: !st.showSimulationFilaments })),
+  toggleSimulationVoids: () =>
+    set((st) => ({ showSimulationVoids: !st.showSimulationVoids })),
+  toggleSimulationBoundingBox: () =>
+    set((st) => ({ showSimulationBoundingBox: !st.showSimulationBoundingBox })),
+  setSelectedSimHaloId: (id) => set({ selectedSimHaloId: id }),
+  setSelectedSimVoidId: (id) => set({ selectedSimVoidId: id }),
+  setCatalogDensityLevel: (level) => set({ catalogDensityLevel: level }),
+  setCosmicWebExplorerOpen: (open) => set({ cosmicWebExplorerOpen: open }),
+  startGuidedJourney: () => {
+    const step = GUIDED_JOURNEY_STEPS[0];
+    set({
+      guidedJourneyActive: true,
+      guidedJourneyStep: 0,
+      cosmicWebMode: "observational",
+      flyTo: {
+        x: step.targetPos.x,
+        y: step.targetPos.y,
+        z: step.targetPos.z,
+        distance: step.cameraDistance,
+      },
+    });
+  },
+  setGuidedJourneyStep: (stepIdx) => {
+    const idx = Math.max(0, Math.min(GUIDED_JOURNEY_STEPS.length - 1, stepIdx));
+    const step = GUIDED_JOURNEY_STEPS[idx];
+    set({
+      guidedJourneyStep: idx,
+      guidedJourneyActive: true,
+      flyTo: {
+        x: step.targetPos.x,
+        y: step.targetPos.y,
+        z: step.targetPos.z,
+        distance: step.cameraDistance,
+      },
+    });
+  },
+  nextGuidedJourneyStep: () => {
+    const nextIdx = Math.min(GUIDED_JOURNEY_STEPS.length - 1, get().guidedJourneyStep + 1);
+    get().setGuidedJourneyStep(nextIdx);
+  },
+  prevGuidedJourneyStep: () => {
+    const prevIdx = Math.max(0, get().guidedJourneyStep - 1);
+    get().setGuidedJourneyStep(prevIdx);
+  },
+  stopGuidedJourney: () => set({ guidedJourneyActive: false }),
   // Optics & Advanced Rendering initial state & actions
   observerMode: "vacuum",
   opticsPreset: "scientific",
@@ -439,5 +730,7 @@ export const useStore = create<State>((set, get) => ({
   setRenderingQualityTier: (tier) => set({ renderingQualityTier: tier }),
   setOpticsModalOpen: (open) => set({ opticsModalOpen: open }),
   setBenchmarkModalOpen: (open) => set({ benchmarkModalOpen: open }),
+  compactObjectModalOpen: false,
+  setCompactObjectModalOpen: (open) => set({ compactObjectModalOpen: open }),
   setPerformanceStats: (stats) => set({ performanceStats: stats }),
 }));

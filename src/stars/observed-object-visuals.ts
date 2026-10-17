@@ -17,10 +17,14 @@ export type ObservedMorphology =
   | "radio-pulsar"
   | "magnetar"
   | "neutron-binary"
+  | "thermal-neutron-star"
+  | "dormant-blackhole"
+  | "kerr-blackhole"
   | "eht-ring"
   | "eht-jet"
   | "xray-binary"
   | "merger"
+  | "gw-localization"
   | "white-dwarf"
   | "triple-ring"
   | "red-supergiant"
@@ -39,6 +43,12 @@ export type ObservedVisualProfile = {
   pulsePeriod?: number;
   beamTilt?: number;
   jetLength?: number;
+  magneticTilt?: number;
+  rayTraceMode?: "analytical" | "geodesic";
+  gwSkyAreaDeg2?: number;
+  companionDist?: number;
+  companionColor?: string;
+  diskOpacity?: number;
 };
 
 const p = (profile: ObservedVisualProfile) => profile;
@@ -112,6 +122,37 @@ export const OBSERVED_VISUAL_PROFILES: Record<string, ObservedVisualProfile> = {
     tilt: [0.45, 0.15, 0.12],
     stretch: [1, 0.86, 0.92],
     particleCount: 4500,
+  }),
+  cats_eye: p({
+    morphology: "nested-shells",
+    seed: 6543,
+    tilt: [0.45, 0.15, 0.12],
+    stretch: [1, 0.86, 0.92],
+    particleCount: 4500,
+  }),
+  pleiades_nebula: p({
+    morphology: "orion-cloud",
+    seed: 1432,
+    tilt: [0.2, 0.1, 0.3],
+    particleCount: 3800,
+  }),
+  witch_head: p({
+    morphology: "cosmic-cliffs",
+    seed: 1909,
+    tilt: [0.35, -0.2, 0.1],
+    particleCount: 3600,
+  }),
+  horsehead: p({
+    morphology: "pillars",
+    seed: 434,
+    tilt: [0.1, 0.25, 0],
+    particleCount: 4200,
+  }),
+  barnard68: p({
+    morphology: "nested-shells",
+    seed: 68,
+    tilt: [0, 0, 0],
+    particleCount: 3200,
   }),
   butterfly: p({
     morphology: "butterfly",
@@ -198,7 +239,107 @@ export const OBSERVED_VISUAL_PROFILES: Record<string, ObservedVisualProfile> = {
     spin: 0.75,
     jetLength: 0.8,
   }),
-  gw150914: p({ morphology: "merger", seed: 150914, tilt: [0.35, 0.25, 0.2], spin: 0.7 }),
+  gaiabh1: p({
+    morphology: "dormant-blackhole",
+    seed: 1560,
+    tilt: [0.2, 0.4, 0.1],
+    spin: 0.05,
+    companionDist: 0.85,
+    companionColor: "#ffe9a8",
+  }),
+  gaiabh3: p({
+    morphology: "dormant-blackhole",
+    seed: 1926,
+    tilt: [-0.15, 0.35, -0.2],
+    spin: 0.02,
+    companionDist: 1.15,
+    companionColor: "#ffcf87",
+  }),
+  "v404-cyg": p({
+    morphology: "xray-binary",
+    seed: 404,
+    tilt: [0.78, -0.3, 0.22],
+    spin: 0.9,
+    jetLength: 1.1,
+  }),
+  hlx1: p({
+    morphology: "eht-ring",
+    seed: 24349,
+    tilt: [0.55, 0.18, 0.3],
+    spin: 0.48,
+    jetLength: 0.7,
+  }),
+  gw190521: p({
+    morphology: "gw-localization",
+    seed: 190521,
+    tilt: [0.4, 0.2, -0.3],
+    spin: 0.69,
+    gwSkyAreaDeg2: 765,
+  }),
+  grs1915: p({
+    morphology: "kerr-blackhole",
+    seed: 1915,
+    tilt: [1.1, 0.15, -0.25],
+    spin: 0.98,
+    jetLength: 1.9,
+  }),
+  "rx-j1856": p({
+    morphology: "thermal-neutron-star",
+    seed: 1856,
+    tilt: [0.1, 0.1, 0],
+    spin: 0.01,
+  }),
+  "psr-j0437": p({
+    morphology: "radio-pulsar",
+    seed: 437,
+    tilt: [0.35, 0.8, 0.2],
+    spin: 1.6,
+    pulsePeriod: 0.00576,
+    beamTilt: 0.72,
+  }),
+  "swift-j1818": p({
+    morphology: "magnetar",
+    seed: 1818,
+    tilt: [0.5, 0.2, 0.4],
+    spin: 0.45,
+    pulsePeriod: 1.36,
+  }),
+  "procyon-b": p({
+    morphology: "white-dwarf",
+    seed: 2011,
+    tilt: [0, 0, 0],
+    spin: 0.02,
+  }),
+  "cas-a": p({
+    morphology: "filament-remnant",
+    seed: 1680,
+    tilt: [0.22, 0.38, -0.15],
+    stretch: [1.05, 0.95, 1.0],
+    particleCount: 5200,
+    filamentCount: 44,
+  }),
+  cas_a: p({
+    morphology: "filament-remnant",
+    seed: 1680,
+    tilt: [0.22, 0.38, -0.15],
+    stretch: [1.05, 0.95, 1.0],
+    particleCount: 5200,
+    filamentCount: 44,
+  }),
+  gw170817: p({
+    morphology: "gw-localization",
+    seed: 170817,
+    tilt: [0.2, 0.6, -0.1],
+    spin: 0.3,
+    gwSkyAreaDeg2: 31,
+  }),
+  gw150914: p({
+    morphology: "gw-localization",
+    seed: 150914,
+    tilt: [0.35, 0.25, 0.2],
+    spin: 0.7,
+    gwSkyAreaDeg2: 230,
+  }),
   siriusb: p({ morphology: "white-dwarf", seed: 642166, tilt: [0, 0, 0], spin: 0.03 }),
   sn1987a: p({
     morphology: "triple-ring",

@@ -576,7 +576,10 @@ void main() {
   float r = length(p);
   float ang = atan(p.y, p.x);
   float shadow = 0.19;
-  if (r < shadow) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
+  // Kerr asymmetric shadow: prograde frame-dragging flattens the approaching side (D-shape silhouette)
+  float kerrOffset = uSpin * 0.038 * (p.x / max(r, 0.01));
+  float kerrShadow = shadow - kerrOffset;
+  if (r < kerrShadow) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
   // Photon ring at the critical curve
   float ring = exp(-pow((r - 0.205) / 0.006, 2.0)) * 1.6;
   ring += exp(-pow((r - 0.214) / 0.003, 2.0)) * 0.8; // secondary (n=2) image
@@ -622,6 +625,60 @@ function LensingHalo({ color, spin }: { color: string; spin: number }) {
         <shaderMaterial
           vertexShader={LENS_VERT}
           fragmentShader={LENS_FRAG}
+          uniforms={uniforms}
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </Billboard>
+  );
+}
+
+// Pure gravitational deflection for dormant / non-accreting black holes (Gaia BH1, Gaia BH3)
+// Features knife-edge photon ring, primary and secondary Einstein rings, zero hot plasma accretion.
+const DORMANT_LENS_FRAG = /* glsl */ `
+uniform vec3 uColor;
+uniform float uTime;
+varying vec2 vUv;
+void main() {
+  vec2 p = vUv;
+  float r = length(p);
+  float shadow = 0.19; // Event horizon shadow (apparent ~2.6 r_s)
+  if (r < shadow) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
+  // Thin photon ring at critical impact parameter b_crit ≈ 2.6 r_s
+  float ring = exp(-pow((r - 0.205) / 0.005, 2.0)) * 1.8;
+  // Primary Einstein ring of deflected background starlight
+  float ein = exp(-pow((r - 0.44) / 0.032, 2.0)) * 0.52;
+  // Secondary inner Einstein ring
+  float secondary = exp(-pow((r - 0.235) / 0.009, 2.0)) * 0.32;
+  // Weak background starfield deflection gradient
+  float defl = (1.0 - smoothstep(0.19, 0.65, r)) * 0.12;
+  vec3 starlight = mix(vec3(0.88, 0.94, 1.0), uColor, 0.2);
+  vec3 col = starlight * (ring + ein + secondary + defl);
+  float a = clamp(ring + ein + secondary + defl, 0.0, 1.0);
+  a *= (1.0 - smoothstep(0.75, 1.0, r));
+  gl_FragColor = vec4(col, a);
+}`;
+
+function DormantLensingHalo({ color }: { color: string }) {
+  const uniforms = useMemo(
+    () => ({
+      uColor: { value: new THREE.Color(color) },
+      uTime: { value: 0 },
+    }),
+    [color],
+  );
+  useFrame(({ clock }) => {
+    uniforms.uTime.value = clock.elapsedTime;
+  });
+  return (
+    <Billboard>
+      <mesh renderOrder={2}>
+        <planeGeometry args={[2, 2]} />
+        <shaderMaterial
+          vertexShader={LENS_VERT}
+          fragmentShader={DORMANT_LENS_FRAG}
           uniforms={uniforms}
           transparent
           depthWrite={false}
@@ -872,8 +929,203 @@ function BlackHoleDetail({
       item={item}
       profile={profile}
       scale={scale}
-      jet={profile.morphology === "eht-jet"}
+      jet={profile.morphology === "eht-jet" || profile.morphology === "kerr-blackhole"}
     />
+  );
+}
+
+function DormantBlackHoleDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
+  const companion = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (companion.current) {
+      companion.current.rotation.y = t * 0.35;
+    }
+  });
+
+  const cDist = profile.companionDist ?? 0.85;
+  const cColor = profile.companionColor ?? "#ffe9a8";
+
+  return (
+    <group scale={scale} rotation={profile.tilt}>
+      {/* Pitch-black event horizon shadow - NO GLOWING DISK */}
+      <mesh>
+        <sphereGeometry args={[0.185, 36, 24]} />
+        <meshBasicMaterial color="#000000" />
+      </mesh>
+
+      {/* Pure gravitational deflection & Einstein rings */}
+      <DormantLensingHalo color={item.accent} />
+
+      {/* Companion star if in a binary (Gaia BH1 with G-star, Gaia BH3 with metal-poor giant) */}
+      {profile.companionDist && (
+        <group ref={companion}>
+          <mesh position={[cDist, 0, 0]}>
+            <sphereGeometry args={[0.075, 20, 16]} />
+            <meshBasicMaterial color={cColor} />
+          </mesh>
+          <mesh rotation-x={Math.PI / 2}>
+            <ringGeometry args={[cDist - 0.003, cDist + 0.003, 64]} />
+            <meshBasicMaterial
+              color="#ffffff"
+              transparent
+              opacity={0.15}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+            />
+          </mesh>
+        </group>
+      )}
+    </group>
+  );
+}
+
+function ThermalNeutronStarDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
+  const starRef = useRef<THREE.Mesh>(null);
+  useFrame(({ clock }) => {
+    if (starRef.current) {
+      starRef.current.rotation.y = clock.elapsedTime * 0.05;
+    }
+  });
+
+  return (
+    <group scale={scale} rotation={profile.tilt}>
+      {/* Tiny, dense, Planckian cooling thermal surface (T ~ 700,000 K) */}
+      <mesh ref={starRef}>
+        <sphereGeometry args={[0.075, 32, 24]} />
+        <meshBasicMaterial color="#e0f2fe" />
+      </mesh>
+      {/* Relativistic light deflection halo around neutron star (>50% of surface visible) */}
+      <mesh>
+        <sphereGeometry args={[0.11, 32, 24]} />
+        <meshBasicMaterial
+          color="#38bdf8"
+          transparent
+          opacity={0.4}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.22, 24, 18]} />
+        <meshBasicMaterial
+          color="#0284c7"
+          transparent
+          opacity={0.15}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
+  );
+}
+
+function GravitationalWaveRegionDetail({
+  item,
+  profile,
+  scale,
+}: {
+  item: ObservedObject;
+  profile: ObservedVisualProfile;
+  scale: number;
+}) {
+  const rippleRef = useRef<THREE.Group>(null);
+  const arcRef = useRef<THREE.Group>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (rippleRef.current) {
+      rippleRef.current.rotation.z = t * 0.15;
+    }
+    if (arcRef.current) {
+      arcRef.current.rotation.y = t * 0.03;
+    }
+  });
+
+  const skyArea = profile.gwSkyAreaDeg2 ?? 230;
+  // Span of the 90% confidence banana arc on the sky
+  const arcSpan = Math.min(Math.PI * 0.9, Math.max(0.4, Math.sqrt(skyArea) * 0.038));
+
+  return (
+    <group scale={scale} rotation={profile.tilt}>
+      {/* Quadrupole spacetime ripples expanding outward at c */}
+      <group ref={rippleRef}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <mesh key={i} rotation-x={Math.PI / 2}>
+            <ringGeometry args={[0.22 * i, 0.22 * i + 0.015, 64]} />
+            <meshBasicMaterial
+              color={item.accent}
+              transparent
+              opacity={Math.max(0.06, 0.65 - i * 0.11)}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Celestial Sphere 90% Credible Localization Contour Arc */}
+      <group ref={arcRef}>
+        <mesh rotation-z={0.15}>
+          <ringGeometry args={[0.82, 1.08, 64, 1, 0, arcSpan]} />
+          <meshBasicMaterial
+            color={item.color}
+            transparent
+            opacity={0.38}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+        <mesh rotation-z={0.15 + arcSpan * 0.2}>
+          <ringGeometry args={[0.88, 1.02, 48, 1, 0, arcSpan * 0.6]} />
+          <meshBasicMaterial
+            color="#ffffff"
+            transparent
+            opacity={0.65}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      </group>
+
+      {/* Central binary coalescence merger remnant */}
+      <mesh>
+        <sphereGeometry args={[0.075, 24, 16]} />
+        <meshBasicMaterial color="#000000" />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.09, 24, 16]} />
+        <meshBasicMaterial
+          color={item.accent}
+          transparent
+          opacity={0.75}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -886,26 +1138,31 @@ function QuasarDetail({
   profile: ObservedVisualProfile;
   scale: number;
 }) {
-  if (profile.morphology === "disturbed-quasar")
-    return (
-      <group>
-        <NebulaDetail item={item} profile={profile} scale={scale} />
-        <AccretionDisk
-          item={item}
-          profile={{ ...profile, tilt: profile.tilt }}
-          scale={scale * 0.18}
-          sizeScale={scale * 0.18}
-          jet
-        />
-      </group>
-    );
+  const hasJet = profile.morphology === "quasar-jet" || profile.morphology === "blazar";
   return (
-    <AccretionDisk
-      item={item}
-      profile={profile}
-      scale={scale}
-      jet={profile.morphology !== "unresolved-quasar"}
-    />
+    <group>
+      {/* Surrounding giant elliptical / starburst host galaxy halo */}
+      <mesh>
+        <sphereGeometry args={[scale * 0.9, 28, 20]} />
+        <meshBasicMaterial
+          color="#ffd59e"
+          transparent
+          opacity={0.06}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      {profile.morphology === "disturbed-quasar" && (
+        <NebulaDetail item={item} profile={profile} scale={scale} />
+      )}
+      <AccretionDisk
+        item={item}
+        profile={profile}
+        scale={profile.morphology === "disturbed-quasar" ? scale * 0.22 : scale}
+        jet={hasJet}
+      />
+    </group>
   );
 }
 
@@ -1039,9 +1296,15 @@ function StarDetail({
 function Detail({ item, scale }: { item: ObservedObject; scale: number }) {
   const profile = OBSERVED_VISUAL_PROFILES[item.id];
   if (!profile) return null;
+  if (profile.morphology === "dormant-blackhole")
+    return <DormantBlackHoleDetail item={item} profile={profile} scale={scale} />;
+  if (profile.morphology === "thermal-neutron-star")
+    return <ThermalNeutronStarDetail item={item} profile={profile} scale={scale} />;
+  if (profile.morphology === "gw-localization" || profile.morphology === "merger")
+    return <GravitationalWaveRegionDetail item={item} profile={profile} scale={scale} />;
   if (["pulsar-torus", "radio-pulsar", "magnetar", "neutron-binary"].includes(profile.morphology))
     return <PulsarDetail item={item} profile={profile} scale={scale} />;
-  if (["eht-ring", "eht-jet", "xray-binary", "merger"].includes(profile.morphology))
+  if (["kerr-blackhole", "eht-ring", "eht-jet", "xray-binary"].includes(profile.morphology))
     return <BlackHoleDetail item={item} profile={profile} scale={scale} />;
   if (
     ["quasar-jet", "blazar", "disturbed-quasar", "unresolved-quasar"].includes(profile.morphology)
@@ -1056,9 +1319,12 @@ function ObjectNode({ item }: { item: ObservedObject }) {
     select = useStore((s) => s.setSelectedObject);
   const [hover, setHover] = useState(false);
   const position = objectPosition(item);
+  const isGW = item.category === "Gravitational wave";
   const physical = Math.max(item.diameterLy, 0.000000001);
-  const closeScale = Math.max(physical, item.category === "Quasar" ? physical : 2e-7);
-  const pick = Math.max(physical, item.distance * 2e-5, 0.000001);
+  const closeScale = isGW
+    ? Math.max(physical * 0.0000005, 0.002)
+    : Math.max(physical, item.category === "Quasar" ? physical : 2e-7);
+  const pick = Math.max(physical, isGW ? 0.05 : item.distance * 2e-5, 0.000001);
   const click = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation();
     select(item.id);

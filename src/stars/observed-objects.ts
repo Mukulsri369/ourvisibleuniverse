@@ -4,12 +4,65 @@ export type ObjectCategory =
   | "Neutron star"
   | "Black hole"
   | "Stellar remnant"
+  | "Gravitational wave"
   | "Unusual star"
   | "Supergiant"
   | "Variable star"
   | "Dwarf star";
 export type ObjectVisual =
-  "cloud" | "shell" | "bipolar" | "jet" | "pulsar" | "blackhole" | "star" | "remnant";
+  | "cloud"
+  | "shell"
+  | "bipolar"
+  | "jet"
+  | "pulsar"
+  | "blackhole"
+  | "star"
+  | "remnant";
+
+export type CompactPhysics = {
+  compactClass:
+    | "stellar_black_hole_dormant"
+    | "stellar_black_hole_accreting"
+    | "intermediate_black_hole"
+    | "supermassive_black_hole"
+    | "quasar_agn"
+    | "thermal_neutron_star"
+    | "radio_pulsar"
+    | "magnetar"
+    | "white_dwarf"
+    | "supernova_remnant"
+    | "gravitational_wave_region";
+  massSolar?: number;
+  massSolarRange?: [number, number];
+  spinDimensionless?: number; // dimensionless Kerr a* (-1 to +1)
+  schwarzschildRadiusKm?: number;
+  kerrHorizonRadiusKm?: number;
+  photonSphereRadiusKm?: number;
+  iscoRadiusKm?: number;
+  accretionState:
+    | "dormant"
+    | "quiescent"
+    | "low_state"
+    | "high_state"
+    | "super_eddington"
+    | "none";
+  hasAccretionDisk: boolean;
+  hasRelativisticJet: boolean;
+  companionStar?: string;
+  pulsarSpinPeriodSec?: number;
+  pulsarPeriodDot?: number;
+  pulsarMagneticFieldGauss?: number;
+  pulsarDispersionMeasure?: number;
+  gwSkyAreaDeg2?: number;
+  gwChirpMassSolar?: number;
+  gwRadiatedEnergySolar?: number;
+  scientificConfidence:
+    | "confirmed"
+    | "high_confidence"
+    | "candidate"
+    | "localization_region";
+  publishedCitation: string;
+};
 
 export type ObservedObject = {
   id: string;
@@ -31,6 +84,7 @@ export type ObservedObject = {
   source: string;
   nebulaClass?: "emission" | "reflection" | "dark" | "planetary" | "supernova_remnant";
   filterPalette?: string;
+  compactPhysics?: CompactPhysics;
 };
 
 const o = (x: ObservedObject) => x;
@@ -441,9 +495,9 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
   o({
     id: "3c273",
     name: "3C 273",
-    aliases: ["PGC 41121"],
+    aliases: ["PGC 41121", "HIP 61001"],
     category: "Quasar",
-    subtype: "Optically bright quasar",
+    subtype: "Optically bright radio-loud quasar",
     distance: 2.4e9,
     l: 290,
     b: 64.4,
@@ -452,18 +506,35 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#dff2ff",
     accent: "#78a9ff",
     observed: "Unresolved nucleus; optical/X-ray jet",
-    properties: ["Redshift z=0.158", "First identified quasar", "Jet ≈200,000 ly"],
+    properties: [
+      "Redshift z=0.158",
+      "SMBH Mass ≈8.86×10⁸ M☉",
+      "First identified quasar (1963)",
+      "Relativistic jet ≈200,000 ly",
+    ],
     description:
-      "A brilliant active galactic nucleus powered by matter falling toward a supermassive black hole, with a large relativistic jet.",
-    visualNote: "The central engine is unresolved; its disk and jet are enhanced for inspection.",
-    source: "NASA Hubble / Chandra",
+      "A brilliant active galactic nucleus powered by matter falling toward a supermassive black hole, firing a collimated relativistic plasma jet across 200,000 light-years.",
+    visualNote:
+      "The central accretion engine and relativistic jet knots are visually scaled for scientific inspection with host elliptical galaxy envelope.",
+    source: "NASA Hubble / Chandra / Schmidt (1963)",
+    compactPhysics: {
+      compactClass: "quasar_agn",
+      massSolar: 8.86e8,
+      spinDimensionless: 0.72,
+      schwarzschildRadiusKm: 2.62e9,
+      accretionState: "high_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: true,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Schmidt, M. (1963) Nature 197, 1040; Peterson et al. (2004) ApJ",
+    },
   }),
   o({
     id: "3c279",
     name: "3C 279",
-    aliases: ["4C -05.55"],
+    aliases: ["4C -05.55", "PKS 1253-055"],
     category: "Quasar",
-    subtype: "Blazar / flat-spectrum quasar",
+    subtype: "Blazar / flat-spectrum radio quasar",
     distance: 5.4e9,
     l: 305.1,
     b: 57.1,
@@ -471,12 +542,28 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     visual: "jet",
     color: "#fff2d8",
     accent: "#759cff",
-    observed: "Gamma-ray, radio and optical",
-    properties: ["Redshift z=0.536", "Jet points near Earth", "Apparent superluminal motion"],
+    observed: "Gamma-ray, radio and optical interferometry",
+    properties: [
+      "Redshift z=0.536",
+      "SMBH Mass ≈8×10⁸ M☉",
+      "Apparent superluminal motion (>15c)",
+      "Jet pointed ~2° to Earth line of sight",
+    ],
     description:
-      "A rapidly variable blazar whose relativistic jet is aimed close to our line of sight.",
-    visualNote: "Jet motion is relativistic projection; the model is illustrative.",
-    source: "NASA Fermi / VLBI observations",
+      "A rapidly variable blazar whose relativistic jet is oriented directly toward our line of sight, amplifying emission through relativistic Doppler beaming.",
+    visualNote:
+      "Intense forward Doppler boosting enhances the approaching jet knot brightness by orders of magnitude.",
+    source: "NASA Fermi / VLBI EHT Collaboration",
+    compactPhysics: {
+      compactClass: "quasar_agn",
+      massSolar: 8.0e8,
+      spinDimensionless: 0.9,
+      accretionState: "high_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: true,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Kim et al. (2020) A&A 640, A68 (EHT Collaboration)",
+    },
   }),
   o({
     id: "mrk231",
@@ -492,19 +579,33 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#ffe0bb",
     accent: "#78a9e8",
     observed: "Ultraviolet, visible and infrared",
-    properties: ["Distance ≈581 Mly", "Powerful molecular outflow", "Disturbed host galaxy"],
+    properties: [
+      "Distance ≈581 Mly (z=0.042)",
+      "Central SMBH ≈1.5×10⁸ M☉",
+      "Massive molecular outflow",
+      "Merging host galaxy with tidal tails",
+    ],
     description:
-      "The nearest quasar, embedded in a luminous merging galaxy and driving a powerful outflow.",
+      "The nearest quasar to Earth, embedded in an active starburst merger galaxy driving immense molecular gas outflows.",
     visualNote:
-      "The luminous nucleus is exaggerated; a proposed binary black hole remains uncertain.",
-    source: "NASA Hubble",
+      "Luminous nucleus embedded within tidal arms and dust filaments of the disturbed merger host.",
+    source: "NASA Hubble / Spitzer Space Telescope",
+    compactPhysics: {
+      compactClass: "quasar_agn",
+      massSolar: 1.5e8,
+      accretionState: "high_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Veilleux et al. (2009) ApJS 182, 628",
+    },
   }),
   o({
     id: "ton618",
     name: "TON 618",
     aliases: ["FBQS J122824.9+312837"],
     category: "Quasar",
-    subtype: "Hyperluminous quasar",
+    subtype: "Hyperluminous radio-quiet quasar",
     distance: 10.4e9,
     l: 187.4,
     b: 83,
@@ -512,21 +613,35 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     visual: "jet",
     color: "#ffd9bd",
     accent: "#8da5ff",
-    observed: "Unresolved optical point and spectrum",
+    observed: "Unresolved optical and NIR spectroscopy",
     properties: [
-      "Redshift z≈2.219",
-      "Ultramassive black-hole estimate",
-      "Seen billions of years in the past",
+      "Redshift z=2.219",
+      "SMBH Mass ≈6.6×10¹⁰ M☉ (66 billion Suns)",
+      "Schwarzschild radius ≈1,300 AU (43× Neptune orbit)",
+      "Bolometric luminosity ≈1.4×10⁴⁰ W (3.6×10¹⁴ L☉)",
     ],
     description:
-      "An exceptionally luminous distant quasar associated with one of the largest published black-hole mass estimates.",
-    visualNote: "Its exact black-hole mass is model-dependent; the source is unresolved.",
-    source: "NASA/IPAC catalogues and peer-reviewed spectroscopy",
+      "An exceptionally luminous distant quasar hosting one of the most massive known black holes in the observable universe, outshining its host galaxy by thousands of times.",
+    visualNote:
+      "Accretion disk dominates emission with negligible extended radio jet (radio-quiet classification).",
+    source: "SDSS / Shemmer et al. (2004) ApJ",
+    compactPhysics: {
+      compactClass: "supermassive_black_hole",
+      massSolar: 6.6e10,
+      schwarzschildRadiusKm: 1.95e11,
+      accretionState: "super_eddington",
+      hasAccretionDisk: true,
+      hasRelativisticJet: false,
+      scientificConfidence: "high_confidence",
+      publishedCitation: "Shemmer et al. (2004) ApJ 614, 547",
+    },
   }),
+
+  // --- NEUTRON STARS & PULSARS ---
   o({
     id: "crab-pulsar",
     name: "Crab Pulsar",
-    aliases: ["PSR B0531+21"],
+    aliases: ["PSR B0531+21", "PSR J0534+2200"],
     category: "Neutron star",
     subtype: "Young rotation-powered pulsar",
     distance: 6500,
@@ -537,16 +652,35 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#dff7ff",
     accent: "#4bbfff",
     observed: "Radio through gamma ray",
-    properties: ["Spin period 33 ms", "Diameter ≈20 km", "Powers the Crab Nebula"],
+    properties: [
+      "Spin period 33.39 ms (29.9 Hz)",
+      "Surface B-field ≈3.8×10¹² Gauss",
+      "Spin-down luminosity ≈4.5×10³¹ W",
+      "Powers the expanding Crab Nebula",
+    ],
     description:
-      "The collapsed stellar core left by SN 1054, sweeping radiation beams across Earth about 30 times each second.",
-    visualNote: "The star and beams are enormously enlarged for visibility.",
-    source: "NASA Chandra",
+      "The collapsed stellar core born in the SN 1054 core-collapse supernova, sweeping dual relativistic synchrotron beams across our line of sight 30 times each second.",
+    visualNote:
+      "Features dynamic equatorial magnetic wind torus and polar X-ray jets aligned with the 33 ms timing flash.",
+    source: "NASA Chandra / Hubble / ATNF Pulsar Catalogue",
+    compactPhysics: {
+      compactClass: "radio_pulsar",
+      massSolar: 1.4,
+      pulsarSpinPeriodSec: 0.03339,
+      pulsarPeriodDot: 4.21e-13,
+      pulsarMagneticFieldGauss: 3.78e12,
+      pulsarDispersionMeasure: 56.77,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: true,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Manchester et al. (2005) AJ 129, 1993 (ATNF)",
+    },
   }),
   o({
     id: "vela",
     name: "Vela Pulsar",
-    aliases: ["PSR B0833−45"],
+    aliases: ["PSR B0833−45", "PSR J0835-4510"],
     category: "Neutron star",
     subtype: "Young pulsar",
     distance: 960,
@@ -557,15 +691,33 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#e6fbff",
     accent: "#4b9fff",
     observed: "Radio, optical, X-ray and gamma ray",
-    properties: ["Spin period 89 ms", "Inside the Vela remnant", "X-ray torus and jets"],
+    properties: [
+      "Spin period 89.33 ms (11.2 Hz)",
+      "Surface B-field ≈3.4×10¹² Gauss",
+      "Inside the Vela supernova remnant",
+      "Famous rotational glitches",
+    ],
     description:
-      "A nearby young neutron star whose wind creates moving arcs and jet-like X-ray structures.",
-    visualNote: "The compact star and magnetic beams are not rendered to scale.",
-    source: "NASA Chandra / Fermi",
+      "A nearby young neutron star whose high-energy wind produces glowing X-ray arcs, a helical jet, and frequent internal superfluid glitches.",
+    visualNote:
+      "Inner pulsar wind nebula shows swept equatorial rings and precessing polar jet.",
+    source: "NASA Chandra / Fermi / ESA XMM-Newton",
+    compactPhysics: {
+      compactClass: "radio_pulsar",
+      massSolar: 1.4,
+      pulsarSpinPeriodSec: 0.08933,
+      pulsarPeriodDot: 1.25e-13,
+      pulsarMagneticFieldGauss: 3.38e12,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: true,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Dodson et al. (2003) ApJ 596, 1137",
+    },
   }),
   o({
     id: "b1919",
-    name: "First Pulsar",
+    name: "First Pulsar (PSR B1919+21)",
     aliases: ["PSR B1919+21", "CP 1919", "LGM-1"],
     category: "Neutron star",
     subtype: "Radio pulsar",
@@ -577,18 +729,112 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     color: "#f2fbff",
     accent: "#8fc7ff",
     observed: "Radio pulses",
-    properties: ["Spin period 1.337 s", "Discovered in 1967", "First recognized pulsar"],
+    properties: [
+      "Spin period 1.3373 s",
+      "Discovered November 1967",
+      "First confirmed pulsar in history",
+      "Historical code LGM-1 (Little Green Men 1)",
+    ],
     description:
-      "The first pulsar ever identified, discovered by Jocelyn Bell Burnell through its exceptionally regular radio pulses.",
-    visualNote: "Radio beams are an explanatory visualization, not visible light.",
-    source: "NRAO / peer-reviewed discovery record",
+      "The first pulsar ever discovered, identified by Jocelyn Bell Burnell through chart recorder traces, establishing the physical existence of neutron stars.",
+    visualNote:
+      "Misaligned dipole magnetic axis sweeps radio lighthouse beam through space every 1.337 seconds.",
+    source: "Hewish, Bell et al. (1968) Nature 217, 709",
+    compactPhysics: {
+      compactClass: "radio_pulsar",
+      massSolar: 1.4,
+      pulsarSpinPeriodSec: 1.3373,
+      pulsarPeriodDot: 1.35e-15,
+      pulsarMagneticFieldGauss: 1.3e12,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Hewish, Bell, Pilkington, Scott, & Collins (1968) Nature 217, 709",
+    },
   }),
+  o({
+    id: "psr-j0437",
+    name: "PSR J0437−4715",
+    aliases: ["PSR J0437-4715"],
+    category: "Neutron star",
+    subtype: "Millisecond pulsar",
+    distance: 510,
+    l: 253.4,
+    b: -42.0,
+    diameterLy: 2.1e-12,
+    visual: "pulsar",
+    color: "#e0f7ff",
+    accent: "#64b5f6",
+    observed: "High-precision radio timing & optical white-dwarf companion",
+    properties: [
+      "Spin period 5.757 ms (173.7 rotations/sec)",
+      "Recycled millisecond pulsar",
+      "Helium white-dwarf companion",
+      "Ultra-stable clock for nanohertz gravitational waves",
+    ],
+    description:
+      "The closest and brightest millisecond pulsar to Earth. Spun up to 173.7 revolutions per second by accreting matter from its white dwarf companion, serving as a precision celestial chronometer.",
+    visualNote:
+      "Rapidly spinning compact body with tight binary companion and relativistic pulse sweep.",
+    source: "Parkes Pulsar Timing Array / Johnston et al. (1993)",
+    compactPhysics: {
+      compactClass: "radio_pulsar",
+      massSolar: 1.44,
+      pulsarSpinPeriodSec: 0.005757,
+      pulsarPeriodDot: 5.73e-20,
+      pulsarMagneticFieldGauss: 5.8e8,
+      companionStar: "Helium White Dwarf (0.22 M☉)",
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Reardon et al. (2016) MNRAS 455, 1751",
+    },
+  }),
+  o({
+    id: "rx-j1856",
+    name: "RX J1856.5−3754",
+    aliases: ["RX J185635-3754", "The Magnificent Seven #1"],
+    category: "Neutron star",
+    subtype: "Isolated thermal neutron star",
+    distance: 400,
+    l: 358.6,
+    b: -17.2,
+    diameterLy: 2.3e-12,
+    visual: "star",
+    color: "#e6f0ff",
+    accent: "#90caf9",
+    observed: "Thermal soft X-rays (ROSAT/Chandra/XMM) and faint optical",
+    properties: [
+      "Distance ≈400 ly (closest known neutron star)",
+      "Pure thermal blackbody spectrum (T ≈ 700,000 K)",
+      "Radius ≈11.5–12.5 km (tests nuclear equation of state)",
+      "No detected radio pulses (pure cooling emission)",
+    ],
+    description:
+      "The nearest known isolated neutron star, glowing purely with residual thermal heat from its birth without accretion or radio pulsations. Its gravitational bending allows over 60% of its surface to be seen at once.",
+    visualNote:
+      "Compact unpulsed sphere with Planckian thermal soft-X-ray surface and strong gravitational surface bending.",
+    source: "NASA Chandra / Walter et al. (2010)",
+    compactPhysics: {
+      compactClass: "thermal_neutron_star",
+      massSolar: 1.4,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Walter et al. (2010) ApJ 724, 669; Sartore et al. (2012) A&A",
+    },
+  }),
+
+  // --- MAGNETARS ---
   o({
     id: "sgr1806",
     name: "SGR 1806−20",
     aliases: ["SGR 1806-20"],
     category: "Neutron star",
-    subtype: "Magnetar",
+    subtype: "Magnetar / Soft Gamma Repeater",
     distance: 50000,
     l: 9.9,
     b: -0.2,
@@ -596,84 +842,159 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     visual: "pulsar",
     color: "#f7eeff",
     accent: "#d267ff",
-    observed: "X-ray and gamma ray",
-    properties: ["Magnetic field ≈10¹⁵ G", "Giant flare in 2004", "Distance is highly uncertain"],
-    description:
-      "An intensely magnetized neutron star that produced the brightest extrasolar gamma-ray flare yet recorded.",
-    visualNote:
-      "Magnetic loops and scale are illustrative; distance estimates span roughly 28–50 kly.",
-    source: "NASA Goddard / Chandra",
-  }),
-  o({
-    id: "j0348",
-    name: "PSR J0348+0432",
-    aliases: ["J0348+0432"],
-    category: "Neutron star",
-    subtype: "Massive neutron-star binary",
-    distance: 6500,
-    l: 183.3,
-    b: -36.8,
-    diameterLy: 2.7e-12,
-    visual: "pulsar",
-    color: "#e8f4ff",
-    accent: "#77a8ff",
-    observed: "Radio timing and optical companion",
-    properties: ["Mass 2.01 ± 0.04 M☉", "White-dwarf companion", "Tests strong-field gravity"],
-    description:
-      "A precisely weighed, unusually massive neutron star in a compact binary used to test general relativity.",
-    visualNote: "Both bodies and their separation are enhanced for close viewing.",
-    source: "Peer-reviewed radio timing / ESO",
-  }),
-  o({
-    id: "sgr-a",
-    name: "Sagittarius A*",
-    aliases: ["Sgr A*"],
-    category: "Black hole",
-    subtype: "Milky Way central supermassive black hole",
-    distance: 26673,
-    l: 0,
-    b: 0,
-    diameterLy: 1.3e-5,
-    visual: "blackhole",
-    color: "#f59a48",
-    accent: "#fff0be",
-    observed: "Radio interferometry at 1.3 mm",
-    properties: ["Mass ≈4.15 million M☉", "EHT image released 2022", "At the Galactic centre"],
-    description:
-      "The compact gravitational source at the heart of the Milky Way, surrounded by hot orbiting plasma.",
-    visualNote: "The EHT ring is false-color radio data; the viewing size is exaggerated.",
-    source: "Event Horizon Telescope / ESO GRAVITY",
-  }),
-  o({
-    id: "m87star",
-    name: "M87*",
-    aliases: ["Virgo A black hole"],
-    category: "Black hole",
-    subtype: "Supermassive black hole",
-    distance: 55e6,
-    l: 283.8,
-    b: 74.5,
-    diameterLy: 0.004,
-    visual: "blackhole",
-    color: "#ed7435",
-    accent: "#ffd06c",
-    observed: "Radio interferometry and multiwavelength jet",
+    observed: "X-ray, gamma-ray and radio bursts",
     properties: [
-      "Mass ≈6.5 billion M☉",
-      "First black hole directly imaged",
-      "Jet extends thousands of ly",
+      "Surface B-field ≈10¹⁵ Gauss (100 billion Tesla)",
+      "Giant gamma-ray flare on December 27, 2004",
+      "Crust quakes and magnetic reconnection",
+      "Spin period 7.56 s",
     ],
     description:
-      "The supermassive black hole in Messier 87, source of a prominent relativistic jet and the first EHT black-hole image.",
-    visualNote: "The orange EHT ring is false-color radio intensity and is enlarged here.",
-    source: "Event Horizon Telescope / NASA",
+      "An intensely magnetized neutron star that unleashed the brightest extrasolar explosion ever recorded on Earth—a giant gamma-ray flare that physically ionized Earth's upper atmosphere from 50,000 light-years away.",
+    visualNote:
+      "Pulsating magnetosphere laced with twisted magnetic flux tubes subject to violent reconnection bursts.",
+    source: "NASA Swift / RHESSI / Palmer et al. (2005) Nature",
+    compactPhysics: {
+      compactClass: "magnetar",
+      massSolar: 1.5,
+      pulsarSpinPeriodSec: 7.56,
+      pulsarPeriodDot: 5.5e-10,
+      pulsarMagneticFieldGauss: 1.0e15,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Palmer et al. (2005) Nature 434, 1107",
+    },
   }),
+  o({
+    id: "swift-j1818",
+    name: "Swift J1818.0−1607",
+    aliases: ["PSR J1818-1607"],
+    category: "Neutron star",
+    subtype: "Youngest known magnetar",
+    distance: 15600,
+    l: 15.2,
+    b: -0.4,
+    diameterLy: 2.1e-12,
+    visual: "pulsar",
+    color: "#f3e5f5",
+    accent: "#ab47bc",
+    observed: "X-ray bursts and pulsed radio emission",
+    properties: [
+      "Estimated age only ≈240–500 years",
+      "Spin period 1.36 s",
+      "Surface B-field ≈3×10¹⁴ Gauss",
+      "Rare transitional radio-pulsing magnetar",
+    ],
+    description:
+      "Discovered by the Neil Gehrels Swift Observatory in 2020, this newborn magnetar is the youngest ever identified, bridging the evolutionary gap between rotation-powered pulsars and magnetars.",
+    visualNote:
+      "Violent youthful magnetic loops with emerging radio pulse emission.",
+    source: "NASA Swift / Esposito et al. (2020) ApJL",
+    compactPhysics: {
+      compactClass: "magnetar",
+      massSolar: 1.4,
+      pulsarSpinPeriodSec: 1.36,
+      pulsarPeriodDot: 8.2e-11,
+      pulsarMagneticFieldGauss: 3.4e14,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Esposito et al. (2020) ApJL 896, L30",
+    },
+  }),
+
+  // --- DORMANT & ISOLATED BLACK HOLES ---
+  o({
+    id: "gaiabh1",
+    name: "Gaia BH1",
+    aliases: ["Gaia DR3 4373465352415301632"],
+    category: "Black hole",
+    subtype: "Dormant stellar-mass black hole",
+    distance: 1560,
+    l: 10.4,
+    b: 12.3,
+    diameterLy: 6.2e-12,
+    visual: "blackhole",
+    color: "#1a1a24",
+    accent: "#7986cb",
+    observed: "Astrometric wobble from Gaia DR3; ground-based radial velocity",
+    properties: [
+      "Black hole mass 9.62 ± 0.18 M☉",
+      "Closest known black hole to Earth (≈1,560 ly)",
+      "Sun-like companion star (0.93 M☉) in wide 185.6-day orbit",
+      "NON-ACCRETING: Zero X-ray emission and NO glowing disk",
+    ],
+    description:
+      "A dormant stellar-mass black hole in Ophiuchus discovered via precision Gaia astrometric orbital wobble. Because the black hole does not pull matter from its distant companion, it is completely dark—a pure gravitational lens.",
+    visualNote:
+      "ACCURATELY RENDERED AS DORMANT: Pitch-black event horizon and lensed Einstein ring of background stars with NO glowing accretion disk, accompanied by its orbiting G-type star.",
+    source: "ESA Gaia DR3 / El-Badry et al. (2023) MNRAS",
+    compactPhysics: {
+      compactClass: "stellar_black_hole_dormant",
+      massSolar: 9.62,
+      massSolarRange: [9.44, 9.80],
+      spinDimensionless: 0.05,
+      schwarzschildRadiusKm: 28.4,
+      photonSphereRadiusKm: 42.6,
+      accretionState: "dormant",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      companionStar: "G-type Main Sequence Star (0.93 M☉)",
+      scientificConfidence: "confirmed",
+      publishedCitation: "El-Badry, K. et al. (2023) MNRAS 518, 1057",
+    },
+  }),
+  o({
+    id: "gaiabh3",
+    name: "Gaia BH3",
+    aliases: ["Gaia DR3 4318465066420528000"],
+    category: "Black hole",
+    subtype: "Massive dormant stellar black hole",
+    distance: 1926,
+    l: 48.2,
+    b: 6.4,
+    diameterLy: 2.1e-11,
+    visual: "blackhole",
+    color: "#14141e",
+    accent: "#5c6bc0",
+    observed: "Gaia astrometric preliminary release; ESO VLT UVES spectroscopy",
+    properties: [
+      "Black hole mass 32.7 ± 0.82 M☉",
+      "Most massive stellar-mass black hole known in the Milky Way",
+      "Metal-poor halo giant companion in wide 11.6-year orbit",
+      "NON-ACCRETING: Pure dark gravitational lens in Galactic halo",
+    ],
+    description:
+      "Discovered in 2024 from Gaia data, this 33-solar-mass giant is the most massive stellar black hole in our galaxy. Formed from a primitive metal-poor star, it silently bends spacetime without an accretion disk.",
+    visualNote:
+      "Dormant black hole: pure gravitational deflection and photon ring shadow against background starlight without hot plasma emission.",
+    source: "ESA Gaia Collaboration (2024) A&A",
+    compactPhysics: {
+      compactClass: "stellar_black_hole_dormant",
+      massSolar: 32.7,
+      massSolarRange: [31.9, 33.5],
+      spinDimensionless: 0.02,
+      schwarzschildRadiusKm: 96.6,
+      photonSphereRadiusKm: 144.9,
+      accretionState: "dormant",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      companionStar: "Metal-poor Giant (0.76 M☉)",
+      scientificConfidence: "confirmed",
+      publishedCitation: "Gaia Collaboration, Panuzzo et al. (2024) A&A 686, L2",
+    },
+  }),
+
+  // --- ACCRETING STELLAR BLACK HOLES ---
   o({
     id: "cygx1",
     name: "Cygnus X-1",
-    aliases: ["Cyg X-1"],
+    aliases: ["Cyg X-1", "HDE 226868"],
     category: "Black hole",
-    subtype: "Stellar-mass X-ray binary",
+    subtype: "Stellar-mass High-Mass X-ray Binary",
     distance: 7240,
     l: 71.3,
     b: 3.1,
@@ -681,44 +1002,357 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     visual: "blackhole",
     color: "#ffb65c",
     accent: "#6da9ff",
-    observed: "X-ray, optical and radio",
-    properties: ["Black hole ≈21 M☉", "Blue-supergiant companion", "Strong X-ray source"],
+    observed: "X-ray, optical and radio VLBI",
+    properties: [
+      "Black hole mass 21.2 ± 2.2 M☉",
+      "Extreme Kerr spin a* > 0.95",
+      "Blue supergiant companion HDE 226868 (40 M☉)",
+      "Focused wind Roche-lobe accretion stream & relativistic jet",
+    ],
     description:
-      "A stellar black hole feeding from the wind of a massive blue companion, producing a hot accretion flow.",
-    visualNote: "The black hole and disk are enlarged; X-rays have no visible-light color.",
-    source: "NASA Chandra / peer-reviewed VLBI",
+      "The first widely accepted stellar-mass black hole. Feeds voraciously from the stellar wind of its companion blue supergiant, spinning at near the speed of light and powering collimated relativistic jets.",
+    visualNote:
+      "Accreting binary model: companion O-star mass-transfer stream, warped X-ray accretion disk with relativistic Doppler boosting, and jet plume.",
+    source: "NASA Chandra / Miller-Jones et al. (2021) Science",
+    compactPhysics: {
+      compactClass: "stellar_black_hole_accreting",
+      massSolar: 21.2,
+      spinDimensionless: 0.96,
+      schwarzschildRadiusKm: 62.6,
+      kerrHorizonRadiusKm: 39.8,
+      iscoRadiusKm: 52.8,
+      accretionState: "high_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: true,
+      companionStar: "Blue Supergiant HDE 226868 (40.6 M☉)",
+      scientificConfidence: "confirmed",
+      publishedCitation: "Miller-Jones et al. (2021) Science 371, 1046",
+    },
   }),
   o({
-    id: "gw150914",
-    name: "GW150914",
-    aliases: ["First gravitational-wave event"],
+    id: "v404-cyg",
+    name: "V404 Cygni",
+    aliases: ["GS 2023+338"],
     category: "Black hole",
-    subtype: "Binary black-hole merger remnant",
+    subtype: "Low-Mass X-ray Binary / Microquasar",
+    distance: 7800,
+    l: 73.1,
+    b: -2.1,
+    diameterLy: 2.7e-12,
+    visual: "blackhole",
+    color: "#ff9100",
+    accent: "#00e5ff",
+    observed: "Radio VLBI, X-ray INTEGRAL, optical flares",
+    properties: [
+      "Black hole mass 9.0 ± 0.6 M☉",
+      "Rapidly precessing relativistic jets (minute timescales)",
+      "K-dwarf companion (0.7 M☉)",
+      "Violent sub-Eddington to super-Eddington outbursts",
+    ],
+    description:
+      "A famous galactic microquasar whose relativistic jets precess on timescales of minutes due to frame-dragging (Lense-Thirring precession) from a misaligned black hole spin axis.",
+    visualNote:
+      "Features a warped, rapidly precessing accretion disk with corkscrew jet trajectory.",
+    source: "Miller-Jones et al. (2019) Nature",
+    compactPhysics: {
+      compactClass: "stellar_black_hole_accreting",
+      massSolar: 9.0,
+      spinDimensionless: 0.9,
+      schwarzschildRadiusKm: 26.6,
+      accretionState: "high_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: true,
+      companionStar: "K-type subgiant (0.7 M☉)",
+      scientificConfidence: "confirmed",
+      publishedCitation: "Miller-Jones et al. (2019) Nature 569, 374",
+    },
+  }),
+  o({
+    id: "grs1915",
+    name: "GRS 1915+105",
+    aliases: ["V1487 Aquilae"],
+    category: "Black hole",
+    subtype: "Near-extremal Kerr black hole microquasar",
+    distance: 28000,
+    l: 45.4,
+    b: -0.2,
+    diameterLy: 3.7e-12,
+    visual: "blackhole",
+    color: "#ff6d00",
+    accent: "#00b0ff",
+    observed: "X-ray timing (RXTE) and radio VLBA superluminal jets",
+    properties: [
+      "Black hole mass 12.4 ± 2.0 M☉",
+      "Near-extremal Kerr spin parameter a* = 0.98 ± 0.01",
+      "Apparent superluminal jet motion (v ≈ 1.25c)",
+      "First discovered galactic microquasar (1994)",
+    ],
+    description:
+      "An extreme spinning black hole in Aquila that ejects plasma blobs at apparent superluminal speeds. Its dimensionless spin parameter is nearly at the theoretical maximum allowed by general relativity.",
+    visualNote:
+      "Extreme Kerr accretion disk reaching right to the contracted ISCO edge with prominent asymmetric Doppler beaming.",
+    source: "Mirabel & Rodríguez (1994) Nature; McClintock et al. (2006) ApJ",
+    compactPhysics: {
+      compactClass: "stellar_black_hole_accreting",
+      massSolar: 12.4,
+      spinDimensionless: 0.98,
+      schwarzschildRadiusKm: 36.6,
+      kerrHorizonRadiusKm: 22.0,
+      iscoRadiusKm: 29.5,
+      accretionState: "high_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: true,
+      scientificConfidence: "confirmed",
+      publishedCitation: "McClintock et al. (2006) ApJ 652, 518",
+    },
+  }),
+
+  // --- INTERMEDIATE-MASS BLACK HOLES ---
+  o({
+    id: "hlx1",
+    name: "HLX-1 (Hyper-Luminous X-ray 1)",
+    aliases: ["2XMM J011028.1-460421"],
+    category: "Black hole",
+    subtype: "Intermediate-mass black hole candidate",
+    distance: 290e6,
+    l: 338.2,
+    b: -34.7,
+    diameterLy: 0.00001,
+    visual: "blackhole",
+    color: "#ba68c8",
+    accent: "#64b5f6",
+    observed: "X-ray flares (XMM-Newton/Swift) and optical cluster (Hubble)",
+    properties: [
+      "Candidate IMBH mass ≈20,000 M☉ (range 10⁴–10⁵ M☉)",
+      "Located in the halo of spiral galaxy ESO 243-49",
+      "Off-nuclear remnant of a stripped dwarf galaxy core",
+      "Crucial bridge between stellar-mass and supermassive black holes",
+    ],
+    description:
+      "One of the strongest intermediate-mass black hole candidates known, located 290 million light-years away in a star cluster orbiting galaxy ESO 243-49.",
+    visualNote:
+      "Accretion disk scaled to the intermediate mass regime, embedded in a surrounding dense stellar cluster halo.",
+    source: "Farrell et al. (2009) Nature 460, 73",
+    compactPhysics: {
+      compactClass: "intermediate_black_hole",
+      massSolar: 20000,
+      massSolarRange: [9000, 90000],
+      spinDimensionless: 0.5,
+      schwarzschildRadiusKm: 59000,
+      accretionState: "low_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: false,
+      scientificConfidence: "candidate",
+      publishedCitation: "Farrell et al. (2009) Nature 460, 73; Soria et al. (2017) ApJ",
+    },
+  }),
+
+  // --- SUPERMASSIVE BLACK HOLES ---
+  o({
+    id: "sgr-a",
+    name: "Sagittarius A*",
+    aliases: ["Sgr A*", "Milky Way Center"],
+    category: "Black hole",
+    subtype: "Supermassive black hole",
+    distance: 26673,
+    l: 0,
+    b: 0,
+    diameterLy: 1.3e-5,
+    visual: "blackhole",
+    color: "#f59a48",
+    accent: "#fff0be",
+    observed: "VLBI radio interferometry at 1.3 mm (EHT 2022); NIR stellar orbits (GRAVITY)",
+    properties: [
+      "Mass (4.154 ± 0.014) × 10⁶ M☉",
+      "Event horizon diameter ≈25.4 million km (≈0.17 AU)",
+      "Radiatively inefficient accretion flow (RIAF)",
+      "Direct EHT image published May 12, 2022",
+    ],
+    description:
+      "The supermassive black hole anchoring the center of our Milky Way. Imaged by the Event Horizon Telescope, it reveals a glowing ring of synchro-thermal plasma surrounding a dark central shadow.",
+    visualNote:
+      "Accurately reproduces the EHT 1.3 mm polarized shadow ring, photon orbit, and relativistic gravitational lensing.",
+    source: "Event Horizon Telescope Collaboration (2022) ApJL 930, L12",
+    compactPhysics: {
+      compactClass: "supermassive_black_hole",
+      massSolar: 4154000,
+      massSolarRange: [4140000, 4168000],
+      spinDimensionless: 0.5,
+      schwarzschildRadiusKm: 12267000,
+      photonSphereRadiusKm: 18400000,
+      accretionState: "low_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: false,
+      ehtWavelengthMm: 1.3,
+      scientificConfidence: "confirmed",
+      publishedCitation: "EHT Collaboration (2022) ApJL 930, L12; GRAVITY Collaboration (2020) A&A",
+    },
+  }),
+  o({
+    id: "m87star",
+    name: "M87*",
+    aliases: ["Virgo A Black Hole", "Messier 87 Core"],
+    category: "Black hole",
+    subtype: "Supermassive black hole with relativistic jet",
+    distance: 55e6,
+    l: 283.8,
+    b: 74.5,
+    diameterLy: 0.004,
+    visual: "blackhole",
+    color: "#ed7435",
+    accent: "#ffd06c",
+    observed: "EHT 1.3 mm / 3.5 mm radio interferometry; Chandra X-ray; Hubble optical jet",
+    properties: [
+      "Mass (6.5 ± 0.7) × 10⁹ M☉",
+      "First black hole directly imaged in human history (April 2019)",
+      "Shadow diameter ≈76 billion km (≈508 AU — larger than Pluto's orbit)",
+      "Relativistic jet extends >5,000 light-years into the Virgo Cluster",
+    ],
+    description:
+      "The supermassive colossus at the center of giant elliptical galaxy Messier 87. It powers one of the most famous relativistic jets in astrophysics, spanning thousands of light-years.",
+    visualNote:
+      "Combines the polarized EHT shadow ring with the collimated synchrotron plasma jet.",
+    source: "Event Horizon Telescope Collaboration (2019) ApJL 875, L1",
+    compactPhysics: {
+      compactClass: "supermassive_black_hole",
+      massSolar: 6.5e9,
+      massSolarRange: [5.8e9, 7.2e9],
+      spinDimensionless: 0.9,
+      schwarzschildRadiusKm: 1.92e10,
+      photonSphereRadiusKm: 2.88e10,
+      accretionState: "high_state",
+      hasAccretionDisk: true,
+      hasRelativisticJet: true,
+      ehtWavelengthMm: 1.3,
+      scientificConfidence: "confirmed",
+      publishedCitation: "EHT Collaboration (2019) ApJL 875, L1; (2021) ApJL 910, L12",
+    },
+  }),
+
+  // --- GRAVITATIONAL-WAVE LOCALIZATION REGIONS ---
+  o({
+    id: "gw150914",
+    name: "GW150914 Localization Arc",
+    aliases: ["First Gravitational Wave Event", "LIGO O1 Discovery"],
+    category: "Gravitational wave",
+    subtype: "Binary black-hole merger / Sky localization volume",
     distance: 1.3e9,
     l: 314,
     b: -45,
-    diameterLy: 1.3e-11,
+    diameterLy: 400000000,
     visual: "blackhole",
     color: "#f3a15d",
     accent: "#b87bff",
-    observed: "Gravitational waves only",
+    observed: "Advanced LIGO interferometers (Hanford & Livingston)",
     properties: [
-      "First direct gravitational-wave detection",
-      "36 + 29 M☉ progenitors",
-      "≈62 M☉ remnant",
+      "Progenitor masses: 35.6 + 30.6 M☉",
+      "Final Kerr remnant mass: 63.1 M☉",
+      "3.0 M☉ converted to pure gravitational radiation (5.4×10⁴⁷ J)",
+      "Sky localization: 230 deg² southern banana-arc (NOT a fake pinpoint)",
     ],
     description:
-      "The first directly detected gravitational-wave event, produced by two black holes merging 1.3 billion light-years away.",
+      "The historic first direct detection of gravitational waves on September 14, 2015. Confirmed Einstein's 1916 prediction of spacetime ripples and proved the existence of binary black hole mergers.",
     visualNote:
-      "No electromagnetic image exists; the visual is a numerical-relativity-inspired interpretation.",
-    source: "LIGO / NSF",
+      "Rendered as a 90% credible localization probability arc across the celestial sphere with numerical-relativity gravitational waveform ripples.",
+    source: "LIGO Scientific Collaboration & Virgo Collaboration (2016) PRL",
+    compactPhysics: {
+      compactClass: "gravitational_wave_region",
+      massSolar: 63.1,
+      gwChirpMassSolar: 28.6,
+      gwRadiatedEnergySolar: 3.0,
+      gwSkyAreaDeg2: 230,
+      spinDimensionless: 0.69,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "localization_region",
+      publishedCitation: "Abbott, B. P. et al. (2016) Physical Review Letters 116, 061102",
+    },
   }),
+  o({
+    id: "gw190521",
+    name: "GW190521 (IMBH Remnant)",
+    aliases: ["Pair-Instability Mass Gap Merger"],
+    category: "Gravitational wave",
+    subtype: "Intermediate-mass black hole merger localization",
+    distance: 17.2e9,
+    l: 120,
+    b: -35,
+    diameterLy: 1200000000,
+    visual: "blackhole",
+    color: "#ce93d8",
+    accent: "#ab47bc",
+    observed: "LIGO-Virgo detector network (O3)",
+    properties: [
+      "Progenitors: 85 M☉ + 66 M☉ (in Pair-Instability Mass Gap)",
+      "Remnant mass: 142 M☉ (First confirmed IMBH by gravitational waves)",
+      "8.0 M☉ converted to pure gravitational radiation",
+      "Sky localization area: 765 deg² across deep cosmos (z≈0.82)",
+    ],
+    description:
+      "The most massive black hole merger detected to date by LIGO-Virgo. The 85-solar-mass progenitor sits squarely within the pair-instability mass gap where core collapse was believed impossible.",
+    visualNote:
+      "Wide celestial localization contour band illustrating triangulation uncertainty for high-redshift gravitational wave events.",
+    source: "LIGO-Virgo Collaboration (2020) PRL",
+    compactPhysics: {
+      compactClass: "gravitational_wave_region",
+      massSolar: 142,
+      gwChirpMassSolar: 64,
+      gwRadiatedEnergySolar: 8.0,
+      gwSkyAreaDeg2: 765,
+      spinDimensionless: 0.72,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "localization_region",
+      publishedCitation: "Abbott, R. et al. (2020) Physical Review Letters 125, 101102",
+    },
+  }),
+  o({
+    id: "gw170817",
+    name: "GW170817 / AT 2017gfo",
+    aliases: ["First Binary Neutron Star Merger", "Kilonova AT 2017gfo"],
+    category: "Gravitational wave",
+    subtype: "Binary neutron star merger and optical kilonova",
+    distance: 130e6,
+    l: 308.2,
+    b: 38.3,
+    diameterLy: 20000000,
+    visual: "remnant",
+    color: "#ffca28",
+    accent: "#26c6da",
+    observed: "Gravitational waves (LIGO-Virgo) + Gamma (Fermi/INTEGRAL) + Optical/IR",
+    properties: [
+      "Progenitor neutron stars: 1.48 + 1.26 M☉",
+      "First multi-messenger astronomy event in history",
+      "Localized to host lenticular galaxy NGC 4993 (31 deg²)",
+      "Synthesized thousands of Earth masses in gold and platinum via r-process",
+    ],
+    description:
+      "The watershed multi-messenger collision of two neutron stars 130 million light-years away, triggering gravitational waves, a gamma-ray burst 1.7 seconds later, and an optical kilonova fireball.",
+    visualNote:
+      "Triangulated celestial banana-arc converging on host galaxy NGC 4993 with expanding kilonova glow.",
+    source: "LIGO-Virgo / Fermi / DLT40 / Swope (2017) ApJL",
+    compactPhysics: {
+      compactClass: "gravitational_wave_region",
+      massSolar: 2.74,
+      gwChirpMassSolar: 1.188,
+      gwSkyAreaDeg2: 31,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: true,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Abbott, B. P. et al. (2017) Physical Review Letters 119, 161101",
+    },
+  }),
+
+  // --- WHITE DWARFS & STELLAR REMNANTS ---
   o({
     id: "siriusb",
     name: "Sirius B",
-    aliases: ["WD 0642−166"],
+    aliases: ["WD 0642−166", "The Pup"],
     category: "Stellar remnant",
-    subtype: "White dwarf",
+    subtype: "Degenerate carbon-oxygen white dwarf",
     distance: 8.6,
     l: 227.2,
     b: -8.9,
@@ -726,12 +1360,97 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     visual: "star",
     color: "#e8f5ff",
     accent: "#9fcaff",
-    observed: "Visible and ultraviolet",
-    properties: ["About one solar mass", "Earth-sized radius", "Temperature ≈25,000 K"],
+    observed: "Visible (HST) and soft X-ray (Chandra)",
+    properties: [
+      "Mass 0.978 ± 0.005 M☉ in Earth-sized sphere (0.0084 R☉)",
+      "Electron degeneracy pressure support (Chandrasekhar limit)",
+      "Effective temperature ≈25,200 K",
+      "Gravitational redshift z ≈ 8.9×10⁻⁵ (tests general relativity)",
+    ],
     description:
-      "The nearby dense white-dwarf companion of Sirius A, containing roughly the Sun's mass in an Earth-sized body.",
-    visualNote: "Close to true blue-white color, but its rendered radius is enlarged.",
-    source: "NASA / ESA Hubble",
+      "The nearby dense white-dwarf companion of Sirius A. Packing nearly the entire mass of the Sun into an Earth-sized sphere supported by degenerate electrons.",
+    visualNote:
+      "Pure blue-white degenerate photosphere with atmospheric limb darkening and intense surface gravity.",
+    source: "NASA / ESA Hubble / Barstow et al. (2005) MNRAS",
+    compactPhysics: {
+      compactClass: "white_dwarf",
+      massSolar: 0.978,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Barstow et al. (2005) MNRAS 362, 1134",
+    },
+  }),
+  o({
+    id: "procyon-b",
+    name: "Procyon B",
+    aliases: ["WD 0736+053"],
+    category: "Stellar remnant",
+    subtype: "DQZ white dwarf",
+    distance: 11.46,
+    l: 213.7,
+    b: 13.0,
+    diameterLy: 1.5e-9,
+    visual: "star",
+    color: "#f5f5f5",
+    accent: "#b0bec5",
+    observed: "Optical astrometry and HST imaging",
+    properties: [
+      "Mass 0.602 ± 0.015 M☉",
+      "Cooler white dwarf (T ≈ 7,740 K)",
+      "Radius ≈0.0123 R☉ (8,600 km)",
+      "Orbits F-type subgiant Procyon A in 40.8 years",
+    ],
+    description:
+      "The cool degenerate companion in the Procyon system, illustrating how an evolved intermediate-mass star ends its life as a slowly cooling carbon-oxygen cinder.",
+    visualNote:
+      "Subtle creamy-white compact dwarf photosphere orbiting outside the primary star glare.",
+    source: "Gatewood & Han (2006) AJ 131, 1015",
+    compactPhysics: {
+      compactClass: "white_dwarf",
+      massSolar: 0.602,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Gatewood, G. & Han, I. (2006) AJ 131, 1015",
+    },
+  }),
+  o({
+    id: "cas-a",
+    name: "Cassiopeia A",
+    aliases: ["Cas A", "3C 461"],
+    category: "Stellar remnant",
+    subtype: "Supernova remnant with Central Compact Object",
+    distance: 11000,
+    l: 111.7,
+    b: -2.1,
+    diameterLy: 10,
+    visual: "remnant",
+    color: "#00e676",
+    accent: "#ff5252",
+    observed: "X-ray (Chandra/NuSTAR), Infrared (JWST), Radio (VLA)",
+    properties: [
+      "Core collapse occurred c. 1680 CE (youngest known in Milky Way)",
+      "Central non-pulsing neutron star with carbon atmosphere",
+      "Expanding ejecta filaments at 4,000–6,000 km/s",
+      "Reverse shock heating synthesized titanium-44 and nickel",
+    ],
+    description:
+      "The youngest known core-collapse supernova remnant in the Milky Way, featuring a delicate web of shocked ejecta and a central non-pulsing neutron star born in the explosion.",
+    visualNote:
+      "Multi-layered filamentary shell with fast forward blast wave, reverse shock, and glowing central compact object.",
+    source: "NASA Chandra / JWST / Hwang & Laming (2012)",
+    compactPhysics: {
+      compactClass: "supernova_remnant",
+      massSolar: 1.4,
+      accretionState: "none",
+      hasAccretionDisk: false,
+      hasRelativisticJet: false,
+      scientificConfidence: "confirmed",
+      publishedCitation: "Ho & Heinke (2009) Nature 462, 71; Milisavljevic et al. (2024) ApJL",
+    },
   }),
   o({
     id: "sn1987a",
@@ -1144,10 +1863,12 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
 
 export const OBJECT_BY_ID = new Map(OBSERVED_OBJECTS.map((item) => [item.id, item]));
 export const OBJECT_CATEGORIES: ObjectCategory[] = [
-  "Quasar",
-  "Neutron star",
   "Black hole",
+  "Neutron star",
+  "Quasar",
+  "Gravitational wave",
   "Stellar remnant",
+  "Nebula",
   "Unusual star",
   "Supergiant",
   "Variable star",

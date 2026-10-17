@@ -59,6 +59,7 @@ export const LIGHT_YEARS_PER_PARSEC = 1 / PARSECS_PER_LIGHT_YEAR; // ≈ 3.26156
 // --- Solar & Terrestrial Nominal Standards (IAU 2015 Resolution B3) --------
 /** Nominal Solar Mass (kg) */
 export const SOLAR_MASS_KG = 1.98847e30;
+export const NOMINAL_SOLAR_MASS_KG = SOLAR_MASS_KG;
 
 /** Nominal Solar Radius (m) */
 export const SOLAR_RADIUS_M = 695_700_000;

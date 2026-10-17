@@ -6,6 +6,7 @@ import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
 import { GALAXY_BY_NAME } from "./galaxy-models";
 import { NEARBY_GALAXIES, type NamedGalaxy, type ObservationalGalaxy } from "./galaxy-catalog";
+import { LargeScaleStructure3D } from "./LargeScaleStructure3D";
 
 // ---------------------------------------------------------------
 // OBSERVATIONAL UNIVERSE ATLAS — HIERARCHICAL RENDERING
@@ -462,106 +463,12 @@ export const NAMED_GALAXIES = NEARBY_GALAXIES.map((g) => ({
 }));
 
 // -----------------------------------------------------------------------------
-// Cosmic-Web Filaments Simulation (N-Body / Cosmological Density Simulation)
 // -----------------------------------------------------------------------------
-
-function useCosmicWeb() {
-  return useMemo(() => {
-    const shells = [
-      { rMin: 3e6, rMax: 3e7, n: 14000, warm: 0.5, size: 60 }, // Virgo Supercluster region
-      { rMin: 3e7, rMax: 3e8, n: 26000, warm: 0.4, size: 90 }, // Laniakea + neighbors
-      { rMin: 3e8, rMax: 3e9, n: 38000, warm: 0.3, size: 140 }, // large-scale filaments
-      { rMin: 3e9, rMax: 4.5e10, n: 46000, warm: 0.2, size: 220 }, // out to observable universe
-    ];
-
-    const seeds: THREE.Vector3[] = [];
-    for (let i = 0; i < 220; i++) {
-      const u = Math.random(),
-        v = Math.random();
-      const theta = 2 * Math.PI * u;
-      const phi = Math.acos(2 * v - 1);
-      seeds.push(
-        new THREE.Vector3(
-          Math.sin(phi) * Math.cos(theta),
-          Math.cos(phi),
-          Math.sin(phi) * Math.sin(theta),
-        ),
-      );
-    }
-    const geoms: THREE.BufferGeometry[] = [];
-    const sizes: number[] = [];
-    for (const s of shells) {
-      const pos = new Float32Array(s.n * 3);
-      const col = new Float32Array(s.n * 3);
-      for (let i = 0; i < s.n; i++) {
-        const t = Math.random();
-        const r = s.rMin * Math.pow(s.rMax / s.rMin, t);
-        let dir = new THREE.Vector3(
-          Math.random() - 0.5,
-          Math.random() - 0.5,
-          Math.random() - 0.5,
-        ).normalize();
-        if (Math.random() < 0.72) {
-          const seed = seeds[Math.floor(Math.random() * seeds.length)];
-          const jitter = new THREE.Vector3(
-            (Math.random() - 0.5) * 0.35,
-            (Math.random() - 0.5) * 0.35,
-            (Math.random() - 0.5) * 0.35,
-          );
-          dir = seed.clone().add(jitter).normalize();
-        }
-        pos[i * 3] = dir.x * r;
-        pos[i * 3 + 1] = dir.y * r;
-        pos[i * 3 + 2] = dir.z * r;
-        const warm = Math.random() < s.warm;
-        if (warm) {
-          col[i * 3] = 1.0;
-          col[i * 3 + 1] = 0.82;
-          col[i * 3 + 2] = 0.55;
-        } else {
-          col[i * 3] = 0.82;
-          col[i * 3 + 1] = 0.88;
-          col[i * 3 + 2] = 1.0;
-        }
-      }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-      geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
-      geoms.push(geo);
-      sizes.push(s.size);
-    }
-    return { geoms, sizes };
-  }, []);
-}
-
-function CosmicWeb() {
-  const { geoms, sizes } = useCosmicWeb();
-  const tex = useMemo(makeDotTexture, []);
-  const materials = useMemo(
-    () =>
-      sizes.map(
-        (s) =>
-          new THREE.PointsMaterial({
-            map: tex,
-            size: s,
-            sizeAttenuation: true,
-            vertexColors: true,
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            opacity: 0.85,
-          }),
-      ),
-    [tex, sizes],
-  );
-  return (
-    <group>
-      {geoms.map((g, i) => (
-        <points key={i} geometry={g} material={materials[i]} frustumCulled={false} />
-      ))}
-    </group>
-  );
-}
+// Large-Scale Structure & Cosmic Web Rendering is handled by LargeScaleStructure3D
+// Supporting two strictly segregated data modes:
+// Mode A: Observational Survey Reconstructions (SDSS, 2dFGRS, 2MRS, Cosmicflows)
+// Mode B: IllustrisTNG Cosmological Hydrodynamic Simulation (TNG300-1)
+// -----------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------
 // Observable Universe Horizon Shell (46.5 Gly Comoving Boundary)
@@ -684,7 +591,7 @@ export function Universe() {
   return (
     <group>
       <ObservableUniverseShell />
-      {showCosmicWebDensity && <CosmicWeb />}
+      <LargeScaleStructure3D />
       <MilkyWayFarSprite />
 
       {/* Observed Extragalactic Catalog Nodes */}

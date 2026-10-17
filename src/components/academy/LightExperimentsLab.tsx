@@ -583,7 +583,7 @@ export function LightExperimentsLab({
                       key={i}
                       cx={((i * 37) % 780) + 10}
                       cy={((i * 23) % 360) + 20}
-                      r={Math.random() * 2.5 + 1}
+                      r={((i * 7) % 25) / 10 + 1}
                       fill="#38bdf8"
                       opacity={0.7}
                     />

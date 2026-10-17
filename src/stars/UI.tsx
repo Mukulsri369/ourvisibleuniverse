@@ -1,7 +1,7 @@
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Compass, Telescope, Orbit, Sparkles, Layers, Sliders, Eye, Activity } from "lucide-react";
+import { Compass, Telescope, Orbit, Sparkles, Layers, Sliders, Eye, Activity, Radio } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { useStore, TOUR_STOPS } from "./store";
@@ -16,6 +16,9 @@ import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
 import { SolarSystemController } from "./SolarSystemController";
 import { GalaxySearchModal } from "./GalaxySearchModal";
 import { GalaxyCoverageDashboard } from "./GalaxyCoverageDashboard";
+import { CompactObjectLabModal } from "./CompactObjectLabModal";
+import { CosmicWebExplorerModal } from "./CosmicWebExplorerModal";
+import { GuidedJourneyHUD } from "./GuidedJourneyHUD";
 
 export function InfoPanel() {
   const star = useStore((s) => s.selectedStar);
@@ -399,15 +402,10 @@ export function TopLeftControls() {
         <Compass className="h-4 w-4 text-amber-400" />
       </IconButton>
       <IconButton
-        title={
-          useStore.getState().showCosmicWebDensity
-            ? "Simulated Cosmic Web Density: ON (Click to toggle)"
-            : "Simulated Cosmic Web Density: OFF (Click to toggle)"
-        }
-        onClick={() => useStore.getState().toggleCosmicWebDensity()}
-        active={useStore.getState().showCosmicWebDensity}
+        title="Large-Scale Structure & Cosmic Web Explorer (Mode A: Observational vs Mode B: IllustrisTNG Simulation & Guided Journey)"
+        onClick={() => useStore.getState().setCosmicWebExplorerOpen(true)}
       >
-        <Layers className="h-4 w-4 text-violet-400" />
+        <Layers className="h-4 w-4 text-cyan-400" />
       </IconButton>
       <IconButton
         title="Astrophysical Optics, Shaders & Tone Mapping Settings"
@@ -439,6 +437,12 @@ export function TopLeftControls() {
         onClick={() => useStore.getState().setBenchmarkModalOpen(true)}
       >
         <Activity className="h-4 w-4 text-emerald-400" />
+      </IconButton>
+      <IconButton
+        title="Compact Objects & Relativistic Ray-Tracing Lab (Black Holes, Pulsars, Quasars, Magnetars, GW)"
+        onClick={() => useStore.getState().setCompactObjectModalOpen(true)}
+      >
+        <Radio className="h-4 w-4 text-purple-400" />
       </IconButton>
       <IconButton
         title="Search all celestial objects"
@@ -506,6 +510,9 @@ export function TopLeftControls() {
       <GaiaAtlasPanel open={gaiaAtlasOpen} onClose={() => setGaiaAtlasOpen(false)} />
       <GalaxySearchModal />
       <GalaxyCoverageDashboard />
+      <CompactObjectLabModal />
+      <CosmicWebExplorerModal />
+      <GuidedJourneyHUD />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <GuidePanel open={guideOpen} onClose={() => setGuideOpen(false)} />
@@ -1513,10 +1520,10 @@ export function LoadingScreen({ done }: { done: boolean }) {
                 key={i}
                 className="absolute h-[2px] w-[2px] rounded-full bg-white"
                 style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  opacity: 0.2 + Math.random() * 0.7,
-                  animation: `twinkle ${2 + Math.random() * 4}s ease-in-out ${Math.random() * 3}s infinite`,
+                  left: `${(i * 37 + 13) % 100}%`,
+                  top: `${(i * 59 + 29) % 100}%`,
+                  opacity: 0.2 + ((i * 17) % 70) / 100,
+                  animation: `twinkle ${2 + ((i * 13) % 4)}s ease-in-out ${((i * 7) % 3)}s infinite`,
                 }}
               />
             ))}
@@ -1793,6 +1800,21 @@ export function SiteMap() {
                   );
                 })}
             </div>
+
+            <button
+              onClick={() => {
+                useStore.getState().setCompactObjectModalOpen(true);
+                setOpen(false);
+              }}
+              className="mt-2 flex w-full items-center justify-between rounded-md border border-purple-500/30 bg-purple-950/40 px-2.5 py-2 text-[11px] text-purple-200 transition hover:bg-purple-900/60 hover:text-white shadow-sm"
+              title="Compact Objects Reference Gallery & Relativistic Ray-Tracing Lab"
+            >
+              <span className="flex items-center gap-1.5 font-medium">
+                <Radio className="size-3.5 text-purple-400" />
+                <span>Compact Objects Gallery & Lab</span>
+              </span>
+              <span className="text-purple-400/60 text-xs">→</span>
+            </button>
 
             <a
               href="/visible-universe-history"
