@@ -8,9 +8,10 @@
  * or spacecraft at 0.0001 ly causes severe vertex shaking and depth precision breakdown.
  *
  * Solution:
- * Maintain high-precision world coordinates in double precision (Float64).
- * Subtract the camera's 64-bit world position on the CPU, and send ONLY the camera-relative
- * position vector into Three.js transforms. Also provides [high, low] float32 splitting.
+ * 1. Maintain high-precision world coordinates in double precision (Float64).
+ * 2. Maintain hierarchical reference frames (Solar, Galactic, M31 Extragalactic, Deep Space).
+ * 3. Subtract the camera or sector origin on the CPU before uploading to the GPU.
+ * 4. Supply high/low 32-bit floats for shaders requiring full 64-bit precision without jitter.
  */
 
 import * as THREE from "three";
@@ -21,22 +22,22 @@ export class Vector3D {
   public z: number;
 
   constructor(x = 0, y = 0, z = 0) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.x = Number(x);
+    this.y = Number(y);
+    this.z = Number(z);
   }
 
   public set(x: number, y: number, z: number): this {
-    this.x = x;
-    this.y = y;
-    this.z = z;
+    this.x = Number(x);
+    this.y = Number(y);
+    this.z = Number(z);
     return this;
   }
 
   public copy(v: Vector3D | { x: number; y: number; z: number }): this {
-    this.x = v.x;
-    this.y = v.y;
-    this.z = v.z;
+    this.x = Number(v.x);
+    this.y = Number(v.y);
+    this.z = Number(v.z);
     return this;
   }
 
@@ -45,23 +46,23 @@ export class Vector3D {
   }
 
   public add(v: Vector3D | { x: number; y: number; z: number }): this {
-    this.x += v.x;
-    this.y += v.y;
-    this.z += v.z;
+    this.x += Number(v.x);
+    this.y += Number(v.y);
+    this.z += Number(v.z);
     return this;
   }
 
   public sub(v: Vector3D | { x: number; y: number; z: number }): this {
-    this.x -= v.x;
-    this.y -= v.y;
-    this.z -= v.z;
+    this.x -= Number(v.x);
+    this.y -= Number(v.y);
+    this.z -= Number(v.z);
     return this;
   }
 
   public multiplyScalar(s: number): this {
-    this.x *= s;
-    this.y *= s;
-    this.z *= s;
+    this.x *= Number(s);
+    this.y *= Number(s);
+    this.z *= Number(s);
     return this;
   }
 
@@ -70,9 +71,9 @@ export class Vector3D {
   }
 
   public distanceTo(v: Vector3D | { x: number; y: number; z: number }): number {
-    const dx = this.x - v.x;
-    const dy = this.y - v.y;
-    const dz = this.z - v.z;
+    const dx = this.x - Number(v.x);
+    const dy = this.y - Number(v.y);
+    const dz = this.z - Number(v.z);
     return Math.sqrt(dx * dx + dy * dy + dz * dz);
   }
 
@@ -85,7 +86,11 @@ export class Vector3D {
     target?: THREE.Vector3,
   ): THREE.Vector3 {
     const out = target ?? new THREE.Vector3();
-    out.set(this.x - cameraPos64.x, this.y - cameraPos64.y, this.z - cameraPos64.z);
+    out.set(
+      this.x - Number(cameraPos64.x),
+      this.y - Number(cameraPos64.y),
+      this.z - Number(cameraPos64.z),
+    );
     return out;
   }
 
@@ -157,9 +162,116 @@ export class SceneOriginNode {
    */
   public localToWorld64(localOffsetLy: Vector3D | { x: number; y: number; z: number }): Vector3D {
     return new Vector3D(
-      this.worldPosition64.x + localOffsetLy.x,
-      this.worldPosition64.y + localOffsetLy.y,
-      this.worldPosition64.z + localOffsetLy.z,
+      this.worldPosition64.x + Number(localOffsetLy.x),
+      this.worldPosition64.y + Number(localOffsetLy.y),
+      this.worldPosition64.z + Number(localOffsetLy.z),
     );
   }
 }
+
+/**
+ * Standard Hierarchical Reference Frames
+ */
+export const HIERARCHICAL_FRAMES = {
+  SOLAR_SYSTEM: new SceneOriginNode(
+    "solar_system",
+    "Solar System Barycenter",
+    new Vector3D(0, 0, 0),
+    2.0,
+  ),
+  GALACTIC_CENTER: new SceneOriginNode(
+    "galactic_center",
+    "Milky Way Sgr A*",
+    new Vector3D(-26000, 0, 0),
+    10000,
+  ),
+  ANDROMEDA_M31: new SceneOriginNode(
+    "m31",
+    "Andromeda Galaxy",
+    new Vector3D(-1175653, -931444, 1928096),
+    150000,
+  ),
+  VIRGO_CLUSTER: new SceneOriginNode(
+    "virgo",
+    "Virgo Supercluster Center",
+    new Vector3D(1.1e7, 4.8e7, -1.9e7),
+    1e7,
+  ),
+  OBSERVABLE_COSMOS: new SceneOriginNode(
+    "observable_cosmos",
+    "Cosmological Origin",
+    new Vector3D(0, 0, 0),
+    4.65e10,
+  ),
+};
+
+/**
+ * Floating Origin Singleton Manager
+ * Coordinates CPU 64-bit world positions with camera-relative 32-bit GPU frames.
+ */
+export class FloatingOriginManager {
+  private static instance: FloatingOriginManager;
+
+  public cameraWorldPos64 = new Vector3D(0, 0, 8);
+  public cameraTarget64 = new Vector3D(0, 0, 0);
+  public activeFrame: SceneOriginNode = HIERARCHICAL_FRAMES.SOLAR_SYSTEM;
+
+  private constructor() {}
+
+  public static getInstance(): FloatingOriginManager {
+    if (!FloatingOriginManager.instance) {
+      FloatingOriginManager.instance = new FloatingOriginManager();
+    }
+    return FloatingOriginManager.instance;
+  }
+
+  /**
+   * Selects the most appropriate reference frame based on camera distance to major hubs.
+   */
+  public updateActiveFrame(cameraPos64: Vector3D): SceneOriginNode {
+    const dSolar = cameraPos64.length();
+    if (dSolar < 50) {
+      this.activeFrame = HIERARCHICAL_FRAMES.SOLAR_SYSTEM;
+      return this.activeFrame;
+    }
+
+    const dGalactic = cameraPos64.distanceTo(HIERARCHICAL_FRAMES.GALACTIC_CENTER.worldPosition64);
+    if (dGalactic < 30000) {
+      this.activeFrame = HIERARCHICAL_FRAMES.GALACTIC_CENTER;
+      return this.activeFrame;
+    }
+
+    const dM31 = cameraPos64.distanceTo(HIERARCHICAL_FRAMES.ANDROMEDA_M31.worldPosition64);
+    if (dM31 < 200000) {
+      this.activeFrame = HIERARCHICAL_FRAMES.ANDROMEDA_M31;
+      return this.activeFrame;
+    }
+
+    const dVirgo = cameraPos64.distanceTo(HIERARCHICAL_FRAMES.VIRGO_CLUSTER.worldPosition64);
+    if (dVirgo < 3e7) {
+      this.activeFrame = HIERARCHICAL_FRAMES.VIRGO_CLUSTER;
+      return this.activeFrame;
+    }
+
+    this.activeFrame = HIERARCHICAL_FRAMES.OBSERVABLE_COSMOS;
+    return this.activeFrame;
+  }
+
+  /**
+   * Transforms a world 64-bit point to camera-relative 32-bit vector.
+   */
+  public worldToCameraRelative(
+    worldPos: Vector3D | { x: number; y: number; z: number },
+    out?: THREE.Vector3,
+  ): THREE.Vector3 {
+    const target = out ?? new THREE.Vector3();
+    target.set(
+      Number(worldPos.x) - this.cameraWorldPos64.x,
+      Number(worldPos.y) - this.cameraWorldPos64.y,
+      Number(worldPos.z) - this.cameraWorldPos64.z,
+    );
+    return target;
+  }
+}
+
+export const floatingOriginManager = FloatingOriginManager.getInstance();

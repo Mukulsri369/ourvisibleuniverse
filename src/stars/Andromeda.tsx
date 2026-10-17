@@ -1,9 +1,10 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
+import { lodManager } from "./lod/LODTransitionManager";
 import {
   ANDROMEDA_NAME,
   M31_AU,
@@ -73,6 +74,8 @@ function buildAndromeda(): Geos {
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     g.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+    // Pre-calculate bounding sphere to enable instantaneous hardware frustum culling
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), M31_HALO_RADIUS * 1.15);
     return g;
   };
 
@@ -844,16 +847,25 @@ function PA99N2System() {
 
 // Soft glow so M31 reads as a galaxy from millions of light-years away,
 // fading out as the camera closes in on the particle model.
+// Soft glow so M31 reads as a galaxy from millions of light-years away,
+// smoothly cross-fading with the particle model via continuous screen-space LOD.
 function M31FarGlow() {
   const ref = useRef<THREE.Sprite>(null!);
   const tex = useMemo(() => makeGlowTexture("rgba(240,236,255,0.95)", "rgba(120,140,255,0)"), []);
   const world = useMemo(() => new THREE.Vector3(), []);
+  const { size } = useThree();
   useFrame(({ camera }) => {
     if (!ref.current) return;
     ref.current.getWorldPosition(world);
-    const d = camera.position.distanceTo(world);
-    const a = Math.min(1, Math.max(0, (d - 250_000) / 500_000));
-    (ref.current.material as THREE.SpriteMaterial).opacity = a * 0.55;
+    const lodState = lodManager.evaluate(
+      "andromeda",
+      camera,
+      world,
+      { objectRadiusLy: M31_DISK_RADIUS, enterHighDetailPixels: 52, exitHighDetailPixels: 26 },
+      size.height,
+    );
+    (ref.current.material as THREE.SpriteMaterial).opacity = lodState.alphaFar * 0.6;
+    ref.current.visible = lodState.alphaFar > 0.005;
   });
   return (
     <sprite ref={ref} scale={[260_000, 130_000, 1]}>
@@ -862,7 +874,7 @@ function M31FarGlow() {
         transparent
         depthWrite={false}
         blending={THREE.AdditiveBlending}
-        opacity={0}
+        opacity={0.6}
       />
     </sprite>
   );
@@ -876,6 +888,8 @@ export function Andromeda() {
   const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeGlowTexture("rgba(255,226,178,1)", "rgba(255,150,60,0)"), []);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
+  const subsystems = useStore((s) => s.subsystems);
+  const { size } = useThree();
 
   const shader = useMemo(
     () => ({
@@ -885,6 +899,7 @@ export function Andromeda() {
         uTime: { value: 0 },
         uVflat: { value: V_FLAT },
         uRcore: { value: R_CORE },
+        uOpacity: { value: 0 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
@@ -909,11 +924,12 @@ export function Andromeda() {
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
+        uniform float uOpacity;
         varying vec3 vColor;
         void main(){
           vec4 t = texture2D(uTex, gl_PointCoord);
           if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a);
+          gl_FragColor = vec4(vColor, t.a * uOpacity);
         }
       `,
       vertexColors: true,
@@ -924,17 +940,22 @@ export function Andromeda() {
     [tex],
   );
 
-  // Detail LOD: from the Milky Way, M31's ~1M particles project onto a few
-  // pixels, so we let the far-glow sprite stand in and skip drawing them.
-  // Nothing is removed — they switch back on as the camera approaches.
+  // Detail continuous LOD with hysteresis and smooth alpha crossfade
   const detailRef = useRef<THREE.Group>(null!);
   const camWorld = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ clock, camera }) => {
     shader.uniforms.uTime.value = clock.elapsedTime;
     if (detailRef.current) {
       detailRef.current.getWorldPosition(camWorld);
-      const d = camera.position.distanceTo(camWorld);
-      detailRef.current.visible = d < M31_DISK_RADIUS * 7;
+      const lodState = lodManager.evaluate(
+        "andromeda",
+        camera,
+        camWorld,
+        { objectRadiusLy: M31_DISK_RADIUS, enterHighDetailPixels: 52, exitHighDetailPixels: 26 },
+        size.height,
+      );
+      shader.uniforms.uOpacity.value = lodState.alphaNear;
+      detailRef.current.visible = subsystems.andromeda && lodState.isDetailedVisible;
     }
   });
 
@@ -958,7 +979,7 @@ export function Andromeda() {
       <group rotation={[Math.PI / 2, 0, 0]}>
         <group ref={detailRef}>
           {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo, dustGeo, satGeo].map((g, i) => (
-            <points key={i} geometry={g} frustumCulled={false}>
+            <points key={i} geometry={g} frustumCulled={true}>
               <shaderMaterial args={[shader]} />
             </points>
           ))}

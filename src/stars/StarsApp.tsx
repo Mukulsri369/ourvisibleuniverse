@@ -35,6 +35,7 @@ import { UniversalObjectModal } from "./UniversalObjectModal";
 import { CameraBookmarksModal } from "./CameraBookmarksModal";
 import { KeyboardShortcutsModal } from "./KeyboardShortcutsModal";
 import { MajorDiscoveriesModal } from "./MajorDiscoveriesModal";
+import { PerformanceProfilerHUD } from "./PerformanceProfilerHUD";
 
 import { useStore } from "./store";
 
@@ -43,6 +44,7 @@ export function StarsApp() {
   const selected = useStore((s) => s.selectedStar);
   const setSelected = useStore((s) => s.setSelected);
   const uiHidden = useStore((s) => s.uiHidden);
+  const subsystems = useStore((s) => s.subsystems);
   const observationModalOpen = useStore((s) => s.observationModalOpen);
   const observationTargetId = useStore((s) => s.observationTargetId);
   const setObservationModalOpen = useStore((s) => s.setObservationModalOpen);
@@ -61,7 +63,7 @@ export function StarsApp() {
     >
       <Canvas
         style={{ touchAction: "none" }}
-        camera={{ fov: 40, near: 1e-11, far: 1e11, position: [4, 2, 6] }}
+        camera={{ fov: 40, near: 1e-10, far: 1e11, position: [4, 2, 6] }}
         // Cap the render resolution: at 1M+ particles the fill cost of a
         // 2x device-pixel-ratio buffer is the single biggest frame cost.
         dpr={[1, 1.5]}
@@ -76,11 +78,13 @@ export function StarsApp() {
           <DetailedGalaxies />
           <ObservedObjects />
           <ExoSystem />
-          <SolarSystem>
-            <Sun />
-            <Planets />
-          </SolarSystem>
-          <MotionTrails />
+          {subsystems.planets && (
+            <SolarSystem>
+              <Sun />
+              <Planets />
+            </SolarSystem>
+          )}
+          {subsystems.planets && <MotionTrails />}
           <OrientationDisc />
           <StarField />
           <BinaryMarkers />
@@ -89,6 +93,9 @@ export function StarsApp() {
           <OpticsPostProcessing />
         </Suspense>
       </Canvas>
+
+      {/* Real-Time Precision Graphics Performance Profiler HUD Overlay */}
+      <PerformanceProfilerHUD />
 
       {/* Hide toggle stays visible so users can bring the UI back */}
       <UIHideToggle />

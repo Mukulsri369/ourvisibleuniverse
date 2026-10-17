@@ -112,34 +112,72 @@ export function OpticsPostProcessing() {
     };
   }, [composer]);
 
+  const subsystems = useStore((s) => s.subsystems);
+
+  // Rolling latency history buffer for percentiles
+  const frameDurations = useRef<number[]>([]);
+  const lastFrameTimestamp = useRef(performance.now());
+  const rollingFpsRef = useRef(60);
+
   // Per-frame render override with metrics sampling
   useFrame(() => {
+    const t0 = performance.now();
+    const frameDelta = t0 - lastFrameTimestamp.current;
+    lastFrameTimestamp.current = t0;
+
+    if (frameDelta > 0 && frameDelta < 250) {
+      frameDurations.current.push(frameDelta);
+      if (frameDurations.current.length > 60) {
+        frameDurations.current.shift();
+      }
+    }
+
+    // Respect subsystem toggle for bloom
+    if (composer.bloomPass) {
+      composer.bloomPass.strength = bloomEnabled && subsystems.bloom ? bloomStrength : 0.0;
+    }
+
     // Render through composer with post-processing passes
     composer.comp.render();
 
-    // Sample performance metrics every 30 frames (reduced store updates)
+    const tCpu = performance.now() - t0;
+
+    // Sample performance metrics every 15 frames for snappy feedback
     frameCount.current++;
-    if (frameCount.current % 30 === 0) {
-      const now = performance.now();
-      const delta = now - lastTime.current;
-      lastTime.current = now;
+    if (frameCount.current % 15 === 0 && frameDurations.current.length >= 10) {
+      const sorted = [...frameDurations.current].sort((a, b) => a - b);
+      const p95Idx = Math.floor(sorted.length * 0.95);
+      const p99Idx = Math.floor(sorted.length * 0.99);
+      const avgDuration = sorted.reduce((sum, val) => sum + val, 0) / sorted.length;
 
-      if (delta > 0) {
-        const instantFps = Math.round((30 * 1000) / delta);
-        fpsAccumulator.current = Math.round(fpsAccumulator.current * 0.7 + instantFps * 0.3);
+      const p95 = sorted[p95Idx] ?? avgDuration;
+      const p99 = sorted[p99Idx] ?? p95;
+      const currentFps = Math.round(1000 / Math.max(1, frameDelta));
+      const rollingFps = Math.round(1000 / Math.max(1, avgDuration));
 
-        const info = gl.info;
-        const memory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
-        const memMb = memory ? Math.round(memory.usedJSHeapSize / (1024 * 1024)) : 85;
+      const info = gl.info;
+      const memory = (performance as unknown as { memory?: { usedJSHeapSize: number } }).memory;
+      const memMb = memory ? Math.round(memory.usedJSHeapSize / (1024 * 1024)) : 85;
 
-        setPerformanceStats({
-          fps: Math.min(120, Math.max(10, fpsAccumulator.current)),
-          drawCalls: info.render.calls,
-          triangles: info.render.triangles,
-          pointsCount: info.render.points,
-          memoryMb: memMb,
-        });
-      }
+      const originName =
+        (window as unknown as { __activeOriginName?: string }).__activeOriginName ??
+        "Solar System Barycenter";
+
+      setPerformanceStats({
+        fps: Math.min(120, Math.max(5, currentFps)),
+        rollingFps: Math.min(120, Math.max(5, rollingFps)),
+        frameTimeMs: avgDuration,
+        p95FrameTimeMs: p95,
+        p99FrameTimeMs: p99,
+        cpuFrameTimeMs: tCpu,
+        drawCalls: info.render.calls,
+        triangles: info.render.triangles,
+        pointsCount: info.render.points,
+        memoryMb: memMb,
+        geometriesCount: info.memory.geometries,
+        texturesCount: info.memory.textures,
+        activeFloatingOrigin: originName,
+      });
     }
   }, 1);
 

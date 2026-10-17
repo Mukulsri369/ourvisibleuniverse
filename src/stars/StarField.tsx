@@ -77,31 +77,79 @@ export function StarField() {
   }, [selectedStar]);
 
   // Handle LOD streaming updates based on camera motion
-  const refreshLOD = useCallback((camDist: number, camPos: THREE.Vector3) => {
-    gaiaTileManager.updateLOD(camDist, { x: camPos.x, y: camPos.y, z: camPos.z }).then((stars) => {
-      setCatalogStars(stars);
-    });
-  }, []);
+  const subsystems = useStore((s) => s.subsystems);
+  const lodCooldown = useRef(0);
 
-  // Build GPU geometry combining Gaia DR3 catalog stars + optional procedural background
-  const { geometry, starLookup } = useMemo(() => {
+  // Maximum buffer capacity per device tier to avoid GC reallocation
+  const maxCapacity = useMemo(() => {
+    if (isMobile) return 24000;
+    if (starLODTier === "high") return 200000;
+    if (starLODTier === "benchmark") return 550000;
+    return 75000;
+  }, [isMobile, starLODTier]);
+
+  // Pre-allocated persistent geometry with fixed capacity
+  const { geometry, buffers, starLookupRef } = useMemo(() => {
+    const positions = new Float32Array(maxCapacity * 3);
+    const velocities = new Float32Array(maxCapacity * 3);
+    const naturalColors = new Float32Array(maxCapacity * 3);
+    const spectralColors = new Float32Array(maxCapacity * 3);
+    const sizes = new Float32Array(maxCapacity);
+    const phases = new Float32Array(maxCapacity);
+    const isCatalogAttr = new Float32Array(maxCapacity);
+    const isSkyDirectionAttr = new Float32Array(maxCapacity);
+
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    g.setAttribute("aVelocity", new THREE.BufferAttribute(velocities, 3));
+    g.setAttribute("aColorNatural", new THREE.BufferAttribute(naturalColors, 3));
+    g.setAttribute("aColorSpectral", new THREE.BufferAttribute(spectralColors, 3));
+    g.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
+    g.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
+    g.setAttribute("aIsCatalog", new THREE.BufferAttribute(isCatalogAttr, 1));
+    g.setAttribute("aIsSkyDirection", new THREE.BufferAttribute(isSkyDirectionAttr, 1));
+
+    // Pre-assign bounding sphere to skip expensive per-frame recalculations
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 100000);
+
+    return {
+      geometry: g,
+      buffers: {
+        positions,
+        velocities,
+        naturalColors,
+        spectralColors,
+        sizes,
+        phases,
+        isCatalogAttr,
+        isSkyDirectionAttr,
+      },
+      starLookupRef: { current: [] as GaiaStarRecord[] },
+    };
+  }, [maxCapacity]);
+
+  // Update persistent buffer in-place whenever catalog stars or background settings change
+  useEffect(() => {
     const catalogCount = catalogStars.length;
-    const bgCount = showProcedural ? (isMobile ? 4000 : PROCEDURAL_COUNT) : 0;
-    const totalCount = catalogCount + bgCount;
+    const bgCount = showProcedural ? (isMobile ? 3000 : PROCEDURAL_COUNT) : 0;
+    const totalCount = Math.min(maxCapacity, catalogCount + bgCount);
 
-    const positions = new Float32Array(totalCount * 3);
-    const velocities = new Float32Array(totalCount * 3);
-    const naturalColors = new Float32Array(totalCount * 3);
-    const spectralColors = new Float32Array(totalCount * 3);
-    const sizes = new Float32Array(totalCount);
-    const phases = new Float32Array(totalCount);
-    const isCatalogAttr = new Float32Array(totalCount);
-    const isSkyDirectionAttr = new Float32Array(totalCount);
+    const {
+      positions,
+      velocities,
+      naturalColors,
+      spectralColors,
+      sizes,
+      phases,
+      isCatalogAttr,
+      isSkyDirectionAttr,
+    } = buffers;
 
     const lookup: GaiaStarRecord[] = [];
+    const validCatalogCount = Math.min(catalogCount, totalCount);
 
     // 1. Populate Catalog Stars
-    for (let i = 0; i < catalogCount; i++) {
+    for (let i = 0; i < validCatalogCount; i++) {
       const s = catalogStars[i];
       lookup.push(s);
 
@@ -109,7 +157,6 @@ export function StarField() {
       positions[i * 3 + 1] = s.y;
       positions[i * 3 + 2] = s.z;
 
-      // 3D velocity vector (ly / kyr) for proper-motion time projection
       velocities[i * 3] = s.properMotion3D.vxLyPerKyr;
       velocities[i * 3 + 1] = s.properMotion3D.vyLyPerKyr;
       velocities[i * 3 + 2] = s.properMotion3D.vzLyPerKyr;
@@ -122,7 +169,6 @@ export function StarField() {
       spectralColors[i * 3 + 1] = s.spectralColorRgb.g;
       spectralColors[i * 3 + 2] = s.spectralColorRgb.b;
 
-      // Photometric brightness & Airy disk angular core
       const photo = magnitudeToPhotometricIntensity(s.magnitude);
       sizes[i] = photo.pointRadius;
       phases[i] = (i * 0.73) % (Math.PI * 2);
@@ -130,8 +176,9 @@ export function StarField() {
       isSkyDirectionAttr[i] = s.isSkyDirectionLayer ? 1.0 : 0.0;
     }
 
-    // 2. Populate Optional Procedural Background (distinct visual signature)
-    if (bgCount > 0) {
+    // 2. Populate Procedural Background
+    const remainingBg = Math.min(bgCount, totalCount - validCatalogCount);
+    if (remainingBg > 0) {
       const SCALE_H = 700;
       const R_MAX = 14000;
       let seed = 1234567;
@@ -140,8 +187,8 @@ export function StarField() {
         return seed / 4294967296;
       };
 
-      for (let j = 0; j < bgCount; j++) {
-        const i = catalogCount + j;
+      for (let j = 0; j < remainingBg; j++) {
+        const i = validCatalogCount + j;
         const r = -Math.log(1 - rnd() * 0.999) * 2400 + 400;
         const rClamped = Math.min(r, R_MAX);
         const theta = rnd() * Math.PI * 2;
@@ -156,7 +203,6 @@ export function StarField() {
         velocities[i * 3 + 1] = 0;
         velocities[i * 3 + 2] = 0;
 
-        // Softer background colors to distinguish procedural from observational
         naturalColors[i * 3] = 0.75;
         naturalColors[i * 3 + 1] = 0.8;
         naturalColors[i * 3 + 2] = 0.95;
@@ -167,33 +213,48 @@ export function StarField() {
 
         sizes[i] = 1.2 + rnd() * 1.5;
         phases[i] = rnd() * Math.PI * 2;
-        isCatalogAttr[i] = 0.0; // Distinguishable background flag
+        isCatalogAttr[i] = 0.0;
         isSkyDirectionAttr[i] = 0.0;
       }
     }
 
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    g.setAttribute("aVelocity", new THREE.BufferAttribute(velocities, 3));
-    g.setAttribute("aColorNatural", new THREE.BufferAttribute(naturalColors, 3));
-    g.setAttribute("aColorSpectral", new THREE.BufferAttribute(spectralColors, 3));
-    g.setAttribute("aSize", new THREE.BufferAttribute(sizes, 1));
-    g.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
-    g.setAttribute("aIsCatalog", new THREE.BufferAttribute(isCatalogAttr, 1));
-    g.setAttribute("aIsSkyDirection", new THREE.BufferAttribute(isSkyDirectionAttr, 1));
+    starLookupRef.current = lookup;
 
-    return { geometry: g, starLookup: lookup };
-  }, [catalogStars, showProcedural, isMobile]);
+    // Direct in-place flag updates without recreating geometries
+    geometry.attributes.position.needsUpdate = true;
+    geometry.attributes.aVelocity.needsUpdate = true;
+    geometry.attributes.aColorNatural.needsUpdate = true;
+    geometry.attributes.aColorSpectral.needsUpdate = true;
+    geometry.attributes.aSize.needsUpdate = true;
+    geometry.attributes.aPhase.needsUpdate = true;
+    geometry.attributes.aIsCatalog.needsUpdate = true;
+    geometry.attributes.aIsSkyDirection.needsUpdate = true;
 
-  // Frame animation: update uniforms & camera LOD streaming
-  useFrame(({ clock, camera }) => {
+    geometry.setDrawRange(0, totalCount);
+  }, [catalogStars, showProcedural, isMobile, maxCapacity, buffers, geometry, starLookupRef]);
+
+  // Frame animation: update uniforms & camera LOD streaming with velocity debounce
+  useFrame(({ clock, camera }, dt) => {
     spectralTarget.current = spectralMode ? 1 : 0;
     spectralBlend.current += (spectralTarget.current - spectralBlend.current) * 0.05;
 
+    lodCooldown.current += dt;
     const camDist = useStore.getState().cameraDistance;
-    if (Math.abs(camDist - lastCameraDistance.current) / (lastCameraDistance.current || 1) > 0.15) {
-      lastCameraDistance.current = camDist;
-      refreshLOD(camDist, camera.position);
+
+    // Debounce tile requests: check every 0.35s and require >= 25% distance delta
+    if (lodCooldown.current > 0.35) {
+      if (
+        Math.abs(camDist - lastCameraDistance.current) / (lastCameraDistance.current || 1) >
+        0.25
+      ) {
+        lodCooldown.current = 0;
+        lastCameraDistance.current = camDist;
+        refreshLOD(camDist, camera.position);
+      }
+    }
+
+    if (pointsRef.current) {
+      pointsRef.current.visible = subsystems.gaiaStars;
     }
 
     if (materialRef.current) {
@@ -327,15 +388,16 @@ export function StarField() {
   // Proximity Raycasting / Picking on catalog star click
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
-    if (!e.point || starLookup.length === 0) return;
+    const lookup = starLookupRef.current;
+    if (!e.point || lookup.length === 0) return;
 
     // Find nearest catalog star to intersection point
     const clickPoint = e.point;
     let closestStar: GaiaStarRecord | null = null;
     let minDistanceSq = 16.0; // Picking radius in light-years
 
-    for (let i = 0; i < starLookup.length; i++) {
-      const star = starLookup[i];
+    for (let i = 0; i < lookup.length; i++) {
+      const star = lookup[i];
       const dx = star.x - clickPoint.x;
       const dy = star.y - clickPoint.y;
       const dz = star.z - clickPoint.z;

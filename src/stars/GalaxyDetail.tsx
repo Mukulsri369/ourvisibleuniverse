@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
+import { lodManager } from "./lod/LODTransitionManager";
 import {
   GALAXY_MODELS,
   galaxyCenter,
@@ -54,6 +55,8 @@ function pack(pos: Float32Array, col: Float32Array, size: Float32Array) {
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   g.setAttribute("color", new THREE.BufferAttribute(col, 3));
   g.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+  // Bounding sphere enables instantaneous GPU frustum culling
+  g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 200_000);
   return g;
 }
 
@@ -863,6 +866,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
   const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeGlowTexture(m.coreColor, "rgba(255,150,60,0)"), [m]);
   const center = useMemo(() => galaxyCenter(m), [m]);
+  const { size } = useThree();
 
   const vFlat = useMemo(() => (2 * Math.PI * (m.diskRadius * 0.5)) / m.rotPeriod, [m]);
   const rCore = m.diskRadius * 0.08;
@@ -875,6 +879,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
         uTime: { value: 0 },
         uVflat: { value: vFlat },
         uRcore: { value: rCore },
+        uOpacity: { value: 0 },
       },
       vertexShader: /* glsl */ `
         attribute float aSize;
@@ -899,11 +904,12 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
+        uniform float uOpacity;
         varying vec3 vColor;
         void main(){
           vec4 t = texture2D(uTex, gl_PointCoord);
           if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a);
+          gl_FragColor = vec4(vColor, t.a * uOpacity);
         }
       `,
       vertexColors: true,
@@ -914,8 +920,21 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
     [tex, vFlat, rCore],
   );
 
-  useFrame(({ clock }) => {
+  const groupRef = useRef<THREE.Group>(null!);
+
+  useFrame(({ clock, camera }) => {
     shader.uniforms.uTime.value = clock.elapsedTime;
+    const lodState = lodManager.evaluate(
+      m.key,
+      camera,
+      center,
+      { objectRadiusLy: m.diskRadius, enterHighDetailPixels: 45, exitHighDetailPixels: 22 },
+      size.height,
+    );
+    shader.uniforms.uOpacity.value = lodState.alphaNear;
+    if (groupRef.current) {
+      groupRef.current.visible = lodState.isDetailedVisible;
+    }
   });
 
   return (
@@ -923,9 +942,9 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
       position={center.toArray()}
       rotation={[(m.inclination * Math.PI) / 180, 0, (m.posAngle * Math.PI) / 180]}
     >
-      <group rotation={[Math.PI / 2, 0, 0]}>
+      <group ref={groupRef} rotation={[Math.PI / 2, 0, 0]}>
         {geoms.map((g, i) => (
-          <points key={i} geometry={g} frustumCulled={false}>
+          <points key={i} geometry={g} frustumCulled={true}>
             <shaderMaterial args={[shader]} />
           </points>
         ))}
@@ -968,7 +987,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
 }
 
 // ---------------------------------------------------------------
-// LOD gate — build a galaxy only when it is selected or nearby
+// LOD gate — continuous hysteresis switch with smooth mount
 // ---------------------------------------------------------------
 
 function GalaxyGate({ m }: { m: GalaxyModel }) {
@@ -980,10 +999,11 @@ function GalaxyGate({ m }: { m: GalaxyModel }) {
 
   useFrame(({ camera }, dt) => {
     acc.current += dt;
-    if (acc.current < 0.4) return;
+    if (acc.current < 0.25) return;
     acc.current = 0;
     const d = camera.position.distanceTo(center);
-    const shouldBeNear = d < m.diskRadius * 14;
+    // Hysteresis gap: enter detail at 15x radius, keep detail until 21x radius
+    const shouldBeNear = d < (near ? m.diskRadius * 21 : m.diskRadius * 15);
     if (shouldBeNear !== near) setNear(shouldBeNear);
   });
 
@@ -991,10 +1011,11 @@ function GalaxyGate({ m }: { m: GalaxyModel }) {
   const [armed, setArmed] = useState(false);
   useEffect(() => {
     if (!(selectedByUser || near)) {
-      setArmed(false);
-      return;
+      // Delay unmounting slightly to allow smooth fade out
+      const id = setTimeout(() => setArmed(false), 400);
+      return () => clearTimeout(id);
     }
-    const id = setTimeout(() => setArmed(true), 120);
+    const id = setTimeout(() => setArmed(true), 60);
     return () => clearTimeout(id);
   }, [selectedByUser, near]);
 
@@ -1003,6 +1024,9 @@ function GalaxyGate({ m }: { m: GalaxyModel }) {
 }
 
 export function DetailedGalaxies() {
+  const subsystems = useStore((s) => s.subsystems);
+  if (!subsystems.detailedGalaxies) return null;
+
   return (
     <group>
       {GALAXY_MODELS.map((m) => (

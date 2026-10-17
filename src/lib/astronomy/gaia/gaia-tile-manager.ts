@@ -37,6 +37,7 @@ export class GaiaTileManager {
   private pinnedStar: GaiaStarRecord | null = null;
   private currentAbortController: AbortController | null = null;
   private qualityTier: QualityTier = "standard";
+  private cachedConsolidated: GaiaStarRecord[] | null = null;
 
   private constructor() {
     this.initBaseDatasets();
@@ -70,7 +71,10 @@ export class GaiaTileManager {
   }
 
   public setQualityTier(tier: QualityTier) {
-    this.qualityTier = tier;
+    if (this.qualityTier !== tier) {
+      this.qualityTier = tier;
+      this.cachedConsolidated = null;
+    }
   }
 
   public getQualityTier(): QualityTier {
@@ -82,6 +86,7 @@ export class GaiaTileManager {
     if (star) {
       this.starIndexById.set(star.name, star);
       this.starIndexById.set(star.gaiaSourceId, star);
+      this.cachedConsolidated = null;
     }
   }
 
@@ -141,6 +146,21 @@ export class GaiaTileManager {
       }
     }
 
+    // Fast check: if active tiles have not changed, reuse cached consolidated array immediately!
+    let tileSetUnchanged = tilesToLoad.length === this.activeTiles.size;
+    if (tileSetUnchanged) {
+      for (const t of tilesToLoad) {
+        if (!this.activeTiles.has(t.tileId)) {
+          tileSetUnchanged = false;
+          break;
+        }
+      }
+    }
+
+    if (tileSetUnchanged && this.cachedConsolidated) {
+      return this.cachedConsolidated;
+    }
+
     // Simulate async streaming with cancellation check
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -159,6 +179,7 @@ export class GaiaTileManager {
         }
 
         const consolidated = this.getConsolidatedStars();
+        this.cachedConsolidated = consolidated;
         if (onLoaded) {
           onLoaded(consolidated, this.activeTiles.size);
         }

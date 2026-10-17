@@ -556,6 +556,7 @@ export function Universe() {
 
   const showCosmicWebDensity = useStore((s) => s.showCosmicWebDensity);
   const showObservedGalaxies = useStore((s) => s.showObservedGalaxies);
+  const subsystems = useStore((s) => s.subsystems);
 
   // Cluster center positions for aggregate markers
   const clusters = useMemo(
@@ -591,7 +592,7 @@ export function Universe() {
   return (
     <group>
       <ObservableUniverseShell />
-      <LargeScaleStructure3D />
+      {subsystems.cosmicWeb && <LargeScaleStructure3D />}
       <MilkyWayFarSprite />
 
       {/* Observed Extragalactic Catalog Nodes */}

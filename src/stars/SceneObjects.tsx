@@ -2,6 +2,7 @@ import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { backgroundFocus } from "./sim-clock";
 import { useFrame } from "@react-three/fiber";
+import { useStore } from "./store";
 
 export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
@@ -444,17 +445,31 @@ export function MilkyWay() {
     haloGeo.setAttribute("color", new THREE.BufferAttribute(hCol, 3));
     haloGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize, 1));
 
+    const mwSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), HALO_RADIUS * 1.15);
+    diskGeo.boundingSphere = mwSphere;
+    barGeo.boundingSphere = mwSphere;
+    bulgeGeo.boundingSphere = mwSphere;
+    hiiGeo.boundingSphere = mwSphere;
+    haloGeo.boundingSphere = mwSphere;
+
     CACHED_MW = { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo };
     return CACHED_MW;
   }, []);
 
-  useFrame(({ clock }) => {
+  const subsystems = useStore((s) => s.subsystems);
+
+  useFrame(({ clock, camera }) => {
     if (!groupRef.current) return;
     // Galaxy itself is fixed; differential rotation happens in the shader.
-    // We only counter-rotate by the Sun's omega so the Sun (at R0) appears
-    // to orbit while the bulk-flow frame stays comprehensible.
     shader.uniforms.uTime.value = clock.elapsedTime;
     shader.uniforms.uFocus.value = backgroundFocus();
+
+    // Distance-aware continuous fade coordinated with the far-field sprite in Universe.tsx
+    const d = camera.position.distanceTo(GALACTIC_CENTER);
+    // Smoothly fade out heavy particle cloud between 180,000 and 550,000 ly as far sprite takes over
+    const alpha = Math.min(1, Math.max(0, 1 - (d - 180_000) / 370_000));
+    shader.uniforms.uOpacity.value = alpha;
+    groupRef.current.visible = subsystems.milkyWay && alpha > 0.005;
   });
 
   const shader = useMemo(
@@ -463,6 +478,7 @@ export function MilkyWay() {
         uTex: { value: tex },
         uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
         uFocus: { value: 1 },
+        uOpacity: { value: 1 },
         uTime: { value: 0 },
         uVflat: { value: V_FLAT },
         uRcore: { value: R_CORE_LY },
@@ -504,11 +520,12 @@ export function MilkyWay() {
       fragmentShader: /* glsl */ `
         uniform sampler2D uTex;
         uniform float uFocus;
+        uniform float uOpacity;
         varying vec3 vColor;
         void main(){
           vec4 t = texture2D(uTex, gl_PointCoord);
           if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a * uFocus);
+          gl_FragColor = vec4(vColor, t.a * uFocus * uOpacity);
         }
       `,
       vertexColors: true,
@@ -522,24 +539,24 @@ export function MilkyWay() {
   return (
     <group position={GALACTIC_CENTER.toArray()}>
       <group ref={groupRef}>
-        <points geometry={diskGeo} frustumCulled={false}>
+        <points geometry={diskGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>
-        <points geometry={barGeo} frustumCulled={false}>
+        <points geometry={barGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>
-        <points geometry={bulgeGeo} frustumCulled={false}>
+        <points geometry={bulgeGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>
-        <points geometry={hiiGeo} frustumCulled={false}>
+        <points geometry={hiiGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>
-        <points geometry={haloGeo} frustumCulled={false}>
+        <points geometry={haloGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>
         <mesh>
           <sphereGeometry args={[60, 24, 24]} />
-          <meshBasicMaterial color="#ffe6b0" />
+          <meshBasicMaterial color="#ffeccc" />
         </mesh>
         <sprite scale={[3500, 3500, 1]}>
           <spriteMaterial

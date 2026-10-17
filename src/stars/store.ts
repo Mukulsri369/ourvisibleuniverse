@@ -210,12 +210,32 @@ interface State {
   renderingQualityTier: "scientific_high" | "standard" | "performance";
   opticsModalOpen: boolean;
   benchmarkModalOpen: boolean;
+  performanceProfilerOpen: boolean;
+  performanceProfilerExpanded: boolean;
   performanceStats: {
     fps: number;
+    rollingFps: number;
+    frameTimeMs: number;
+    p95FrameTimeMs: number;
+    p99FrameTimeMs: number;
+    cpuFrameTimeMs: number;
+    gpuFrameTimeMs: number | null;
     drawCalls: number;
     triangles: number;
     pointsCount: number;
     memoryMb: number;
+    geometriesCount: number;
+    texturesCount: number;
+    activeFloatingOrigin: string;
+  };
+  subsystems: {
+    milkyWay: boolean;
+    andromeda: boolean;
+    detailedGalaxies: boolean;
+    gaiaStars: boolean;
+    planets: boolean;
+    cosmicWeb: boolean;
+    bloom: boolean;
   };
   setObserverMode: (mode: "vacuum" | "atmosphere") => void;
   setOpticsPreset: (preset: "scientific" | "cinematic") => void;
@@ -230,18 +250,24 @@ interface State {
   setRenderingQualityTier: (tier: "scientific_high" | "standard" | "performance") => void;
   setOpticsModalOpen: (open: boolean) => void;
   setBenchmarkModalOpen: (open: boolean) => void;
+  setPerformanceProfilerOpen: (open: boolean) => void;
+  setPerformanceProfilerExpanded: (expanded: boolean) => void;
+  toggleSubsystem: (
+    subsystem:
+      | "milkyWay"
+      | "andromeda"
+      | "detailedGalaxies"
+      | "gaiaStars"
+      | "planets"
+      | "cosmicWeb"
+      | "bloom",
+  ) => void;
   compactObjectModalOpen: boolean;
   setCompactObjectModalOpen: (open: boolean) => void;
   observationModalOpen: boolean;
   observationTargetId: string | null;
   setObservationModalOpen: (open: boolean, targetId?: string | null) => void;
-  setPerformanceStats: (stats: {
-    fps: number;
-    drawCalls: number;
-    triangles: number;
-    pointsCount: number;
-    memoryMb: number;
-  }) => void;
+  setPerformanceStats: (stats: Partial<State["performanceStats"]>) => void;
 
   // --- Upgraded Camera Navigation & Interaction State ---
   cameraMode: "orbit" | "free" | "follow";
@@ -914,12 +940,32 @@ export const useStore = create<State>((set, get) => ({
   renderingQualityTier: "scientific_high",
   opticsModalOpen: false,
   benchmarkModalOpen: false,
+  performanceProfilerOpen: true,
+  performanceProfilerExpanded: false,
   performanceStats: {
     fps: 60,
+    rollingFps: 60,
+    frameTimeMs: 16.6,
+    p95FrameTimeMs: 16.8,
+    p99FrameTimeMs: 17.5,
+    cpuFrameTimeMs: 4.2,
+    gpuFrameTimeMs: null,
     drawCalls: 18,
     triangles: 120000,
     pointsCount: 750000,
     memoryMb: 85,
+    geometriesCount: 42,
+    texturesCount: 16,
+    activeFloatingOrigin: "Solar System Barycenter",
+  },
+  subsystems: {
+    milkyWay: true,
+    andromeda: true,
+    detailedGalaxies: true,
+    gaiaStars: true,
+    planets: true,
+    cosmicWeb: true,
+    bloom: true,
   },
   setObserverMode: (mode) => set({ observerMode: mode }),
   setOpticsPreset: (preset) =>
@@ -942,13 +988,25 @@ export const useStore = create<State>((set, get) => ({
   setRenderingQualityTier: (tier) => set({ renderingQualityTier: tier }),
   setOpticsModalOpen: (open) => set({ opticsModalOpen: open }),
   setBenchmarkModalOpen: (open) => set({ benchmarkModalOpen: open }),
+  setPerformanceProfilerOpen: (open) => set({ performanceProfilerOpen: open }),
+  setPerformanceProfilerExpanded: (expanded) => set({ performanceProfilerExpanded: expanded }),
+  toggleSubsystem: (subsystem) =>
+    set((st) => ({
+      subsystems: {
+        ...st.subsystems,
+        [subsystem]: !st.subsystems[subsystem],
+      },
+    })),
   compactObjectModalOpen: false,
   setCompactObjectModalOpen: (open) => set({ compactObjectModalOpen: open }),
   observationModalOpen: false,
   observationTargetId: null,
   setObservationModalOpen: (open, targetId = null) =>
     set({ observationModalOpen: open, observationTargetId: targetId ?? null }),
-  setPerformanceStats: (stats) => set({ performanceStats: stats }),
+  setPerformanceStats: (stats) =>
+    set((st) => ({
+      performanceStats: { ...st.performanceStats, ...stats },
+    })),
 
   // --- Upgraded Camera Navigation & Interaction State ---
   cameraMode: "orbit",

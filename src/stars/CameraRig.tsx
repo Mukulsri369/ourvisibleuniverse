@@ -6,6 +6,7 @@ import { PLANETS, getPlanetEffectiveSize } from "./Planets";
 import { M31_PLANETS } from "./andromeda-data";
 import { GX_PLANET_INDEX } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition } from "./observed-objects";
+import { floatingOriginManager, Vector3D } from "@/lib/astronomy/floating-origin";
 
 // Custom orbit-style controller with smooth damped zoom & inertia
 export function CameraRig() {
@@ -449,6 +450,14 @@ export function CameraRig() {
     camera.position.copy(pos);
     camera.lookAt(target.current);
 
+    // Synchronize high-precision 64-bit camera coordinates and active reference frame
+    floatingOriginManager.cameraWorldPos64.set(pos.x, pos.y, pos.z);
+    floatingOriginManager.cameraTarget64.set(target.current.x, target.current.y, target.current.z);
+    const activeFrame = floatingOriginManager.updateActiveFrame(
+      floatingOriginManager.cameraWorldPos64,
+    );
+    (window as unknown as { __activeOriginName?: string }).__activeOriginName = activeFrame.name;
+
     // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
     const t = Math.min(
@@ -466,17 +475,16 @@ export function CameraRig() {
     const pc = camera as THREE.PerspectiveCamera;
     pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
 
-    // Dynamic near/far clipping plane adjustment to prevent clipping or z-fighting
-    const targetNear = Math.max(1e-11, Math.min(0.08, r * 1e-4));
-    const targetFar = Math.max(1e5, Math.min(1e12, r * 1e4));
+    // Bounded near/far clipping plane ratio to eliminate depth buffer precision fighting
+    // Maintains near/far depth ratio <= 10^7 across all astronomical scales
+    const targetNear = Math.max(1e-10, Math.min(0.05, r * 1e-4));
+    const targetFar = Math.max(200, Math.min(5e11, r * 1e5));
     if (
-      Math.abs(pc.near - targetNear) / targetNear > 0.4 ||
-      Math.abs(pc.far - targetFar) / targetFar > 0.4
+      Math.abs(pc.near - targetNear) / targetNear > 0.25 ||
+      Math.abs(pc.far - targetFar) / targetFar > 0.25
     ) {
       pc.near = targetNear;
       pc.far = targetFar;
-      pc.updateProjectionMatrix();
-    } else {
       pc.updateProjectionMatrix();
     }
 
