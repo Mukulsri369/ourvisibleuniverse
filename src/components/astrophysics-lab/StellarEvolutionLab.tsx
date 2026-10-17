@@ -43,7 +43,7 @@ export function StellarEvolutionLab({
 
   const stellarModel = useMemo(
     () => getStellarEvolutionInterpolation(massSolar, metallicityZ),
-    [massSolar, metallicityZ]
+    [massSolar, metallicityZ],
   );
 
   const track = stellarModel.track;
@@ -192,7 +192,11 @@ export function StellarEvolutionLab({
     ctx.fillStyle = "rgba(226, 232, 240, 0.85)";
     ctx.font = "bold 11px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Effective Surface Temperature T_eff [K] (Decreasing →)", padLeft + plotW / 2, height - 10);
+    ctx.fillText(
+      "Effective Surface Temperature T_eff [K] (Decreasing →)",
+      padLeft + plotW / 2,
+      height - 10,
+    );
 
     ctx.save();
     ctx.translate(16, padTop + plotH / 2);
@@ -218,7 +222,8 @@ export function StellarEvolutionLab({
             Hertzsprung–Russell Evolutionary Tracks & Fates
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Published stellar models across masses (0.2 – 40 M_☉) tracking core nucleosynthesis and compact remnants.
+            Published stellar models across masses (0.2 – 40 M_☉) tracking core nucleosynthesis and
+            compact remnants.
           </p>
         </div>
 
@@ -227,7 +232,8 @@ export function StellarEvolutionLab({
           <span className="text-slate-400 block font-mono text-[11px]">Prototype Reference:</span>
           <span className="text-purple-300 font-bold">{initialTargetStarName}</span>
           <p className="text-[10px] text-slate-500 max-w-xs mt-0.5">
-            *Simulates a published stellar evolution grid matching initial parameters, not an exact historical recording.
+            *Simulates a published stellar evolution grid matching initial parameters, not an exact
+            historical recording.
           </p>
         </div>
       </div>
@@ -237,7 +243,12 @@ export function StellarEvolutionLab({
         {/* Left: Interactive H-R Diagram Canvas (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-            <canvas ref={hrCanvasRef} width={800} height={450} className="w-full h-full object-cover block" />
+            <canvas
+              ref={hrCanvasRef}
+              width={800}
+              height={450}
+              className="w-full h-full object-cover block"
+            />
 
             {/* Overlaid Live State */}
             <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none">
@@ -262,7 +273,11 @@ export function StellarEvolutionLab({
                 onClick={() => setIsPlaying((p) => !p)}
                 className="bg-purple-500/20 border-purple-500/40 text-purple-300 hover:bg-purple-500/30 text-xs"
               >
-                {isPlaying ? <Pause className="size-3.5 mr-1.5" /> : <Play className="size-3.5 mr-1.5" />}
+                {isPlaying ? (
+                  <Pause className="size-3.5 mr-1.5" />
+                ) : (
+                  <Play className="size-3.5 mr-1.5" />
+                )}
                 {isPlaying ? "Pause Evolution" : "Play Evolution"}
               </Button>
 
@@ -290,7 +305,9 @@ export function StellarEvolutionLab({
                   <Sparkles className="size-3.5 text-amber-400" />
                   {currentPoint.stageName}
                 </span>
-                <span className="text-slate-400 font-mono text-[11px]">Age: {currentPoint.ageGyr} Gyr</span>
+                <span className="text-slate-400 font-mono text-[11px]">
+                  Age: {currentPoint.ageGyr} Gyr
+                </span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">{currentPoint.description}</p>
               <div className="text-[11px] font-mono text-purple-300 pt-1">

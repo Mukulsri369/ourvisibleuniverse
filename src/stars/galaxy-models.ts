@@ -1092,12 +1092,16 @@ const MORPHOLOGY_OVERRIDES: Record<string, Partial<GalaxyModel>> = {
 function morphologyFor(type: string, name?: string): Morphology {
   const n = (name || "").toLowerCase();
   const t = (type || "").toLowerCase();
-  if (n.includes("whirlpool") || n.includes("pinwheel") || t.includes("grand-design") || t.includes("grand design"))
+  if (
+    n.includes("whirlpool") ||
+    n.includes("pinwheel") ||
+    t.includes("grand-design") ||
+    t.includes("grand design")
+  )
     return "grand-design";
   if (n.includes("sunflower") || n.includes("2841") || t.includes("flocculent"))
     return "flocculent";
-  if (t.includes("dwarf") || t.includes("dsph") || n.includes("dwarf"))
-    return "dwarf";
+  if (t.includes("dwarf") || t.includes("dsph") || n.includes("dwarf")) return "dwarf";
   if (/interacting|merging|colliding/i.test(type) || n.includes("antennae") || n.includes("mice"))
     return "interacting";
   if (/starburst/i.test(type)) return "starburst";

@@ -1,6 +1,6 @@
 /**
  * Astrophysical Nebula Simulation & Volumetric Shaders
- * 
+ *
  * Supports 5 distinct astrophysical classes:
  * 1. Emission Nebulae (H II regions): Photoionized by O/B stellar UV flux.
  *    Emission lines: Hα (656.3 nm), [O III] (500.7 nm), [S II] (671.6 nm), Hβ (486.1 nm).
@@ -12,7 +12,7 @@
  *    stratified ionization: inner [O III] core, outer [N II]/Hα envelope surrounding a central White Dwarf.
  * 5. Supernova Remnants: Blast wave shock heating, synchrotron radiation from relativistic electrons,
  *    and turbulent Rayleigh-Taylor filamentary structures.
- * 
+ *
  * Color Palettes:
  * - Narrowband Hubble Palette (SHO: [S II]=Red, Hα=Green, [O III]=Blue)
  * - True Optical Human-Eye RGB
@@ -23,10 +23,7 @@ import * as THREE from "three";
 
 export type NebulaClass = "emission" | "reflection" | "dark" | "planetary" | "supernova_remnant";
 
-export type FilterPalette =
-  | "narrowband_sho"
-  | "true_color_rgb"
-  | "multiwavelength_chandra_hubble";
+export type FilterPalette = "narrowband_sho" | "true_color_rgb" | "multiwavelength_chandra_hubble";
 
 export interface NebulaSpectralProfile {
   classification: NebulaClass;

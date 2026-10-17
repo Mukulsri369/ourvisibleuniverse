@@ -49,14 +49,17 @@ export function StarFormationLab({
 
   const [activeYsoClass, setActiveYsoClass] = useState<YSOClass>("class_0");
   const [showOutflows, setShowOutflows] = useState<boolean>(true);
-  const [particleDensitySetting, setParticleDensitySetting] = useState<"low" | "medium" | "high">("medium");
+  const [particleDensitySetting, setParticleDensitySetting] = useState<"low" | "medium" | "high">(
+    "medium",
+  );
 
   const physics = useMemo(() => calculateStarFormationPhysics(params), [params]);
   const activeYso = YSO_STAGES[activeYsoClass];
 
   // Particle simulation for cold cloud & protostellar collapse
   const particles = useMemo(() => {
-    const count = particleDensitySetting === "low" ? 140 : particleDensitySetting === "medium" ? 280 : 420;
+    const count =
+      particleDensitySetting === "low" ? 140 : particleDensitySetting === "medium" ? 280 : 420;
     const pts = [];
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -141,7 +144,11 @@ export function StarFormationLab({
       });
 
       // 3. Protoplanetary Accretion Disk (Class 0, I, II)
-      if (activeYsoClass === "class_0" || activeYsoClass === "class_I" || activeYsoClass === "class_II") {
+      if (
+        activeYsoClass === "class_0" ||
+        activeYsoClass === "class_I" ||
+        activeYsoClass === "class_II"
+      ) {
         ctx.save();
         ctx.translate(cx, cy);
         ctx.scale(1, 0.35); // Disk inclination
@@ -163,9 +170,12 @@ export function StarFormationLab({
       // 4. Collimated Bipolar Outflows (Herbig-Haro Jets)
       if (
         showOutflows &&
-        (activeYsoClass === "class_0" || activeYsoClass === "class_I" || activeYsoClass === "class_II")
+        (activeYsoClass === "class_0" ||
+          activeYsoClass === "class_I" ||
+          activeYsoClass === "class_II")
       ) {
-        const jetHeight = activeYsoClass === "class_0" ? 190 : activeYsoClass === "class_I" ? 160 : 80;
+        const jetHeight =
+          activeYsoClass === "class_0" ? 190 : activeYsoClass === "class_I" ? 160 : 80;
         const jetWidth = activeYsoClass === "class_0" ? 14 : 20;
 
         // North and South jet cones
@@ -247,16 +257,20 @@ export function StarFormationLab({
             Gravitational Collapse & Protostellar Accretion
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Physics-informed inside-out collapse from cold molecular Bok globules to Zero-Age Main Sequence ignition.
+            Physics-informed inside-out collapse from cold molecular Bok globules to Zero-Age Main
+            Sequence ignition.
           </p>
         </div>
 
         {/* Observed Target Attribution Disclaimer */}
         <div className="text-right text-xs">
-          <span className="text-slate-400 block font-mono text-[11px]">Investigating Prototype:</span>
+          <span className="text-slate-400 block font-mono text-[11px]">
+            Investigating Prototype:
+          </span>
           <span className="text-cyan-300 font-bold">{initialTargetName}</span>
           <p className="text-[10px] text-slate-500 max-w-xs mt-0.5">
-            *Demonstrates a scientifically plausible physical process based on published models, not an exact recording of this object's past.
+            *Demonstrates a scientifically plausible physical process based on published models, not
+            an exact recording of this object's past.
           </p>
         </div>
       </div>
@@ -301,7 +315,9 @@ export function StarFormationLab({
           <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-slate-300">YSO Evolutionary Progression:</span>
-              <span className="text-cyan-400 font-mono text-[11px]">{activeYso.typicalAgeYears}</span>
+              <span className="text-cyan-400 font-mono text-[11px]">
+                {activeYso.typicalAgeYears}
+              </span>
             </div>
             <div className="grid grid-cols-5 gap-1.5">
               {(Object.keys(YSO_STAGES) as YSOClass[]).map((yKey) => {
@@ -394,7 +410,9 @@ export function StarFormationLab({
                 <span className="text-slate-400 flex items-center gap-1">
                   <Flame className="size-3.5 text-amber-400" /> Cloud Mass:
                 </span>
-                <span className="font-mono text-amber-300 font-bold">{params.cloudMassSolar} M_☉</span>
+                <span className="font-mono text-amber-300 font-bold">
+                  {params.cloudMassSolar} M_☉
+                </span>
               </div>
               <input
                 type="range"
@@ -402,7 +420,9 @@ export function StarFormationLab({
                 max={1000}
                 step={10}
                 value={params.cloudMassSolar}
-                onChange={(e) => setParams({ ...params, cloudMassSolar: parseFloat(e.target.value) })}
+                onChange={(e) =>
+                  setParams({ ...params, cloudMassSolar: parseFloat(e.target.value) })
+                }
                 className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-400"
               />
             </div>
@@ -411,11 +431,15 @@ export function StarFormationLab({
             <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-black/40 border border-white/10 rounded-xl p-3">
               <div>
                 <span className="text-slate-500 block text-[10px]">Jeans Mass (M_J):</span>
-                <span className="text-slate-200 font-bold">{physics.jeansMassSolar.toFixed(1)} M_☉</span>
+                <span className="text-slate-200 font-bold">
+                  {physics.jeansMassSolar.toFixed(1)} M_☉
+                </span>
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Bonnor-Ebert (M_BE):</span>
-                <span className="text-slate-200 font-bold">{physics.bonnorEbertMassSolar.toFixed(1)} M_☉</span>
+                <span className="text-slate-200 font-bold">
+                  {physics.bonnorEbertMassSolar.toFixed(1)} M_☉
+                </span>
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Free-Fall Time (t_ff):</span>
@@ -425,7 +449,9 @@ export function StarFormationLab({
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Jeans Radius (λ_J):</span>
-                <span className="text-cyan-300 font-bold">{physics.jeansLengthLy.toFixed(2)} ly</span>
+                <span className="text-cyan-300 font-bold">
+                  {physics.jeansLengthLy.toFixed(2)} ly
+                </span>
               </div>
             </div>
 

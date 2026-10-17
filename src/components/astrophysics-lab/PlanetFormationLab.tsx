@@ -51,8 +51,13 @@ export function PlanetFormationLab({
 
   const diskPhysics = useMemo(() => calculateDiskStructure(diskParams), [diskParams]);
   const planetPhysics = useMemo(
-    () => calculateOrbitalPhysics(selectedPlanetOrbitalAu, selectedPlanetMassEarth, diskParams.stellarMassSolar),
-    [selectedPlanetOrbitalAu, selectedPlanetMassEarth, diskParams.stellarMassSolar]
+    () =>
+      calculateOrbitalPhysics(
+        selectedPlanetOrbitalAu,
+        selectedPlanetMassEarth,
+        diskParams.stellarMassSolar,
+      ),
+    [selectedPlanetOrbitalAu, selectedPlanetMassEarth, diskParams.stellarMassSolar],
   );
   const activePhase = PLANET_FORMATION_PHASES[activePhaseId];
 
@@ -226,16 +231,20 @@ export function PlanetFormationLab({
             Protoplanetary Disks, Pebble Accretion & Migration
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            Coupled numerical physics solver driving GPU-inspired particle visualization from dust settling to atmospheric capture.
+            Coupled numerical physics solver driving GPU-inspired particle visualization from dust
+            settling to atmospheric capture.
           </p>
         </div>
 
         {/* Observed Target Attribution Disclaimer */}
         <div className="text-right text-xs">
-          <span className="text-slate-400 block font-mono text-[11px]">Observational Reference:</span>
+          <span className="text-slate-400 block font-mono text-[11px]">
+            Observational Reference:
+          </span>
           <span className="text-cyan-300 font-bold">{initialHostStarName}</span>
           <p className="text-[10px] text-slate-500 max-w-xs mt-0.5">
-            *Demonstrates a scientifically plausible physical process based on published models, not an exact recording of this system's past.
+            *Demonstrates a scientifically plausible physical process based on published models, not
+            an exact recording of this system's past.
           </p>
         </div>
       </div>
@@ -245,7 +254,12 @@ export function PlanetFormationLab({
         {/* Left: Particle Simulation Canvas (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-            <canvas ref={canvasRef} width={800} height={450} className="w-full h-full object-cover block" />
+            <canvas
+              ref={canvasRef}
+              width={800}
+              height={450}
+              className="w-full h-full object-cover block"
+            />
 
             {/* Overlaid Status Indicators */}
             <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none">
@@ -259,7 +273,9 @@ export function PlanetFormationLab({
 
             <div className="absolute bottom-3 right-3 flex items-center gap-2">
               <button
-                onClick={() => setParticleDensity((prev) => (prev === "balanced" ? "dense" : "balanced"))}
+                onClick={() =>
+                  setParticleDensity((prev) => (prev === "balanced" ? "dense" : "balanced"))
+                }
                 className="text-[11px] font-mono px-2.5 py-1 rounded-lg border border-white/15 bg-black/80 text-slate-300 backdrop-blur-md"
               >
                 Particles: {particleDensity === "dense" ? "750 (High)" : "400 (Balanced)"}
@@ -271,27 +287,31 @@ export function PlanetFormationLab({
           <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-slate-300">Planetary Growth Sequence:</span>
-              <span className="text-cyan-400 font-mono text-[11px]">{activePhase.timescaleYears}</span>
+              <span className="text-cyan-400 font-mono text-[11px]">
+                {activePhase.timescaleYears}
+              </span>
             </div>
             <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-              {(Object.keys(PLANET_FORMATION_PHASES) as PlanetFormationPhaseId[]).map((phaseKey) => {
-                const ph = PLANET_FORMATION_PHASES[phaseKey];
-                const isSelected = activePhaseId === phaseKey;
-                return (
-                  <button
-                    key={phaseKey}
-                    onClick={() => setActivePhaseId(phaseKey)}
-                    className={`p-2 rounded-xl text-left border transition-all ${
-                      isSelected
-                        ? "bg-cyan-500/25 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10 font-bold"
-                        : "bg-slate-950/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20"
-                    }`}
-                  >
-                    <div className="text-[10px] font-mono text-slate-500">#{ph.order}</div>
-                    <div className="text-[11px] truncate">{ph.name.split(". ")[1]}</div>
-                  </button>
-                );
-              })}
+              {(Object.keys(PLANET_FORMATION_PHASES) as PlanetFormationPhaseId[]).map(
+                (phaseKey) => {
+                  const ph = PLANET_FORMATION_PHASES[phaseKey];
+                  const isSelected = activePhaseId === phaseKey;
+                  return (
+                    <button
+                      key={phaseKey}
+                      onClick={() => setActivePhaseId(phaseKey)}
+                      className={`p-2 rounded-xl text-left border transition-all ${
+                        isSelected
+                          ? "bg-cyan-500/25 border-cyan-400 text-cyan-200 shadow-md shadow-cyan-500/10 font-bold"
+                          : "bg-slate-950/60 border-white/5 text-slate-400 hover:text-white hover:border-white/20"
+                      }`}
+                    >
+                      <div className="text-[10px] font-mono text-slate-500">#{ph.order}</div>
+                      <div className="text-[11px] truncate">{ph.name.split(". ")[1]}</div>
+                    </button>
+                  );
+                },
+              )}
             </div>
           </div>
         </div>
@@ -336,7 +356,10 @@ export function PlanetFormationLab({
                 step={0.1}
                 value={diskParams.stellarLuminositySolar}
                 onChange={(e) =>
-                  setDiskParams({ ...diskParams, stellarLuminositySolar: parseFloat(e.target.value) })
+                  setDiskParams({
+                    ...diskParams,
+                    stellarLuminositySolar: parseFloat(e.target.value),
+                  })
                 }
                 className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-400"
               />
@@ -346,7 +369,9 @@ export function PlanetFormationLab({
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
                 <span className="text-slate-400">Embryo Semi-Major Axis (a):</span>
-                <span className="font-mono text-cyan-300 font-bold">{selectedPlanetOrbitalAu} AU</span>
+                <span className="font-mono text-cyan-300 font-bold">
+                  {selectedPlanetOrbitalAu} AU
+                </span>
               </div>
               <input
                 type="range"
@@ -363,15 +388,21 @@ export function PlanetFormationLab({
             <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-black/40 border border-white/10 rounded-xl p-3">
               <div>
                 <span className="text-slate-500 block text-[10px]">Frost Line (r_ice):</span>
-                <span className="text-cyan-300 font-bold">{diskPhysics.snowLineRadiusAu.toFixed(2)} AU</span>
+                <span className="text-cyan-300 font-bold">
+                  {diskPhysics.snowLineRadiusAu.toFixed(2)} AU
+                </span>
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Orbital Period:</span>
-                <span className="text-slate-200 font-bold">{planetPhysics.orbitalPeriodYears.toFixed(2)} yr</span>
+                <span className="text-slate-200 font-bold">
+                  {planetPhysics.orbitalPeriodYears.toFixed(2)} yr
+                </span>
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Hill Sphere (r_H):</span>
-                <span className="text-purple-300 font-bold">{planetPhysics.hillRadiusAu.toFixed(3)} AU</span>
+                <span className="text-purple-300 font-bold">
+                  {planetPhysics.hillRadiusAu.toFixed(3)} AU
+                </span>
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Type I Migration:</span>
@@ -385,15 +416,19 @@ export function PlanetFormationLab({
             <div className="space-y-2 pt-2 border-t border-white/10">
               <div className="text-xs">
                 <span className="font-bold text-slate-300 block mb-0.5">Physical Mechanism:</span>
-                <p className="text-slate-400 leading-relaxed text-[11px]">{activePhase.description}</p>
+                <p className="text-slate-400 leading-relaxed text-[11px]">
+                  {activePhase.description}
+                </p>
               </div>
 
               <div className="bg-slate-950/60 p-2.5 rounded-xl border border-white/5 space-y-1 text-[11px]">
                 <div className="text-slate-400">
-                  <strong className="text-slate-300">Governing Physics:</strong> {activePhase.governingPhysics}
+                  <strong className="text-slate-300">Governing Physics:</strong>{" "}
+                  {activePhase.governingPhysics}
                 </div>
                 <div className="text-slate-400">
-                  <strong className="text-slate-300">Observational Evidence:</strong> {activePhase.observationalEvidence}
+                  <strong className="text-slate-300">Observational Evidence:</strong>{" "}
+                  {activePhase.observationalEvidence}
                 </div>
               </div>
             </div>

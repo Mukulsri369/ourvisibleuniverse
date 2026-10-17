@@ -77,16 +77,31 @@ const coldCore = calculateStarFormationPhysics({
   turbulenceKmS: 0.5,
 });
 
-assert(coldCore.soundSpeedKmS > 0.15 && coldCore.soundSpeedKmS < 0.35, "Isothermal sound speed at 10 K is ~0.2 km/s");
-assert(coldCore.jeansMassSolar > 0.5 && coldCore.jeansMassSolar < 30.0, "Jeans mass in dense cold core is realistic (~2 - 15 M_sun)");
-assert(coldCore.freeFallTimeYears > 1e4 && coldCore.freeFallTimeYears < 1e6, "Free-fall collapse time is ~10^5 years");
-assert(coldCore.isGravitationallyUnstable, "100 M_sun cold cloud exceeds Jeans mass -> gravitationally unstable");
+assert(
+  coldCore.soundSpeedKmS > 0.15 && coldCore.soundSpeedKmS < 0.35,
+  "Isothermal sound speed at 10 K is ~0.2 km/s",
+);
+assert(
+  coldCore.jeansMassSolar > 0.5 && coldCore.jeansMassSolar < 30.0,
+  "Jeans mass in dense cold core is realistic (~2 - 15 M_sun)",
+);
+assert(
+  coldCore.freeFallTimeYears > 1e4 && coldCore.freeFallTimeYears < 1e6,
+  "Free-fall collapse time is ~10^5 years",
+);
+assert(
+  coldCore.isGravitationallyUnstable,
+  "100 M_sun cold cloud exceeds Jeans mass -> gravitationally unstable",
+);
 assert(coldCore.willCollapse, "Cloud is supercritical -> proceeds to collapse");
 
 // Shu inside-out collapse velocity fields
 const outerShu = calculateCollapseProfile(150, 50); // r = 150 AU, r_wave = 50 AU
 assert(!outerShu.isInfaling, "Gas outside expansion wave is static singular isothermal sphere");
-assert(outerShu.infallVelocityKmS === 0.0, "Outer velocity is zero before rarefaction wave arrives");
+assert(
+  outerShu.infallVelocityKmS === 0.0,
+  "Outer velocity is zero before rarefaction wave arrives",
+);
 
 const innerShu = calculateCollapseProfile(10, 50); // r = 10 AU, r_wave = 50 AU
 assert(innerShu.isInfaling, "Gas inside expansion wave is infalling in free-fall");
@@ -97,14 +112,29 @@ const ysoKeys: YSOClass[] = ["prestellar_core", "class_0", "class_I", "class_II"
 ysoKeys.forEach((k) => {
   const yso = YSO_STAGES[k];
   assert(Boolean(yso), `YSO stage '${k}' documented`);
-  assert(Boolean(yso.statusBadge), `YSO stage '${k}' has explicit status badge: [${yso.statusBadge}]`);
-  assert(yso.observationalDiagnostics.length >= 2, `YSO stage '${k}' has observational diagnostics`);
+  assert(
+    Boolean(yso.statusBadge),
+    `YSO stage '${k}' has explicit status badge: [${yso.statusBadge}]`,
+  );
+  assert(
+    yso.observationalDiagnostics.length >= 2,
+    `YSO stage '${k}' has observational diagnostics`,
+  );
 });
 
-assert(!YSO_STAGES.prestellar_core.hydrogenFusionIgnited, "Prestellar core has not ignited hydrogen");
+assert(
+  !YSO_STAGES.prestellar_core.hydrogenFusionIgnited,
+  "Prestellar core has not ignited hydrogen",
+);
 assert(!YSO_STAGES.class_0.hydrogenFusionIgnited, "Class 0 protostar has not ignited hydrogen");
-assert(YSO_STAGES.class_III.hydrogenFusionIgnited, "Class III ZAMS has ignited sustained hydrogen fusion");
-assert(YSO_STAGES.class_III.centralTemperatureK >= 1e7, "Class III central core temperature reaches >= 10^7 K");
+assert(
+  YSO_STAGES.class_III.hydrogenFusionIgnited,
+  "Class III ZAMS has ignited sustained hydrogen fusion",
+);
+assert(
+  YSO_STAGES.class_III.centralTemperatureK >= 1e7,
+  "Class III central core temperature reaches >= 10^7 K",
+);
 
 // -------------------------------------------------------------
 // 2. MODULE 2: STELLAR EVOLUTION & H-R DIAGRAM
@@ -114,15 +144,33 @@ assert(STELLAR_EVOLUTION_GRID.length >= 5, "Grid covers at least 5 mass regimes 
 
 STELLAR_EVOLUTION_GRID.forEach((grid) => {
   assert(grid.initialMassSolar > 0, `Track ${grid.initialMassSolar} M_sun present`);
-  assert(grid.points.length >= 3, `Track ${grid.initialMassSolar} M_sun has >= 3 evolutionary points`);
-  assert(Boolean(grid.remnantType), `Track ${grid.initialMassSolar} M_sun specifies remnant: ${grid.remnantType}`);
-  assert(Boolean(grid.modelUncertainties.overshootingUncertainty), `Track ${grid.initialMassSolar} M_sun documents overshooting uncertainty`);
-  assert(Boolean(grid.modelUncertainties.massLossPrescription), `Track ${grid.initialMassSolar} M_sun documents mass-loss prescription`);
+  assert(
+    grid.points.length >= 3,
+    `Track ${grid.initialMassSolar} M_sun has >= 3 evolutionary points`,
+  );
+  assert(
+    Boolean(grid.remnantType),
+    `Track ${grid.initialMassSolar} M_sun specifies remnant: ${grid.remnantType}`,
+  );
+  assert(
+    Boolean(grid.modelUncertainties.overshootingUncertainty),
+    `Track ${grid.initialMassSolar} M_sun documents overshooting uncertainty`,
+  );
+  assert(
+    Boolean(grid.modelUncertainties.massLossPrescription),
+    `Track ${grid.initialMassSolar} M_sun documents mass-loss prescription`,
+  );
 
   // Verify H-R diagram coordinates are within physically sound bounds (including black holes)
   grid.points.forEach((pt) => {
-    assert(pt.logTeff >= 0.0 && pt.logTeff <= 6.5, `Track point ${pt.stageName} log(T_eff)=${pt.logTeff} physically valid`);
-    assert(pt.logL >= -15.0 && pt.logL <= 12.0, `Track point ${pt.stageName} log(L)=${pt.logL} physically valid`);
+    assert(
+      pt.logTeff >= 0.0 && pt.logTeff <= 6.5,
+      `Track point ${pt.stageName} log(T_eff)=${pt.logTeff} physically valid`,
+    );
+    assert(
+      pt.logL >= -15.0 && pt.logL <= 12.0,
+      `Track point ${pt.stageName} log(L)=${pt.logL} physically valid`,
+    );
   });
 });
 
@@ -132,7 +180,10 @@ assert(m02.remnantType === "helium_white_dwarf", "0.2 M_sun yields Helium White 
 assert(m02.scaledLifetimeGyr > 100, "0.2 M_sun red dwarf lifetime > 100 Gyr");
 
 const m1 = getStellarEvolutionInterpolation(1.0, 0.014);
-assert(m1.remnantType === "carbon_oxygen_white_dwarf", "1.0 M_sun yields Carbon-Oxygen White Dwarf");
+assert(
+  m1.remnantType === "carbon_oxygen_white_dwarf",
+  "1.0 M_sun yields Carbon-Oxygen White Dwarf",
+);
 assertClose(m1.scaledLifetimeGyr, 10.0, 0.1, "1.0 M_sun lifetime is ~10 Gyr");
 
 const m15 = getStellarEvolutionInterpolation(15.0, 0.014);
@@ -156,10 +207,18 @@ const disk = calculateDiskStructure({
 
 assertClose(disk.snowLineRadiusAu, 2.7, 0.1, "Solar-type star snow line is at ~2.7 AU");
 assert(disk.temp1AuK > 250 && disk.temp1AuK < 320, "Temperature at 1 AU is ~280 K");
-assert(disk.criticalCoreMassEarth === 10.0, "Critical core mass for runaway gas capture is ~10 M_Earth");
+assert(
+  disk.criticalCoreMassEarth === 10.0,
+  "Critical core mass for runaway gas capture is ~10 M_Earth",
+);
 
 const orbit3Au = calculateOrbitalPhysics(3.0, 5.0, 1.0);
-assertClose(orbit3Au.orbitalPeriodYears, Math.sqrt(27), 0.05, "Orbital period at 3 AU is sqrt(27) ≈ 5.2 years");
+assertClose(
+  orbit3Au.orbitalPeriodYears,
+  Math.sqrt(27),
+  0.05,
+  "Orbital period at 3 AU is sqrt(27) ≈ 5.2 years",
+);
 assert(orbit3Au.hillRadiusAu > 0.01, "Hill sphere radius is positive");
 
 const planetPhaseKeys: PlanetFormationPhaseId[] = [
@@ -176,7 +235,10 @@ const planetPhaseKeys: PlanetFormationPhaseId[] = [
 planetPhaseKeys.forEach((phKey) => {
   const ph = PLANET_FORMATION_PHASES[phKey];
   assert(Boolean(ph), `Planet phase '${phKey}' documented`);
-  assert(Boolean(ph.statusBadge), `Planet phase '${phKey}' has explicit badge: [${ph.statusBadge}]`);
+  assert(
+    Boolean(ph.statusBadge),
+    `Planet phase '${phKey}' has explicit badge: [${ph.statusBadge}]`,
+  );
   assert(ph.governingPhysics.length > 20, `Planet phase '${phKey}' documents governing physics`);
   assert(ph.knownLimitations.length > 20, `Planet phase '${phKey}' documents limitations`);
 });
@@ -198,8 +260,14 @@ const assemblyStageKeys: GalaxyAssemblyStageId[] = [
 assemblyStageKeys.forEach((stKey) => {
   const st = GALAXY_ASSEMBLY_STAGES[stKey];
   assert(Boolean(st), `Galaxy assembly stage '${stKey}' documented`);
-  assert(Boolean(st.statusBadge), `Galaxy assembly stage '${stKey}' has badge: [${st.statusBadge}]`);
-  assert(st.governingPhysicalProcess.length > 20, `Galaxy stage '${stKey}' documents physical process`);
+  assert(
+    Boolean(st.statusBadge),
+    `Galaxy assembly stage '${stKey}' has badge: [${st.statusBadge}]`,
+  );
+  assert(
+    st.governingPhysicalProcess.length > 20,
+    `Galaxy stage '${stKey}' documents physical process`,
+  );
   assert(st.simulationEvidence.length > 15, `Galaxy stage '${stKey}' cites simulation evidence`);
 });
 
@@ -211,9 +279,18 @@ const majorMerger = calculateMergerPhysics({
   feedbackStrength: 1.0,
 });
 
-assert(majorMerger.totalSfrSolarPerYr > 10.0, "Major gas-rich prograde merger triggers strong starburst");
-assert(majorMerger.tidalTailLengthKpc >= 40, "Prograde major merger generates extensive tidal tails (>= 40 kpc)");
-assert(majorMerger.finalMorphology.includes("Elliptical"), "Major equal merger settles into an Elliptical galaxy");
+assert(
+  majorMerger.totalSfrSolarPerYr > 10.0,
+  "Major gas-rich prograde merger triggers strong starburst",
+);
+assert(
+  majorMerger.tidalTailLengthKpc >= 40,
+  "Prograde major merger generates extensive tidal tails (>= 40 kpc)",
+);
+assert(
+  majorMerger.finalMorphology.includes("Elliptical"),
+  "Major equal merger settles into an Elliptical galaxy",
+);
 
 const minorMerger = calculateMergerPhysics({
   massRatio: 0.1,
@@ -222,7 +299,10 @@ const minorMerger = calculateMergerPhysics({
   isPrograde: false,
   feedbackStrength: 1.0,
 });
-assert(minorMerger.finalMorphology.includes("Spiral"), "Minor 1:10 merger preserves disk morphology");
+assert(
+  minorMerger.finalMorphology.includes("Spiral"),
+  "Minor 1:10 merger preserves disk morphology",
+);
 
 // -------------------------------------------------------------
 // 5. PERFORMANCE BENCHMARK
@@ -247,8 +327,13 @@ for (let i = 0; i < ITERATIONS; i++) {
   });
 }
 const elapsedMs = performance.now() - tStart;
-console.log(`  Executed ${ITERATIONS * 2} numerical physics evaluations in ${elapsedMs.toFixed(2)} ms`);
-assert(elapsedMs < 50, `Numerical solvers completed in ${elapsedMs.toFixed(2)} ms (< 50 ms target)`);
+console.log(
+  `  Executed ${ITERATIONS * 2} numerical physics evaluations in ${elapsedMs.toFixed(2)} ms`,
+);
+assert(
+  elapsedMs < 50,
+  `Numerical solvers completed in ${elapsedMs.toFixed(2)} ms (< 50 ms target)`,
+);
 
 console.log("\n==================================================================");
 console.log(`TOTAL CHECKS RUN: ${passCount + failCount}`);

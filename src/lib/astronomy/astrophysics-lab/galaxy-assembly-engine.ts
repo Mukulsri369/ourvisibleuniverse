@@ -204,7 +204,9 @@ export function calculateMergerPhysics(params: MergerSimulationParams) {
   // Baseline disk gas surface density in M_sun / pc^2
   const baselineSigmaGas = 50 * (params.gasFraction / 0.3);
   // Tidal compression multiplier: major prograde mergers produce peak compression
-  const compressionFactor = (params.isPrograde ? 2.5 : 1.2) * (1.0 / Math.max(0.2, params.massRatio > 0 ? 1 / params.massRatio : 1));
+  const compressionFactor =
+    (params.isPrograde ? 2.5 : 1.2) *
+    (1.0 / Math.max(0.2, params.massRatio > 0 ? 1 / params.massRatio : 1));
   const compressedSigmaGas = baselineSigmaGas * Math.min(6.0, compressionFactor);
 
   // Surface SFR in M_sun / yr / kpc^2: Sigma_SFR = 2.5e-4 * (Sigma_gas / 1 M_sun/pc^2)^1.4
@@ -214,10 +216,13 @@ export function calculateMergerPhysics(params: MergerSimulationParams) {
 
   // Orbital decay timescale due to dynamical friction (Chandrasekhar formula):
   // t_fric ~ (r_init^2 * v_circ) / (G * M_satellite * ln(Lambda))
-  const orbitalDecayTimeMyr = (600 * Math.pow(params.impactParameterKpc / 30, 1.5)) / Math.max(0.1, params.massRatio);
+  const orbitalDecayTimeMyr =
+    (600 * Math.pow(params.impactParameterKpc / 30, 1.5)) / Math.max(0.1, params.massRatio);
 
   // Tidal tail length: scales with prograde resonance and mass ratio
-  const tidalTailLengthKpc = params.isPrograde ? 60 * Math.sqrt(Math.min(1.0, params.massRatio)) : 15;
+  const tidalTailLengthKpc = params.isPrograde
+    ? 60 * Math.sqrt(Math.min(1.0, params.massRatio))
+    : 15;
 
   // Final Remnant Morphology prediction
   let finalMorphology = "Giant Triaxial Elliptical (E1-E2)";

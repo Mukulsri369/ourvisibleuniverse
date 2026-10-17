@@ -21,7 +21,8 @@ import { StellarEvolutionLab } from "./StellarEvolutionLab";
 import { PlanetFormationLab } from "./PlanetFormationLab";
 import { GalaxyAssemblyLab } from "./GalaxyAssemblyLab";
 
-export type AstrophysicsLabModuleId = "star_formation" | "stellar_evolution" | "planet_formation" | "galaxy_assembly";
+export type AstrophysicsLabModuleId =
+  "star_formation" | "stellar_evolution" | "planet_formation" | "galaxy_assembly";
 
 interface AstrophysicsLabHubProps {
   initialModule?: AstrophysicsLabModuleId;
@@ -53,7 +54,8 @@ export function AstrophysicsLabHub({
             Astrophysics & Formation Laboratories
           </h1>
           <p className="text-xs text-slate-300 max-w-2xl">
-            Explore simplified, mathematically sound numerical simulations of stellar birth, lifecycles, protoplanetary systems, and cosmological galaxy collisions.
+            Explore simplified, mathematically sound numerical simulations of stellar birth,
+            lifecycles, protoplanetary systems, and cosmological galaxy collisions.
           </p>
         </div>
 
@@ -75,19 +77,22 @@ export function AstrophysicsLabHub({
           <div className="space-y-1 p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/20">
             <span className="font-bold text-emerald-400 font-mono">[OBSERVATION]</span>
             <p className="text-slate-300 text-[11px] leading-relaxed">
-              Direct empirical data measured by telescopes (e.g. ALMA dust rings, Gaia photometry, JWST spectra).
+              Direct empirical data measured by telescopes (e.g. ALMA dust rings, Gaia photometry,
+              JWST spectra).
             </p>
           </div>
           <div className="space-y-1 p-2.5 rounded-lg bg-blue-950/30 border border-blue-500/20">
             <span className="font-bold text-blue-400 font-mono">[MODEL]</span>
             <p className="text-slate-300 text-[11px] leading-relaxed">
-              Physics-informed theoretical calculations or precomputed simulation grids (e.g. MIST stellar tracks, Jeans collapse).
+              Physics-informed theoretical calculations or precomputed simulation grids (e.g. MIST
+              stellar tracks, Jeans collapse).
             </p>
           </div>
           <div className="space-y-1 p-2.5 rounded-lg bg-purple-950/30 border border-purple-500/20">
             <span className="font-bold text-purple-400 font-mono">[ILLUSTRATION]</span>
             <p className="text-slate-300 text-[11px] leading-relaxed">
-              Conceptual visualization designed to illustrate physical processes where 1:1 numerical precision is computationally bounded.
+              Conceptual visualization designed to illustrate physical processes where 1:1 numerical
+              precision is computationally bounded.
             </p>
           </div>
         </div>

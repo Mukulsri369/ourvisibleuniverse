@@ -1913,7 +1913,10 @@ export function searchGalaxyAtlas(options: {
     if (options.morphologyCategory && g.morphologyCategory !== options.morphologyCategory) {
       return false;
     }
-    if (options.hostGroup && !g.hostGroup?.toLowerCase().includes(options.hostGroup.toLowerCase())) {
+    if (
+      options.hostGroup &&
+      !g.hostGroup?.toLowerCase().includes(options.hostGroup.toLowerCase())
+    ) {
       return false;
     }
     if (options.minZ !== undefined && g.redshift < options.minZ) {

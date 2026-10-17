@@ -206,7 +206,8 @@ export function calculateDiskStructure(params: NumericalProtoplanetaryDiskParams
   const criticalCoreMassEarth = 10.0;
 
   // Type I migration timescale at 5 AU for 1 Earth mass: t_I ~ 10^5 - 10^6 years
-  const typeIMigrationTimeYears = (1e5 * Math.pow(params.stellarMassSolar, 1.5)) / (params.diskMassSolar / 0.01);
+  const typeIMigrationTimeYears =
+    (1e5 * Math.pow(params.stellarMassSolar, 1.5)) / (params.diskMassSolar / 0.01);
 
   return {
     snowLineRadiusAu,
@@ -221,7 +222,11 @@ export function calculateDiskStructure(params: NumericalProtoplanetaryDiskParams
 /**
  * Calculates physical Hill radius and orbital period for an embryonic planet
  */
-export function calculateOrbitalPhysics(semiMajorAxisAu: number, planetMassEarth: number, starMassSolar: number) {
+export function calculateOrbitalPhysics(
+  semiMajorAxisAu: number,
+  planetMassEarth: number,
+  starMassSolar: number,
+) {
   const G = 6.6743e-11;
   const M_sun = 1.989e30;
   const M_earth = 5.972e24;
@@ -235,7 +240,7 @@ export function calculateOrbitalPhysics(semiMajorAxisAu: number, planetMassEarth
   const orbitalPeriodYears = Math.sqrt(Math.pow(semiMajorAxisAu, 3) / starMassSolar);
 
   // Orbital speed v_K = sqrt(G*M / a)
-  const orbitalSpeedKmS = (Math.sqrt((G * M_star_kg) / a_m)) / 1000;
+  const orbitalSpeedKmS = Math.sqrt((G * M_star_kg) / a_m) / 1000;
 
   // Hill Sphere radius: r_H = a * (M_p / (3 * M_*))^(1/3)
   const hillRadiusAu = semiMajorAxisAu * Math.pow(M_planet_kg / (3 * M_star_kg), 1 / 3);
@@ -243,7 +248,7 @@ export function calculateOrbitalPhysics(semiMajorAxisAu: number, planetMassEarth
 
   // Escape velocity from planet surface (approx Earth density)
   const planetRadiusKm = 6371 * Math.pow(planetMassEarth, 1 / 3);
-  const escapeVelocityKmS = (Math.sqrt((2 * G * M_planet_kg) / (planetRadiusKm * 1000))) / 1000;
+  const escapeVelocityKmS = Math.sqrt((2 * G * M_planet_kg) / (planetRadiusKm * 1000)) / 1000;
 
   return {
     orbitalPeriodYears,

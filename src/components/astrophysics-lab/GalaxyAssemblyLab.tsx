@@ -34,7 +34,9 @@ export function GalaxyAssemblyLab({
 }: GalaxyAssemblyLabProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [activeStageId, setActiveStageId] = useState<GalaxyAssemblyStageId>("galaxy_collision_tidal_tails");
+  const [activeStageId, setActiveStageId] = useState<GalaxyAssemblyStageId>(
+    "galaxy_collision_tidal_tails",
+  );
   const [mergerParams, setMergerParams] = useState<MergerSimulationParams>({
     massRatio: 1.0, // Equal major merger
     gasFraction: 0.35,
@@ -121,7 +123,14 @@ export function GalaxyAssemblyLab({
       ctx.fill();
 
       if (activeStageId !== "quenched_elliptical_remnant") {
-        const halo2Grad = ctx.createRadialGradient(g2X, g2Y, 5, g2X, g2Y, 100 * mergerParams.massRatio);
+        const halo2Grad = ctx.createRadialGradient(
+          g2X,
+          g2Y,
+          5,
+          g2X,
+          g2Y,
+          100 * mergerParams.massRatio,
+        );
         halo2Grad.addColorStop(0, "rgba(244, 63, 94, 0.2)");
         halo2Grad.addColorStop(0.6, "rgba(49, 46, 129, 0.15)");
         halo2Grad.addColorStop(1, "rgba(3, 7, 18, 0)");
@@ -160,7 +169,7 @@ export function GalaxyAssemblyLab({
         const centerGx = isG1 || activeStageId === "quenched_elliptical_remnant" ? g1X : g2X;
         const centerGy = isG1 || activeStageId === "quenched_elliptical_remnant" ? g1Y : g2Y;
 
-        let px = centerGx + Math.cos(p.angle) * p.radius;
+        const px = centerGx + Math.cos(p.angle) * p.radius;
         let py = centerGy + Math.sin(p.angle) * p.radius * 0.45;
 
         // Spheroidal dispersion for quenched elliptical remnant
@@ -220,16 +229,20 @@ export function GalaxyAssemblyLab({
             Cosmic Infall, Supernova Winds & Mergers
           </h2>
           <p className="text-xs text-slate-400 mt-0.5">
-            IllustrisTNG & FIRE-2 hydrodynamic models illustrating halo assembly, Kennicutt-Schmidt starbursts, and tidal bridge formation.
+            IllustrisTNG & FIRE-2 hydrodynamic models illustrating halo assembly, Kennicutt-Schmidt
+            starbursts, and tidal bridge formation.
           </p>
         </div>
 
         {/* Observed Target Attribution Disclaimer */}
         <div className="text-right text-xs">
-          <span className="text-slate-400 block font-mono text-[11px]">Observational Reference:</span>
+          <span className="text-slate-400 block font-mono text-[11px]">
+            Observational Reference:
+          </span>
           <span className="text-indigo-300 font-bold">{initialGalaxyTargetName}</span>
           <p className="text-[10px] text-slate-500 max-w-xs mt-0.5">
-            *Demonstrates a scientifically plausible physical process based on numerical simulations, not an exact recording of this galaxy's past.
+            *Demonstrates a scientifically plausible physical process based on numerical
+            simulations, not an exact recording of this galaxy's past.
           </p>
         </div>
       </div>
@@ -239,7 +252,12 @@ export function GalaxyAssemblyLab({
         {/* Left: Collision Simulation Canvas (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black">
-            <canvas ref={canvasRef} width={800} height={450} className="w-full h-full object-cover block" />
+            <canvas
+              ref={canvasRef}
+              width={800}
+              height={450}
+              className="w-full h-full object-cover block"
+            />
 
             {/* Overlaid Live Indicators */}
             <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none">
@@ -256,7 +274,9 @@ export function GalaxyAssemblyLab({
           <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2">
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-slate-300">Galaxy Assembly Epochs:</span>
-              <span className="text-indigo-400 font-mono text-[11px]">{activeStage.cosmicEpoch}</span>
+              <span className="text-indigo-400 font-mono text-[11px]">
+                {activeStage.cosmicEpoch}
+              </span>
             </div>
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
               {(Object.keys(GALAXY_ASSEMBLY_STAGES) as GalaxyAssemblyStageId[]).map((stKey) => {
@@ -338,7 +358,9 @@ export function GalaxyAssemblyLab({
               <div className="flex justify-between text-xs">
                 <span className="text-slate-400">Orbital Spin Alignment:</span>
                 <span className="font-mono text-indigo-300 font-bold">
-                  {mergerParams.isPrograde ? "Prograde (Resonant Tails)" : "Retrograde (Suppressed Tails)"}
+                  {mergerParams.isPrograde
+                    ? "Prograde (Resonant Tails)"
+                    : "Retrograde (Suppressed Tails)"}
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-1.5">
@@ -381,7 +403,9 @@ export function GalaxyAssemblyLab({
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Tidal Stream Span:</span>
-                <span className="text-cyan-300 font-bold">{mergerPhysics.tidalTailLengthKpc} kpc</span>
+                <span className="text-cyan-300 font-bold">
+                  {mergerPhysics.tidalTailLengthKpc} kpc
+                </span>
               </div>
               <div>
                 <span className="text-slate-500 block text-[10px]">Final Morphology:</span>
@@ -395,7 +419,9 @@ export function GalaxyAssemblyLab({
             <div className="space-y-2 pt-2 border-t border-white/10">
               <div className="text-xs">
                 <span className="font-bold text-slate-300 block mb-0.5">Physical Mechanism:</span>
-                <p className="text-slate-400 leading-relaxed text-[11px]">{activeStage.description}</p>
+                <p className="text-slate-400 leading-relaxed text-[11px]">
+                  {activeStage.description}
+                </p>
               </div>
 
               <div className="bg-slate-950/60 p-2.5 rounded-xl border border-white/5 space-y-1 text-[11px]">

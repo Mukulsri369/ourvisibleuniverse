@@ -195,12 +195,14 @@ export function calculateStarFormationPhysics(params: MolecularCloudParams) {
 
   // Effective sound speed including supersonic turbulence
   const effectiveSoundSpeedKmS = Math.sqrt(
-    soundSpeedKmS * soundSpeedKmS + (params.turbulenceKmS * params.turbulenceKmS) / 3
+    soundSpeedKmS * soundSpeedKmS + (params.turbulenceKmS * params.turbulenceKmS) / 3,
   );
   const effectiveSoundSpeedCmS = effectiveSoundSpeedKmS * 1e5;
 
   // Jeans Length: lambda_J = sqrt(pi * c_s,eff^2 / (G * rho))
-  const jeansLengthCm = Math.sqrt((Math.PI * effectiveSoundSpeedCmS * effectiveSoundSpeedCmS) / (G * rhoCgs));
+  const jeansLengthCm = Math.sqrt(
+    (Math.PI * effectiveSoundSpeedCmS * effectiveSoundSpeedCmS) / (G * rhoCgs),
+  );
   const jeansLengthPc = jeansLengthCm / pc_cm;
   const jeansLengthLy = jeansLengthCm / ly_cm;
 
@@ -209,7 +211,8 @@ export function calculateStarFormationPhysics(params: MolecularCloudParams) {
   const jeansMassSolar = jeansMassG / M_sun_g;
 
   // Bonnor-Ebert critical mass: M_BE = 1.18 * c_s^3 / (sqrt(G^3 * rho_edge))
-  const bonnorEbertMassSolar = (1.18 * Math.pow(effectiveSoundSpeedCmS, 3)) / (Math.sqrt(Math.pow(G, 3) * rhoCgs) * M_sun_g);
+  const bonnorEbertMassSolar =
+    (1.18 * Math.pow(effectiveSoundSpeedCmS, 3)) / (Math.sqrt(Math.pow(G, 3) * rhoCgs) * M_sun_g);
 
   // Free-fall collapse timescale: t_ff = sqrt(3 * pi / (32 * G * rho))
   const freeFallTimeSec = Math.sqrt((3 * Math.PI) / (32 * G * rhoCgs));
@@ -230,7 +233,10 @@ export function calculateStarFormationPhysics(params: MolecularCloudParams) {
   const willCollapse = isGravitationallyUnstable && isMagneticallySupercritical;
 
   // Star Formation Efficiency (SFE ~ 2 - 10% in typical GMCs)
-  const estimatedStarCount = Math.max(1, Math.floor((params.cloudMassSolar * 0.05) / Math.max(0.3, Math.min(jeansMassSolar, 2.0))));
+  const estimatedStarCount = Math.max(
+    1,
+    Math.floor((params.cloudMassSolar * 0.05) / Math.max(0.3, Math.min(jeansMassSolar, 2.0))),
+  );
 
   return {
     rhoCgs,
