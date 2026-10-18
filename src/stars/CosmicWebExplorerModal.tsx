@@ -719,7 +719,11 @@ export function CosmicWebExplorerModal() {
                       </span>
                       <span className="text-slate-400 font-mono text-[11px]">
                         Hubble Expansion Rate H(z) ={" "}
-                        {cosmoMetrics.hubbleParameterKmSPerMpc.toFixed(1)} km/s/Mpc
+                        {(
+                          cosmoMetrics.hubbleParameterKmSPerMpc ??
+                          currentCosmo.h0 * dimensionlessHubble(calcZ, currentCosmo)
+                        ).toFixed(1)}{" "}
+                        km/s/Mpc
                       </span>
                     </div>
 
@@ -750,7 +754,13 @@ export function CosmicWebExplorerModal() {
                           {cosmoMetrics.lookbackTimeGyr.toFixed(3)} Gyr
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          Universe Age: {cosmoMetrics.ageAtRedshiftGyr.toFixed(3)} Gyr
+                          Universe Age:{" "}
+                          {(
+                            cosmoMetrics.ageAtRedshiftGyr ??
+                            cosmoMetrics.cosmicAgeAtRedshiftGyr ??
+                            0
+                          ).toFixed(3)}{" "}
+                          Gyr
                         </div>
                       </div>
 

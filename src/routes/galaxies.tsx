@@ -267,18 +267,18 @@ function GalaxiesRouteComponent() {
   const [selectedGalaxy, setSelectedGalaxy] = useState<GalaxyItem>(FEATURED_GALAXIES[0]);
   const [mounted, setMounted] = useState(false);
   const [activeSublessonId, setActiveSublessonId] = useState<string>("13-1-morphology");
-  const [exploredChapters, setExploredChapters] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const stored = localStorage.getItem("cosmic_academy_explored_galaxies_chapters");
-      return stored ? JSON.parse(stored) : ["13-1-morphology"];
-    } catch {
-      return ["13-1-morphology"];
-    }
-  });
+  const [exploredChapters, setExploredChapters] = useState<string[]>(["13-1-morphology"]);
 
   useEffect(() => {
     setMounted(true);
+    try {
+      const stored = localStorage.getItem("cosmic_academy_explored_galaxies_chapters");
+      if (stored) {
+        setExploredChapters(JSON.parse(stored));
+      }
+    } catch {
+      // fallback to initial state
+    }
   }, []);
 
   const isBookmarked = progress.bookmarks.includes("13");

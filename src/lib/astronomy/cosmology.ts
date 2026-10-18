@@ -92,6 +92,8 @@ export interface CosmologicalDistanceResult {
   distanceModulus: number; // mu = m - M = 5 log10(D_L / 10 pc)
   kpcPerArcsec: number; // Physical scale subtended by 1 arcsecond at z
   lyPerArcmin: number; // Physical scale subtended by 1 arcminute at z
+  hubbleParameterKmSPerMpc: number; // H(z) in km/s/Mpc
+  ageAtRedshiftGyr: number; // Cosmic age at redshift (Gyr)
 }
 
 /**
@@ -160,6 +162,8 @@ export function calculateCosmologicalDistances(
       distanceModulus: 0,
       kpcPerArcsec: 0,
       lyPerArcmin: 0,
+      hubbleParameterKmSPerMpc: params.h0,
+      ageAtRedshiftGyr: age0,
     };
   }
 
@@ -262,6 +266,8 @@ export function calculateCosmologicalDistances(
     distanceModulus,
     kpcPerArcsec,
     lyPerArcmin,
+    hubbleParameterKmSPerMpc: params.h0 * dimensionlessHubble(z, params),
+    ageAtRedshiftGyr: cosmicAgeAtRedshift,
   };
 }
 

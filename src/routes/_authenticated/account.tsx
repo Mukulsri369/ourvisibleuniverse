@@ -60,7 +60,9 @@ function AccountPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Access until</p>
-                <p className="mt-1 text-xl">{new Date(access.expires_at).toLocaleDateString()}</p>
+                <p className="mt-1 text-xl" suppressHydrationWarning>
+                  {new Date(access.expires_at).toLocaleDateString()}
+                </p>
               </div>
             </div>
           )}

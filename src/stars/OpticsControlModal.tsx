@@ -232,9 +232,9 @@ export function OpticsControlModal() {
                   </div>
                   <input
                     type="range"
-                    min="0.4"
+                    min="0.01"
                     max="2.5"
-                    step="0.05"
+                    step="0.01"
                     value={exposure}
                     onChange={(e) => setExposure(parseFloat(e.target.value))}
                     className="mt-1.5 w-full accent-cyan-400"

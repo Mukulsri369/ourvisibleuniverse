@@ -382,12 +382,8 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export function TopLeftControls() {
-  const spectralMode = useStore((s) => s.spectralMode);
-  const toggleSpectral = useStore((s) => s.toggleSpectral);
   const cameraFree = useStore((s) => s.cameraFree);
   const toggleCameraFree = useStore((s) => s.toggleCameraFree);
-  const scaleMode = useStore((s) => s.scaleMode);
-  const toggleScaleMode = useStore((s) => s.toggleScaleMode);
   const [searchOpen, setSearchOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
@@ -398,22 +394,6 @@ export function TopLeftControls() {
       onClick={(e) => e.stopPropagation()}
       className="fixed left-6 top-5 z-30 flex items-center gap-3 text-white/80"
     >
-      <IconButton title="Toggle Spectral Colors" onClick={toggleSpectral} active={spectralMode}>
-        <SpectrumIcon />
-      </IconButton>
-      <IconButton
-        title={
-          scaleMode === "enhanced"
-            ? "Scale: Enhanced Visibility (Click to switch to True Scientific Scale 1:1)"
-            : "Scale: True Scientific Scale 1:1 (Click to switch to Enhanced Visibility)"
-        }
-        onClick={toggleScaleMode}
-        active={scaleMode === "true_scale"}
-      >
-        <span className="font-mono text-[10px] font-bold tracking-tight">
-          {scaleMode === "true_scale" ? "1:1" : "VIS"}
-        </span>
-      </IconButton>
       <IconButton
         title="NASA JPL Horizons Solar System Time, Ephemerides & Dynamics"
         onClick={() => setSolarControllerOpen((v) => !v)}
@@ -457,31 +437,6 @@ export function TopLeftControls() {
         onClick={() => useStore.getState().setOpticsModalOpen(true)}
       >
         <Sliders className="h-4 w-4 text-cyan-400" />
-      </IconButton>
-      <IconButton
-        title={
-          useStore.getState().opticsPreset === "scientific"
-            ? "Visual Preset: Scientific (Click to switch to Cinematic)"
-            : "Visual Preset: Cinematic (Click to switch to Scientific)"
-        }
-        onClick={() =>
-          useStore
-            .getState()
-            .setOpticsPreset(
-              useStore.getState().opticsPreset === "scientific" ? "cinematic" : "scientific",
-            )
-        }
-        active={useStore.getState().opticsPreset === "cinematic"}
-      >
-        <span className="font-mono text-[9px] font-bold tracking-tight">
-          {useStore.getState().opticsPreset === "scientific" ? "SCI" : "CIN"}
-        </span>
-      </IconButton>
-      <IconButton
-        title="GPU & Engine Performance Benchmark (FPS, Draw Calls, Triangles, VRAM, Screenshots)"
-        onClick={() => useStore.getState().setBenchmarkModalOpen(true)}
-      >
-        <Activity className="h-4 w-4 text-emerald-400" />
       </IconButton>
       <IconButton
         title="Universal Indexed Celestial Search (Names, Aliases, Catalogs, Morphologies, Redshifts)"
@@ -616,10 +571,7 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
   {
     title: "Toolbar",
     items: [
-      ["Spectrum", "Toggle true spectral star colours"],
-      ["VIS / 1:1", "Switch between Enhanced Visibility and True Scientific Scale"],
       ["Sliders", "Astrophysical Optics, Shaders, Bloom & Tone Mapping controls"],
-      ["SCI / CIN", "Switch between Scientific Observation mode and Cinematic HDR preset"],
       ["Search", "Find any star, planet, galaxy or observed object"],
       ["Square", "Stop the camera in space (free look)"],
       ["Maximize", "Full screen — press Esc to exit"],
@@ -756,8 +708,6 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
   const setSystemSpeed = useStore((s) => s.setSystemSpeed);
   const trailSize = useStore((s) => s.trailSize);
   const setTrailSize = useStore((s) => s.setTrailSize);
-  const scaleMode = useStore((s) => s.scaleMode);
-  const setScaleMode = useStore((s) => s.setScaleMode);
 
   return (
     <AnimatePresence>
@@ -777,40 +727,6 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
             >
               ✕
             </button>
-          </div>
-
-          <div className="mb-4 border-b border-white/10 pb-3">
-            <div className="mb-1 text-[11px] font-medium text-white/90">Scale & Presentation</div>
-            <div className="mb-2 text-[10px] text-white/50 leading-relaxed">
-              Underlying positions use double precision (ICRS/IAU coordinates). Presentation
-              controls display magnification.
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setScaleMode("enhanced")}
-                className={`rounded-lg border px-2.5 py-2 text-left text-xs transition ${
-                  scaleMode === "enhanced"
-                    ? "border-cyan-400/50 bg-cyan-400/15 text-cyan-200"
-                    : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <div className="font-semibold">Enhanced</div>
-                <div className="text-[9px] text-white/40 mt-0.5">Visitable orbits & radii</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setScaleMode("true_scale")}
-                className={`rounded-lg border px-2.5 py-2 text-left text-xs transition ${
-                  scaleMode === "true_scale"
-                    ? "border-emerald-400/50 bg-emerald-400/15 text-emerald-200"
-                    : "border-white/10 bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                <div className="font-semibold">True Scale 1:1</div>
-                <div className="text-[9px] text-white/40 mt-0.5">Physical dimensions</div>
-              </button>
-            </div>
           </div>
           <Slider
             label="Zoom speed"
@@ -890,20 +806,6 @@ function IconButton({
   );
 }
 
-function SpectrumIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16">
-      <defs>
-        <linearGradient id="sg" x1="0" x2="1">
-          <stop offset="0" stopColor="#ff4422" />
-          <stop offset="0.5" stopColor="#fff4ea" />
-          <stop offset="1" stopColor="#6688ff" />
-        </linearGradient>
-      </defs>
-      <rect x="1" y="6" width="14" height="4" rx="1" fill="url(#sg)" />
-    </svg>
-  );
-}
 function SearchIcon() {
   return (
     <svg
@@ -1102,11 +1004,9 @@ export function TourCaption() {
 
 export function ScaleIndicator() {
   const d = useStore((s) => s.cameraDistance);
-  const scaleMode = useStore((s) => s.scaleMode);
-  const toggleScaleMode = useStore((s) => s.toggleScaleMode);
   const cosmicJourneyOpen = useStore((s) => s.cosmicJourneyOpen);
   const isMobile = useIsMobile();
-  const info = scaleManager.formatIndicator(d, scaleMode);
+  const info = scaleManager.formatIndicator(d, "enhanced");
 
   return (
     <div
@@ -1122,18 +1022,6 @@ export function ScaleIndicator() {
         <span className="font-mono text-[11px] text-cyan-300 font-semibold tracking-wide">
           {info.distanceLabel}
         </span>
-        <span className="text-white/25 text-[10px]">|</span>
-        <button
-          onClick={toggleScaleMode}
-          title={info.modeDescription}
-          className={`cursor-pointer rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider transition ${
-            scaleMode === "enhanced"
-              ? "bg-cyan-500/20 text-cyan-300 border border-cyan-400/35 hover:bg-cyan-500/30"
-              : "bg-emerald-500/20 text-emerald-300 border border-emerald-400/35 hover:bg-emerald-500/30"
-          }`}
-        >
-          {scaleMode === "enhanced" ? "Enhanced" : "True Scale"}
-        </button>
       </div>
       <div className="pointer-events-none text-[9px] uppercase tracking-[0.2em] text-white/45">
         {info.regimeSubtitle}
