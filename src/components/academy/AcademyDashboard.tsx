@@ -31,6 +31,7 @@ import {
   User,
   GraduationCap,
   Shield,
+  Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -107,7 +108,6 @@ const Module24Layout = lazy(() =>
 const FinalExamEngine = lazy(() =>
   import("./FinalExamEngine").then((m) => ({ default: m.FinalExamEngine })),
 );
-
 
 const ACTIVE_MODULE_IDS = [
   "01",
@@ -335,7 +335,6 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
       </div>
     );
   }
-
 
   // If viewing an active module, render with isolated Suspense boundary and sleek fallback
   if (activeLessonModule) {
@@ -642,7 +641,6 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           </div>
         </section>
       </div>
-
 
       {/* Syllabus Modal for Coming Soon & Preview Modules */}
       {previewModule && (

@@ -193,4 +193,3 @@ export const claimOfficialCertificate = createServerFn({ method: "POST" })
       courseVersion: eligibility.course_version,
     };
   });
-

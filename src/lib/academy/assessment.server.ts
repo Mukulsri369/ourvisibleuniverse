@@ -138,7 +138,6 @@ export async function checkFinalExamEligibilityServer(
   };
 }
 
-
 /**
  * Guard preventing COSMOS AI assistant from providing answers during official examinations.
  */
@@ -253,7 +252,6 @@ export async function startAssessmentServer(
   };
 }
 
-
 /**
  * 2. Authoritatively grades an assessment attempt on the server.
  * Validates ownership, checks replay/idempotency, scores canonical questions,
@@ -300,7 +298,6 @@ export async function submitAssessmentAttemptServer(
       // Offline fallback
     }
   }
-
 
   // Final examination official ownership & eligibility verification
   if (isFinalExam && input.mode === "official") {
@@ -445,10 +442,40 @@ export async function submitAssessmentAttemptServer(
   const percentage = Math.round((score / totalPoints) * 10000) / 100;
   const passed = percentage >= passingScorePct;
 
-  // Record attempt in database
-  const { data: attempt, error: attemptError } = await supabaseAdmin
-    .from("academy_assessment_attempts")
-    .insert({
+  // Record attempt in database with in-memory fallback
+  let attempt: any = null;
+  try {
+    const { data: dbAttempt, error: attemptError } = await supabaseAdmin
+      .from("academy_assessment_attempts")
+      .insert({
+        user_id: input.userId,
+        assessment_id: isFinalExam ? "cosmic_explorer_final_exam" : `quiz_module_${formattedModId}`,
+        assessment_version: "1.0.0",
+        question_set_version: "1.0.0",
+        assigned_question_ids: canonicalQuestions.map((q) => q.id),
+        answers_payload: input.answers as any,
+        score,
+        total_points: totalPoints,
+        percentage,
+        passed,
+        client_duration_seconds: input.clientDurationSeconds ?? null,
+        idempotency_key: uniqueSubmissionKey,
+      })
+      .select()
+      .maybeSingle();
+
+    if (attemptError) {
+      console.warn("Supabase assessment attempt insert warning:", attemptError.message);
+    } else {
+      attempt = dbAttempt;
+    }
+  } catch (err: any) {
+    console.warn("Database offline during assessment insert:", err?.message || err);
+  }
+
+  if (!attempt) {
+    attempt = {
+      id: `attempt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       user_id: input.userId,
       assessment_id: isFinalExam ? "cosmic_explorer_final_exam" : `quiz_module_${formattedModId}`,
       assessment_version: "1.0.0",
@@ -461,16 +488,11 @@ export async function submitAssessmentAttemptServer(
       passed,
       client_duration_seconds: input.clientDurationSeconds ?? null,
       idempotency_key: uniqueSubmissionKey,
-    })
-    .select()
-    .single();
-
-  if (attemptError || !attempt) {
-    console.error("Could not record assessment attempt:", attemptError?.message);
-    throw new Error(
-      `Failed to record assessment attempt: ${attemptError?.message || "Unknown error"}`,
-    );
+      created_at: new Date().toISOString(),
+    };
   }
+
+  RECORDED_ATTEMPTS.set(uniqueSubmissionKey, attempt);
 
   let verifiedCompletionAwarded = false;
   let newStageBadgeAwarded: string | null = null;
@@ -482,19 +504,26 @@ export async function submitAssessmentAttemptServer(
       if (passed) {
         // Final examination pass (>= 80%, minimum 16/20) -> Trigger certification eligibility service
         certificateEligible = true;
-        await supabaseAdmin.from("academy_certificate_eligibility").upsert(
-          {
-            user_id: input.userId,
-            course_id: "cosmic_journey",
-            course_version: input.courseVersion || "1.0.0",
-            all_stages_completed: true,
-            final_exam_passed: true,
-            final_exam_score_pct: percentage,
-            eligible_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id,course_id,course_version" },
-        );
+        try {
+          await supabaseAdmin.from("academy_certificate_eligibility").upsert(
+            {
+              user_id: input.userId,
+              course_id: "cosmic_journey",
+              course_version: input.courseVersion || "1.0.0",
+              all_stages_completed: true,
+              final_exam_passed: true,
+              final_exam_score_pct: percentage,
+              eligible_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "user_id,course_id,course_version" },
+          );
+        } catch (err: any) {
+          console.warn(
+            "Database offline during certificate eligibility upsert:",
+            err?.message || err,
+          );
+        }
       } else {
         // Failed attempt (< 80%) does NOT grant certificate eligibility
         certificateEligible = false;
@@ -546,4 +575,3 @@ export async function submitAssessmentAttemptServer(
     recommendations: reviewRecommendations.slice(0, 3),
   };
 }
-

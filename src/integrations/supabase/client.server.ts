@@ -10,7 +10,19 @@ function isNewSupabaseApiKey(value: string): boolean {
 }
 
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
-  return (input, init) => {
+  return async (input, init) => {
+    const urlStr =
+      typeof input === "string" ? input : input instanceof Request ? input.url : input.toString();
+    if (urlStr.includes("placeholder-project")) {
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "content-range": "0-0/0",
+        },
+      });
+    }
+
     const headers = new Headers(
       typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined,
     );
@@ -28,7 +40,7 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
     }
 
     headers.set("apikey", supabaseKey);
-    return fetch(input, { ...init, headers });
+    return fetch(input, { ...init, headers, signal: init?.signal || AbortSignal.timeout(3000) });
   };
 }
 

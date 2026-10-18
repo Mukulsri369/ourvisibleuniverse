@@ -36,6 +36,10 @@ import { MODULE_21_QUIZ } from "@/lib/academy/lessons/module-21-telescopes";
 import { MODULE_22_QUIZ } from "@/lib/academy/lessons/module-22-space-missions";
 import { MODULE_23_QUIZ } from "@/lib/academy/lessons/module-23-astrobiology";
 import { MODULE_24_QUIZ } from "@/lib/academy/lessons/module-24-cosmic-lab";
+import {
+  generateFinalExamAttemptServer,
+  sanitizeQuestionsForClient,
+} from "./final-exam-bank.server";
 
 function normalizeRawQuestion(
   raw: any,
@@ -523,7 +527,6 @@ export function getClientQuestionsForModule(
 export function getFinalExamQuestions(
   level: LearningLevel = "explorer",
 ): CanonicalAssessmentQuestion[] {
-  const { generateFinalExamAttemptServer } = require("./final-exam-bank.server");
   return generateFinalExamAttemptServer(level);
 }
 
@@ -531,7 +534,5 @@ export function getClientFinalExamQuestions(
   level: LearningLevel = "explorer",
 ): ClientAssessmentQuestion[] {
   const canonical = getFinalExamQuestions(level);
-  const { sanitizeQuestionsForClient } = require("./final-exam-bank.server");
   return sanitizeQuestionsForClient(canonical);
 }
-

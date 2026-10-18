@@ -173,4 +173,3 @@ export const DEFAULT_ASSESSMENT_POLICY: AssessmentPolicyConfig = {
   finalCertificationPassingPct: 80.0,
   minDurationSeconds: 5,
 };
-
