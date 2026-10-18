@@ -16,6 +16,7 @@ import { CosmicScaleExplorer } from "./CosmicScaleExplorer";
 import { CosmicScaleExperimentsLab } from "./CosmicScaleExperimentsLab";
 import { AccessibleScaleDiagrams } from "./AccessibleScaleDiagrams";
 import { KnowledgeCheck } from "./KnowledgeCheck";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import {
@@ -74,8 +75,8 @@ export function Module03Layout({
   const handleFinishQuiz = (score: number, total: number) => {
     setQuizFinished(true);
     onRecordQuiz("quiz_module_03", score, total);
-    // Mark complete in progress
-    onUpdateModuleProgress("03", 100, "completed");
+    // Record learning progress without bypassing authoritative validation
+    onUpdateModuleProgress("03", 90, "in_progress");
   };
 
   const handleExplorationComplete = () => {
@@ -371,6 +372,34 @@ export function Module03Layout({
       {/* 6. Scientific Sources Panel */}
       <section className="space-y-4">
         <SourceInformationPanel sources={MODULE_03_SOURCES} />
+      </section>
+
+      {/* 6b. Authoritative Verified Module Completion Checklist */}
+      <section id="module-03-checklist">
+        <ModuleCompletionChecklist
+          moduleId="03"
+          onNextModule={
+            onSelectNextModule && nextRecommended
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof document !== "undefined") {
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        />
       </section>
 
       {/* 7. Next Module Recommendation / Navigation */}

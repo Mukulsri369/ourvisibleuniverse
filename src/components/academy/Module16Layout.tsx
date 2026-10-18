@@ -17,6 +17,7 @@ import { DarkEnergyCosmologyLab } from "./DarkEnergyCosmologyLab";
 import { DarkSectorMythbusters } from "./DarkSectorMythbusters";
 import { CosmicEnergyBudgetCard } from "./CosmicEnergyBudgetCard";
 import { KnowledgeCheck } from "./KnowledgeCheck";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import {
@@ -28,6 +29,7 @@ import {
   Compass,
   ArrowRight,
   ChevronRight,
+  ShieldCheck,
   Orbit,
   Disc,
   Clock,
@@ -36,7 +38,6 @@ import {
   Zap,
   Activity,
   Atom,
-  ShieldCheck,
   TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -94,14 +95,10 @@ export function Module16Layout({
     onRecordQuiz("module-16-quiz", score, total);
     const passThreshold = Math.ceil(total * 0.7);
     if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 100, "completed");
+      onUpdateModuleProgress(module.id, 90, "in_progress");
     } else {
-      onUpdateModuleProgress(module.id, 85, "in_progress");
+      onUpdateModuleProgress(module.id, 80, "in_progress");
     }
-  };
-
-  const handleMarkComplete = () => {
-    onUpdateModuleProgress(module.id, 100, "completed");
   };
 
   return (
@@ -139,17 +136,13 @@ export function Module16Layout({
           {isCompleted ? (
             <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl">
               <CheckCircle2 className="size-4" />
-              <span>Module Completed!</span>
+              <span>Module Certified!</span>
             </div>
           ) : (
-            <Button
-              size="sm"
-              onClick={handleMarkComplete}
-              className="bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs shadow-md shadow-violet-600/30"
-            >
-              <Award className="size-3.5 mr-1.5" />
-              <span>Mark Complete</span>
-            </Button>
+            <div className="flex items-center gap-1.5 text-xs text-violet-300 bg-violet-500/10 border border-violet-500/30 px-3.5 py-1.5 rounded-xl">
+              <ShieldCheck className="size-3.5 text-violet-400" />
+              <span>Verified Track</span>
+            </div>
           )}
         </div>
       </div>
@@ -378,47 +371,16 @@ export function Module16Layout({
         />
       </section>
 
-      {/* 7. Completion Summary & Next Recommendation */}
-      <section className="rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/20 via-slate-900/60 to-violet-950/20 p-6 sm:p-8 backdrop-blur-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="size-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
-              <Award className="size-6" />
-            </div>
-            <div>
-              <h4 className="text-xl font-extrabold text-white">
-                {isCompleted ? "Dark Sector Cosmologist Certified!" : "Ready to Certify Module 16?"}
-              </h4>
-              <p className="text-xs text-slate-300 mt-0.5 max-w-xl">
-                You have mastered Vera Rubin&apos;s rotation curves, dark matter halo profiles, Type
-                Ia supernova standard candles, and the accelerated metric expansion of the universe.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {!isCompleted && (
-              <Button
-                size="sm"
-                onClick={handleMarkComplete}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
-              >
-                Mark Complete
-              </Button>
-            )}
-
-            {nextRecommended && (
-              <Button
-                size="sm"
-                onClick={() => onSelectNextModule && onSelectNextModule(nextRecommended.module)}
-                className="bg-violet-600 hover:bg-violet-500 text-white font-bold"
-              >
-                <span>Next: {nextRecommended.module.title}</span>
-                <ChevronRight className="size-4 ml-1" />
-              </Button>
-            )}
-          </div>
-        </div>
+      {/* 7. Authoritative Verified Completion Checklist */}
+      <section className="space-y-4">
+        <ModuleCompletionChecklist
+          moduleId={module.id}
+          onNextModule={
+            nextRecommended
+              ? () => onSelectNextModule && onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+        />
       </section>
     </div>
   );

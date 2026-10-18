@@ -16,6 +16,7 @@ import { VirtualObservatoryLab } from "./VirtualObservatoryLab";
 import { KnowledgeCheck } from "./KnowledgeCheck";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import {
   BookOpen,
   CheckCircle2,
@@ -33,6 +34,7 @@ import {
   Eye,
   Radio,
   Activity,
+  Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -79,14 +81,10 @@ export function Module21Layout({
     onRecordQuiz("module-21-quiz", score, total);
     const passThreshold = Math.ceil(total * 0.7);
     if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 100, "completed");
+      onUpdateModuleProgress(module.id, 90, "in_progress");
     } else {
-      onUpdateModuleProgress(module.id, 85, "in_progress");
+      onUpdateModuleProgress(module.id, 80, "in_progress");
     }
-  };
-
-  const handleMarkComplete = () => {
-    onUpdateModuleProgress(module.id, 100, "completed");
   };
 
   return (
@@ -165,13 +163,16 @@ export function Module21Layout({
           <div className="flex flex-col gap-2.5 shrink-0 w-full sm:w-auto">
             {!isCompleted ? (
               <Button
-                onClick={handleMarkComplete}
+                onClick={() => {
+                  const el = document.getElementById("module-21-checklist");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }}
                 variant="outline"
                 size="sm"
                 className="border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-xs"
               >
-                <CheckCircle2 className="size-3.5 mr-1.5" />
-                Mark Module Complete
+                <Target className="size-3.5 mr-1.5 text-emerald-400" />
+                Review Requirements
               </Button>
             ) : (
               <div className="text-center p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30">
@@ -433,6 +434,34 @@ export function Module21Layout({
       {/* 5. Scientific References & Citation Panel */}
       <section>
         <SourceInformationPanel sources={MODULE_21_SOURCES} />
+      </section>
+
+      {/* 5b. Authoritative Verified Module Completion Checklist */}
+      <section id="module-21-checklist">
+        <ModuleCompletionChecklist
+          moduleId="21"
+          onNextModule={
+            nextRecommended && onSelectNextModule
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof document !== "undefined") {
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        />
       </section>
 
       {/* 6. Next Recommended Module Banner */}

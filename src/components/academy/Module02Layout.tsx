@@ -19,6 +19,7 @@ import { VirtualPlanetarium3D } from "./VirtualPlanetarium3D";
 import { AccessibleSkyChart2D } from "./AccessibleSkyChart2D";
 import { ConstellationFinderGame } from "./ConstellationFinderGame";
 import { KnowledgeCheck } from "./KnowledgeCheck";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import {
@@ -79,8 +80,8 @@ export function Module02Layout({
   const handleFinishQuiz = (score: number, total: number) => {
     setQuizFinished(true);
     onRecordQuiz("quiz_module_02", score, total);
-    // Complete module
-    onUpdateModuleProgress("02", 100, "completed");
+    // Record learning progress without bypassing authoritative validation
+    onUpdateModuleProgress("02", 90, "in_progress");
   };
 
   const handleFinishGame = () => {
@@ -311,6 +312,34 @@ export function Module02Layout({
       {/* 6. Primary Scientific Grounding Archives */}
       <section className="pt-4">
         <SourceInformationPanel sources={MODULE_02_SOURCES} />
+      </section>
+
+      {/* 6b. Authoritative Verified Module Completion Checklist */}
+      <section className="pt-4" id="module-02-checklist">
+        <ModuleCompletionChecklist
+          moduleId="02"
+          onNextModule={
+            onSelectNextModule && nextRecommended
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof document !== "undefined") {
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        />
       </section>
 
       {/* 7. Next Recommended Step Banner: Module 04 Light, Time & Cosmic Observation */}

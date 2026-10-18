@@ -15,6 +15,7 @@ import {
 import { SunSimulator3D } from "./SunSimulator3D";
 import { SpaceWeatherActivity } from "./SpaceWeatherActivity";
 import { KnowledgeCheck } from "./KnowledgeCheck";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import {
@@ -74,8 +75,8 @@ export function Module07Layout({
   const handleFinishQuiz = (score: number, total: number) => {
     setQuizFinished(true);
     onRecordQuiz("quiz_module_07", score, total);
-    // Mark module complete
-    onUpdateModuleProgress("07", 100, "completed");
+    // Record learning progress without bypassing authoritative validation
+    onUpdateModuleProgress("07", 90, "in_progress");
   };
 
   const handleSimulationInteracted = () => {
@@ -311,6 +312,34 @@ export function Module07Layout({
       {/* 7. SCIENTIFIC SOURCES & DATA DISCLOSURE */}
       <section className="space-y-3">
         <SourceInformationPanel sources={MODULE_07_SOURCES} funFacts={gradeContent.funFacts} />
+      </section>
+
+      {/* 7b. AUTHORITATIVE VERIFIED COMPLETION CHECKLIST */}
+      <section id="module-07-checklist">
+        <ModuleCompletionChecklist
+          moduleId="07"
+          onNextModule={
+            onSelectNextModule && nextRecommended
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof document !== "undefined") {
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        />
       </section>
 
       {/* 8. NEXT RECOMMENDED MODULES */}

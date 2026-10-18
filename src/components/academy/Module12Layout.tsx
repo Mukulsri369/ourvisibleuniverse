@@ -14,6 +14,7 @@ import {
 } from "@/lib/academy/lessons/module-12-exoplanets";
 import { ExoplanetDiscoveryLab } from "./ExoplanetDiscoveryLab";
 import { KnowledgeCheck } from "./KnowledgeCheck";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import {
@@ -82,12 +83,8 @@ export function Module12Layout({
 
   const handleQuizFinished = (score: number, total: number) => {
     onRecordQuiz("quiz-12", score, total);
-    const passThreshold = total >= 4 ? total - 1 : total;
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 100, "completed");
-    } else {
-      onUpdateModuleProgress(module.id, Math.max(modProgress.percentComplete, 85), "in_progress");
-    }
+    // Record learning progress without bypassing authoritative validation
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   const activeSublesson =
@@ -336,6 +333,21 @@ export function Module12Layout({
           <SourceInformationPanel sources={MODULE_12_SOURCES} />
         </section>
       )}
+
+      {/* Authoritative Verified Module Completion Checklist */}
+      <section id="module-12-checklist" className="max-w-4xl mx-auto">
+        <ModuleCompletionChecklist
+          moduleId="12"
+          onNextModule={
+            nextRecommended && onSelectNextModule
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => setActiveTab("quiz")}
+          onNavigateToActivity={() => setActiveTab("lab")}
+          onNavigateToSection={() => setActiveTab("lessons")}
+        />
+      </section>
 
       {/* Footer Navigation */}
       <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

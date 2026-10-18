@@ -16,6 +16,7 @@ import { OrbitalMechanicsLab3D } from "./OrbitalMechanicsLab3D";
 import { OrbitalEnergyGraphs } from "./OrbitalEnergyGraphs";
 import { StableSolarSystemChallenge } from "./StableSolarSystemChallenge";
 import { KnowledgeCheck } from "./KnowledgeCheck";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import {
@@ -79,8 +80,8 @@ export function Module08Layout({
   const handleFinishQuiz = (score: number, total: number) => {
     setQuizFinished(true);
     onRecordQuiz("quiz_module_08", score, total);
-    // Mark module complete
-    onUpdateModuleProgress("08", 100, "completed");
+    // Record learning progress without bypassing authoritative validation
+    onUpdateModuleProgress("08", 90, "in_progress");
   };
 
   const handleSimulationInteracted = () => {
@@ -416,6 +417,34 @@ export function Module08Layout({
 
       {/* 5. SCIENTIFIC SOURCES & REFERENCES */}
       <SourceInformationPanel sources={MODULE_08_SOURCES} className="mt-8" />
+
+      {/* 5b. AUTHORITATIVE VERIFIED COMPLETION CHECKLIST */}
+      <div id="module-08-checklist" className="mt-8">
+        <ModuleCompletionChecklist
+          moduleId="08"
+          onNextModule={
+            onSelectNextModule && nextRecommended
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof document !== "undefined") {
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        />
+      </div>
 
       {/* 6. ADAPTIVE RECOMMENDATION FOOTER */}
       {nextRecommended && onSelectNextModule && (

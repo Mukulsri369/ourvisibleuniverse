@@ -17,6 +17,7 @@ import { StellarEvolutionLab3D } from "./StellarEvolutionLab3D";
 import { StellarEvolutionDualCompare } from "./StellarEvolutionDualCompare";
 import { StellarOutcomePredictor } from "./StellarOutcomePredictor";
 import { KnowledgeCheck } from "./KnowledgeCheck";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import {
@@ -81,7 +82,8 @@ export function Module10Layout({
   const handleFinishQuiz = (score: number, total: number) => {
     setQuizFinished(true);
     onRecordQuiz("quiz_module_10", score, total);
-    onUpdateModuleProgress("10", 100, "completed");
+    // Record learning progress without bypassing authoritative validation
+    onUpdateModuleProgress("10", 90, "in_progress");
   };
 
   const handleLabInteracted = () => {
@@ -404,6 +406,34 @@ export function Module10Layout({
 
       {/* 6. SCIENTIFIC SOURCES & CITATIONS */}
       <SourceInformationPanel sources={MODULE_10_SOURCES} />
+
+      {/* 6b. AUTHORITATIVE VERIFIED COMPLETION CHECKLIST */}
+      <div id="module-10-checklist" className="mt-8">
+        <ModuleCompletionChecklist
+          moduleId="10"
+          onNextModule={
+            onSelectNextModule && nextRecommended
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof document !== "undefined") {
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        />
+      </div>
 
       {/* 7. NEXT MODULE RECOMMENDATION */}
       {nextRecommended && (

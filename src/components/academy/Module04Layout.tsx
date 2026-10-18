@@ -79,8 +79,8 @@ export function Module04Layout({
   const handleFinishQuiz = (score: number, total: number) => {
     setQuizFinished(true);
     onRecordQuiz("quiz_module_04", score, total);
-    // Mark module complete
-    onUpdateModuleProgress("04", 100, "completed");
+    // Record learning progress without bypassing authoritative validation
+    onUpdateModuleProgress("04", 90, "in_progress");
   };
 
   const handleExperimentCompleted = (expId: string) => {
@@ -299,7 +299,6 @@ export function Module04Layout({
         <ModuleNavigation
           currentModule={module}
           isCompleted={progress.moduleProgress[module.id]?.status === "completed"}
-          onMarkComplete={() => onUpdateModuleProgress(module.id, 100, "completed")}
           nextRecommended={
             nextRecommended || {
               module: {

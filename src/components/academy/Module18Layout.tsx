@@ -18,6 +18,7 @@ import { BoundVsUnboundChamber } from "./BoundVsUnboundChamber";
 import { KnowledgeCheck } from "./KnowledgeCheck";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import {
   BookOpen,
   CheckCircle2,
@@ -34,6 +35,7 @@ import {
   TrendingUp,
   Maximize2,
   ShieldCheck,
+  Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -90,14 +92,10 @@ export function Module18Layout({
     onRecordQuiz("module-18-quiz", score, total);
     const passThreshold = Math.ceil(total * 0.7);
     if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 100, "completed");
+      onUpdateModuleProgress(module.id, 90, "in_progress");
     } else {
-      onUpdateModuleProgress(module.id, 85, "in_progress");
+      onUpdateModuleProgress(module.id, 80, "in_progress");
     }
-  };
-
-  const handleMarkComplete = () => {
-    onUpdateModuleProgress(module.id, 100, "completed");
   };
 
   return (
@@ -134,17 +132,21 @@ export function Module18Layout({
 
           {isCompleted ? (
             <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl">
-              <CheckCircle2 className="size-4" />
-              <span>Module Completed!</span>
+              <ShieldCheck className="size-4 text-emerald-400" />
+              <span>Verified Complete</span>
             </div>
           ) : (
             <Button
               size="sm"
-              onClick={handleMarkComplete}
-              className="bg-red-600 hover:bg-red-500 text-white font-semibold text-xs shadow-md shadow-red-600/30"
+              variant="outline"
+              onClick={() => {
+                const el = document.getElementById("module-18-checklist");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="border-red-500/30 text-red-300 hover:text-white hover:bg-red-950/40 text-xs"
             >
-              <Award className="size-3.5 mr-1.5" />
-              <span>Mark Complete</span>
+              <Target className="size-3.5 mr-1.5 text-red-400" />
+              <span>Review Requirements</span>
             </Button>
           )}
         </div>
@@ -382,6 +384,35 @@ export function Module18Layout({
       {/* 5. Scientific References & Citation Panel */}
       <section>
         <SourceInformationPanel sources={MODULE_18_SCIENTIFIC_SOURCES} />
+      </section>
+
+      {/* 5b. Authoritative Verified Module Completion Checklist */}
+      <section id="module-18-checklist">
+        <ModuleCompletionChecklist
+          moduleId="18"
+          onNextModule={
+            nextRecommended && onSelectNextModule
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('section, [role="region"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 300, behavior: "smooth" });
+            }
+          }}
+        />
       </section>
 
       {/* 6. Next Recommended Module Banner */}
