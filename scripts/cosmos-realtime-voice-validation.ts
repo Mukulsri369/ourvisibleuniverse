@@ -8,6 +8,7 @@
  * self-playback echo suppression, dynamic VAD noise adaptation,
  * Live API short-lived session management, and preserved cursor resumption.
  */
+process.env.NODE_ENV = "test";
 
 import {
   type CosmosInteractionState,

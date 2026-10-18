@@ -58,6 +58,7 @@ export class VoiceConversationController {
   private currentCountdownSeconds = 0;
   private followUpTurnCount = 0;
   private lastAnswer: CosmosAnswer | null = null;
+  private lastErrorMessage: string | null = null;
   private lastTranscript = "";
   private currentAudioLevel = 0;
 
@@ -667,6 +668,11 @@ export class VoiceConversationController {
     extra: Partial<ConversationEventPayload> = {},
   ): void {
     this.state = state;
+    if (extra.errorMessage !== undefined) {
+      this.lastErrorMessage = extra.errorMessage;
+    } else if (state !== "ERROR") {
+      this.lastErrorMessage = null;
+    }
     this.notifyListeners(extra);
   }
 
@@ -689,6 +695,10 @@ export class VoiceConversationController {
       interruptedSegment: this.preservedInterruptedSegment,
       followUpCountdownSeconds: this.currentCountdownSeconds,
       audioLevel: this.currentAudioLevel,
+      errorMessage:
+        extra.errorMessage !== undefined
+          ? extra.errorMessage
+          : (this.lastErrorMessage ?? undefined),
       ...extra,
     };
   }

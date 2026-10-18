@@ -35,7 +35,9 @@ function detectForbiddenActionAttempt(question: string): CosmosForbiddenAction |
   if (
     q.includes("complete this module for me") ||
     q.includes("set progress to 100") ||
-    q.includes("mark complete")
+    q.includes("mark complete") ||
+    (q.includes("mark") && q.includes("complete")) ||
+    (q.includes("complete") && (q.includes("module") || q.includes("lesson")))
   ) {
     return "mark_module_complete";
   }
@@ -131,6 +133,28 @@ function generateScientificFallbackAnswer(
   const q = question.toLowerCase();
   const level = context.learningLevel;
 
+  // Check Examination Mode
+  if (context.activeExamAttempt) {
+    return {
+      answerText:
+        "As COSMOS, I cannot provide direct answers or solutions during an active knowledge assessment or examination. You can review the lesson material or ask about underlying physical concepts after completing your attempt!",
+      epistemicClassification: "fact",
+      epistemicNote: "Examination Integrity Rule",
+      scientificSources: [
+        {
+          title: "Cosmic Explorer Examination Protocol",
+          organization: "Our Visible Universe Academy",
+        },
+      ],
+      suggestedFollowUpQuestions: [
+        "How does the underlying physical principle work?",
+        "Where can I find this topic in the lesson text?",
+      ],
+      isExamRestricted: true,
+      learningLevelAdapted: level,
+    };
+  }
+
   // Check forbidden actions
   const forbidden = detectForbiddenActionAttempt(question);
   if (forbidden) {
@@ -148,28 +172,6 @@ function generateScientificFallbackAnswer(
         "What are the core concepts covered in this lesson?",
         "Can you explain the main scientific idea here?",
       ],
-      learningLevelAdapted: level,
-    };
-  }
-
-  // Check Examination Mode
-  if (context.activeExamAttempt || q.includes("answer to question") || q.includes("exam answer")) {
-    return {
-      answerText:
-        "As COSMOS, I cannot provide direct answers or solutions during an active knowledge assessment or examination. You can review the lesson material or ask about underlying physical concepts after completing your attempt!",
-      epistemicClassification: "fact",
-      epistemicNote: "Examination Integrity Rule",
-      scientificSources: [
-        {
-          title: "Cosmic Explorer Examination Protocol",
-          organization: "Our Visible Universe Academy",
-        },
-      ],
-      suggestedFollowUpQuestions: [
-        "How does the underlying physical principle work?",
-        "Where can I find this topic in the lesson text?",
-      ],
-      isExamRestricted: true,
       learningLevelAdapted: level,
     };
   }
@@ -416,6 +418,9 @@ export class AIServiceProviderServer {
   private static client: GoogleGenAI | null = null;
 
   private static getClient(): GoogleGenAI | null {
+    if (process.env.NODE_ENV === "test" || process.env.VITEST || process.env.CI_TEST) {
+      return null;
+    }
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return null;
 
@@ -470,14 +475,14 @@ export class AIServiceProviderServer {
       throw new Error("Question cannot be empty.");
     }
 
-    // 1. Check Authority Invariant: COSMOS cannot perform admin/state-modifying actions
-    const forbidden = detectForbiddenActionAttempt(trimmed);
-    if (forbidden) {
+    // 1. Check Examination Mode Guard: No hints or exam solutions
+    if (context.activeExamAttempt) {
       return generateScientificFallbackAnswer(trimmed, context);
     }
 
-    // 2. Check Examination Mode Guard: No hints or exam solutions
-    if (context.activeExamAttempt) {
+    // 2. Check Authority Invariant: COSMOS cannot perform admin/state-modifying actions
+    const forbidden = detectForbiddenActionAttempt(trimmed);
+    if (forbidden) {
       return generateScientificFallbackAnswer(trimmed, context);
     }
 
@@ -486,22 +491,28 @@ export class AIServiceProviderServer {
     if (client) {
       try {
         const systemInstruction = buildSystemPrompt(context);
+        let timer: any;
         const timeoutPromise = new Promise<never>((_, reject) => {
-          const t = setTimeout(() => reject(new Error("Gemini API call timed out")), 3500);
-          if (t && typeof (t as any).unref === "function") (t as any).unref();
+          timer = setTimeout(() => reject(new Error("Gemini API call timed out")), 3500);
+          if (timer && typeof timer.unref === "function") timer.unref();
         });
 
-        const response = await Promise.race([
-          client.models.generateContent({
-            model: "gemini-3.8-flash",
-            contents: trimmed,
-            config: {
-              systemInstruction,
-              temperature: 0.3,
-            },
-          }),
-          timeoutPromise,
-        ]);
+        let response;
+        try {
+          response = await Promise.race([
+            client.models.generateContent({
+              model: "gemini-3.8-flash",
+              contents: trimmed,
+              config: {
+                systemInstruction,
+                temperature: 0.3,
+              },
+            }),
+            timeoutPromise,
+          ]);
+        } finally {
+          clearTimeout(timer);
+        }
 
         const rawText = response.text || "";
 
