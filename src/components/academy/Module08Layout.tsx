@@ -443,7 +443,9 @@ export function Module08Layout({
                   </h3>
                 </div>
                 <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                  Screen-reader and 2D accessible pathway with equivalent scientific rigor. Calibrate semi-major axis and orbital period to satisfy gravitational equilibrium according to Keplerian celestial mechanics.
+                  Screen-reader and 2D accessible pathway with equivalent scientific rigor.
+                  Calibrate semi-major axis and orbital period to satisfy gravitational equilibrium
+                  according to Keplerian celestial mechanics.
                 </p>
               </div>
 
@@ -499,7 +501,7 @@ export function Module08Layout({
                   className="w-full accent-cyan-400"
                 />
                 <div className="text-[11px] font-mono text-slate-400">
-                  Cube of distance a³ = {(Math.pow(keplerA, 3)).toFixed(3)}
+                  Cube of distance a³ = {Math.pow(keplerA, 3).toFixed(3)}
                 </div>
               </div>
 
@@ -518,7 +520,7 @@ export function Module08Layout({
                   className="w-full accent-purple-400"
                 />
                 <div className="text-[11px] font-mono text-slate-400">
-                  Square of period T² = {(Math.pow(keplerT, 2)).toFixed(3)}
+                  Square of period T² = {Math.pow(keplerT, 2).toFixed(3)}
                 </div>
               </div>
             </div>
@@ -527,15 +529,17 @@ export function Module08Layout({
             {(() => {
               const a3 = Math.pow(keplerA, 3);
               const t2 = Math.pow(keplerT, 2);
-              const diffPct = Math.abs(t2 - a3) / a3 * 100;
+              const diffPct = (Math.abs(t2 - a3) / a3) * 100;
               const isClose = diffPct < 15;
 
               return (
-                <div className={`p-4 rounded-xl border space-y-2 ${
-                  isClose
-                    ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-200"
-                    : "border-amber-500/30 bg-amber-950/20 text-amber-200"
-                }`}>
+                <div
+                  className={`p-4 rounded-xl border space-y-2 ${
+                    isClose
+                      ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-200"
+                      : "border-amber-500/30 bg-amber-950/20 text-amber-200"
+                  }`}
+                >
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
                     {isClose ? (
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
@@ -543,7 +547,8 @@ export function Module08Layout({
                       <Info className="w-4 h-4 text-amber-400" />
                     )}
                     <span>
-                      Kepler Ratio: T² / a³ = {(t2 / a3).toFixed(3)} (Discrepancy: {diffPct.toFixed(1)}%)
+                      Kepler Ratio: T² / a³ = {(t2 / a3).toFixed(3)} (Discrepancy:{" "}
+                      {diffPct.toFixed(1)}%)
                     </span>
                   </div>
 
@@ -562,7 +567,9 @@ export function Module08Layout({
                       size="sm"
                       className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
                     >
-                      {submittingAccessible ? "Validating Outcome..." : "Submit Verified Kepler Outcome"}
+                      {submittingAccessible
+                        ? "Validating Outcome..."
+                        : "Submit Verified Kepler Outcome"}
                     </Button>
                   </div>
                 </div>
@@ -648,7 +655,9 @@ export function Module08Layout({
           }
           onNavigateToAssessment={() => {
             if (typeof document !== "undefined") {
-              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              const el = document.querySelector(
+                '[role="region"][aria-label="Module Knowledge Assessment"]',
+              );
               if (el) el.scrollIntoView({ behavior: "smooth" });
             }
           }}

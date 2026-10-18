@@ -44,8 +44,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_01_cosmic_zoom",
         title: "Cosmic Zoom Scale Navigation",
         type: "simulation_3d",
-        description: "Traverse from human scale (10^0 m) to the observable cosmic horizon (10^26 m).",
-        measurableCriteria: "Navigate at least 15 continuous powers of ten with active coordinate inspection.",
+        description:
+          "Traverse from human scale (10^0 m) to the observable cosmic horizon (10^26 m).",
+        measurableCriteria:
+          "Navigate at least 15 continuous powers of ten with active coordinate inspection.",
         validationKey: "cosmic_zoom_scale_traversal",
         accessibleAlternativeId: "act_01_scale_diagrams",
         accessibleAlternativeTitle: "Accessible Scale Hierarchy Sequencer",
@@ -70,7 +72,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Virtual Planetarium Constellation Mapping",
         type: "simulation_3d",
         description: "Locate Polaris and identify northern/southern circumpolar constellations.",
-        measurableCriteria: "Accurately locate celestial north and align three seasonal constellations.",
+        measurableCriteria:
+          "Accurately locate celestial north and align three seasonal constellations.",
         validationKey: "planetarium_constellation_alignment",
         accessibleAlternativeId: "act_02_skychart_2d",
         accessibleAlternativeTitle: "2D High-Contrast Accessible Sky Chart",
@@ -94,7 +97,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_03_distance_ladder_lab",
         title: "Distance Ladder Calibration Lab",
         type: "interactive_lab",
-        description: "Calculate stellar parallax and convert angular shift in milliarcseconds to parsecs.",
+        description:
+          "Calculate stellar parallax and convert angular shift in milliarcseconds to parsecs.",
         measurableCriteria: "Parallax conversion formula d = 1/p validated within 2% margin.",
         validationKey: "parallax_distance_calculation",
         accessibleAlternativeId: "act_03_parallax_table",
@@ -120,7 +124,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Cosmic Time Machine Simulation",
         type: "simulation_3d",
         description: "Trace photon lookback time from the Moon (1.3s) to GN-z11 (13.4 Gyr).",
-        measurableCriteria: "Synthesize light-travel times across 4 cosmological distance benchmarks.",
+        measurableCriteria:
+          "Synthesize light-travel times across 4 cosmological distance benchmarks.",
         validationKey: "lookback_photon_trace",
         accessibleAlternativeId: "act_04_lookback_table",
         accessibleAlternativeTitle: "Lookback Time Calibration Table",
@@ -144,7 +149,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_05_seasons_eclipse_sim",
         title: "Axial Tilt & Eclipse Geometry Lab",
         type: "simulation_3d",
-        description: "Simulate summer solstice solar insolation and lunar orbital inclination nodes.",
+        description:
+          "Simulate summer solstice solar insolation and lunar orbital inclination nodes.",
         measurableCriteria: "Predict eclipse alignment at ascending/descending orbital nodes.",
         validationKey: "lunar_phase_eclipse_prediction",
         accessibleAlternativeId: "act_05_eclipse_table",
@@ -169,7 +175,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_06_solar_system_tour",
         title: "Planetary Architecture Explorer",
         type: "simulation_3d",
-        description: "Compare planetary densities, compositions, and orbital radii from Sun to Neptune.",
+        description:
+          "Compare planetary densities, compositions, and orbital radii from Sun to Neptune.",
         measurableCriteria: "Correctly classify 4 planetary categories by density and composition.",
         validationKey: "planetary_density_classification",
         accessibleAlternativeId: "act_06_density_table",
@@ -220,7 +227,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Interactive Keplerian Orbital Mechanics Lab",
         type: "simulation_3d",
         description: "Achieve stable closed elliptical orbit around central mass.",
-        measurableCriteria: "Execute orbital insertion with periapsis > planetary radius and eccentricity e < 0.2.",
+        measurableCriteria:
+          "Execute orbital insertion with periapsis > planetary radius and eccentricity e < 0.2.",
         validationKey: "kepler_orbit_insertion",
         accessibleAlternativeId: "act_08_kepler_math",
         accessibleAlternativeTitle: "Kepler's Third Law (T^2 = a^3) Parameter Lab",
@@ -270,7 +278,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Stellar Fate Predictor Simulation",
         type: "simulation_3d",
         description: "Simulate stellar evolution by varying initial Zero-Age Main Sequence mass.",
-        measurableCriteria: "Correctly predict outcomes for 1 M_sun (White Dwarf) and 20 M_sun (Supernova/Black Hole).",
+        measurableCriteria:
+          "Correctly predict outcomes for 1 M_sun (White Dwarf) and 20 M_sun (Supernova/Black Hole).",
         validationKey: "stellar_fate_prediction",
         accessibleAlternativeId: "act_10_evolution_table",
         accessibleAlternativeTitle: "Chandrasekhar & TOV Limit Threshold Table",
@@ -294,8 +303,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_11_star_nursery_collapse",
         title: "Jeans Gravitational Collapse Lab",
         type: "simulation_3d",
-        description: "Trigger gravitational collapse in molecular cloud by satisfying Jeans mass criteria.",
-        measurableCriteria: "Exceed Jeans critical mass M > M_J to initiate protostellar core contraction.",
+        description:
+          "Trigger gravitational collapse in molecular cloud by satisfying Jeans mass criteria.",
+        measurableCriteria:
+          "Exceed Jeans critical mass M > M_J to initiate protostellar core contraction.",
         validationKey: "jeans_mass_collapse",
         accessibleAlternativeId: "act_11_jeans_calculator",
         accessibleAlternativeTitle: "Jeans Length & Density Parameter Calculator",
@@ -320,7 +331,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Exoplanet Transit Photometry Lab",
         type: "interactive_lab",
         description: "Detect planetary transit from stellar flux light curve dip.",
-        measurableCriteria: "Derive planet-to-star radius ratio (R_p / R_*) from transit depth within 5%.",
+        measurableCriteria:
+          "Derive planet-to-star radius ratio (R_p / R_*) from transit depth within 5%.",
         validationKey: "transit_photometry_radius_derivation",
         accessibleAlternativeId: "act_12_lightcurve_table",
         accessibleAlternativeTitle: "Tabular Transit Depth & Period Analysis",
@@ -345,7 +357,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Galaxy Morphology & Dynamics Lab",
         type: "simulation_3d",
         description: "Classify galaxies across spiral, elliptical, and irregular morphologies.",
-        measurableCriteria: "Correctly categorize 5 galaxies on the Hubble sequence using bulge/disk ratios.",
+        measurableCriteria:
+          "Correctly categorize 5 galaxies on the Hubble sequence using bulge/disk ratios.",
         validationKey: "galaxy_morphology_classification",
         accessibleAlternativeId: "act_13_morphology_table",
         accessibleAlternativeTitle: "Galaxy Photometry & Sersic Index Table",
@@ -369,8 +382,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_14_black_hole_visualizer",
         title: "Schwarzschild Radius & Lensing Lab",
         type: "simulation_3d",
-        description: "Calculate event horizon radius R_s = 2GM/c^2 and observe photon sphere deflection.",
-        measurableCriteria: "Compute Schwarzschild radius for solar and supermassive black hole masses.",
+        description:
+          "Calculate event horizon radius R_s = 2GM/c^2 and observe photon sphere deflection.",
+        measurableCriteria:
+          "Compute Schwarzschild radius for solar and supermassive black hole masses.",
         validationKey: "schwarzschild_radius_calculation",
         accessibleAlternativeId: "act_14_lensing_table",
         accessibleAlternativeTitle: "Relativistic Spacetime Curvature Table",
@@ -395,7 +410,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Large-Scale Filamentary Web Explorer",
         type: "simulation_3d",
         description: "Inspect cosmic web density fields and navigate galaxy clusters and voids.",
-        measurableCriteria: "Identify intersection node density vs void underdensities across 100 Mpc scales.",
+        measurableCriteria:
+          "Identify intersection node density vs void underdensities across 100 Mpc scales.",
         validationKey: "cosmic_web_topology_inspection",
         accessibleAlternativeId: "act_15_density_table",
         accessibleAlternativeTitle: "Cosmic Matter Density Contrast Table",
@@ -419,8 +435,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_16_dark_matter_rotation_lab",
         title: "Galaxy Rotation Curve Decomposition Lab",
         type: "interactive_lab",
-        description: "Deconstruct observed vs Keplerian rotation curves by tuning dark matter halo mass.",
-        measurableCriteria: "Fit dark matter NFW halo profile to match observed flat outer velocity curve.",
+        description:
+          "Deconstruct observed vs Keplerian rotation curves by tuning dark matter halo mass.",
+        measurableCriteria:
+          "Fit dark matter NFW halo profile to match observed flat outer velocity curve.",
         validationKey: "rotation_curve_nfw_fit",
         accessibleAlternativeId: "act_16_rotation_table",
         accessibleAlternativeTitle: "Velocity Dispersion & Mass Decomposition Table",
@@ -437,7 +455,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
     stageId: 5,
     requiredSections: [
       { id: "17-primordial-nucleosynthesis", title: "Cosmic Inflation & Primordial H/He Ratios" },
-      { id: "17-cmb-recombination", title: "Cosmic Microwave Background & 380,000 Year Recombination" },
+      {
+        id: "17-cmb-recombination",
+        title: "Cosmic Microwave Background & 380,000 Year Recombination",
+      },
     ],
     requiredActivities: [
       {
@@ -445,7 +466,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Cosmic Microwave Background Power Spectrum Lab",
         type: "interactive_lab",
         description: "Analyze acoustic peaks in the Planck CMB angular power spectrum.",
-        measurableCriteria: "Derive baryon and cold dark matter density from first and second acoustic peaks.",
+        measurableCriteria:
+          "Derive baryon and cold dark matter density from first and second acoustic peaks.",
         validationKey: "cmb_acoustic_peak_analysis",
         accessibleAlternativeId: "act_17_cmb_table",
         accessibleAlternativeTitle: "Primordial Nucleosynthesis Abundance Table",
@@ -469,8 +491,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_18_redshift_expansion_lab",
         title: "Cosmological Redshift & Expansion Lab",
         type: "simulation_3d",
-        description: "Measure spectral line shifting (z = delta_lambda / lambda_0) across redshift z = 0 to 6.",
-        measurableCriteria: "Compute recessional velocity and comoving distance from observed redshift z.",
+        description:
+          "Measure spectral line shifting (z = delta_lambda / lambda_0) across redshift z = 0 to 6.",
+        measurableCriteria:
+          "Compute recessional velocity and comoving distance from observed redshift z.",
         validationKey: "redshift_velocity_distance_calculation",
         accessibleAlternativeId: "act_18_redshift_table",
         accessibleAlternativeTitle: "Hubble Diagram & Distance Modulus Table",
@@ -486,7 +510,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
     title: "History of Human Cosmology",
     stageId: 5,
     requiredSections: [
-      { id: "19-geocentric-to-heliocentric", title: "Ptolemaic Epicycles to Copernican Heliocentrism" },
+      {
+        id: "19-geocentric-to-heliocentric",
+        title: "Ptolemaic Epicycles to Copernican Heliocentrism",
+      },
       { id: "19-modern-cosmology", title: "Galileo, Kepler, Newton to Einstein's Spacetime" },
     ],
     requiredActivities: [
@@ -495,7 +522,8 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         title: "Historical Cosmological Model Comparator",
         type: "interactive_lab",
         description: "Compare retrograde planetary loops in Ptolemaic vs Copernican architectures.",
-        measurableCriteria: "Demonstrate retrograde motion naturally arising from orbital overtaking.",
+        measurableCriteria:
+          "Demonstrate retrograde motion naturally arising from orbital overtaking.",
         validationKey: "retrograde_motion_comparison",
         accessibleAlternativeId: "act_19_timeline_table",
         accessibleAlternativeTitle: "Cosmological Paradigm Shift Timeline Matrix",
@@ -519,8 +547,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_20_future_timeline_lab",
         title: "Long-Term Cosmic Future Simulator",
         type: "interactive_lab",
-        description: "Project astronomical timescales up to 10^100 years (Hawking radiation decay).",
-        measurableCriteria: "Map the succession of all 4 cosmological future eras in proper thermodynamic order.",
+        description:
+          "Project astronomical timescales up to 10^100 years (Hawking radiation decay).",
+        measurableCriteria:
+          "Map the succession of all 4 cosmological future eras in proper thermodynamic order.",
         validationKey: "cosmic_future_era_ordering",
         accessibleAlternativeId: "act_20_thermodynamic_table",
         accessibleAlternativeTitle: "Thermodynamic Entropy & Decay Matrix",
@@ -536,7 +566,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
     title: "Telescopes & Observatories",
     stageId: 6,
     requiredSections: [
-      { id: "21-optical-radio-space", title: "Refractors, Reflectors, Interferometry & Space Telescopes" },
+      {
+        id: "21-optical-radio-space",
+        title: "Refractors, Reflectors, Interferometry & Space Telescopes",
+      },
       { id: "21-diffraction-limit", title: "Angular Resolution, Aperture & Diffraction Limits" },
     ],
     requiredActivities: [
@@ -544,8 +577,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_21_telescope_optics_lab",
         title: "Telescope Optics & Aperture Lab",
         type: "interactive_lab",
-        description: "Calculate Rayleigh diffraction limit theta = 1.22 * lambda / D for optical vs radio.",
-        measurableCriteria: "Determine resolving power improvement from increasing primary mirror aperture.",
+        description:
+          "Calculate Rayleigh diffraction limit theta = 1.22 * lambda / D for optical vs radio.",
+        measurableCriteria:
+          "Determine resolving power improvement from increasing primary mirror aperture.",
         validationKey: "rayleigh_criterion_resolution",
         accessibleAlternativeId: "act_21_optics_table",
         accessibleAlternativeTitle: "Angular Resolution & Wavelength Matrix",
@@ -561,16 +596,24 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
     title: "Space Missions & Exploration",
     stageId: 6,
     requiredSections: [
-      { id: "22-voyagers-and-probes", title: "Voyager 1/2, New Horizons & Interstellar Boundaries" },
-      { id: "22-mars-rovers-orbiters", title: "Mars Rovers, Lunar Landers & Outer Planet Orbiters" },
+      {
+        id: "22-voyagers-and-probes",
+        title: "Voyager 1/2, New Horizons & Interstellar Boundaries",
+      },
+      {
+        id: "22-mars-rovers-orbiters",
+        title: "Mars Rovers, Lunar Landers & Outer Planet Orbiters",
+      },
     ],
     requiredActivities: [
       {
         id: "act_22_gravity_assist_trajectory",
         title: "Interplanetary Gravity Assist Simulator",
         type: "simulation_3d",
-        description: "Plan planetary gravity assist slingshot trajectory to reach outer solar system.",
-        measurableCriteria: "Increase probe heliocentric velocity via Jupiter gravitational assist flyby.",
+        description:
+          "Plan planetary gravity assist slingshot trajectory to reach outer solar system.",
+        measurableCriteria:
+          "Increase probe heliocentric velocity via Jupiter gravitational assist flyby.",
         validationKey: "gravity_assist_slingshot",
         accessibleAlternativeId: "act_22_trajectory_table",
         accessibleAlternativeTitle: "Delta-V Budget & Mission Parameter Table",
@@ -586,7 +629,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
     title: "Astrobiology & the Search for Life",
     stageId: 6,
     requiredSections: [
-      { id: "23-extremophiles-ocean-worlds", title: "Extremophiles on Earth & Subsurface Oceans on Europa/Enceladus" },
+      {
+        id: "23-extremophiles-ocean-worlds",
+        title: "Extremophiles on Earth & Subsurface Oceans on Europa/Enceladus",
+      },
       { id: "23-drake-equation-seti", title: "The Drake Equation, Technosignatures & SETI" },
     ],
     requiredActivities: [
@@ -594,8 +640,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_23_habitable_world_lab",
         title: "Habitable World & Biosignature Lab",
         type: "interactive_lab",
-        description: "Evaluate atmospheric spectra for simultaneous O2 + CH4 chemical disequilibrium.",
-        measurableCriteria: "Identify atmospheric biosignature disequilibrium indicating biological processes.",
+        description:
+          "Evaluate atmospheric spectra for simultaneous O2 + CH4 chemical disequilibrium.",
+        measurableCriteria:
+          "Identify atmospheric biosignature disequilibrium indicating biological processes.",
         validationKey: "biosignature_disequilibrium_analysis",
         accessibleAlternativeId: "act_23_drake_calculator",
         accessibleAlternativeTitle: "Drake Equation Parameter Matrix Challenge",
@@ -619,8 +667,10 @@ export const MODULE_COMPLETION_RULES: Record<string, ModuleCompletionRule> = {
         id: "act_24_cosmic_lab_capstone",
         title: "Unified Cosmic Physics Laboratory",
         type: "interactive_lab",
-        description: "Synthesize multi-wavelength data, stellar evolution, and cosmological redshift.",
-        measurableCriteria: "Complete comprehensive astrophysics lab synthesis with all parameters calibrated.",
+        description:
+          "Synthesize multi-wavelength data, stellar evolution, and cosmological redshift.",
+        measurableCriteria:
+          "Complete comprehensive astrophysics lab synthesis with all parameters calibrated.",
         validationKey: "capstone_astrophysics_synthesis",
         accessibleAlternativeId: "act_24_capstone_matrix",
         accessibleAlternativeTitle: "Unified Astronomical Parameter Synthesis Challenge",

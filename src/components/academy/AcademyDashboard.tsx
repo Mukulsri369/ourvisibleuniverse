@@ -345,8 +345,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           onNavigateToAssessment={() => {
             if (typeof document !== "undefined") {
               const el =
-                document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]') ||
-                document.getElementById(`module-${activeLessonModule.id}-quiz`);
+                document.querySelector(
+                  '[role="region"][aria-label="Module Knowledge Assessment"]',
+                ) || document.getElementById(`module-${activeLessonModule.id}-quiz`);
               if (el) el.scrollIntoView({ behavior: "smooth" });
             }
           }}

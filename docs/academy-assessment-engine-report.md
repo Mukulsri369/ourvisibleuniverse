@@ -1,8 +1,9 @@
 # Cosmic Learning Academy: Secure Assessment Engine Architecture & Security Report
+
 **Document Reference:** `docs/academy-assessment-engine-report.md`  
 **System Milestone:** Prompt 04 — Centralized Secure Assessment Engine  
 **Target Platform:** 24-Module Cosmic Learning Academy + Cosmic Explorer Final Examination  
-**Security Tier:** Server-Authoritative Grading, Zero-Knowledge Client Payloads, Anti-Replay Idempotency  
+**Security Tier:** Server-Authoritative Grading, Zero-Knowledge Client Payloads, Anti-Replay Idempotency
 
 ---
 
@@ -11,6 +12,7 @@
 Prior to this implementation, the 24 modules of Cosmic Learning Academy utilized disparate client-evaluated quiz components with correct answer indices and scientific explanations directly compiled into client-side JavaScript bundles. Furthermore, several module layouts invoked client progress callbacks (`onUpdateModuleProgress(moduleId, 100, "completed")`) regardless of actual quiz performance, enabling browser-controlled claims of module mastery.
 
 **Prompt 04 establishes a centralized, server-authoritative assessment engine:**
+
 1. **Server-Side Question Bank (`src/lib/academy/assessment-bank.server.ts`)**: Normalized questions for all 24 modules and the cross-stage Capstone Final Examination.
 2. **Zero-Knowledge Question Delivery (`startAssessmentAttempt`)**: Clients receive only question text and shuffled/ordered options. Correct answers and scientific explanations are strictly absent.
 3. **Server-Side Grading & Verification (`src/lib/academy/assessment.server.ts`)**: Scores are calculated exclusively on the backend from candidate choices. Official verified completions and progressive stage badges are issued only when server criteria are satisfied.
@@ -24,13 +26,13 @@ Prior to this implementation, the 24 modules of Cosmic Learning Academy utilized
 
 ## 2. Audit & Verification of Known Issues
 
-| Known Vulnerability / Flaw | Pre-Audit Vulnerability State | Remediated State in Prompt 04 |
-|:---|:---|:---|
-| **Unconditional Module Completion** | Multiple module layouts called `onUpdateModuleProgress(id, 100, "completed")` upon finishing the quiz regardless of whether the score was 0% or 100%. | Module completion is now gated behind server verification. Client callbacks cannot mark `isVerified = true`. Only server-evaluated attempts with score $\ge 70\%$ create verified records. |
-| **Exposed Answers in Bundled Code** | `MODULE_XX_QUIZ` definitions contained `correctIndex` and `explanation` in client-accessible arrays. | Questions are held in `assessment-bank.server.ts`. When `startAssessmentAttempt` is invoked, correct answers and explanations are stripped before network serialization. |
-| **Inconsistent Grading Rules** | Modules used varying passing scores (some required 100%, some 80%, some had no score check). | Standardized policy: 70% for all 24 module knowledge checks, 80% for the Capstone Final Examination. |
-| **Inconsistent Quiz Component Interfaces** | Different layouts passed `onComplete`, `onCompleteQuiz`, or `onFinishQuiz`, with conflicting prop signatures. | `<UnifiedAssessmentEngine />` and upgraded `<KnowledgeCheck />` handle all legacy signatures while routing submissions through secure server functions. |
-| **Browser-Claimed Certification** | Client code could forge completion payloads to bypass assessments. | Database Row Level Security (RLS) strictly disallows student inserts to `academy_verified_completions`. Submissions are authenticated, timestamped, rate-limited, and graded on the server. |
+| Known Vulnerability / Flaw                 | Pre-Audit Vulnerability State                                                                                                                         | Remediated State in Prompt 04                                                                                                                                                               |
+| :----------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Unconditional Module Completion**        | Multiple module layouts called `onUpdateModuleProgress(id, 100, "completed")` upon finishing the quiz regardless of whether the score was 0% or 100%. | Module completion is now gated behind server verification. Client callbacks cannot mark `isVerified = true`. Only server-evaluated attempts with score $\ge 70\%$ create verified records.  |
+| **Exposed Answers in Bundled Code**        | `MODULE_XX_QUIZ` definitions contained `correctIndex` and `explanation` in client-accessible arrays.                                                  | Questions are held in `assessment-bank.server.ts`. When `startAssessmentAttempt` is invoked, correct answers and explanations are stripped before network serialization.                    |
+| **Inconsistent Grading Rules**             | Modules used varying passing scores (some required 100%, some 80%, some had no score check).                                                          | Standardized policy: 70% for all 24 module knowledge checks, 80% for the Capstone Final Examination.                                                                                        |
+| **Inconsistent Quiz Component Interfaces** | Different layouts passed `onComplete`, `onCompleteQuiz`, or `onFinishQuiz`, with conflicting prop signatures.                                         | `<UnifiedAssessmentEngine />` and upgraded `<KnowledgeCheck />` handle all legacy signatures while routing submissions through secure server functions.                                     |
+| **Browser-Claimed Certification**          | Client code could forge completion payloads to bypass assessments.                                                                                    | Database Row Level Security (RLS) strictly disallows student inserts to `academy_verified_completions`. Submissions are authenticated, timestamped, rate-limited, and graded on the server. |
 
 ---
 
@@ -40,24 +42,26 @@ Every question in the canonical bank conforms to the following immutable structu
 
 ```typescript
 export interface CanonicalAssessmentQuestion {
-  id: string;                         // Immutable ID, e.g. "q_01_exp_01"
-  moduleId: string;                   // Module "01" through "24", or "exam"
-  level: LearningLevel;               // "junior" | "explorer" | "astronomer"
-  difficulty: QuestionDifficulty;     // "introductory" | "intermediate" | "advanced"
-  type: QuestionType;                 // "single_choice" | "multi_choice" | "true_false"
-  questionText: string;               // Scientifically precise astronomical question
-  options: string[];                  // Approved choices
-  correctAnswer: number | number[];   // SERVER-ONLY: Index of correct option(s)
-  explanation: string;                // SERVER-ONLY: Returned only in post-grading feedback
-  sourceReference: string;            // Primary astronomical reference (IAU, NASA ADS, Gaia, SDSS)
-  version: string;                    // Semantic version, e.g. "1.0.0"
-  isActive: boolean;                  // Administrative toggle
-  relevantLessonId?: string;          // Sublesson linked for remediation review
+  id: string; // Immutable ID, e.g. "q_01_exp_01"
+  moduleId: string; // Module "01" through "24", or "exam"
+  level: LearningLevel; // "junior" | "explorer" | "astronomer"
+  difficulty: QuestionDifficulty; // "introductory" | "intermediate" | "advanced"
+  type: QuestionType; // "single_choice" | "multi_choice" | "true_false"
+  questionText: string; // Scientifically precise astronomical question
+  options: string[]; // Approved choices
+  correctAnswer: number | number[]; // SERVER-ONLY: Index of correct option(s)
+  explanation: string; // SERVER-ONLY: Returned only in post-grading feedback
+  sourceReference: string; // Primary astronomical reference (IAU, NASA ADS, Gaia, SDSS)
+  version: string; // Semantic version, e.g. "1.0.0"
+  isActive: boolean; // Administrative toggle
+  relevantLessonId?: string; // Sublesson linked for remediation review
 }
 ```
 
 ### Client-Facing Public Question Projection:
+
 When sent to the browser via `startAssessmentAttempt`, the object is sanitized to `ClientAssessmentQuestion`:
+
 ```typescript
 {
   id: "q_01_exp_01",
@@ -127,6 +131,7 @@ When sent to the browser via `startAssessmentAttempt`, the object is sanitized t
 ## 6. Accessibility (a11y) Implementation
 
 The `<UnifiedAssessmentEngine />` component adheres to WCAG 2.1 AA specifications:
+
 - **Radiogroup Semantics**: Option containers implement `role="radiogroup"` with child buttons having `role="radio"` and explicit `aria-checked` states.
 - **Keyboard Navigation**: Learners can select answers via Space or Enter keys, with clear high-contrast focus rings (`focus-within:border-cyan-500/50`).
 - **Screen Reader Live Regions**: Post-grading feedback uses `aria-live="polite"` so screen-reader users hear their score and scientific explanations without focus disruption.

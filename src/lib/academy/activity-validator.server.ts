@@ -63,7 +63,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Constellation orientation incomplete. Locate Polaris or align at least 2 constellations.",
+        reason:
+          "Constellation orientation incomplete. Locate Polaris or align at least 2 constellations.",
         metrics: { alignedCount, polarisLocated },
       };
     }
@@ -112,7 +113,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Photon lookback trace incomplete. Synthesize at least 4 cosmic distance benchmarks.",
+        reason:
+          "Photon lookback trace incomplete. Synthesize at least 4 cosmic distance benchmarks.",
         metrics: { benchmarkCount },
       };
     }
@@ -121,7 +123,9 @@ export function validateActivityOutcomeServer(
     // Module 05: Lunar Phase & Eclipse Prediction
     // -------------------------------------------------------------
     case "lunar_phase_eclipse_prediction": {
-      const nodesAligned = Boolean(payload.nodesAligned ?? payload.eclipsePredicted ?? payload.success);
+      const nodesAligned = Boolean(
+        payload.nodesAligned ?? payload.eclipsePredicted ?? payload.success,
+      );
       const predictedCount = Number(payload.predictedCount ?? payload.phasesIdentified ?? 0);
 
       if (nodesAligned || predictedCount >= 2) {
@@ -133,7 +137,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Eclipse geometry prediction incomplete. Align orbital nodes or identify lunar phases.",
+        reason:
+          "Eclipse geometry prediction incomplete. Align orbital nodes or identify lunar phases.",
         metrics: { nodesAligned, predictedCount },
       };
     }
@@ -154,7 +159,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Insufficient planetary classifications. Classify at least 4 planetary types by density.",
+        reason:
+          "Insufficient planetary classifications. Classify at least 4 planetary types by density.",
         metrics: { classifiedCount },
       };
     }
@@ -247,7 +253,9 @@ export function validateActivityOutcomeServer(
     // Module 10: Stellar Fate Predictor
     // -------------------------------------------------------------
     case "stellar_fate_prediction": {
-      const correctPredictions = Number(payload.correctPredictions ?? payload.predictionsCount ?? 0);
+      const correctPredictions = Number(
+        payload.correctPredictions ?? payload.predictionsCount ?? 0,
+      );
       const success = Boolean(payload.success ?? payload.verified);
 
       if (correctPredictions >= 2 || success) {
@@ -259,7 +267,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Stellar fate predictions incomplete. Predict outcomes for 1 M_sun and 20 M_sun stars.",
+        reason:
+          "Stellar fate predictions incomplete. Predict outcomes for 1 M_sun and 20 M_sun stars.",
         metrics: { correctPredictions },
       };
     }
@@ -275,13 +284,15 @@ export function validateActivityOutcomeServer(
       if (collapseTriggered || (cloudMass > 0 && jeansMass > 0 && cloudMass >= jeansMass)) {
         return {
           isValid: true,
-          reason: "Jeans gravitational instability threshold M > M_J satisfied for protostellar collapse.",
+          reason:
+            "Jeans gravitational instability threshold M > M_J satisfied for protostellar collapse.",
           metrics: { cloudMass, jeansMass },
         };
       }
       return {
         isValid: false,
-        reason: "Cloud mass insufficient to trigger Jeans instability collapse (M must exceed M_J).",
+        reason:
+          "Cloud mass insufficient to trigger Jeans instability collapse (M must exceed M_J).",
         metrics: { cloudMass, jeansMass },
       };
     }
@@ -370,7 +381,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Large-scale structure topology inspection incomplete. Inspect at least 3 structures.",
+        reason:
+          "Large-scale structure topology inspection incomplete. Inspect at least 3 structures.",
         metrics: { inspectedNodes },
       };
     }
@@ -385,13 +397,15 @@ export function validateActivityOutcomeServer(
       if (nfwFitted || darkMatterRatio >= 3.0) {
         return {
           isValid: true,
-          reason: "Dark matter halo NFW profile successfully fitted to flat outer galactic rotation curve.",
+          reason:
+            "Dark matter halo NFW profile successfully fitted to flat outer galactic rotation curve.",
           metrics: { darkMatterRatio, nfwFitted },
         };
       }
       return {
         isValid: false,
-        reason: "Keplerian rotation curve fails to fit flat galactic velocities without dark matter halo.",
+        reason:
+          "Keplerian rotation curve fails to fit flat galactic velocities without dark matter halo.",
         metrics: { darkMatterRatio },
       };
     }
@@ -406,13 +420,15 @@ export function validateActivityOutcomeServer(
       if (peaksAnalyzed >= 2 || success) {
         return {
           isValid: true,
-          reason: "Cosmic Microwave Background acoustic peaks analyzed to derive baryon/dark matter densities.",
+          reason:
+            "Cosmic Microwave Background acoustic peaks analyzed to derive baryon/dark matter densities.",
           metrics: { peaksAnalyzed },
         };
       }
       return {
         isValid: false,
-        reason: "CMB power spectrum analysis incomplete. Identify and calibrate at least 2 acoustic peaks.",
+        reason:
+          "CMB power spectrum analysis incomplete. Identify and calibrate at least 2 acoustic peaks.",
         metrics: { peaksAnalyzed },
       };
     }
@@ -449,7 +465,8 @@ export function validateActivityOutcomeServer(
       if (modelsCompared >= 2 || demonstrated) {
         return {
           isValid: true,
-          reason: "Apparent retrograde planetary loops demonstrated via Copernican orbital mechanics.",
+          reason:
+            "Apparent retrograde planetary loops demonstrated via Copernican orbital mechanics.",
           metrics: { modelsCompared },
         };
       }
@@ -470,13 +487,15 @@ export function validateActivityOutcomeServer(
       if (erasOrdered >= 4 || success) {
         return {
           isValid: true,
-          reason: "All 4 cosmic future eras ordered chronologically according to thermodynamic entropy.",
+          reason:
+            "All 4 cosmic future eras ordered chronologically according to thermodynamic entropy.",
           metrics: { erasOrdered },
         };
       }
       return {
         isValid: false,
-        reason: "Future era projection incomplete. Order all 4 cosmological eras (Stelliferous to Dark).",
+        reason:
+          "Future era projection incomplete. Order all 4 cosmological eras (Stelliferous to Dark).",
         metrics: { erasOrdered },
       };
     }
@@ -498,7 +517,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Optical aperture parameter invalid. Primary mirror aperture must be greater than zero.",
+        reason:
+          "Optical aperture parameter invalid. Primary mirror aperture must be greater than zero.",
         metrics: { apertureMeters },
       };
     }
@@ -513,7 +533,8 @@ export function validateActivityOutcomeServer(
       if (deltaVKmS > 0 || flybySuccessful) {
         return {
           isValid: true,
-          reason: "Interplanetary gravitational assist trajectory validated with heliocentric delta-v boost.",
+          reason:
+            "Interplanetary gravitational assist trajectory validated with heliocentric delta-v boost.",
           metrics: { deltaVKmS, flybySuccessful },
         };
       }
@@ -529,7 +550,9 @@ export function validateActivityOutcomeServer(
     // -------------------------------------------------------------
     case "biosignature_disequilibrium_analysis": {
       const analyzedCount = Number(payload.biosignaturesAnalyzed ?? payload.gasesSampled ?? 0);
-      const disequilibriumFound = Boolean(payload.methaneOxygenDetected ?? payload.disequilibrium ?? payload.success);
+      const disequilibriumFound = Boolean(
+        payload.methaneOxygenDetected ?? payload.disequilibrium ?? payload.success,
+      );
 
       if (analyzedCount >= 2 || disequilibriumFound) {
         return {
@@ -540,7 +563,8 @@ export function validateActivityOutcomeServer(
       }
       return {
         isValid: false,
-        reason: "Atmospheric biosignature disequilibrium analysis incomplete. Sample at least 2 trace gases.",
+        reason:
+          "Atmospheric biosignature disequilibrium analysis incomplete. Sample at least 2 trace gases.",
         metrics: { analyzedCount },
       };
     }
@@ -549,13 +573,16 @@ export function validateActivityOutcomeServer(
     // Module 24: Unified Astrophysics Capstone Laboratory
     // -------------------------------------------------------------
     case "capstone_astrophysics_synthesis": {
-      const experimentsCount = Number(payload.experimentsCompleted ?? payload.domainsSynthesized ?? 0);
+      const experimentsCount = Number(
+        payload.experimentsCompleted ?? payload.domainsSynthesized ?? 0,
+      );
       const synthesisCalibrated = Boolean(payload.synthesisCalibrated ?? payload.success);
 
       if (experimentsCount >= 3 || synthesisCalibrated) {
         return {
           isValid: true,
-          reason: "Unified astrophysics capstone laboratory completed with verified parameter calibration.",
+          reason:
+            "Unified astrophysics capstone laboratory completed with verified parameter calibration.",
           metrics: { experimentsCount, synthesisCalibrated },
         };
       }

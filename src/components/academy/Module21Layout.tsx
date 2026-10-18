@@ -447,7 +447,9 @@ export function Module21Layout({
           }
           onNavigateToAssessment={() => {
             if (typeof document !== "undefined") {
-              const el = document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]');
+              const el = document.querySelector(
+                '[role="region"][aria-label="Module Knowledge Assessment"]',
+              );
               if (el) el.scrollIntoView({ behavior: "smooth" });
             }
           }}

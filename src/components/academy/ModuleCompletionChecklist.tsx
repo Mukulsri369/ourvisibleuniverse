@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import type { ModuleCompletionEvaluation } from "@/lib/academy/completion.server";
-import { getModuleCompletionStatus, recheckModuleCompletion } from "@/lib/academy/completion.functions";
+import {
+  getModuleCompletionStatus,
+  recheckModuleCompletion,
+} from "@/lib/academy/completion.functions";
 import { useStudentAuth } from "@/lib/academy/useStudentAuth";
 import {
   CheckCircle2,
@@ -63,7 +66,8 @@ export function ModuleCompletionChecklist({
   const handleManualRecheck = async () => {
     if (!isLoggedIn) {
       toast.info("Student Account Required for Certified Completion", {
-        description: "Sign in or create a student profile to save verified achievements across sessions.",
+        description:
+          "Sign in or create a student profile to save verified achievements across sessions.",
       });
       return;
     }
@@ -81,7 +85,8 @@ export function ModuleCompletionChecklist({
         });
       } else {
         toast.info("Requirements Incomplete", {
-          description: updated.missingRequirements[0] || "Please fulfill the remaining checklist items.",
+          description:
+            updated.missingRequirements[0] || "Please fulfill the remaining checklist items.",
         });
       }
     } catch (err: any) {
@@ -93,7 +98,9 @@ export function ModuleCompletionChecklist({
 
   if (loading) {
     return (
-      <div className={`rounded-2xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur-xl ${className}`}>
+      <div
+        className={`rounded-2xl border border-white/10 bg-slate-900/60 p-5 backdrop-blur-xl ${className}`}
+      >
         <div className="flex items-center gap-3">
           <div className="size-5 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
           <span className="text-xs text-slate-400">Verifying completion criteria...</span>
@@ -409,7 +416,9 @@ export function ModuleStickyCompletionDrawer({
             ) : (
               <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full shrink-0">
                 <ShieldAlert className="size-3.5" />
-                <span>{satisfiedCount}/{totalCount} Met</span>
+                <span>
+                  {satisfiedCount}/{totalCount} Met
+                </span>
               </span>
             )}
             <div className="hidden sm:block truncate text-xs text-slate-300">
@@ -482,4 +491,3 @@ export function ModuleStickyCompletionDrawer({
     </aside>
   );
 }
-

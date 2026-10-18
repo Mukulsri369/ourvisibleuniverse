@@ -37,7 +37,13 @@ const moduleIds = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "
 
 // Valid sample physics telemetry payloads per module
 const VALID_PAYLOADS: Record<string, Record<string, unknown>> = {
-  "01": { stepCount: 15, minScaleMeters: 1, maxScaleMeters: 1e26, powersOfTenStepsCompleted: 15, success: true },
+  "01": {
+    stepCount: 15,
+    minScaleMeters: 1,
+    maxScaleMeters: 1e26,
+    powersOfTenStepsCompleted: 15,
+    success: true,
+  },
   "02": { alignedCount: 3, polarisLocated: true, constellationsIdentified: 3, success: true },
   "03": { parallaxArcsec: 0.772, distanceParsecs: 1.295, success: true },
   "04": { benchmarkCount: 4, lookbackTimeGyr: 13.4, benchmarksCompleted: 4, success: true },
@@ -46,7 +52,12 @@ const VALID_PAYLOADS: Record<string, Record<string, unknown>> = {
   "07": { coreTempK: 15600000, cmeTraced: true, success: true },
   "08": { eccentricity: 0.045, semiMajorAxisAU: 1.0, periapsisKm: 1250, success: true },
   "09": { placedCount: 5, accuracyPct: 95, starsClassified: 5, success: true },
-  "10": { correctPredictions: 2, solarMass1Fate: "white_dwarf", solarMass20Fate: "black_hole", success: true },
+  "10": {
+    correctPredictions: 2,
+    solarMass1Fate: "white_dwarf",
+    solarMass20Fate: "black_hole",
+    success: true,
+  },
   "11": { cloudMassSolar: 100, jeansMassSolar: 25, collapseTriggered: true, success: true },
   "12": { transitDepthPpm: 120, radiusRatio: 0.011, success: true },
 };
@@ -101,7 +112,9 @@ async function runModulesValidation() {
     });
     const negativeQuizFailPassed =
       !failQuizEval.allCriteriaSatisfied &&
-      failQuizEval.missingRequirements.some((r) => r.toLowerCase().includes("knowledge") || r.toLowerCase().includes("assessment"));
+      failQuizEval.missingRequirements.some(
+        (r) => r.toLowerCase().includes("knowledge") || r.toLowerCase().includes("assessment"),
+      );
 
     // -------------------------------------------------------------
     // Test 2: Negative - Skipping activity prevents completion despite 100% quiz
@@ -113,7 +126,11 @@ async function runModulesValidation() {
     });
     const negativeActivitySkipPassed =
       !skipActivityEval.allCriteriaSatisfied &&
-      skipActivityEval.missingRequirements.some((r) => r.toLowerCase().includes(requiredActivity.title.toLowerCase()) || r.toLowerCase().includes("activity"));
+      skipActivityEval.missingRequirements.some(
+        (r) =>
+          r.toLowerCase().includes(requiredActivity.title.toLowerCase()) ||
+          r.toLowerCase().includes("activity"),
+      );
 
     // -------------------------------------------------------------
     // Test 3: Negative - Invalid physics telemetry fails validation
@@ -147,7 +164,9 @@ async function runModulesValidation() {
       false,
     );
     if (!validTelemetryOutcome.isValid) {
-      throw new Error(`Valid payload for module ${modId} failed validation: ${validTelemetryOutcome.reason}`);
+      throw new Error(
+        `Valid payload for module ${modId} failed validation: ${validTelemetryOutcome.reason}`,
+      );
     }
 
     const positiveEval = evaluateCompletionCriteria(rule, {
@@ -234,7 +253,9 @@ async function runModulesValidation() {
     process.exit(1);
   }
 
-  console.log(`\nAll 12 modules successfully verified! (12 / 12 modules passed all 6 security invariants)`);
+  console.log(
+    `\nAll 12 modules successfully verified! (12 / 12 modules passed all 6 security invariants)`,
+  );
 }
 
 runModulesValidation().catch((err) => {

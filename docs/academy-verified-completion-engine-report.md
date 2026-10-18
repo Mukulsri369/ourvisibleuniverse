@@ -3,7 +3,7 @@
 **Project:** OUR VISIBLE UNIVERSE ACADEMY  
 **Specification:** Prompt 05 — Verified Completion Engine  
 **Status:** Completed & Validated  
-**Test Suite:** `npm run test:completion` (9/9 Passed)  
+**Test Suite:** `npm run test:completion` (9/9 Passed)
 
 ---
 
@@ -12,6 +12,7 @@
 The Verified Completion Engine eliminates all manual shortcuts, percentage-based client graduations, and unverified completion writes. No student can earn verified module completion or progress toward certification by clicking "Mark Complete", viewing a page, or calling client APIs.
 
 Completion is determined strictly on the backend by evaluating three pedagogical pillars against versioned, declarative module rules:
+
 1. **Instructional Section Engagement:** Validated time spent and concept scroll depth across required sections.
 2. **Educational Activity & Simulation Telemetry:** Physical criteria validation (e.g. Keplerian orbital parameters, black hole ISCO radius calculations, redshift Doppler calculations) with adaptive hints and accessible 2D alternatives.
 3. **Verified Knowledge Assessment:** Authoritative server-side quiz grading meeting or exceeding the minimum score threshold (≥70% for modules, ≥80% for capstone exam).
@@ -21,6 +22,7 @@ Completion is determined strictly on the backend by evaluating three pedagogical
 ## 2. Rule Model & Centralized Declarations (`src/lib/academy/completion-rules.ts`)
 
 Each of the 24 modules exports a declarative `ModuleCompletionRule` object containing:
+
 - `moduleId`: Two-digit formatted identifier (`01` through `24`).
 - `stageId`: Stage number (`1` through `6`).
 - `ruleVersion`: Semantic version string (`1.0.0`).
@@ -54,24 +56,24 @@ Each of the 24 modules exports a declarative `ModuleCompletionRule` object conta
 
 - **Sticky Summary Drawer (`ModuleStickyCompletionDrawer`):** Persistent viewport drawer showing completion percentage, requirement badges, and quick jump buttons to incomplete activities or assessments.
 - **Comprehensive Checklist (`ModuleCompletionChecklist`):** Detailed breakdown at lesson conclusion displaying status, current progress vs. required thresholds, accessible alternatives, and dynamic call-to-action buttons:
-  - *Continue Learning*
-  - *Complete Required Activity*
-  - *Take Knowledge Check*
-  - *Module Certified*
+  - _Continue Learning_
+  - _Complete Required Activity_
+  - _Take Knowledge Check_
+  - _Module Certified_
 - **Offline & Guest Sync (`src/lib/academy/progress.ts`):** Offline activity completions are cached in a local sync queue and automatically dispatched and validated upon network recovery or student sign-in.
 
 ---
 
 ## 6. Acceptance Test Suite (`scripts/completion-engine-validation.ts`)
 
-| # | Acceptance Criterion | Verification Method | Status |
-|---|----------------------|---------------------|--------|
-| 1 | Rule Declarations | Validates all 24 modules declare versioned rules and measurable criteria | PASS |
-| 2 | Manual Shortcut Prevention | Confirms no endpoint allows arbitrary completion setting | PASS |
-| 3 | Reading Alone Prevention | Reading time alone rejected if activity and quiz incomplete | PASS |
-| 4 | Physics Telemetry Validation | Malformed or physically impossible simulation data rejected | PASS |
-| 5 | Assessment Score Floor | Assessment score < 70% strictly prevents module completion | PASS |
-| 6 | Valid Multi-Pillar Award | Satisfying all 3 pillars awards verified status idempotently | PASS |
-| 7 | Cross-Student Protection | Evaluations strictly scoped to authenticated user ID | PASS |
-| 8 | Accessible Alternatives | 2D alternative challenge passes with equivalent physical rigor | PASS |
-| 9 | Stage Achievement Lock | Stages require all 4 constituent modules to unlock | PASS |
+| #   | Acceptance Criterion         | Verification Method                                                      | Status |
+| --- | ---------------------------- | ------------------------------------------------------------------------ | ------ |
+| 1   | Rule Declarations            | Validates all 24 modules declare versioned rules and measurable criteria | PASS   |
+| 2   | Manual Shortcut Prevention   | Confirms no endpoint allows arbitrary completion setting                 | PASS   |
+| 3   | Reading Alone Prevention     | Reading time alone rejected if activity and quiz incomplete              | PASS   |
+| 4   | Physics Telemetry Validation | Malformed or physically impossible simulation data rejected              | PASS   |
+| 5   | Assessment Score Floor       | Assessment score < 70% strictly prevents module completion               | PASS   |
+| 6   | Valid Multi-Pillar Award     | Satisfying all 3 pillars awards verified status idempotently             | PASS   |
+| 7   | Cross-Student Protection     | Evaluations strictly scoped to authenticated user ID                     | PASS   |
+| 8   | Accessible Alternatives      | 2D alternative challenge passes with equivalent physical rigor           | PASS   |
+| 9   | Stage Achievement Lock       | Stages require all 4 constituent modules to unlock                       | PASS   |

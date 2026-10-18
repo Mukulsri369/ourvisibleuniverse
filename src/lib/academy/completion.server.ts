@@ -187,12 +187,7 @@ export async function evaluateModuleCompletionServer(
   let assessmentAttemptRows: any[] = [];
 
   try {
-    const [
-      compRes,
-      lessonRes,
-      evidenceRes,
-      attemptRes,
-    ] = await Promise.all([
+    const [compRes, lessonRes, evidenceRes, attemptRes] = await Promise.all([
       supabaseAdmin
         .from("academy_verified_completions")
         .select("*")
@@ -223,15 +218,18 @@ export async function evaluateModuleCompletionServer(
     activityEvidenceRows = evidenceRes?.data || [];
     assessmentAttemptRows = attemptRes?.data || [];
   } catch (err) {
-    console.warn("Could not query Supabase for module records, evaluating with empty defaults:", err);
+    console.warn(
+      "Could not query Supabase for module records, evaluating with empty defaults:",
+      err,
+    );
   }
 
-  let {
+  const {
     allCriteriaSatisfied,
     missingRequirements,
     checklist,
-    recommendedAction,
-    recommendedActionText,
+    recommendedAction: initialAction,
+    recommendedActionText: initialActionText,
     qualifyingEvidenceIds,
     bestAttempt,
   } = evaluateCompletionCriteria(rule, {
@@ -240,6 +238,9 @@ export async function evaluateModuleCompletionServer(
     activityEvidenceRows,
     assessmentAttemptRows,
   });
+
+  let recommendedAction = initialAction;
+  let recommendedActionText = initialActionText;
 
   let isVerifiedComplete = Boolean(existingCompletion);
   let verifiedAt = existingCompletion?.verified_at;

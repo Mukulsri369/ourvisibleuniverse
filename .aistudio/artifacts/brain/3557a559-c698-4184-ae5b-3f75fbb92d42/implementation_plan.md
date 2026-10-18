@@ -24,15 +24,15 @@ A centralized, server-authoritative educational verification engine for the 24-m
 ## 2. User Experience & Visual Design
 
 - **Key User Flows**:
-  1. *Exploration Phase*: The learner navigates through the module lessons. A subtle, non-intrusive sticky drawer at the bottom indicates live progress (`"2 of 3 Criteria Met"`) with single-line state indicators and direct jump buttons (`"Take Knowledge Check"`, `"Complete Required Activity"`).
-  2. *Interactive Challenge Phase*: When entering a 3D simulation (e.g., Module 08 orbital insertion, Module 03 stellar parallax ladder), the student adjusts physical parameters. Upon achieving the physical objective (e.g., stable orbit with eccentricity $e < 0.05$ and specific orbital energy), the system captures physical telemetry and sends it to the server validator.
-  3. *Accessible Alternative Flow*: Students unable or preferring not to interact with 3D WebGL canvases can toggle to the Accessible 2D Alternative, which presents equivalent numerical or parametric challenges with identical scientific validation criteria.
-  4. *Verification & Certification*: At the conclusion of the module, the full completion checklist displays completed criteria with emerald verification shields, itemized feedback on missing requirements, and a server-issued verified timestamp once awarded.
+  1. _Exploration Phase_: The learner navigates through the module lessons. A subtle, non-intrusive sticky drawer at the bottom indicates live progress (`"2 of 3 Criteria Met"`) with single-line state indicators and direct jump buttons (`"Take Knowledge Check"`, `"Complete Required Activity"`).
+  2. _Interactive Challenge Phase_: When entering a 3D simulation (e.g., Module 08 orbital insertion, Module 03 stellar parallax ladder), the student adjusts physical parameters. Upon achieving the physical objective (e.g., stable orbit with eccentricity $e < 0.05$ and specific orbital energy), the system captures physical telemetry and sends it to the server validator.
+  3. _Accessible Alternative Flow_: Students unable or preferring not to interact with 3D WebGL canvases can toggle to the Accessible 2D Alternative, which presents equivalent numerical or parametric challenges with identical scientific validation criteria.
+  4. _Verification & Certification_: At the conclusion of the module, the full completion checklist displays completed criteria with emerald verification shields, itemized feedback on missing requirements, and a server-issued verified timestamp once awarded.
 - **Visual Identity & Theme**:
-  - *Aesthetic Direction*: Refined, publication-grade scientific dark canvas (`slate-950` / `slate-900`) with high-contrast typographic hierarchy and hairline structural borders (`border-white/10`).
-  - *Color Palette & Mood*: Dominant neutral deep space canvas (60%), structural slate panels with subtle glassmorphism (30%), and focused emerald/cyan verification accents (10%). No garish neon or candy badges.
-  - *Typography & Hierarchy*: Distinctive sans-serif headings (`Plus Jakarta Sans`), readable body text (`DM Sans`), and tabular numerals (`tabular-nums font-mono`) for orbital velocities, parallax angles, and quiz percentages.
-  - *Anti-Slop Restraint*: Clean unboxed metadata with dot separators (`·`), no fake compiler tags or pseudo-code comments, and no asymmetric thick left colored borders.
+  - _Aesthetic Direction_: Refined, publication-grade scientific dark canvas (`slate-950` / `slate-900`) with high-contrast typographic hierarchy and hairline structural borders (`border-white/10`).
+  - _Color Palette & Mood_: Dominant neutral deep space canvas (60%), structural slate panels with subtle glassmorphism (30%), and focused emerald/cyan verification accents (10%). No garish neon or candy badges.
+  - _Typography & Hierarchy_: Distinctive sans-serif headings (`Plus Jakarta Sans`), readable body text (`DM Sans`), and tabular numerals (`tabular-nums font-mono`) for orbital velocities, parallax angles, and quiz percentages.
+  - _Anti-Slop Restraint_: Clean unboxed metadata with dot separators (`·`), no fake compiler tags or pseudo-code comments, and no asymmetric thick left colored borders.
 - **Interactive Feedback & Motion**:
   - Smooth 150ms settling micro-interactions on checklist state changes.
   - Sticky drawer expands/collapses cleanly without obscuring primary educational content (capped under 12% viewport height).
@@ -42,17 +42,17 @@ A centralized, server-authoritative educational verification engine for the 24-m
 ## 3. Key Product Decisions & Trade-Offs
 
 - **Decision 1: Server-Authoritative Evaluation vs. Client-Side Evaluation**
-  - *Chosen Approach*: All completion decisions occur strictly on the server (`completion.server.ts` via TanStack Start server functions). Client components receive read-only evaluation snapshots.
-  - *Why*: Prevents browser developer tool manipulation, script injections, or localStorage overwrites from awarding unearned certificates.
-  - *Alternatives Considered*: Client-side rule evaluation was rejected because arbitrary local state can easily be forged.
+  - _Chosen Approach_: All completion decisions occur strictly on the server (`completion.server.ts` via TanStack Start server functions). Client components receive read-only evaluation snapshots.
+  - _Why_: Prevents browser developer tool manipulation, script injections, or localStorage overwrites from awarding unearned certificates.
+  - _Alternatives Considered_: Client-side rule evaluation was rejected because arbitrary local state can easily be forged.
 - **Decision 2: Measurable Physics Telemetry vs. Activity Visit Tracking**
-  - *Chosen Approach*: Activities require measurable, physically validated outcomes (e.g., gravitational parameter calculations, Keplerian orbital velocities, Schwarzschild radius equations) submitted to `validateActivityOutcomeServer`.
-  - *Why*: Merely opening or clicking an interactive simulation does not demonstrate conceptual mastery.
-  - *Alternatives Considered*: Tracking elapsed interaction time or click counts was rejected because automated timers can be left unattended.
+  - _Chosen Approach_: Activities require measurable, physically validated outcomes (e.g., gravitational parameter calculations, Keplerian orbital velocities, Schwarzschild radius equations) submitted to `validateActivityOutcomeServer`.
+  - _Why_: Merely opening or clicking an interactive simulation does not demonstrate conceptual mastery.
+  - _Alternatives Considered_: Tracking elapsed interaction time or click counts was rejected because automated timers can be left unattended.
 - **Decision 3: Configurable Versioned Rule Registry vs. Fragmented Per-Module Code**
-  - *Chosen Approach*: Centralized `MODULE_COMPLETION_RULES` registry in `completion-rules.ts` defining all 24 modules with schema versioning (`1.0.0`), explicit criteria, and alternative mappings.
-  - *Why*: Allows curriculum updates, threshold adjustments, and auditability without touching 24 separate component layouts.
-  - *Alternatives Considered*: Hardcoding logic in individual module layout files was rejected due to high maintenance overhead and divergence risks.
+  - _Chosen Approach_: Centralized `MODULE_COMPLETION_RULES` registry in `completion-rules.ts` defining all 24 modules with schema versioning (`1.0.0`), explicit criteria, and alternative mappings.
+  - _Why_: Allows curriculum updates, threshold adjustments, and auditability without touching 24 separate component layouts.
+  - _Alternatives Considered_: Hardcoding logic in individual module layout files was rejected due to high maintenance overhead and divergence risks.
 
 ---
 

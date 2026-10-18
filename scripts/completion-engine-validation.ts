@@ -46,17 +46,33 @@ async function main() {
         const rule = getModuleCompletionRule(modId);
 
         assert.ok(rule, `Module ${modId} rule must exist`);
-        assert.ok(rule.ruleVersion.match(/^\d+\.\d+\.\d+$/), `Module ${modId} version must be semver`);
+        assert.ok(
+          rule.ruleVersion.match(/^\d+\.\d+\.\d+$/),
+          `Module ${modId} version must be semver`,
+        );
         assert.ok(rule.title.length > 3, `Module ${modId} must have title`);
         assert.ok(rule.requiredSections.length >= 2, `Module ${modId} requires >= 2 sections`);
         assert.ok(rule.requiredActivities.length >= 1, `Module ${modId} requires >= 1 activity`);
-        assert.strictEqual(rule.passingScorePct, 70.0, `Module ${modId} passing threshold must be 70%`);
-        assert.ok(rule.minimumReadingSeconds >= 30, `Module ${modId} minimum reading must be >= 30s`);
+        assert.strictEqual(
+          rule.passingScorePct,
+          70.0,
+          `Module ${modId} passing threshold must be 70%`,
+        );
+        assert.ok(
+          rule.minimumReadingSeconds >= 30,
+          `Module ${modId} minimum reading must be >= 30s`,
+        );
 
         for (const act of rule.requiredActivities) {
           assert.ok(act.id.length > 3, `Activity in module ${modId} must have valid ID`);
-          assert.ok(act.validationKey.length > 3, `Activity in module ${modId} must have validationKey`);
-          assert.ok(act.measurableCriteria.length > 5, `Activity in module ${modId} must have measurable criteria`);
+          assert.ok(
+            act.validationKey.length > 3,
+            `Activity in module ${modId} must have validationKey`,
+          );
+          assert.ok(
+            act.measurableCriteria.length > 5,
+            `Activity in module ${modId} must have measurable criteria`,
+          );
           assert.ok(
             act.accessibleAlternativeId,
             `Activity in module ${modId} must declare an accessible alternative ID`,
@@ -67,55 +83,49 @@ async function main() {
   );
 
   // Test 2: Manual shortcut cannot issue completion
-  await runTest(
-    "Manual shortcut cannot issue verified module completion",
-    () => {
-      const rule = getModuleCompletionRule("08")!;
-      // Student with no verified evidence or attempts
-      const result = evaluateCompletionCriteria(rule, {
-        existingCompletion: null,
-        lessonProgressRows: [],
-        activityEvidenceRows: [],
-        assessmentAttemptRows: [],
-      });
+  await runTest("Manual shortcut cannot issue verified module completion", () => {
+    const rule = getModuleCompletionRule("08")!;
+    // Student with no verified evidence or attempts
+    const result = evaluateCompletionCriteria(rule, {
+      existingCompletion: null,
+      lessonProgressRows: [],
+      activityEvidenceRows: [],
+      assessmentAttemptRows: [],
+    });
 
-      assert.strictEqual(
-        result.allCriteriaSatisfied,
-        false,
-        "allCriteriaSatisfied must be false when requirements are unfulfilled",
-      );
-      assert.ok(
-        result.missingRequirements.length >= 3,
-        "Must specify missing requirements across reading, activity, and assessment",
-      );
-    },
-  );
+    assert.strictEqual(
+      result.allCriteriaSatisfied,
+      false,
+      "allCriteriaSatisfied must be false when requirements are unfulfilled",
+    );
+    assert.ok(
+      result.missingRequirements.length >= 3,
+      "Must specify missing requirements across reading, activity, and assessment",
+    );
+  });
 
   // Test 3: Opening a lesson does not award mastery
-  await runTest(
-    "Opening or reading a lesson alone does not award module completion",
-    () => {
-      const rule = getModuleCompletionRule("08")!;
-      // Student has completed reading but NO activity or assessment
-      const result = evaluateCompletionCriteria(rule, {
-        existingCompletion: null,
-        lessonProgressRows: [{ time_spent_seconds: 300, scroll_depth_percent: 100 }],
-        activityEvidenceRows: [],
-        assessmentAttemptRows: [],
-      });
+  await runTest("Opening or reading a lesson alone does not award module completion", () => {
+    const rule = getModuleCompletionRule("08")!;
+    // Student has completed reading but NO activity or assessment
+    const result = evaluateCompletionCriteria(rule, {
+      existingCompletion: null,
+      lessonProgressRows: [{ time_spent_seconds: 300, scroll_depth_percent: 100 }],
+      activityEvidenceRows: [],
+      assessmentAttemptRows: [],
+    });
 
-      assert.strictEqual(
-        result.allCriteriaSatisfied,
-        false,
-        "Reading alone must never award verified module completion",
-      );
-      const activityReq = result.checklist.find((c) => c.category === "activity");
-      const quizReq = result.checklist.find((c) => c.category === "assessment");
+    assert.strictEqual(
+      result.allCriteriaSatisfied,
+      false,
+      "Reading alone must never award verified module completion",
+    );
+    const activityReq = result.checklist.find((c) => c.category === "activity");
+    const quizReq = result.checklist.find((c) => c.category === "assessment");
 
-      assert.ok(activityReq && !activityReq.isSatisfied, "Activity must be unsatisfied");
-      assert.ok(quizReq && !quizReq.isSatisfied, "Assessment must be unsatisfied");
-    },
-  );
+    assert.ok(activityReq && !activityReq.isSatisfied, "Activity must be unsatisfied");
+    assert.ok(quizReq && !quizReq.isSatisfied, "Assessment must be unsatisfied");
+  });
 
   // Test 4: Unverified simulation events cannot award mastery
   await runTest(
@@ -159,28 +169,25 @@ async function main() {
   );
 
   // Test 5: Failed assessment cannot award completion
-  await runTest(
-    "Failed assessment (< 70%) strictly prevents verified completion",
-    () => {
-      const rule = getModuleCompletionRule("08")!;
-      // Student has completed reading and activity, but scored only 50% on assessment
-      const result = evaluateCompletionCriteria(rule, {
-        existingCompletion: null,
-        lessonProgressRows: [{ time_spent_seconds: 300, scroll_depth_percent: 100 }],
-        activityEvidenceRows: [{ activity_type: "act_08_orbital_mechanics_lab" }],
-        assessmentAttemptRows: [{ percentage: 50.0, passed: false }],
-      });
+  await runTest("Failed assessment (< 70%) strictly prevents verified completion", () => {
+    const rule = getModuleCompletionRule("08")!;
+    // Student has completed reading and activity, but scored only 50% on assessment
+    const result = evaluateCompletionCriteria(rule, {
+      existingCompletion: null,
+      lessonProgressRows: [{ time_spent_seconds: 300, scroll_depth_percent: 100 }],
+      activityEvidenceRows: [{ activity_type: "act_08_orbital_mechanics_lab" }],
+      assessmentAttemptRows: [{ percentage: 50.0, passed: false }],
+    });
 
-      assert.strictEqual(
-        result.allCriteriaSatisfied,
-        false,
-        "Failed assessment must strictly prevent verified module completion",
-      );
-      const quizReq = result.checklist.find((c) => c.category === "assessment");
-      assert.ok(quizReq && !quizReq.isSatisfied, "Assessment item must be unsatisfied");
-      assert.strictEqual(result.recommendedAction, "take_assessment");
-    },
-  );
+    assert.strictEqual(
+      result.allCriteriaSatisfied,
+      false,
+      "Failed assessment must strictly prevent verified module completion",
+    );
+    const quizReq = result.checklist.find((c) => c.category === "assessment");
+    assert.ok(quizReq && !quizReq.isSatisfied, "Assessment item must be unsatisfied");
+    assert.strictEqual(result.recommendedAction, "take_assessment");
+  });
 
   // Test 6: Valid completed requirements award completion once (idempotent)
   await runTest(
@@ -325,7 +332,11 @@ async function main() {
 
         // 3 of 4 modules verified must NOT unlock the stage
         const partialCompleted = expectedModules.slice(0, 3);
-        assert.strictEqual(partialCompleted.length === 4, false, "3 of 4 modules cannot unlock stage");
+        assert.strictEqual(
+          partialCompleted.length === 4,
+          false,
+          "3 of 4 modules cannot unlock stage",
+        );
 
         // 4 of 4 modules verified unlocks the stage
         const fullCompleted = expectedModules;
