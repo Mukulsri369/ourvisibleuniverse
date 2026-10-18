@@ -12,10 +12,7 @@
  * The session manager never mutates or overrides the application's narration cursor.
  */
 
-import type {
-  CosmosLiveSessionToken,
-  LiveSessionState,
-} from "./cosmos-types";
+import type { CosmosLiveSessionToken, LiveSessionState } from "./cosmos-types";
 import { createLiveSession } from "./cosmos.functions";
 
 export interface LiveSessionEventPayload {
@@ -70,7 +67,11 @@ export class LiveSessionManager {
     window.addEventListener("online", () => {
       this.isOnline = true;
       this.notifyListeners();
-      if (this.state === "ERROR" || this.state === "DISCONNECTED" || this.state === "RECONNECTING") {
+      if (
+        this.state === "ERROR" ||
+        this.state === "DISCONNECTED" ||
+        this.state === "RECONNECTING"
+      ) {
         void this.reconnect("Network connection restored");
       }
     });

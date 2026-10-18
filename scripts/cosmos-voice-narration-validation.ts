@@ -41,7 +41,10 @@ async function runVoiceNarrationValidationSuite() {
   console.log("1. Full Instructional Content Coverage (All 24 Modules):");
 
   const supportedModules = UniversalCosmosAdapter.getSupportedModuleList();
-  assert(supportedModules.length === 24, `All 24 modules registered (found: ${supportedModules.length})`);
+  assert(
+    supportedModules.length === 24,
+    `All 24 modules registered (found: ${supportedModules.length})`,
+  );
   totalChecks++;
 
   let totalSegmentsAllModules = 0;
@@ -52,21 +55,33 @@ async function runVoiceNarrationValidationSuite() {
 
     // Verify Lesson Titles are never skipped
     const titleSegs = segs.filter((s) => s.sectionId === "title");
-    assert(titleSegs.length > 0, `Module ${modId} includes lesson titles (${titleSegs.length} titles)`);
+    assert(
+      titleSegs.length > 0,
+      `Module ${modId} includes lesson titles (${titleSegs.length} titles)`,
+    );
     totalChecks++;
 
     // Verify sequence monotonicity and stable IDs
     const seenIds = new Set<string>();
     for (let i = 0; i < segs.length; i++) {
       const s = segs[i];
-      assert(s.sequenceNumber === i + 1, `Module ${modId} segment ${i + 1} has strictly monotonic sequence number`);
+      assert(
+        s.sequenceNumber === i + 1,
+        `Module ${modId} segment ${i + 1} has strictly monotonic sequence number`,
+      );
       totalChecks++;
       assert(!seenIds.has(s.segmentId), `Module ${modId} has unique segmentId "${s.segmentId}"`);
       seenIds.add(s.segmentId);
       totalChecks++;
-      assert(s.displayText.length > 0, `Module ${modId} segment ${s.segmentId} has non-empty displayText`);
+      assert(
+        s.displayText.length > 0,
+        `Module ${modId} segment ${s.segmentId} has non-empty displayText`,
+      );
       totalChecks++;
-      assert(s.spokenText.length > 0, `Module ${modId} segment ${s.segmentId} has non-empty spokenText`);
+      assert(
+        s.spokenText.length > 0,
+        `Module ${modId} segment ${s.segmentId} has non-empty spokenText`,
+      );
       totalChecks++;
     }
 
@@ -156,7 +171,9 @@ async function runVoiceNarrationValidationSuite() {
   const eq7 = "Wien's law is λ_max = b / T.";
   const sp7 = generateSpokenText(eq7);
   assert(
-    sp7.includes("peak wavelength lambda max equals Wien's displacement constant b divided by absolute temperature T"),
+    sp7.includes(
+      "peak wavelength lambda max equals Wien's displacement constant b divided by absolute temperature T",
+    ),
     `Wien's law expanded: "${sp7}"`,
   );
   totalChecks++;
@@ -168,10 +185,7 @@ async function runVoiceNarrationValidationSuite() {
     `a(t) and proportionality expanded: "${sp8}"`,
   );
   totalChecks++;
-  assert(
-    sp8.includes("ten to the power of 32 Kelvin"),
-    `10^32 K expanded: "${sp8}"`,
-  );
+  assert(sp8.includes("ten to the power of 32 Kelvin"), `10^32 K expanded: "${sp8}"`);
   totalChecks++;
 
   // -------------------------------------------------------------------------
@@ -179,7 +193,8 @@ async function runVoiceNarrationValidationSuite() {
   // -------------------------------------------------------------------------
   console.log("\n4. Spoken Cleanliness (Markdown & LaTeX Delimiter Stripping):");
 
-  const mdInput = "### What Was the Big Bang?\n\n**Space** expanded from a hot state. Notice $E = mc^2$.";
+  const mdInput =
+    "### What Was the Big Bang?\n\n**Space** expanded from a hot state. Notice $E = mc^2$.";
   const spMd = generateSpokenText(mdInput);
   assert(!spMd.includes("###"), `Markdown header hashes stripped: "${spMd}"`);
   totalChecks++;
@@ -198,7 +213,7 @@ async function runVoiceNarrationValidationSuite() {
   const testSegments = m01Segments.slice(0, 5);
   const controller = new NarrationController(testSegments, 0);
 
-  let currentState: NarrationState = controller.getState();
+  const currentState: NarrationState = controller.getState();
   assert(currentState.status === "idle", `Initial state is 'idle' (got: ${currentState.status})`);
   totalChecks++;
   assert(currentState.currentSegmentIndex === 0, `Initial segment index is 0`);
@@ -248,7 +263,10 @@ async function runVoiceNarrationValidationSuite() {
   controller.interrupt();
   assert(controller.getState().status === "interrupted", "Interrupt set status to 'interrupted'");
   totalChecks++;
-  assert(controller.getState().currentSegmentIndex === 2, "Interruption preserved active reading index");
+  assert(
+    controller.getState().currentSegmentIndex === 2,
+    "Interruption preserved active reading index",
+  );
   totalChecks++;
 
   // Test stop
@@ -278,9 +296,15 @@ async function runVoiceNarrationValidationSuite() {
   const savedCursor = NarrationCursorManager.getCursor("01");
   assert(savedCursor !== null, "Cursor saved in store");
   totalChecks++;
-  assert(savedCursor?.lastConfirmedCompletedSegmentId === testSegments[0].segmentId, "Confirmed segment stored accurately");
+  assert(
+    savedCursor?.lastConfirmedCompletedSegmentId === testSegments[0].segmentId,
+    "Confirmed segment stored accurately",
+  );
   totalChecks++;
-  assert(savedCursor?.completedSegmentIds.includes(testSegments[0].segmentId) === true, "Segment recorded in completedSegmentIds");
+  assert(
+    savedCursor?.completedSegmentIds.includes(testSegments[0].segmentId) === true,
+    "Segment recorded in completedSegmentIds",
+  );
   totalChecks++;
 
   // -------------------------------------------------------------------------

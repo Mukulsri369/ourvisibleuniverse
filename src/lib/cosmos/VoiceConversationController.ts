@@ -87,7 +87,8 @@ export class VoiceConversationController {
       if (payload.state === "ERROR" || payload.state === "RECONNECTING") {
         if (this.state === "PROCESSING" || this.state === "ANSWERING") {
           this.setState("ERROR", {
-            errorMessage: payload.errorMessage || "Live connection interrupted. Lesson cursor preserved.",
+            errorMessage:
+              payload.errorMessage || "Live connection interrupted. Lesson cursor preserved.",
           });
         }
       }
@@ -293,7 +294,8 @@ export class VoiceConversationController {
 
     if (!granted) {
       this.setState("ERROR", {
-        errorMessage: "Microphone access was denied. You can still use Push-to-Talk or text inquiry.",
+        errorMessage:
+          "Microphone access was denied. You can still use Push-to-Talk or text inquiry.",
       });
       return false;
     }
@@ -405,7 +407,9 @@ export class VoiceConversationController {
       return answer;
     } catch (err: any) {
       console.warn("Conversational error:", err);
-      this.setState("ERROR", { errorMessage: "Could not process conversation. Click resume to return to lesson." });
+      this.setState("ERROR", {
+        errorMessage: "Could not process conversation. Click resume to return to lesson.",
+      });
       return null;
     }
   }
@@ -658,7 +662,10 @@ export class VoiceConversationController {
     };
   }
 
-  private setState(state: CosmosInteractionState, extra: Partial<ConversationEventPayload> = {}): void {
+  private setState(
+    state: CosmosInteractionState,
+    extra: Partial<ConversationEventPayload> = {},
+  ): void {
     this.state = state;
     this.notifyListeners(extra);
   }

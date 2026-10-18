@@ -838,8 +838,7 @@ export function CosmosCompanion({
                               "Listening for Student Question..."}
                             {conversationPayload.state === "PROCESSING" &&
                               "Grounding Question in Astrophysics Curriculum..."}
-                            {conversationPayload.state === "ANSWERING" &&
-                              "COSMOS is Explaining..."}
+                            {conversationPayload.state === "ANSWERING" && "COSMOS is Explaining..."}
                             {conversationPayload.state === "FOLLOW_UP_WINDOW" &&
                               `Discussion Open (${conversationPayload.followUpCountdownSeconds}s) — Ask Follow-Up or Resume`}
                             {conversationPayload.state === "RESUMING" &&
@@ -888,7 +887,9 @@ export function CosmosCompanion({
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => voiceRef.current?.triggerBargeIn("Student clicked interrupt")}
+                          onClick={() =>
+                            voiceRef.current?.triggerBargeIn("Student clicked interrupt")
+                          }
                           className="border-emerald-400/30 text-emerald-300 hover:bg-emerald-500/20 text-xs"
                         >
                           <Pause className="size-3.5 mr-1" />

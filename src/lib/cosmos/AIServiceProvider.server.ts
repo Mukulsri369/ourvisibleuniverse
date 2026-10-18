@@ -248,13 +248,17 @@ function generateScientificFallbackAnswer(
         answerText:
           "A barred spiral galaxy features a prominent central bar-shaped structure of stars and interstellar gas extending through the galactic nucleus. Unlike ordinary spiral galaxies where arms wind directly from the core, the spiral arms of a barred spiral emerge exclusively from the ends of the central bar. Dynamic density wave models show the bar acts as a gravitational stirrer, funneling gas inward toward the core to trigger intense starbursts and feed central supermassive black holes. The Milky Way is classified as an SB(rs)bc barred spiral.",
         epistemicClassification: "model",
-        epistemicNote: "Stellar dynamics and density wave simulations verified by Gaia DR3 and Spitzer photometry",
+        epistemicNote:
+          "Stellar dynamics and density wave simulations verified by Gaia DR3 and Spitzer photometry",
         scientificSources: [
           {
             title: "Structure and Kinematics of the Milky Way Bar",
             organization: "Bland-Hawthorn & Gerhard, ARA&A 2016",
           },
-          { title: "Spitzer Infrared Survey of Barred Galaxies", organization: "NASA / JPL-Caltech" },
+          {
+            title: "Spitzer Infrared Survey of Barred Galaxies",
+            organization: "NASA / JPL-Caltech",
+          },
         ],
         suggestedFollowUpQuestions: [
           "How long does it take for a galactic bar to form?",
@@ -359,7 +363,11 @@ function generateScientificFallbackAnswer(
     };
   }
 
-  if (q.includes("example") || q.includes("show me an example") || q.includes("give me an example")) {
+  if (
+    q.includes("example") ||
+    q.includes("show me an example") ||
+    q.includes("give me an example")
+  ) {
     return {
       answerText: `A prime astronomical example related to ${context.scientificTopic} is observed right here in our cosmic neighborhood. For instance, observations from space telescopes (like Hubble and JWST) reveal these exact physical processes at work across star systems and distant galaxies.`,
       epistemicClassification: "fact",
@@ -486,7 +494,7 @@ export class AIServiceProviderServer {
         const response = await Promise.race([
           client.models.generateContent({
             model: "gemini-3.8-flash",
-            contents: prompt,
+            contents: trimmed,
             config: {
               systemInstruction,
               temperature: 0.3,

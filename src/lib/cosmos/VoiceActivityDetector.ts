@@ -50,7 +50,9 @@ export class VoiceActivityDetector {
   public async start(): Promise<boolean> {
     if (this.isListening) return true;
     if (typeof window === "undefined" || !navigator.mediaDevices?.getUserMedia) {
-      this.config.onError?.(new Error("Web Audio or getUserMedia is not supported in this browser."));
+      this.config.onError?.(
+        new Error("Web Audio or getUserMedia is not supported in this browser."),
+      );
       return false;
     }
 
@@ -161,7 +163,11 @@ export class VoiceActivityDetector {
   /**
    * Test Harness Simulation: simulates audio frame RMS power (used in automated test suites).
    */
-  public simulateAudioFrame(rms: number): { isSpeech: boolean; speechStarted: boolean; speechEnded: boolean } {
+  public simulateAudioFrame(rms: number): {
+    isSpeech: boolean;
+    speechStarted: boolean;
+    speechEnded: boolean;
+  } {
     let threshold = 0.18 - this.config.sensitivity * 0.14 + this.ambientNoiseFloor;
     if (this.isCosmosOutputtingAudio) {
       threshold *= 1.8;

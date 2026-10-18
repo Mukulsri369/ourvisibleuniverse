@@ -10,10 +10,7 @@
  * alter quiz scores, or bypass knowledge assessments.
  */
 
-import type {
-  CosmosVoiceCommandMatch,
-  CosmosVoiceCommandType,
-} from "./cosmos-types";
+import type { CosmosVoiceCommandMatch, CosmosVoiceCommandType } from "./cosmos-types";
 import { NarrationController } from "./NarrationController";
 import { LearningPreferenceManager } from "./LearningPreferenceManager";
 
@@ -35,7 +32,12 @@ export class VoiceCommandProcessor {
       clean === "hold on" ||
       clean === "wait"
     ) {
-      return { isCommand: true, commandType: "pause", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "pause",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     // 2. Continue / Resume commands
@@ -48,7 +50,12 @@ export class VoiceCommandProcessor {
       clean === "resume narration" ||
       clean === "resume lesson"
     ) {
-      return { isCommand: true, commandType: "continue", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "continue",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     // 3. Repeat commands
@@ -59,7 +66,12 @@ export class VoiceCommandProcessor {
       clean === "repeat sentence" ||
       clean === "repeat segment"
     ) {
-      return { isCommand: true, commandType: "repeat", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "repeat",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     // 4. Go Back commands
@@ -70,7 +82,12 @@ export class VoiceCommandProcessor {
       clean === "previous segment" ||
       clean === "back"
     ) {
-      return { isCommand: true, commandType: "go_back", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "go_back",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     // 5. Explain Again
@@ -80,7 +97,12 @@ export class VoiceCommandProcessor {
       clean === "can you explain again" ||
       clean === "re-explain"
     ) {
-      return { isCommand: true, commandType: "explain_again", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "explain_again",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     // 6. Speak Slower
@@ -90,7 +112,12 @@ export class VoiceCommandProcessor {
       clean === "talk slower" ||
       clean === "slower please"
     ) {
-      return { isCommand: true, commandType: "speak_slower", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "speak_slower",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     // 7. Skip Next
@@ -102,7 +129,12 @@ export class VoiceCommandProcessor {
       clean === "next" ||
       clean === "skip"
     ) {
-      return { isCommand: true, commandType: "skip_next", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "skip_next",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     // 8. Show Example
@@ -113,7 +145,12 @@ export class VoiceCommandProcessor {
       clean === "can you give an example" ||
       clean === "give an example"
     ) {
-      return { isCommand: true, commandType: "show_example", rawTranscript: transcript, matchedPhrase: clean };
+      return {
+        isCommand: true,
+        commandType: "show_example",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
     }
 
     return { isCommand: false, rawTranscript: transcript };

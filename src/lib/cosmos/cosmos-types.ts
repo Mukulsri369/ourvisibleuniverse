@@ -260,12 +260,7 @@ export type CosmosForbiddenAction = (typeof COSMOS_FORBIDDEN_ACTIONS)[number];
  * Prompt 14 Live API Session Types
  */
 export type LiveSessionState =
-  | "DISCONNECTED"
-  | "CONNECTING"
-  | "CONNECTED"
-  | "RECONNECTING"
-  | "EXPIRED"
-  | "ERROR";
+  "DISCONNECTED" | "CONNECTING" | "CONNECTED" | "RECONNECTING" | "EXPIRED" | "ERROR";
 
 export interface CosmosLiveSessionToken {
   sessionId: string;

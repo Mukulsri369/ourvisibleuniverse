@@ -93,7 +93,8 @@ async function runRealTimeVoiceValidationSuite() {
   assert(voiceCtrl.getState() === "LISTENING", "State transitioned to LISTENING after barge-in");
   totalChecks++;
   assert(
-    narrationCtrl.getState().status === "paused" || narrationCtrl.getState().status === "interrupted",
+    narrationCtrl.getState().status === "paused" ||
+      narrationCtrl.getState().status === "interrupted",
     "Narration audio halted immediately without waiting for paragraph completion",
   );
   totalChecks++;
@@ -107,7 +108,10 @@ async function runRealTimeVoiceValidationSuite() {
   voiceCtrl.resumeLesson(true);
   assert(voiceCtrl.getState() === "NARRATING", "Resumed lesson returns to NARRATING");
   totalChecks++;
-  assert(narrationCtrl.getState().currentSegmentIndex === 0, "Resumed exactly at start of segment 0");
+  assert(
+    narrationCtrl.getState().currentSegmentIndex === 0,
+    "Resumed exactly at start of segment 0",
+  );
   totalChecks++;
 
   // -------------------------------------------------------------------------
@@ -182,7 +186,10 @@ async function runRealTimeVoiceValidationSuite() {
   await voiceCtrl.handleStudentTranscript("Can you give an example?");
   assert(voiceCtrl.getFollowUpTurnCount() === 2, "Follow-up turn count is 2");
   totalChecks++;
-  assert(voiceCtrl.getState() === "FOLLOW_UP_WINDOW", "Discussion window remains open after Turn 2");
+  assert(
+    voiceCtrl.getState() === "FOLLOW_UP_WINDOW",
+    "Discussion window remains open after Turn 2",
+  );
   totalChecks++;
 
   // Question 3 (Follow-up: "Why?")
@@ -197,11 +204,17 @@ async function runRealTimeVoiceValidationSuite() {
   // -------------------------------------------------------------------------
   console.log("\n6. Test Scenario E: Say 'continue' voice command:");
   const continueMatch = VoiceCommandProcessor.matchCommand("continue");
-  assert(continueMatch.isCommand && continueMatch.commandType === "continue", "Matches 'continue' command");
+  assert(
+    continueMatch.isCommand && continueMatch.commandType === "continue",
+    "Matches 'continue' command",
+  );
   totalChecks++;
 
   await voiceCtrl.handleStudentTranscript("continue");
-  assert(voiceCtrl.getState() === "NARRATING" || voiceCtrl.getState() === "RESUMING", "State transitions to RESUMING/NARRATING");
+  assert(
+    voiceCtrl.getState() === "NARRATING" || voiceCtrl.getState() === "RESUMING",
+    "State transitions to RESUMING/NARRATING",
+  );
   totalChecks++;
 
   // -------------------------------------------------------------------------
@@ -209,7 +222,10 @@ async function runRealTimeVoiceValidationSuite() {
   // -------------------------------------------------------------------------
   console.log("\n7. Test Scenario F: Switch to push-to-talk:");
   LearningPreferenceManager.setPushToTalk(true);
-  assert(LearningPreferenceManager.getPreferences().pushToTalkEnabled, "Push-to-talk enabled in preferences");
+  assert(
+    LearningPreferenceManager.getPreferences().pushToTalkEnabled,
+    "Push-to-talk enabled in preferences",
+  );
   totalChecks++;
 
   voiceCtrl.startPushToTalk();
@@ -287,14 +303,20 @@ async function runRealTimeVoiceValidationSuite() {
   // Add ambient noise floor (e.g. classroom murmur)
   testVad.setAmbientNoiseFloor(0.12);
   const ambientNoiseFrame = testVad.simulateAudioFrame(0.15);
-  assert(!ambientNoiseFrame.isSpeech, "Elevated ambient noise (0.15 RMS) rejected with dynamic noise floor");
+  assert(
+    !ambientNoiseFrame.isSpeech,
+    "Elevated ambient noise (0.15 RMS) rejected with dynamic noise floor",
+  );
   totalChecks++;
 
   // Student speaks distinctly above ambient noise
   testVad.simulateAudioFrame(0.35);
   testVad.simulateAudioFrame(0.35);
   const loudSpeech = testVad.simulateAudioFrame(0.35);
-  assert(loudSpeech.speechStarted, "Intentional student speech (0.35 RMS) triggers speech detection reliably");
+  assert(
+    loudSpeech.speechStarted,
+    "Intentional student speech (0.35 RMS) triggers speech detection reliably",
+  );
   totalChecks++;
 
   // -------------------------------------------------------------------------
@@ -302,7 +324,7 @@ async function runRealTimeVoiceValidationSuite() {
   // -------------------------------------------------------------------------
   console.log("\n12. Test Scenario K: Self-playback gating & audio device changes:");
   testVad.setCosmosOutputtingAudio(true);
-  const speakerBleedFrame = testVad.simulateAudioFrame(0.20);
+  const speakerBleedFrame = testVad.simulateAudioFrame(0.2);
   assert(
     !speakerBleedFrame.isSpeech,
     "Self-playback gating raises threshold by 1.8x to prevent COSMOS voice echoing as student speech",
@@ -433,7 +455,9 @@ async function runRealTimeVoiceValidationSuite() {
   );
   assert(
     examAttempt.isExamRestricted === true &&
-      examAttempt.answerText.includes("cannot provide direct answers or solutions during an active knowledge assessment"),
+      examAttempt.answerText.includes(
+        "cannot provide direct answers or solutions during an active knowledge assessment",
+      ),
     "Refused exam answer disclosure during active examination attempt",
   );
   totalChecks++;
@@ -448,12 +472,16 @@ async function runRealTimeVoiceValidationSuite() {
     StudentQuestionContextManager.buildContext({ moduleId: "01", learningLevel: "explorer" }),
   );
   const benchmarkElapsedMs = Date.now() - benchmarkStart;
-  console.log(`  ℹ Measured Question Turn Latency: ${benchmarkElapsedMs}ms (Under 100ms threshold for local grounded fallback)`);
+  console.log(
+    `  ℹ Measured Question Turn Latency: ${benchmarkElapsedMs}ms (Under 100ms threshold for local grounded fallback)`,
+  );
   assert(benchmarkElapsedMs < 200, "Turn resolution latency within high-performance threshold");
   totalChecks++;
 
   console.log("\n======================================================================");
-  console.log(`✅ PROMPT 14 VALIDATION COMPLETE: ALL ${totalChecks} CHECKS PASSED WITH 100% SUCCESS`);
+  console.log(
+    `✅ PROMPT 14 VALIDATION COMPLETE: ALL ${totalChecks} CHECKS PASSED WITH 100% SUCCESS`,
+  );
   console.log("======================================================================");
 
   voiceCtrl.stop();
