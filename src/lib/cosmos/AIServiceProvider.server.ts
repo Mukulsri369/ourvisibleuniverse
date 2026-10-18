@@ -1,0 +1,364 @@
+/**
+ * COSMOS AIServiceProvider (Server-Side)
+ * Project: Our Visible Universe Academy
+ * Scope: Prompt 12 Server-Side AI Grounding & Epistemic Boundaries
+ *
+ * Implements server-side Gemini 3.8 Flash integration.
+ * The permanent GEMINI_API_KEY is NEVER exposed to the browser.
+ */
+
+import { GoogleGenAI } from "@google/genai";
+import type {
+  CosmosAnswer,
+  CosmosForbiddenAction,
+  EpistemicStatus,
+  StudentQuestionContext,
+} from "./cosmos-types";
+import { COSMOS_FORBIDDEN_ACTIONS } from "./cosmos-types";
+
+// Security check for unauthorized system actions
+function detectForbiddenActionAttempt(question: string): CosmosForbiddenAction | null {
+  const q = question.toLowerCase();
+
+  // Check exact canonical forbidden action names and space-separated versions
+  for (const action of COSMOS_FORBIDDEN_ACTIONS) {
+    const spaceForm = action.replace(/_/g, " ");
+    if (q.includes(spaceForm) || q.includes(action)) {
+      return action;
+    }
+  }
+
+  if (q.includes("complete this module for me") || q.includes("set progress to 100") || q.includes("mark complete")) {
+    return "mark_module_complete";
+  }
+  if (q.includes("change my quiz score") || q.includes("give me 100%") || q.includes("change score") || q.includes("fake score")) {
+    return "change_quiz_score";
+  }
+  if (q.includes("give me the badge") || q.includes("unlock achievement")) {
+    return "award_badge";
+  }
+  if (q.includes("generate certificate") || q.includes("issue my certificate") || q.includes("give me certificate without exam")) {
+    return "issue_certificate";
+  }
+  if (q.includes("change database") || q.includes("grant admin") || q.includes("make me admin") || q.includes("sql injection")) {
+    return "modify_database_permissions";
+  }
+  if (q.includes("what is the answer to question") || q.includes("tell me the correct answer to the exam") || q.includes("cheat on exam")) {
+    return "reveal_exam_answers";
+  }
+
+  return null;
+}
+
+/**
+ * Builds the epistemic system prompt for COSMOS.
+ */
+function buildSystemPrompt(context: StudentQuestionContext): string {
+  const levelDescriptions = {
+    junior: "Classes 1–3 (Ages 6–9). Use warm, clear, vivid language, tangible real-world analogies, and relatable metaphors. Avoid technical jargon without immediate friendly explanation.",
+    explorer: "Classes 4–6 (Ages 9–12). Use enthusiastic, scientifically accurate concepts, observational reasoning, and guided experiments.",
+    astronomer: "Classes 7–10 (Ages 12–16). Use rigorous astrophysics principles, mathematical relationships, thermodynamic limits, and peer-reviewed citations.",
+  };
+
+  return `You are COSMOS, the official AI Astronomy Teaching Companion for Our Visible Universe Academy.
+
+CURRENT PEDAGOGICAL CONTEXT:
+- Course: Cosmic Journey (v1.0.0)
+- Module: ${context.moduleNumber}. ${context.moduleTitle}
+- Active Scientific Topic: ${context.scientificTopic}
+- Active Lesson: ${context.lessonTitle}
+- Target Learner Tier: ${context.learningLevel.toUpperCase()} — ${levelDescriptions[context.learningLevel]}
+- Currently Displayed Instructional Text:
+"""
+${context.currentDisplayText}
+"""
+- Approved Learning Objectives:
+${context.approvedLearningObjectives.map((o) => `  * ${o}`).join("\n")}
+- Key Terminology: ${context.relevantTerminology.join(", ")}
+- Approved Academic References:
+${context.scientificReferences.map((r) => `  * ${r}`).join("\n")}
+
+STRICT BEHAVIORAL & EPISTEMIC RULES:
+1. GROUNDING: Anchor your answers in the approved course material and scientific consensus (NASA, ESA, IAU, STScI, ALMA, EHT).
+2. EPISTEMIC ACCURACY: Clearly distinguish among:
+   - [FACT]: Empirically verified observation or measured constant.
+   - [MODEL]: Mathematical or computational framework (e.g., General Relativity, Stellar Evolution tracks, ΛCDM).
+   - [HYPOTHESIS]: Plausible proposed mechanism (e.g., specific dark matter candidates, primordial black holes).
+   - [UNCERTAINTY]: Quantified error bar or active scientific debate (e.g., Hubble tension, nuclear EOS at supranuclear densities).
+3. AGE ADAPTATION: Speak naturally to the student at their chosen learning level.
+4. AUTHORITY CONSTRAINTS: You CANNOT modify student records, mark modules complete, alter quiz scores, award badges, or change database roles.
+5. EXAMINATION MODE: If the student is taking an examination or asks for direct answers to graded quizzes, you MUST REFUSE to give the answers, encouraging them to review lesson concepts instead.
+6. FORMATTING: Provide a clear, engaging explanation, a brief epistemic classification, 1-2 suggested follow-up questions, and appropriate scientific references.`;
+}
+
+/**
+ * High-fidelity grounded scientific fallback generator used when
+ * GEMINI_API_KEY is not set or in offline test environments.
+ */
+function generateScientificFallbackAnswer(
+  question: string,
+  context: StudentQuestionContext,
+): CosmosAnswer {
+  const q = question.toLowerCase();
+  const level = context.learningLevel;
+
+  // Check forbidden actions
+  const forbidden = detectForbiddenActionAttempt(question);
+  if (forbidden) {
+    return {
+      answerText: `As COSMOS, I am an educational guide and cannot perform administrative actions such as "${forbidden.replace(/_/g, " ")}". All module completions, quiz scores, and certificate issuances require authoritative server-side verification through your own coursework.`,
+      epistemicClassification: "fact",
+      epistemicNote: "Administrative Boundary Rule",
+      scientificSources: [
+        {
+          title: "Our Visible Universe Academy Academic Integrity Policy",
+          organization: "Our Visible Universe",
+        },
+      ],
+      suggestedFollowUpQuestions: [
+        "What are the core concepts covered in this lesson?",
+        "Can you explain the main scientific idea here?",
+      ],
+      learningLevelAdapted: level,
+    };
+  }
+
+  // Check Examination Mode
+  if (context.activeExamAttempt || q.includes("answer to question") || q.includes("exam answer")) {
+    return {
+      answerText:
+        "As COSMOS, I cannot provide direct answers or solutions during an active knowledge assessment or examination. You can review the lesson material or ask about underlying physical concepts after completing your attempt!",
+      epistemicClassification: "fact",
+      epistemicNote: "Examination Integrity Rule",
+      scientificSources: [
+        {
+          title: "Cosmic Explorer Examination Protocol",
+          organization: "Our Visible Universe Academy",
+        },
+      ],
+      suggestedFollowUpQuestions: [
+        "How does the underlying physical principle work?",
+        "Where can I find this topic in the lesson text?",
+      ],
+      isExamRestricted: true,
+      learningLevelAdapted: level,
+    };
+  }
+
+  // Module 01 specific queries
+  if (context.moduleId === "01") {
+    if (q.includes("space") && (q.includes("what") || q.includes("empty"))) {
+      if (level === "junior") {
+        return {
+          answerText:
+            "Space is the huge, silent ocean where planets, moons, and stars float! Unlike Earth, there is no air to breathe in space and no sound at all. It begins about 100 kilometers above our heads, where Earth's blanket of air ends.",
+          epistemicClassification: "fact",
+          epistemicNote: "Empirically measured atmospheric boundary (Kármán line)",
+          scientificSources: [
+            { title: "NASA Solar System Exploration: What is Space?", organization: "NASA" },
+          ],
+          suggestedFollowUpQuestions: [
+            "Why is the sky blue on Earth but black in space?",
+            "How do astronauts talk if sound cannot travel in space?",
+          ],
+          visualizationAction: {
+            sceneId: "solar_system",
+            targetObject: "Earth",
+            cameraAction: "focus",
+            scaleRegime: "planetary",
+          },
+          learningLevelAdapted: level,
+        };
+      }
+      return {
+        answerText:
+          "Space is a dynamic four-dimensional spacetime continuum shaped by mass and energy according to General Relativity. Although often called a vacuum, deep space contains sparse hydrogen atoms (about 1 per cubic centimeter in interstellar space), cosmic microwave background radiation (2.7 Kelvin), and quantum field fluctuations that produce virtual particle pairs.",
+        epistemicClassification: "model",
+        epistemicNote: "Quantum Field Theory & General Relativity models",
+        scientificSources: [
+          { title: "General Relativity and Relativistic Cosmology", organization: "IAU" },
+        ],
+        suggestedFollowUpQuestions: [
+          "What is the Casimir effect?",
+          "How does dark energy affect the expansion of space?",
+        ],
+        visualizationAction: {
+          sceneId: "cosmic_scale",
+          targetObject: "Observable Universe",
+          cameraAction: "zoom_out",
+          scaleRegime: "cosmological",
+        },
+        learningLevelAdapted: level,
+      };
+    }
+
+    if (q.includes("earth") || q.includes("home")) {
+      return {
+        answerText:
+          "Earth is our home planet, uniquely positioned in the Sun's habitable zone where liquid water can persist on the surface. Its swirling liquid iron outer core generates a protective magnetic shield (magnetosphere) that deflects harmful solar wind particles, while active plate tectonics constantly cycles carbon to stabilize our climate.",
+        epistemicClassification: "fact",
+        epistemicNote: "Observed planetary characteristics and geological evidence",
+        scientificSources: [
+          { title: "NASA Planetary Fact Sheet: Earth", organization: "NASA" },
+        ],
+        suggestedFollowUpQuestions: [
+          "What creates the Northern Lights (Auroras)?",
+          "How fast is Earth moving around the Sun?",
+        ],
+        visualizationAction: {
+          sceneId: "solar_system",
+          targetObject: "Earth",
+          cameraAction: "focus",
+          scaleRegime: "planetary",
+        },
+        learningLevelAdapted: level,
+      };
+    }
+  }
+
+  // Module 14 specific queries (Black Holes)
+  if (context.moduleId === "14") {
+    if (q.includes("black hole") || q.includes("event horizon") || q.includes("gravity")) {
+      if (level === "junior") {
+        return {
+          answerText:
+            "A black hole is a place in space where gravity is squished so strong that nothing—not even the fastest light in the universe—can escape! Imagine taking a huge giant star and packing all of it into a tiny ball; its pull becomes so powerful that it creates a cosmic one-way door called the event horizon.",
+          epistemicClassification: "fact",
+          epistemicNote: "Confirmed by Event Horizon Telescope images of M87* and Sagittarius A*",
+          scientificSources: [
+            { title: "First Image of a Black Hole", organization: "Event Horizon Telescope (EHT)" },
+          ],
+          suggestedFollowUpQuestions: [
+            "What would happen if you got too close to a black hole?",
+            "Can a black hole suck up the whole universe?",
+          ],
+          visualizationAction: {
+            sceneId: "black_hole_lensing",
+            targetObject: "Sagittarius A*",
+            cameraAction: "orbit",
+            scaleRegime: "stellar",
+          },
+          learningLevelAdapted: level,
+        };
+      }
+      return {
+        answerText:
+          "A black hole forms when a massive stellar core collapses within its Schwarzschild radius (r_s = 2GM/c^2), where escape velocity equals the speed of light. General relativity shows that inside the event horizon, all timelike geodesics terminate at a central gravitational singularity. Surrounding infalling matter forms a superheated accretion disk that emits intense X-rays and undergoes extreme relativistic gravitational lensing.",
+        epistemicClassification: "model",
+        epistemicNote: "General Relativity Kerr-Schwarzschild solution",
+        scientificSources: [
+          {
+            title: "First Sagittarius A* Event Horizon Telescope Results",
+            organization: "EHT Collaboration, ApJL 2022",
+          },
+        ],
+        suggestedFollowUpQuestions: [
+          "How does frame dragging affect a rotating (Kerr) black hole?",
+          "What is the Tolman-Oppenheimer-Volkoff (TOV) mass limit for neutron stars?",
+        ],
+        visualizationAction: {
+          sceneId: "black_hole_lensing",
+          targetObject: "Sagittarius A*",
+          cameraAction: "focus",
+          scaleRegime: "stellar",
+        },
+        learningLevelAdapted: level,
+      };
+    }
+  }
+
+  // General grounded synthesis
+  return {
+    answerText: `In ${context.moduleTitle}, we explore ${context.scientificTopic}. As established in the lesson material: "${context.currentDisplayText.slice(0, 180)}..." This concept is fundamental to understanding our place in the cosmos.`,
+    epistemicClassification: "fact",
+    epistemicNote: "Grounded in approved curriculum material",
+    scientificSources: context.scientificReferences.map((r) => ({ title: r })),
+    suggestedFollowUpQuestions: [
+      `How does this connect to ${context.relevantTerminology[0] || "astronomy"}?`,
+      "Can we view this in the 3D scene?",
+    ],
+    visualizationAction: context.currentVisualization,
+    learningLevelAdapted: level,
+  };
+}
+
+export class AIServiceProviderServer {
+  private static client: GoogleGenAI | null = null;
+
+  private static getClient(): GoogleGenAI | null {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) return null;
+
+    if (!this.client) {
+      this.client = new GoogleGenAI({ apiKey });
+    }
+    return this.client;
+  }
+
+  /**
+   * Processes a student inquiry server-side.
+   * Never exposes API keys to client runtime.
+   */
+  public static async answerStudentQuestion(
+    question: string,
+    context: StudentQuestionContext,
+  ): Promise<CosmosAnswer> {
+    const trimmed = (question || "").trim();
+    if (!trimmed) {
+      throw new Error("Question cannot be empty.");
+    }
+
+    // 1. Check Authority Invariant: COSMOS cannot perform admin/state-modifying actions
+    const forbidden = detectForbiddenActionAttempt(trimmed);
+    if (forbidden) {
+      return generateScientificFallbackAnswer(trimmed, context);
+    }
+
+    // 2. Check Examination Mode Guard: No hints or exam solutions
+    if (context.activeExamAttempt) {
+      return generateScientificFallbackAnswer(trimmed, context);
+    }
+
+    // 3. Attempt Gemini 3.8 Flash execution via server-side SDK
+    const client = this.getClient();
+    if (client) {
+      try {
+        const systemInstruction = buildSystemPrompt(context);
+        const prompt = `Student Question: "${trimmed}"\n\nPlease provide a clear answer adapted for ${context.learningLevel.toUpperCase()} level. Include an epistemic classification ([FACT], [MODEL], [HYPOTHESIS], or [UNCERTAINTY]).`;
+
+        const response = await client.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt,
+          config: {
+            systemInstruction,
+            temperature: 0.3,
+          },
+        });
+
+        const rawText = response.text || "";
+
+        let epistemicStatus: EpistemicStatus = "fact";
+        if (rawText.includes("[MODEL]")) epistemicStatus = "model";
+        else if (rawText.includes("[HYPOTHESIS]")) epistemicStatus = "hypothesis";
+        else if (rawText.includes("[UNCERTAINTY]")) epistemicStatus = "uncertainty";
+
+        return {
+          answerText: rawText.replace(/\[(FACT|MODEL|HYPOTHESIS|UNCERTAINTY)\]\s*/g, ""),
+          epistemicClassification: epistemicStatus,
+          scientificSources: context.scientificReferences.map((r) => ({ title: r })),
+          suggestedFollowUpQuestions: [
+            "Can you explain more about this concept?",
+            "How was this discovered by astronomers?",
+          ],
+          visualizationAction: context.currentVisualization,
+          learningLevelAdapted: context.learningLevel,
+        };
+      } catch (err) {
+        console.warn("Gemini API server call failed, falling back to grounded solver:", err);
+      }
+    }
+
+    // 4. Grounded Scientific Fallback
+    return generateScientificFallbackAnswer(trimmed, context);
+  }
+}
