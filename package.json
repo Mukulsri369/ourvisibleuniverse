@@ -29,7 +29,8 @@
     "test:modules-13-24": "tsx scripts/modules-13-24-security-validation.ts",
     "test:achievements": "tsx scripts/achievement-system-validation.ts",
     "test:exam": "tsx scripts/final-exam-validation.ts",
-    "test:all": "tsx scripts/astronomy-validation.ts && tsx scripts/catalog-consistency-validator.ts && tsx scripts/visual-regression-tests.ts && tsx scripts/final-exam-validation.ts && tsx scripts/qa-audit-test.ts",
+    "test:certificate": "tsx scripts/certificate-system-validation.ts",
+    "test:all": "tsx scripts/astronomy-validation.ts && tsx scripts/catalog-consistency-validator.ts && tsx scripts/visual-regression-tests.ts && tsx scripts/final-exam-validation.ts && tsx scripts/certificate-system-validation.ts && tsx scripts/qa-audit-test.ts",
     "ingest:catalog": "tsx scripts/ingest-astronomy-catalog.ts"
   },
   "dependencies": {
@@ -70,6 +71,7 @@
     "@tanstack/react-router": "1.170.41",
     "@tanstack/react-start": "1.168.60",
     "@tanstack/router-plugin": "1.168.42",
+    "@types/qrcode": "^1.5.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -78,6 +80,8 @@
     "framer-motion": "^12.41.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.575.0",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.2.0",

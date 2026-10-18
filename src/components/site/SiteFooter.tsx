@@ -65,6 +65,12 @@ export function SiteFooter() {
             >
               Catalog Status
             </Link>
+            <Link
+              to="/verify-certificate"
+              className="text-amber-400 hover:text-amber-300 transition-colors font-medium"
+            >
+              Verify Certificate
+            </Link>
             <Link to="/about" className="hover:text-white transition-colors">
               About
             </Link>

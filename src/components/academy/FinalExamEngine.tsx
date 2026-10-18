@@ -14,6 +14,8 @@ import {
   getFinalExamEligibility,
   claimOfficialCertificate,
 } from "@/lib/academy/assessment.functions";
+import { issueOfficialCertificate } from "@/lib/academy/certificate.functions";
+import type { CanonicalCertificate } from "@/lib/academy/certificate-types";
 import { useStudentAuth } from "@/lib/academy/useStudentAuth";
 import { CosmicCertificateModal } from "./CosmicCertificateModal";
 import {
@@ -90,6 +92,7 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [showCertificateModal, setShowCertificateModal] = useState<boolean>(false);
   const [claimingCertificate, setClaimingCertificate] = useState<boolean>(false);
+  const [issuedCert, setIssuedCert] = useState<CanonicalCertificate | null>(null);
 
   // Review confirmation modal before submission
   const [showSubmitConfirm, setShowSubmitConfirm] = useState<boolean>(false);
@@ -304,10 +307,18 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
   const handleClaimCertificate = async () => {
     setClaimingCertificate(true);
     try {
-      await claimOfficialCertificate({ data: { userId: user?.id } });
+      const res = await issueOfficialCertificate({
+        data: { userId: user?.id, level },
+      });
+      setIssuedCert(res.certificate);
       setShowCertificateModal(true);
+      toast.success(
+        res.isExisting
+          ? "Official certificate retrieved successfully!"
+          : "Congratulations! Official certificate issued and verified!",
+      );
     } catch (err: any) {
-      toast.error(err?.message || "Could not claim certificate");
+      toast.error(err?.message || "Could not issue certificate.");
     } finally {
       setClaimingCertificate(false);
     }
@@ -400,9 +411,9 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
             Cosmic Explorer — Final Knowledge Assessment
           </h1>
           <p className="text-sm text-slate-300 max-w-xl mx-auto mt-2 leading-relaxed">
-            The official capstone examination evaluates learning across all 24 modules and 6 celestial
-            stages. To ensure legitimate academic rigor, the official assessment unlocks strictly
-            after verified server completion of every module.
+            The official capstone examination evaluates learning across all 24 modules and 6
+            celestial stages. To ensure legitimate academic rigor, the official assessment unlocks
+            strictly after verified server completion of every module.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
@@ -443,11 +454,11 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
                   <AlertTriangle className="size-4 text-amber-400" />
-                  Modules Remaining for Official Eligibility (
-                  {eligibility.missingModules.length})
+                  Modules Remaining for Official Eligibility ({eligibility.missingModules.length})
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Complete these modules and pass their authoritative checks to unlock the final exam.
+                  Complete these modules and pass their authoritative checks to unlock the final
+                  exam.
                 </p>
               </div>
             </div>
@@ -564,7 +575,9 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
               </span>
             </div>
             <div className="p-3.5 rounded-2xl border border-white/5 bg-white/[0.02]">
-              <span className="text-[10px] text-slate-400 uppercase font-mono block">Percentage</span>
+              <span className="text-[10px] text-slate-400 uppercase font-mono block">
+                Percentage
+              </span>
               <span
                 className={`text-xl sm:text-2xl font-bold ${
                   result.passed ? "text-emerald-400" : "text-rose-400"
@@ -574,11 +587,15 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
               </span>
             </div>
             <div className="p-3.5 rounded-2xl border border-white/5 bg-white/[0.02]">
-              <span className="text-[10px] text-slate-400 uppercase font-mono block">Passing Goal</span>
+              <span className="text-[10px] text-slate-400 uppercase font-mono block">
+                Passing Goal
+              </span>
               <span className="text-xl sm:text-2xl font-bold text-slate-300">80.0%</span>
             </div>
             <div className="p-3.5 rounded-2xl border border-white/5 bg-white/[0.02]">
-              <span className="text-[10px] text-slate-400 uppercase font-mono block">Tier Level</span>
+              <span className="text-[10px] text-slate-400 uppercase font-mono block">
+                Tier Level
+              </span>
               <span className="text-xl sm:text-2xl font-bold text-cyan-400 capitalize">
                 {result.level}
               </span>
@@ -627,7 +644,8 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
                 Cosmic Curriculum Domain Strengths (6 Celestial Stages)
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                Evaluates competency across all curriculum tiers according to the balanced blueprint.
+                Evaluates competency across all curriculum tiers according to the balanced
+                blueprint.
               </p>
             </div>
 
@@ -638,21 +656,23 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
                   className="p-4 rounded-xl border border-white/5 bg-white/[0.02] space-y-2"
                 >
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono text-cyan-400 font-bold">Stage 0{topic.stageId}</span>
+                    <span className="font-mono text-cyan-400 font-bold">
+                      Stage 0{topic.stageId}
+                    </span>
                     <span
                       className={`font-mono text-[11px] px-2 py-0.5 rounded-full border ${
                         topic.status === "mastered"
                           ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
                           : topic.status === "proficient"
-                          ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-300"
-                          : "bg-amber-500/10 border-amber-500/30 text-amber-300"
+                            ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-300"
+                            : "bg-amber-500/10 border-amber-500/30 text-amber-300"
                       }`}
                     >
                       {topic.status === "mastered"
                         ? "Mastered"
                         : topic.status === "proficient"
-                        ? "Proficient"
-                        : "Review Needed"}
+                          ? "Proficient"
+                          : "Review Needed"}
                     </span>
                   </div>
 
@@ -674,8 +694,8 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
                         topic.status === "mastered"
                           ? "bg-emerald-400"
                           : topic.status === "proficient"
-                          ? "bg-cyan-400"
-                          : "bg-amber-400"
+                            ? "bg-cyan-400"
+                            : "bg-amber-400"
                       }`}
                       style={{ width: `${topic.percentage}%` }}
                     />
@@ -802,6 +822,8 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
           level={result.level}
           completedLabCount={24}
           finalChallengePassed={result.passed}
+          examScore={result.percentage}
+          existingCertificate={issuedCert || undefined}
         />
       </div>
     );
@@ -856,11 +878,15 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
           {/* Key Assessment Constraints */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-2xl mx-auto mt-6 text-left">
             <div className="p-3 rounded-xl border border-white/5 bg-white/[0.02]">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">Questions</span>
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">
+                Questions
+              </span>
               <span className="text-sm font-bold text-white">20 Questions</span>
             </div>
             <div className="p-3 rounded-xl border border-white/5 bg-white/[0.02]">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">Passing Score</span>
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">
+                Passing Score
+              </span>
               <span className="text-sm font-bold text-amber-400">80% (16 / 20)</span>
             </div>
             <div className="p-3 rounded-xl border border-white/5 bg-white/[0.02]">
@@ -868,7 +894,9 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
               <span className="text-sm font-bold text-cyan-300">All 6 Stages</span>
             </div>
             <div className="p-3 rounded-xl border border-white/5 bg-white/[0.02]">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">COSMOS AI</span>
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">
+                COSMOS AI
+              </span>
               <span className="text-sm font-bold text-rose-400">Disabled (Exam)</span>
             </div>
           </div>
@@ -892,8 +920,8 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
                   {lvl === "junior"
                     ? "Junior"
                     : lvl === "explorer"
-                    ? "Space Explorer"
-                    : "Astronomer"}
+                      ? "Space Explorer"
+                      : "Astronomer"}
                 </button>
               ))}
             </div>
@@ -973,8 +1001,8 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
                   isCurrent
                     ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md ring-2 ring-amber-400/40"
                     : isAnswered
-                    ? "bg-cyan-950/60 border-cyan-500/40 text-cyan-300"
-                    : "bg-slate-800/40 border-white/5 text-slate-400 hover:bg-slate-800"
+                      ? "bg-cyan-950/60 border-cyan-500/40 text-cyan-300"
+                      : "bg-slate-800/40 border-white/5 text-slate-400 hover:bg-slate-800"
                 }`}
               >
                 {idx + 1}
@@ -1058,9 +1086,7 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
                   <div className="flex items-center gap-3">
                     <span
                       className={`size-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 ${
-                        isSelected
-                          ? "bg-amber-500 text-slate-950"
-                          : "bg-slate-800 text-slate-400"
+                        isSelected ? "bg-amber-500 text-slate-950" : "bg-slate-800 text-slate-400"
                       }`}
                     >
                       {String.fromCharCode(65 + optIdx)}
@@ -1156,8 +1182,8 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
 
             {questions.length - answeredCount > 0 && (
               <p className="text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg">
-                Notice: You have {questions.length - answeredCount} unanswered questions.
-                Unanswered questions will be scored as 0 points.
+                Notice: You have {questions.length - answeredCount} unanswered questions. Unanswered
+                questions will be scored as 0 points.
               </p>
             )}
 

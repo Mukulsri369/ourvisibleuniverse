@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Award,
   Sparkles,
@@ -8,352 +8,499 @@ import {
   X,
   ShieldCheck,
   Star,
-  Globe,
+  ExternalLink,
+  Share2,
+  Eye,
+  Maximize2,
+  Palette,
+  Sun,
+  Moon,
   Compass,
-  Rocket,
-  Flame,
-  Radio,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { LearningLevel } from "@/lib/academy/types";
+import { useStudentAuth } from "@/lib/academy/useStudentAuth";
+import {
+  issueOfficialCertificate,
+  generateCertificatePdfPayload,
+} from "@/lib/academy/certificate.functions";
+import type { CanonicalCertificate, CertificateTheme } from "@/lib/academy/certificate-types";
+import { CERTIFICATE_CONSTANTS, LEARNING_LEVEL_LABELS } from "@/lib/academy/certificate-types";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 interface CosmicCertificateModalProps {
   isOpen: boolean;
   onClose: () => void;
   level: LearningLevel;
-  completedLabCount: number;
-  finalChallengePassed: boolean;
+  completedLabCount?: number;
+  finalChallengePassed?: boolean;
+  examScore?: number;
+  existingCertificate?: CanonicalCertificate;
 }
-
-const CALLSIGN_PRESETS = [
-  "Cadet Nova",
-  "Commander Orion",
-  "Explorer Kepler",
-  "Navigator Andromeda",
-  "Captain Pulsar",
-  "Voyager Phoenix",
-  "Astronomer Zenith",
-];
 
 export const CosmicCertificateModal: React.FC<CosmicCertificateModalProps> = ({
   isOpen,
   onClose,
-  level,
-  completedLabCount,
-  finalChallengePassed,
+  level = "explorer",
+  completedLabCount = 24,
+  finalChallengePassed = true,
+  examScore = 85.0,
+  existingCertificate,
 }) => {
-  const [callsign, setCallsign] = useState<string>("Explorer Kepler");
-  const [customCallsign, setCustomCallsign] = useState<string>("");
-  const [isEditingCallsign, setIsEditingCallsign] = useState<boolean>(false);
-  const certificateRef = useRef<HTMLDivElement>(null);
+  const { user, profile } = useStudentAuth();
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState<boolean>(!existingCertificate);
+  const [certificate, setCertificate] = useState<CanonicalCertificate | null>(
+    existingCertificate || null,
+  );
+  const [theme, setTheme] = useState<CertificateTheme>("cosmic_dark");
+  const [isFullScreenView, setIsFullScreenView] = useState<boolean>(false);
+  const [downloadingPdf, setDownloadingPdf] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const isReducedMotion = profile?.accessibility_settings?.reducedMotion ?? false;
+
+  // Fetch or issue certificate when modal opens
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (existingCertificate) {
+      setCertificate(existingCertificate);
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    const fetchOrIssue = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await issueOfficialCertificate({
+          data: { userId: user?.id, level },
+        });
+        if (isMounted) {
+          setCertificate(res.certificate);
+        }
+      } catch (err: any) {
+        if (isMounted) {
+          setError(
+            err?.message ||
+              "Could not issue certificate. Please ensure all 24 modules and the final exam are complete.",
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchOrIssue();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, user?.id, level, existingCertificate]);
 
   if (!isOpen) return null;
 
-  const activeName = isEditingCallsign && customCallsign.trim() ? customCallsign.trim() : callsign;
+  const handleDownloadPDF = async () => {
+    if (!certificate) return;
+    setDownloadingPdf(true);
+    try {
+      const res = await generateCertificatePdfPayload({
+        data: {
+          certificateNumber: certificate.certificateNumber,
+          theme,
+        },
+      });
 
-  const issueDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+      // Decode base64 to binary blob and trigger browser download
+      const byteCharacters = atob(res.base64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = res.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-  const verificationCode = `CLA-${Math.abs(
-    (activeName + level + issueDate)
-      .split("")
-      .reduce((acc, char) => (acc << 5) - acc + char.charCodeAt(0), 0),
-  )
-    .toString(16)
-    .toUpperCase()
-    .padStart(8, "0")}`;
+      toast.success("PDF Certificate downloaded successfully!");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to download PDF.");
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleDownloadSVG = () => {
-    const certSvg = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#020617"/>
-      <stop offset="50%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#1e1b4b"/>
-    </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#fbbf24"/>
-      <stop offset="50%" stop-color="#f59e0b"/>
-      <stop offset="100%" stop-color="#d97706"/>
-    </linearGradient>
-    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="50%" stop-color="#818cf8"/>
-      <stop offset="100%" stop-color="#c084fc"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Background -->
-  <rect width="1000" height="700" fill="url(#bgGrad)" />
-
-  <!-- Outer Frame -->
-  <rect x="25" y="25" width="950" height="650" rx="16" fill="none" stroke="url(#borderGrad)" stroke-width="3" stroke-opacity="0.8" />
-  <rect x="35" y="35" width="930" height="630" rx="12" fill="none" stroke="#38bdf8" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="6,6" />
-
-  <!-- Corner Ornaments -->
-  <circle cx="50" cy="50" r="8" fill="#fbbf24" />
-  <circle cx="950" cy="50" r="8" fill="#fbbf24" />
-  <circle cx="50" cy="650" r="8" fill="#fbbf24" />
-  <circle cx="950" cy="650" r="8" fill="#fbbf24" />
-
-  <!-- Header -->
-  <text x="500" y="100" text-anchor="middle" font-family="system-ui, sans-serif" font-size="16" font-weight="600" fill="#38bdf8" letter-spacing="4">
-    COSMIC LEARNING ACADEMY
-  </text>
-  <text x="500" y="150" text-anchor="middle" font-family="serif" font-size="34" font-weight="bold" fill="url(#goldGrad)" letter-spacing="2">
-    CERTIFICATE OF ACHIEVEMENT
-  </text>
-  <text x="500" y="185" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8" letter-spacing="2">
-    HONORARY ASTROPHYSICS &amp; SPACE EXPLORATION ACHIEVEMENT
-  </text>
-
-  <!-- Body Text -->
-  <text x="500" y="250" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#cbd5e1">
-    This certifies that Space Explorer
-  </text>
-
-  <!-- Recipient Name -->
-  <text x="500" y="310" text-anchor="middle" font-family="system-ui, sans-serif" font-size="36" font-weight="bold" fill="#ffffff" letter-spacing="1">
-    ${activeName}
-  </text>
-  <line x1="300" y1="330" x2="700" y2="330" stroke="#f59e0b" stroke-width="2" stroke-opacity="0.6" />
-
-  <!-- Accomplishment Paragraph -->
-  <text x="500" y="375" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#cbd5e1">
-    has successfully completed all 24 Modules of the Cosmic Learning Academy curriculum,
-  </text>
-  <text x="500" y="405" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#cbd5e1">
-    demonstrating scientific mastery across Celestial Mechanics, Stellar Physics, Galactic Dynamics,
-  </text>
-  <text x="500" y="435" text-anchor="middle" font-family="system-ui, sans-serif" font-size="15" fill="#cbd5e1">
-    Observational Telescopes, Astrobiology, and Physical Cosmology.
-  </text>
-
-  <!-- Learning Tier Badge -->
-  <rect x="400" y="470" width="200" height="38" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5" />
-  <text x="500" y="495" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#38bdf8" letter-spacing="1">
-    TIER: ${level.toUpperCase()} EXPLORER
-  </text>
-
-  <!-- Footer Info -->
-  <text x="150" y="580" text-anchor="middle" font-family="monospace" font-size="12" fill="#64748b">VERIFICATION ID</text>
-  <text x="150" y="605" text-anchor="middle" font-family="monospace" font-size="14" font-weight="bold" fill="#38bdf8">${verificationCode}</text>
-
-  <!-- Seal in Center Bottom -->
-  <circle cx="500" cy="590" r="42" fill="#0f172a" stroke="#f59e0b" stroke-width="2" />
-  <circle cx="500" cy="590" r="36" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3" />
-  <text x="500" y="585" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" font-weight="bold" fill="#f59e0b">COSMIC ACADEMY</text>
-  <text x="500" y="605" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="bold" fill="#ffffff">★ 24/24 ★</text>
-
-  <text x="850" y="580" text-anchor="middle" font-family="monospace" font-size="12" fill="#64748b">DATE OF ISSUANCE</text>
-  <text x="850" y="605" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="bold" fill="#ffffff">${issueDate}</text>
-</svg>
-    `.trim();
-
-    const blob = new Blob([certSvg], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `Cosmic_Academy_Certificate_${activeName.replace(/\s+/g, "_")}.svg`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleVerify = () => {
+    if (!certificate) return;
+    const verifyPath = `/verify-certificate?id=${encodeURIComponent(certificate.certificateNumber)}`;
+    if (typeof window !== "undefined") {
+      window.open(verifyPath, "_blank");
+    } else {
+      navigate({ to: "/verify-certificate", search: { id: certificate.certificateNumber } });
+    }
   };
 
+  const handleShare = async () => {
+    if (!certificate) return;
+    const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://ourvisibleuniverse.in"}/verify-certificate?id=${encodeURIComponent(certificate.certificateNumber)}`;
+    const shareData = {
+      title: "Certified Cosmic Explorer — Our Visible Universe Academy",
+      text: `I've successfully achieved the Certified Cosmic Explorer credential in the Cosmic Journey astronomy curriculum (${certificate.finalScorePercentage.toFixed(1)}% on the final assessment)!`,
+      url: shareUrl,
+    };
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        toast.success("Shared successfully!");
+        return;
+      } catch (err) {
+        // User cancelled or fallback to clipboard
+      }
+    }
+
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(shareUrl);
+      toast.success("Official certificate verification link copied to clipboard!");
+    }
+  };
+
+  const recipientName =
+    certificate?.certificateName ||
+    profile?.certificate_name ||
+    profile?.display_name ||
+    "Cosmic Explorer";
+
+  const isDark = theme === "cosmic_dark";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-slate-900 border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden my-8">
-        {/* Header Bar */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-950/80 border-b border-white/10">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cert-dialog-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto"
+    >
+      <div
+        className={`relative w-full max-w-5xl rounded-3xl border border-white/10 bg-slate-950 shadow-2xl overflow-hidden my-auto flex flex-col max-h-[94vh] ${
+          isReducedMotion ? "" : "animate-in fade-in zoom-in-95 duration-300"
+        }`}
+      >
+        {/* Top Control Bar */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-slate-900/80">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30">
-              <Award className="size-6" />
+            <div className="size-9 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <Award className="size-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                Cosmic Explorer Certificate of Achievement
-                <Sparkles className="size-4 text-amber-400" />
-              </h2>
+              <h3
+                id="cert-dialog-title"
+                className="text-sm font-bold text-white flex items-center gap-2"
+              >
+                Congratulations, Cosmic Explorer!
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Verified
+                </span>
+              </h3>
               <p className="text-xs text-slate-400">
-                Celebrate your journey across all 24 Modules of Cosmic Learning Academy!
+                Official Certificate of Achievement • Our Visible Universe Academy
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
-          >
-            <X className="size-5" />
-          </button>
-        </div>
 
-        {/* Callsign Selector Bar (Child Privacy Friendly) */}
-        <div className="px-6 py-3 bg-slate-900/90 border-b border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="font-semibold text-amber-400">Explorer Callsign:</span>
-            {!isEditingCallsign ? (
-              <select
-                value={callsign}
-                onChange={(e) => setCallsign(e.target.value)}
-                className="bg-slate-800 border border-white/10 rounded px-2.5 py-1 text-white text-xs focus:outline-none focus:border-amber-400"
-              >
-                {CALLSIGN_PRESETS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                type="text"
-                placeholder="Enter callsign / nickname"
-                maxLength={30}
-                value={customCallsign}
-                onChange={(e) => setCustomCallsign(e.target.value)}
-                className="bg-slate-800 border border-amber-500/50 rounded px-2.5 py-1 text-white text-xs w-48 focus:outline-none"
-              />
-            )}
-            <button
-              onClick={() => setIsEditingCallsign(!isEditingCallsign)}
-              className="text-cyan-400 hover:text-cyan-300 underline text-[11px] ml-1"
+          <div className="flex items-center gap-2">
+            {/* Theme Toggle Button */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setTheme(isDark ? "print_light" : "cosmic_dark")}
+              className="border-white/10 text-xs text-slate-300 hover:text-white hidden sm:flex items-center gap-1.5"
+              title="Toggle preview theme"
             >
-              {isEditingCallsign ? "Choose Preset" : "Custom Callsign"}
+              {isDark ? (
+                <Sun className="size-3.5 text-amber-400" />
+              ) : (
+                <Moon className="size-3.5 text-cyan-400" />
+              )}
+              {isDark ? "Light Print Mode" : "Celestial Dark Mode"}
+            </Button>
+
+            <button
+              onClick={onClose}
+              aria-label="Close certificate modal"
+              className="size-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="size-4" />
             </button>
           </div>
-
-          <div className="flex items-center gap-2 text-emerald-400 text-[11px]">
-            <ShieldCheck className="size-3.5" />
-            <span>Private: No real names collected or published</span>
-          </div>
         </div>
 
-        {/* Certificate Printable Canvas Preview */}
-        <div className="p-6 md:p-8 bg-slate-950 flex justify-center">
-          <div
-            ref={certificateRef}
-            className="w-full max-w-3xl aspect-[1.414/1] bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 rounded-xl p-8 border-2 border-amber-500/40 shadow-2xl relative flex flex-col justify-between text-center select-none"
-            style={{
-              boxShadow: "0 0 50px -12px rgba(245, 158, 11, 0.25)",
-            }}
-          >
-            {/* Watermark Logo */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
-              <Globe className="size-96 text-white" />
-            </div>
-
-            {/* Inner Border */}
-            <div className="absolute inset-3 border border-cyan-400/20 rounded-lg pointer-events-none border-dashed" />
-
-            {/* Top Stars & Header */}
-            <div>
-              <div className="flex justify-center items-center gap-2 text-amber-400 mb-2">
-                <Star className="size-4 fill-amber-400" />
-                <span className="text-[11px] font-mono tracking-widest uppercase text-cyan-400">
-                  Cosmic Learning Academy
-                </span>
-                <Star className="size-4 fill-amber-400" />
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 tracking-wider uppercase">
-                Certificate of Achievement
-              </h1>
-              <p className="text-xs text-slate-400 font-mono tracking-wider mt-1">
-                OF SCIENTIFIC CAPSTONE COMPLETION
+        {/* Modal Content Body */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+          {loading && (
+            <div className="py-20 text-center space-y-3">
+              <div className="animate-spin size-10 border-2 border-amber-400 border-t-transparent rounded-full mx-auto" />
+              <p className="text-sm text-slate-300 font-mono">
+                Issuing authoritative certificate transaction...
               </p>
             </div>
+          )}
 
-            {/* Recipient Callsign */}
-            <div className="my-auto py-4">
-              <p className="text-xs text-slate-400 uppercase tracking-widest mb-1">
-                This honor is hereby conferred upon
-              </p>
-              <div className="text-2xl sm:text-4xl font-extrabold text-white tracking-wide border-b-2 border-amber-400/50 inline-block px-8 pb-1">
-                {activeName}
-              </div>
-              <p className="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto mt-4 leading-relaxed">
-                for demonstrating exceptional scientific mastery across all{" "}
-                <span className="text-amber-400 font-semibold">24 Modules</span>, including
-                Celestial Mechanics, Stellar Evolution, Dark Matter, General Relativity,
-                Observational Astrophysics, and the Search for Life Beyond Earth.
-              </p>
+          {error && (
+            <div className="p-8 text-center space-y-4 rounded-2xl border border-rose-500/30 bg-rose-950/20">
+              <p className="text-sm text-rose-300 max-w-md mx-auto">{error}</p>
+              <Button onClick={onClose} variant="outline" className="border-white/10 text-white">
+                Return to Academy
+              </Button>
             </div>
+          )}
 
-            {/* Bottom Credentials & Seal */}
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-left text-xs">
-              <div>
-                <div className="text-[10px] uppercase font-mono text-slate-400">
-                  Achievement Tier
+          {!loading && !error && certificate && (
+            <>
+              {/* Congratulations Banner */}
+              <div
+                className={`p-4 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-cyan-500/10 flex flex-col sm:flex-row items-center justify-between gap-4 ${
+                  isReducedMotion ? "" : "animate-pulse"
+                }`}
+              >
+                <div className="flex items-center gap-3 text-center sm:text-left">
+                  <Sparkles className="size-6 text-amber-400 shrink-0 hidden sm:block" />
+                  <div>
+                    <h4 className="text-base font-bold text-white">
+                      Curriculum Standard Mastered: Certified Cosmic Explorer
+                    </h4>
+                    <p className="text-xs text-slate-300">
+                      All 24 curriculum modules verified complete and final examination passed with{" "}
+                      <strong className="text-emerald-400">
+                        {certificate.finalScorePercentage.toFixed(1)}%
+                      </strong>
+                      .
+                    </p>
+                  </div>
                 </div>
-                <div className="text-cyan-400 font-bold uppercase tracking-wider">
-                  {level.toUpperCase()} EXPLORER
-                </div>
-                <div className="text-[10px] font-mono text-slate-400 mt-1">
-                  ID: <span className="text-slate-300">{verificationCode}</span>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="font-mono text-xs text-amber-300 font-bold bg-amber-500/20 px-3 py-1.5 rounded-xl border border-amber-500/40">
+                    ID: {certificate.certificateNumber}
+                  </span>
                 </div>
               </div>
 
-              {/* Academy Seal */}
-              <div className="flex flex-col items-center">
-                <div className="size-16 rounded-full border-2 border-amber-400/60 bg-slate-900/80 flex flex-col items-center justify-center shadow-lg relative">
-                  <div className="absolute inset-1 rounded-full border border-amber-400/30 border-dashed animate-spin-slow" />
-                  <Award className="size-6 text-amber-400 mb-0.5" />
-                  <span className="text-[8px] font-mono font-bold text-amber-300">ACADEMY</span>
+              {/* LIVE CERTIFICATE PREVIEW CARD (A4 Aspect Ratio: ~1.414 : 1) */}
+              <div
+                className={`relative mx-auto rounded-2xl border p-6 sm:p-10 transition-colors shadow-2xl overflow-hidden aspect-[1.414/1] max-w-[850px] flex flex-col justify-between ${
+                  isDark
+                    ? "bg-[#060b18] border-amber-500/40 text-slate-100 shadow-amber-950/20"
+                    : "bg-[#fcfbf7] border-amber-600/30 text-slate-900 shadow-slate-300"
+                }`}
+              >
+                {/* Decorative Inset Border */}
+                <div
+                  className={`absolute inset-3 sm:inset-5 rounded-xl border pointer-events-none ${
+                    isDark ? "border-amber-500/30" : "border-amber-700/20"
+                  }`}
+                />
+                <div
+                  className={`absolute inset-4 sm:inset-6 rounded-lg border pointer-events-none ${
+                    isDark ? "border-amber-500/15" : "border-amber-700/10"
+                  }`}
+                />
+
+                {/* Background Celestial Graphics (Dark Mode) */}
+                {isDark && (
+                  <div className="absolute inset-0 pointer-events-none opacity-20">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-96 rounded-full border border-cyan-400/20" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[32rem] rounded-full border border-dashed border-amber-400/20" />
+                  </div>
+                )}
+
+                {/* Header Section */}
+                <div className="relative text-center space-y-1 pt-1 sm:pt-3">
+                  <div className="flex items-center justify-center gap-2">
+                    <span
+                      className={`text-[9px] sm:text-xs font-mono tracking-[0.25em] uppercase font-bold ${
+                        isDark ? "text-amber-400" : "text-amber-700"
+                      }`}
+                    >
+                      OUR VISIBLE UNIVERSE ACADEMY
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-3">
+                    <div
+                      className={`h-px w-16 sm:w-28 ${isDark ? "bg-amber-500/30" : "bg-amber-600/30"}`}
+                    />
+                    <span className="text-xs text-amber-400">✦</span>
+                    <div
+                      className={`h-px w-16 sm:w-28 ${isDark ? "bg-amber-500/30" : "bg-amber-600/30"}`}
+                    />
+                  </div>
+                  <h2
+                    className={`text-xl sm:text-3xl font-serif font-bold tracking-wide uppercase pt-1 ${
+                      isDark ? "text-white" : "text-slate-900"
+                    }`}
+                  >
+                    Certificate of Achievement
+                  </h2>
+                  <p
+                    className={`text-[9px] sm:text-[11px] font-sans tracking-widest uppercase ${
+                      isDark ? "text-slate-400" : "text-slate-600"
+                    }`}
+                  >
+                    THIS IS PROUDLY PRESENTED TO
+                  </p>
                 </div>
-                <span className="text-[9px] text-slate-400 mt-1">OFFICIAL SEAL</span>
+
+                {/* Recipient Display Name */}
+                <div className="relative text-center my-auto py-2 sm:py-4">
+                  <h3
+                    className={`text-2xl sm:text-4xl font-serif font-extrabold tracking-tight pb-1.5 ${
+                      isDark
+                        ? "text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"
+                        : "text-amber-900"
+                    }`}
+                  >
+                    {recipientName}
+                  </h3>
+                  <div
+                    className={`h-0.5 max-w-[280px] sm:max-w-[400px] mx-auto ${
+                      isDark ? "bg-amber-500/50" : "bg-amber-600/40"
+                    }`}
+                  />
+                  <span className="inline-block mt-2 text-[10px] sm:text-xs font-mono font-bold tracking-wider text-cyan-400 uppercase">
+                    CERTIFIED COSMIC EXPLORER
+                  </span>
+                  <p
+                    className={`text-[10px] sm:text-xs max-w-xl mx-auto mt-2 leading-relaxed font-serif ${
+                      isDark ? "text-slate-300" : "text-slate-700"
+                    }`}
+                  >
+                    {CERTIFICATE_CONSTANTS.CERTIFICATE_TEXT}
+                  </p>
+                </div>
+
+                {/* Bottom Metadata & Verification Row */}
+                <div
+                  className={`relative pt-3 sm:pt-4 border-t text-[9px] sm:text-xs flex items-end justify-between gap-4 ${
+                    isDark ? "border-white/10" : "border-slate-300"
+                  }`}
+                >
+                  {/* Left Column: Academic Record */}
+                  <div className="space-y-0.5">
+                    <span className="font-mono text-[9px] text-amber-500 font-bold uppercase block">
+                      Program Record
+                    </span>
+                    <p className={isDark ? "text-slate-300" : "text-slate-700"}>
+                      <strong>Curriculum:</strong> Cosmic Journey (24 Modules)
+                    </p>
+                    <p className={isDark ? "text-slate-300" : "text-slate-700"}>
+                      <strong>Level:</strong> {certificate.learningLevelLabel}
+                    </p>
+                    <p className={isDark ? "text-slate-300" : "text-slate-700"}>
+                      <strong>Assessment:</strong> {certificate.finalScorePercentage.toFixed(1)}%
+                      Score
+                    </p>
+                    <p className={isDark ? "text-slate-400" : "text-slate-500"}>
+                      <strong>Issued:</strong> {certificate.issueDateFormatted}
+                    </p>
+                  </div>
+
+                  {/* Center: Authoritative Seal Emblem */}
+                  <div className="hidden sm:flex flex-col items-center justify-center text-center">
+                    <div
+                      className={`size-14 rounded-full border-2 flex items-center justify-center ${
+                        isDark
+                          ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
+                          : "border-amber-600/50 bg-amber-600/10 text-amber-700"
+                      }`}
+                    >
+                      <Compass className="size-7 animate-pulse" />
+                    </div>
+                    <span className="text-[8px] font-mono tracking-widest uppercase mt-1 text-slate-400">
+                      OFFICIAL SEAL
+                    </span>
+                  </div>
+
+                  {/* Right Column: Unique Certificate ID & Verification */}
+                  <div className="text-right space-y-0.5">
+                    <span className="font-mono text-[9px] text-amber-500 font-bold uppercase block">
+                      Verification
+                    </span>
+                    <p className="font-mono font-bold text-amber-400 text-[10px] sm:text-xs">
+                      {certificate.certificateNumber}
+                    </p>
+                    <p className="font-mono text-[9px] text-slate-400">
+                      ID: {certificate.studentPublicId}
+                    </p>
+                    <p className="text-[8px] font-mono text-slate-500 truncate max-w-[140px] sm:max-w-[200px]">
+                      Hash: {certificate.verificationHash.slice(0, 16)}...
+                    </p>
+                  </div>
+                </div>
+
+                {/* Sub-disclaimer line */}
+                <div className="relative text-center pt-2">
+                  <p className="text-[7.5px] sm:text-[8.5px] text-slate-500 font-sans max-w-2xl mx-auto leading-tight">
+                    {CERTIFICATE_CONSTANTS.DISCLAIMER}
+                  </p>
+                </div>
               </div>
 
-              <div className="text-right">
-                <div className="text-[10px] uppercase font-mono text-slate-400">Date Issued</div>
-                <div className="text-white font-semibold">{issueDate}</div>
-                <div className="flex items-center justify-end gap-1 text-[10px] text-emerald-400 mt-1">
-                  <CheckCircle2 className="size-3" />
-                  <span>24/24 Complete</span>
-                </div>
+              {/* ACTION BUTTONS (The 4 Required Experience Buttons) */}
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <Button
+                  onClick={handleDownloadPDF}
+                  disabled={downloadingPdf}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold px-5 py-2.5 shadow-lg shadow-amber-500/20"
+                >
+                  <Download className="size-4 mr-2" />
+                  {downloadingPdf ? "Generating PDF..." : "DOWNLOAD PDF"}
+                </Button>
+
+                <Button
+                  onClick={handleVerify}
+                  variant="outline"
+                  className="border-white/20 bg-slate-900/80 hover:bg-slate-800 text-white font-medium px-5"
+                >
+                  <ShieldCheck className="size-4 mr-2 text-cyan-400" />
+                  VERIFY CERTIFICATE
+                </Button>
+
+                <Button
+                  onClick={handleShare}
+                  variant="outline"
+                  className="border-white/20 bg-slate-900/80 hover:bg-slate-800 text-white font-medium px-5"
+                >
+                  <Share2 className="size-4 mr-2 text-amber-400" />
+                  SHARE ACHIEVEMENT
+                </Button>
+
+                <Button
+                  onClick={handlePrint}
+                  variant="ghost"
+                  className="text-slate-300 hover:text-white"
+                  title="Print certificate"
+                >
+                  <Printer className="size-4 mr-1.5" />
+                  Print
+                </Button>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Controls */}
-        <div className="px-6 py-4 bg-slate-950/80 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
-          <div className="text-xs text-slate-400 flex items-center gap-2">
-            <Sparkles className="size-4 text-amber-400" />
-            <span>
-              Labs Completed: <strong className="text-white">{completedLabCount}/10</strong> • Final
-              Challenge:{" "}
-              <strong className={finalChallengePassed ? "text-emerald-400" : "text-amber-400"}>
-                {finalChallengePassed ? "Passed" : "Available"}
-              </strong>
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrint}
-              className="border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
-            >
-              <Printer className="size-4 mr-2" />
-              Print
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleDownloadSVG}
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold"
-            >
-              <Download className="size-4 mr-2" />
-              Download Certificate (SVG)
-            </Button>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>
