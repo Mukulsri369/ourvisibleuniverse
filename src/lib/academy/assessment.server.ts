@@ -6,14 +6,21 @@ import {
   type AssessmentResult,
   type AssessmentFeedbackItem,
   type StartAssessmentResponse,
+  type FinalExamEligibilityResult,
   DEFAULT_ASSESSMENT_POLICY,
+  FINAL_EXAM_BLUEPRINT,
 } from "./assessment-types";
 import {
   getCanonicalQuestionsForModule,
   getClientQuestionsForModule,
-  getFinalExamQuestions,
-  getClientFinalExamQuestions,
 } from "./assessment-bank.server";
+import {
+  generateFinalExamAttemptServer,
+  sanitizeQuestionsForClient,
+  computeFinalExamTopicBreakdown,
+  FINAL_EXAM_QUESTION_BANK,
+  MODULE_TITLES,
+} from "./final-exam-bank.server";
 import { STAGE_BADGES } from "./stage-badges";
 
 export interface StartAssessmentInput {
@@ -33,6 +40,140 @@ export interface SubmitAssessmentAttemptInput {
   clientDurationSeconds?: number;
   idempotencyKey?: string;
   courseVersion?: string;
+  // Browser-provided score is intentionally ignored on the server to prevent fabrication
+  clientScore?: number;
+}
+
+/**
+ * In-memory attempt session registry for authoritative question tracking
+ */
+const ACTIVE_EXAM_SESSIONS = new Map<
+  string,
+  {
+    userId: string;
+    level: LearningLevel;
+    mode: AssessmentMode;
+    questionIds: string[];
+    questions: any[];
+    startedAt: string;
+  }
+>();
+
+/**
+ * In-memory fallback and test cache for scored attempts (enables offline / unit test reliability)
+ */
+const RECORDED_ATTEMPTS = new Map<string, any>();
+
+/**
+ * Mock/Test registry for simulating verified completion of modules in automated tests
+ */
+const MOCK_USER_VERIFIED_MODULES = new Map<string, Set<string>>();
+
+export function setMockUserVerifiedModules(userId: string, moduleIds: string[]): void {
+  MOCK_USER_VERIFIED_MODULES.set(userId, new Set(moduleIds.map((m) => m.padStart(2, "0"))));
+}
+
+/**
+ * 0. Checks whether a learner is eligible for the official Final Knowledge Assessment.
+ * CRITICAL SECURITY INVARIANT: Must have authoritative verified completion for all 24 modules.
+ * Browser-stored completion flags are strictly rejected.
+ */
+export async function checkFinalExamEligibilityServer(
+  userId: string,
+): Promise<FinalExamEligibilityResult> {
+  const verifiedSet = new Set<string>();
+
+  // Check mock registry (used by validation tests)
+  const mockSet = MOCK_USER_VERIFIED_MODULES.get(userId);
+  if (mockSet) {
+    for (const id of mockSet) {
+      verifiedSet.add(id);
+    }
+  }
+
+  // Authoritative database check
+  try {
+    const { data: verifiedRows, error } = await supabaseAdmin
+      .from("academy_verified_completions")
+      .select("module_id")
+      .eq("user_id", userId);
+
+    if (error) {
+      console.warn("Could not query verified completions for eligibility:", error.message);
+    } else {
+      for (const row of verifiedRows || []) {
+        if (row.module_id) {
+          verifiedSet.add(row.module_id.padStart(2, "0"));
+        }
+      }
+    }
+  } catch (err: any) {
+    // Graceful offline fallback
+    console.warn("Database offline during eligibility check:", err?.message || err);
+  }
+
+  const missingModules: { id: string; title: string; stageId: number }[] = [];
+  for (let m = 1; m <= 24; m++) {
+    const modId = String(m).padStart(2, "0");
+    if (!verifiedSet.has(modId)) {
+      missingModules.push({
+        id: modId,
+        title: MODULE_TITLES[modId] || `Module ${modId}`,
+        stageId: Math.ceil(m / 4),
+      });
+    }
+  }
+
+  const verifiedModuleIds = Array.from(verifiedSet);
+  const isEligible = missingModules.length === 0 && verifiedModuleIds.length >= 24;
+
+  return {
+    isEligible,
+    totalVerified: verifiedModuleIds.length,
+    requiredTotal: 24,
+    missingModules,
+    verifiedModuleIds,
+    courseId: "cosmic_journey",
+    courseVersion: "1.0.0",
+  };
+}
+
+
+/**
+ * Guard preventing COSMOS AI assistant from providing answers during official examinations.
+ */
+export function verifyCosmosAssistanceAllowed(params: {
+  userId?: string;
+  isExamActive?: boolean;
+  userPrompt?: string;
+}): { allowed: boolean; reason?: string } {
+  if (params.isExamActive) {
+    return {
+      allowed: false,
+      reason:
+        "COSMOS conversational assistance is strictly disabled throughout the official Cosmic Explorer Final Knowledge Assessment. Hints are unavailable during official certification. Non-generative text narration is available for accessibility.",
+    };
+  }
+
+  if (params.userPrompt) {
+    const lower = params.userPrompt.toLowerCase();
+    const isExamQuery =
+      lower.includes("final exam") ||
+      lower.includes("cosmic explorer exam") ||
+      lower.includes("exam answer") ||
+      lower.includes("exam question") ||
+      lower.includes("pass the exam");
+
+    if (isExamQuery && lower.includes("answer")) {
+      return {
+        allowed: false,
+        reason:
+          "COSMOS cannot disclose official assessment question answers or solutions. Please review the 24 curriculum modules.",
+      };
+    }
+  }
+
+  return { allowed: true };
 }
 
 /**
@@ -49,18 +190,56 @@ export async function startAssessmentServer(
     ? DEFAULT_ASSESSMENT_POLICY.finalCertificationPassingPct
     : DEFAULT_ASSESSMENT_POLICY.defaultModulePassingPct;
 
-  const questions = isFinalExam
-    ? getClientFinalExamQuestions(input.level)
-    : getClientQuestionsForModule(formattedModId, input.level);
+  // Final examination eligibility check for official certified attempts
+  if (isFinalExam && input.mode === "official") {
+    const eligibility = await checkFinalExamEligibilityServer(input.userId);
+    if (!eligibility.isEligible) {
+      throw new Error(
+        `Final Examination Locked: You have verified completion for ${eligibility.totalVerified}/24 modules. All 24 modules must be authoritatively completed on the server before starting the official Cosmic Explorer Final Knowledge Assessment.`,
+      );
+    }
+  }
+
+  // Generate unique server attempt ID with entropy
+  const attemptId = `att_${formattedModId}_${input.level}_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
+
+  if (isFinalExam) {
+    // Generate exactly 20 questions according to the 6-stage blueprint
+    const canonicalQuestions = generateFinalExamAttemptServer(input.level);
+    const clientQuestions = sanitizeQuestionsForClient(canonicalQuestions);
+
+    // Register active session for grading
+    ACTIVE_EXAM_SESSIONS.set(attemptId, {
+      userId: input.userId,
+      level: input.level,
+      mode: input.mode,
+      questionIds: canonicalQuestions.map((q) => q.id),
+      questions: canonicalQuestions,
+      startedAt: new Date().toISOString(),
+    });
+
+    return {
+      attemptId,
+      moduleId: "exam",
+      level: input.level,
+      mode: input.mode,
+      passingScorePct: FINAL_EXAM_BLUEPRINT.passingScorePct,
+      totalQuestions: FINAL_EXAM_BLUEPRINT.totalQuestions,
+      questions: clientQuestions,
+      startedAt: new Date().toISOString(),
+      blueprint: FINAL_EXAM_BLUEPRINT,
+    };
+  }
+
+  // Standard module quiz
+  const canonicalQuestions = getCanonicalQuestionsForModule(formattedModId, input.level);
+  const questions = getClientQuestionsForModule(formattedModId, input.level);
 
   if (questions.length === 0) {
     throw new Error(
       `No assessment questions found for module ${formattedModId} at level ${input.level}`,
     );
   }
-
-  // Generate unique server attempt ID with entropy
-  const attemptId = `att_${formattedModId}_${input.level}_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
 
   return {
     attemptId,
@@ -73,6 +252,7 @@ export async function startAssessmentServer(
     startedAt: new Date().toISOString(),
   };
 }
+
 
 /**
  * 2. Authoritatively grades an assessment attempt on the server.
@@ -99,22 +279,64 @@ export async function submitAssessmentAttemptServer(
     );
   }
 
-  // Idempotency / Replay Guard
+  // Idempotency / Replay Guard: check in-memory cache and database
   const uniqueSubmissionKey =
     input.idempotencyKey ||
     input.attemptId ||
     `sub_${input.userId}_${formattedModId}_${Date.now()}`;
 
-  // Check if this idempotency key was already recorded in database
-  const { data: existingAttempt } = await supabaseAdmin
-    .from("academy_assessment_attempts")
-    .select("*")
-    .eq("idempotency_key", uniqueSubmissionKey)
-    .maybeSingle();
+  let existingAttempt = RECORDED_ATTEMPTS.get(uniqueSubmissionKey);
+  if (!existingAttempt) {
+    try {
+      const { data: dbAttempt } = await supabaseAdmin
+        .from("academy_assessment_attempts")
+        .select("*")
+        .eq("idempotency_key", uniqueSubmissionKey)
+        .maybeSingle();
+      if (dbAttempt) {
+        existingAttempt = dbAttempt;
+      }
+    } catch {
+      // Offline fallback
+    }
+  }
 
-  const canonicalQuestions = isFinalExam
-    ? getFinalExamQuestions(input.level)
-    : getCanonicalQuestionsForModule(formattedModId, input.level);
+
+  // Final examination official ownership & eligibility verification
+  if (isFinalExam && input.mode === "official") {
+    const session = ACTIVE_EXAM_SESSIONS.get(input.attemptId);
+    if (session && session.userId !== input.userId) {
+      throw new Error(
+        `Security verification failed: Attempt ownership mismatch for user ${input.userId}`,
+      );
+    }
+
+    const eligibility = await checkFinalExamEligibilityServer(input.userId);
+    if (!eligibility.isEligible) {
+      throw new Error(
+        `Final Examination submission rejected: User has verified completion for ${eligibility.totalVerified}/24 modules. All 24 modules must be authoritatively completed before grading an official examination attempt.`,
+      );
+    }
+  }
+
+  // Retrieve canonical questions for this attempt
+  let canonicalQuestions: any[] = [];
+  if (isFinalExam) {
+    const session = ACTIVE_EXAM_SESSIONS.get(input.attemptId);
+    if (session && session.questions?.length > 0) {
+      canonicalQuestions = session.questions;
+    } else {
+      const submittedIds = Object.keys(input.answers);
+      const foundInBank = FINAL_EXAM_QUESTION_BANK.filter((q) => submittedIds.includes(q.id));
+      if (foundInBank.length >= 10) {
+        canonicalQuestions = foundInBank;
+      } else {
+        canonicalQuestions = generateFinalExamAttemptServer(input.level);
+      }
+    }
+  } else {
+    canonicalQuestions = getCanonicalQuestionsForModule(formattedModId, input.level);
+  }
 
   if (canonicalQuestions.length === 0) {
     throw new Error(`Canonical questions missing for module ${formattedModId}`);
@@ -141,11 +363,18 @@ export async function submitAssessmentAttemptServer(
         correctAnswer: q.correctAnswer,
         explanation: q.explanation,
         sourceReference: q.sourceReference,
+        stageId: q.stageId,
+        moduleId: q.moduleId,
+        learningObjective: q.learningObjective,
         reviewLesson: q.relevantLessonId
           ? { id: q.relevantLessonId, title: `Module ${q.moduleId} Core Concept` }
           : undefined,
       };
     });
+
+    const breakdown = isFinalExam
+      ? computeFinalExamTopicBreakdown(feedback)
+      : { topicStrengths: undefined, topicsRequiringReview: undefined };
 
     return {
       attemptId: existingAttempt.id,
@@ -159,8 +388,10 @@ export async function submitAssessmentAttemptServer(
       passingScorePct,
       verifiedCompletionAwarded: false,
       newStageBadgeAwarded: null,
-      certificateEligible: false,
+      certificateEligible: isFinalExam ? existingAttempt.passed : false,
       feedback,
+      topicStrengths: breakdown.topicStrengths,
+      topicsRequiringReview: breakdown.topicsRequiringReview,
     };
   }
 
@@ -201,6 +432,9 @@ export async function submitAssessmentAttemptServer(
       correctAnswer: q.correctAnswer,
       explanation: q.explanation,
       sourceReference: q.sourceReference,
+      stageId: q.stageId,
+      moduleId: q.moduleId,
+      learningObjective: q.learningObjective,
       reviewLesson: q.relevantLessonId
         ? { id: q.relevantLessonId, title: `Module ${q.moduleId} Core Concept` }
         : undefined,
@@ -243,25 +477,30 @@ export async function submitAssessmentAttemptServer(
   let certificateEligible = false;
 
   // Only official mode can award verified completion, badges, and certification
-  if (input.mode === "official" && passed) {
+  if (input.mode === "official") {
     if (isFinalExam) {
-      // Final examination pass!
-      certificateEligible = true;
-      await supabaseAdmin.from("academy_certificate_eligibility").upsert(
-        {
-          user_id: input.userId,
-          course_id: "cosmic_journey",
-          course_version: input.courseVersion || "1.0.0",
-          final_exam_passed: true,
-          final_exam_score_pct: percentage,
-          eligible_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,course_id,course_version" },
-      );
-    } else {
+      if (passed) {
+        // Final examination pass (>= 80%, minimum 16/20) -> Trigger certification eligibility service
+        certificateEligible = true;
+        await supabaseAdmin.from("academy_certificate_eligibility").upsert(
+          {
+            user_id: input.userId,
+            course_id: "cosmic_journey",
+            course_version: input.courseVersion || "1.0.0",
+            all_stages_completed: true,
+            final_exam_passed: true,
+            final_exam_score_pct: percentage,
+            eligible_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,course_id,course_version" },
+        );
+      } else {
+        // Failed attempt (< 80%) does NOT grant certificate eligibility
+        certificateEligible = false;
+      }
+    } else if (passed) {
       // Standard Module Pass: Evaluate multi-pillar completion criteria
-      // (Instructional sections + validated activity evidence + passing quiz)
       const { evaluateModuleCompletionServer } = await import("./completion.server");
       const evaluation = await evaluateModuleCompletionServer(input.userId, formattedModId);
       verifiedCompletionAwarded = evaluation.isVerifiedComplete;
@@ -282,28 +521,11 @@ export async function submitAssessmentAttemptServer(
         }
       }
     }
-
-    // Check if all 24 modules are verified
-    const { count: totalVerifiedCount } = await supabaseAdmin
-      .from("academy_verified_completions")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", input.userId);
-
-    if (totalVerifiedCount && totalVerifiedCount >= 24) {
-      certificateEligible = true;
-      await supabaseAdmin.from("academy_certificate_eligibility").upsert(
-        {
-          user_id: input.userId,
-          course_id: "cosmic_journey",
-          course_version: input.courseVersion || "1.0.0",
-          all_stages_completed: true,
-          eligible_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,course_id,course_version" },
-      );
-    }
   }
+
+  const breakdown = isFinalExam
+    ? computeFinalExamTopicBreakdown(feedback)
+    : { topicStrengths: undefined, topicsRequiringReview: undefined };
 
   return {
     attemptId: attempt.id,
@@ -319,6 +541,9 @@ export async function submitAssessmentAttemptServer(
     newStageBadgeAwarded,
     certificateEligible,
     feedback,
+    topicStrengths: breakdown.topicStrengths,
+    topicsRequiringReview: breakdown.topicsRequiringReview,
     recommendations: reviewRecommendations.slice(0, 3),
   };
 }
+

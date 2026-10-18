@@ -100,3 +100,97 @@ export const submitAssessmentAttempt = createServerFn({ method: "POST" })
       idempotencyKey: data.idempotencyKey,
     });
   });
+
+/**
+ * Checks server-authoritative eligibility for the Cosmic Explorer Final Knowledge Assessment.
+ * Verifies that all 24 modules have verified completion on the backend.
+ */
+export const getFinalExamEligibility = createServerFn({ method: "POST" })
+  .validator((input: { userId?: string } = {}) => input)
+  .handler(async ({ data }) => {
+    let userId = data?.userId || "";
+
+    try {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const request = getRequest();
+      const authHeader = request?.headers?.get("authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: userData } = await supabaseAdmin.auth.getUser(token);
+        if (userData?.user?.id) {
+          userId = userData.user.id;
+        }
+      }
+    } catch {
+      // Unauthenticated
+    }
+
+    if (!userId) {
+      return {
+        isEligible: false,
+        totalVerified: 0,
+        requiredTotal: 24,
+        missingModules: [],
+        verifiedModuleIds: [],
+        courseId: "cosmic_journey",
+        courseVersion: "1.0.0",
+      };
+    }
+
+    const { checkFinalExamEligibilityServer } = await import("./assessment.server");
+    return checkFinalExamEligibilityServer(userId);
+  });
+
+/**
+ * Authoritative certificate claim verification.
+ * Strictly verifies that the student has passed the final examination in the database.
+ */
+export const claimOfficialCertificate = createServerFn({ method: "POST" })
+  .validator((input: { courseVersion?: string; userId?: string } = {}) => input)
+  .handler(async ({ data }) => {
+    let userId = data?.userId || "";
+
+    try {
+      const { getRequest } = await import("@tanstack/react-start/server");
+      const request = getRequest();
+      const authHeader = request?.headers?.get("authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: userData } = await supabaseAdmin.auth.getUser(token);
+        if (userData?.user?.id) {
+          userId = userData.user.id;
+        }
+      }
+    } catch {
+      // Unauthenticated
+    }
+
+    if (!userId) {
+      throw new Error("Student authentication required to claim official verified certificate.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: eligibility, error } = await supabaseAdmin
+      .from("academy_certificate_eligibility")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("final_exam_passed", true)
+      .maybeSingle();
+
+    if (error || !eligibility) {
+      throw new Error(
+        "Certificate verification denied: You must complete all 24 modules and pass the Cosmic Explorer Final Knowledge Assessment (>= 80%) before an official certificate can be issued.",
+      );
+    }
+
+    return {
+      eligible: true,
+      scorePercentage: eligibility.final_exam_score_pct,
+      eligibleAt: eligibility.eligible_at,
+      courseId: eligibility.course_id,
+      courseVersion: eligibility.course_version,
+    };
+  });
+

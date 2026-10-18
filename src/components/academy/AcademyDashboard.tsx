@@ -104,6 +104,10 @@ const Module23Layout = lazy(() =>
 const Module24Layout = lazy(() =>
   import("./Module24Layout").then((m) => ({ default: m.Module24Layout })),
 );
+const FinalExamEngine = lazy(() =>
+  import("./FinalExamEngine").then((m) => ({ default: m.FinalExamEngine })),
+);
+
 
 const ACTIVE_MODULE_IDS = [
   "01",
@@ -239,9 +243,13 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
 
   const navigate = useNavigate();
 
+  const [showFinalExam, setShowFinalExam] = useState<boolean>(initialModuleId === "exam");
+
   useEffect(() => {
     if (initialModuleId === "13") {
       void navigate({ to: "/galaxies" });
+    } else if (initialModuleId === "exam") {
+      setShowFinalExam(true);
     }
   }, [initialModuleId, navigate]);
 
@@ -284,20 +292,50 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     }
   };
 
-  const handleSelectModule = (module: ModuleContract) => {
-    if (module.id === "13") {
+  const handleSelectModule = (module: ModuleContract | string) => {
+    if (module === "exam" || (typeof module === "object" && (module as any).id === "exam")) {
+      setShowFinalExam(true);
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      return;
+    }
+    const modObj =
+      typeof module === "string" ? ACADEMY_MODULES.find((m) => m.id === module) : module;
+    if (!modObj) return;
+    if (modObj.id === "13") {
       void navigate({ to: "/galaxies" });
       return;
     }
-    if (ACTIVE_MODULE_IDS.includes(module.id)) {
-      setActiveLessonModule(module);
+    if (ACTIVE_MODULE_IDS.includes(modObj.id)) {
+      setActiveLessonModule(modObj);
+      setShowFinalExam(false);
       if (typeof window !== "undefined") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } else {
-      setPreviewModule(module);
+      setPreviewModule(modObj);
     }
   };
+
+  // If viewing final exam, render the FinalExamEngine
+  if (showFinalExam) {
+    return (
+      <div className="space-y-6">
+        <Suspense fallback={<ModuleLoadingFallback title="Final Knowledge Assessment" />}>
+          <FinalExamEngine
+            initialLevel={selectedLevel}
+            onBackToAcademy={() => setShowFinalExam(false)}
+            onSelectModule={(modId) => {
+              setShowFinalExam(false);
+              handleSelectModule(modId);
+            }}
+          />
+        </Suspense>
+      </div>
+    );
+  }
+
 
   // If viewing an active module, render with isolated Suspense boundary and sleek fallback
   if (activeLessonModule) {
@@ -555,8 +593,56 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
               onSelectModule={handleSelectModule}
             />
           ))}
+
+          {/* 5. Stage 6 Capstone: Cosmic Explorer Final Knowledge Assessment */}
+          <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-slate-900 to-slate-950 p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
+            <div className="space-y-2 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs font-mono font-bold">
+                  CURRICULUM CAPSTONE EVALUATION
+                </span>
+                <span className="text-xs font-mono text-slate-400">20 Questions • 6 Stages</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+                Cosmic Explorer — Final Knowledge Assessment
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Evaluates comprehensive scientific reasoning across all 24 modules and 6 celestial
+                stages. Features age-adaptive tiers, server-side grading, and unlocks the official
+                verifiable credential upon achieving 80% (16/20).
+              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-400">
+                <span className="flex items-center gap-1 text-emerald-400">
+                  <ShieldCheck className="size-3.5" />
+                  Authoritative Verification
+                </span>
+                <span>•</span>
+                <span>Minimum passing score: 80% (16 / 20)</span>
+                <span>•</span>
+                <span>Non-generative accessible narration</span>
+              </div>
+            </div>
+
+            <div className="shrink-0 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <Button
+                onClick={() => setShowFinalExam(true)}
+                className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 shadow-lg shadow-amber-500/20 w-full sm:w-auto"
+              >
+                <Award className="size-4 mr-2" />
+                Launch Assessment
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="border-white/10 text-slate-300 hover:text-white w-full sm:w-auto"
+              >
+                <Link to="/exam">Dedicated Exam Page</Link>
+              </Button>
+            </div>
+          </div>
         </section>
       </div>
+
 
       {/* Syllabus Modal for Coming Soon & Preview Modules */}
       {previewModule && (

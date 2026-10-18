@@ -338,10 +338,10 @@ export function ProgressTracker({
             {totalVerified >= 24 && onSelectModule ? (
               <Button
                 size="sm"
-                onClick={() => onSelectModule("24")}
+                onClick={() => onSelectModule("exam")}
                 className="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs"
               >
-                Launch Capstone
+                Launch Final Exam
               </Button>
             ) : (
               <span className="text-[10px] font-mono text-slate-400 px-2.5 py-1 rounded-full border border-white/10 bg-white/5">
@@ -354,3 +354,4 @@ export function ProgressTracker({
     </div>
   );
 }
+

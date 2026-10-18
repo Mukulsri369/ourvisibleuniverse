@@ -517,40 +517,21 @@ export function getClientQuestionsForModule(
 }
 
 /**
- * Returns comprehensive Final Capstone Examination questions spanning all 6 celestial stages.
+ * Returns comprehensive Final Capstone Examination questions spanning all 6 celestial stages
+ * adhering to the official 20-question balanced blueprint.
  */
 export function getFinalExamQuestions(
   level: LearningLevel = "explorer",
 ): CanonicalAssessmentQuestion[] {
-  const repo = getRepo();
-  const examQuestions: CanonicalAssessmentQuestion[] = [];
-
-  // Pick 2 signature questions from key modules across all 6 stages
-  // Stage 1 (Mod 01, 04), Stage 2 (Mod 06, 08), Stage 3 (Mod 09, 12), Stage 4 (Mod 14, 16), Stage 5 (Mod 17, 18), Stage 6 (Mod 21, 24)
-  const milestoneModules = ["01", "04", "06", "08", "09", "12", "14", "16", "17", "18", "21", "24"];
-
-  for (const modId of milestoneModules) {
-    const list = repo[modId]?.[level] || repo[modId]?.explorer || [];
-    if (list.length > 0) {
-      examQuestions.push(list[0]);
-    }
-  }
-
-  return examQuestions;
+  const { generateFinalExamAttemptServer } = require("./final-exam-bank.server");
+  return generateFinalExamAttemptServer(level);
 }
 
 export function getClientFinalExamQuestions(
   level: LearningLevel = "explorer",
 ): ClientAssessmentQuestion[] {
-  return getFinalExamQuestions(level).map((q) => ({
-    id: q.id,
-    moduleId: "exam",
-    level: q.level,
-    difficulty: q.difficulty,
-    type: q.type,
-    questionText: q.questionText,
-    options: q.options,
-    relevantLessonId: q.relevantLessonId,
-    sourceReference: q.sourceReference,
-  }));
+  const canonical = getFinalExamQuestions(level);
+  const { sanitizeQuestionsForClient } = require("./final-exam-bank.server");
+  return sanitizeQuestionsForClient(canonical);
 }
+
