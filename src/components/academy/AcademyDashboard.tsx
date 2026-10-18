@@ -517,8 +517,17 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             profile={profile}
             isLoggedIn={isLoggedIn}
             onOpenProfile={() => setShowProfileModal(true)}
+            reducedMotion={settings.reducedMotion}
+            onSelectModule={handleSelectModule}
           />
-          <AchievementDisplay unlockedIds={progress.achievements} />
+          <AchievementDisplay
+            unlockedIds={progress.achievements}
+            stageBadges={progress.stageBadges}
+            verifiedModules={progress.verifiedModules}
+            profile={profile}
+            reducedMotion={settings.reducedMotion}
+            onSelectModule={handleSelectModule}
+          />
         </section>
 
         {/* 4. Complete Six Progressive Learning Stages */}

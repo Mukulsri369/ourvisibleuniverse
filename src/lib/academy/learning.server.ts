@@ -391,12 +391,17 @@ export async function getAuthoritativeProgressServer(
     };
   }
 
+  const { syncAndEvaluateStageAchievementsServer } = await import("./achievements.server");
+  const achievementsPayload = await syncAndEvaluateStageAchievementsServer(userId);
+
   const stageAchievements: Record<number, { badgeId: string; awardedAt: string }> = {};
-  for (const row of stageRows || []) {
-    stageAchievements[row.stage_id] = {
-      badgeId: row.badge_id,
-      awardedAt: row.awarded_at,
-    };
+  for (const [stageIdStr, status] of Object.entries(achievementsPayload.stages)) {
+    if (status.isUnlocked && status.awardedAt) {
+      stageAchievements[parseInt(stageIdStr, 10)] = {
+        badgeId: status.badge.badgeId,
+        awardedAt: status.awardedAt,
+      };
+    }
   }
 
   return {
@@ -405,6 +410,8 @@ export async function getAuthoritativeProgressServer(
     activityEvidenceCount,
     verifiedCompletions,
     stageAchievements,
-    isCertificateEligible: Boolean(eligibilityRow?.all_stages_completed),
+    achievementsDetail: achievementsPayload,
+    isCertificateEligible:
+      Boolean(eligibilityRow?.all_stages_completed) || achievementsPayload.allStagesUnlocked,
   };
 }

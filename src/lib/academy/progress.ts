@@ -340,11 +340,19 @@ export function useAcademyProgress() {
             }
           }
 
+          const stageBadgeIds = Object.values(serverState.stageAchievements || {}).map(
+            (b: any) => b.badgeId,
+          );
+          const mergedAchievements = Array.from(
+            new Set([...(prev.achievements || []), ...stageBadgeIds]),
+          );
+
           const next: UserProgress = {
             ...prev,
             moduleProgress: updatedModules,
             verifiedModules: verifiedList,
             stageBadges: serverState.stageAchievements || {},
+            achievements: mergedAchievements,
             lastUpdated: new Date().toISOString(),
           };
 
