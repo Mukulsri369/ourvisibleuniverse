@@ -69,9 +69,15 @@ async function runValidation() {
 
     for (const q of FINAL_EXAM_QUESTION_BANK) {
       assert.ok(q.id.length > 5, `Question missing valid id: ${q.id}`);
-      assert.ok(q.stageId >= 1 && q.stageId <= 6, `Question ${q.id} has invalid stageId: ${q.stageId}`);
+      assert.ok(
+        q.stageId >= 1 && q.stageId <= 6,
+        `Question ${q.id} has invalid stageId: ${q.stageId}`,
+      );
       assert.ok(q.moduleId.length === 2, `Question ${q.id} has invalid moduleId: ${q.moduleId}`);
-      assert.ok(q.questionText.length > 15, `Question ${q.id} has insufficient text: ${q.questionText}`);
+      assert.ok(
+        q.questionText.length > 15,
+        `Question ${q.id} has insufficient text: ${q.questionText}`,
+      );
       assert.ok(q.options.length >= 2, `Question ${q.id} must have >= 2 options`);
       assert.ok(
         typeof q.correctAnswer === "number" &&
@@ -80,7 +86,10 @@ async function runValidation() {
         `Question ${q.id} correct answer out of bounds: ${q.correctAnswer}`,
       );
       assert.ok(q.explanation.length > 20, `Question ${q.id} missing detailed explanation`);
-      assert.ok(q.sourceReference.length > 5, `Question ${q.id} missing scientific source reference`);
+      assert.ok(
+        q.sourceReference.length > 5,
+        `Question ${q.id} missing scientific source reference`,
+      );
       assert.ok(q.learningObjective.length > 10, `Question ${q.id} missing learning objective`);
       assert.strictEqual(q.version, "1.0.0", `Question ${q.id} version must be 1.0.0`);
     }
@@ -125,9 +134,21 @@ async function runValidation() {
     assert.strictEqual(clientQuestions.length, 20);
 
     for (const q of clientQuestions) {
-      assert.strictEqual((q as any).correctAnswer, undefined, `SECURITY LEAK: correctAnswer exposed in ${q.id}`);
-      assert.strictEqual((q as any).correctIndex, undefined, `SECURITY LEAK: correctIndex exposed in ${q.id}`);
-      assert.strictEqual((q as any).explanation, undefined, `SECURITY LEAK: explanation exposed in ${q.id}`);
+      assert.strictEqual(
+        (q as any).correctAnswer,
+        undefined,
+        `SECURITY LEAK: correctAnswer exposed in ${q.id}`,
+      );
+      assert.strictEqual(
+        (q as any).correctIndex,
+        undefined,
+        `SECURITY LEAK: correctIndex exposed in ${q.id}`,
+      );
+      assert.strictEqual(
+        (q as any).explanation,
+        undefined,
+        `SECURITY LEAK: explanation exposed in ${q.id}`,
+      );
       assert.ok(q.learningObjective, `Sanitized question ${q.id} missing learningObjective`);
       assert.ok(q.stageTitle, `Sanitized question ${q.id} missing stageTitle`);
       assert.ok(q.options.length >= 2, `Sanitized question ${q.id} missing options`);
@@ -163,7 +184,11 @@ async function runValidation() {
       );
     }
 
-    assert.strictEqual(threwError, true, "Official startAssessmentServer must reject ineligible users");
+    assert.strictEqual(
+      threwError,
+      true,
+      "Official startAssessmentServer must reject ineligible users",
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -209,7 +234,11 @@ async function runValidation() {
     });
 
     assert.strictEqual(grading.score, 15, `Expected score 15, got ${grading.score}`);
-    assert.strictEqual(grading.totalPoints, 20, `Expected 20 total points, got ${grading.totalPoints}`);
+    assert.strictEqual(
+      grading.totalPoints,
+      20,
+      `Expected 20 total points, got ${grading.totalPoints}`,
+    );
     assert.strictEqual(grading.percentage, 75.0, `Expected 75.0%, got ${grading.percentage}`);
     assert.strictEqual(grading.passed, false, "15/20 MUST FAIL (< 80%)");
   });
@@ -293,7 +322,11 @@ async function runValidation() {
     });
 
     assert.strictEqual(grading.score, 16, `Expected score 16, got ${grading.score}`);
-    assert.strictEqual(grading.totalPoints, 20, `Expected 20 total points, got ${grading.totalPoints}`);
+    assert.strictEqual(
+      grading.totalPoints,
+      20,
+      `Expected 20 total points, got ${grading.totalPoints}`,
+    );
     assert.strictEqual(grading.percentage, 80.0, `Expected 80.0%, got ${grading.percentage}`);
     assert.strictEqual(grading.passed, true, "16/20 MUST PASS (>= 80%)");
   });
@@ -393,7 +426,8 @@ async function runValidation() {
     const activeCheck = verifyCosmosAssistanceAllowed({ isExamActive: true });
     assert.strictEqual(activeCheck.allowed, false);
     assert.ok(
-      activeCheck.reason?.includes("strictly disabled") || activeCheck.reason?.includes("Final Knowledge Assessment"),
+      activeCheck.reason?.includes("strictly disabled") ||
+        activeCheck.reason?.includes("Final Knowledge Assessment"),
     );
 
     // Check when user asks for exam answers in prompt
@@ -431,8 +465,16 @@ async function runValidation() {
     }));
 
     const breakdown = computeFinalExamTopicBreakdown(feedback);
-    assert.strictEqual(breakdown.topicStrengths.length, 6, "Must provide topic strengths for all 6 stages");
-    assert.strictEqual(breakdown.topicsRequiringReview.length, 4, "Must identify the 4 missed questions for review");
+    assert.strictEqual(
+      breakdown.topicStrengths.length,
+      6,
+      "Must provide topic strengths for all 6 stages",
+    );
+    assert.strictEqual(
+      breakdown.topicsRequiringReview.length,
+      4,
+      "Must identify the 4 missed questions for review",
+    );
 
     for (const rev of breakdown.topicsRequiringReview) {
       assert.ok(rev.moduleTitle, "Review topic must have moduleTitle");

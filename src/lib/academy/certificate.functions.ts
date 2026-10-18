@@ -161,14 +161,16 @@ async function extractAdminToken(): Promise<string> {
  */
 export const adminListCertificates = createServerFn({ method: "POST" })
   .validator(
-    (input: {
-      search?: string;
-      status?: "all" | "active" | "revoked" | "superseded";
-      level?: "all" | "junior" | "explorer" | "astronomer";
-      page?: number;
-      pageSize?: number;
-      adminToken?: string;
-    } = {}) => input,
+    (
+      input: {
+        search?: string;
+        status?: "all" | "active" | "revoked" | "superseded";
+        level?: "all" | "junior" | "explorer" | "astronomer";
+        page?: number;
+        pageSize?: number;
+        adminToken?: string;
+      } = {},
+    ) => input,
   )
   .handler(async ({ data }) => {
     const token = data?.adminToken || (await extractAdminToken());
@@ -241,15 +243,10 @@ export const adminReissueCertificate = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const token = data?.adminToken || (await extractAdminToken());
     const { adminReissueCertificateServer } = await import("./certificate.server");
-    return adminReissueCertificateServer(
-      data.certificateNumber,
-      data.reason,
-      token,
-      {
-        updatedCertificateName: data.updatedCertificateName,
-        updatedLearningLevel: data.updatedLearningLevel,
-      },
-    );
+    return adminReissueCertificateServer(data.certificateNumber, data.reason, token, {
+      updatedCertificateName: data.updatedCertificateName,
+      updatedLearningLevel: data.updatedLearningLevel,
+    });
   });
 
 /**
@@ -281,7 +278,8 @@ export const getCertificateOpenBadgePayload = createServerFn({ method: "GET" })
     }
 
     const { LEARNING_LEVEL_LABELS, CERTIFICATE_CONSTANTS } = await import("./certificate-types");
-    const { formatCertificateDate, generateOpenBadge3Metadata } = await import("./certificate.server");
+    const { formatCertificateDate, generateOpenBadge3Metadata } =
+      await import("./certificate.server");
     const level = (row.learning_level as "junior" | "explorer" | "astronomer") || "explorer";
 
     const canonical = {
@@ -312,4 +310,3 @@ export const getCertificateOpenBadgePayload = createServerFn({ method: "GET" })
 
     return generateOpenBadge3Metadata(canonical);
   });
-

@@ -322,7 +322,8 @@ export async function verifyCertificatePublicServer(
       isValid: false,
       certificateNumber: cleanedId,
       status: "not_found",
-      reason: "Verification rate limit exceeded (maximum 40 lookups per minute). Please wait a moment before trying again.",
+      reason:
+        "Verification rate limit exceeded (maximum 40 lookups per minute). Please wait a moment before trying again.",
     };
   }
 
@@ -406,7 +407,9 @@ export async function verifyCertificatePublicServer(
     try {
       const { data: profile } = await supabaseAdmin
         .from("academy_student_profiles")
-        .select("age_bracket, guardian_consent_status, profile_visibility, certificate_name, display_name")
+        .select(
+          "age_bracket, guardian_consent_status, profile_visibility, certificate_name, display_name",
+        )
         .eq("user_id", row.user_id)
         .maybeSingle();
 
@@ -421,7 +424,10 @@ export async function verifyCertificatePublicServer(
           if (!hasGuardianConsent || !isPublicOptIn) {
             studentDisplayName = sanitizeStudentName(profile.display_name, "Verified Student");
           } else {
-            studentDisplayName = sanitizeStudentName(profile.certificate_name, profile.display_name);
+            studentDisplayName = sanitizeStudentName(
+              profile.certificate_name,
+              profile.display_name,
+            );
           }
         } else if (profile.profile_visibility === "private") {
           studentDisplayName = sanitizeStudentName(profile.display_name, "Verified Explorer");
@@ -480,10 +486,7 @@ export async function verifyAdminAuthorizationServer(
   }
 
   // Test suite / system verification token bypass (only when running automated tests)
-  if (
-    process.env.NODE_ENV === "test" &&
-    adminTokenOrUserId === "test-authorized-admin-token-xyz"
-  ) {
+  if (process.env.NODE_ENV === "test" && adminTokenOrUserId === "test-authorized-admin-token-xyz") {
     return { authorized: true, adminUserId: "test-admin-uuid-001" };
   }
 
@@ -496,7 +499,9 @@ export async function verifyAdminAuthorizationServer(
 
     const user = userData.user;
     const role = user.app_metadata?.role || user.user_metadata?.role;
-    const adminEmails = (process.env.ADMIN_EMAILS || "admin@ourvisibleuniverse.in,crc1970@gmail.com")
+    const adminEmails = (
+      process.env.ADMIN_EMAILS || "admin@ourvisibleuniverse.in,crc1970@gmail.com"
+    )
       .split(",")
       .map((e) => e.trim().toLowerCase());
     const adminUserIds = (process.env.ADMIN_USER_IDS || "").split(",").map((id) => id.trim());
@@ -516,13 +521,16 @@ export async function verifyAdminAuthorizationServer(
 
   // If passed as a user UUID, verify via database that this user ID exists and has admin credentials
   try {
-    const { data: adminUser, error } = await supabaseAdmin.auth.admin.getUserById(adminTokenOrUserId);
+    const { data: adminUser, error } =
+      await supabaseAdmin.auth.admin.getUserById(adminTokenOrUserId);
     if (error || !adminUser?.user) {
       throw new Error("Access denied: User not found or unauthorized.");
     }
 
     const role = adminUser.user.app_metadata?.role || adminUser.user.user_metadata?.role;
-    const adminEmails = (process.env.ADMIN_EMAILS || "admin@ourvisibleuniverse.in,crc1970@gmail.com")
+    const adminEmails = (
+      process.env.ADMIN_EMAILS || "admin@ourvisibleuniverse.in,crc1970@gmail.com"
+    )
       .split(",")
       .map((e) => e.trim().toLowerCase());
     const isExplicitAdmin =
@@ -979,7 +987,8 @@ export async function adminGetCertificateStatsServer(adminTokenOrUserId: string)
   const totalScore = all.reduce((acc, r) => acc + (r.final_score_percentage || 0), 0);
   const averageScore = totalIssued > 0 ? Number((totalScore / totalIssued).toFixed(1)) : 0;
   const passedCount = all.filter((r) => (r.final_score_percentage || 0) >= 80).length;
-  const passingRatePct = totalIssued > 0 ? Number(((passedCount / totalIssued) * 100).toFixed(1)) : 100;
+  const passingRatePct =
+    totalIssued > 0 ? Number(((passedCount / totalIssued) * 100).toFixed(1)) : 100;
 
   const levelBreakdown: Record<LearningLevel, number> = {
     junior: all.filter((r) => r.learning_level === "junior").length,
@@ -1077,31 +1086,31 @@ export async function getStudentActiveCertificateServer(
 }
 
 function mapDatabaseRowToCanonicalCertificate(row: any): CanonicalCertificate {
-  const level = (row.learning_level as LearningLevel) || "explorer";
+  const r = Array.isArray(row) ? row[0] || {} : row || {};
+  const level = (r.learning_level as LearningLevel) || "explorer";
   return {
-    id: row.id,
-    certificateNumber: row.certificate_number,
-    userId: row.user_id,
-    studentPublicId: row.student_public_id,
-    displayName: row.display_name,
-    certificateName: row.certificate_name,
+    id: r.id,
+    certificateNumber: r.certificate_number,
+    userId: r.user_id,
+    studentPublicId: r.student_public_id,
+    displayName: r.display_name,
+    certificateName: r.certificate_name,
     learningLevel: level,
     learningLevelLabel: LEARNING_LEVEL_LABELS[level] || "Space Explorer",
-    courseId: row.course_id,
+    courseId: r.course_id,
     courseTitle: CERTIFICATE_CONSTANTS.COURSE_TITLE,
     achievementTitle: CERTIFICATE_CONSTANTS.ACHIEVEMENT_TITLE,
-    courseVersion: row.course_version,
-    curriculumVersion: row.curriculum_version || "1.0.0",
-    finalScorePercentage: row.final_score_percentage,
-    issueDate: row.issue_date,
-    issueDateFormatted: formatCertificateDate(row.issue_date),
-    verificationHash: row.verification_hash,
-    verificationUrl: `${CERTIFICATE_CONSTANTS.VERIFICATION_BASE_URL}?id=${encodeURIComponent(row.certificate_number)}`,
-    status: row.status,
+    courseVersion: r.course_version,
+    curriculumVersion: r.curriculum_version || "1.0.0",
+    finalScorePercentage: r.final_score_percentage,
+    issueDate: r.issue_date,
+    issueDateFormatted: formatCertificateDate(r.issue_date),
+    verificationHash: r.verification_hash,
+    verificationUrl: `${CERTIFICATE_CONSTANTS.VERIFICATION_BASE_URL}?id=${encodeURIComponent(r.certificate_number)}`,
+    status: r.status,
     organization: CERTIFICATE_CONSTANTS.ORGANIZATION,
     certificateText: CERTIFICATE_CONSTANTS.CERTIFICATE_TEXT,
     disclaimer: CERTIFICATE_CONSTANTS.DISCLAIMER,
-    metadata: row.metadata || {},
+    metadata: r.metadata || {},
   };
 }
-

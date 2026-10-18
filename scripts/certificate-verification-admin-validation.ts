@@ -155,10 +155,7 @@ async function runPrompt11ValidationSuite() {
   checksCount++;
   assert(invalidResult.status === "not_found", "Status returns not_found");
   checksCount++;
-  assert(
-    invalidResult.reason?.includes("not found") === true,
-    "Helpful not found reason provided",
-  );
+  assert(invalidResult.reason?.includes("not found") === true, "Helpful not found reason provided");
   checksCount++;
 
   // -------------------------------------------------------------------------
@@ -264,7 +261,10 @@ async function runPrompt11ValidationSuite() {
   checksCount++;
   assert(oldVerify.isValid === false, "Superseded certificate is not valid for new claims");
   checksCount++;
-  assert(oldVerify.supersededBy === newCertNumber, `Old record links to new: ${oldVerify.supersededBy}`);
+  assert(
+    oldVerify.supersededBy === newCertNumber,
+    `Old record links to new: ${oldVerify.supersededBy}`,
+  );
   checksCount++;
 
   // New certificate must be active and valid
@@ -440,10 +440,7 @@ async function runPrompt11ValidationSuite() {
     "Open Badges 3.0 standard JSON-LD context declared",
   );
   checksCount++;
-  assert(
-    ob3.type.includes("OpenBadgeCredential"),
-    "Type includes OpenBadgeCredential",
-  );
+  assert(ob3.type.includes("OpenBadgeCredential"), "Type includes OpenBadgeCredential");
   checksCount++;
 
   console.log("======================================================================");
@@ -452,7 +449,9 @@ async function runPrompt11ValidationSuite() {
   console.log(`Passed: ${checksCount}`);
   console.log(`Failed: 0`);
   console.log("======================================================================");
-  console.log("🌟 ALL 10 CERTIFICATE VERIFICATION & ADMINISTRATION CONTRACTS PASSED WITH 100% SUCCESS!\n");
+  console.log(
+    "🌟 ALL 10 CERTIFICATE VERIFICATION & ADMINISTRATION CONTRACTS PASSED WITH 100% SUCCESS!\n",
+  );
 }
 
 runPrompt11ValidationSuite().catch((err) => {

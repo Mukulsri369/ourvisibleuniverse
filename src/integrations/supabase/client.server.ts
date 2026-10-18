@@ -9,18 +9,198 @@ function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");
 }
 
+const placeholderTables = new Map<string, Array<Record<string, any>>>();
+
+function getPlaceholderTable(tableName: string): Array<Record<string, any>> {
+  if (!placeholderTables.has(tableName)) {
+    placeholderTables.set(tableName, []);
+  }
+  return placeholderTables.get(tableName)!;
+}
+
+function handlePlaceholderFetch(urlStr: string, init?: RequestInit): Response {
+  try {
+    const url = new URL(urlStr);
+    const pathParts = url.pathname.split("/").filter(Boolean);
+    const restIdx = pathParts.indexOf("rest");
+    const tableName =
+      restIdx !== -1 && pathParts[restIdx + 2]
+        ? pathParts[restIdx + 2]
+        : pathParts[pathParts.length - 1];
+    const table = getPlaceholderTable(tableName);
+    const method = (init?.method || "GET").toUpperCase();
+
+    const matchesFilters = (row: Record<string, any>): boolean => {
+      for (const [key, val] of url.searchParams.entries()) {
+        if (
+          key === "select" ||
+          key === "order" ||
+          key === "limit" ||
+          key === "offset" ||
+          key === "on_conflict"
+        )
+          continue;
+        if (val.startsWith("eq.")) {
+          const expected = val.slice(3);
+          if (String(row[key]) !== expected) return false;
+        } else if (val.startsWith("neq.")) {
+          const expected = val.slice(4);
+          if (String(row[key]) === expected) return false;
+        } else if (val.startsWith("in.")) {
+          const inVals = val.slice(4, -1).split(",");
+          if (!inVals.includes(String(row[key]))) return false;
+        } else if (val.startsWith("ilike.")) {
+          const pattern = val.slice(6).replace(/%/g, "").toLowerCase();
+          if (
+            !String(row[key] || "")
+              .toLowerCase()
+              .includes(pattern)
+          )
+            return false;
+        }
+      }
+      return true;
+    };
+
+    const reqHeaders = new Headers(init?.headers);
+    const isSingleObject = (reqHeaders.get("accept") || "").includes("vnd.pgrst.object+json");
+
+    if (method === "POST") {
+      let bodyData: any = [];
+      if (init?.body) {
+        try {
+          bodyData = JSON.parse(init.body as string);
+        } catch {
+          bodyData = [];
+        }
+      }
+      const rows = Array.isArray(bodyData) ? bodyData : [bodyData];
+      const savedRows: any[] = [];
+      for (const row of rows) {
+        const idx = table.findIndex((r) => {
+          if (row.id && r.id === row.id) return true;
+          if (tableName === "academy_certificates") {
+            return Boolean(
+              row.certificate_number && r.certificate_number === row.certificate_number,
+            );
+          }
+          if (tableName === "academy_student_profiles") {
+            return Boolean(row.user_id && r.user_id === row.user_id);
+          }
+          if (tableName === "academy_module_completions") {
+            return Boolean(
+              row.user_id &&
+              r.user_id === row.user_id &&
+              row.module_id &&
+              r.module_id === row.module_id,
+            );
+          }
+          if (row.certificate_number && r.certificate_number === row.certificate_number)
+            return true;
+          return false;
+        });
+        const record = {
+          id: row.id || `mock-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          created_at: new Date().toISOString(),
+          ...row,
+        };
+        if (idx !== -1) {
+          table[idx] = { ...table[idx], ...record, updated_at: new Date().toISOString() };
+          savedRows.push(table[idx]);
+        } else {
+          table.push(record);
+          savedRows.push(record);
+        }
+      }
+      const payload = isSingleObject ? savedRows[0] || null : savedRows;
+      return new Response(JSON.stringify(payload), {
+        status: 201,
+        headers: {
+          "Content-Type": isSingleObject ? "application/vnd.pgrst.object+json" : "application/json",
+        },
+      });
+    }
+
+    if (method === "PATCH") {
+      let updates: any = {};
+      if (init?.body) {
+        try {
+          updates = JSON.parse(init.body as string);
+        } catch {
+          updates = {};
+        }
+      }
+      const updatedRows: any[] = [];
+      for (let i = 0; i < table.length; i++) {
+        if (matchesFilters(table[i])) {
+          table[i] = { ...table[i], ...updates, updated_at: new Date().toISOString() };
+          updatedRows.push(table[i]);
+        }
+      }
+      const payload = isSingleObject ? updatedRows[0] || null : updatedRows;
+      return new Response(JSON.stringify(payload), {
+        status: 200,
+        headers: {
+          "Content-Type": isSingleObject ? "application/vnd.pgrst.object+json" : "application/json",
+        },
+      });
+    }
+
+    if (method === "DELETE") {
+      const remaining = table.filter((row) => !matchesFilters(row));
+      placeholderTables.set(tableName, remaining);
+      return new Response(JSON.stringify([]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Default: GET
+    let matched = table.filter(matchesFilters);
+    const countHeader = `${matched.length > 0 ? "0-" + (matched.length - 1) : "0-0"}/${matched.length}`;
+
+    const orderParam = url.searchParams.get("order");
+    if (orderParam) {
+      const [col, dir] = orderParam.split(".");
+      matched = [...matched].sort((a, b) => {
+        const valA = a[col] ?? "";
+        const valB = b[col] ?? "";
+        if (valA < valB) return dir === "desc" ? 1 : -1;
+        if (valA > valB) return dir === "desc" ? -1 : 1;
+        return 0;
+      });
+    }
+
+    const limitParam = url.searchParams.get("limit");
+    const offsetParam = url.searchParams.get("offset");
+    if (limitParam) {
+      const limit = parseInt(limitParam, 10);
+      const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
+      matched = matched.slice(offset, offset + limit);
+    }
+
+    const getPayload = isSingleObject ? matched[0] || null : matched;
+    return new Response(JSON.stringify(getPayload), {
+      status: 200,
+      headers: {
+        "Content-Type": isSingleObject ? "application/vnd.pgrst.object+json" : "application/json",
+        "content-range": countHeader,
+      },
+    });
+  } catch {
+    return new Response(JSON.stringify([]), {
+      status: 200,
+      headers: { "Content-Type": "application/json", "content-range": "0-0/0" },
+    });
+  }
+}
+
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
   return async (input, init) => {
     const urlStr =
       typeof input === "string" ? input : input instanceof Request ? input.url : input.toString();
     if (urlStr.includes("placeholder-project")) {
-      return new Response(JSON.stringify([]), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "content-range": "0-0/0",
-        },
-      });
+      return handlePlaceholderFetch(urlStr, init);
     }
 
     const headers = new Headers(

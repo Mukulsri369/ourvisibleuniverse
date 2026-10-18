@@ -45,7 +45,9 @@ export function CertificateAdminDashboard() {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "revoked" | "superseded">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "revoked" | "superseded">(
+    "all",
+  );
   const [levelFilter, setLevelFilter] = useState<"all" | LearningLevel>("all");
 
   // Inspection modal
@@ -78,7 +80,19 @@ export function CertificateAdminDashboard() {
         const statsRes = await adminGetCertificateStats({ data: { adminToken: token } });
         setStats(statsRes);
         setIsAdmin(true);
-        await loadCertificates(1, "", "all", "all", token);
+        const certsRes = await adminListCertificates({
+          data: {
+            page: 1,
+            pageSize: 15,
+            search: "",
+            status: "all",
+            level: "all",
+            adminToken: token,
+          },
+        });
+        setCertificates(certsRes.records as AdminCertificateRecord[]);
+        setTotalCount(certsRes.totalCount);
+        setPage(certsRes.page);
       } catch (err: any) {
         setIsAdmin(false);
         console.warn("User is not an authorized administrator:", err?.message || err);
@@ -215,8 +229,9 @@ export function CertificateAdminDashboard() {
         </div>
         <h2 className="text-xl font-bold text-white">Administrator Access Restricted</h2>
         <p className="text-xs text-slate-400 leading-relaxed">
-          Access to certificate registry administration requires verified server-side administrator credentials.
-          Supplying unauthenticated email addresses or parameters does not grant admin access.
+          Access to certificate registry administration requires verified server-side administrator
+          credentials. Supplying unauthenticated email addresses or parameters does not grant admin
+          access.
         </p>
       </div>
     );
@@ -235,7 +250,8 @@ export function CertificateAdminDashboard() {
             Certificate Registry & Verification Management
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Authoritative administration, cryptographic audit tracking, and lineage supersession controls.
+            Authoritative administration, cryptographic audit tracking, and lineage supersession
+            controls.
           </p>
         </div>
 
@@ -556,8 +572,10 @@ export function CertificateAdminDashboard() {
               <h3 className="text-base font-bold text-white">Revoke Issued Certificate</h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              You are about to revoke certificate <strong className="font-mono text-white">{targetCert.certificateNumber}</strong>.
-              Once revoked, this credential will permanently verify as <em>REVOKED</em> across all public checks.
+              You are about to revoke certificate{" "}
+              <strong className="font-mono text-white">{targetCert.certificateNumber}</strong>. Once
+              revoked, this credential will permanently verify as <em>REVOKED</em> across all public
+              checks.
             </p>
 
             <div className="space-y-1.5">
@@ -604,9 +622,10 @@ export function CertificateAdminDashboard() {
               <h3 className="text-base font-bold text-white">Reissue Certificate</h3>
             </div>
             <p className="text-xs text-slate-300 leading-relaxed">
-              This will mark <strong className="font-mono text-white">{targetCert.certificateNumber}</strong> as
-              <em className="text-amber-400"> SUPERSEDED</em> and issue a brand-new certificate with unique cryptographic ID.
-              Prior issuance records are strictly preserved for auditing.
+              This will mark{" "}
+              <strong className="font-mono text-white">{targetCert.certificateNumber}</strong> as
+              <em className="text-amber-400"> SUPERSEDED</em> and issue a brand-new certificate with
+              unique cryptographic ID. Prior issuance records are strictly preserved for auditing.
             </p>
 
             <div className="space-y-3 text-xs">

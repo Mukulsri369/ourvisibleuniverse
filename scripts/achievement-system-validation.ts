@@ -95,28 +95,25 @@ async function main() {
   );
 
   // Test 2: Invariant A - Cannot receive badge after three modules
-  await runTest(
-    "A student with only 3 of 4 verified modules CANNOT receive a stage badge",
-    () => {
-      for (let s = 1; s <= 6; s++) {
-        const badge = STAGE_BADGES[s];
-        const allFour = badge.requiredModuleIds;
+  await runTest("A student with only 3 of 4 verified modules CANNOT receive a stage badge", () => {
+    for (let s = 1; s <= 6; s++) {
+      const badge = STAGE_BADGES[s];
+      const allFour = badge.requiredModuleIds;
 
-        // Try every possible combination of 3 modules out of 4
-        for (let dropIdx = 0; dropIdx < 4; dropIdx++) {
-          const onlyThree = allFour.filter((_, idx) => idx !== dropIdx);
-          assert.strictEqual(onlyThree.length, 3);
+      // Try every possible combination of 3 modules out of 4
+      for (let dropIdx = 0; dropIdx < 4; dropIdx++) {
+        const onlyThree = allFour.filter((_, idx) => idx !== dropIdx);
+        assert.strictEqual(onlyThree.length, 3);
 
-          const hasAllFour = allFour.every((mId) => onlyThree.includes(mId));
-          assert.strictEqual(
-            hasAllFour,
-            false,
-            `Stage ${s} badge must be BLOCKED when missing module ${allFour[dropIdx]}`,
-          );
-        }
+        const hasAllFour = allFour.every((mId) => onlyThree.includes(mId));
+        assert.strictEqual(
+          hasAllFour,
+          false,
+          `Stage ${s} badge must be BLOCKED when missing module ${allFour[dropIdx]}`,
+        );
       }
-    },
-  );
+    }
+  });
 
   // Test 3: Invariant B - Receives badge after four verified modules
   await runTest(
@@ -238,8 +235,7 @@ async function main() {
 
       // Check default attribution for sharing
       const isPrivateOrMinor =
-        under13Student.age_group === "under_13" ||
-        under13Student.profile_visibility === "private";
+        under13Student.age_group === "under_13" || under13Student.profile_visibility === "private";
 
       const defaultShareAttribution = isPrivateOrMinor
         ? under13Student.student_public_id

@@ -248,15 +248,18 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
   }, [currentIndex]);
 
   // Answer selection
-  const handleSelectOption = (optionIndex: number) => {
-    const currentQ = questions[currentIndex];
-    if (!currentQ) return;
+  const handleSelectOption = useCallback(
+    (optionIndex: number) => {
+      const currentQ = questions[currentIndex];
+      if (!currentQ) return;
 
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQ.id]: optionIndex,
-    }));
-  };
+      setAnswers((prev) => ({
+        ...prev,
+        [currentQ.id]: optionIndex,
+      }));
+    },
+    [questions, currentIndex],
+  );
 
   // 4. Submit Examination
   const handleSubmitExam = async () => {
@@ -354,7 +357,14 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentQuestion, result, showSubmitConfirm, currentIndex, questions.length]);
+  }, [
+    currentQuestion,
+    result,
+    showSubmitConfirm,
+    currentIndex,
+    questions.length,
+    handleSelectOption,
+  ]);
 
   // =========================================================================
   // VIEW 1: ELIGIBILITY CHECKING OR LOCKED VIEW

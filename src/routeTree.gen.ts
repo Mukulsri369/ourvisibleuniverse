@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminCertificatesRouteImport } from './routes/admin-certificates'
 import { Route as AstrophysicsLabRouteImport } from './routes/astrophysics-lab'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CatalogStatusRouteImport } from './routes/catalog-status'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CosmicEvolutionRouteImport } from './routes/cosmic-evolution'
+import { Route as ExamRouteImport } from './routes/exam'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as GalaxiesRouteImport } from './routes/galaxies'
@@ -28,11 +30,14 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ScienceRouteImport } from './routes/science'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VerifyCertificateRouteImport } from './routes/verify-certificate'
 import { Route as VisibleUniverseHistoryRouteImport } from './routes/visible-universe-history'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedUniverseRouteImport } from './routes/_authenticated/universe'
+import { Route as VerifyIndexRouteImport } from './routes/verify.index'
+import { Route as VerifyCertificateIdRouteImport } from './routes/verify.$certificateId'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicCatalogObjectRouteImport } from './routes/api/public/catalog/object'
 import { Route as ApiPublicCatalogSearchRouteImport } from './routes/api/public/catalog/search'
@@ -52,6 +57,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCertificatesRoute = AdminCertificatesRouteImport.update({
+  id: '/admin-certificates',
+  path: '/admin-certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AstrophysicsLabRoute = AstrophysicsLabRouteImport.update({
@@ -77,6 +87,11 @@ const ContactRoute = ContactRouteImport.update({
 const CosmicEvolutionRoute = CosmicEvolutionRouteImport.update({
   id: '/cosmic-evolution',
   path: '/cosmic-evolution',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExamRoute = ExamRouteImport.update({
+  id: '/exam',
+  path: '/exam',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -134,6 +149,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VerifyCertificateRoute = VerifyCertificateRouteImport.update({
+  id: '/verify-certificate',
+  path: '/verify-certificate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VisibleUniverseHistoryRoute = VisibleUniverseHistoryRouteImport.update({
   id: '/visible-universe-history',
   path: '/visible-universe-history',
@@ -159,6 +179,16 @@ const AuthenticatedUniverseRoute = AuthenticatedUniverseRouteImport.update({
   id: '/universe',
   path: '/universe',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const VerifyIndexRoute = VerifyIndexRouteImport.update({
+  id: '/verify/',
+  path: '/verify/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyCertificateIdRoute = VerifyCertificateIdRouteImport.update({
+  id: '/verify/$certificateId',
+  path: '/verify/$certificateId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
@@ -195,11 +225,13 @@ const ApiPublicPaymentsRazorpayRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin-certificates': typeof AdminCertificatesRoute
   '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
   '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
   '/cosmic-evolution': typeof CosmicEvolutionRoute
+  '/exam': typeof ExamRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/galaxies': typeof GalaxiesRoute
@@ -211,11 +243,14 @@ export interface FileRoutesByFullPath {
   '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
+  '/verify-certificate': typeof VerifyCertificateRoute
   '/visible-universe-history': typeof VisibleUniverseHistoryRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/verify/$certificateId': typeof VerifyCertificateIdRoute
+  '/verify/': typeof VerifyIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
   '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
@@ -226,11 +261,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin-certificates': typeof AdminCertificatesRoute
   '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
   '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
   '/cosmic-evolution': typeof CosmicEvolutionRoute
+  '/exam': typeof ExamRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/galaxies': typeof GalaxiesRoute
@@ -242,11 +279,14 @@ export interface FileRoutesByTo {
   '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
+  '/verify-certificate': typeof VerifyCertificateRoute
   '/visible-universe-history': typeof VisibleUniverseHistoryRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/verify/$certificateId': typeof VerifyCertificateIdRoute
+  '/verify': typeof VerifyIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
   '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
@@ -259,11 +299,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
+  '/admin-certificates': typeof AdminCertificatesRoute
   '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
   '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
   '/cosmic-evolution': typeof CosmicEvolutionRoute
+  '/exam': typeof ExamRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/galaxies': typeof GalaxiesRoute
@@ -275,11 +317,14 @@ export interface FileRoutesById {
   '/refund-policy': typeof RefundPolicyRoute
   '/science': typeof ScienceRoute
   '/terms': typeof TermsRoute
+  '/verify-certificate': typeof VerifyCertificateRoute
   '/visible-universe-history': typeof VisibleUniverseHistoryRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/universe': typeof AuthenticatedUniverseRoute
+  '/verify/$certificateId': typeof VerifyCertificateIdRoute
+  '/verify/': typeof VerifyIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
   '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
@@ -292,11 +337,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/admin-certificates'
     | '/astrophysics-lab'
     | '/auth'
     | '/catalog-status'
     | '/contact'
     | '/cosmic-evolution'
+    | '/exam'
     | '/faq'
     | '/features'
     | '/galaxies'
@@ -308,11 +355,14 @@ export interface FileRouteTypes {
     | '/refund-policy'
     | '/science'
     | '/terms'
+    | '/verify-certificate'
     | '/visible-universe-history'
     | '/.well-known/oauth-protected-resource'
     | '/account'
     | '/checkout'
     | '/universe'
+    | '/verify/$certificateId'
+    | '/verify/'
     | '/.lovable/oauth/consent'
     | '/api/public/catalog/object'
     | '/api/public/catalog/search'
@@ -323,11 +373,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/admin-certificates'
     | '/astrophysics-lab'
     | '/auth'
     | '/catalog-status'
     | '/contact'
     | '/cosmic-evolution'
+    | '/exam'
     | '/faq'
     | '/features'
     | '/galaxies'
@@ -339,11 +391,14 @@ export interface FileRouteTypes {
     | '/refund-policy'
     | '/science'
     | '/terms'
+    | '/verify-certificate'
     | '/visible-universe-history'
     | '/.well-known/oauth-protected-resource'
     | '/account'
     | '/checkout'
     | '/universe'
+    | '/verify/$certificateId'
+    | '/verify'
     | '/.lovable/oauth/consent'
     | '/api/public/catalog/object'
     | '/api/public/catalog/search'
@@ -355,11 +410,13 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/admin-certificates'
     | '/astrophysics-lab'
     | '/auth'
     | '/catalog-status'
     | '/contact'
     | '/cosmic-evolution'
+    | '/exam'
     | '/faq'
     | '/features'
     | '/galaxies'
@@ -371,11 +428,14 @@ export interface FileRouteTypes {
     | '/refund-policy'
     | '/science'
     | '/terms'
+    | '/verify-certificate'
     | '/visible-universe-history'
     | '/.well-known/oauth-protected-resource'
     | '/_authenticated/account'
     | '/_authenticated/checkout'
     | '/_authenticated/universe'
+    | '/verify/$certificateId'
+    | '/verify/'
     | '/.lovable/oauth/consent'
     | '/api/public/catalog/object'
     | '/api/public/catalog/search'
@@ -388,11 +448,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
+  AdminCertificatesRoute: typeof AdminCertificatesRoute
   AstrophysicsLabRoute: typeof AstrophysicsLabRoute
   AuthRoute: typeof AuthRoute
   CatalogStatusRoute: typeof CatalogStatusRoute
   ContactRoute: typeof ContactRoute
   CosmicEvolutionRoute: typeof CosmicEvolutionRoute
+  ExamRoute: typeof ExamRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   GalaxiesRoute: typeof GalaxiesRoute
@@ -404,8 +466,11 @@ export interface RootRouteChildren {
   RefundPolicyRoute: typeof RefundPolicyRoute
   ScienceRoute: typeof ScienceRoute
   TermsRoute: typeof TermsRoute
+  VerifyCertificateRoute: typeof VerifyCertificateRoute
   VisibleUniverseHistoryRoute: typeof VisibleUniverseHistoryRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  VerifyCertificateIdRoute: typeof VerifyCertificateIdRoute
+  VerifyIndexRoute: typeof VerifyIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicCatalogObjectRoute: typeof ApiPublicCatalogObjectRoute
   ApiPublicCatalogSearchRoute: typeof ApiPublicCatalogSearchRoute
@@ -435,6 +500,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-certificates': {
+      id: '/admin-certificates'
+      path: '/admin-certificates'
+      fullPath: '/admin-certificates'
+      preLoaderRoute: typeof AdminCertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/astrophysics-lab': {
@@ -470,6 +542,13 @@ declare module '@tanstack/react-router' {
       path: '/cosmic-evolution'
       fullPath: '/cosmic-evolution'
       preLoaderRoute: typeof CosmicEvolutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/exam': {
+      id: '/exam'
+      path: '/exam'
+      fullPath: '/exam'
+      preLoaderRoute: typeof ExamRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -549,6 +628,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/verify-certificate': {
+      id: '/verify-certificate'
+      path: '/verify-certificate'
+      fullPath: '/verify-certificate'
+      preLoaderRoute: typeof VerifyCertificateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/visible-universe-history': {
       id: '/visible-universe-history'
       path: '/visible-universe-history'
@@ -583,6 +669,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/universe'
       preLoaderRoute: typeof AuthenticatedUniverseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/verify/': {
+      id: '/verify/'
+      path: '/verify'
+      fullPath: '/verify/'
+      preLoaderRoute: typeof VerifyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify/$certificateId': {
+      id: '/verify/$certificateId'
+      path: '/verify/$certificateId'
+      fullPath: '/verify/$certificateId'
+      preLoaderRoute: typeof VerifyCertificateIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
@@ -648,11 +748,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
+  AdminCertificatesRoute: AdminCertificatesRoute,
   AstrophysicsLabRoute: AstrophysicsLabRoute,
   AuthRoute: AuthRoute,
   CatalogStatusRoute: CatalogStatusRoute,
   ContactRoute: ContactRoute,
   CosmicEvolutionRoute: CosmicEvolutionRoute,
+  ExamRoute: ExamRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   GalaxiesRoute: GalaxiesRoute,
@@ -664,9 +766,12 @@ const rootRouteChildren: RootRouteChildren = {
   RefundPolicyRoute: RefundPolicyRoute,
   ScienceRoute: ScienceRoute,
   TermsRoute: TermsRoute,
+  VerifyCertificateRoute: VerifyCertificateRoute,
   VisibleUniverseHistoryRoute: VisibleUniverseHistoryRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  VerifyCertificateIdRoute: VerifyCertificateIdRoute,
+  VerifyIndexRoute: VerifyIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicCatalogObjectRoute: ApiPublicCatalogObjectRoute,
   ApiPublicCatalogSearchRoute: ApiPublicCatalogSearchRoute,

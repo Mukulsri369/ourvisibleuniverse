@@ -127,7 +127,7 @@ export interface AdminReissueInput {
 export interface OpenBadge3Payload {
   "@context": [
     "https://www.w3.org/ns/credentials/v2",
-    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json"
+    "https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json",
   ];
   id: string;
   type: ["VerifiableCredential", "OpenBadgeCredential"];
@@ -190,4 +190,3 @@ export const LEARNING_LEVEL_LABELS: Record<LearningLevel, string> = {
   explorer: "Space Explorer",
   astronomer: "Young Astronomer",
 };
-

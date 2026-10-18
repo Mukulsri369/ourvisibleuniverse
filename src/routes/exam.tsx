@@ -19,8 +19,7 @@ export const Route = createFileRoute("/exam")({
   head: () => ({
     meta: [
       {
-        title:
-          "Cosmic Explorer — Final Knowledge Assessment | Our Visible Universe Academy",
+        title: "Cosmic Explorer — Final Knowledge Assessment | Our Visible Universe Academy",
       },
       {
         name: "description",

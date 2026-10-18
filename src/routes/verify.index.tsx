@@ -3,15 +3,7 @@ import React, { useState } from "react";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  ShieldCheck,
-  Search,
-  Lock,
-  Sparkles,
-  QrCode,
-  Award,
-  ArrowRight,
-} from "lucide-react";
+import { ShieldCheck, Search, Lock, Sparkles, QrCode, Award, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/verify/")({
   head: () => ({
@@ -87,7 +79,8 @@ function VerifyIndexPage() {
             </Button>
           </form>
           <p className="text-[11px] font-mono text-slate-400 text-center mt-3">
-            Enter the 28-character unique certificate ID or scan the QR code located on the official PDF.
+            Enter the 28-character unique certificate ID or scan the QR code located on the official
+            PDF.
           </p>
         </div>
 
@@ -99,7 +92,8 @@ function VerifyIndexPage() {
             </div>
             <h3 className="text-sm font-semibold text-white">Cryptographic Verification</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Every certificate contains an immutable HMAC-SHA256 signature calculated from learner assessment records.
+              Every certificate contains an immutable HMAC-SHA256 signature calculated from learner
+              assessment records.
             </p>
           </div>
 
@@ -109,7 +103,8 @@ function VerifyIndexPage() {
             </div>
             <h3 className="text-sm font-semibold text-white">Strict Child Privacy</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Learner personal emails and minor identities are strictly protected; only verified pseudonyms appear publicly.
+              Learner personal emails and minor identities are strictly protected; only verified
+              pseudonyms appear publicly.
             </p>
           </div>
 
@@ -119,7 +114,8 @@ function VerifyIndexPage() {
             </div>
             <h3 className="text-sm font-semibold text-white">Immutable Audit Lineage</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Historical reissuances and corrections are tracked with non-repudiable audit logs and supersession chains.
+              Historical reissuances and corrections are tracked with non-repudiable audit logs and
+              supersession chains.
             </p>
           </div>
         </div>

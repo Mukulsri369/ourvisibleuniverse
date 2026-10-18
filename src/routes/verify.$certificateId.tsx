@@ -384,7 +384,8 @@ function VerifyCertificateParamPage() {
                       </span>
                     </div>
                     <p className="text-xs text-rose-200/80">
-                      This certificate is no longer recognized as valid by Our Visible Universe Academy.
+                      This certificate is no longer recognized as valid by Our Visible Universe
+                      Academy.
                     </p>
                   </div>
                 </div>
@@ -445,7 +446,8 @@ function VerifyCertificateParamPage() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-400">
-                      This certificate record was superseded by an updated reissuance. Historical record preserved for auditing.
+                      This certificate record was superseded by an updated reissuance. Historical
+                      record preserved for auditing.
                     </p>
                   </div>
                 </div>
@@ -469,7 +471,9 @@ function VerifyCertificateParamPage() {
 
                   <div className="rounded-xl border border-white/5 bg-slate-950/40 p-4 space-y-2 text-xs text-slate-400">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono uppercase text-[10px]">Archived Certificate ID:</span>
+                      <span className="font-mono uppercase text-[10px]">
+                        Archived Certificate ID:
+                      </span>
                       <span className="font-mono text-slate-200">{result.certificateNumber}</span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -480,8 +484,14 @@ function VerifyCertificateParamPage() {
 
                   <div className="flex justify-center gap-3 pt-2">
                     {result.supersededBy && (
-                      <Button asChild className="bg-cyan-600 hover:bg-cyan-500 text-white font-medium">
-                        <Link to="/verify/$certificateId" params={{ certificateId: result.supersededBy }}>
+                      <Button
+                        asChild
+                        className="bg-cyan-600 hover:bg-cyan-500 text-white font-medium"
+                      >
+                        <Link
+                          to="/verify/$certificateId"
+                          params={{ certificateId: result.supersededBy }}
+                        >
                           View Active Reissued Certificate
                         </Link>
                       </Button>
@@ -536,7 +546,8 @@ function VerifyCertificateParamPage() {
                 </button>
               </div>
               <p className="text-xs text-slate-400">
-                This schema aligns with 1EdTech Open Badges v3.0 standard for interoperable digital credentials and educational portfolios.
+                This schema aligns with 1EdTech Open Badges v3.0 standard for interoperable digital
+                credentials and educational portfolios.
               </p>
               <pre className="flex-1 overflow-auto bg-black/60 p-4 rounded-xl text-[11px] font-mono text-cyan-300 border border-white/5">
                 {openBadgeJson}
