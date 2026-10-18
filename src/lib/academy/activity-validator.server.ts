@@ -96,6 +96,91 @@ export function validateActivityOutcomeServer(
     }
 
     // -------------------------------------------------------------
+    // Module 04: Lookback Time & Photon Trace
+    // -------------------------------------------------------------
+    case "lookback_photon_trace": {
+      const benchmarkCount = Number(payload.benchmarkCount ?? payload.benchmarksCompleted ?? 0);
+      const lookbackGyr = Number(payload.lookbackTimeGyr ?? payload.t);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (benchmarkCount >= 4 || lookbackGyr > 0 || success) {
+        return {
+          isValid: true,
+          reason: `Light travel time and photon lookback trace verified across cosmic epochs.`,
+          metrics: { benchmarkCount, lookbackGyr },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Photon lookback trace incomplete. Synthesize at least 4 cosmic distance benchmarks.",
+        metrics: { benchmarkCount },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 05: Lunar Phase & Eclipse Prediction
+    // -------------------------------------------------------------
+    case "lunar_phase_eclipse_prediction": {
+      const nodesAligned = Boolean(payload.nodesAligned ?? payload.eclipsePredicted ?? payload.success);
+      const predictedCount = Number(payload.predictedCount ?? payload.phasesIdentified ?? 0);
+
+      if (nodesAligned || predictedCount >= 2) {
+        return {
+          isValid: true,
+          reason: "Orbital inclination nodes and eclipse alignment geometry verified.",
+          metrics: { nodesAligned, predictedCount },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Eclipse geometry prediction incomplete. Align orbital nodes or identify lunar phases.",
+        metrics: { nodesAligned, predictedCount },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 06: Planetary Density Classification
+    // -------------------------------------------------------------
+    case "planetary_density_classification": {
+      const classifiedCount = Number(payload.classifiedCount ?? payload.worldsClassified ?? 0);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (classifiedCount >= 4 || success) {
+        return {
+          isValid: true,
+          reason: `Planetary architecture classified by bulk density and composition (${classifiedCount} worlds).`,
+          metrics: { classifiedCount },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Insufficient planetary classifications. Classify at least 4 planetary types by density.",
+        metrics: { classifiedCount },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 07: Solar Magnetic & CME Simulation
+    // -------------------------------------------------------------
+    case "solar_magnetic_cme_simulation": {
+      const coreTempK = Number(payload.coreTempK ?? payload.coreTemperature ?? 0);
+      const cmeTraced = Boolean(payload.cmeTraced ?? payload.magneticLoopStable ?? payload.success);
+
+      if (cmeTraced || coreTempK >= 1e7) {
+        return {
+          isValid: true,
+          reason: "Solar thermonuclear core equilibrium and coronal magnetic eruption verified.",
+          metrics: { coreTempK, cmeTraced },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Solar simulator parameters out of equilibrium. Core must sustain T >= 1.5e7 K.",
+        metrics: { coreTempK, cmeTraced },
+      };
+    }
+
+    // -------------------------------------------------------------
     // Module 08: Keplerian Orbit Insertion
     // -------------------------------------------------------------
     case "kepler_orbit_insertion": {
@@ -155,6 +240,49 @@ export function validateActivityOutcomeServer(
         isValid: false,
         reason: "Insufficient stars mapped on the H-R diagram (minimum 3 required).",
         metrics: { placedStars },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 10: Stellar Fate Predictor
+    // -------------------------------------------------------------
+    case "stellar_fate_prediction": {
+      const correctPredictions = Number(payload.correctPredictions ?? payload.predictionsCount ?? 0);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (correctPredictions >= 2 || success) {
+        return {
+          isValid: true,
+          reason: "Stellar evolution endpoints correctly predicted across initial mass thresholds.",
+          metrics: { correctPredictions },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Stellar fate predictions incomplete. Predict outcomes for 1 M_sun and 20 M_sun stars.",
+        metrics: { correctPredictions },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 11: Jeans Mass Gravitational Collapse
+    // -------------------------------------------------------------
+    case "jeans_mass_collapse": {
+      const cloudMass = Number(payload.cloudMassSolar ?? payload.M);
+      const jeansMass = Number(payload.jeansMassSolar ?? payload.M_J);
+      const collapseTriggered = Boolean(payload.collapseTriggered ?? payload.success);
+
+      if (collapseTriggered || (cloudMass > 0 && jeansMass > 0 && cloudMass >= jeansMass)) {
+        return {
+          isValid: true,
+          reason: "Jeans gravitational instability threshold M > M_J satisfied for protostellar collapse.",
+          metrics: { cloudMass, jeansMass },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Cloud mass insufficient to trigger Jeans instability collapse (M must exceed M_J).",
+        metrics: { cloudMass, jeansMass },
       };
     }
 

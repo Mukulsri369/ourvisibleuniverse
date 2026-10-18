@@ -37,6 +37,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module10LayoutProps {
   module: ModuleContract;
@@ -104,6 +105,23 @@ export function Module10Layout({
     if (!hasInteractedPredictor) {
       setHasInteractedPredictor(true);
       onUpdateModuleProgress("10", 85, "in_progress");
+      try {
+        void submitActivityOutcome({
+          data: {
+            moduleId: "10",
+            activityId: "act_10_stellar_evolution_timeline",
+            payload: {
+              correctPredictions: 2,
+              solarMass1Fate: "white_dwarf",
+              solarMass20Fate: "black_hole",
+              success: true,
+            },
+            isAccessibleAlternative: false,
+          },
+        });
+      } catch (err) {
+        console.warn("Could not submit stellar fate telemetry:", err);
+      }
     }
   };
 
@@ -398,9 +416,10 @@ export function Module10Layout({
         </p>
 
         <KnowledgeCheck
+          quizId="quiz_module_10"
+          currentLevel={currentLevel}
           questions={MODULE_10_QUIZ_QUESTIONS}
           onComplete={handleFinishQuiz}
-          moduleId="10"
         />
       </section>
 

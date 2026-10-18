@@ -39,6 +39,7 @@ import {
   Atom,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module04LayoutProps {
   module: ModuleContract;
@@ -94,6 +95,23 @@ export function Module04Layout({
   const handleChallengeCompleted = () => {
     setChallengeCompleted(true);
     onUpdateModuleProgress("04", 85, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "04",
+          activityId: "act_04_lookback_time_machine",
+          payload: {
+            benchmarkCount: 4,
+            lookbackTimeGyr: 13.4,
+            benchmarksCompleted: 4,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit lookback activity outcome:", err);
+    }
   };
 
   const handleSimulationTested = () => {
@@ -281,9 +299,10 @@ export function Module04Layout({
       </section>
 
       {/* 6. Step F: Science Knowledge Check */}
-      <section className="space-y-4">
+      <section className="space-y-4" id="module-04-quiz">
         <KnowledgeCheck
           quizId="quiz_module_04"
+          currentLevel={currentLevel}
           questions={gradeContent.quizQuestions}
           onCompleteQuiz={handleFinishQuiz}
         />

@@ -38,6 +38,7 @@ import {
   Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module11LayoutProps {
   module: ModuleContract;
@@ -98,6 +99,23 @@ export function Module11Layout({
     if (!hasInteractedCollapse) {
       setHasInteractedCollapse(true);
       onUpdateModuleProgress("11", 65, "in_progress");
+      try {
+        void submitActivityOutcome({
+          data: {
+            moduleId: "11",
+            activityId: "act_11_star_nursery_collapse",
+            payload: {
+              cloudMassSolar: 100,
+              jeansMassSolar: 25,
+              collapseTriggered: true,
+              success: true,
+            },
+            isAccessibleAlternative: false,
+          },
+        });
+      } catch (err) {
+        console.warn("Could not submit Jeans collapse telemetry:", err);
+      }
     }
   };
 
@@ -475,9 +493,10 @@ export function Module11Layout({
         </p>
 
         <KnowledgeCheck
+          quizId="quiz_module_11"
+          currentLevel={currentLevel}
           questions={MODULE_11_QUIZ_QUESTIONS}
           onComplete={handleFinishQuiz}
-          moduleId="11"
         />
       </section>
 

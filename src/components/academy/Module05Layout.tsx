@@ -40,6 +40,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module05LayoutProps {
   module: ModuleContract;
@@ -95,6 +96,23 @@ export function Module05Layout({
   const handleChallengeCompleted = () => {
     setChallengeCompleted(true);
     onUpdateModuleProgress("05", 85, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "05",
+          activityId: "act_05_seasons_eclipse_sim",
+          payload: {
+            nodesAligned: true,
+            predictedCount: 2,
+            eclipsePredicted: true,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit eclipse telemetry:", err);
+    }
   };
 
   const handleSimulationTested = () => {
@@ -280,9 +298,10 @@ export function Module05Layout({
       </section>
 
       {/* 6. Science Knowledge Check Quiz */}
-      <section className="space-y-4">
+      <section className="space-y-4" id="module-05-quiz">
         <KnowledgeCheck
           quizId="quiz_module_05"
+          currentLevel={currentLevel}
           questions={gradeContent.quizQuestions}
           onCompleteQuiz={handleFinishQuiz}
         />

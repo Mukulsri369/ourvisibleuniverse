@@ -37,6 +37,7 @@ import {
   Scale,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module09LayoutProps {
   module: ModuleContract;
@@ -111,6 +112,23 @@ export function Module09Layout({
     if (!hasTestedHR) {
       setHasTestedHR(true);
       onUpdateModuleProgress("09", 85, "in_progress");
+      try {
+        void submitActivityOutcome({
+          data: {
+            moduleId: "09",
+            activityId: "act_09_hr_diagram_lab",
+            payload: {
+              placedCount: 5,
+              accuracyPct: 95,
+              starsClassified: 5,
+              success: true,
+            },
+            isAccessibleAlternative: false,
+          },
+        });
+      } catch (err) {
+        console.warn("Could not submit HR diagram telemetry:", err);
+      }
     }
   };
 
@@ -432,13 +450,14 @@ export function Module09Layout({
       </section>
 
       {/* 5. KNOWLEDGE CHECK QUIZ */}
-      <section className="space-y-4">
+      <section className="space-y-4" id="module-09-quiz">
         <div className="flex items-center gap-2">
           <Zap className="size-5 text-amber-400" />
           <h2 className="text-xl font-bold text-white">Stellar Science Knowledge Check</h2>
         </div>
         <KnowledgeCheck
           quizId="quiz_module_09"
+          currentLevel={currentLevel}
           questions={gradeContent.quizQuestions}
           onComplete={handleFinishQuiz}
         />

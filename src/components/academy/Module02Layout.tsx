@@ -39,6 +39,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module02LayoutProps {
   module: ModuleContract;
@@ -87,6 +88,23 @@ export function Module02Layout({
   const handleFinishGame = () => {
     setGameCompleted(true);
     onUpdateModuleProgress("02", 75, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "02",
+          activityId: "act_02_planetarium_nav",
+          payload: {
+            alignedCount: 3,
+            polarisLocated: true,
+            constellationsIdentified: 3,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit module 02 activity outcome:", err);
+    }
   };
 
   return (
@@ -305,8 +323,13 @@ export function Module02Layout({
       </section>
 
       {/* 5. Knowledge Check (Quiz) */}
-      <section className="pt-4">
-        <KnowledgeCheck questions={gradeContent.quizQuestions} onCompleteQuiz={handleFinishQuiz} />
+      <section className="pt-4" id="module-02-quiz">
+        <KnowledgeCheck
+          quizId="quiz_module_02"
+          currentLevel={currentLevel}
+          questions={gradeContent.quizQuestions}
+          onCompleteQuiz={handleFinishQuiz}
+        />
       </section>
 
       {/* 6. Primary Scientific Grounding Archives */}

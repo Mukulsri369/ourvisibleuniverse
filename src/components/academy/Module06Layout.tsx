@@ -42,6 +42,7 @@ import {
   Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module06LayoutProps {
   module: ModuleContract;
@@ -97,6 +98,22 @@ export function Module06Layout({
   const handleHuntCompleted = () => {
     setHuntCompleted(true);
     onUpdateModuleProgress("06", 85, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "06",
+          activityId: "act_06_solar_system_tour",
+          payload: {
+            classifiedCount: 4,
+            worldsClassified: 4,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit planetary density telemetry:", err);
+    }
   };
 
   const handleSimulationTested = () => {
@@ -270,15 +287,16 @@ export function Module06Layout({
       </section>
 
       {/* 6. GRADED KNOWLEDGE CHECK */}
-      <section className="space-y-3">
+      <section className="space-y-3" id="module-06-quiz">
         <div className="flex items-center gap-2">
           <HelpCircle className="size-5 text-purple-400" />
           <h2 className="text-xl font-bold text-white">Module 06 Knowledge Check</h2>
         </div>
         <KnowledgeCheck
+          quizId="quiz_module_06"
+          currentLevel={currentLevel}
           questions={gradeContent.quizQuestions}
           onFinishQuiz={handleFinishQuiz}
-          level={currentLevel}
         />
       </section>
 

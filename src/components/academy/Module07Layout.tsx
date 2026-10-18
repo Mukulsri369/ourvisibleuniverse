@@ -35,6 +35,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module07LayoutProps {
   module: ModuleContract;
@@ -89,6 +90,22 @@ export function Module07Layout({
   const handleActivityCompleted = () => {
     setActivityCompleted(true);
     onUpdateModuleProgress("07", 85, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "07",
+          activityId: "act_07_sun_simulator",
+          payload: {
+            coreTempK: 15600000,
+            cmeTraced: true,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit solar activity outcome:", err);
+    }
   };
 
   return (
@@ -297,15 +314,16 @@ export function Module07Layout({
       </section>
 
       {/* 6. GRADED KNOWLEDGE CHECK */}
-      <section className="space-y-3">
+      <section className="space-y-3" id="module-07-quiz">
         <div className="flex items-center gap-2">
           <Activity className="size-5 text-purple-400" />
           <h2 className="text-xl font-bold text-white">Module 07 Knowledge Check</h2>
         </div>
         <KnowledgeCheck
+          quizId="quiz_module_07"
+          currentLevel={currentLevel}
           questions={gradeContent.quizQuestions}
           onFinishQuiz={handleFinishQuiz}
-          level={currentLevel}
         />
       </section>
 

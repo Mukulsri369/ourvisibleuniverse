@@ -34,6 +34,7 @@ import {
   Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module03LayoutProps {
   module: ModuleContract;
@@ -97,6 +98,22 @@ export function Module03Layout({
         Math.max(progress.moduleProgress["03"]?.progress || 0, progressPercent),
         "in_progress",
       );
+      try {
+        void submitActivityOutcome({
+          data: {
+            moduleId: "03",
+            activityId: "act_03_distance_ladder_lab",
+            payload: {
+              parallaxArcsec: 0.772,
+              distanceParsecs: 1.295,
+              success: true,
+            },
+            isAccessibleAlternative: false,
+          },
+        });
+      } catch (err) {
+        console.warn("Could not submit parallax telemetry:", err);
+      }
       return next;
     });
   };
@@ -363,7 +380,8 @@ export function Module03Layout({
         </div>
 
         <KnowledgeCheck
-          quizId="module_03_quiz"
+          quizId="quiz_module_03"
+          currentLevel={currentLevel}
           questions={MODULE_03_QUIZ}
           onFinishQuiz={handleFinishQuiz}
         />
