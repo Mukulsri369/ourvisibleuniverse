@@ -22,6 +22,8 @@
     "test:lss": "tsx scripts/lss-hybrid-explorer-test.ts",
     "test:consistency": "tsx scripts/catalog-consistency-validator.ts",
     "test:visual": "tsx scripts/visual-regression-tests.ts",
+    "test:student": "tsx scripts/student-system-validation.ts",
+    "test:assessment": "tsx scripts/assessment-engine-validation.ts",
     "test:all": "tsx scripts/astronomy-validation.ts && tsx scripts/catalog-consistency-validator.ts && tsx scripts/visual-regression-tests.ts && tsx scripts/qa-audit-test.ts",
     "ingest:catalog": "tsx scripts/ingest-astronomy-catalog.ts"
   },
