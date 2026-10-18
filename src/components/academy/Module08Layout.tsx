@@ -1,5 +1,6 @@
 // @ts-nocheck -- loosely-typed educational content; runtime-validated by rendering.
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { CosmosLessonNavigator } from "@/lib/cosmos/CosmosLessonNavigator";
 import type {
   LearningLevel,
   ModuleContract,
@@ -83,6 +84,24 @@ export function Module08Layout({
 
   const activeSubLesson = MODULE_08_SUBLESSONS[selectedSubLessonIndex];
   const subLessonContent = activeSubLesson.content[currentLevel];
+
+  useEffect(() => {
+    const unregister = CosmosLessonNavigator.getInstance().registerTabHandler("08", (ev) => {
+      if (
+        ev.sublessonIndex !== undefined &&
+        ev.sublessonIndex >= 0 &&
+        ev.sublessonIndex < MODULE_08_SUBLESSONS.length
+      ) {
+        setSelectedSubLessonIndex(ev.sublessonIndex);
+      } else if (ev.sublessonId) {
+        const matchIdx = MODULE_08_SUBLESSONS.findIndex((s) => s.id === ev.sublessonId);
+        if (matchIdx !== -1) {
+          setSelectedSubLessonIndex(matchIdx);
+        }
+      }
+    });
+    return () => unregister();
+  }, []);
 
   const handleFinishQuiz = (score: number, total: number) => {
     setQuizFinished(true);

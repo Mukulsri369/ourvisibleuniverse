@@ -73,13 +73,22 @@ export function LessonLayout({
   // Text Synchronization with COSMOS Voice Narration
   const [activeNarrationSection, setActiveNarrationSection] = useState<string | null>(null);
 
+  // Register Tab Navigation Adapter with CosmosLessonNavigator
   useEffect(() => {
-    let lastUserScroll = 0;
-    const onScroll = () => {
-      lastUserScroll = Date.now();
-    };
-    window.addEventListener("wheel", onScroll, { passive: true });
-    window.addEventListener("touchmove", onScroll, { passive: true });
+    const unregister = CosmosLessonNavigator.getInstance().registerTabHandler("01", (ev) => {
+      if (
+        ev.sublessonIndex !== undefined &&
+        ev.sublessonIndex >= 0 &&
+        ev.sublessonIndex < MODULE_01_SUBLESSONS.length
+      ) {
+        setActiveSubLessonIndex(ev.sublessonIndex);
+      } else if (ev.sublessonId) {
+        const matchIdx = MODULE_01_SUBLESSONS.findIndex((s) => s.id === ev.sublessonId);
+        if (matchIdx !== -1) {
+          setActiveSubLessonIndex(matchIdx);
+        }
+      }
+    });
 
     const handleSync = (e: any) => {
       const detail = e.detail;
@@ -93,27 +102,12 @@ export function LessonLayout({
             setActiveSubLessonIndex(matchIdx);
           }
         }
-
-        // Auto-scroll gently when enabled, unless student manually scrolled recently
-        const prefs = LearningPreferenceManager.getPreferences();
-        const hasRecentUserScroll = Date.now() - lastUserScroll < 5000;
-        if (prefs.autoScrollEnabled && !hasRecentUserScroll && typeof document !== "undefined") {
-          const el = document.getElementById(`m01-sec-${detail.sectionId}`);
-          if (el) {
-            const rect = el.getBoundingClientRect();
-            const inView = rect.top >= 80 && rect.bottom <= window.innerHeight - 80;
-            if (!inView) {
-              el.scrollIntoView({ behavior: "smooth", block: "nearest" });
-            }
-          }
-        }
       }
     };
 
     window.addEventListener("cosmos:narration-sync" as any, handleSync);
     return () => {
-      window.removeEventListener("wheel", onScroll);
-      window.removeEventListener("touchmove", onScroll);
+      unregister();
       window.removeEventListener("cosmos:narration-sync" as any, handleSync);
     };
   }, []);
@@ -237,6 +231,8 @@ export function LessonLayout({
             return (
               <button
                 key={sl.id}
+                data-tab-sublesson={sl.id}
+                data-tab-index={idx}
                 onClick={() => setActiveSubLessonIndex(idx)}
                 className={`p-3 rounded-xl border text-left transition-all ${
                   active
