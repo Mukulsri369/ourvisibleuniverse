@@ -20,9 +20,14 @@ import {
   type NarrationSegment,
   type NarrationState,
   type StudentQuestionContext,
+  type CosmosInteractionState,
 } from "@/lib/cosmos/cosmos-types";
 import { NarrationController } from "@/lib/cosmos/NarrationController";
-import { VoiceConversationController } from "@/lib/cosmos/VoiceConversationController";
+import {
+  VoiceConversationController,
+  type ConversationEventPayload,
+} from "@/lib/cosmos/VoiceConversationController";
+import { VoiceCommandProcessor } from "@/lib/cosmos/VoiceCommandProcessor";
 import { LearningPreferenceManager } from "@/lib/cosmos/LearningPreferenceManager";
 import { StudentQuestionContextManager } from "@/lib/cosmos/StudentQuestionContext";
 import { VisualizationActionController } from "@/lib/cosmos/VisualizationActionController";
@@ -55,6 +60,10 @@ import {
   CheckCircle2,
   RefreshCw,
   Sliders,
+  Mic,
+  MicOff,
+  CornerDownRight,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -109,6 +118,11 @@ export function CosmosCompanion({
     narrationRef.current!.getState(),
   );
 
+  // 3b. Real-Time Conversation State (Prompt 14)
+  const [conversationPayload, setConversationPayload] = useState<ConversationEventPayload>(() =>
+    voiceRef.current!.getPayload(),
+  );
+
   // 4. Q&A and UI State
   const [studentQuestion, setStudentQuestion] = useState("");
   const [isAsking, setIsAsking] = useState(false);
@@ -117,6 +131,7 @@ export function CosmosCompanion({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showSpokenPhonetics, setShowSpokenPhonetics] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+  const [showVoiceCommands, setShowVoiceCommands] = useState(false);
 
   // Reload segments when level or language changes
   useEffect(() => {
@@ -155,6 +170,54 @@ export function CosmosCompanion({
 
     return () => {
       unsubscribe();
+    };
+  }, []);
+
+  // Subscribe to conversation controller updates (Prompt 14)
+  useEffect(() => {
+    const vController = voiceRef.current;
+    if (!vController) return;
+
+    const unsubscribe = vController.subscribe((payload) => {
+      setConversationPayload({ ...payload });
+      if (payload.lastAnswer) {
+        setLastAnswer(payload.lastAnswer);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  // Keyboard Push-to-Talk (Hold Space when not typing in text input)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space" && !e.repeat) {
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        if (activeTag !== "input" && activeTag !== "textarea") {
+          e.preventDefault();
+          voiceRef.current?.startPushToTalk();
+        }
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        const activeTag = document.activeElement?.tagName?.toLowerCase();
+        if (activeTag !== "input" && activeTag !== "textarea") {
+          e.preventDefault();
+          voiceRef.current?.stopPushToTalk();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, []);
 
@@ -214,6 +277,42 @@ export function CosmosCompanion({
   const handleSetLanguage = (lang: CosmosLanguage) => {
     LearningPreferenceManager.updatePreferences({ language: lang });
     setPreferences(LearningPreferenceManager.getPreferences());
+  };
+
+  // Real-Time Conversational Handlers (Prompt 14)
+  const handleToggleHandsFree = async () => {
+    const next = !preferences.handsFreeBargeIn;
+    if (next) {
+      const ok = await voiceRef.current?.enableMicrophone();
+      if (!ok) return;
+    }
+    LearningPreferenceManager.setHandsFreeBargeIn(next);
+    setPreferences(LearningPreferenceManager.getPreferences());
+  };
+
+  const handleToggleAutoResume = () => {
+    const next = !preferences.autoResumeAfterDiscussion;
+    LearningPreferenceManager.setAutoResumeAfterDiscussion(next);
+    setPreferences(LearningPreferenceManager.getPreferences());
+  };
+
+  const handlePushToTalkStart = () => {
+    voiceRef.current?.startPushToTalk();
+  };
+
+  const handlePushToTalkStop = () => {
+    voiceRef.current?.stopPushToTalk();
+  };
+
+  const handleResumeLessonNow = () => {
+    voiceRef.current?.resumeLesson();
+  };
+
+  const handleVoiceCommand = (cmd: string) => {
+    const match = VoiceCommandProcessor.matchCommand(cmd);
+    if (match.isCommand && match.commandType && narrationRef.current) {
+      VoiceCommandProcessor.executeCommand(match.commandType, narrationRef.current);
+    }
   };
 
   // Ask Question Handler
@@ -306,8 +405,59 @@ export function CosmosCompanion({
     }
   };
 
-  // Status badge styling
+  // Status badge styling incorporating Prompt 14 interaction states
   const renderStatusBadge = () => {
+    const cState = conversationPayload.state;
+
+    if (cState === "INTERRUPTING") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-400 text-purple-300 font-mono text-[11px] animate-pulse">
+          <span className="size-2 rounded-full bg-purple-400 animate-ping" />
+          <span>INTERRUPTING</span>
+        </span>
+      );
+    }
+    if (cState === "LISTENING") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/20 border border-rose-400 text-rose-300 font-mono text-[11px]">
+          <span className="size-2 rounded-full bg-rose-400 animate-ping" />
+          <span>LISTENING TO STUDENT</span>
+        </span>
+      );
+    }
+    if (cState === "PROCESSING") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-mono text-[11px]">
+          <RefreshCw className="size-3 animate-spin text-cyan-400" />
+          <span>PROCESSING QUESTION</span>
+        </span>
+      );
+    }
+    if (cState === "ANSWERING") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-mono text-[11px]">
+          <Volume2 className="size-3 text-emerald-400 animate-bounce" />
+          <span>COSMOS ANSWERING</span>
+        </span>
+      );
+    }
+    if (cState === "FOLLOW_UP_WINDOW") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-mono text-[11px]">
+          <Clock className="size-3 text-amber-400" />
+          <span>DISCUSSION OPEN ({conversationPayload.followUpCountdownSeconds}s)</span>
+        </span>
+      );
+    }
+    if (cState === "RESUMING") {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-mono text-[11px]">
+          <FastForward className="size-3 text-cyan-400" />
+          <span>RESUMING LESSON</span>
+        </span>
+      );
+    }
+
     switch (narrationState.status) {
       case "loading":
         return (
@@ -597,7 +747,7 @@ export function CosmosCompanion({
                     </select>
                   </div>
 
-                  <div className="flex items-center gap-4 pt-4 sm:pt-2">
+                  <div className="flex flex-wrap items-center gap-4 pt-4 sm:pt-2 sm:col-span-3 border-t border-white/5">
                     <label className="flex items-center gap-2 cursor-pointer text-slate-300 text-xs">
                       <input
                         type="checkbox"
@@ -617,7 +767,175 @@ export function CosmosCompanion({
                       />
                       <span>Auto-Scroll</span>
                     </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer text-cyan-300 text-xs font-semibold">
+                      <input
+                        type="checkbox"
+                        checked={preferences.handsFreeBargeIn}
+                        onChange={handleToggleHandsFree}
+                        className="rounded border-white/20 bg-slate-900 text-cyan-500"
+                      />
+                      <span>Hands-Free Voice Interruption (Opt-In VAD)</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer text-slate-300 text-xs">
+                      <input
+                        type="checkbox"
+                        checked={preferences.autoResumeAfterDiscussion}
+                        onChange={handleToggleAutoResume}
+                        className="rounded border-white/20 bg-slate-900 text-cyan-500"
+                      />
+                      <span>Auto-Resume Lesson After Discussion</span>
+                    </label>
                   </div>
+                </div>
+              )}
+
+              {/* REAL-TIME CONVERSATION & BARGE-IN BANNER (Prompt 14) */}
+              {(conversationPayload.state === "INTERRUPTING" ||
+                conversationPayload.state === "LISTENING" ||
+                conversationPayload.state === "PROCESSING" ||
+                conversationPayload.state === "ANSWERING" ||
+                conversationPayload.state === "FOLLOW_UP_WINDOW" ||
+                conversationPayload.state === "RESUMING") && (
+                <div
+                  className={`p-4 rounded-2xl border transition-all duration-300 ${
+                    conversationPayload.state === "LISTENING" ||
+                    conversationPayload.state === "INTERRUPTING"
+                      ? "bg-rose-500/15 border-rose-500/40 ring-1 ring-rose-500/30 text-rose-100"
+                      : conversationPayload.state === "PROCESSING"
+                        ? "bg-cyan-500/15 border-cyan-500/40 ring-1 ring-cyan-500/30 text-cyan-100"
+                        : conversationPayload.state === "ANSWERING"
+                          ? "bg-emerald-500/15 border-emerald-500/40 ring-1 ring-emerald-500/30 text-emerald-100"
+                          : conversationPayload.state === "FOLLOW_UP_WINDOW"
+                            ? "bg-amber-500/15 border-amber-500/40 ring-1 ring-amber-500/30 text-amber-100"
+                            : "bg-purple-500/15 border-purple-500/40 ring-1 ring-purple-500/30 text-purple-100"
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex items-center justify-center size-9 rounded-xl bg-slate-950/80 border border-white/10 shrink-0">
+                        {conversationPayload.state === "LISTENING" ||
+                        conversationPayload.state === "INTERRUPTING" ? (
+                          <Mic className="size-5 text-rose-400 animate-pulse" />
+                        ) : conversationPayload.state === "PROCESSING" ? (
+                          <RefreshCw className="size-5 text-cyan-400 animate-spin" />
+                        ) : conversationPayload.state === "ANSWERING" ? (
+                          <Volume2 className="size-5 text-emerald-400 animate-bounce" />
+                        ) : conversationPayload.state === "FOLLOW_UP_WINDOW" ? (
+                          <MessageSquare className="size-5 text-amber-400" />
+                        ) : (
+                          <FastForward className="size-5 text-purple-400 animate-pulse" />
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold uppercase tracking-wider">
+                            {conversationPayload.state === "INTERRUPTING" &&
+                              "Barge-In Detected: Interrupted Narration"}
+                            {conversationPayload.state === "LISTENING" &&
+                              "Listening for Student Question..."}
+                            {conversationPayload.state === "PROCESSING" &&
+                              "Grounding Question in Astrophysics Curriculum..."}
+                            {conversationPayload.state === "ANSWERING" &&
+                              "COSMOS is Explaining..."}
+                            {conversationPayload.state === "FOLLOW_UP_WINDOW" &&
+                              `Discussion Open (${conversationPayload.followUpCountdownSeconds}s) — Ask Follow-Up or Resume`}
+                            {conversationPayload.state === "RESUMING" &&
+                              "Resuming Lesson from Preserved Location..."}
+                          </span>
+                        </div>
+
+                        <p className="text-xs opacity-90 mt-0.5 line-clamp-1">
+                          {conversationPayload.transcript
+                            ? `"${conversationPayload.transcript}"`
+                            : conversationPayload.interruptedSegment
+                              ? `Preserved reading position: ${conversationPayload.interruptedSegment.displayText.slice(0, 60)}...`
+                              : "Voice conversation active"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-center">
+                      {conversationPayload.state === "FOLLOW_UP_WINDOW" && (
+                        <>
+                          <Button
+                            size="sm"
+                            onClick={handleResumeLessonNow}
+                            className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs"
+                          >
+                            <FastForward className="size-3.5 mr-1" />
+                            Resume Lesson Now
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onMouseDown={handlePushToTalkStart}
+                            onMouseUp={handlePushToTalkStop}
+                            onTouchStart={handlePushToTalkStart}
+                            onTouchEnd={handlePushToTalkStop}
+                            className="border-amber-400/30 text-amber-300 hover:bg-amber-500/20 text-xs"
+                          >
+                            <Mic className="size-3.5 mr-1" />
+                            Ask Follow-Up (Hold)
+                          </Button>
+                        </>
+                      )}
+
+                      {conversationPayload.state === "ANSWERING" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => voiceRef.current?.triggerBargeIn("Student clicked interrupt")}
+                          className="border-emerald-400/30 text-emerald-300 hover:bg-emerald-500/20 text-xs"
+                        >
+                          <Pause className="size-3.5 mr-1" />
+                          Interrupt
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Audio Energy Waveform Meter during listening */}
+                  {(conversationPayload.state === "LISTENING" ||
+                    conversationPayload.state === "INTERRUPTING") && (
+                    <div className="mt-3 pt-2 border-t border-rose-500/20 flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-rose-300">Mic Input:</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-slate-950/60 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-rose-500 to-amber-400 transition-all duration-75"
+                          style={{
+                            width: `${Math.min(100, Math.round((conversationPayload.audioLevel || 0.1) * 300))}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-mono text-rose-300">
+                        {preferences.handsFreeBargeIn
+                          ? "Hands-Free Active"
+                          : "Push-to-Talk (Hold Space)"}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Auto-Resume Countdown Bar during follow-up window */}
+                  {conversationPayload.state === "FOLLOW_UP_WINDOW" && (
+                    <div className="mt-3 pt-2 border-t border-amber-500/20 flex items-center gap-2">
+                      <span className="text-[10px] font-mono text-amber-300">Auto-Resume:</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-slate-950/60 overflow-hidden">
+                        <div
+                          className="h-full bg-amber-400 transition-all duration-1000"
+                          style={{
+                            width: `${Math.min(100, Math.round(((conversationPayload.followUpCountdownSeconds || 0) / (preferences.followUpWindowSeconds || 6)) * 100))}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-[10px] font-mono text-amber-300">
+                        {conversationPayload.followUpCountdownSeconds}s
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 

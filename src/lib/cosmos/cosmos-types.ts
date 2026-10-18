@@ -158,6 +158,46 @@ export interface NarrationCursor {
 }
 
 /**
+ * Exact Interaction State Machine required by Prompt 14:
+ * IDLE, NARRATING, INTERRUPTING, LISTENING, PROCESSING, ANSWERING, FOLLOW_UP_WINDOW, RESUMING, PAUSED, ERROR
+ */
+export type CosmosInteractionState =
+  | "IDLE"
+  | "NARRATING"
+  | "INTERRUPTING"
+  | "LISTENING"
+  | "PROCESSING"
+  | "ANSWERING"
+  | "FOLLOW_UP_WINDOW"
+  | "RESUMING"
+  | "PAUSED"
+  | "ERROR";
+
+export type CosmosVoiceCommandType =
+  | "pause"
+  | "continue"
+  | "repeat"
+  | "go_back"
+  | "explain_again"
+  | "speak_slower"
+  | "skip_next"
+  | "show_example";
+
+export interface CosmosVoiceCommandMatch {
+  isCommand: boolean;
+  commandType?: CosmosVoiceCommandType;
+  rawTranscript: string;
+  matchedPhrase?: string;
+}
+
+export interface ConversationalTurnContext extends StudentQuestionContext {
+  interruptedSegment?: NarrationSegment | null;
+  nearbyInstructionalContent?: string[];
+  followUpCount?: number;
+  lastAnswerText?: string;
+}
+
+/**
  * Student Learning & AI Preferences.
  */
 export interface CosmosPreferences {
@@ -172,6 +212,12 @@ export interface CosmosPreferences {
   autoScrollEnabled: boolean;
   voiceGender: "neutral" | "female" | "male";
   visualSyncEnabled: boolean;
+  // Prompt 14 Real-Time Voice Conversation Preferences
+  handsFreeBargeIn: boolean; // Opt-in hands-free voice barge-in
+  autoResumeAfterDiscussion: boolean; // Auto-resume lesson when follow-up window closes
+  followUpWindowSeconds: number; // Seconds to wait for student follow-up before auto-resume (default 6s)
+  vadSensitivity: number; // Voice Activity Detection sensitivity (0.0 to 1.0)
+  pushToTalkEnabled: boolean; // Push-to-talk mode
 }
 
 export const COSMOS_DEFAULT_PREFERENCES: CosmosPreferences = {
@@ -186,6 +232,11 @@ export const COSMOS_DEFAULT_PREFERENCES: CosmosPreferences = {
   autoScrollEnabled: true,
   voiceGender: "neutral",
   visualSyncEnabled: true,
+  handsFreeBargeIn: false,
+  autoResumeAfterDiscussion: true,
+  followUpWindowSeconds: 6,
+  vadSensitivity: 0.5,
+  pushToTalkEnabled: true,
 };
 
 /**
@@ -204,3 +255,23 @@ export const COSMOS_FORBIDDEN_ACTIONS = [
 ] as const;
 
 export type CosmosForbiddenAction = (typeof COSMOS_FORBIDDEN_ACTIONS)[number];
+
+/**
+ * Prompt 14 Live API Session Types
+ */
+export type LiveSessionState =
+  | "DISCONNECTED"
+  | "CONNECTING"
+  | "CONNECTED"
+  | "RECONNECTING"
+  | "EXPIRED"
+  | "ERROR";
+
+export interface CosmosLiveSessionToken {
+  sessionId: string;
+  token: string;
+  model: "gemini-3.8-live" | "gemini-3.5-transcribe-live";
+  expiresAt: number; // Unix timestamp ms (short-lived TTL e.g. 15 minutes)
+  issuedAt: number;
+  moduleId: string;
+}

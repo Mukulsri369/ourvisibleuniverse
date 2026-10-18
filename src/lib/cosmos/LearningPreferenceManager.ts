@@ -94,6 +94,26 @@ export class LearningPreferenceManager {
     this.setPreferences({ autoScrollEnabled: enabled });
   }
 
+  public static setHandsFreeBargeIn(enabled: boolean): void {
+    this.setPreferences({ handsFreeBargeIn: enabled });
+  }
+
+  public static setAutoResumeAfterDiscussion(enabled: boolean): void {
+    this.setPreferences({ autoResumeAfterDiscussion: enabled });
+  }
+
+  public static setFollowUpWindowSeconds(seconds: number): void {
+    this.setPreferences({ followUpWindowSeconds: Math.max(3, Math.min(seconds, 30)) });
+  }
+
+  public static setVadSensitivity(val: number): void {
+    this.setPreferences({ vadSensitivity: Math.max(0.1, Math.min(val, 1.0)) });
+  }
+
+  public static setPushToTalk(enabled: boolean): void {
+    this.setPreferences({ pushToTalkEnabled: enabled });
+  }
+
   /**
    * Examination Mode Guard:
    * Returns false when in examination mode or when taking official qualification assessments.

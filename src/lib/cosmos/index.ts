@@ -14,6 +14,9 @@ export * from "./VisualizationActionController";
 export * from "./AudioCacheManager";
 export * from "./NarrationController";
 export * from "./VoiceConversationController";
+export * from "./VoiceActivityDetector";
+export * from "./VoiceCommandProcessor";
+export * from "./LiveSessionManager";
 export * from "./cosmos.functions";
 
 // Module adapters

@@ -49,3 +49,17 @@ export const synthesizeSegmentAudio = createServerFn({ method: "POST" })
     const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
     return AIServiceProviderServer.synthesizeNarrationSegmentAudio(data);
   });
+
+export const converseWithCosmos = createServerFn({ method: "POST" })
+  .validator((input: { question: string; context: any }) => input)
+  .handler(async ({ data }) => {
+    const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
+    return AIServiceProviderServer.answerConversationalTurn(data.question, data.context);
+  });
+
+export const createLiveSession = createServerFn({ method: "POST" })
+  .validator((input: { moduleId: string; userId?: string }) => input)
+  .handler(async ({ data }) => {
+    const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
+    return AIServiceProviderServer.createLiveSession(data);
+  });

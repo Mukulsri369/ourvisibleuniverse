@@ -9,9 +9,11 @@
 
 import { GoogleGenAI } from "@google/genai";
 import type {
+  ConversationalTurnContext,
   CosmosAnswer,
   CosmosAudioSynthesisResult,
   CosmosForbiddenAction,
+  CosmosLiveSessionToken,
   CosmosVoiceName,
   EpistemicStatus,
   StudentQuestionContext,
@@ -219,6 +221,55 @@ function generateScientificFallbackAnswer(
       };
     }
 
+    if (q.includes("barred spiral") || (q.includes("bar") && q.includes("spiral"))) {
+      if (level === "junior") {
+        return {
+          answerText:
+            "A barred spiral galaxy is a giant star city that has a straight central bar of bright stars across its middle, with pretty swirling spiral arms curling off the ends of the bar, just like our Milky Way!",
+          epistemicClassification: "fact",
+          epistemicNote: "Observed galaxy morphology (Hubble-de Vaucouleurs classification)",
+          scientificSources: [
+            { title: "Hubble Galaxy Classification: Barred Spirals", organization: "NASA / STScI" },
+          ],
+          suggestedFollowUpQuestions: [
+            "Are there other types of galaxies?",
+            "How many stars are in a barred spiral galaxy?",
+          ],
+          visualizationAction: {
+            sceneId: "milky_way",
+            targetObject: "Milky Way",
+            cameraAction: "orbit",
+            scaleRegime: "galactic",
+          },
+          learningLevelAdapted: level,
+        };
+      }
+      return {
+        answerText:
+          "A barred spiral galaxy features a prominent central bar-shaped structure of stars and interstellar gas extending through the galactic nucleus. Unlike ordinary spiral galaxies where arms wind directly from the core, the spiral arms of a barred spiral emerge exclusively from the ends of the central bar. Dynamic density wave models show the bar acts as a gravitational stirrer, funneling gas inward toward the core to trigger intense starbursts and feed central supermassive black holes. The Milky Way is classified as an SB(rs)bc barred spiral.",
+        epistemicClassification: "model",
+        epistemicNote: "Stellar dynamics and density wave simulations verified by Gaia DR3 and Spitzer photometry",
+        scientificSources: [
+          {
+            title: "Structure and Kinematics of the Milky Way Bar",
+            organization: "Bland-Hawthorn & Gerhard, ARA&A 2016",
+          },
+          { title: "Spitzer Infrared Survey of Barred Galaxies", organization: "NASA / JPL-Caltech" },
+        ],
+        suggestedFollowUpQuestions: [
+          "How long does it take for a galactic bar to form?",
+          "Does Andromeda also have a central bar?",
+        ],
+        visualizationAction: {
+          sceneId: "milky_way",
+          targetObject: "Milky Way",
+          cameraAction: "orbit",
+          scaleRegime: "galactic",
+        },
+        learningLevelAdapted: level,
+      };
+    }
+
     if (q.includes("earth") || q.includes("home")) {
       return {
         answerText:
@@ -292,6 +343,52 @@ function generateScientificFallbackAnswer(
     }
   }
 
+  // Conversational Follow-Up Inquiries
+  if (q === "why?" || q === "why" || q.startsWith("why ")) {
+    return {
+      answerText: `This occurs due to the fundamental laws of physics governing ${context.scientificTopic}. Gravity, thermodynamics, and electromagnetism determine how matter congregates and behaves across cosmic scales, as detailed in ${context.moduleTitle}.`,
+      epistemicClassification: "model",
+      epistemicNote: "Physical mechanism derived from fundamental interactions",
+      scientificSources: context.scientificReferences.map((r) => ({ title: r })),
+      suggestedFollowUpQuestions: [
+        "Can you give an observational example?",
+        "What are the mathematical equations behind this?",
+      ],
+      visualizationAction: context.currentVisualization,
+      learningLevelAdapted: level,
+    };
+  }
+
+  if (q.includes("example") || q.includes("show me an example") || q.includes("give me an example")) {
+    return {
+      answerText: `A prime astronomical example related to ${context.scientificTopic} is observed right here in our cosmic neighborhood. For instance, observations from space telescopes (like Hubble and JWST) reveal these exact physical processes at work across star systems and distant galaxies.`,
+      epistemicClassification: "fact",
+      epistemicNote: "Direct observational astronomical catalog verification",
+      scientificSources: context.scientificReferences.map((r) => ({ title: r })),
+      suggestedFollowUpQuestions: [
+        "How do astronomers measure these distances?",
+        "Can we zoom to this object in the 3D scene?",
+      ],
+      visualizationAction: context.currentVisualization,
+      learningLevelAdapted: level,
+    };
+  }
+
+  if (q.includes("explain more") || q.includes("explain again") || q.includes("more detail")) {
+    return {
+      answerText: `To look deeper into this: in ${context.lessonTitle}, we are investigating how ${context.scientificTopic} shapes our universe. Breaking this down step-by-step: ${context.currentDisplayText.slice(0, 220)}... Every observation confirms that physical laws operate consistently from our solar system to the edge of the visible cosmos.`,
+      epistemicClassification: "fact",
+      epistemicNote: "Grounded curriculum expansion",
+      scientificSources: context.scientificReferences.map((r) => ({ title: r })),
+      suggestedFollowUpQuestions: [
+        "What is the next concept in this lesson?",
+        "Are there any unanswered questions about this?",
+      ],
+      visualizationAction: context.currentVisualization,
+      learningLevelAdapted: level,
+    };
+  }
+
   // General grounded synthesis
   return {
     answerText: `In ${context.moduleTitle}, we explore ${context.scientificTopic}. As established in the lesson material: "${context.currentDisplayText.slice(0, 180)}..." This concept is fundamental to understanding our place in the cosmos.`,
@@ -318,6 +415,38 @@ export class AIServiceProviderServer {
       this.client = new GoogleGenAI({ apiKey });
     }
     return this.client;
+  }
+
+  /**
+   * Processes a real-time conversational interruption or follow-up turn.
+   * Grounded with the interrupted segment, nearby instructional context, and follow-up history.
+   */
+  public static async answerConversationalTurn(
+    question: string,
+    context: ConversationalTurnContext,
+  ): Promise<CosmosAnswer> {
+    const trimmed = (question || "").trim();
+    if (!trimmed) {
+      throw new Error("Conversational question cannot be empty.");
+    }
+
+    const forbidden = detectForbiddenActionAttempt(trimmed);
+    if (forbidden) {
+      return generateScientificFallbackAnswer(trimmed, context);
+    }
+    if (context.activeExamAttempt) {
+      return generateScientificFallbackAnswer(trimmed, context);
+    }
+
+    // Incorporate interrupted segment and nearby context into pedagogical context
+    const augmentedContext: StudentQuestionContext = {
+      ...context,
+      currentDisplayText: context.interruptedSegment
+        ? `[Interrupted Narration Segment]: "${context.interruptedSegment.displayText}"\n\n[Full Lesson Context]: ${context.currentDisplayText}`
+        : context.currentDisplayText,
+    };
+
+    return this.answerStudentQuestion(trimmed, augmentedContext);
   }
 
   /**
@@ -349,16 +478,22 @@ export class AIServiceProviderServer {
     if (client) {
       try {
         const systemInstruction = buildSystemPrompt(context);
-        const prompt = `Student Question: "${trimmed}"\n\nPlease provide a clear answer adapted for ${context.learningLevel.toUpperCase()} level. Include an epistemic classification ([FACT], [MODEL], [HYPOTHESIS], or [UNCERTAINTY]).`;
-
-        const response = await client.models.generateContent({
-          model: "gemini-3.8-flash",
-          contents: prompt,
-          config: {
-            systemInstruction,
-            temperature: 0.3,
-          },
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          const t = setTimeout(() => reject(new Error("Gemini API call timed out")), 3500);
+          if (t && typeof (t as any).unref === "function") (t as any).unref();
         });
+
+        const response = await Promise.race([
+          client.models.generateContent({
+            model: "gemini-3.8-flash",
+            contents: prompt,
+            config: {
+              systemInstruction,
+              temperature: 0.3,
+            },
+          }),
+          timeoutPromise,
+        ]);
 
         const rawText = response.text || "";
 
@@ -519,5 +654,56 @@ export class AIServiceProviderServer {
       size: this.audioCache.size,
       keys: Array.from(this.audioCache.keys()),
     };
+  }
+
+  private static activeLiveSessions = new Map<string, CosmosLiveSessionToken>();
+
+  /**
+   * Creates a short-lived authenticated Live API session token for COSMOS (Prompt 14).
+   * Valid for 15 minutes. Isolates permanent GEMINI_API_KEY on the server.
+   */
+  public static async createLiveSession(params: {
+    moduleId: string;
+    userId?: string;
+  }): Promise<CosmosLiveSessionToken> {
+    const { moduleId } = params;
+    const now = Date.now();
+    const ttlMs = 15 * 60 * 1000; // 15 minutes
+    const sessionId = `live_sess_${Math.random().toString(36).slice(2, 11)}_${now}`;
+    const token = `cosmos_live_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+
+    const sessionData: CosmosLiveSessionToken = {
+      sessionId,
+      token,
+      model: "gemini-3.8-live",
+      issuedAt: now,
+      expiresAt: now + ttlMs,
+      moduleId,
+    };
+
+    this.activeLiveSessions.set(sessionId, sessionData);
+
+    // Clean up expired sessions
+    for (const [id, sess] of this.activeLiveSessions.entries()) {
+      if (sess.expiresAt < now) {
+        this.activeLiveSessions.delete(id);
+      }
+    }
+
+    return sessionData;
+  }
+
+  /**
+   * Validates a short-lived Live API session token.
+   */
+  public static validateLiveSession(sessionId: string, token: string): boolean {
+    const session = this.activeLiveSessions.get(sessionId);
+    if (!session) return false;
+    if (session.token !== token) return false;
+    if (session.expiresAt < Date.now()) {
+      this.activeLiveSessions.delete(sessionId);
+      return false;
+    }
+    return true;
   }
 }
