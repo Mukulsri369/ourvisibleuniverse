@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Button } from "@/components/ui/button";
@@ -38,11 +38,15 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [signup, setSignup] = useState(false);
   const [busy, setBusy] = useState(false);
+  const leaving = useRef(false);
   useEffect(() => {
     const go = () => {
-      const target = next ?? sessionStorage.getItem("auth_next") ?? undefined;
+      if (leaving.current) return;
+      leaving.current = true;
+      const target = next ?? sessionStorage.getItem("auth_next") ?? "/universe";
       sessionStorage.removeItem("auth_next");
-      void (target ? navigate({ href: target }) : navigate({ to: "/universe" }));
+      // One full navigation avoids racing React updates during sign-in.
+      window.location.replace(target);
     };
     void supabase.auth.getUser().then(({ data }) => {
       if (data.user) go();
@@ -93,15 +97,15 @@ function AuthPage() {
         toast.error("Google sign-in didn't finish. Please try again.");
         return;
       }
+      if (leaving.current) return;
+      leaving.current = true;
       const saved = next ?? sessionStorage.getItem("auth_next") ?? "/universe";
       sessionStorage.removeItem("auth_next");
-      toast.success("Signed in");
-      // Full navigation guarantees the protected area sees the fresh session.
-      window.location.assign(saved);
+      window.location.replace(saved);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Google sign-in failed.");
     } finally {
-      setBusy(false);
+      if (!leaving.current) setBusy(false);
     }
   };
   return (
