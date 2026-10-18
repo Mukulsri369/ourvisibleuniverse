@@ -228,17 +228,64 @@ export function OpticsControlModal() {
                 <div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/70">Exposure</span>
-                    <span className="font-mono text-cyan-400">{exposure.toFixed(2)} EV</span>
+                    <span className="font-mono text-cyan-400">
+                      {exposure < 0.1 ? exposure.toFixed(3) : exposure.toFixed(2)} EV
+                    </span>
                   </div>
-                  <input
-                    type="range"
-                    min="0.01"
-                    max="2.5"
-                    step="0.01"
-                    value={exposure}
-                    onChange={(e) => setExposure(parseFloat(e.target.value))}
-                    className="mt-1.5 w-full accent-cyan-400"
-                  />
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExposure(Math.max(0.001, Number((exposure - 0.02).toFixed(3))))
+                      }
+                      className="px-2 py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-white/80 border border-white/10"
+                      title="Reduce exposure by 0.02 EV"
+                    >
+                      -0.02
+                    </button>
+                    <input
+                      type="range"
+                      min="0.001"
+                      max="2.5"
+                      step="0.002"
+                      value={exposure}
+                      onChange={(e) => setExposure(parseFloat(e.target.value))}
+                      className="flex-1 accent-cyan-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExposure(Math.min(2.5, Number((exposure + 0.02).toFixed(3))))
+                      }
+                      className="px-2 py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-white/80 border border-white/10"
+                      title="Increase exposure by 0.02 EV"
+                    >
+                      +0.02
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {[
+                      { label: "Ultra Low (0.01)", val: 0.01 },
+                      { label: "Deep Sky (0.05)", val: 0.05 },
+                      { label: "Default (0.10)", val: 0.1 },
+                      { label: "0.25", val: 0.25 },
+                      { label: "0.50", val: 0.5 },
+                      { label: "1.00", val: 1 },
+                    ].map((p) => (
+                      <button
+                        key={p.val}
+                        type="button"
+                        onClick={() => setExposure(p.val)}
+                        className={`px-2 py-0.5 text-[10px] rounded transition ${
+                          Math.abs(exposure - p.val) < 0.008
+                            ? "bg-cyan-500/30 text-cyan-300 border border-cyan-400/50"
+                            : "bg-white/5 text-white/60 hover:bg-white/10"
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Diffraction Spikes */}
@@ -286,13 +333,34 @@ export function OpticsControlModal() {
                     </div>
                     <input
                       type="range"
-                      min="0.1"
+                      min="0.0"
                       max="1.5"
-                      step="0.05"
+                      step="0.02"
                       value={bloomStrength}
                       onChange={(e) => setBloomStrength(parseFloat(e.target.value))}
                       className="mt-1.5 w-full accent-cyan-400"
                     />
+                    <div className="flex gap-1.5 mt-1.5">
+                      {[
+                        { label: "0.00", val: 0 },
+                        { label: "0.10 (Default)", val: 0.1 },
+                        { label: "0.30", val: 0.3 },
+                        { label: "0.80", val: 0.8 },
+                      ].map((b) => (
+                        <button
+                          key={b.val}
+                          type="button"
+                          onClick={() => setBloomStrength(b.val)}
+                          className={`px-2 py-0.5 text-[10px] rounded transition ${
+                            Math.abs(bloomStrength - b.val) < 0.02
+                              ? "bg-cyan-500/30 text-cyan-300 border border-cyan-400/50"
+                              : "bg-white/5 text-white/60 hover:bg-white/10"
+                          }`}
+                        >
+                          {b.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div>
