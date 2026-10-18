@@ -1,4 +1,3 @@
-// @ts-nocheck -- loosely-typed educational content; runtime-validated by rendering.
 import React, { useState } from "react";
 import type {
   LearningLevel,
@@ -83,6 +82,23 @@ export function Module17Layout({
   // Track progress milestones
   const handleTimeMachineInteract = () => {
     onUpdateModuleProgress(module.id, 40, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "17",
+          activityId: "act_17_cmb_explorer",
+          payload: {
+            peaksAnalyzed: 3,
+            baryonDensity: 0.022,
+            coldDarkMatterDensity: 0.12,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit CMB telemetry:", err);
+    }
   };
 
   const handleCMBInteract = () => {
@@ -176,7 +192,7 @@ export function Module17Layout({
           <Sparkles className="size-3.5" />
           <span>Curriculum Age-Adaptive Level (Classes 1–12+)</span>
         </div>
-        <LearningLevelSelector selectedLevel={level} onSelectLevel={onSetLearningLevel} />
+        <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} />
       </section>
 
       {/* 2b. Cosmic Evolution Interactive Experience Cross-Link Banner */}

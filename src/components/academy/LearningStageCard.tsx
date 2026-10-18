@@ -16,10 +16,12 @@ export function LearningStageCard({
   onToggleBookmark,
   onSelectModule,
 }: LearningStageCardProps) {
-  // Compute stage progress percentage
+  // Compute stage progress percentage based on verified or completed status
   const stageModules = stage.modules;
   const completedCount = stageModules.filter(
-    (m) => progress.moduleProgress[m.id]?.status === "completed",
+    (m) =>
+      progress.moduleProgress[m.id]?.isVerified ||
+      progress.moduleProgress[m.id]?.status === "completed",
   ).length;
   const stagePercent = Math.round((completedCount / stageModules.length) * 100);
 
@@ -80,6 +82,8 @@ export function LearningStageCard({
               status={status}
               percent={percent}
               isBookmarked={isBookmarked}
+              isVerified={modProgress?.isVerified}
+              evidenceCount={modProgress?.evidenceCount}
               onToggleBookmark={onToggleBookmark}
               onSelectModule={onSelectModule}
             />

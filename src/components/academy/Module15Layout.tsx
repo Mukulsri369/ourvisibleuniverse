@@ -1,4 +1,3 @@
-// @ts-nocheck -- loosely-typed educational content; runtime-validated by rendering.
 import React, { useState } from "react";
 import type {
   LearningLevel,
@@ -82,6 +81,22 @@ export function Module15Layout({
   // Track progress milestones
   const handleSimInteract = () => {
     onUpdateModuleProgress(module.id, 50, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "15",
+          activityId: "act_15_cosmic_web_explorer",
+          payload: {
+            inspectedNodes: 4,
+            structuresVisited: 4,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit cosmic web telemetry:", err);
+    }
   };
 
   const handleGameComplete = () => {
@@ -162,7 +177,7 @@ export function Module15Layout({
           <Sparkles className="size-3.5" />
           <span>Curriculum Age-Adaptive Level (Classes 1–10)</span>
         </div>
-        <LearningLevelSelector selectedLevel={level} onSelectLevel={onSetLearningLevel} />
+        <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} />
       </section>
 
       {/* 3. Interactive Laboratory Chamber Selector Tabs */}

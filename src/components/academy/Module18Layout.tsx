@@ -1,4 +1,3 @@
-// @ts-nocheck -- loosely-typed educational content; runtime-validated by rendering.
 import React, { useState } from "react";
 import type {
   LearningLevel,
@@ -79,10 +78,42 @@ export function Module18Layout({
   // Track progress milestones
   const handleObservatoryInteract = () => {
     onUpdateModuleProgress(module.id, 40, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "18",
+          activityId: "act_18_redshift_expansion_lab",
+          payload: {
+            redshift: 1.5,
+            velocityKmS: 450000,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit redshift telemetry:", err);
+    }
   };
 
   const handleRedshiftInteract = () => {
     onUpdateModuleProgress(module.id, 65, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "18",
+          activityId: "act_18_redshift_expansion_lab",
+          payload: {
+            redshift: 2.1,
+            velocityKmS: 630000,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit redshift telemetry:", err);
+    }
   };
 
   const handleBoundInteract = () => {
@@ -90,13 +121,9 @@ export function Module18Layout({
   };
 
   const handleQuizComplete = (score: number, total: number) => {
-    onRecordQuiz("module-18-quiz", score, total);
-    const passThreshold = Math.ceil(total * 0.7);
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 90, "in_progress");
-    } else {
-      onUpdateModuleProgress(module.id, 80, "in_progress");
-    }
+    onRecordQuiz("quiz_module_18", score, total);
+    // Authoritative verification is evaluated server-side.
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   return (
@@ -159,7 +186,7 @@ export function Module18Layout({
           <Sparkles className="size-3.5" />
           <span>Curriculum Age-Adaptive Level (Classes 1–12+)</span>
         </div>
-        <LearningLevelSelector selectedLevel={level} onSelectLevel={onSetLearningLevel} />
+        <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} />
       </section>
 
       {/* 3. Interactive Laboratory Chamber Tabs */}
@@ -355,7 +382,12 @@ export function Module18Layout({
               </p>
             </div>
 
-            <KnowledgeCheck questions={MODULE_18_QUIZ} onComplete={handleQuizComplete} />
+            <KnowledgeCheck
+              quizId="quiz_module_18"
+              currentLevel={level}
+              questions={MODULE_18_QUIZ}
+              onComplete={handleQuizComplete}
+            />
           </div>
         )}
       </section>

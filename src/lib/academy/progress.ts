@@ -310,7 +310,7 @@ export function useAcademyProgress() {
     if (syncingRef.current || typeof window === "undefined" || !navigator.onLine) return;
     try {
       const { data: userSession } = await supabase.auth.getSession();
-      if (!userSession.session) return;
+      if (!userSession?.session) return;
 
       syncingRef.current = true;
       setIsSyncing(true);
@@ -363,13 +363,21 @@ export function useAcademyProgress() {
   // Sync on initial login state and auth change
   useEffect(() => {
     void syncWithServer();
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        void syncWithServer();
-        void flushOfflineQueue();
+    let unsubscribe = () => {};
+    try {
+      const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+          void syncWithServer();
+          void flushOfflineQueue();
+        }
+      });
+      if (sub?.subscription) {
+        unsubscribe = () => sub.subscription.unsubscribe();
       }
-    });
-    return () => sub.subscription.unsubscribe();
+    } catch (err) {
+      console.warn("[Academy] Could not bind auth listener:", err);
+    }
+    return () => unsubscribe();
   }, [syncWithServer, flushOfflineQueue]);
 
   // 5. Change Learning Level (preserves all module progress & past records)

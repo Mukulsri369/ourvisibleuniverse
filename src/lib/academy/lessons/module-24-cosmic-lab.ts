@@ -687,7 +687,7 @@ When you complete all challenges, you will earn your official Cosmic Explorer Co
 5. Interplanetary Astronautics: Calculate the heliocentric Δv for a Hohmann transfer to Mars.`,
       Advanced: `Completing the Cosmic Learning Academy curriculum validates foundational mastery across astronomical observational techniques, celestial mechanics, stellar nucleosynthesis, and physical cosmology.
 
-Upon finishing the capstone suite, you receive an authentic Cosmic Explorer Credential generated client-side with cryptographic completion hashing, customizable callsign identification, and learning tier accreditation.`,
+Upon finishing the capstone suite, you receive an authentic Cosmic Explorer Credential generated client-side with cryptographic completion hashing, customizable callsign identification, and learning tier achievement.`,
     },
   },
 ];

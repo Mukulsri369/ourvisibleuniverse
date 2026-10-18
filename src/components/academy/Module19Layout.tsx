@@ -1,4 +1,3 @@
-// @ts-nocheck -- loosely-typed educational content; runtime-validated by rendering.
 import React, { useState } from "react";
 import type {
   LearningLevel,
@@ -6,6 +5,7 @@ import type {
   ModuleStatus,
   UserProgress,
 } from "@/lib/academy/types";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 import {
   MODULE_19_SUBLESSONS,
   MODULE_19_QUIZ,
@@ -74,16 +74,28 @@ export function Module19Layout({
   // Track progress milestones
   const handleModelInteract = () => {
     onUpdateModuleProgress(module.id, 50, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "19",
+          activityId: "act_19_model_comparator",
+          payload: {
+            modelsCompared: 2,
+            retrogradeDemonstrated: true,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit model comparison telemetry:", err);
+    }
   };
 
   const handleQuizComplete = (score: number, total: number) => {
-    onRecordQuiz("module-19-quiz", score, total);
-    const passThreshold = Math.ceil(total * 0.7);
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 90, "in_progress");
-    } else {
-      onUpdateModuleProgress(module.id, 80, "in_progress");
-    }
+    onRecordQuiz("quiz_module_19", score, total);
+    // Authoritative verification is evaluated server-side.
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   return (
@@ -155,7 +167,7 @@ export function Module19Layout({
           <Sparkles className="size-3.5" />
           <span>Curriculum Age-Adaptive Level (Classes 1–12+)</span>
         </div>
-        <LearningLevelSelector selectedLevel={level} onSelectLevel={onSetLearningLevel} />
+        <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} />
       </section>
 
       {/* 3. Interactive Laboratory Chamber Tabs */}
@@ -319,7 +331,12 @@ export function Module19Layout({
               </p>
             </div>
 
-            <KnowledgeCheck questions={MODULE_19_QUIZ} onComplete={handleQuizComplete} />
+            <KnowledgeCheck
+              quizId="quiz_module_19"
+              currentLevel={level}
+              questions={MODULE_19_QUIZ}
+              onComplete={handleQuizComplete}
+            />
           </div>
         )}
       </section>

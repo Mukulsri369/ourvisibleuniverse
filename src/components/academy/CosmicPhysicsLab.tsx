@@ -233,9 +233,6 @@ export const CosmicPhysicsLab: React.FC<CosmicPhysicsLabProps> = ({
       });
       setChallengeSolvedSteps((prev) => new Set([...prev, challengeStepIndex]));
       handleLabInteraction("lab-final-challenge");
-      if (challengeSolvedSteps.size + 1 >= FINAL_CHALLENGE_STEPS.length) {
-        if (onCompleteModule) onCompleteModule();
-      }
     } else {
       setChallengeFeedback({
         status: "incorrect",
@@ -1244,14 +1241,10 @@ export const CosmicPhysicsLab: React.FC<CosmicPhysicsLabProps> = ({
               Progress:{" "}
               <strong className="text-amber-400">{challengeSolvedSteps.size}/5 Solved</strong>
             </span>
-            <Button
-              size="sm"
-              onClick={() => setIsCertOpen(true)}
-              className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs"
-            >
-              <Award className="size-4 mr-1.5" />
-              Claim Certificate
-            </Button>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-slate-300">
+              <ShieldCheck className="size-3.5 text-amber-400" />
+              <span>Full Curriculum: 24/24 Verified Modules Required</span>
+            </div>
           </div>
         </div>
 

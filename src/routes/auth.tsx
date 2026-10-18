@@ -52,13 +52,24 @@ function AuthPage() {
       // One full navigation avoids racing React updates during sign-in.
       window.location.replace(target);
     };
-    void supabase.auth.getUser().then(({ data }) => {
-      if (data.user) go();
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) go();
-    });
-    return () => sub.subscription.unsubscribe();
+    void supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (data?.user) go();
+      })
+      .catch(() => {});
+    let unsub = () => {};
+    try {
+      const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === "SIGNED_IN" && session) go();
+      });
+      if (sub?.subscription) {
+        unsub = () => sub.subscription.unsubscribe();
+      }
+    } catch {
+      // offline fallback
+    }
+    return () => unsub();
   }, [navigate, next, isStudentFlow]);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();

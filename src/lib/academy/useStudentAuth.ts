@@ -140,33 +140,49 @@ export function useStudentAuth() {
   useEffect(() => {
     let mounted = true;
 
-    void supabase.auth.getUser().then(({ data }) => {
-      if (!mounted) return;
-      if (data.user) {
-        setUser(data.user);
-        void fetchAuthenticatedProfile(data.user);
-      } else {
+    void supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (!mounted) return;
+        if (data?.user) {
+          setUser(data.user);
+          void fetchAuthenticatedProfile(data.user);
+        } else {
+          setUser(null);
+          setProfile(loadGuestProfile());
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!mounted) return;
         setUser(null);
         setProfile(loadGuestProfile());
         setIsLoading(false);
-      }
-    });
+      });
 
-    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
-      if (session?.user) {
-        setUser(session.user);
-        await fetchAuthenticatedProfile(session.user);
-      } else {
-        setUser(null);
-        setProfile(loadGuestProfile());
-        setIsLoading(false);
+    let unsubscribe = () => {};
+    try {
+      const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+        if (!mounted) return;
+        if (session?.user) {
+          setUser(session.user);
+          await fetchAuthenticatedProfile(session.user);
+        } else {
+          setUser(null);
+          setProfile(loadGuestProfile());
+          setIsLoading(false);
+        }
+      });
+      if (sub?.subscription) {
+        unsubscribe = () => sub.subscription.unsubscribe();
       }
-    });
+    } catch (err) {
+      console.warn("[StudentAuth] Auth listener fallback:", err);
+    }
 
     return () => {
       mounted = false;
-      sub.subscription.unsubscribe();
+      unsubscribe();
     };
   }, [fetchAuthenticatedProfile]);
 

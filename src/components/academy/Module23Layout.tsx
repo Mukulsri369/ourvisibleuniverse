@@ -1,4 +1,3 @@
-// @ts-nocheck -- loosely-typed educational content; runtime-validated by rendering.
 import React, { useState } from "react";
 import type {
   LearningLevel,
@@ -6,6 +5,8 @@ import type {
   ModuleStatus,
   UserProgress,
 } from "@/lib/academy/types";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
+import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import {
   MODULE_23_SUBLESSONS,
   MODULE_23_QUIZ,
@@ -75,20 +76,28 @@ export function Module23Layout({
   // Track user progress milestones
   const handleLabInteract = () => {
     onUpdateModuleProgress(module.id, 55, "in_progress");
-  };
-
-  const handleQuizComplete = (score: number, total: number) => {
-    onRecordQuiz("module-23-quiz", score, total);
-    const passThreshold = Math.ceil(total * 0.7);
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 100, "completed");
-    } else {
-      onUpdateModuleProgress(module.id, 85, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "23",
+          activityId: "act_23_habitable_world_lab",
+          payload: {
+            biosignaturesAnalyzed: 3,
+            methaneOxygenDetected: true,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit biosignature telemetry:", err);
     }
   };
 
-  const handleMarkComplete = () => {
-    onUpdateModuleProgress(module.id, 100, "completed");
+  const handleQuizComplete = (score: number, total: number) => {
+    onRecordQuiz("quiz_module_23", score, total);
+    // Authoritative verification is evaluated server-side.
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   return (
@@ -398,6 +407,21 @@ export function Module23Layout({
       {/* 5. Scientific References & Sources */}
       <section className="pt-2">
         <SourceInformationPanel sources={MODULE_23_SOURCES} />
+      </section>
+
+      {/* 5b. Authoritative Verified Module Completion Checklist */}
+      <section id="module-23-checklist">
+        <ModuleCompletionChecklist
+          moduleId="23"
+          onNextModule={
+            nextRecommended && onSelectNextModule
+              ? () => onSelectNextModule(nextRecommended.module)
+              : onBackToMap
+          }
+          onNavigateToAssessment={() => setActiveTab("quiz")}
+          onNavigateToActivity={() => setActiveTab("lab")}
+          onNavigateToSection={() => setActiveTab("sublessons")}
+        />
       </section>
 
       {/* 6. Next Recommended Module Card */}

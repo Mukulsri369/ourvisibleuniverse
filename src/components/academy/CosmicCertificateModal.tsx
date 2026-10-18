@@ -109,10 +109,10 @@ export const CosmicCertificateModal: React.FC<CosmicCertificateModalProps> = ({
     COSMIC LEARNING ACADEMY
   </text>
   <text x="500" y="150" text-anchor="middle" font-family="serif" font-size="34" font-weight="bold" fill="url(#goldGrad)" letter-spacing="2">
-    COSMIC EXPLORER CERTIFICATE
+    CERTIFICATE OF ACHIEVEMENT
   </text>
   <text x="500" y="185" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#94a3b8" letter-spacing="2">
-    HONORARY ASTROPHYSICS &amp; SPACE EXPLORATION ACCREDITATION
+    HONORARY ASTROPHYSICS &amp; SPACE EXPLORATION ACHIEVEMENT
   </text>
 
   <!-- Body Text -->
@@ -180,7 +180,7 @@ export const CosmicCertificateModal: React.FC<CosmicCertificateModalProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                Cosmic Explorer Completion Certificate
+                Cosmic Explorer Certificate of Achievement
                 <Sparkles className="size-4 text-amber-400" />
               </h2>
               <p className="text-xs text-slate-400">
@@ -263,7 +263,7 @@ export const CosmicCertificateModal: React.FC<CosmicCertificateModalProps> = ({
                 <Star className="size-4 fill-amber-400" />
               </div>
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 tracking-wider uppercase">
-                Cosmic Explorer Certificate
+                Certificate of Achievement
               </h1>
               <p className="text-xs text-slate-400 font-mono tracking-wider mt-1">
                 OF SCIENTIFIC CAPSTONE COMPLETION
@@ -290,7 +290,7 @@ export const CosmicCertificateModal: React.FC<CosmicCertificateModalProps> = ({
             <div className="pt-4 border-t border-white/10 flex items-center justify-between text-left text-xs">
               <div>
                 <div className="text-[10px] uppercase font-mono text-slate-400">
-                  Accreditation Tier
+                  Achievement Tier
                 </div>
                 <div className="text-cyan-400 font-bold uppercase tracking-wider">
                   {level.toUpperCase()} EXPLORER
