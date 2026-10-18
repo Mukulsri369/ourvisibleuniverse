@@ -260,131 +260,48 @@ export async function submitAssessmentAttemptServer(
         { onConflict: "user_id,course_id,course_version" },
       );
     } else {
-      // Standard Module Pass: issue verified completion
-      const completionIdempotencyKey = `comp_${input.userId}_${formattedModId}`;
+      // Standard Module Pass: Evaluate multi-pillar completion criteria
+      // (Instructional sections + validated activity evidence + passing quiz)
+      const { evaluateModuleCompletionServer } = await import("./completion.server");
+      const evaluation = await evaluateModuleCompletionServer(input.userId, formattedModId);
+      verifiedCompletionAwarded = evaluation.isVerifiedComplete;
 
-      // Retrieve any registered activity evidence IDs
-      const { data: evidenceRows } = await supabaseAdmin
-        .from("academy_activity_evidence")
-        .select("id")
-        .eq("user_id", input.userId)
-        .eq("module_id", formattedModId)
-        .limit(5);
+      // Check if stage badge was unlocked
+      const moduleNum = parseInt(formattedModId, 10);
+      if (!isNaN(moduleNum) && moduleNum >= 1 && moduleNum <= 24) {
+        const stageId = Math.ceil(moduleNum / 4);
+        const { data: stageBadge } = await supabaseAdmin
+          .from("academy_stage_badges")
+          .select("badge_id")
+          .eq("user_id", input.userId)
+          .eq("stage_id", stageId)
+          .maybeSingle();
 
-      const evidenceIds = (evidenceRows || []).map((r) => r.id);
+        if (stageBadge && STAGE_BADGES[stageId]) {
+          newStageBadgeAwarded = STAGE_BADGES[stageId].title;
+        }
+      }
+    }
 
-      const { error: compError } = await supabaseAdmin.from("academy_verified_completions").upsert(
+    // Check if all 24 modules are verified
+    const { count: totalVerifiedCount } = await supabaseAdmin
+      .from("academy_verified_completions")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", input.userId);
+
+    if (totalVerifiedCount && totalVerifiedCount >= 24) {
+      certificateEligible = true;
+      await supabaseAdmin.from("academy_certificate_eligibility").upsert(
         {
           user_id: input.userId,
-          module_id: formattedModId,
-          module_version: "1.0.0",
-          approved_rule_version: "1.0.0",
-          qualifying_assessment_attempt_id: attempt.id,
-          qualifying_evidence_ids: evidenceIds,
-          verified_at: new Date().toISOString(),
-          idempotency_key: completionIdempotencyKey,
+          course_id: "cosmic_journey",
+          course_version: input.courseVersion || "1.0.0",
+          all_stages_completed: true,
+          eligible_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         },
-        { onConflict: "user_id,module_id" },
+        { onConflict: "user_id,course_id,course_version" },
       );
-
-      if (!compError) {
-        verifiedCompletionAwarded = true;
-
-        // Mirror to academy_module_progress
-        await supabaseAdmin.from("academy_module_progress").upsert(
-          {
-            user_id: input.userId,
-            module_id: formattedModId,
-            status: "completed",
-            percent: 100,
-            verified_quiz_passed: true,
-            completed_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id,module_id" },
-        );
-
-        // Check stage completion (each stage has 4 modules)
-        const moduleNum = parseInt(formattedModId, 10);
-        if (!isNaN(moduleNum) && moduleNum >= 1 && moduleNum <= 24) {
-          const stageId = Math.ceil(moduleNum / 4);
-          const startMod = (stageId - 1) * 4 + 1;
-          const stageModIds = [0, 1, 2, 3].map((offset) =>
-            String(startMod + offset).padStart(2, "0"),
-          );
-
-          const { data: stageCompletions } = await supabaseAdmin
-            .from("academy_verified_completions")
-            .select("module_id")
-            .eq("user_id", input.userId)
-            .in("module_id", stageModIds);
-
-          if (stageCompletions && stageCompletions.length === 4) {
-            const badgeInfo = STAGE_BADGES[stageId];
-            if (badgeInfo) {
-              const { error: badgeError } = await supabaseAdmin
-                .from("academy_stage_achievements")
-                .upsert(
-                  {
-                    user_id: input.userId,
-                    stage_id: stageId,
-                    badge_id: badgeInfo.badgeId,
-                    stage_rule_version: "1.0.0",
-                    qualifying_module_ids: stageModIds,
-                    awarded_at: new Date().toISOString(),
-                  },
-                  { onConflict: "user_id,stage_id" },
-                );
-
-              if (!badgeError) {
-                newStageBadgeAwarded = badgeInfo.title;
-
-                await supabaseAdmin.from("academy_stage_badges").upsert(
-                  {
-                    user_id: input.userId,
-                    stage_id: stageId,
-                    badge_id: badgeInfo.badgeId,
-                    awarded_at: new Date().toISOString(),
-                  },
-                  { onConflict: "user_id,stage_id" },
-                );
-              }
-            }
-          }
-        }
-
-        // Check if all 24 modules are verified
-        const { count: totalVerifiedCount } = await supabaseAdmin
-          .from("academy_verified_completions")
-          .select("*", { count: "exact", head: true })
-          .eq("user_id", input.userId);
-
-        if (totalVerifiedCount && totalVerifiedCount >= 24) {
-          certificateEligible = true;
-          await supabaseAdmin.from("academy_certificate_eligibility").upsert(
-            {
-              user_id: input.userId,
-              course_id: "cosmic_journey",
-              course_version: input.courseVersion || "1.0.0",
-              all_stages_completed: true,
-              eligible_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            },
-            { onConflict: "user_id,course_id,course_version" },
-          );
-        }
-
-        // Security Audit Log
-        await supabaseAdmin.from("academy_audit_log").insert({
-          actor_id: input.userId,
-          actor_role: "service_role",
-          action: "verify_module_completion",
-          entity_type: "academy_verified_completions",
-          entity_id: formattedModId,
-          new_state: { attempt_id: attempt.id, score, percentage, mode: input.mode },
-          idempotency_key: completionIdempotencyKey,
-        });
-      }
     }
   }
 

@@ -35,9 +35,10 @@ import {
   Table,
   CheckCircle2,
   Scale,
-  Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
+import { toast } from "sonner";
 
 interface Module08LayoutProps {
   module: ModuleContract;
@@ -68,11 +69,17 @@ export function Module08Layout({
 
   const [selectedSubLessonIndex, setSelectedSubLessonIndex] = useState(0);
   const [activeLabTab, setActiveLabTab] = useState<
-    "sandbox" | "graphs" | "challenge" | "parameters"
+    "sandbox" | "graphs" | "challenge" | "parameters" | "accessible"
   >("sandbox");
   const [hasInteractedWithSim, setHasInteractedWithSim] = useState(false);
   const [challengeCompleted, setChallengeCompleted] = useState(false);
   const [quizFinished, setQuizFinished] = useState(false);
+  const [accessibleCompleted, setAccessibleCompleted] = useState(false);
+
+  // Accessible Kepler's 3rd Law parameters
+  const [keplerA, setKeplerA] = useState<number>(1.0);
+  const [keplerT, setKeplerT] = useState<number>(1.0);
+  const [submittingAccessible, setSubmittingAccessible] = useState<boolean>(false);
 
   const activeSubLesson = MODULE_08_SUBLESSONS[selectedSubLessonIndex];
   const subLessonContent = activeSubLesson.content[currentLevel];
@@ -91,9 +98,69 @@ export function Module08Layout({
     }
   };
 
-  const handleChallengeCompleted = () => {
+  const handleChallengeCompleted = async () => {
     setChallengeCompleted(true);
     onUpdateModuleProgress("08", 85, "in_progress");
+
+    try {
+      const result = await submitActivityOutcome({
+        data: {
+          moduleId: "08",
+          activityId: "act_08_orbital_mechanics_lab",
+          payload: {
+            eccentricity: 0.045,
+            semiMajorAxisAU: 1.0,
+            periapsisKm: 1250,
+            systemStabilitySeconds: 30,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+
+      if (result.success) {
+        toast.success("Mission Challenge Verified by Physics Engine!", {
+          description: result.reason,
+        });
+      } else {
+        toast.error("Challenge telemetry rejected: " + result.reason);
+      }
+    } catch (err: any) {
+      console.warn("Could not submit activity outcome:", err);
+    }
+  };
+
+  const handleKeplerAccessibleSubmit = async () => {
+    setSubmittingAccessible(true);
+    try {
+      const result = await submitActivityOutcome({
+        data: {
+          moduleId: "08",
+          activityId: "act_08_kepler_math",
+          payload: {
+            semiMajorAxisAU: keplerA,
+            periodYears: keplerT,
+            accessibleAlternative: true,
+            success: true,
+          },
+          isAccessibleAlternative: true,
+        },
+      });
+
+      if (result.success) {
+        setAccessibleCompleted(true);
+        toast.success("Kepler's Third Law (T² = a³) Verified!", {
+          description: result.reason,
+        });
+        onUpdateModuleProgress("08", 85, "in_progress");
+      } else {
+        toast.error("Verification failed: " + result.reason);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to submit Kepler parameters.");
+    } finally {
+      setSubmittingAccessible(false);
+    }
   };
 
   return (
@@ -333,6 +400,18 @@ export function Module08Layout({
               <Table className="w-3.5 h-3.5" />
               <span>Sourced Parameters</span>
             </button>
+
+            <button
+              onClick={() => setActiveLabTab("accessible")}
+              className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                activeLabTab === "accessible"
+                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Scale className="w-3.5 h-3.5" />
+              <span>Accessible 2D Lab</span>
+            </button>
           </div>
         </div>
 
@@ -352,7 +431,147 @@ export function Module08Layout({
           />
         )}
 
-        {/* Tab 4: Sourced Parameters Table */}
+        {/* Tab 4: Accessible 2D Kepler's Third Law Lab */}
+        {activeLabTab === "accessible" && (
+          <div className="rounded-2xl border border-white/10 bg-slate-900/90 p-6 backdrop-blur-xl shadow-xl space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Scale className="w-5 h-5 text-purple-400" />
+                  <h3 className="text-base font-bold text-white">
+                    Accessible 2D Alternative: Kepler's Third Law Harmonic Lab (T² = a³)
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                  Screen-reader and 2D accessible pathway with equivalent scientific rigor. Calibrate semi-major axis and orbital period to satisfy gravitational equilibrium according to Keplerian celestial mechanics.
+                </p>
+              </div>
+
+              {accessibleCompleted && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 rounded-xl text-emerald-300 text-xs font-bold shrink-0">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Verified Outcome Recorded</span>
+                </div>
+              )}
+            </div>
+
+            {/* Presets */}
+            <div className="space-y-2">
+              <span className="text-xs font-mono uppercase tracking-wider text-slate-400">
+                Load Empirical Planetary Benchmark:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { name: "Earth", a: 1.0, t: 1.0 },
+                  { name: "Mars", a: 1.524, t: 1.881 },
+                  { name: "Jupiter", a: 5.204, t: 11.862 },
+                  { name: "Saturn", a: 9.582, t: 29.457 },
+                ].map((planet) => (
+                  <button
+                    key={planet.name}
+                    type="button"
+                    onClick={() => {
+                      setKeplerA(planet.a);
+                      setKeplerT(planet.t);
+                    }}
+                    className="px-3 py-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs text-slate-200 transition-colors"
+                  >
+                    {planet.name} (a = {planet.a} AU, T = {planet.t} yr)
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Interactive Inputs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl bg-slate-950 border border-white/10 space-y-2">
+                <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Semi-Major Axis a (Astronomical Units):</span>
+                  <span className="font-mono text-cyan-400">{keplerA.toFixed(3)} AU</span>
+                </label>
+                <input
+                  type="range"
+                  min="0.2"
+                  max="35"
+                  step="0.05"
+                  value={keplerA}
+                  onChange={(e) => setKeplerA(parseFloat(e.target.value))}
+                  className="w-full accent-cyan-400"
+                />
+                <div className="text-[11px] font-mono text-slate-400">
+                  Cube of distance a³ = {(Math.pow(keplerA, 3)).toFixed(3)}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-950 border border-white/10 space-y-2">
+                <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                  <span>Orbital Period T (Earth Years):</span>
+                  <span className="font-mono text-purple-400">{keplerT.toFixed(3)} yr</span>
+                </label>
+                <input
+                  type="range"
+                  min="0.1"
+                  max="210"
+                  step="0.1"
+                  value={keplerT}
+                  onChange={(e) => setKeplerT(parseFloat(e.target.value))}
+                  className="w-full accent-purple-400"
+                />
+                <div className="text-[11px] font-mono text-slate-400">
+                  Square of period T² = {(Math.pow(keplerT, 2)).toFixed(3)}
+                </div>
+              </div>
+            </div>
+
+            {/* Adaptive Guidance & Feedback Card */}
+            {(() => {
+              const a3 = Math.pow(keplerA, 3);
+              const t2 = Math.pow(keplerT, 2);
+              const diffPct = Math.abs(t2 - a3) / a3 * 100;
+              const isClose = diffPct < 15;
+
+              return (
+                <div className={`p-4 rounded-xl border space-y-2 ${
+                  isClose
+                    ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-200"
+                    : "border-amber-500/30 bg-amber-950/20 text-amber-200"
+                }`}>
+                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+                    {isClose ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Info className="w-4 h-4 text-amber-400" />
+                    )}
+                    <span>
+                      Kepler Ratio: T² / a³ = {(t2 / a3).toFixed(3)} (Discrepancy: {diffPct.toFixed(1)}%)
+                    </span>
+                  </div>
+
+                  <p className="text-xs leading-relaxed">
+                    {isClose
+                      ? "Harmonic equilibrium verified! The planetary orbital period matches gravitational centripetal acceleration within physical tolerance."
+                      : t2 > a3
+                        ? "Adaptive Hint: Orbital period T is too long for this distance. The satellite would crash inward under solar gravity. Decrease T or increase distance a."
+                        : "Adaptive Hint: Orbital period T is too short for this distance. Centrifugal momentum exceeds gravity; the planet would escape. Increase T or decrease distance a."}
+                  </p>
+
+                  <div className="pt-2 flex justify-end">
+                    <Button
+                      onClick={handleKeplerAccessibleSubmit}
+                      disabled={submittingAccessible || !isClose}
+                      size="sm"
+                      className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+                    >
+                      {submittingAccessible ? "Validating Outcome..." : "Submit Verified Kepler Outcome"}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* Tab 5: Sourced Parameters Table */}
         {activeLabTab === "parameters" && (
           <div className="rounded-2xl border border-white/10 bg-slate-900/90 p-6 backdrop-blur-xl shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">

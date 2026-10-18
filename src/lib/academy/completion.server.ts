@@ -37,65 +37,35 @@ export interface ModuleCompletionEvaluation {
   recommendedActionText: string;
 }
 
-/**
- * Evaluates whether a student has satisfied all pedagogical criteria for a module.
- * If all criteria are met, atomically issues official verified completion and checks stage badges.
- */
-export async function evaluateModuleCompletionServer(
-  userId: string,
-  moduleId: string,
-): Promise<ModuleCompletionEvaluation> {
-  const formattedModId = moduleId.padStart(2, "0");
-  const rule = getModuleCompletionRule(formattedModId);
+export interface LearnerModuleRecords {
+  existingCompletion?: any;
+  lessonProgressRows?: any[];
+  activityEvidenceRows?: any[];
+  assessmentAttemptRows?: any[];
+}
 
-  if (!rule) {
-    throw new Error(`No completion rule registered for module ${formattedModId}`);
-  }
-
-  // Fetch all learner records for this module in parallel
-  const [
-    { data: existingCompletion },
-    { data: lessonProgressRows },
-    { data: activityEvidenceRows },
-    { data: assessmentAttemptRows },
-  ] = await Promise.all([
-    supabaseAdmin
-      .from("academy_verified_completions")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("module_id", formattedModId)
-      .maybeSingle(),
-    supabaseAdmin
-      .from("academy_lesson_progress")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("module_id", formattedModId),
-    supabaseAdmin
-      .from("academy_activity_evidence")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("module_id", formattedModId)
-      .eq("verification_status", "verified"),
-    supabaseAdmin
-      .from("academy_assessment_attempts")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("assessment_id", `quiz_module_${formattedModId}`)
-      .order("percentage", { ascending: false }),
-  ]);
+export function evaluateCompletionCriteria(
+  rule: ModuleCompletionRule,
+  records: LearnerModuleRecords,
+) {
+  const {
+    existingCompletion,
+    lessonProgressRows = [],
+    activityEvidenceRows = [],
+    assessmentAttemptRows = [],
+  } = records;
 
   const checklist: RequirementItemStatus[] = [];
   const missingRequirements: string[] = [];
 
   // 1. Instructional Sections Evaluation
-  // Check if student has recorded lesson progress (reading/scroll depth)
-  const totalReadingTime = (lessonProgressRows || []).reduce(
+  const totalReadingTime = lessonProgressRows.reduce(
     (acc, row) => acc + (row.time_spent_seconds || 0),
     0,
   );
-  const maxScroll = Math.max(0, ...(lessonProgressRows || []).map((r) => r.scroll_depth_percent || 0));
+  const maxScroll = Math.max(0, ...lessonProgressRows.map((r) => r.scroll_depth_percent || 0));
   const instructionalSatisfied =
-    (lessonProgressRows && lessonProgressRows.length > 0) ||
+    lessonProgressRows.length > 0 ||
     totalReadingTime >= rule.minimumReadingSeconds ||
     maxScroll >= 50;
 
@@ -118,8 +88,7 @@ export async function evaluateModuleCompletionServer(
   let allActivitiesSatisfied = true;
 
   for (const act of rule.requiredActivities) {
-    // Check if there is verified evidence for this activity or its accessible alternative
-    const matchingEvidence = (activityEvidenceRows || []).find(
+    const matchingEvidence = activityEvidenceRows.find(
       (ev) =>
         ev.activity_type === act.id ||
         ev.activity_type === act.validationKey ||
@@ -128,7 +97,7 @@ export async function evaluateModuleCompletionServer(
 
     const isSatisfied = Boolean(matchingEvidence);
     if (matchingEvidence) {
-      qualifyingEvidenceIds.push(matchingEvidence.id);
+      qualifyingEvidenceIds.push(matchingEvidence.id || "ev_verified");
     } else {
       allActivitiesSatisfied = false;
       missingRequirements.push(`Complete required activity: ${act.title}`);
@@ -146,7 +115,7 @@ export async function evaluateModuleCompletionServer(
   }
 
   // 3. Knowledge Assessment Evaluation
-  const bestAttempt = assessmentAttemptRows && assessmentAttemptRows.length > 0 ? assessmentAttemptRows[0] : null;
+  const bestAttempt = assessmentAttemptRows.length > 0 ? assessmentAttemptRows[0] : null;
   const assessmentPassed = Boolean(bestAttempt && bestAttempt.percentage >= rule.passingScorePct);
 
   checklist.push({
@@ -168,6 +137,110 @@ export async function evaluateModuleCompletionServer(
   }
 
   const allCriteriaSatisfied = instructionalSatisfied && allActivitiesSatisfied && assessmentPassed;
+
+  let recommendedAction: ModuleCompletionEvaluation["recommendedAction"] = "continue_reading";
+  let recommendedActionText = "Explore Lesson Concepts";
+
+  if (existingCompletion) {
+    recommendedAction = "certified";
+    recommendedActionText = "Module Certified";
+  } else if (!instructionalSatisfied) {
+    recommendedAction = "continue_reading";
+    recommendedActionText = "Continue Learning Lesson";
+  } else if (!allActivitiesSatisfied) {
+    recommendedAction = "complete_activity";
+    recommendedActionText = "Complete Required Activity";
+  } else if (!assessmentPassed) {
+    recommendedAction = "take_assessment";
+    recommendedActionText = "Take Knowledge Check";
+  }
+
+  return {
+    allCriteriaSatisfied,
+    missingRequirements,
+    checklist,
+    recommendedAction,
+    recommendedActionText,
+    qualifyingEvidenceIds,
+    bestAttempt,
+  };
+}
+
+/**
+ * Evaluates whether a student has satisfied all pedagogical criteria for a module.
+ * If all criteria are met, atomically issues official verified completion and checks stage badges.
+ */
+export async function evaluateModuleCompletionServer(
+  userId: string,
+  moduleId: string,
+): Promise<ModuleCompletionEvaluation> {
+  const formattedModId = moduleId.padStart(2, "0");
+  const rule = getModuleCompletionRule(formattedModId);
+
+  if (!rule) {
+    throw new Error(`No completion rule registered for module ${formattedModId}`);
+  }
+
+  let existingCompletion: any = null;
+  let lessonProgressRows: any[] = [];
+  let activityEvidenceRows: any[] = [];
+  let assessmentAttemptRows: any[] = [];
+
+  try {
+    const [
+      compRes,
+      lessonRes,
+      evidenceRes,
+      attemptRes,
+    ] = await Promise.all([
+      supabaseAdmin
+        .from("academy_verified_completions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("module_id", formattedModId)
+        .maybeSingle(),
+      supabaseAdmin
+        .from("academy_lesson_progress")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("module_id", formattedModId),
+      supabaseAdmin
+        .from("academy_activity_evidence")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("module_id", formattedModId)
+        .eq("verification_status", "verified"),
+      supabaseAdmin
+        .from("academy_assessment_attempts")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("assessment_id", `quiz_module_${formattedModId}`)
+        .order("percentage", { ascending: false }),
+    ]);
+
+    existingCompletion = compRes?.data || null;
+    lessonProgressRows = lessonRes?.data || [];
+    activityEvidenceRows = evidenceRes?.data || [];
+    assessmentAttemptRows = attemptRes?.data || [];
+  } catch (err) {
+    console.warn("Could not query Supabase for module records, evaluating with empty defaults:", err);
+  }
+
+  let {
+    allCriteriaSatisfied,
+    missingRequirements,
+    checklist,
+    recommendedAction,
+    recommendedActionText,
+    qualifyingEvidenceIds,
+    bestAttempt,
+  } = evaluateCompletionCriteria(rule, {
+    existingCompletion,
+    lessonProgressRows,
+    activityEvidenceRows,
+    assessmentAttemptRows,
+  });
+
   let isVerifiedComplete = Boolean(existingCompletion);
   let verifiedAt = existingCompletion?.verified_at;
 
@@ -281,22 +354,10 @@ export async function evaluateModuleCompletionServer(
     }
   }
 
-  // Determine recommended next action for learner
-  let recommendedAction: ModuleCompletionEvaluation["recommendedAction"] = "continue_reading";
-  let recommendedActionText = "Explore Lesson Concepts";
-
+  // Update recommended next action if module is officially certified
   if (isVerifiedComplete) {
     recommendedAction = "certified";
     recommendedActionText = "Module Certified";
-  } else if (!instructionalSatisfied) {
-    recommendedAction = "continue_reading";
-    recommendedActionText = "Continue Learning Lesson";
-  } else if (!allActivitiesSatisfied) {
-    recommendedAction = "complete_activity";
-    recommendedActionText = "Complete Required Activity";
-  } else if (!assessmentPassed) {
-    recommendedAction = "take_assessment";
-    recommendedActionText = "Take Knowledge Check";
   }
 
   return {

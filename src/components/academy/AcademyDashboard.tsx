@@ -13,6 +13,7 @@ import { AchievementDisplay } from "./AchievementDisplay";
 import { AccessibilityControls } from "./AccessibilityControls";
 import { StudentRegistrationBanner } from "./StudentRegistrationBanner";
 import { StudentProfileModal } from "./StudentProfileModal";
+import { ModuleStickyCompletionDrawer } from "./ModuleCompletionChecklist";
 import { useStudentAuth } from "@/lib/academy/useStudentAuth";
 import { LEARNING_LEVELS } from "@/lib/academy/registry";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -333,11 +334,46 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           settings.fontSize === "large" ? "text-base" : "text-sm"
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-28">
           <Suspense fallback={<ModuleLoadingFallback title={activeLessonModule.title} />}>
             {renderActiveModule(activeLessonModule.id, layoutProps)}
           </Suspense>
         </div>
+
+        <ModuleStickyCompletionDrawer
+          moduleId={activeLessonModule.id}
+          onNavigateToAssessment={() => {
+            if (typeof document !== "undefined") {
+              const el =
+                document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]') ||
+                document.getElementById(`module-${activeLessonModule.id}-quiz`);
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNavigateToActivity={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 400, behavior: "smooth" });
+            }
+          }}
+          onNavigateToSection={() => {
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+          onScrollToChecklist={() => {
+            if (typeof document !== "undefined") {
+              const el =
+                document.getElementById(`module-${activeLessonModule.id}-checklist`) ||
+                document.querySelector('[role="region"][aria-label="Module Completion Checklist"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          onNextModule={
+            layoutProps.nextRecommended && layoutProps.onSelectNextModule
+              ? () => layoutProps.onSelectNextModule!(layoutProps.nextRecommended!.module)
+              : layoutProps.onBackToMap
+          }
+        />
       </div>
     );
   }

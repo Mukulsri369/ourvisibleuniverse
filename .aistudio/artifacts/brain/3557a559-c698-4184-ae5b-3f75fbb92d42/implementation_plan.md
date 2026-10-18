@@ -1,151 +1,119 @@
-# Mobile Sticky Cosmic Animation, Student Concept Spotlights (NASA & Wikipedia), and Chapter FAQs
+# Our Visible Universe Academy: Verified Completion Engine
 
-Redesign the Visible Universe History page so high school students (grades 10–11) have an engaging, interactive learning experience on both mobile and desktop. On mobile devices, the dynamic cosmic visualizer stays pinned at the top of the viewport with collapsible controls as students scroll through chapters, while highlighted scientific terms (e.g., Redshift, Cosmic Microwave Background, Epicycles) open dedicated concept sheets with NASA and Wikipedia references, and each chapter features an expandable student FAQ accordion.
+A centralized, server-authoritative educational verification engine for the 24-module Cosmic Learning Academy. Replaces unverified "Mark Complete" shortcuts with rigorous, multi-factor learning validation: required reading comprehension, verified interactive simulation physics outcomes, accessible alternative pathways, and secure server-graded assessments.
 
 ## User Review & Critical Decisions
 
 > [!IMPORTANT]
-> The following product and design choices were confirmed during Phase 1 clarification:
->
-> - **Mobile Animation Visibility**: Sticky top viewport with collapsible controls while scrolling, ensuring students can observe the changing cosmic model at the top of their screen without losing their reading place.
-> - **Concept Spotlights**: Highlighted interactive concept buttons embedded directly into the narrative that open a quick slide-up knowledge sheet with a student-friendly explanation, key formulas, and verified direct links to NASA and Wikipedia.
-> - **Chapter Inquiry Format**: Standard expandable FAQ accordions at the conclusion of each chapter answering authentic questions 10th and 11th graders ask about astronomical models and physical evidence.
+> The following architectural decisions were confirmed through interactive clarification and govern the implementation:
 
-- **Confirmed Decision 1**: Sticky mobile simulation deck anchored beneath the navigation header (`sticky top-14 z-30 lg:top-28`) with an adaptive height (`h-44` to `h-52` on mobile) and a quick tap-to-collapse toggle to respect the mobile 15% sticky guideline when reading long text.
-- **Confirmed Decision 2**: Centralized scientific knowledge repository (`src/lib/cosmic-concepts.ts`) mapping terms like _Redshift_, _Hubble's Law_, _Cosmic Microwave Background_, _Gravitational Lensing_, _Inflation_, and _Epicycles_ to student-level explanations and curated official NASA and Wikipedia destinations.
-- **Confirmed Decision 3**: Engaging chapter FAQ data added to every history chapter in `src/lib/visible-universe-history-data.ts`, addressing common misconceptions (e.g., "Why does light stretch?", "How could Eratosthenes measure Earth with just sticks and shadows?", "What does space expand into?").
+- **Confirmed Decision 1 (Guest & Offline Learners)**: Activity evidence and progress are securely cached in local offline queues and automatically synchronized with the server-side validator as soon as the student signs in or reconnects.
+- **Confirmed Decision 2 (Checklist Placement & Navigation)**: Each module provides a persistent sticky summary drawer along the bottom edge showing real-time eligibility status, paired with a full interactive completion checklist embedded at the conclusion of the lesson.
+- **Confirmed Decision 3 (Simulation Guidance & Accessibility)**: Interactive simulation challenges (e.g., Module 08 orbital mechanics) provide adaptive physics hints and dedicated 2D high-contrast accessible alternatives that evaluate with equivalent mathematical rigor.
 
 ---
 
 ## 1. Overview & Core Concept
 
-- **What It Does**: Upgrades the 26-epoch history of cosmic models into a classroom-ready, mobile-friendly interactive textbook. As students scroll down through chapters on smartphones, the visualizer remains pinned at the top, synchronizing its dynamic 3D/2D animation to whichever epoch is in view. Key scientific terms are highlighted as interactive beacons that open quick reference drawers linking directly to official NASA science missions and Wikipedia articles. Each chapter concludes with expandable FAQ inquiries designed for high school physics and astronomy curricula.
-- **Target Audience & Persona**: 10th and 11th-grade students (ages 15–17), science teachers, and curious stargazers seeking rigorous yet accessible historical cosmology.
-- **Key Value**: Bridges visual intuition and academic research. Students see how the geometric model looks in motion while having instant access to verified scientific literature without leaving their flow.
+- **What It Does**: The Verified Completion Engine establishes an uncheatable, standards-aligned credentialing pipeline for all 24 modules of Our Visible Universe Academy. No module status can be changed to "completed" through simple clicks, local storage tampering, artificial client timers, or AI assistant commands. Verified completion requires a student to demonstrate authentic engagement across three distinct verification states: (1) core instructional section reading, (2) verified activity or simulation challenge outcomes with physics validation, and (3) a passing score ($\ge 70\%$) on the server-graded assessment.
+- **Target Audience / Persona**: Astronomy students, self-directed cosmic learners, educators, and certification candidates seeking provable mastery from Earth's cosmic address out to the cosmological horizon.
+- **Key Value**: Guarantees educational integrity for progressive stage badges (Stages 1–6) and the final Cosmic Explorer certification, while remaining accessible to all learners through rigorous 2D alternative challenge pathways.
 
 ---
 
 ## 2. User Experience & Visual Design
 
-### Mobile Layout Ergonomics & Thumb Zone
-
-```
-+-------------------------------------------------+  ^
-| Top Site Header (Brand + Store CTA)             |  | 56px sticky top-0
-+-------------------------------------------------+  v
-| [STICKY MOBILE VIEWPORT]                        |  ^
-|  • Compact 3D/Canvas Simulation (h-44 / h-50)   |  | Pinned sticky top-14
-|  • Active Chapter Tag + Era Badge               |  | (15-20% height,
-|  • [Collapse / Expand] Toggle Button            |  | tap to minimize)
-+-------------------------------------------------+  v
-| [CHRONOLOGICAL CHAPTER NARRATIVE]               |  ^
-|  • Chapter 18: Hubble & Redshift Expansion      |  |
-|  • Highlighted Concept: [⚡ Redshift (NASA/Wiki)]|  | Scrollable Stream
-|  • Historical context & physical evidence       |  | (Touch-friendly 44px
-|  • [?] Curious Minds: Student FAQs (Accordion)  |  | hitboxes, readable
-|  • [Next Chapter →] Touch Navigation            |  | 16px body prose)
-+-------------------------------------------------+  v
-```
-
-### Visual Identity & Theme Tokens
-
-- **Dominant Canvas**: Obsidian slate (`#020617` / `#0B0F19`) providing high contrast for glowing planetary orbits, starfields, and spectral wave diagrams.
-- **Concept Highlight Badges**: Laser-cyan and violet interactive underline buttons (`text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 hover:bg-cyan-500/20`) with external link mini-indicators, inviting exploration without cluttering prose.
-- **Concept Sheet Modal**: Smooth slide-up bottom sheet on mobile (`rounded-t-3xl backdrop-blur-xl bg-slate-950/95 border-t border-cyan-500/30`) with drag/close handle, a clear 2-paragraph student explanation, "Key Takeaway for Exams", and dual external action buttons (NASA Official Mission Site + Wikipedia Academic Reference).
-- **Chapter FAQ Accordions**: Clean card drawers (`bg-slate-900/50 border border-white/10 rounded-2xl p-4`) with smooth chevron expansion and clear, friendly Q&A explanations.
+- **Key User Flows**:
+  1. *Exploration Phase*: The learner navigates through the module lessons. A subtle, non-intrusive sticky drawer at the bottom indicates live progress (`"2 of 3 Criteria Met"`) with single-line state indicators and direct jump buttons (`"Take Knowledge Check"`, `"Complete Required Activity"`).
+  2. *Interactive Challenge Phase*: When entering a 3D simulation (e.g., Module 08 orbital insertion, Module 03 stellar parallax ladder), the student adjusts physical parameters. Upon achieving the physical objective (e.g., stable orbit with eccentricity $e < 0.05$ and specific orbital energy), the system captures physical telemetry and sends it to the server validator.
+  3. *Accessible Alternative Flow*: Students unable or preferring not to interact with 3D WebGL canvases can toggle to the Accessible 2D Alternative, which presents equivalent numerical or parametric challenges with identical scientific validation criteria.
+  4. *Verification & Certification*: At the conclusion of the module, the full completion checklist displays completed criteria with emerald verification shields, itemized feedback on missing requirements, and a server-issued verified timestamp once awarded.
+- **Visual Identity & Theme**:
+  - *Aesthetic Direction*: Refined, publication-grade scientific dark canvas (`slate-950` / `slate-900`) with high-contrast typographic hierarchy and hairline structural borders (`border-white/10`).
+  - *Color Palette & Mood*: Dominant neutral deep space canvas (60%), structural slate panels with subtle glassmorphism (30%), and focused emerald/cyan verification accents (10%). No garish neon or candy badges.
+  - *Typography & Hierarchy*: Distinctive sans-serif headings (`Plus Jakarta Sans`), readable body text (`DM Sans`), and tabular numerals (`tabular-nums font-mono`) for orbital velocities, parallax angles, and quiz percentages.
+  - *Anti-Slop Restraint*: Clean unboxed metadata with dot separators (`·`), no fake compiler tags or pseudo-code comments, and no asymmetric thick left colored borders.
+- **Interactive Feedback & Motion**:
+  - Smooth 150ms settling micro-interactions on checklist state changes.
+  - Sticky drawer expands/collapses cleanly without obscuring primary educational content (capped under 12% viewport height).
 
 ---
 
 ## 3. Key Product Decisions & Trade-Offs
 
-- **Decision 1: Sticky Top Viewport vs Fullscreen Video Switcher on Mobile**
-  - _Chosen Approach_: A dedicated sticky container pinned at `top-14` on mobile with a compact canvas height (`h-48`) and a "Compact / Minimize" control pill.
-  - _Why_: Allows students to read the explanatory text, evidence, and questions while continuously watching the astronomical model rotate or expand.
-  - _Alternatives Considered_: Inline visualizer repeated in every chapter (wasteful WebGL contexts and memory leaks) or fixed floating picture-in-picture (blocks reading text).
-
-- **Decision 2: Interactive Concept Sheets vs Raw External Links**
-  - _Chosen Approach_: Clicking highlighted concepts opens a styled in-app modal sheet with an immediate 10th-11th grade explanation, accompanied by direct buttons to NASA and Wikipedia.
-  - _Why_: Clicking directly out to an external website forces the student away from the app and breaks their focus. The sheet provides instant clarity and lets them choose whether to dive deeper into NASA or Wikipedia.
-  - _Alternatives Considered_: Direct anchor links (causes navigation friction and lost scroll position).
-
-- **Decision 3: Curated Educational FAQs per Chapter**
-  - _Chosen Approach_: Integrate structured FAQ pairs (`question`, `answer`, `targetStandard`) into each chapter in `visible-universe-history-data.ts`.
-  - _Why_: Aligns with high school science curricula (CBSE/ICSE 10th-11th, AP Physics/Astronomy, NGSS) and addresses the most common student misconceptions.
+- **Decision 1: Server-Authoritative Evaluation vs. Client-Side Evaluation**
+  - *Chosen Approach*: All completion decisions occur strictly on the server (`completion.server.ts` via TanStack Start server functions). Client components receive read-only evaluation snapshots.
+  - *Why*: Prevents browser developer tool manipulation, script injections, or localStorage overwrites from awarding unearned certificates.
+  - *Alternatives Considered*: Client-side rule evaluation was rejected because arbitrary local state can easily be forged.
+- **Decision 2: Measurable Physics Telemetry vs. Activity Visit Tracking**
+  - *Chosen Approach*: Activities require measurable, physically validated outcomes (e.g., gravitational parameter calculations, Keplerian orbital velocities, Schwarzschild radius equations) submitted to `validateActivityOutcomeServer`.
+  - *Why*: Merely opening or clicking an interactive simulation does not demonstrate conceptual mastery.
+  - *Alternatives Considered*: Tracking elapsed interaction time or click counts was rejected because automated timers can be left unattended.
+- **Decision 3: Configurable Versioned Rule Registry vs. Fragmented Per-Module Code**
+  - *Chosen Approach*: Centralized `MODULE_COMPLETION_RULES` registry in `completion-rules.ts` defining all 24 modules with schema versioning (`1.0.0`), explicit criteria, and alternative mappings.
+  - *Why*: Allows curriculum updates, threshold adjustments, and auditability without touching 24 separate component layouts.
+  - *Alternatives Considered*: Hardcoding logic in individual module layout files was rejected due to high maintenance overhead and divergence risks.
 
 ---
 
 ## 4. Technical Architecture & Data Strategy
 
-### System & State Flow Diagram
-
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                   VisibleUniverseHistory Route                         │
-│                                                                        │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │ State Management:                                                │  │
-│  │  • activeChapterId: number (updated via IntersectionObserver)   │  │
-│  │  • selectedConcept: CosmicConcept | null                         │  │
-│  │  • isMobileVisualizerCollapsed: boolean                          │  │
-│  │  • expandedFaqId: string | null                                  │  │
-│  └──────────────────────────────────────────────────────────────────┘  │
-│                                │                                       │
-│          ┌─────────────────────┴─────────────────────┐                 │
-│          ▼                                           ▼                 │
-│  ┌──────────────────────────────┐       ┌───────────────────────────┐  │
-│  │ Mobile Sticky Visualizer     │       │ Desktop 2-Column Grid     │  │
-│  │  • sticky top-14 (h-48)      │       │  • Col 1: Sticky 3D Deck  │  │
-│  │  • Chapter metadata bar      │       │  • Col 2: Chapter Stream  │  │
-│  │  • Smooth canvas rendering   │       └───────────────────────────┘  │
-│  └──────────────────────────────┘                                      │
-│                                │                                       │
-│          ┌─────────────────────┴─────────────────────┐                 │
-│          ▼                                           ▼                 │
-│  ┌──────────────────────────────┐       ┌───────────────────────────┐  │
-│  │ Chapter Narrative Stream     │       │ CosmicConceptSheet Modal  │  │
-│  │  • Highlighted Concept Words │──────▶│  • 10th-11th Explanation  │  │
-│  │  • Evidence & Context        │       │  • NASA Science Link      │  │
-│  │  • Expandable FAQ Accordion  │       │  • Wikipedia Deep Dive    │  │
-│  └──────────────────────────────┘       └───────────────────────────┘  │
+│                        Cosmic Learning Academy                         │
+│                    Verified Completion Architecture                    │
+└────────────────────────────────────┬───────────────────────────────────┘
+                                     │
+           ┌─────────────────────────┴─────────────────────────┐
+           ▼                                                   ▼
+┌─────────────────────────────────────┐   ┌─────────────────────────────────────┐
+│          Client Layer               │   │          Offline Cache              │
+│ - ModuleXXLayout (Modules 01–24)    │   │ - LocalStorage Activity Evidence    │
+│ - Sticky Completion Drawer          │   │ - Auto-Sync Queue on Auth / Online  │
+│ - ModuleCompletionChecklist         │   └──────────────────┬──────────────────┘
+│ - Accessible 2D Challenge Mode      │                      │
+└──────────────────┬──────────────────┘                      │
+                   │ Server Function Calls                   │
+                   ▼                                         ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                     TanStack Start Server Layer                        │
+│ - getModuleCompletionStatus({ moduleId })                              │
+│ - submitActivityOutcome({ moduleId, activityId, payload })             │
+│ - recheckModuleCompletion({ moduleId })                                │
+└────────────────────────────────────┬───────────────────────────────────┘
+                                     │
+           ┌─────────────────────────┴─────────────────────────┐
+           ▼                                                   ▼
+┌─────────────────────────────────────┐   ┌─────────────────────────────────────┐
+│     Authoritative Engine            │   │      Physics Activity Validator     │
+│ - completion.server.ts              │   │ - activity-validator.server.ts      │
+│ - Evaluates: Reading + Activity     │   │ - Validates: Keplerian Orbits,      │
+│   Evidence + Assessment (>= 70%)    │   │   Parallax, HR Diagrams, Optics,   │
+│ - Atomic Completion Award           │   │   Cosmological Redshift & Models    │
+│ - Stage Badges Trigger (4 modules)  │   │ - Validates Accessible Alternatives │
+└──────────────────┬──────────────────┘   └─────────────────────────────────────┘
+                   │
+                   ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                        PostgreSQL Data Store                           │
+│ - academy_verified_completions (user_id, module_id, verified_at)      │
+│ - academy_activity_evidence (user_id, activity_id, status: verified)   │
+│ - academy_assessment_attempts (user_id, assessment_id, score >= 70%)   │
+│ - academy_stage_badges (user_id, stage_id, unlocked_at)               │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
-### New Modules & Data Structures
+### Component & State Mapping
 
-1. **`src/lib/cosmic-concepts.ts`**:
-   - Contains educational definitions, exam relevance, NASA URLs, and Wikipedia URLs for terms including:
-     - `redshift`: Doppler vs cosmological expansion, Hubble's discovery, NASA Webb redshift measurements.
-     - `cosmic-microwave-background`: Penzias & Wilson, COBE/WMAP/Planck, 2.725 K afterglow.
-     - `dark-matter`: Vera Rubin, galactic rotation curves, gravitational lensing.
-     - `dark-energy`: Type Ia supernovae, accelerating universe, Nobel Prize 2011.
-     - `epicycles`: Ptolemaic deferent and epicycle mechanism, explaining retrograde motion.
-     - `heliocentrism`: Aristarchus & Copernicus, retrograde motion naturally solved.
-     - `spacetime-curvature`: Einstein's General Relativity, 1919 solar eclipse test.
-     - `gravitational-lensing`: Light deflection around massive clusters, Einstein rings.
-     - `eratosthenes-earth-radius`: Shadow angles at Alexandria & Syene, geometry of a sphere.
-     - `kepler-laws`: Elliptical orbits, equal areas in equal times, harmonic orbital periods.
-
-2. **`src/components/history/CosmicConceptSheet.tsx`**:
-   - Slide-up bottom sheet (mobile) and centered dialog (desktop).
-   - Shows concept name, simple high-school level breakdown, "Why It Matters in 11th Grade Physics", official NASA button with badge icon, and Wikipedia button.
-
-3. **`src/components/history/ChapterFaqAccordion.tsx`**:
-   - Clean, accessible accordion component with smooth chevron toggle and high-contrast answers.
-
----
-
-## 5. Implementation Steps & Verification Plan
-
-1. **Step 1: Create `src/lib/cosmic-concepts.ts`**
-   - Populate high school curriculum concepts with verified NASA and Wikipedia URLs.
-2. **Step 2: Enrich `visible-universe-history-data.ts`**
-   - Add high-school curiosity questions and concept tags to all chapters.
-3. **Step 3: Create `CosmicConceptSheet.tsx` & `ChapterFaqAccordion.tsx`**
-   - Implement the slide-up modal sheet and clean FAQ accordion.
-4. **Step 4: Update `visible-universe-history.tsx`**
-   - Build the mobile sticky top visualizer with collapsible controls (`sticky top-14 z-30`).
-   - Wire concept highlight click handlers to open `CosmicConceptSheet`.
-   - Embed `ChapterFaqAccordion` at the bottom of each chapter.
-5. **Step 5: Verification & Quality Assurance**
-   - Run `lint_applet` and `compile_applet`.
-   - Verify mobile viewport layout, touch targets ($\ge 44\text{px}$), and smooth sticky transitions.
+1. **`src/lib/academy/completion-rules.ts`**:
+   - Central registry for all 24 modules declaring required sections, activity criteria, assessment passing thresholds ($70\%$), and accessible alternative mappings.
+2. **`src/lib/academy/activity-validator.server.ts`**:
+   - Server-side physics engine validating telemetry payloads across all simulation domains (orbital mechanics, light lookback, stellar spectra, black hole horizons, cosmic web structures).
+3. **`src/lib/academy/completion.server.ts`**:
+   - Evaluates full student records, enforces the 3-pillar criteria, and updates `academy_verified_completions` and `academy_stage_badges`.
+4. **`src/components/academy/ModuleCompletionChecklist.tsx`**:
+   - Renders the end-of-lesson checklist and the compact sticky drawer with responsive actions.
+5. **`src/components/academy/ModuleXXLayout.tsx` (Modules 01–24)**:
+   - Purged of any legacy manual completion shortcuts. Connects activities and quizzes directly to the completion engine.
+6. **`scripts/completion-engine-validation.ts`**:
+   - Automated test suite validating all 7 acceptance criteria: anti-shortcut enforcement, reading guards, simulation physics validation, assessment grading, idempotency, cross-student security, and accessibility equality.

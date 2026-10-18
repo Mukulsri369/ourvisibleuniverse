@@ -14,6 +14,8 @@ import {
   RotateCcw,
   Sparkles,
   ExternalLink,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -294,3 +296,190 @@ export function ModuleCompletionChecklist({
     </div>
   );
 }
+
+export interface ModuleStickyCompletionDrawerProps {
+  moduleId: string;
+  onNavigateToSection?: () => void;
+  onNavigateToActivity?: () => void;
+  onNavigateToAssessment?: () => void;
+  onScrollToChecklist?: () => void;
+  onNextModule?: () => void;
+  className?: string;
+}
+
+export function ModuleStickyCompletionDrawer({
+  moduleId,
+  onNavigateToSection,
+  onNavigateToActivity,
+  onNavigateToAssessment,
+  onScrollToChecklist,
+  onNextModule,
+  className = "",
+}: ModuleStickyCompletionDrawerProps) {
+  const [evaluation, setEvaluation] = useState<ModuleCompletionEvaluation | null>(null);
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const data = await getModuleCompletionStatus({
+        data: { moduleId },
+      });
+      setEvaluation(data);
+    } catch {
+      // quiet fallback
+    }
+  }, [moduleId]);
+
+  useEffect(() => {
+    void fetchStatus();
+    const interval = setInterval(fetchStatus, 15000);
+    return () => clearInterval(interval);
+  }, [fetchStatus]);
+
+  if (!evaluation) return null;
+
+  const satisfiedCount = evaluation.checklist.filter((item) => item.isSatisfied).length;
+  const totalCount = evaluation.checklist.length;
+  const isCertified = evaluation.isVerifiedComplete;
+
+  return (
+    <aside
+      aria-label="Module Completion Status Drawer"
+      className={`fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-white/10 shadow-2xl transition-all duration-300 ${className}`}
+    >
+      {/* Expanded Peek Panel */}
+      {isExpanded && (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-3 pb-2 border-b border-white/5 animate-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/5">
+            <span className="text-xs font-bold text-white uppercase tracking-wider">
+              {evaluation.moduleTitle} — Verified Criteria
+            </span>
+            {onScrollToChecklist && (
+              <button
+                onClick={onScrollToChecklist}
+                className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+              >
+                <span>Jump to Full Checklist</span>
+                <ArrowRight className="size-3" />
+              </button>
+            )}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 py-1">
+            {evaluation.checklist.map((item) => (
+              <div
+                key={item.id}
+                className={`p-2.5 rounded-xl border text-xs flex items-center justify-between gap-2 ${
+                  item.isSatisfied
+                    ? "border-emerald-500/30 bg-emerald-950/20 text-emerald-200"
+                    : "border-white/10 bg-slate-900/60 text-slate-300"
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  {item.isSatisfied ? (
+                    <CheckCircle2 className="size-4 text-emerald-400 flex-shrink-0" />
+                  ) : (
+                    <Circle className="size-4 text-slate-500 flex-shrink-0" />
+                  )}
+                  <span className="truncate font-medium">{item.title}</span>
+                </div>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 flex-shrink-0">
+                  {item.isSatisfied ? "Verified" : "Pending"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Main Single-Line Bar */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+        {/* Left Status Anchor */}
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => setIsExpanded((prev) => !prev)}
+            className="flex items-center gap-2 p-1 -ml-1 rounded-lg hover:bg-white/5 transition-colors text-left"
+            aria-expanded={isExpanded}
+            title={isExpanded ? "Collapse requirements tray" : "Expand requirements tray"}
+          >
+            {isCertified ? (
+              <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full shrink-0">
+                <ShieldCheck className="size-3.5" />
+                <span>Certified</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full shrink-0">
+                <ShieldAlert className="size-3.5" />
+                <span>{satisfiedCount}/{totalCount} Met</span>
+              </span>
+            )}
+            <div className="hidden sm:block truncate text-xs text-slate-300">
+              {isCertified
+                ? "Official verified completion recorded."
+                : evaluation.missingRequirements[0] || "Fulfill all criteria to certify."}
+            </div>
+            {isExpanded ? (
+              <ChevronDown className="size-3.5 text-slate-400 ml-1 shrink-0" />
+            ) : (
+              <ChevronUp className="size-3.5 text-slate-400 ml-1 shrink-0" />
+            )}
+          </button>
+        </div>
+
+        {/* Right Action Buttons */}
+        <div className="flex items-center gap-2 shrink-0">
+          {onScrollToChecklist && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onScrollToChecklist}
+              className="text-xs text-slate-300 hover:text-white hover:bg-white/5 hidden md:inline-flex h-8"
+            >
+              Checklist
+            </Button>
+          )}
+
+          {isCertified ? (
+            onNextModule && (
+              <Button
+                size="sm"
+                onClick={onNextModule}
+                className="h-8 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm"
+              >
+                <span>Next Module</span>
+                <ArrowRight className="size-3.5 ml-1" />
+              </Button>
+            )
+          ) : evaluation.recommendedAction === "take_assessment" && onNavigateToAssessment ? (
+            <Button
+              size="sm"
+              onClick={onNavigateToAssessment}
+              className="h-8 text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-sm"
+            >
+              <Award className="size-3.5 mr-1" />
+              <span>Take Quiz</span>
+            </Button>
+          ) : evaluation.recommendedAction === "complete_activity" && onNavigateToActivity ? (
+            <Button
+              size="sm"
+              onClick={onNavigateToActivity}
+              className="h-8 text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-sm"
+            >
+              <FlaskConical className="size-3.5 mr-1" />
+              <span>Open Lab</span>
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              onClick={onNavigateToSection}
+              className="h-8 text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white shadow-sm"
+            >
+              <BookOpen className="size-3.5 mr-1" />
+              <span>Review Lesson</span>
+            </Button>
+          )}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
