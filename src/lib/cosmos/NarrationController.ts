@@ -393,7 +393,11 @@ export class NarrationController {
         }
       } catch (err: any) {
         if (this.state.status !== "loading" && this.state.status !== "playing") return;
-        console.warn("Server audio synthesis unavailable, using Web Speech fallback:", err);
+        const msg = err?.message || String(err);
+        console.warn(
+          "[COSMOS Narration] Server audio synthesis unavailable, using Web Speech fallback:",
+          msg.slice(0, 100),
+        );
         this.playWebSpeechFallback(segment);
         return;
       }

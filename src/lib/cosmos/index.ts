@@ -19,6 +19,9 @@ export * from "./VoiceCommandProcessor";
 export * from "./LiveSessionManager";
 export * from "./cosmos.functions";
 
+export * from "./Cosmos3DAdapter";
+export * from "./Cosmos3DTools";
+
 // Module adapters
 export { Module01CosmosAdapter } from "./adapters/module-01-adapter";
 export { Module14CosmosAdapter } from "./adapters/module-14-adapter";

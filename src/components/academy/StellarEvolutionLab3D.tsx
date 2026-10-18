@@ -26,6 +26,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import type { ApprovedDemonstrationId } from "@/lib/cosmos/cosmos-types";
 
 // -------------------------------------------------------------
 // Procedural textures for 3D stars and stages
@@ -683,6 +685,75 @@ export function StellarEvolutionLab3D({ onStageChange }: StellarEvolutionLab3DPr
     return () => clearInterval(interval);
   }, [isPlaying, playbackSpeed]);
 
+  useEffect(() => {
+    const adapter = Cosmos3DAdapter.getInstance();
+    const unregister = adapter.registerScene({
+      sceneId: "stellar_evolution",
+      getCurrentSimulationState: () => ({
+        isPaused: !isPlaying,
+        timeScale: playbackSpeed,
+        activeSceneId: "stellar_evolution",
+        activeExperimentId: selectedTrackId,
+        selectedObjectName: currentStage.name,
+        epistemicMode: "educational_approximation",
+        scientificNotes:
+          "Henyey-type stellar evolution tracks mapped to discrete evolutionary phases from protostar to compact remnant.",
+        cameraRegime: "stellar",
+      }),
+      getSelectedObject: () => ({
+        name: `${activeTrack.name} (${currentStage.name})`,
+        type: "star",
+        distanceFromObserver: "Stellar evolution theoretical track",
+        catalogReference: "Henyey Stellar Evolution Code / Geneva Grids",
+        isModelAvailable: true,
+        physicalProperties: {
+          initialMassSolar: activeTrack.initialMassSolar,
+          currentRadiusSolar: currentStage.radiusSolar,
+          surfaceTempK: currentStage.surfaceTempK,
+          luminositySolar: currentStage.luminositySolar,
+          coreProcess: currentStage.coreProcess,
+          remnantType: activeTrack.remnantType,
+        },
+        scientificDescription: `${currentStage.name}: ${currentStage.coreProcess}. Remnant outcome: ${activeTrack.remnantType}.`,
+      }),
+      focusObject: (targetName: string) => {
+        const foundTrack = Object.values(STELLAR_TRACKS).find(
+          (t) =>
+            t.name.toLowerCase().includes(targetName.toLowerCase()) ||
+            t.id.toLowerCase().includes(targetName.toLowerCase()),
+        );
+        if (foundTrack) {
+          setSelectedTrackId(foundTrack.id);
+          return true;
+        }
+        return false;
+      },
+      highlightObject: () => {
+        setShowCutaway(true);
+        return true;
+      },
+      playDemonstration: (demoId: ApprovedDemonstrationId) => {
+        if (demoId === "stellar_collapse") {
+          setSelectedTrackId("massive");
+          setTimelineFraction(0.95);
+          setIsPlaying(true);
+          return true;
+        }
+        return false;
+      },
+      pauseSimulation: () => {
+        setIsPlaying(false);
+        return true;
+      },
+      resumeSimulation: () => {
+        setIsPlaying(true);
+        return true;
+      },
+    });
+
+    return unregister;
+  }, [isPlaying, playbackSpeed, selectedTrackId, currentStage, activeTrack]);
+
   const activeLayer =
     selectedLayerIndex !== null && currentStage.cutawayLayers[selectedLayerIndex]
       ? currentStage.cutawayLayers[selectedLayerIndex]
@@ -755,6 +826,8 @@ export function StellarEvolutionLab3D({ onStageChange }: StellarEvolutionLab3DPr
             minDistance={2.0}
             maxDistance={12.0}
             autoRotate={false}
+            onStart={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(true)}
+            onEnd={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(false)}
           />
         </Canvas>
 

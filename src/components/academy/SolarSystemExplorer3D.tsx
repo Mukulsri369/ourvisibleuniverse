@@ -32,6 +32,7 @@ import {
   Sun,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
 
 // -------------------------------------------------------------
 // ASTRONOMICAL PARAMETERS (SCIENTIFICALLY GROUNDED RATIOS)
@@ -1124,6 +1125,69 @@ export function SolarSystemExplorer3D() {
     setIsComparisonOpen(true);
   };
 
+  useEffect(() => {
+    const adapter = Cosmos3DAdapter.getInstance();
+    const unregister = adapter.registerScene({
+      sceneId: "solar_system",
+      getCurrentSimulationState: () => ({
+        isPaused,
+        timeScale: speedMultiplier,
+        activeSceneId: "solar_system",
+        selectedObjectName: selectedBodyName,
+        epistemicMode: exaggeratedSize ? "educational_approximation" : "physically_accurate",
+        scientificNotes:
+          "Keplerian solver based on NASA JPL Horizons DE440 orbital parameters. Planetary radii magnified for visual clarity in enhanced mode.",
+        cameraRegime: "planetary",
+      }),
+      getSelectedObject: () => {
+        const fact = PLANETARY_FACTS[selectedBodyName];
+        if (!fact) return null;
+        return {
+          name: selectedBodyName,
+          type: selectedBodyName === "Sun" ? "star" : "planet",
+          distanceFromObserver: `${fact.distanceAu} AU`,
+          isModelAvailable: true,
+          physicalProperties: {
+            semiMajorAxisAu: fact.distanceAu,
+            orbitalPeriodDays: fact.orbitalPeriodDays,
+            meanTempC: fact.meanTempC,
+            gravityEarthRatio: fact.gravityEarthRatio,
+            knownMoons: fact.moonsCount,
+          },
+          scientificDescription: `${fact.category} planet with ${fact.moonsCount} moons. ${fact.funFact}`,
+        };
+      },
+      focusObject: (targetName: string) => {
+        setSelectedBodyName(targetName);
+        setCameraPreset("focus");
+        return true;
+      },
+      highlightObject: (targetName: string) => {
+        setSelectedBodyName(targetName);
+        return true;
+      },
+      playDemonstration: (demoId) => {
+        if (demoId === "jupiter_moon_system") {
+          setSelectedBodyName("Jupiter");
+          setCameraPreset("focus");
+          setShowMoons(true);
+          return true;
+        }
+        return false;
+      },
+      pauseSimulation: () => {
+        setIsPaused(true);
+        return true;
+      },
+      resumeSimulation: () => {
+        setIsPaused(false);
+        return true;
+      },
+    });
+
+    return unregister;
+  }, [isPaused, speedMultiplier, selectedBodyName, exaggeratedSize]);
+
   return (
     <div className="relative w-full h-[680px] sm:h-[720px] rounded-2xl overflow-hidden border border-white/10 bg-slate-950 shadow-2xl select-none">
       {/* 3D CANVAS WITH DREI ORBIT CONTROLS */}
@@ -1175,6 +1239,8 @@ export function SolarSystemExplorer3D() {
             dampingFactor={0.06}
             minDistance={2}
             maxDistance={220}
+            onStart={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(true)}
+            onEnd={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(false)}
           />
 
           <CameraRig

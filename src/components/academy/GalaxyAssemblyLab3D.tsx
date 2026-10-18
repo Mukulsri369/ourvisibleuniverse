@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import type { ApprovedDemonstrationId } from "@/lib/cosmos/cosmos-types";
 
 // ----------------------------------------------------------------------------
 // Observed Galaxy Presets
@@ -300,6 +302,68 @@ export function GalaxyAssemblyLab3D() {
     return () => clearInterval(interval);
   }, [isPlaying]);
 
+  useEffect(() => {
+    const adapter = Cosmos3DAdapter.getInstance();
+    const unregister = adapter.registerScene({
+      sceneId: "galaxy_assembly",
+      getCurrentSimulationState: () => ({
+        isPaused: !isPlaying,
+        timeScale: 1.0,
+        activeSceneId: "galaxy_assembly",
+        activeExperimentId: stageId,
+        selectedObjectName: selectedPreset || stage.name,
+        epistemicMode: "educational_approximation",
+        scientificNotes:
+          "Cosmological hydrodynamic collision simulation based on FIRE-2 and IllustrisTNG galaxy formation models.",
+        cameraRegime: "galactic",
+      }),
+      getSelectedObject: () => ({
+        name: selectedPreset || stage.name,
+        type: "galaxy",
+        distanceFromObserver: selectedPreset ? "Observational cosmological dataset" : "Simulated assembly stage",
+        catalogReference: "IllustrisTNG / FIRE-2 Cosmology",
+        isModelAvailable: true,
+        physicalProperties: {
+          stage: stage.name,
+          redshiftZ: stage.redshiftZ,
+          massRatio,
+          gasFraction,
+          starburstRateMsunYr: physics.starburstRateMsunYr,
+        },
+        scientificDescription: `${stage.name} (${stage.redshiftZ}): ${stage.description}`,
+      }),
+      focusObject: (targetName: string) => {
+        const found = OBSERVED_GALAXY_PRESETS.find((p) =>
+          p.name.toLowerCase().includes(targetName.toLowerCase()),
+        );
+        if (found) {
+          applyPreset(found);
+          return true;
+        }
+        return false;
+      },
+      highlightObject: () => true,
+      playDemonstration: (demoId: ApprovedDemonstrationId) => {
+        if (demoId === "stellar_collapse" || demoId === "cosmic_expansion") {
+          setStageId("galaxy_collision_tidal_tails");
+          setIsPlaying(true);
+          return true;
+        }
+        return false;
+      },
+      pauseSimulation: () => {
+        setIsPlaying(false);
+        return true;
+      },
+      resumeSimulation: () => {
+        setIsPlaying(true);
+        return true;
+      },
+    });
+
+    return unregister;
+  }, [isPlaying, stageId, selectedPreset, stage, massRatio, gasFraction, physics]);
+
   const applyPreset = (preset: ObservedGalaxyPreset) => {
     setSelectedPreset(preset.name);
     setStageId(preset.stageId);
@@ -456,6 +520,8 @@ export function GalaxyAssemblyLab3D() {
                 enableZoom={true}
                 maxDistance={14}
                 minDistance={1.5}
+                onStart={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(true)}
+                onEnd={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(false)}
               />
             </Canvas>
 

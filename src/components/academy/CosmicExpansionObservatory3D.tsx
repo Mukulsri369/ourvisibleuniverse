@@ -22,6 +22,8 @@ import {
   GalaxyDataPoint,
 } from "@/lib/academy/lessons/module-18-expanding-universe";
 import type { LearningLevel } from "@/lib/academy/types";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import type { ApprovedDemonstrationId } from "@/lib/cosmos/cosmos-types";
 
 interface CosmicExpansionObservatory3DProps {
   level: LearningLevel;
@@ -175,6 +177,71 @@ export function CosmicExpansionObservatory3D({
 
     return () => clearInterval(interval);
   }, [isPlaying, onInteract]);
+
+  useEffect(() => {
+    const adapter = Cosmos3DAdapter.getInstance();
+    const unregister = adapter.registerScene({
+      sceneId: "cosmic_expansion",
+      getCurrentSimulationState: () => ({
+        isPaused: !isPlaying,
+        timeScale: 1.0,
+        activeSceneId: "cosmic_expansion",
+        selectedObjectName: observerGalaxy.name,
+        epistemicMode: "physically_accurate",
+        scientificNotes:
+          "FLRW metric cosmological expansion. Proper distance D(t) = a(t) * r_comoving; v = H0 * d.",
+        cameraRegime: "cosmological",
+      }),
+      getSelectedObject: () => ({
+        name: observerGalaxy.name,
+        type: "galaxy",
+        distanceFromObserver: `${observerGalaxy.comovingX.toFixed(0)}, ${observerGalaxy.comovingY.toFixed(0)} Mpc comoving`,
+        catalogReference: "Hubble-Lemaître Law Dataset",
+        isModelAvailable: true,
+        physicalProperties: {
+          scaleFactorA,
+          hubbleConstantH0,
+          isBound: observerGalaxy.isBound ? "true" : "false",
+        },
+        scientificDescription: `Observer galaxy in cosmological Hubble flow. Scale factor a(t) = ${scaleFactorA.toFixed(2)}.`,
+      }),
+      focusObject: (targetName: string) => {
+        const found = BASE_GALAXIES.find(
+          (g) =>
+            g.name.toLowerCase().includes(targetName.toLowerCase()) ||
+            g.id.toLowerCase().includes(targetName.toLowerCase()),
+        );
+        if (found) {
+          setObserverGalaxyId(found.id);
+          return true;
+        }
+        return false;
+      },
+      highlightObject: () => {
+        setShowVelocityVectors(true);
+        return true;
+      },
+      playDemonstration: (demoId: ApprovedDemonstrationId) => {
+        if (demoId === "cosmic_expansion") {
+          setIsPlaying(true);
+          setShowVelocityVectors(true);
+          setShowCoordinateGrid(true);
+          return true;
+        }
+        return false;
+      },
+      pauseSimulation: () => {
+        setIsPlaying(false);
+        return true;
+      },
+      resumeSimulation: () => {
+        setIsPlaying(true);
+        return true;
+      },
+    });
+
+    return unregister;
+  }, [isPlaying, observerGalaxy, scaleFactorA, hubbleConstantH0]);
 
   // Observer coordinates
   const observerGalaxy = BASE_GALAXIES.find((g) => g.id === observerGalaxyId) || BASE_GALAXIES[0];

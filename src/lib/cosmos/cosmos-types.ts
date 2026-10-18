@@ -270,3 +270,69 @@ export interface CosmosLiveSessionToken {
   issuedAt: number;
   moduleId: string;
 }
+
+/**
+ * Prompt 15 Context-Aware 3D AI Teaching Types
+ */
+export const APPROVED_SCENE_IDS = [
+  "solar_system",
+  "black_hole_lensing",
+  "orbital_mechanics",
+  "cosmic_scale",
+  "stellar_evolution",
+  "galaxy_assembly",
+  "cosmic_expansion",
+  "universe",
+] as const;
+
+export type ApprovedSceneId = (typeof APPROVED_SCENE_IDS)[number];
+
+export const APPROVED_DEMONSTRATION_IDS = [
+  "gravitational_lensing",
+  "kepler_second_law",
+  "jupiter_moon_system",
+  "stellar_collapse",
+  "cosmic_expansion",
+  "circular_orbit_balance",
+] as const;
+
+export type ApprovedDemonstrationId = (typeof APPROVED_DEMONSTRATION_IDS)[number];
+
+export interface SimulationStateInfo {
+  isPaused: boolean;
+  timeScale: number;
+  activeSceneId: string;
+  activeExperimentId?: string;
+  selectedObjectName?: string;
+  epistemicMode: "physically_accurate" | "educational_approximation";
+  scientificNotes: string;
+  cameraRegime?: "planetary" | "stellar" | "galactic" | "cosmological";
+  fps?: number;
+}
+
+export interface CelestialObjectInfo {
+  name: string;
+  type: "planet" | "star" | "galaxy" | "black_hole" | "nebula" | "moon" | "exoplanet";
+  distanceFromObserver?: string;
+  physicalProperties?: Record<string, string | number>;
+  catalogReference?: string;
+  isModelAvailable: boolean;
+  scientificDescription?: string;
+}
+
+export interface CameraViewSnapshot {
+  sceneId: string;
+  target: [number, number, number];
+  position: [number, number, number];
+  zoomOrDistance: number;
+  timestamp: number;
+  targetName?: string;
+}
+
+export interface Cosmos3DToolResult<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  epistemicNote?: string;
+  actionTaken?: string;
+}

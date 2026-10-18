@@ -3,6 +3,8 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import type { ApprovedDemonstrationId } from "@/lib/cosmos/cosmos-types";
 import {
   Play,
   Pause,
@@ -803,6 +805,8 @@ function GravitationalScene({
         minDistance={5}
         maxDistance={120}
         maxPolarAngle={Math.PI / 2 + 0.1}
+        onStart={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(true)}
+        onEnd={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(false)}
       />
     </>
   );
@@ -1074,6 +1078,97 @@ export function OrbitalMechanicsLab3D({ onInteract }: OrbitalMechanicsLab3DProps
     animationFrameId = requestAnimationFrame(runPhysicsTick);
     return () => cancelAnimationFrame(animationFrameId);
   }, [isPlaying, simSpeed, timeStep, maxTrailLength]);
+
+  useEffect(() => {
+    const adapter = Cosmos3DAdapter.getInstance();
+    const unregister = adapter.registerScene({
+      sceneId: "orbital_mechanics",
+      getCurrentSimulationState: () => ({
+        isPaused: !isPlaying,
+        timeScale: simSpeed,
+        activeSceneId: "orbital_mechanics",
+        activeExperimentId: selectedPresetId,
+        selectedObjectName: selectedBody?.name,
+        epistemicMode: "physically_accurate",
+        scientificNotes:
+          "Symplectic Velocity Verlet (O(dt²)) N-body gravitational integrator with gravitational softening parameter ε = 0.5.",
+        cameraRegime: "planetary",
+      }),
+      getSelectedObject: () => {
+        if (!selectedBody) return null;
+        return {
+          name: selectedBody.name,
+          type: selectedBody.isStar ? "star" : "planet",
+          distanceFromObserver: orbitalTelemetry ? `${orbitalTelemetry.distance.toFixed(2)} units` : undefined,
+          isModelAvailable: true,
+          physicalProperties: orbitalTelemetry
+            ? {
+                mass: selectedBody.mass,
+                velocity: orbitalTelemetry.speed.toFixed(2),
+                circularVelocity: orbitalTelemetry.circularSpeed.toFixed(2),
+                escapeVelocity: orbitalTelemetry.escapeSpeed.toFixed(2),
+                specificEnergy: orbitalTelemetry.specificEnergy.toFixed(2),
+                conicType: orbitalTelemetry.conicType,
+                isBound: orbitalTelemetry.isBound ? "true" : "false",
+              }
+            : { mass: selectedBody.mass },
+          scientificDescription: `Orbital physics laboratory body with mass ${selectedBody.mass}. Conic motion: ${orbitalTelemetry?.conicType || "orbiting"}.`,
+        };
+      },
+      focusObject: (targetName: string) => {
+        const found = bodies.find(
+          (b) =>
+            b.name.toLowerCase().includes(targetName.toLowerCase()) ||
+            b.id.toLowerCase().includes(targetName.toLowerCase()),
+        );
+        if (found) {
+          setSelectedBodyId(found.id);
+          return true;
+        }
+        return false;
+      },
+      highlightObject: (targetName: string) => {
+        const found = bodies.find(
+          (b) =>
+            b.name.toLowerCase().includes(targetName.toLowerCase()) ||
+            b.id.toLowerCase().includes(targetName.toLowerCase()),
+        );
+        if (found) {
+          setSelectedBodyId(found.id);
+          setShowTrails(true);
+          setShowVelocityVectors(true);
+          return true;
+        }
+        return false;
+      },
+      playDemonstration: (demoId: ApprovedDemonstrationId) => {
+        if (demoId === "kepler_second_law") {
+          handleLoadPreset("eccentric");
+          setIsPlaying(true);
+          setShowVelocityVectors(true);
+          setShowTrails(true);
+          return true;
+        }
+        if (demoId === "circular_orbit_balance") {
+          handleLoadPreset("circular");
+          setIsPlaying(true);
+          setShowVelocityVectors(true);
+          return true;
+        }
+        return false;
+      },
+      pauseSimulation: () => {
+        setIsPlaying(false);
+        return true;
+      },
+      resumeSimulation: () => {
+        setIsPlaying(true);
+        return true;
+      },
+    });
+
+    return unregister;
+  }, [isPlaying, simSpeed, selectedPresetId, selectedBody, bodies, orbitalTelemetry]);
 
   return (
     <div className="space-y-6">

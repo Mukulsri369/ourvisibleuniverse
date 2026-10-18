@@ -31,6 +31,8 @@ import { VoiceCommandProcessor } from "@/lib/cosmos/VoiceCommandProcessor";
 import { LearningPreferenceManager } from "@/lib/cosmos/LearningPreferenceManager";
 import { StudentQuestionContextManager } from "@/lib/cosmos/StudentQuestionContext";
 import { VisualizationActionController } from "@/lib/cosmos/VisualizationActionController";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import { Cosmos3DTools } from "@/lib/cosmos/Cosmos3DTools";
 import { UniversalCosmosAdapter } from "@/lib/cosmos/adapters/universal-adapter";
 import { askCosmosQuestion } from "@/lib/cosmos/cosmos.functions";
 import {
@@ -232,6 +234,27 @@ export function CosmosCompanion({
       activeExamAttempt: isExamMode,
     });
   }, [moduleId, sublessonId, learningLevel, currentDisplayText, currentVisualization, isExamMode]);
+
+  // Keep 3D tools active context in sync
+  useEffect(() => {
+    Cosmos3DTools.setActiveLearningContext(currentContext);
+  }, [currentContext]);
+
+  // Track 3D adapter state changes (sim state, object selection, camera control, history)
+  const [, setAdapterTick] = useState(0);
+  useEffect(() => {
+    const unregister = Cosmos3DAdapter.getInstance().addListener(() => {
+      setAdapterTick((t) => t + 1);
+    });
+    return unregister;
+  }, []);
+
+  const adapter = Cosmos3DAdapter.getInstance();
+  const simState = Cosmos3DTools.getCurrentSimulationState().data;
+  const selectedObj = Cosmos3DTools.getSelectedCelestialObject().data;
+  const isUserOrbiting = adapter.isUserControllingCamera();
+  const hasPreviousView = adapter.hasPreviousView();
+  const previousViewCount = adapter.getPreviousViewCount();
 
   // Handle Mode Change
   const handleSetMode = (mode: CosmosLearningMode) => {
@@ -1227,36 +1250,116 @@ export function CosmosCompanion({
 
           {activeMode === "explore" && (
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 sm:p-5 space-y-4">
-              <div className="flex items-center justify-between">
+              {/* Header: Scene info, Epistemic status, and Simulation Clock */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <Compass className="size-4 text-amber-400" />
-                  <span className="text-xs font-bold text-white">3D Simulation Sync Bus</span>
+                  <Compass className="size-4 text-cyan-400" />
+                  <div>
+                    <span className="text-xs font-bold text-white block">
+                      3D Context-Aware AI Teaching
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      Active Scene: {simState?.activeSceneId || currentVisualization?.sceneId || "universe"}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-                  Telemetry Active
-                </span>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Epistemic Mode Classification */}
+                  {simState?.epistemicMode === "physically_accurate" ? (
+                    <span className="inline-flex items-center gap-1 rounded bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-300 uppercase">
+                      ● Physically Accurate Data
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-mono font-bold text-amber-300 uppercase">
+                      ◆ Educational Approximation
+                    </span>
+                  )}
+
+                  {/* Simulation Clock Controls */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (simState?.isPaused) {
+                        Cosmos3DTools.resumeSimulation();
+                      } else {
+                        Cosmos3DTools.pauseSimulation();
+                      }
+                    }}
+                    className="h-7 px-2.5 text-xs border-white/15 bg-white/5 text-white hover:bg-white/10"
+                  >
+                    {simState?.isPaused ? (
+                      <>
+                        <Play className="size-3 mr-1 text-emerald-400" />
+                        <span>Resume</span>
+                      </>
+                    ) : (
+                      <>
+                        <Pause className="size-3 mr-1 text-amber-400" />
+                        <span>Pause Clock</span>
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
 
-              <p className="text-xs text-slate-300 leading-relaxed">
-                COSMOS monitors your camera viewpoint, object focus, and scale regime in real time.
-                Click any action below to synchronize the 3D scene with the active lesson.
-              </p>
+              {/* Camera Safety Indicator: Invariant: COSMOS never fights student manual camera manipulation */}
+              {isUserOrbiting && (
+                <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-200 text-xs flex items-center gap-2 animate-pulse">
+                  <Eye className="size-4 text-purple-400 shrink-0" />
+                  <span>
+                    <strong>Student Camera Navigation Active:</strong> COSMOS camera commands yield to prioritize your manual exploration view.
+                  </span>
+                </div>
+              )}
 
+              {/* Camera Safety & View History Toolbar */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() =>
-                    handleDispatchVizAction({
-                      sceneId: currentVisualization?.sceneId || "cosmic_zoom",
-                      cameraAction: "focus",
-                      scaleRegime: currentVisualization?.scaleRegime || "stellar",
-                    })
-                  }
-                  className="border-white/10 hover:bg-white/10 text-xs"
+                  onClick={() => Cosmos3DTools.restorePreviousView()}
+                  className={`text-xs border-white/10 hover:bg-white/10 ${
+                    hasPreviousView ? "text-cyan-300 border-cyan-500/40 bg-cyan-500/10" : "text-slate-400"
+                  }`}
+                  title="Smoothly restore student's prior camera perspective"
                 >
-                  <Orbit className="size-3.5 mr-1.5 text-cyan-400" />
-                  Focus Primary
+                  <RotateCcw className="size-3.5 mr-1.5 text-cyan-400" />
+                  <span>Restore View {hasPreviousView ? `(${previousViewCount})` : ""}</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (selectedObj?.name) {
+                      Cosmos3DTools.focusScientificObject({ targetName: selectedObj.name });
+                    } else {
+                      handleDispatchVizAction({
+                        sceneId: simState?.activeSceneId || "solar_system",
+                        cameraAction: "focus",
+                      });
+                    }
+                  }}
+                  className="border-white/10 hover:bg-white/10 text-xs text-white"
+                >
+                  <Orbit className="size-3.5 mr-1.5 text-purple-400" />
+                  <span>Focus Object</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (selectedObj?.name) {
+                      Cosmos3DTools.highlightScientificObject({ targetName: selectedObj.name });
+                    }
+                  }}
+                  className="border-white/10 hover:bg-white/10 text-xs text-white"
+                >
+                  <Sparkles className="size-3.5 mr-1.5 text-amber-400" />
+                  <span>Highlight Target</span>
                 </Button>
 
                 <Button
@@ -1264,62 +1367,155 @@ export function CosmosCompanion({
                   variant="outline"
                   onClick={() =>
                     handleDispatchVizAction({
-                      sceneId: currentVisualization?.sceneId || "cosmic_zoom",
-                      cameraAction: "orbit",
-                    })
-                  }
-                  className="border-white/10 hover:bg-white/10 text-xs"
-                >
-                  <Atom className="size-3.5 mr-1.5 text-purple-400" />
-                  Orbit Object
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    handleDispatchVizAction({
-                      sceneId: currentVisualization?.sceneId || "cosmic_zoom",
-                      cameraAction: "zoom_in",
-                    })
-                  }
-                  className="border-white/10 hover:bg-white/10 text-xs"
-                >
-                  <FastForward className="size-3.5 mr-1.5 text-amber-400" />
-                  Zoom In
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    handleDispatchVizAction({
-                      sceneId: currentVisualization?.sceneId || "cosmic_zoom",
+                      sceneId: simState?.activeSceneId || "universe",
                       cameraAction: "reset",
                     })
                   }
-                  className="border-white/10 hover:bg-white/10 text-xs"
+                  className="border-white/10 hover:bg-white/10 text-xs text-slate-300"
                 >
-                  <RotateCcw className="size-3.5 mr-1.5 text-slate-400" />
-                  Reset View
+                  <Compass className="size-3.5 mr-1.5 text-slate-400" />
+                  <span>Reset Overview</span>
                 </Button>
               </div>
 
-              {/* Linked visualizer context */}
-              <div className="p-3 rounded-xl bg-slate-950 border border-white/5 text-xs font-mono text-slate-400 flex items-center justify-between">
-                <span>
-                  Linked Scene ID:{" "}
-                  <strong className="text-white">
-                    {currentVisualization?.sceneId || "cosmic_zoom_visualizer"}
-                  </strong>
+              {/* Selected Celestial Object Inspector Card */}
+              {selectedObj && (
+                <div className="rounded-xl border border-cyan-500/30 bg-slate-950/80 p-3.5 space-y-2">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="size-2 rounded-full bg-cyan-400" />
+                      <span className="text-sm font-bold text-white">{selectedObj.name}</span>
+                      <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-white/5 text-cyan-300 border border-white/10">
+                        {selectedObj.type}
+                      </span>
+                    </div>
+                    {selectedObj.distanceFromObserver && (
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {selectedObj.distanceFromObserver}
+                      </span>
+                    )}
+                  </div>
+
+                  {selectedObj.scientificDescription && (
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      {selectedObj.scientificDescription}
+                    </p>
+                  )}
+
+                  {selectedObj.physicalProperties && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
+                      {Object.entries(selectedObj.physicalProperties).slice(0, 4).map(([key, val]) => (
+                        <div key={key} className="bg-white/5 p-1.5 rounded-lg border border-white/5">
+                          <span className="text-[10px] uppercase text-slate-400 block truncate">
+                            {key.replace(/([A-Z])/g, " $1")}
+                          </span>
+                          <span className="font-mono font-semibold text-white truncate block">
+                            {String(val)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {selectedObj.catalogReference && (
+                    <div className="text-[10px] text-slate-400 pt-1 flex items-center gap-1 font-mono">
+                      <span>Source:</span>
+                      <span className="text-cyan-300">{selectedObj.catalogReference}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Approved Educational Demonstrations Launcher */}
+              <div className="pt-2 border-t border-white/5 space-y-2">
+                <span className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <Atom className="size-3.5 text-purple-400" />
+                  Approved Educational Demonstrations
                 </span>
-                <span>
-                  Regime:{" "}
-                  <strong className="text-cyan-400">
-                    {currentVisualization?.scaleRegime || "universal"}
-                  </strong>
-                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                  {[
+                    {
+                      id: "gravitational_lensing",
+                      title: "Gravitational Lensing",
+                      scene: "Black Holes",
+                      tag: "General Relativity",
+                    },
+                    {
+                      id: "kepler_second_law",
+                      title: "Kepler's Second Law",
+                      scene: "Orbital Mechanics",
+                      tag: "Equal Areas in Equal Time",
+                    },
+                    {
+                      id: "jupiter_moon_system",
+                      title: "Jupiter & Galilean Moons",
+                      scene: "Solar System",
+                      tag: "1:2:4 Laplace Resonance",
+                    },
+                    {
+                      id: "stellar_collapse",
+                      title: "Stellar Core Collapse",
+                      scene: "Stellar Evolution",
+                      tag: "Chandrasekhar Limit",
+                    },
+                    {
+                      id: "cosmic_expansion",
+                      title: "Cosmic Metric Expansion",
+                      scene: "Cosmology",
+                      tag: "FLRW Scale Factor & H0",
+                    },
+                    {
+                      id: "circular_orbit_balance",
+                      title: "Circular Orbit Balance",
+                      scene: "Physics Lab",
+                      tag: "v_circ = √(GM / r)",
+                    },
+                  ].map((demo) => (
+                    <button
+                      key={demo.id}
+                      onClick={() => {
+                        const result = Cosmos3DTools.playApprovedDemonstration({
+                          demonstrationId: demo.id,
+                        });
+                        if (result.success && result.epistemicNote) {
+                          setLastAnswer({
+                            answerText: result.epistemicNote,
+                            epistemicClassification: "model",
+                            epistemicNote: `Educational Demonstration: ${demo.title}`,
+                            scientificSources: [
+                              { title: `${demo.scene} Physics Simulation Engine`, organization: "Our Visible Universe Academy" },
+                            ],
+                            suggestedFollowUpQuestions: [
+                              "What are the mathematical equations governing this?",
+                              "How was this experimentally confirmed by telescopes?",
+                            ],
+                            learningLevelAdapted: learningLevel,
+                          });
+                        }
+                      }}
+                      className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-purple-500/30 text-left transition flex flex-col justify-between group"
+                    >
+                      <div>
+                        <div className="font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                          {demo.title}
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">{demo.scene}</div>
+                      </div>
+                      <div className="text-[9px] font-mono text-purple-300 mt-2 bg-purple-500/10 px-1.5 py-0.5 rounded w-fit border border-purple-500/20">
+                        {demo.tag}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Scientific notes and telemetry footer */}
+              {simState?.scientificNotes && (
+                <div className="text-[10px] text-slate-400 pt-1 border-t border-white/5 font-mono">
+                  {simState.scientificNotes}
+                </div>
+              )}
             </div>
           )}
 

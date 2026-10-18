@@ -34,7 +34,8 @@
     "test:cosmos": "tsx scripts/cosmos-foundation-validation.ts",
     "test:narration": "tsx scripts/cosmos-voice-narration-validation.ts",
     "test:realtime": "tsx scripts/cosmos-realtime-voice-validation.ts",
-    "test:all": "tsx scripts/astronomy-validation.ts && tsx scripts/catalog-consistency-validator.ts && tsx scripts/visual-regression-tests.ts && tsx scripts/final-exam-validation.ts && tsx scripts/certificate-system-validation.ts && tsx scripts/certificate-verification-admin-validation.ts && tsx scripts/cosmos-foundation-validation.ts && tsx scripts/cosmos-voice-narration-validation.ts && tsx scripts/cosmos-realtime-voice-validation.ts && tsx scripts/qa-audit-test.ts",
+    "test:3d": "tsx scripts/cosmos-context-aware-3d-validation.ts",
+    "test:all": "tsx scripts/astronomy-validation.ts && tsx scripts/catalog-consistency-validator.ts && tsx scripts/visual-regression-tests.ts && tsx scripts/final-exam-validation.ts && tsx scripts/certificate-system-validation.ts && tsx scripts/certificate-verification-admin-validation.ts && tsx scripts/cosmos-foundation-validation.ts && tsx scripts/cosmos-voice-narration-validation.ts && tsx scripts/cosmos-realtime-voice-validation.ts && tsx scripts/cosmos-context-aware-3d-validation.ts && tsx scripts/qa-audit-test.ts",
     "ingest:catalog": "tsx scripts/ingest-astronomy-catalog.ts"
   },
   "dependencies": {

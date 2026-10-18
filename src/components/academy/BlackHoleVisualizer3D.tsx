@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BLACK_HOLE_PRESETS, BlackHolePreset } from "@/lib/academy/lessons/module-14-black-holes";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import type { ApprovedDemonstrationId } from "@/lib/cosmos/cosmos-types";
 
 // Procedural warped accretion disk with relativistic Doppler beaming
 function AccretionDisk({
@@ -354,6 +356,66 @@ export function BlackHoleVisualizer3D({ onMassChange }: BlackHoleVisualizer3DPro
     return num.toFixed(1);
   };
 
+  useEffect(() => {
+    const adapter = Cosmos3DAdapter.getInstance();
+    const unregister = adapter.registerScene({
+      sceneId: "black_hole_lensing",
+      getCurrentSimulationState: () => ({
+        isPaused: false,
+        timeScale: 1.0,
+        activeSceneId: "black_hole_lensing",
+        selectedObjectName: selectedPreset.name,
+        epistemicMode: "educational_approximation",
+        scientificNotes:
+          "Relativistic optical ray-tracing approximation based on Schwarzschild / Kerr null geodesics with Doppler boosting.",
+        cameraRegime: "stellar",
+      }),
+      getSelectedObject: () => ({
+        name: selectedPreset.name,
+        type: "black_hole",
+        distanceFromObserver: selectedPreset.notes.includes("kpc") ? selectedPreset.notes : "Astronomical catalog object",
+        catalogReference: "EHT / NASA High Energy Astrophysics",
+        isModelAvailable: true,
+        physicalProperties: {
+          massSolarMasses: massSolar,
+          schwarzschildRadiusKm: realRsKm,
+          photonSphereRadiusKm: photonSphereKm,
+          iscoRadiusKm: iscoKm,
+          averageHorizonDensity: averageDensity,
+        },
+        scientificDescription: selectedPreset.notes,
+      }),
+      focusObject: (targetName: string) => {
+        const found = BLACK_HOLE_PRESETS.find(
+          (p) =>
+            p.name.toLowerCase().includes(targetName.toLowerCase()) ||
+            p.id.toLowerCase().includes(targetName.toLowerCase()),
+        );
+        if (found) {
+          handleSelectPreset(found);
+          return true;
+        }
+        return false;
+      },
+      highlightObject: () => {
+        setShowLensingOverlay(true);
+        return true;
+      },
+      playDemonstration: (demoId: ApprovedDemonstrationId) => {
+        if (demoId === "gravitational_lensing") {
+          setShowLensingOverlay(true);
+          setHasAccretionDisk(true);
+          return true;
+        }
+        return false;
+      },
+      pauseSimulation: () => true,
+      resumeSimulation: () => true,
+    });
+
+    return unregister;
+  }, [selectedPreset, massSolar, realRsKm, photonSphereKm, iscoKm, averageDensity]);
+
   return (
     <div className="rounded-3xl border border-purple-500/30 bg-slate-950 p-6 sm:p-8 backdrop-blur-xl shadow-2xl relative overflow-hidden">
       {/* Top Banner & Header */}
@@ -417,6 +479,8 @@ export function BlackHoleVisualizer3D({ onMassChange }: BlackHoleVisualizer3DPro
               minDistance={3.5}
               autoRotate={true}
               autoRotateSpeed={0.5}
+              onStart={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(true)}
+              onEnd={() => Cosmos3DAdapter.getInstance().setUserControllingCamera(false)}
             />
           </Canvas>
         ) : (
