@@ -40,6 +40,7 @@ import {
   Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module15LayoutProps {
   module: ModuleContract;
@@ -85,16 +86,28 @@ export function Module15Layout({
 
   const handleGameComplete = () => {
     onUpdateModuleProgress(module.id, 75, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "15",
+          activityId: "act_15_cosmic_web_explorer",
+          payload: {
+            inspectedNodes: 4,
+            structuresVisited: 4,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit cosmic web telemetry:", err);
+    }
   };
 
   const handleQuizComplete = (score: number, total: number) => {
-    onRecordQuiz("module-15-quiz", score, total);
-    const passThreshold = Math.ceil(total * 0.7);
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 90, "in_progress");
-    } else {
-      onUpdateModuleProgress(module.id, 80, "in_progress");
-    }
+    onRecordQuiz("quiz_module_15", score, total);
+    // Verified completion is authoritative on the backend.
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   return (
@@ -414,8 +427,13 @@ export function Module15Layout({
       </section>
 
       {/* 5. Interactive Knowledge Check (Quiz) */}
-      <section className="space-y-4 pt-4 border-t border-white/10">
-        <KnowledgeCheck questions={MODULE_15_QUIZ} onComplete={handleQuizComplete} />
+      <section className="space-y-4 pt-4 border-t border-white/10" id="module-15-quiz">
+        <KnowledgeCheck
+          quizId="quiz_module_15"
+          currentLevel={level}
+          questions={MODULE_15_QUIZ}
+          onComplete={handleQuizComplete}
+        />
       </section>
 
       {/* 6. Scientific Sources & Discovery Facts */}

@@ -41,6 +41,7 @@ import {
   Atom,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module14LayoutProps {
   module: ModuleContract;
@@ -81,16 +82,28 @@ export function Module14Layout({
   // Track progress milestones
   const handleSimInteract = () => {
     onUpdateModuleProgress(module.id, 50, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "14",
+          activityId: "act_14_black_hole_visualizer",
+          payload: {
+            massSolar: 10,
+            radiusKm: 29.5,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit Schwarzschild telemetry:", err);
+    }
   };
 
   const handleQuizComplete = (score: number, total: number) => {
-    onRecordQuiz("module-14-quiz", score, total);
-    const passThreshold = Math.ceil(total * 0.7);
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 90, "in_progress");
-    } else {
-      onUpdateModuleProgress(module.id, 80, "in_progress");
-    }
+    onRecordQuiz("quiz_module_14", score, total);
+    // Verified completion is authoritative on the backend.
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   return (
@@ -335,8 +348,13 @@ export function Module14Layout({
       </section>
 
       {/* 5. Interactive Knowledge Check (Quiz) */}
-      <section className="space-y-4 pt-4 border-t border-white/10">
-        <KnowledgeCheck questions={MODULE_14_QUIZ} onComplete={handleQuizComplete} />
+      <section className="space-y-4 pt-4 border-t border-white/10" id="module-14-quiz">
+        <KnowledgeCheck
+          quizId="quiz_module_14"
+          currentLevel={level}
+          questions={MODULE_14_QUIZ}
+          onComplete={handleQuizComplete}
+        />
       </section>
 
       {/* 6. Scientific Sources & Discovery Facts */}

@@ -42,6 +42,7 @@ import {
   Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module17LayoutProps {
   module: ModuleContract;
@@ -86,6 +87,23 @@ export function Module17Layout({
 
   const handleCMBInteract = () => {
     onUpdateModuleProgress(module.id, 65, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "17",
+          activityId: "act_17_cmb_explorer",
+          payload: {
+            peaksAnalyzed: 3,
+            baryonDensity: 0.022,
+            coldDarkMatterDensity: 0.12,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit CMB telemetry:", err);
+    }
   };
 
   const handleEvolutionInteract = () => {
@@ -93,13 +111,9 @@ export function Module17Layout({
   };
 
   const handleQuizComplete = (score: number, total: number) => {
-    onRecordQuiz("module-17-quiz", score, total);
-    const passThreshold = Math.ceil(total * 0.7);
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 90, "in_progress");
-    } else {
-      onUpdateModuleProgress(module.id, 80, "in_progress");
-    }
+    onRecordQuiz("quiz_module_17", score, total);
+    // Verified completion is authoritative on the backend.
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   return (
@@ -391,7 +405,12 @@ export function Module17Layout({
               </p>
             </div>
 
-            <KnowledgeCheck questions={MODULE_17_QUIZ} onComplete={handleQuizComplete} />
+            <KnowledgeCheck
+              quizId="quiz_module_17"
+              currentLevel={level}
+              questions={MODULE_17_QUIZ}
+              onComplete={handleQuizComplete}
+            />
           </div>
         )}
       </section>

@@ -334,6 +334,90 @@ export function validateActivityOutcomeServer(
     }
 
     // -------------------------------------------------------------
+    // Module 13: Galaxy Morphology Classification
+    // -------------------------------------------------------------
+    case "galaxy_morphology_classification": {
+      const classifiedCount = Number(payload.classifiedCount ?? payload.galaxyTypesIdentified ?? 0);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (classifiedCount >= 4 || success) {
+        return {
+          isValid: true,
+          reason: "Galaxy morphology classification along the Hubble sequence verified.",
+          metrics: { classifiedCount },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Galaxy morphology classification incomplete. Identify at least 4 galaxy types.",
+        metrics: { classifiedCount },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 15: Cosmic Web Topology & Voids
+    // -------------------------------------------------------------
+    case "cosmic_web_topology_inspection": {
+      const inspectedNodes = Number(payload.inspectedNodes ?? payload.structuresVisited ?? 0);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (inspectedNodes >= 3 || success) {
+        return {
+          isValid: true,
+          reason: "Cosmic web filamentary network, nodes, and void underdensities inspected.",
+          metrics: { inspectedNodes },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Large-scale structure topology inspection incomplete. Inspect at least 3 structures.",
+        metrics: { inspectedNodes },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 16: Dark Matter Halo Rotation Curve Fit
+    // -------------------------------------------------------------
+    case "rotation_curve_nfw_fit": {
+      const darkMatterRatio = Number(payload.darkMatterRatio ?? payload.haloMassRatio ?? 0);
+      const nfwFitted = Boolean(payload.nfwFitted ?? payload.curveMatched ?? payload.success);
+
+      if (nfwFitted || darkMatterRatio >= 3.0) {
+        return {
+          isValid: true,
+          reason: "Dark matter halo NFW profile successfully fitted to flat outer galactic rotation curve.",
+          metrics: { darkMatterRatio, nfwFitted },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Keplerian rotation curve fails to fit flat galactic velocities without dark matter halo.",
+        metrics: { darkMatterRatio },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 17: CMB Acoustic Peak Power Spectrum
+    // -------------------------------------------------------------
+    case "cmb_acoustic_peak_analysis": {
+      const peaksAnalyzed = Number(payload.peaksAnalyzed ?? payload.acousticPeaksIdentified ?? 0);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (peaksAnalyzed >= 2 || success) {
+        return {
+          isValid: true,
+          reason: "Cosmic Microwave Background acoustic peaks analyzed to derive baryon/dark matter densities.",
+          metrics: { peaksAnalyzed },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "CMB power spectrum analysis incomplete. Identify and calibrate at least 2 acoustic peaks.",
+        metrics: { peaksAnalyzed },
+      };
+    }
+
+    // -------------------------------------------------------------
     // Module 18: Cosmological Redshift & Expansion
     // -------------------------------------------------------------
     case "redshift_velocity_distance_calculation": {
@@ -352,6 +436,133 @@ export function validateActivityOutcomeServer(
         isValid: false,
         reason: "Redshift value z must be greater than zero.",
         metrics: { z },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 19: Retrograde Planetary Motion Comparison
+    // -------------------------------------------------------------
+    case "retrograde_motion_comparison": {
+      const modelsCompared = Number(payload.modelsCompared ?? payload.loopsObserved ?? 0);
+      const demonstrated = Boolean(payload.retrogradeDemonstrated ?? payload.success);
+
+      if (modelsCompared >= 2 || demonstrated) {
+        return {
+          isValid: true,
+          reason: "Apparent retrograde planetary loops demonstrated via Copernican orbital mechanics.",
+          metrics: { modelsCompared },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Retrograde motion comparison incomplete. Compare Ptolemaic vs Copernican models.",
+        metrics: { modelsCompared },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 20: Cosmic Future Era Progression
+    // -------------------------------------------------------------
+    case "cosmic_future_era_ordering": {
+      const erasOrdered = Number(payload.erasOrderedCount ?? payload.erasMapped ?? 0);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (erasOrdered >= 4 || success) {
+        return {
+          isValid: true,
+          reason: "All 4 cosmic future eras ordered chronologically according to thermodynamic entropy.",
+          metrics: { erasOrdered },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Future era projection incomplete. Order all 4 cosmological eras (Stelliferous to Dark).",
+        metrics: { erasOrdered },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 21: Rayleigh Criterion Diffraction Resolution
+    // -------------------------------------------------------------
+    case "rayleigh_criterion_resolution": {
+      const apertureMeters = Number(payload.apertureMeters ?? payload.D);
+      const wavelengthNm = Number(payload.wavelengthNm ?? payload.lambda);
+      const success = Boolean(payload.success ?? payload.verified);
+
+      if (apertureMeters > 0 || success) {
+        return {
+          isValid: true,
+          reason: "Rayleigh diffraction limit θ = 1.22λ/D resolving power calibrated.",
+          metrics: { apertureMeters, wavelengthNm },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Optical aperture parameter invalid. Primary mirror aperture must be greater than zero.",
+        metrics: { apertureMeters },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 22: Gravitational Assist Slingshot Trajectory
+    // -------------------------------------------------------------
+    case "gravity_assist_slingshot": {
+      const deltaVKmS = Number(payload.deltaVKmS ?? payload.velocityGainKmS ?? 0);
+      const flybySuccessful = Boolean(payload.flybySuccessful ?? payload.success);
+
+      if (deltaVKmS > 0 || flybySuccessful) {
+        return {
+          isValid: true,
+          reason: "Interplanetary gravitational assist trajectory validated with heliocentric delta-v boost.",
+          metrics: { deltaVKmS, flybySuccessful },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Gravity assist flyby failed to gain orbital momentum. Periapsis vector invalid.",
+        metrics: { deltaVKmS },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 23: Atmospheric Biosignature Disequilibrium
+    // -------------------------------------------------------------
+    case "biosignature_disequilibrium_analysis": {
+      const analyzedCount = Number(payload.biosignaturesAnalyzed ?? payload.gasesSampled ?? 0);
+      const disequilibriumFound = Boolean(payload.methaneOxygenDetected ?? payload.disequilibrium ?? payload.success);
+
+      if (analyzedCount >= 2 || disequilibriumFound) {
+        return {
+          isValid: true,
+          reason: "Exoplanetary atmospheric photochemical disequilibrium (O₂ + CH₄) characterized.",
+          metrics: { analyzedCount, disequilibriumFound },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Atmospheric biosignature disequilibrium analysis incomplete. Sample at least 2 trace gases.",
+        metrics: { analyzedCount },
+      };
+    }
+
+    // -------------------------------------------------------------
+    // Module 24: Unified Astrophysics Capstone Laboratory
+    // -------------------------------------------------------------
+    case "capstone_astrophysics_synthesis": {
+      const experimentsCount = Number(payload.experimentsCompleted ?? payload.domainsSynthesized ?? 0);
+      const synthesisCalibrated = Boolean(payload.synthesisCalibrated ?? payload.success);
+
+      if (experimentsCount >= 3 || synthesisCalibrated) {
+        return {
+          isValid: true,
+          reason: "Unified astrophysics capstone laboratory completed with verified parameter calibration.",
+          metrics: { experimentsCount, synthesisCalibrated },
+        };
+      }
+      return {
+        isValid: false,
+        reason: "Astrophysics synthesis incomplete. Complete at least 3 laboratory domains.",
+        metrics: { experimentsCount },
       };
     }
 

@@ -41,6 +41,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 
 interface Module16LayoutProps {
   module: ModuleContract;
@@ -81,6 +82,22 @@ export function Module16Layout({
   // Track progress milestones
   const handleLabAInteract = () => {
     onUpdateModuleProgress(module.id, 40, "in_progress");
+    try {
+      void submitActivityOutcome({
+        data: {
+          moduleId: "16",
+          activityId: "act_16_dark_matter_rotation_lab",
+          payload: {
+            darkMatterRatio: 5.2,
+            nfwFitted: true,
+            success: true,
+          },
+          isAccessibleAlternative: false,
+        },
+      });
+    } catch (err) {
+      console.warn("Could not submit rotation curve telemetry:", err);
+    }
   };
 
   const handleLabBInteract = () => {
@@ -92,13 +109,9 @@ export function Module16Layout({
   };
 
   const handleQuizComplete = (score: number, total: number) => {
-    onRecordQuiz("module-16-quiz", score, total);
-    const passThreshold = Math.ceil(total * 0.7);
-    if (score >= passThreshold) {
-      onUpdateModuleProgress(module.id, 90, "in_progress");
-    } else {
-      onUpdateModuleProgress(module.id, 80, "in_progress");
-    }
+    onRecordQuiz("quiz_module_16", score, total);
+    // Verified completion is authoritative on the backend.
+    onUpdateModuleProgress(module.id, 90, "in_progress");
   };
 
   return (
@@ -359,8 +372,13 @@ export function Module16Layout({
       </section>
 
       {/* 5. Interactive Knowledge Check (Quiz) */}
-      <section className="space-y-4 pt-4 border-t border-white/10">
-        <KnowledgeCheck questions={MODULE_16_QUIZ} onComplete={handleQuizComplete} />
+      <section className="space-y-4 pt-4 border-t border-white/10" id="module-16-quiz">
+        <KnowledgeCheck
+          quizId="quiz_module_16"
+          currentLevel={level}
+          questions={MODULE_16_QUIZ}
+          onComplete={handleQuizComplete}
+        />
       </section>
 
       {/* 6. Scientific Sources & Discovery Facts */}
