@@ -80,7 +80,7 @@ function AccountPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Button
                 variant="outline"
                 size="sm"
@@ -89,6 +89,17 @@ function AccountPage() {
               >
                 <User className="size-3.5 mr-1.5 text-cyan-400" />
                 <span>Manage Profile</span>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="border-white/20 text-slate-200 hover:text-white hover:bg-white/10"
+              >
+                <Link to="/admin-certificates">
+                  <Shield className="size-3.5 mr-1.5 text-amber-400" />
+                  <span>Cert Admin</span>
+                </Link>
               </Button>
               <Button
                 asChild

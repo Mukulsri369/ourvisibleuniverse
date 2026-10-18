@@ -41,6 +41,7 @@ export const Route = createFileRoute("/verify-certificate")({
         content:
           "Official online verification registry for Our Visible Universe Academy certificates of achievement.",
       },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: VerifyCertificatePage,
