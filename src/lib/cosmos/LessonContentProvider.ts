@@ -237,9 +237,18 @@ function resolveContentForLevel(sub: any, level: LearningLevel): any {
   const cByLevel = sub.contentByLevel;
   if (cByLevel) {
     if (cByLevel[level]) return cByLevel[level];
-    if (level === "junior" && (cByLevel.beginner || cByLevel.Beginner)) return cByLevel.beginner || cByLevel.Beginner;
-    if (level === "explorer" && (cByLevel.intermediate || cByLevel.Intermediate || cByLevel.scholar)) return cByLevel.intermediate || cByLevel.Intermediate || cByLevel.scholar;
-    if (level === "astronomer" && (cByLevel.advanced || cByLevel.Advanced || cByLevel.astrophysicist)) return cByLevel.advanced || cByLevel.Advanced || cByLevel.astrophysicist;
+    if (level === "junior" && (cByLevel.beginner || cByLevel.Beginner))
+      return cByLevel.beginner || cByLevel.Beginner;
+    if (
+      level === "explorer" &&
+      (cByLevel.intermediate || cByLevel.Intermediate || cByLevel.scholar)
+    )
+      return cByLevel.intermediate || cByLevel.Intermediate || cByLevel.scholar;
+    if (
+      level === "astronomer" &&
+      (cByLevel.advanced || cByLevel.Advanced || cByLevel.astrophysicist)
+    )
+      return cByLevel.advanced || cByLevel.Advanced || cByLevel.astrophysicist;
     if (cByLevel.explorer) return cByLevel.explorer;
   }
 
@@ -345,7 +354,10 @@ export class LessonContentProvider {
               }
             });
           }
-          if (Array.isArray(contentForLevel.keyConcepts) && contentForLevel.keyConcepts.length > 0) {
+          if (
+            Array.isArray(contentForLevel.keyConcepts) &&
+            contentForLevel.keyConcepts.length > 0
+          ) {
             const joined = contentForLevel.keyConcepts.filter(Boolean).join(". ");
             if (joined) {
               sectionEntries.push({ key: "keyConcepts", text: joined });

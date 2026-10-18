@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { LearningPreferenceManager } from "@/lib/cosmos/LearningPreferenceManager";
 import type {
   LearningLevel,
   ModuleContract,
@@ -18,6 +19,7 @@ import { KnowledgeCheck } from "./KnowledgeCheck";
 import { ModuleCompletionChecklist } from "./ModuleCompletionChecklist";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { LearningLevelSelector } from "./LearningLevelSelector";
+import { CosmosCompanion } from "./CosmosCompanion";
 import {
   BookOpen,
   CheckCircle2,
@@ -77,6 +79,36 @@ export function Module14Layout({
 
   const activeSubLesson = MODULE_14_SUBLESSONS[activeSubLessonIndex];
   const activeSubContent = activeSubLesson.content[level];
+
+  // Text Synchronization with COSMOS Voice Narration
+  const [activeNarrationSection, setActiveNarrationSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleSync = (e: any) => {
+      const detail = e.detail;
+      if (detail && detail.moduleId === "14") {
+        setActiveNarrationSection(detail.sectionId);
+
+        // Auto-scroll gently when enabled and not actively in view
+        const prefs = LearningPreferenceManager.getPreferences();
+        if (prefs.autoScrollEnabled && typeof document !== "undefined") {
+          const el = document.getElementById(`m14-sec-${detail.sectionId}`);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            const inView = rect.top >= 80 && rect.bottom <= window.innerHeight - 80;
+            if (!inView) {
+              el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener("cosmos:narration-sync" as any, handleSync);
+    return () => {
+      window.removeEventListener("cosmos:narration-sync" as any, handleSync);
+    };
+  }, []);
 
   // Track progress milestones
   const handleSimInteract = () => {
@@ -159,6 +191,25 @@ export function Module14Layout({
         </div>
         <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} />
       </section>
+
+      {/* COSMOS AI Astronomy Teaching Companion */}
+      <CosmosCompanion
+        moduleId="14"
+        moduleTitle={module.title}
+        learningLevel={level}
+        sublessonIndex={activeSubLessonIndex}
+        totalSublessons={MODULE_14_SUBLESSONS.length}
+        sublessonId={activeSubLesson.id}
+        sublessonTitle={activeSubLesson.title}
+        scientificTopic={`Extreme Gravity: ${activeSubLesson.title}`}
+        currentDisplayText={`${activeSubContent.summary} ${activeSubContent.deepDive}`}
+        currentVisualization={{
+          sceneId: "black_hole_lensing",
+          targetObject: "Sagittarius A*",
+          cameraAction: "orbit",
+          scaleRegime: "stellar",
+        }}
+      />
 
       {/* 3. Interactive Laboratory Chamber Selector Tabs */}
       <section className="space-y-4">
@@ -273,7 +324,15 @@ export function Module14Layout({
           </div>
 
           {/* Core Concept Banner */}
-          <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-200 text-sm leading-relaxed">
+          <div
+            id="m14-sec-keyIdea"
+            data-cosmos-section="keyIdea"
+            className={`p-4 rounded-2xl bg-purple-500/10 border text-purple-200 text-sm leading-relaxed transition-all duration-300 ${
+              activeNarrationSection === "keyIdea"
+                ? "bg-purple-500/25 ring-2 ring-purple-400 border-purple-400 shadow-lg shadow-purple-500/10"
+                : "border-purple-500/20"
+            }`}
+          >
             <strong className="text-purple-300 block mb-1 font-mono uppercase text-xs">
               Key Insight:
             </strong>
@@ -282,13 +341,41 @@ export function Module14Layout({
 
           {/* Lead & Main Explanation */}
           <div className="space-y-4 text-slate-200 text-sm sm:text-base leading-relaxed">
-            <p className="font-medium text-white text-base sm:text-lg">{activeSubContent.lead}</p>
-            <p className="text-slate-300 leading-relaxed">{activeSubContent.explanation}</p>
+            <p
+              id="m14-sec-lead"
+              data-cosmos-section="lead"
+              className={`font-medium text-white text-base sm:text-lg p-2 rounded-xl transition-all duration-300 ${
+                activeNarrationSection === "lead"
+                  ? "bg-purple-500/20 ring-2 ring-purple-400 shadow-md"
+                  : ""
+              }`}
+            >
+              {activeSubContent.lead}
+            </p>
+            <p
+              id="m14-sec-explanation"
+              data-cosmos-section="explanation"
+              className={`text-slate-300 leading-relaxed p-2 rounded-xl transition-all duration-300 ${
+                activeNarrationSection === "explanation"
+                  ? "bg-purple-500/20 ring-2 ring-purple-400 shadow-md"
+                  : ""
+              }`}
+            >
+              {activeSubContent.explanation}
+            </p>
           </div>
 
           {/* Advanced Mathematics derivations (Young Astronomer level) */}
           {"mathematics" in activeSubContent && activeSubContent.mathematics && (
-            <div className="p-4 rounded-2xl bg-slate-950 border border-cyan-500/30 font-mono text-xs text-cyan-200 space-y-1">
+            <div
+              id="m14-sec-mathematics"
+              data-cosmos-section="mathematics"
+              className={`p-4 rounded-2xl bg-slate-950 border font-mono text-xs text-cyan-200 space-y-1 transition-all duration-300 ${
+                activeNarrationSection === "mathematics"
+                  ? "bg-cyan-950/60 ring-2 ring-cyan-400 border-cyan-400 shadow-lg shadow-cyan-500/10"
+                  : "border-cyan-500/30"
+              }`}
+            >
               <span className="text-slate-400 text-[10px] block uppercase tracking-wider">
                 Relativistic Mathematical Framework:
               </span>
@@ -297,7 +384,15 @@ export function Module14Layout({
           )}
 
           {/* Interactive Experiment Prompt */}
-          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-3 text-xs text-slate-300">
+          <div
+            id="m14-sec-activityPrompt"
+            data-cosmos-section="activityPrompt"
+            className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 text-xs text-slate-300 transition-all duration-300 ${
+              activeNarrationSection === "activityPrompt"
+                ? "bg-purple-500/25 ring-2 ring-purple-400 border-purple-400 shadow-lg shadow-purple-500/10"
+                : "bg-white/[0.02] border-white/5"
+            }`}
+          >
             <span className="flex items-center gap-2">
               <Sparkles className="size-4 text-purple-400 shrink-0" />
               <span>{activeSubContent.activityPrompt}</span>

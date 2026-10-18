@@ -32,3 +32,20 @@ export const getCosmosModuleContext = createServerFn({ method: "GET" })
       learningLevel: data.level || "explorer",
     });
   });
+
+export const synthesizeSegmentAudio = createServerFn({ method: "POST" })
+  .validator(
+    (input: {
+      courseVersion?: string;
+      moduleId: string;
+      segmentId: string;
+      spokenText: string;
+      language?: string;
+      voiceName?: "Kore" | "Puck" | "Fenrir" | "Zephyr" | "Charon";
+      model?: "gemini-3.8-flash-lite-tts" | "gemini-3.8-flash-tts";
+    }) => input,
+  )
+  .handler(async ({ data }) => {
+    const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
+    return AIServiceProviderServer.synthesizeNarrationSegmentAudio(data);
+  });

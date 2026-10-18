@@ -99,7 +99,9 @@ export class VoiceConversationController {
     if (this.recognition) {
       try {
         this.recognition.stop();
-      } catch {}
+      } catch (err) {
+        void err;
+      }
     }
     this.setState("idle");
   }

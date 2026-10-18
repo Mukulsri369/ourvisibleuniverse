@@ -105,29 +105,59 @@ export interface CosmosAnswer {
   learningLevelAdapted: LearningLevel;
 }
 
+export type CosmosVoiceName = "Kore" | "Puck" | "Fenrir" | "Zephyr" | "Charon";
+
+export type CosmosNarrationStatus =
+  | "idle"
+  | "loading"
+  | "playing"
+  | "paused"
+  | "completed"
+  | "error"
+  | "interrupted";
+
+export interface CosmosAudioSynthesisResult {
+  audioBase64: string | null;
+  mimeType: string;
+  cached: boolean;
+  voiceName: CosmosVoiceName;
+  model: "gemini-3.8-flash-lite-tts" | "gemini-3.8-flash-tts";
+  useWebSpeechFallback: boolean;
+  error?: string;
+}
+
 /**
  * Real-time Speech & Narration State.
  */
 export interface NarrationState {
-  status: "idle" | "playing" | "paused" | "interrupted" | "completed";
+  status: CosmosNarrationStatus;
   currentSegmentIndex: number;
   totalSegments: number;
   currentSegment: NarrationSegment | null;
   progressPercentage: number;
   speechSpeed: number; // 0.75x to 1.5x
   language: CosmosLanguage;
+  voiceName: CosmosVoiceName;
+  textOnlyMode: boolean;
+  audioSource: "gemini-tts" | "web-speech" | "text-only";
   elapsedSeconds: number;
+  activeSectionId?: string;
+  errorMessage?: string;
 }
 
 /**
  * Persisted Narration Cursor.
+ * Advance the confirmed cursor only when playback actually completes.
  */
 export interface NarrationCursor {
   moduleId: string;
   lessonId: string;
+  sectionId: string;
   sublessonId?: string;
   segmentId: string;
   sequenceNumber: number;
+  lastConfirmedCompletedSegmentId?: string;
+  currentPlaybackState: CosmosNarrationStatus;
   playbackPositionSeconds: number;
   completedSegmentIds: string[];
   updatedAt: string;
@@ -139,10 +169,13 @@ export interface NarrationCursor {
 export interface CosmosPreferences {
   mode: CosmosLearningMode;
   preferredVoiceSpeed: number;
+  preferredVoiceName: CosmosVoiceName;
   language: CosmosLanguage;
   autoAdvanceSegments: boolean;
   autoPlayOnNavigation: boolean;
   subtitlesEnabled: boolean;
+  textOnlyMode: boolean;
+  autoScrollEnabled: boolean;
   voiceGender: "neutral" | "female" | "male";
   visualSyncEnabled: boolean;
 }
@@ -150,10 +183,13 @@ export interface CosmosPreferences {
 export const COSMOS_DEFAULT_PREFERENCES: CosmosPreferences = {
   mode: "guided",
   preferredVoiceSpeed: 1.0,
+  preferredVoiceName: "Kore",
   language: "en",
   autoAdvanceSegments: true,
   autoPlayOnNavigation: false,
   subtitlesEnabled: true,
+  textOnlyMode: false,
+  autoScrollEnabled: true,
   voiceGender: "neutral",
   visualSyncEnabled: true,
 };

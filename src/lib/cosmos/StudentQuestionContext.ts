@@ -30,8 +30,14 @@ export class StudentQuestionContextManager {
     currentVisualization?: CosmosVisualizationReference;
     activeExamAttempt?: boolean;
   }): StudentQuestionContext {
-    const { moduleId, sublessonId, learningLevel, activeTextOverride, currentVisualization, activeExamAttempt } =
-      params;
+    const {
+      moduleId,
+      sublessonId,
+      learningLevel,
+      activeTextOverride,
+      currentVisualization,
+      activeExamAttempt,
+    } = params;
 
     const moduleMeta = ACADEMY_MODULES.find((m) => m.id === moduleId);
     const moduleTitle = moduleMeta?.title || `Module ${moduleId}`;
@@ -93,8 +99,7 @@ export class StudentQuestionContextManager {
       scientificTopic,
       currentDisplayText,
       learningLevel,
-      currentVisualization:
-        currentVisualization || sublessonSegments[0]?.visualizationReference,
+      currentVisualization: currentVisualization || sublessonSegments[0]?.visualizationReference,
       approvedLearningObjectives: learningObjectives,
       scientificReferences,
       relevantTerminology: Array.from(termSet),

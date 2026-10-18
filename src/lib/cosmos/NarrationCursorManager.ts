@@ -65,14 +65,28 @@ export class NarrationCursorManager {
   }
 
   /**
-   * Records a segment as listened/completed.
+   * Records a segment as confirmed completed ONLY when playback actually completes.
+   * Invariant: Never advances confirmed cursor merely on audio generation or estimation.
    */
-  public static markSegmentCompleted(moduleId: string, segmentId: string): void {
+  public static markSegmentConfirmedCompleted(params: {
+    moduleId: string;
+    lessonId: string;
+    sectionId: string;
+    sublessonId?: string;
+    segmentId: string;
+    sequenceNumber: number;
+  }): void {
+    const { moduleId, lessonId, sectionId, sublessonId, segmentId, sequenceNumber } = params;
+
     const existing = this.getCursor(moduleId) || {
       moduleId,
-      lessonId: "",
+      lessonId,
+      sectionId,
+      sublessonId,
       segmentId,
-      sequenceNumber: 1,
+      sequenceNumber,
+      lastConfirmedCompletedSegmentId: segmentId,
+      currentPlaybackState: "completed" as const,
       playbackPositionSeconds: 0,
       completedSegmentIds: [],
       updatedAt: new Date().toISOString(),
@@ -81,7 +95,13 @@ export class NarrationCursorManager {
     if (!existing.completedSegmentIds.includes(segmentId)) {
       existing.completedSegmentIds.push(segmentId);
     }
+    existing.lessonId = lessonId || existing.lessonId;
+    existing.sectionId = sectionId || existing.sectionId;
+    existing.sublessonId = sublessonId || existing.sublessonId;
     existing.segmentId = segmentId;
+    existing.sequenceNumber = sequenceNumber;
+    existing.lastConfirmedCompletedSegmentId = segmentId;
+    existing.currentPlaybackState = "completed";
 
     this.saveCursor(existing);
   }
@@ -94,7 +114,9 @@ export class NarrationCursorManager {
     if (typeof window !== "undefined" && window.sessionStorage) {
       try {
         sessionStorage.removeItem(`${CURSOR_STORAGE_PREFIX}${moduleId}`);
-      } catch {}
+      } catch (err) {
+        void err;
+      }
     }
   }
 }

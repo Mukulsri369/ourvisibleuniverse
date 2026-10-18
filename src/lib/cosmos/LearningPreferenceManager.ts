@@ -10,6 +10,7 @@ import {
   COSMOS_DEFAULT_PREFERENCES,
   type CosmosLearningMode,
   type CosmosPreferences,
+  type CosmosVoiceName,
 } from "./cosmos-types";
 
 const PREFS_STORAGE_KEY = "ovu_cosmos_student_preferences";
@@ -75,6 +76,22 @@ export class LearningPreferenceManager {
    */
   public static setMode(mode: CosmosLearningMode): void {
     this.setPreferences({ mode });
+  }
+
+  public static updatePreferences(updates: Partial<CosmosPreferences>): CosmosPreferences {
+    return this.setPreferences(updates);
+  }
+
+  public static setVoiceName(voiceName: CosmosVoiceName): void {
+    this.setPreferences({ preferredVoiceName: voiceName });
+  }
+
+  public static setTextOnlyMode(enabled: boolean): void {
+    this.setPreferences({ textOnlyMode: enabled });
+  }
+
+  public static setAutoScroll(enabled: boolean): void {
+    this.setPreferences({ autoScrollEnabled: enabled });
   }
 
   /**

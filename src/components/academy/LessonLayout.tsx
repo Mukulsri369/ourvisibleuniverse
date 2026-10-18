@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { LearningPreferenceManager } from "@/lib/cosmos/LearningPreferenceManager";
 import type {
   LearningLevel,
   LessonContract,
@@ -16,6 +17,7 @@ import { KnowledgeCheck } from "./KnowledgeCheck";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { ModuleNavigation } from "./ModuleNavigation";
 import { LearningLevelSelector } from "./LearningLevelSelector";
+import { CosmosCompanion } from "./CosmosCompanion";
 import {
   BookOpen,
   CheckCircle2,
@@ -67,6 +69,36 @@ export function LessonLayout({
   const [activeSubLessonIndex, setActiveSubLessonIndex] = useState(0);
   const activeSubLesson = MODULE_01_SUBLESSONS[activeSubLessonIndex];
   const activeSubContent = activeSubLesson.content[level];
+
+  // Text Synchronization with COSMOS Voice Narration
+  const [activeNarrationSection, setActiveNarrationSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleSync = (e: any) => {
+      const detail = e.detail;
+      if (detail && detail.moduleId === "01") {
+        setActiveNarrationSection(detail.sectionId);
+
+        // Auto-scroll gently when enabled and not actively in view
+        const prefs = LearningPreferenceManager.getPreferences();
+        if (prefs.autoScrollEnabled && typeof document !== "undefined") {
+          const el = document.getElementById(`m01-sec-${detail.sectionId}`);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            const inView = rect.top >= 80 && rect.bottom <= window.innerHeight - 80;
+            if (!inView) {
+              el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+          }
+        }
+      }
+    };
+
+    window.addEventListener("cosmos:narration-sync" as any, handleSync);
+    return () => {
+      window.removeEventListener("cosmos:narration-sync" as any, handleSync);
+    };
+  }, []);
 
   // Track exploration completion milestones with verified physics telemetry
   const handleVisualizationInteract = () => {
@@ -159,6 +191,25 @@ export function LessonLayout({
         <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} compact />
       </div>
 
+      {/* COSMOS AI Astronomy Teaching Companion */}
+      <CosmosCompanion
+        moduleId="01"
+        moduleTitle={module.title}
+        learningLevel={level}
+        sublessonIndex={activeSubLessonIndex}
+        totalSublessons={MODULE_01_SUBLESSONS.length}
+        sublessonId={activeSubLesson.id}
+        sublessonTitle={activeSubLesson.title}
+        scientificTopic={`Cosmic Scale & Hierarchy: ${activeSubLesson.title}`}
+        currentDisplayText={`${activeSubContent.summary} ${activeSubContent.deepDive}`}
+        currentVisualization={{
+          sceneId: "cosmic_zoom",
+          scaleRegime: "universal",
+          cameraAction: "focus",
+          targetObject: activeSubLesson.title,
+        }}
+      />
+
       {/* 6 Structured Sub-Lessons Stepper */}
       <section className="rounded-3xl border border-white/10 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
@@ -206,7 +257,15 @@ export function LessonLayout({
         {/* Active Sub-Lesson Educational Content Card */}
         <div className="rounded-2xl border border-white/10 bg-slate-950 p-6 sm:p-8 space-y-6">
           {/* Main Summary */}
-          <div className="border-b border-white/10 pb-5">
+          <div
+            id="m01-sec-summary"
+            data-cosmos-section="summary"
+            className={`border-b border-white/10 pb-5 p-4 rounded-xl transition-all duration-300 ${
+              activeNarrationSection === "summary"
+                ? "bg-cyan-500/15 ring-2 ring-cyan-400 shadow-lg shadow-cyan-500/10"
+                : ""
+            }`}
+          >
             <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 block mb-1">
               Core Concept Summary
             </span>
@@ -216,7 +275,15 @@ export function LessonLayout({
           </div>
 
           {/* Deep Dive Narrative */}
-          <div className="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed space-y-3">
+          <div
+            id="m01-sec-deepDive"
+            data-cosmos-section="deepDive"
+            className={`prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed space-y-3 p-4 rounded-xl transition-all duration-300 ${
+              activeNarrationSection === "deepDive" || activeNarrationSection === "explanation"
+                ? "bg-cyan-500/15 ring-2 ring-cyan-400 shadow-lg shadow-cyan-500/10"
+                : ""
+            }`}
+          >
             <h4 className="text-sm font-bold text-white uppercase tracking-wider">
               Observational Deep Dive
             </h4>
@@ -225,7 +292,15 @@ export function LessonLayout({
 
           {/* Side-by-Side: Did You Know & Math/Analogy */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 text-xs text-amber-200 leading-relaxed flex items-start gap-2.5">
+            <div
+              id="m01-sec-didYouKnow"
+              data-cosmos-section="didYouKnow"
+              className={`rounded-xl p-4 text-xs text-amber-200 leading-relaxed flex items-start gap-2.5 transition-all duration-300 ${
+                activeNarrationSection === "didYouKnow"
+                  ? "bg-amber-500/25 ring-2 ring-amber-400 border border-amber-400 shadow-lg shadow-amber-500/10"
+                  : "bg-amber-500/10 border border-amber-500/20"
+              }`}
+            >
               <Sparkles className="size-4 text-amber-400 flex-shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-amber-300 block mb-0.5">Cosmic Curiosity:</span>
@@ -233,7 +308,15 @@ export function LessonLayout({
               </div>
             </div>
 
-            <div className="rounded-xl bg-cyan-500/10 border border-cyan-500/20 p-4 text-xs text-cyan-200 font-mono leading-relaxed flex items-start gap-2.5">
+            <div
+              id="m01-sec-mathOrAnalogy"
+              data-cosmos-section="mathOrAnalogy"
+              className={`rounded-xl p-4 text-xs text-cyan-200 font-mono leading-relaxed flex items-start gap-2.5 transition-all duration-300 ${
+                activeNarrationSection === "mathOrAnalogy"
+                  ? "bg-cyan-500/25 ring-2 ring-cyan-400 border border-cyan-400 shadow-lg shadow-cyan-500/10"
+                  : "bg-cyan-500/10 border border-cyan-500/20"
+              }`}
+            >
               <Compass className="size-4 text-cyan-400 flex-shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-cyan-300 block mb-0.5">

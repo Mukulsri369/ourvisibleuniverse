@@ -10,7 +10,9 @@
 import { GoogleGenAI } from "@google/genai";
 import type {
   CosmosAnswer,
+  CosmosAudioSynthesisResult,
   CosmosForbiddenAction,
+  CosmosVoiceName,
   EpistemicStatus,
   StudentQuestionContext,
 } from "./cosmos-types";
@@ -28,22 +30,44 @@ function detectForbiddenActionAttempt(question: string): CosmosForbiddenAction |
     }
   }
 
-  if (q.includes("complete this module for me") || q.includes("set progress to 100") || q.includes("mark complete")) {
+  if (
+    q.includes("complete this module for me") ||
+    q.includes("set progress to 100") ||
+    q.includes("mark complete")
+  ) {
     return "mark_module_complete";
   }
-  if (q.includes("change my quiz score") || q.includes("give me 100%") || q.includes("change score") || q.includes("fake score")) {
+  if (
+    q.includes("change my quiz score") ||
+    q.includes("give me 100%") ||
+    q.includes("change score") ||
+    q.includes("fake score")
+  ) {
     return "change_quiz_score";
   }
   if (q.includes("give me the badge") || q.includes("unlock achievement")) {
     return "award_badge";
   }
-  if (q.includes("generate certificate") || q.includes("issue my certificate") || q.includes("give me certificate without exam")) {
+  if (
+    q.includes("generate certificate") ||
+    q.includes("issue my certificate") ||
+    q.includes("give me certificate without exam")
+  ) {
     return "issue_certificate";
   }
-  if (q.includes("change database") || q.includes("grant admin") || q.includes("make me admin") || q.includes("sql injection")) {
+  if (
+    q.includes("change database") ||
+    q.includes("grant admin") ||
+    q.includes("make me admin") ||
+    q.includes("sql injection")
+  ) {
     return "modify_database_permissions";
   }
-  if (q.includes("what is the answer to question") || q.includes("tell me the correct answer to the exam") || q.includes("cheat on exam")) {
+  if (
+    q.includes("what is the answer to question") ||
+    q.includes("tell me the correct answer to the exam") ||
+    q.includes("cheat on exam")
+  ) {
     return "reveal_exam_answers";
   }
 
@@ -55,9 +79,12 @@ function detectForbiddenActionAttempt(question: string): CosmosForbiddenAction |
  */
 function buildSystemPrompt(context: StudentQuestionContext): string {
   const levelDescriptions = {
-    junior: "Classes 1–3 (Ages 6–9). Use warm, clear, vivid language, tangible real-world analogies, and relatable metaphors. Avoid technical jargon without immediate friendly explanation.",
-    explorer: "Classes 4–6 (Ages 9–12). Use enthusiastic, scientifically accurate concepts, observational reasoning, and guided experiments.",
-    astronomer: "Classes 7–10 (Ages 12–16). Use rigorous astrophysics principles, mathematical relationships, thermodynamic limits, and peer-reviewed citations.",
+    junior:
+      "Classes 1–3 (Ages 6–9). Use warm, clear, vivid language, tangible real-world analogies, and relatable metaphors. Avoid technical jargon without immediate friendly explanation.",
+    explorer:
+      "Classes 4–6 (Ages 9–12). Use enthusiastic, scientifically accurate concepts, observational reasoning, and guided experiments.",
+    astronomer:
+      "Classes 7–10 (Ages 12–16). Use rigorous astrophysics principles, mathematical relationships, thermodynamic limits, and peer-reviewed citations.",
   };
 
   return `You are COSMOS, the official AI Astronomy Teaching Companion for Our Visible Universe Academy.
@@ -198,9 +225,7 @@ function generateScientificFallbackAnswer(
           "Earth is our home planet, uniquely positioned in the Sun's habitable zone where liquid water can persist on the surface. Its swirling liquid iron outer core generates a protective magnetic shield (magnetosphere) that deflects harmful solar wind particles, while active plate tectonics constantly cycles carbon to stabilize our climate.",
         epistemicClassification: "fact",
         epistemicNote: "Observed planetary characteristics and geological evidence",
-        scientificSources: [
-          { title: "NASA Planetary Fact Sheet: Earth", organization: "NASA" },
-        ],
+        scientificSources: [{ title: "NASA Planetary Fact Sheet: Earth", organization: "NASA" }],
         suggestedFollowUpQuestions: [
           "What creates the Northern Lights (Auroras)?",
           "How fast is Earth moving around the Sun?",
@@ -360,5 +385,143 @@ export class AIServiceProviderServer {
 
     // 4. Grounded Scientific Fallback
     return generateScientificFallbackAnswer(trimmed, context);
+  }
+
+  private static audioCache = new Map<string, string>();
+
+  /**
+   * Synthesizes audio for an approved lesson segment using Gemini TTS (gemini-3.8-flash-lite-tts).
+   * Cached strictly by [courseVersion, moduleId, segmentId, language, voiceName, model].
+   * Privacy Invariant: Zero student data is ever included in audio caches.
+   */
+  public static async synthesizeNarrationSegmentAudio(params: {
+    courseVersion?: string;
+    moduleId: string;
+    segmentId: string;
+    spokenText: string;
+    language?: string;
+    voiceName?: CosmosVoiceName;
+    model?: "gemini-3.8-flash-lite-tts" | "gemini-3.8-flash-tts";
+  }): Promise<CosmosAudioSynthesisResult> {
+    const {
+      courseVersion = "1.0.0",
+      moduleId,
+      segmentId,
+      spokenText,
+      language = "en",
+      voiceName = "Kore",
+      model = "gemini-3.8-flash-lite-tts",
+    } = params;
+
+    const cacheKey = `${courseVersion}:${moduleId}:${segmentId}:${language}:${voiceName}:${model}`;
+
+    // 1. Check in-memory audio cache
+    if (this.audioCache.has(cacheKey)) {
+      return {
+        audioBase64: this.audioCache.get(cacheKey)!,
+        mimeType: "audio/wav",
+        cached: true,
+        voiceName,
+        model,
+        useWebSpeechFallback: false,
+      };
+    }
+
+    const client = this.getClient();
+    if (!client) {
+      return {
+        audioBase64: null,
+        mimeType: "audio/wav",
+        cached: false,
+        voiceName,
+        model,
+        useWebSpeechFallback: true,
+        error: "GEMINI_API_KEY is not configured on server",
+      };
+    }
+
+    try {
+      const response = await client.models.generateContent({
+        model,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: spokenText,
+                speechMetadata: {
+                  style:
+                    "Warm, natural, patient, curious, expressive, scientifically confident, appropriate for children",
+                },
+              },
+            ],
+          },
+        ],
+        config: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName },
+            },
+          },
+        },
+      });
+
+      const base64Audio =
+        response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
+
+      if (base64Audio) {
+        this.audioCache.set(cacheKey, base64Audio);
+        return {
+          audioBase64: base64Audio,
+          mimeType: "audio/wav",
+          cached: false,
+          voiceName,
+          model,
+          useWebSpeechFallback: false,
+        };
+      }
+
+      return {
+        audioBase64: null,
+        mimeType: "audio/wav",
+        cached: false,
+        voiceName,
+        model,
+        useWebSpeechFallback: true,
+        error: "No audio stream returned from Gemini TTS model",
+      };
+    } catch (err: any) {
+      console.warn(
+        `Gemini TTS synthesis fallback for segment ${segmentId}:`,
+        err?.message || err,
+      );
+      return {
+        audioBase64: null,
+        mimeType: "audio/wav",
+        cached: false,
+        voiceName,
+        model,
+        useWebSpeechFallback: true,
+        error: err?.message || "Synthesis request failed",
+      };
+    }
+  }
+
+  /**
+   * Flushes in-memory audio cache.
+   */
+  public static clearAudioCache(): void {
+    this.audioCache.clear();
+  }
+
+  /**
+   * Returns current cache statistics.
+   */
+  public static getAudioCacheStats(): { size: number; keys: string[] } {
+    return {
+      size: this.audioCache.size,
+      keys: Array.from(this.audioCache.keys()),
+    };
   }
 }

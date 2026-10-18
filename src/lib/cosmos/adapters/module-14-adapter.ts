@@ -17,7 +17,10 @@ export class Module14CosmosAdapter {
   /**
    * Retrieves all verified narration segments for Module 14.
    */
-  public static getSegments(level: LearningLevel, language: CosmosLanguage = "en"): NarrationSegment[] {
+  public static getSegments(
+    level: LearningLevel,
+    language: CosmosLanguage = "en",
+  ): NarrationSegment[] {
     return LessonContentProvider.getSegmentsForModule(this.MODULE_ID, level, language);
   }
 

@@ -15,7 +15,45 @@ interface ReplacementRule {
 }
 
 const SCIENTIFIC_ENGLISH_RULES: ReplacementRule[] = [
-  // Compound Equations & Specific Scientific Formulations (Run first)
+  // Key Astronomical & Physical Equations (Run first)
+  {
+    pattern: /F\s*=\s*G\(?m_?1\s*[*·]?\s*m_?2\)?\s*\/\s*r[²\^2]/gi,
+    replacement:
+      "gravitational force F equals universal gravitational constant G times mass one times mass two divided by distance r squared",
+  },
+  {
+    pattern: /E\s*=\s*mc[²\^2]/g,
+    replacement: "E equals m c squared, expressing the equivalence of mass and energy",
+  },
+  {
+    pattern: /v\s*=\s*H_?0\s*[*·]?\s*d/gi,
+    replacement: "recession velocity v equals Hubble constant H-nought times distance d",
+  },
+  {
+    pattern: /P[²\^2]\s*=\s*a[³\^3]/gi,
+    replacement:
+      "orbital period P squared equals orbital semi-major axis a cubed, following Kepler's third law",
+  },
+  {
+    pattern: /T[²\^2]\s*=\s*a[³\^3]/gi,
+    replacement:
+      "orbital period T squared equals orbital semi-major axis a cubed, following Kepler's third law",
+  },
+  {
+    pattern: /L\s*=\s*4π\s*R[²\^2]\s*σ\s*T[⁴\^4]/g,
+    replacement:
+      "luminosity L equals four pi R squared times the Stefan-Boltzmann constant sigma times temperature T to the fourth power",
+  },
+  {
+    pattern: /λ_?max\s*=\s*b\s*\/\s*T/gi,
+    replacement:
+      "peak wavelength lambda max equals Wien's displacement constant b divided by absolute temperature T",
+  },
+  {
+    pattern: /z\s*=\s*\(?λ_?obs\s*-\s*λ_?rest\)?\s*\/\s*λ_?rest/gi,
+    replacement:
+      "cosmological redshift z equals observed wavelength minus rest wavelength divided by rest wavelength",
+  },
   {
     pattern: /G_μν\s*\+\s*Λ\s*g_μν\s*=\s*\(8πG\s*\/\s*c\^4\)\s*T_μν/g,
     replacement:
@@ -23,7 +61,8 @@ const SCIENTIFIC_ENGLISH_RULES: ReplacementRule[] = [
   },
   {
     pattern: /⁵⁶Fe\s*\+\s*γ\s*→\s*13\s*⁴He\s*\+\s*4n/g,
-    replacement: "iron fifty-six photodisintegrates into thirteen helium-four nuclei and four neutrons",
+    replacement:
+      "iron fifty-six photodisintegrates into thirteen helium-four nuclei and four neutrons",
   },
   {
     pattern: /p\s*\+\s*e[⁻-]\s*→\s*n\s*\+\s*ν_?e/g,
@@ -38,9 +77,14 @@ const SCIENTIFIC_ENGLISH_RULES: ReplacementRule[] = [
     pattern: /Γ\s*<\s*4\/3/g,
     replacement: "adiabatic index gamma less than four thirds",
   },
-  { pattern: /\br_s\s*=\s*2GM\/c\^2\b/g, replacement: "Schwarzschild radius equals two G M over c squared" },
+  {
+    pattern: /\br_s\s*=\s*2GM\/c\^2\b/g,
+    replacement: "Schwarzschild radius equals two G M over c squared",
+  },
   { pattern: /\bc\^2\b/g, replacement: "c squared" },
   { pattern: /\bc\^4\b/g, replacement: "c to the fourth power" },
+  { pattern: /r²\b/g, replacement: "r squared" },
+  { pattern: /r³\b/g, replacement: "r cubed" },
 
   // Astronomical Masses & Solar Symbols
   { pattern: /\b(\d+(?:\.\d+)?)\s*M[☉\u2609]/g, replacement: "$1 solar masses" },

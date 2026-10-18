@@ -11,6 +11,7 @@ export * from "./NarrationCursorManager";
 export * from "./LearningPreferenceManager";
 export * from "./StudentQuestionContext";
 export * from "./VisualizationActionController";
+export * from "./AudioCacheManager";
 export * from "./NarrationController";
 export * from "./VoiceConversationController";
 export * from "./cosmos.functions";
