@@ -34,6 +34,7 @@ import {
   Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CosmosCompanion } from "./CosmosCompanion";
 
 // Lazy-loaded module layouts to optimize initial bundle size and isolate module evaluation
 const LessonLayout = lazy(() =>
@@ -371,7 +372,18 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           settings.fontSize === "large" ? "text-base" : "text-sm"
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-28">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-28 space-y-8">
+          {/* Centralized COSMOS AI Astronomy Voice Teacher for all 24 Modules */}
+          <CosmosCompanion
+            key={activeLessonModule.id}
+            moduleId={activeLessonModule.id}
+            moduleTitle={activeLessonModule.title}
+            learningLevel={selectedLevel}
+            scientificTopic={activeLessonModule.subtitle}
+            currentDisplayText={activeLessonModule.description}
+            totalSublessons={activeLessonModule.lessons?.length || 6}
+          />
+
           <Suspense fallback={<ModuleLoadingFallback title={activeLessonModule.title} />}>
             {renderActiveModule(activeLessonModule.id, layoutProps)}
           </Suspense>

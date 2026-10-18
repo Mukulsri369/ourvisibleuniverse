@@ -93,7 +93,12 @@ export class AudioCacheManager {
    * Checks if an audio clip exists in cache.
    */
   public static has(key: string): boolean {
-    return this.memoryCache.has(key) || (typeof window !== "undefined" && window.sessionStorage ? sessionStorage.getItem(`${AUDIO_STORAGE_PREFIX}${key}`) !== null : false);
+    return (
+      this.memoryCache.has(key) ||
+      (typeof window !== "undefined" && window.sessionStorage
+        ? sessionStorage.getItem(`${AUDIO_STORAGE_PREFIX}${key}`) !== null
+        : false)
+    );
   }
 
   /**

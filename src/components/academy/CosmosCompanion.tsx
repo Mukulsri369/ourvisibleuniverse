@@ -88,9 +88,7 @@ export function CosmosCompanion({
   className = "",
 }: CosmosCompanionProps) {
   // 1. Learning Preferences & Mode
-  const [preferences, setPreferences] = useState(() =>
-    LearningPreferenceManager.getPreferences(),
-  );
+  const [preferences, setPreferences] = useState(() => LearningPreferenceManager.getPreferences());
   const activeMode: CosmosLearningMode = isExamMode ? "exam" : preferences.mode;
 
   // 2. Controller & Segments
@@ -170,14 +168,7 @@ export function CosmosCompanion({
       currentVisualization,
       activeExamAttempt: isExamMode,
     });
-  }, [
-    moduleId,
-    sublessonId,
-    learningLevel,
-    currentDisplayText,
-    currentVisualization,
-    isExamMode,
-  ]);
+  }, [moduleId, sublessonId, learningLevel, currentDisplayText, currentVisualization, isExamMode]);
 
   // Handle Mode Change
   const handleSetMode = (mode: CosmosLearningMode) => {
@@ -418,9 +409,7 @@ export function CosmosCompanion({
               Aware: Sub-lesson {sublessonIndex + 1}/{totalSublessons}
             </span>
             <span className="text-slate-500">•</span>
-            <span className="capitalize font-semibold text-white">
-              {learningLevel}
-            </span>
+            <span className="capitalize font-semibold text-white">{learningLevel}</span>
           </div>
 
           <button
@@ -655,9 +644,7 @@ export function CosmosCompanion({
 
                   {currentSegment?.visualizationReference && (
                     <button
-                      onClick={() =>
-                        handleDispatchVizAction(currentSegment.visualizationReference)
-                      }
+                      onClick={() => handleDispatchVizAction(currentSegment.visualizationReference)}
                       className="text-[11px] text-purple-400 hover:text-purple-300 font-mono inline-flex items-center gap-1"
                     >
                       <Orbit className="size-3" />
@@ -763,8 +750,7 @@ export function CosmosCompanion({
                     variant="outline"
                     onClick={() => narrationRef.current?.next()}
                     disabled={
-                      narrationState.currentSegmentIndex >=
-                      narrationState.totalSegments - 1
+                      narrationState.currentSegmentIndex >= narrationState.totalSegments - 1
                     }
                     className="border-white/10 hover:bg-white/10 text-slate-300"
                     title="Next sentence / segment"
@@ -882,9 +868,7 @@ export function CosmosCompanion({
                     )}
                   </div>
 
-                  <p className="text-sm text-slate-200 leading-relaxed">
-                    {lastAnswer.answerText}
-                  </p>
+                  <p className="text-sm text-slate-200 leading-relaxed">{lastAnswer.answerText}</p>
 
                   {/* Sources */}
                   {lastAnswer.scientificSources.length > 0 && (
@@ -927,9 +911,7 @@ export function CosmosCompanion({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Compass className="size-4 text-amber-400" />
-                  <span className="text-xs font-bold text-white">
-                    3D Simulation Sync Bus
-                  </span>
+                  <span className="text-xs font-bold text-white">3D Simulation Sync Bus</span>
                 </div>
                 <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
                   Telemetry Active
@@ -937,8 +919,8 @@ export function CosmosCompanion({
               </div>
 
               <p className="text-xs text-slate-300 leading-relaxed">
-                COSMOS monitors your camera viewpoint, object focus, and scale regime in real
-                time. Click any action below to synchronize the 3D scene with the active lesson.
+                COSMOS monitors your camera viewpoint, object focus, and scale regime in real time.
+                Click any action below to synchronize the 3D scene with the active lesson.
               </p>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1030,8 +1012,8 @@ export function CosmosCompanion({
                   Independent Study Mode Active
                 </strong>
                 <span>
-                  COSMOS is standing by silently. You can read, solve problems, and interact
-                  with 3D visualizers at your own pace without voice narration.
+                  COSMOS is standing by silently. You can read, solve problems, and interact with 3D
+                  visualizers at your own pace without voice narration.
                 </span>
               </div>
             </div>
@@ -1045,8 +1027,8 @@ export function CosmosCompanion({
                   Academic Assessment Mode — COSMOS Assistance Guarded
                 </strong>
                 <span>
-                  During official certification exams and qualifying knowledge assessments,
-                  COSMOS conversational assistance and solution guidance are locked to guarantee
+                  During official certification exams and qualifying knowledge assessments, COSMOS
+                  conversational assistance and solution guidance are locked to guarantee
                   independent mastery.
                 </span>
               </div>

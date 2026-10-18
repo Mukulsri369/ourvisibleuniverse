@@ -32,6 +32,7 @@ import { useAcademyProgress } from "@/lib/academy/progress";
 import { ACADEMY_MODULES } from "@/lib/academy/registry";
 import { LearningLevelSelector } from "@/components/academy/LearningLevelSelector";
 import { KnowledgeCheck } from "@/components/academy/KnowledgeCheck";
+import { CosmosCompanion } from "@/components/academy/CosmosCompanion";
 import { ModuleCompletionChecklist } from "@/components/academy/ModuleCompletionChecklist";
 import { submitActivityOutcome } from "@/lib/academy/completion.functions";
 import {
@@ -479,6 +480,16 @@ function GalaxiesRouteComponent() {
           <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-xl">
             <LearningLevelSelector currentLevel={selectedLevel} onSelectLevel={setLearningLevel} />
           </div>
+
+          {/* COSMOS AI Astronomy Voice Teacher */}
+          <CosmosCompanion
+            moduleId="13"
+            moduleTitle="Learn About Galaxies"
+            learningLevel={selectedLevel}
+            scientificTopic="Galactic Morphology & Dynamics"
+            currentDisplayText="Official Module 13 of the Cosmic Learning Academy: Explore the morphology, stellar populations, and dynamics of spiral, elliptical, and irregular galaxies."
+            totalSublessons={MODULE_13_SUBLESSONS.length}
+          />
 
           {/* Recommended Prerequisite Modules Card */}
           <div className="rounded-3xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/20 via-slate-900/50 to-slate-950/40 p-6 backdrop-blur-xl">

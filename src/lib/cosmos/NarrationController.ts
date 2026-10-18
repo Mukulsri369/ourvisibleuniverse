@@ -63,8 +63,7 @@ export class NarrationController {
       totalSegments: segments.length,
       currentSegment: current,
       activeSectionId: current?.sectionId,
-      progressPercentage:
-        segments.length > 0 ? (this.currentIndex / segments.length) * 100 : 0,
+      progressPercentage: segments.length > 0 ? (this.currentIndex / segments.length) * 100 : 0,
       language: current?.language || "en",
       elapsedSeconds: 0,
       errorMessage: undefined,

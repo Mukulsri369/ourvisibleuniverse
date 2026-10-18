@@ -108,13 +108,7 @@ export interface CosmosAnswer {
 export type CosmosVoiceName = "Kore" | "Puck" | "Fenrir" | "Zephyr" | "Charon";
 
 export type CosmosNarrationStatus =
-  | "idle"
-  | "loading"
-  | "playing"
-  | "paused"
-  | "completed"
-  | "error"
-  | "interrupted";
+  "idle" | "loading" | "playing" | "paused" | "completed" | "error" | "interrupted";
 
 export interface CosmosAudioSynthesisResult {
   audioBase64: string | null;

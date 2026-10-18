@@ -1,25 +1,16 @@
 /**
  * COSMOS LessonContentProvider
  * Project: Our Visible Universe Academy
- * Scope: Prompt 12 Structured Lesson Content Layer
+ * Scope: Prompt 13 Intelligent Voice Narration Engine
  *
- * Ingests approved module lesson materials and transforms them into
- * strictly typed, ordered NarrationSegments with phonetic pronunciation
- * and 3D visualization linkages.
+ * Ingests approved module lesson materials across all 24 modules and transforms
+ * them into strictly typed, ordered NarrationSegments with phonetic pronunciation,
+ * stable semantic IDs, equation speech expansions, and 3D visualization linkages.
  */
 
 import type { LearningLevel } from "../academy/types";
 import { ACADEMY_MODULES } from "../academy/registry";
 import { MODULE_01_SUBLESSONS } from "../academy/lessons/module-01-our-place";
-import { MODULE_14_SUBLESSONS, BLACK_HOLE_PRESETS } from "../academy/lessons/module-14-black-holes";
-import { generateSpokenText, inferEpistemicStatus } from "./phonetics";
-import type {
-  CosmosLanguage,
-  CosmosVisualizationReference,
-  NarrationSegment,
-} from "./cosmos-types";
-
-// Dynamic module loaders for all 24 modules
 import { MODULE_02_SUBLESSONS } from "../academy/lessons/module-02-night-sky";
 import { MODULE_03_SUBLESSONS } from "../academy/lessons/module-03-cosmic-scale";
 import { MODULE_04_SUBLESSONS } from "../academy/lessons/module-04-light-time";
@@ -32,6 +23,7 @@ import { MODULE_10_SUBLESSONS } from "../academy/lessons/module-10-evolution";
 import { MODULE_11_SUBLESSONS } from "../academy/lessons/module-11-nebulae";
 import { MODULE_12_SUBLESSONS } from "../academy/lessons/module-12-exoplanets";
 import { MODULE_13_SUBLESSONS } from "../academy/lessons/module-13-galaxies";
+import { MODULE_14_SUBLESSONS, BLACK_HOLE_PRESETS } from "../academy/lessons/module-14-black-holes";
 import { MODULE_15_SUBLESSONS } from "../academy/lessons/module-15-cosmic-web";
 import { MODULE_16_SUBLESSONS } from "../academy/lessons/module-16-dark-matter-energy";
 import { MODULE_17_SUBLESSONS } from "../academy/lessons/module-17-big-bang";
@@ -42,6 +34,12 @@ import { MODULE_21_SUBLESSONS } from "../academy/lessons/module-21-telescopes";
 import { MODULE_22_SUBLESSONS } from "../academy/lessons/module-22-space-missions";
 import { MODULE_23_SUBLESSONS } from "../academy/lessons/module-23-astrobiology";
 import { MODULE_24_SUBLESSONS } from "../academy/lessons/module-24-cosmic-lab";
+import { generateSpokenText, inferEpistemicStatus } from "./phonetics";
+import type {
+  CosmosLanguage,
+  CosmosVisualizationReference,
+  NarrationSegment,
+} from "./cosmos-types";
 
 const COURSE_ID = "cosmic-journey";
 const COURSE_VERSION = "1.0.0";
@@ -74,7 +72,7 @@ const ALL_MODULE_SUBLESSONS: Record<string, any[]> = {
 };
 
 /**
- * Maps sublessons to specific 3D scene cameras and objects.
+ * Maps sublessons across all 24 modules to specific 3D scene cameras and objects.
  */
 function resolveVisualizationReference(
   moduleId: string,
@@ -83,98 +81,280 @@ function resolveVisualizationReference(
 ): CosmosVisualizationReference {
   const normTitle = sublessonTitle.toLowerCase();
 
-  if (moduleId === "01") {
-    if (normTitle.includes("earth")) {
+  switch (moduleId) {
+    case "01":
+      if (normTitle.includes("earth")) {
+        return {
+          sceneId: "solar_system",
+          targetObject: "Earth",
+          cameraAction: "focus",
+          scaleRegime: "planetary",
+        };
+      }
+      if (normTitle.includes("solar system") || normTitle.includes("sun")) {
+        return {
+          sceneId: "solar_system",
+          targetObject: "Sun",
+          cameraAction: "orbit",
+          scaleRegime: "stellar",
+        };
+      }
+      if (normTitle.includes("milky way") || normTitle.includes("galaxy")) {
+        return {
+          sceneId: "milky_way",
+          targetObject: "Milky Way",
+          cameraAction: "zoom_out",
+          scaleRegime: "galactic",
+        };
+      }
+      if (normTitle.includes("local group") || normTitle.includes("andromeda")) {
+        return {
+          sceneId: "local_group",
+          targetObject: "M31 Andromeda",
+          cameraAction: "fly_to",
+          scaleRegime: "galactic",
+        };
+      }
       return {
-        sceneId: "solar_system",
-        targetObject: "Earth",
-        cameraAction: "focus",
-        scaleRegime: "planetary",
+        sceneId: "cosmic_scale",
+        targetObject: "Observable Universe",
+        cameraAction: "zoom_out",
+        scaleRegime: "cosmological",
       };
-    }
-    if (normTitle.includes("solar system") || normTitle.includes("sun")) {
+
+    case "02":
       return {
-        sceneId: "solar_system",
-        targetObject: "Sun",
+        sceneId: "virtual_planetarium",
+        targetObject: normTitle.includes("polaris") ? "Polaris" : "Constellations",
         cameraAction: "orbit",
         scaleRegime: "stellar",
       };
-    }
-    if (normTitle.includes("milky way") || normTitle.includes("galaxy")) {
+
+    case "03":
       return {
-        sceneId: "milky_way",
-        targetObject: "Milky Way",
+        sceneId: "cosmic_distances_ruler",
+        targetObject: "Light-Year Scale",
         cameraAction: "zoom_out",
         scaleRegime: "galactic",
       };
-    }
-    if (normTitle.includes("local group") || normTitle.includes("andromeda")) {
-      return {
-        sceneId: "local_group",
-        targetObject: "M31 Andromeda",
-        cameraAction: "fly_to",
-        scaleRegime: "galactic",
-      };
-    }
-    return {
-      sceneId: "cosmic_scale",
-      targetObject: "Observable Universe",
-      cameraAction: "zoom_out",
-      scaleRegime: "cosmological",
-    };
-  }
 
-  if (moduleId === "14") {
-    if (normTitle.includes("sagittarius a") || normTitle.includes("milky way")) {
+    case "04":
       return {
-        sceneId: "black_hole_lensing",
-        targetObject: "Sagittarius A*",
-        cameraAction: "orbit",
-        scaleRegime: "stellar",
-        parameters: { massSolar: 4297000, diskColor: "#f97316" },
-      };
-    }
-    if (normTitle.includes("m87")) {
-      return {
-        sceneId: "black_hole_lensing",
-        targetObject: "M87*",
-        cameraAction: "zoom_in",
-        scaleRegime: "galactic",
-        parameters: { massSolar: 6500000000, diskColor: "#ea580c" },
-      };
-    }
-    if (normTitle.includes("cygnus x-1")) {
-      return {
-        sceneId: "compact_object_lab",
-        targetObject: "Cygnus X-1",
+        sceneId: "light_travel_simulation",
+        targetObject: "Speed of Light Pulse",
         cameraAction: "focus",
         scaleRegime: "stellar",
-        parameters: { massSolar: 21.2, diskColor: "#06b6d4" },
       };
-    }
-    if (normTitle.includes("neutron star") || normTitle.includes("white dwarf")) {
+
+    case "05":
       return {
-        sceneId: "compact_object_comparison",
-        targetObject: "Neutron Star vs White Dwarf",
+        sceneId: "sun_earth_moon_sim",
+        targetObject: normTitle.includes("moon") ? "Moon" : "Earth Tilt",
         cameraAction: "orbit",
         scaleRegime: "planetary",
       };
-    }
-    return {
-      sceneId: "black_hole_lensing",
-      targetObject: "Stellar-Mass Black Hole",
-      cameraAction: "focus",
-      scaleRegime: "stellar",
-      parameters: { massSolar: 10 },
-    };
-  }
 
-  // Generic fallback visualization based on module theme
-  return {
-    sceneId: `module_${moduleId}_visualization`,
-    targetObject: sublessonTitle,
-    cameraAction: "focus",
-  };
+    case "06":
+      return {
+        sceneId: "solar_system_3d",
+        targetObject: normTitle.includes("jupiter")
+          ? "Jupiter"
+          : normTitle.includes("saturn")
+            ? "Saturn"
+            : normTitle.includes("mars")
+              ? "Mars"
+              : "Planetary Orbits",
+        cameraAction: "focus",
+        scaleRegime: "planetary",
+      };
+
+    case "07":
+      return {
+        sceneId: "sun_simulator_3d",
+        targetObject: "Solar Corona",
+        cameraAction: "zoom_in",
+        scaleRegime: "stellar",
+      };
+
+    case "08":
+      return {
+        sceneId: "orbital_mechanics_lab",
+        targetObject: "Keplerian Ellipse",
+        cameraAction: "orbit",
+        scaleRegime: "planetary",
+      };
+
+    case "09":
+      return {
+        sceneId: "hr_diagram_spectra",
+        targetObject: "Stellar Classification",
+        cameraAction: "focus",
+        scaleRegime: "stellar",
+      };
+
+    case "10":
+      return {
+        sceneId: "stellar_evolution_3d",
+        targetObject: normTitle.includes("supernova") ? "Supernova Remnant" : "Main Sequence Star",
+        cameraAction: "zoom_in",
+        scaleRegime: "stellar",
+      };
+
+    case "11":
+      return {
+        sceneId: "nebula_3d_explorer",
+        targetObject: normTitle.includes("orion") ? "Orion Nebula" : "Emission Nebula",
+        cameraAction: "orbit",
+        scaleRegime: "stellar",
+      };
+
+    case "12":
+      return {
+        sceneId: "exoplanet_observatory_3d",
+        targetObject: "Transit Light Curve",
+        cameraAction: "focus",
+        scaleRegime: "planetary",
+      };
+
+    case "13":
+      return {
+        sceneId: "galaxy_assembly_3d",
+        targetObject: normTitle.includes("andromeda") ? "Andromeda Galaxy" : "Spiral Disk",
+        cameraAction: "orbit",
+        scaleRegime: "galactic",
+      };
+
+    case "14":
+      if (normTitle.includes("sagittarius a") || normTitle.includes("milky way")) {
+        return {
+          sceneId: "black_hole_lensing",
+          targetObject: "Sagittarius A*",
+          cameraAction: "orbit",
+          scaleRegime: "stellar",
+          parameters: { massSolar: 4297000, diskColor: "#f97316" },
+        };
+      }
+      if (normTitle.includes("m87")) {
+        return {
+          sceneId: "black_hole_lensing",
+          targetObject: "M87*",
+          cameraAction: "zoom_in",
+          scaleRegime: "galactic",
+          parameters: { massSolar: 6500000000, diskColor: "#ea580c" },
+        };
+      }
+      if (normTitle.includes("cygnus x-1")) {
+        return {
+          sceneId: "compact_object_lab",
+          targetObject: "Cygnus X-1",
+          cameraAction: "focus",
+          scaleRegime: "stellar",
+          parameters: { massSolar: 21.2, diskColor: "#06b6d4" },
+        };
+      }
+      if (normTitle.includes("neutron star") || normTitle.includes("white dwarf")) {
+        return {
+          sceneId: "compact_object_comparison",
+          targetObject: "Neutron Star vs White Dwarf",
+          cameraAction: "orbit",
+          scaleRegime: "planetary",
+        };
+      }
+      return {
+        sceneId: "black_hole_lensing",
+        targetObject: "Stellar-Mass Black Hole",
+        cameraAction: "focus",
+        scaleRegime: "stellar",
+        parameters: { massSolar: 10 },
+      };
+
+    case "15":
+      return {
+        sceneId: "cosmic_structure_3d",
+        targetObject: "Cosmic Web Scaffolding",
+        cameraAction: "zoom_out",
+        scaleRegime: "cosmological",
+      };
+
+    case "16":
+      return {
+        sceneId: "dark_matter_rotation_lab",
+        targetObject: "Galactic Dark Matter Halo",
+        cameraAction: "orbit",
+        scaleRegime: "galactic",
+      };
+
+    case "17":
+      return {
+        sceneId: "cosmic_expansion_observatory",
+        targetObject: "Cosmic Microwave Background",
+        cameraAction: "zoom_out",
+        scaleRegime: "cosmological",
+      };
+
+    case "18":
+      return {
+        sceneId: "expanding_spacetime_3d",
+        targetObject: "Cosmological Redshift",
+        cameraAction: "fly_to",
+        scaleRegime: "cosmological",
+      };
+
+    case "19":
+      return {
+        sceneId: "historical_cosmology_comparator",
+        targetObject: "Heliocentric Transition",
+        cameraAction: "orbit",
+        scaleRegime: "planetary",
+      };
+
+    case "20":
+      return {
+        sceneId: "future_universe_timeline",
+        targetObject: "Degenerate & Black Hole Eras",
+        cameraAction: "zoom_out",
+        scaleRegime: "cosmological",
+      };
+
+    case "21":
+      return {
+        sceneId: "virtual_observatory_lab",
+        targetObject: "JWST & Hubble Focal Arrays",
+        cameraAction: "focus",
+        scaleRegime: "stellar",
+      };
+
+    case "22":
+      return {
+        sceneId: "space_missions_lab",
+        targetObject: "Interplanetary Trajectory",
+        cameraAction: "fly_to",
+        scaleRegime: "planetary",
+      };
+
+    case "23":
+      return {
+        sceneId: "habitable_world_lab",
+        targetObject: "Exoplanetary Biosphere",
+        cameraAction: "focus",
+        scaleRegime: "planetary",
+      };
+
+    case "24":
+      return {
+        sceneId: "cosmic_physics_lab",
+        targetObject: "Capston Quantitative Experiment",
+        cameraAction: "reset",
+        scaleRegime: "cosmological",
+      };
+
+    default:
+      return {
+        sceneId: `module_${moduleId}_visualization`,
+        targetObject: sublessonTitle,
+        cameraAction: "focus",
+      };
+  }
 }
 
 /**
@@ -219,6 +399,15 @@ function extractTerminology(text: string): string[] {
     "light-year",
     "astronomical unit",
     "parsec",
+    "Hubble constant",
+    "cosmological redshift",
+    "cosmic microwave background",
+    "recombination",
+    "nucleosynthesis",
+    "transit photometry",
+    "radial velocity",
+    "blackbody radiation",
+    "Hertzsprung-Russell diagram",
   ];
 
   const terms: string[] = [];
@@ -233,22 +422,28 @@ function extractTerminology(text: string): string[] {
   return terms;
 }
 
+/**
+ * Resolves content for the specified learning level across different sublesson schema formats.
+ */
 function resolveContentForLevel(sub: any, level: LearningLevel): any {
   const cByLevel = sub.contentByLevel;
   if (cByLevel) {
     if (cByLevel[level]) return cByLevel[level];
-    if (level === "junior" && (cByLevel.beginner || cByLevel.Beginner))
+    if (level === "junior" && (cByLevel.beginner || cByLevel.Beginner)) {
       return cByLevel.beginner || cByLevel.Beginner;
+    }
     if (
       level === "explorer" &&
       (cByLevel.intermediate || cByLevel.Intermediate || cByLevel.scholar)
-    )
+    ) {
       return cByLevel.intermediate || cByLevel.Intermediate || cByLevel.scholar;
+    }
     if (
       level === "astronomer" &&
       (cByLevel.advanced || cByLevel.Advanced || cByLevel.astrophysicist)
-    )
+    ) {
       return cByLevel.advanced || cByLevel.Advanced || cByLevel.astrophysicist;
+    }
     if (cByLevel.explorer) return cByLevel.explorer;
   }
 
@@ -271,9 +466,61 @@ function resolveContentForLevel(sub: any, level: LearningLevel): any {
   return c.explorer ?? c.intermediate ?? c.Intermediate ?? c.scholar ?? c;
 }
 
+/**
+ * Splits text into natural semantic paragraphs / sentences (15 to 45 words per segment).
+ */
+function splitIntoSemanticSegments(text: string, maxWords = 45): string[] {
+  if (!text || !text.trim()) return [];
+
+  // Split by double newlines or list items
+  const blocks = text
+    .split(/\n\n+/)
+    .map((b) => b.trim())
+    .filter(Boolean);
+
+  const segments: string[] = [];
+
+  for (const block of blocks) {
+    // If block is a markdown header, treat as discrete segment
+    if (block.startsWith("#")) {
+      const headerText = block.replace(/^#+\s*/, "").trim();
+      if (headerText) segments.push(headerText);
+      continue;
+    }
+
+    const words = block.split(/\s+/);
+    if (words.length <= maxWords) {
+      segments.push(block);
+    } else {
+      // Split into sentences using punctuation boundaries
+      const sentenceRegex = /[^.!?]+[.!?]+(?:\s+|$)/g;
+      const sentences = block.match(sentenceRegex) || [block];
+      let current = "";
+
+      for (const s of sentences) {
+        const candidate = (current + " " + s).trim();
+        if (candidate.split(/\s+/).length > maxWords && current) {
+          segments.push(current.trim());
+          current = s;
+        } else {
+          current = candidate;
+        }
+      }
+
+      if (current.trim()) {
+        segments.push(current.trim());
+      }
+    }
+  }
+
+  return segments;
+}
+
 export class LessonContentProvider {
   /**
    * Retrieves all verified NarrationSegments for a specific module and learning level.
+   * Guarantees complete instructional recitation without skipping titles, summaries,
+   * equations, or learning objectives.
    */
   public static getSegmentsForModule(
     moduleId: string,
@@ -295,30 +542,77 @@ export class LessonContentProvider {
 
     for (let sIdx = 0; sIdx < rawSublessons.length; sIdx++) {
       const sub = rawSublessons[sIdx];
-      const subId = sub.id || `sublesson-${sIdx + 1}`;
-      const subTitle = sub.title || `Lesson ${sIdx + 1}`;
+      const subNumber = sub.number || sIdx + 1;
+      const subId = sub.id || `sublesson-${subNumber}`;
+      const subTitle = sub.title || `Lesson ${subNumber}`;
       const contentForLevel = resolveContentForLevel(sub, level);
 
-      if (!contentForLevel) continue;
-
       const visRef = resolveVisualizationReference(moduleId, subId, subTitle);
-      const sectionEntries: { key: string; text: string }[] = [];
+      const sectionEntries: { key: string; text: string; spokenText?: string }[] = [];
 
+      // 1. PRIMARY REQUIREMENT: Never skip the Lesson Title
+      const titleSpoken =
+        language === "hi" ? `पाठ ${subNumber}: ${subTitle}` : `Lesson ${subNumber}: ${subTitle}`;
+      sectionEntries.push({
+        key: "title",
+        text: subTitle,
+        spokenText: generateSpokenText(titleSpoken, language),
+      });
+
+      // 2. Learning Objectives / Key Concepts
+      if (Array.isArray(sub.learningObjectives) && sub.learningObjectives.length > 0) {
+        for (let oIdx = 0; oIdx < sub.learningObjectives.length; oIdx++) {
+          const obj = sub.learningObjectives[oIdx];
+          if (typeof obj === "string" && obj.trim()) {
+            sectionEntries.push({
+              key: `objective-${oIdx + 1}`,
+              text: obj.trim(),
+              spokenText: generateSpokenText(`Learning objective: ${obj.trim()}`, language),
+            });
+          }
+        }
+      } else if (sub.keyConcepts) {
+        let conceptsList: string[] = [];
+        if (Array.isArray(sub.keyConcepts)) {
+          conceptsList = sub.keyConcepts;
+        } else if (typeof sub.keyConcepts === "object") {
+          conceptsList =
+            sub.keyConcepts[level] || sub.keyConcepts.explorer || sub.keyConcepts.junior || [];
+        }
+        for (let cIdx = 0; cIdx < conceptsList.length; cIdx++) {
+          const concept = conceptsList[cIdx];
+          if (typeof concept === "string" && concept.trim()) {
+            sectionEntries.push({
+              key: `concept-${cIdx + 1}`,
+              text: concept.trim(),
+              spokenText: generateSpokenText(`Key concept: ${concept.trim()}`, language),
+            });
+          }
+        }
+      }
+
+      // 3. Sublesson Summary / Lead Paragraphs
+      if (typeof sub.summary === "string" && sub.summary.trim()) {
+        const summaryParts = splitIntoSemanticSegments(sub.summary.trim(), 40);
+        summaryParts.forEach((part, pIdx) => {
+          sectionEntries.push({
+            key: `summary-${pIdx + 1}`,
+            text: part,
+          });
+        });
+      }
+
+      // 4. Instructional Body Content & Explanations
       if (typeof contentForLevel === "string" && contentForLevel.trim().length > 0) {
-        if (typeof sub.summary === "string" && sub.summary.trim()) {
-          sectionEntries.push({ key: "summary", text: sub.summary.trim() });
-        }
-        sectionEntries.push({ key: "explanation", text: contentForLevel.trim() });
-        if (typeof sub.didYouKnow === "string" && sub.didYouKnow.trim()) {
-          sectionEntries.push({ key: "didYouKnow", text: sub.didYouKnow.trim() });
-        }
-        if (typeof sub.mathOrPhysicsDeepDive === "string" && sub.mathOrPhysicsDeepDive.trim()) {
-          sectionEntries.push({ key: "deepDive", text: sub.mathOrPhysicsDeepDive.trim() });
-        }
+        const contentParts = splitIntoSemanticSegments(contentForLevel.trim(), 45);
+        contentParts.forEach((part, pIdx) => {
+          sectionEntries.push({
+            key: `explanation-${pIdx + 1}`,
+            text: part,
+          });
+        });
       } else if (typeof contentForLevel === "object" && contentForLevel !== null) {
-        // Extract sections based on sublesson data structure
-        const sectionKeys = [
-          "summary",
+        const orderedContentKeys = [
           "lead",
           "keyIdea",
           "takeaway",
@@ -329,53 +623,92 @@ export class LessonContentProvider {
           "mathematics",
           "activityPrompt",
           "interactivePrompt",
+          "experimentInstructions",
         ];
 
-        for (const sectionKey of sectionKeys) {
-          const textVal = contentForLevel[sectionKey];
-          if (typeof textVal === "string" && textVal.trim().length > 0) {
-            sectionEntries.push({ key: sectionKey, text: textVal.trim() });
+        for (const k of orderedContentKeys) {
+          const val = contentForLevel[k];
+          if (typeof val === "string" && val.trim().length > 0) {
+            const parts = splitIntoSemanticSegments(val.trim(), 45);
+            parts.forEach((part, pIdx) => {
+              sectionEntries.push({
+                key: `${k}-${pIdx + 1}`,
+                text: part,
+              });
+            });
           }
         }
 
-        // If standard keys yielded nothing, fallback to paragraphs, details, keyConcepts
-        if (sectionEntries.length === 0) {
-          if (Array.isArray(contentForLevel.paragraphs)) {
-            contentForLevel.paragraphs.forEach((p: any, idx: number) => {
-              if (typeof p === "string" && p.trim()) {
-                sectionEntries.push({ key: `paragraph-${idx + 1}`, text: p.trim() });
-              }
-            });
-          }
-          if (Array.isArray(contentForLevel.details)) {
-            contentForLevel.details.forEach((d: any, idx: number) => {
-              if (typeof d === "string" && d.trim()) {
-                sectionEntries.push({ key: `detail-${idx + 1}`, text: d.trim() });
-              }
-            });
-          }
-          if (
-            Array.isArray(contentForLevel.keyConcepts) &&
-            contentForLevel.keyConcepts.length > 0
-          ) {
-            const joined = contentForLevel.keyConcepts.filter(Boolean).join(". ");
-            if (joined) {
-              sectionEntries.push({ key: "keyConcepts", text: joined });
+        // Handle paragraphs / details arrays if present
+        if (Array.isArray(contentForLevel.paragraphs)) {
+          contentForLevel.paragraphs.forEach((p: any, idx: number) => {
+            if (typeof p === "string" && p.trim()) {
+              sectionEntries.push({ key: `paragraph-${idx + 1}`, text: p.trim() });
             }
-          }
-          if (typeof sub.summary === "string" && sub.summary.trim()) {
-            sectionEntries.push({ key: "summary", text: sub.summary.trim() });
-          }
+          });
+        }
+        if (Array.isArray(contentForLevel.details)) {
+          contentForLevel.details.forEach((d: any, idx: number) => {
+            if (typeof d === "string" && d.trim()) {
+              sectionEntries.push({ key: `detail-${idx + 1}`, text: d.trim() });
+            }
+          });
         }
       }
 
-      for (const entry of sectionEntries) {
+      // 5. Scientific Math, Equations & Deep Dives
+      if (sub.mathOrPhysicsDeepDive) {
+        if (typeof sub.mathOrPhysicsDeepDive === "string") {
+          sectionEntries.push({
+            key: "deepDive",
+            text: sub.mathOrPhysicsDeepDive.trim(),
+          });
+        } else if (typeof sub.mathOrPhysicsDeepDive === "object") {
+          const { title, description, formula } = sub.mathOrPhysicsDeepDive;
+          const deepDiveText =
+            `${title || "Physics Deep Dive"}: ${description || ""} ${formula ? `Formula: ${formula}` : ""}`.trim();
+          sectionEntries.push({
+            key: "deepDive",
+            text: deepDiveText,
+          });
+        }
+      }
+
+      // 6. Cosmic Curiosities & Fun Facts
+      if (typeof sub.didYouKnow === "string" && sub.didYouKnow.trim()) {
+        sectionEntries.push({
+          key: "didYouKnow",
+          text: sub.didYouKnow.trim(),
+        });
+      }
+
+      // 7. Interactive Experiment / Activity Prompts
+      if (typeof sub.activityPrompt === "string" && sub.activityPrompt.trim()) {
+        sectionEntries.push({
+          key: "activityPrompt",
+          text: sub.activityPrompt.trim(),
+        });
+      } else if (typeof sub.interactiveActivity === "object" && sub.interactiveActivity !== null) {
+        const act = sub.interactiveActivity;
+        const actText =
+          `${act.title || "Interactive Activity"}: ${act.instructions || act.description || ""}`.trim();
+        if (actText) {
+          sectionEntries.push({
+            key: "activityPrompt",
+            text: actText,
+          });
+        }
+      }
+
+      // Build validated NarrationSegment array
+      for (let eIdx = 0; eIdx < sectionEntries.length; eIdx++) {
+        const entry = sectionEntries[eIdx];
         const displayText = entry.text;
-        const spokenText = generateSpokenText(displayText, language);
+        const spokenText = entry.spokenText || generateSpokenText(displayText, language);
         const epistemicStatus = inferEpistemicStatus(displayText, entry.key);
         const keyTerminology = extractTerminology(displayText);
 
-        // Estimate read time: ~140 words per minute
+        // Word count based duration estimation (~140 words per minute)
         const wordCount = displayText.split(/\s+/).length;
         const estimatedSeconds = Math.max(3, Math.round((wordCount / 140) * 60));
 

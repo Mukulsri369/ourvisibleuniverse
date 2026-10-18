@@ -84,14 +84,30 @@ export function Module14Layout({
   const [activeNarrationSection, setActiveNarrationSection] = useState<string | null>(null);
 
   useEffect(() => {
+    let lastUserScroll = 0;
+    const onScroll = () => {
+      lastUserScroll = Date.now();
+    };
+    window.addEventListener("wheel", onScroll, { passive: true });
+    window.addEventListener("touchmove", onScroll, { passive: true });
+
     const handleSync = (e: any) => {
       const detail = e.detail;
       if (detail && detail.moduleId === "14") {
         setActiveNarrationSection(detail.sectionId);
 
-        // Auto-scroll gently when enabled and not actively in view
+        // Sync active sublesson tab if narration advances to another sublesson
+        if (detail.lessonId) {
+          const matchIdx = MODULE_14_SUBLESSONS.findIndex((s) => s.id === detail.lessonId);
+          if (matchIdx !== -1) {
+            setActiveSubLessonIndex(matchIdx);
+          }
+        }
+
+        // Auto-scroll gently when enabled and not recently scrolled by student
         const prefs = LearningPreferenceManager.getPreferences();
-        if (prefs.autoScrollEnabled && typeof document !== "undefined") {
+        const hasRecentUserScroll = Date.now() - lastUserScroll < 5000;
+        if (prefs.autoScrollEnabled && !hasRecentUserScroll && typeof document !== "undefined") {
           const el = document.getElementById(`m14-sec-${detail.sectionId}`);
           if (el) {
             const rect = el.getBoundingClientRect();
@@ -106,6 +122,8 @@ export function Module14Layout({
 
     window.addEventListener("cosmos:narration-sync" as any, handleSync);
     return () => {
+      window.removeEventListener("wheel", onScroll);
+      window.removeEventListener("touchmove", onScroll);
       window.removeEventListener("cosmos:narration-sync" as any, handleSync);
     };
   }, []);
@@ -191,25 +209,6 @@ export function Module14Layout({
         </div>
         <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} />
       </section>
-
-      {/* COSMOS AI Astronomy Teaching Companion */}
-      <CosmosCompanion
-        moduleId="14"
-        moduleTitle={module.title}
-        learningLevel={level}
-        sublessonIndex={activeSubLessonIndex}
-        totalSublessons={MODULE_14_SUBLESSONS.length}
-        sublessonId={activeSubLesson.id}
-        sublessonTitle={activeSubLesson.title}
-        scientificTopic={`Extreme Gravity: ${activeSubLesson.title}`}
-        currentDisplayText={`${activeSubContent.summary} ${activeSubContent.deepDive}`}
-        currentVisualization={{
-          sceneId: "black_hole_lensing",
-          targetObject: "Sagittarius A*",
-          cameraAction: "orbit",
-          scaleRegime: "stellar",
-        }}
-      />
 
       {/* 3. Interactive Laboratory Chamber Selector Tabs */}
       <section className="space-y-4">

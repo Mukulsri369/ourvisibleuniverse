@@ -74,14 +74,30 @@ export function LessonLayout({
   const [activeNarrationSection, setActiveNarrationSection] = useState<string | null>(null);
 
   useEffect(() => {
+    let lastUserScroll = 0;
+    const onScroll = () => {
+      lastUserScroll = Date.now();
+    };
+    window.addEventListener("wheel", onScroll, { passive: true });
+    window.addEventListener("touchmove", onScroll, { passive: true });
+
     const handleSync = (e: any) => {
       const detail = e.detail;
       if (detail && detail.moduleId === "01") {
         setActiveNarrationSection(detail.sectionId);
 
-        // Auto-scroll gently when enabled and not actively in view
+        // Sync active sublesson tab if narration advances to another sublesson
+        if (detail.lessonId) {
+          const matchIdx = MODULE_01_SUBLESSONS.findIndex((s) => s.id === detail.lessonId);
+          if (matchIdx !== -1) {
+            setActiveSubLessonIndex(matchIdx);
+          }
+        }
+
+        // Auto-scroll gently when enabled, unless student manually scrolled recently
         const prefs = LearningPreferenceManager.getPreferences();
-        if (prefs.autoScrollEnabled && typeof document !== "undefined") {
+        const hasRecentUserScroll = Date.now() - lastUserScroll < 5000;
+        if (prefs.autoScrollEnabled && !hasRecentUserScroll && typeof document !== "undefined") {
           const el = document.getElementById(`m01-sec-${detail.sectionId}`);
           if (el) {
             const rect = el.getBoundingClientRect();
@@ -96,6 +112,8 @@ export function LessonLayout({
 
     window.addEventListener("cosmos:narration-sync" as any, handleSync);
     return () => {
+      window.removeEventListener("wheel", onScroll);
+      window.removeEventListener("touchmove", onScroll);
       window.removeEventListener("cosmos:narration-sync" as any, handleSync);
     };
   }, []);
@@ -190,25 +208,6 @@ export function LessonLayout({
         </div>
         <LearningLevelSelector currentLevel={level} onSelectLevel={onSetLearningLevel} compact />
       </div>
-
-      {/* COSMOS AI Astronomy Teaching Companion */}
-      <CosmosCompanion
-        moduleId="01"
-        moduleTitle={module.title}
-        learningLevel={level}
-        sublessonIndex={activeSubLessonIndex}
-        totalSublessons={MODULE_01_SUBLESSONS.length}
-        sublessonId={activeSubLesson.id}
-        sublessonTitle={activeSubLesson.title}
-        scientificTopic={`Cosmic Scale & Hierarchy: ${activeSubLesson.title}`}
-        currentDisplayText={`${activeSubContent.summary} ${activeSubContent.deepDive}`}
-        currentVisualization={{
-          sceneId: "cosmic_zoom",
-          scaleRegime: "universal",
-          cameraAction: "focus",
-          targetObject: activeSubLesson.title,
-        }}
-      />
 
       {/* 6 Structured Sub-Lessons Stepper */}
       <section className="rounded-3xl border border-white/10 bg-slate-900/50 p-6 sm:p-8 backdrop-blur-xl">

@@ -467,8 +467,7 @@ export class AIServiceProviderServer {
         },
       });
 
-      const base64Audio =
-        response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
+      const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data || null;
 
       if (base64Audio) {
         this.audioCache.set(cacheKey, base64Audio);
@@ -492,10 +491,7 @@ export class AIServiceProviderServer {
         error: "No audio stream returned from Gemini TTS model",
       };
     } catch (err: any) {
-      console.warn(
-        `Gemini TTS synthesis fallback for segment ${segmentId}:`,
-        err?.message || err,
-      );
+      console.warn(`Gemini TTS synthesis fallback for segment ${segmentId}:`, err?.message || err);
       return {
         audioBase64: null,
         mimeType: "audio/wav",
