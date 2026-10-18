@@ -15,6 +15,12 @@ export default defineConfig({
   },
   vite: {
     plugins: [mcpPlugin()],
+    server: {
+      allowedHosts: true,
+    },
+    preview: {
+      allowedHosts: true,
+    },
     build: {
       rolldownOptions: {
         checks: {

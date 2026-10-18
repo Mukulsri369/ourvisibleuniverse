@@ -1,6 +1,6 @@
 {
-  "summary": "Implementation plan to fix the React SSR hydration mismatch caused by server/client branching on window, locale-dependent date formatting, and state synchronization.",
-  "updatedAt": "2026-10-18T00:25:44.087173524Z",
+  "summary": "Implementation plan to fix the star orbit camera regression where changing viewing angle jumped to the solar system, eliminate dead/broken navigation clicks across the sitemap and UI, and gracefully handle entries without direct 3D coordinates by opening their science dossier and framing nearest reference coordinates.",
+  "updatedAt": "2026-10-18T02:03:57.941775585Z",
   "requestFeedback": true,
   "userFacing": true
 }
