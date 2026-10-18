@@ -11,6 +11,10 @@ import { LearningStageCard } from "./LearningStageCard";
 import { ProgressTracker } from "./ProgressTracker";
 import { AchievementDisplay } from "./AchievementDisplay";
 import { AccessibilityControls } from "./AccessibilityControls";
+import { StudentRegistrationBanner } from "./StudentRegistrationBanner";
+import { StudentProfileModal } from "./StudentProfileModal";
+import { useStudentAuth } from "@/lib/academy/useStudentAuth";
+import { LEARNING_LEVELS } from "@/lib/academy/registry";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Sparkles,
@@ -23,6 +27,9 @@ import {
   ShieldCheck,
   CheckCircle2,
   Orbit,
+  User,
+  GraduationCap,
+  Shield,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -212,6 +219,23 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     resetProgress,
   } = useAcademyProgress();
 
+  const { user, profile, isLoggedIn, updateProfile, changeLearningLevel, signOut } =
+    useStudentAuth();
+
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Synchronize authenticated student's selected level with local progress
+  useEffect(() => {
+    if (profile.selected_level && profile.selected_level !== selectedLevel) {
+      setLearningLevel(profile.selected_level);
+    }
+  }, [profile.selected_level, selectedLevel, setLearningLevel]);
+
+  const handleLevelSelect = (level: LearningLevel) => {
+    setLearningLevel(level);
+    void changeLearningLevel(level);
+  };
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -327,12 +351,54 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
       {/* 1. Cinematic Opening 3D Hero */}
       <AcademyHero onStartExploring={handleScrollToStages} onViewMap={handleScrollToMap} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-10">
+        {/* Student Account Status / Registration Header */}
+        {!isLoggedIn ? (
+          <StudentRegistrationBanner onOpenGuestSettings={() => setShowProfileModal(true)} />
+        ) : (
+          <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-900/90 via-cyan-950/20 to-slate-900/90 p-4 sm:p-5 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-cyan-950/20">
+            <div className="flex items-center gap-3.5">
+              <div className="size-11 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300 flex-shrink-0">
+                <GraduationCap className="size-5" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-bold text-white">{profile.display_name}</span>
+                  <span className="text-[11px] font-mono font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                    {profile.student_public_id}
+                  </span>
+                  <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Shield className="size-3" />
+                    Verified Student
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Curriculum depth:{" "}
+                  <strong className="text-slate-200">{LEARNING_LEVELS[selectedLevel]?.name}</strong>{" "}
+                  • Privacy: <span className="capitalize">{profile.profile_visibility}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowProfileModal(true)}
+                className="border-white/20 text-slate-200 hover:text-white hover:bg-white/10"
+              >
+                <User className="size-3.5 mr-1.5 text-cyan-400" />
+                <span>Student Settings & Privacy</span>
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Accessibility & Learning Level Selector Section */}
         <section className="space-y-4">
           <AccessibilityControls settings={settings} onUpdateSettings={setSettings} />
           <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-xl">
-            <LearningLevelSelector currentLevel={selectedLevel} onSelectLevel={setLearningLevel} />
+            <LearningLevelSelector currentLevel={selectedLevel} onSelectLevel={handleLevelSelect} />
           </div>
         </section>
 
@@ -411,6 +477,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             progress={progress}
             onExport={exportProgressJSON}
             onReset={resetProgress}
+            profile={profile}
+            isLoggedIn={isLoggedIn}
+            onOpenProfile={() => setShowProfileModal(true)}
           />
           <AchievementDisplay unlockedIds={progress.achievements} />
         </section>
@@ -554,6 +623,17 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           </div>
         </div>
       )}
+
+      {/* Student Account & Profile Management Modal */}
+      <StudentProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        profile={profile}
+        isLoggedIn={isLoggedIn}
+        onSaveProfile={updateProfile}
+        onSignOut={signOut}
+        onSelectLevel={handleLevelSelect}
+      />
     </div>
   );
 }

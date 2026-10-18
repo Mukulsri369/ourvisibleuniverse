@@ -11,7 +11,8 @@ import { oauthReturnPath } from "@/lib/oauth-return-path";
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>) => {
     const n = oauthReturnPath(s.next);
-    return { next: n === "/" ? undefined : n };
+    const role = typeof s.role === "string" ? s.role : undefined;
+    return { next: n === "/" ? undefined : n, role };
   },
   head: () => ({
     meta: [
@@ -33,7 +34,9 @@ export const Route = createFileRoute("/auth")({
 });
 function AuthPage() {
   const navigate = useNavigate();
-  const { next } = Route.useSearch();
+  const search = Route.useSearch();
+  const next = search.next;
+  const isStudentFlow = search.role === "student" || next?.includes("/learn");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signup, setSignup] = useState(false);
@@ -43,7 +46,8 @@ function AuthPage() {
     const go = () => {
       if (leaving.current) return;
       leaving.current = true;
-      const target = next ?? sessionStorage.getItem("auth_next") ?? "/universe";
+      const target =
+        next ?? sessionStorage.getItem("auth_next") ?? (isStudentFlow ? "/learn" : "/universe");
       sessionStorage.removeItem("auth_next");
       // One full navigation avoids racing React updates during sign-in.
       window.location.replace(target);
@@ -55,7 +59,7 @@ function AuthPage() {
       if (event === "SIGNED_IN" && session) go();
     });
     return () => sub.subscription.unsubscribe();
-  }, [navigate, next]);
+  }, [navigate, next, isStudentFlow]);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
@@ -78,7 +82,7 @@ function AuthPage() {
       return;
     }
     if (next) await navigate({ href: next });
-    else await navigate({ to: "/universe" });
+    else await navigate({ to: isStudentFlow ? "/learn" : "/universe" });
   };
   const google = async () => {
     if (next) sessionStorage.setItem("auth_next", next);
@@ -99,7 +103,8 @@ function AuthPage() {
       }
       if (leaving.current) return;
       leaving.current = true;
-      const saved = next ?? sessionStorage.getItem("auth_next") ?? "/universe";
+      const saved =
+        next ?? sessionStorage.getItem("auth_next") ?? (isStudentFlow ? "/learn" : "/universe");
       sessionStorage.removeItem("auth_next");
       window.location.replace(saved);
     } catch (e) {
@@ -111,10 +116,34 @@ function AuthPage() {
   return (
     <PublicLayout>
       <main className="mx-auto max-w-md px-5 pb-24 pt-36">
+        {isStudentFlow && (
+          <div className="mb-6 rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-slate-900/60 p-4 text-xs text-slate-300">
+            <div className="flex items-center gap-2 text-cyan-300 font-bold mb-1">
+              <span className="text-base">🌌</span>
+              <span>Cosmic Learning Academy Student Registration</span>
+            </div>
+            <p className="leading-relaxed">
+              Student learning is <strong>100% free forever</strong>. If you already have an Our
+              Visible Universe account, you can sign in directly with the same credentials —{" "}
+              <strong>never a need to create a second account</strong>.
+            </p>
+          </div>
+        )}
+
         <h1 className="text-4xl font-semibold">
-          {signup ? "Create your account" : "Welcome back"}
+          {isStudentFlow
+            ? signup
+              ? "Create student profile"
+              : "Welcome back, student"
+            : signup
+              ? "Create your account"
+              : "Welcome back"}
         </h1>
-        <p className="mt-3 text-muted-foreground">Sign in to purchase or use your access pass.</p>
+        <p className="mt-3 text-muted-foreground">
+          {isStudentFlow
+            ? "Sign in or create your free account to track verified academy achievements."
+            : "Sign in to purchase or use your access pass."}
+        </p>
         <Button onClick={google} variant="outline" className="mt-8 w-full">
           Continue with Google
         </Button>
@@ -140,7 +169,13 @@ function AuthPage() {
             required
           />
           <Button disabled={busy} className="w-full">
-            {busy ? "Please wait…" : signup ? "Create account" : "Sign in"}
+            {busy
+              ? "Please wait…"
+              : signup
+                ? isStudentFlow
+                  ? "Create free student account"
+                  : "Create account"
+                : "Sign in"}
           </Button>
         </form>
         <button onClick={() => setSignup((v) => !v)} className="mt-6 text-sm text-primary">

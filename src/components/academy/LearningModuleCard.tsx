@@ -67,6 +67,8 @@ interface LearningModuleCardProps {
   status: ModuleStatus;
   percent: number;
   isBookmarked: boolean;
+  isVerified?: boolean;
+  evidenceCount?: number;
   onToggleBookmark: (id: string) => void;
   onSelectModule?: (module: ModuleContract) => void;
 }
@@ -76,6 +78,8 @@ export function LearningModuleCard({
   status,
   percent,
   isBookmarked,
+  isVerified = false,
+  evidenceCount = 0,
   onToggleBookmark,
   onSelectModule,
 }: LearningModuleCardProps) {
@@ -88,36 +92,51 @@ export function LearningModuleCard({
   return (
     <div
       className={`group relative rounded-2xl border p-5 flex flex-col justify-between transition-all duration-300 ${
-        isCompleted
-          ? "border-emerald-500/40 bg-gradient-to-b from-emerald-950/20 to-slate-900/60 shadow-lg shadow-emerald-950/20"
-          : isReady
-            ? "border-cyan-500/30 bg-gradient-to-b from-slate-900/90 to-slate-950/90 hover:border-cyan-400/60 hover:shadow-xl hover:shadow-cyan-950/30"
-            : "border-white/10 bg-slate-950/60 opacity-85 hover:opacity-100 hover:border-white/20"
+        isVerified
+          ? "border-emerald-500/50 bg-gradient-to-b from-emerald-950/30 to-slate-900/80 shadow-lg shadow-emerald-950/30 ring-1 ring-emerald-500/20"
+          : isCompleted
+            ? "border-cyan-500/40 bg-gradient-to-b from-cyan-950/20 to-slate-900/60"
+            : isReady
+              ? "border-cyan-500/20 bg-gradient-to-b from-slate-900/90 to-slate-950/90 hover:border-cyan-400/50 hover:shadow-xl hover:shadow-cyan-950/20"
+              : "border-white/10 bg-slate-950/60 opacity-85 hover:opacity-100 hover:border-white/20"
       }`}
     >
       <div>
         {/* Header row: Module number + Status Pill + Bookmark */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
             <span className="font-mono text-xs font-bold text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md">
               #{module.id}
             </span>
 
-            {isCompleted ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                <CheckCircle2 className="size-3" />
-                Completed
+            {/* Authoritative State C: Official Verified Completion */}
+            {isVerified ? (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 rounded-full">
+                <CheckCircle2 className="size-3 text-emerald-400" />
+                Verified Complete
+              </span>
+            ) : evidenceCount > 0 ? (
+              /* Authoritative State B: Validated Activity Evidence */
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                <Activity className="size-3 text-amber-400" />
+                Evidence Logged ({evidenceCount})
+              </span>
+            ) : isCompleted ? (
+              /* Authoritative State A: Reading Completed (Unverified) */
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-cyan-300 bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                Read Complete
               </span>
             ) : isInProgress ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+              /* Authoritative State A: Reading In Progress */
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
                 In Progress ({percent}%)
               </span>
             ) : isReady ? (
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-300 bg-sky-500/10 border border-sky-500/30 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sky-300 bg-sky-500/10 border border-sky-500/30 px-2 py-0.5 rounded-full">
                 Available
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
                 Coming Soon
               </span>
             )}

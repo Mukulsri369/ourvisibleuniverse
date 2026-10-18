@@ -96,23 +96,32 @@ export interface StageContract {
   modules: ModuleContract[];
 }
 
+export interface ModuleProgressItem {
+  status: ModuleStatus;
+  percent: number; // State A: Unverified learning / navigation progress (0-100)
+  percentComplete?: number;
+  lastOpenedAt: string;
+  completedAt?: string;
+  isVerified?: boolean; // State C: Official server-verified completion
+  verifiedAt?: string;
+  evidenceCount?: number; // State B: Validated educational activity evidence submitted
+  qualifyingAttemptId?: string;
+}
+
 export interface UserProgress {
   selectedLevel: LearningLevel;
-  moduleProgress: Record<
-    string,
-    {
-      status: ModuleStatus;
-      percent: number;
-      percentComplete?: number;
-      lastOpenedAt: string;
-      completedAt?: string;
-    }
-  >;
+  moduleProgress: Record<string, ModuleProgressItem>;
   completedLessons: string[];
-  quizScores: Record<string, { score: number; total: number; attempts: number }>;
+  quizScores: Record<
+    string,
+    { score: number; total: number; attempts: number; verified?: boolean }
+  >;
   bookmarks: string[];
   lastOpenedModuleId: string | null;
   achievements: string[];
+  verifiedModules: string[]; // Authoritative server-verified module IDs
+  stageBadges: Record<number, { badgeId: string; awardedAt: string }>;
+  pendingOfflineCount: number;
   lastUpdated: string;
 }
 

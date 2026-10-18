@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { UserProgress } from "@/lib/academy/types";
+import type { StudentProfile } from "@/lib/academy/student-types";
 import { LEARNING_LEVELS } from "@/lib/academy/registry";
 import {
   Award,
@@ -10,6 +11,7 @@ import {
   Sparkles,
   Bookmark,
   ShieldCheck,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -17,9 +19,19 @@ interface ProgressTrackerProps {
   progress: UserProgress;
   onExport: () => void;
   onReset: () => void;
+  profile?: StudentProfile;
+  isLoggedIn?: boolean;
+  onOpenProfile?: () => void;
 }
 
-export function ProgressTracker({ progress, onExport, onReset }: ProgressTrackerProps) {
+export function ProgressTracker({
+  progress,
+  onExport,
+  onReset,
+  profile,
+  isLoggedIn,
+  onOpenProfile,
+}: ProgressTrackerProps) {
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   const currentLevelInfo = LEARNING_LEVELS[progress.selectedLevel];
 
@@ -48,19 +60,45 @@ export function ProgressTracker({ progress, onExport, onReset }: ProgressTracker
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-white">Cosmic Progress Profile</h3>
+              <h3 className="text-base font-bold text-white">
+                {profile ? profile.display_name : "Cosmic Progress Profile"}
+              </h3>
               <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono">
                 {currentLevelInfo?.name}
               </span>
+              {isLoggedIn && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                  Verified
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Local-first • Private on this browser • No tracking
+              {isLoggedIn && profile ? (
+                <span>
+                  ID: <span className="font-mono text-cyan-300">{profile.student_public_id}</span> •
+                  Cloud-synced profile
+                </span>
+              ) : (
+                <span>Local-first • Private on this browser • No tracking</span>
+              )}
             </p>
           </div>
         </div>
 
-        {/* Action buttons: Export & Reset */}
+        {/* Action buttons: Profile, Export & Reset */}
         <div className="flex items-center gap-2">
+          {onOpenProfile && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onOpenProfile}
+              className="text-xs border-cyan-500/30 text-cyan-300 hover:text-white hover:bg-cyan-500/10"
+              title="Manage your student account settings"
+            >
+              <User className="size-3.5 mr-1 text-cyan-400" />
+              <span>{isLoggedIn ? "My Profile" : "Guest ID"}</span>
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"

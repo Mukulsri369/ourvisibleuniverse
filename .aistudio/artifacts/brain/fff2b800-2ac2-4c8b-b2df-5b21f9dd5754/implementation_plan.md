@@ -19,12 +19,14 @@ Eliminate the camera pivot snapping back to the Solar System when rotating aroun
 ## 1. Overview & Core Concept
 
 ### What It Does
+
 1. **Camera Orbit Locking**: Ensures that upon flying to any star selected from the Site Map, Search, Atlas, or Bookmarks, users can freely click, drag, orbit, and adjust the camera pitch/yaw without the camera unexpectedly defaulting or lerping back to the Sun (Solar System).
 2. **Universal Target Anchoring**: Provides persistent coordinate anchoring in `CameraRig.tsx` for abstract cosmological targets (such as "Galaxy Clusters", "Cosmic Web", and large-scale structures) so the camera smoothly travels to their actual 3D positions instead of resetting to origin.
 3. **Defensive Navigation Handlers & Dossier Routing**: Replaces any broken or fragile entity lookups across `SiteMap`, `UniversalSearchModal`, `GaiaAtlasPanel`, and `CosmicJourneyNavigator` with robust fallback pipelines that open the full scientific dossier and navigate to the nearest valid celestial reference.
 4. **Crash Prevention & Error Boundaries**: Wraps coordinate formatting, distance computations, and catalog lookups in defensive guards with safe fallbacks to ensure the 3D WebGL canvas and UI overlays never crash or stall.
 
 ### Key Value
+
 Seamless, reliable astronomical navigation where every point of interest in the sitemap and celestial directory is fully interactive and provides rich scientific context without navigational glitches or runtime halts.
 
 ---
@@ -34,20 +36,21 @@ Seamless, reliable astronomical navigation where every point of interest in the 
 ### Key User Flows
 
 1. **Star Selection & 360° Inspection Flow**:
-   - User opens the **Site Map** (`left-4 top-16` floating drawer) and selects a star (e.g., *Sirius*, *Vega*, or *Betelgeuse*).
+   - User opens the **Site Map** (`left-4 top-16` floating drawer) and selects a star (e.g., _Sirius_, _Vega_, or _Betelgeuse_).
    - The camera executes a smooth cinematic fly-to ease toward the star system.
    - The user clicks and drags the viewport to inspect the star, its companion, or its exoplanetary system from any angle.
    - The camera pivots cleanly around the selected star's coordinate center without any drift toward the Sun.
    - Pressing `Escape` or clicking `☉ Back to the Sun` in the Site Map smoothly transitions the navigation anchor back to the Solar System.
 
 2. **Abstract Landmark & Deep-Space Exploration Flow**:
-   - User clicks macro-scale steps in the Site Map or Cosmic Journey (e.g., *7. Galaxy Clusters*, *8. Cosmic Web*, *9. Observable Universe*).
+   - User clicks macro-scale steps in the Site Map or Cosmic Journey (e.g., _7. Galaxy Clusters_, _8. Cosmic Web_, _9. Observable Universe_).
    - The camera moves to the designated 3D coordinate locus (e.g., Virgo cluster core at $[-1.2 \times 10^7, 5.2 \times 10^7, -5 \times 10^6]$ ly) and maintains that reference frame during manual inspection.
 
 3. **Fallback & Extended Catalog Navigation Flow**:
    - When clicking an item that represents a sky-direction source or an entry without physical 3D parallax, the UI instantly displays the 7-Tab Science Dossier with photometric/astrometric data and centers the camera on the parent constellation/galaxy.
 
 ### Visual Identity & Theme
+
 - **Obsidian Dark Palette**: Strict consistency with the deep-space aesthetic (`#07090E` backdrop, `rgba(8,10,24,0.78)` glassmorphic HUDs, hairline `border-white/10`).
 - **Telemetry Accents**: Telemetry amber (`#F59E0B`), cyan (`#06B6D4`), and emerald (`#10B981`) badges strictly following anti-slop guidelines (no static rounded pills for unclickable metadata).
 - **Tabular Monospace Typography**: All physical coordinates, distances, and light-travel times formatted in tabular monospace (`font-mono tabular-nums`).
@@ -57,16 +60,19 @@ Seamless, reliable astronomical navigation where every point of interest in the 
 ## 3. Key Product Decisions & Trade-Offs
 
 ### Decision 1: Root Canvas Click Propagation vs. Dedicated Deselection
+
 - **Chosen Approach**: Remove the top-level `onClick` deselect handler on `<div className="fixed inset-0" onClick={() => setSelected(null)}>` in `StarsApp.tsx`. Require explicit deselection via the `Escape` key or explicit UI back buttons.
 - **Why**: Mouse pointer drag releases inside the WebGL canvas trigger native DOM click events on the parent container. Having a root click listener caused every camera orbit drag to inadvertently execute `setSelected(null)`, making the camera fall back to the Sun.
 - **Alternatives Considered**: Using a drag-distance threshold filter on the root click handler. Rejected because mouse dragging over 3D scenes should never run the risk of ambiguous target clearing.
 
 ### Decision 2: Camera Target State Machine in `CameraRig.tsx`
+
 - **Chosen Approach**: Introduce a dedicated active navigation reference coordinate ref (`activeTargetPos`) inside `CameraRig.tsx`. When `flyTo` or `selectedStar` is active, anchor `target.current` to those coordinates and retain them during user interaction until a new target or explicit reset is commanded.
 - **Why**: Currently, `CameraRig.tsx` only updates spherical angles when `flyTo` triggers, but quickly clears `flyTo` after 60ms without pinning `target.current` when `selectedStar` is null (e.g. for cluster coordinates).
 - **Alternatives Considered**: Keeping `flyTo` continuously active in the store. Rejected because `flyTo` is a transient animation signal; an explicit navigation anchor ref cleanly decouples animation easing from steady-state orbiting.
 
 ### Decision 3: Comprehensive Dossier & Proxy Coordinate Fallback
+
 - **Chosen Approach**: For any point of interest or search result that lacks a direct 3D coordinate vector, construct an enriched `UniversalTarget` object, open the `UniversalObjectModal`, and smoothly pan the camera to the parent or nearest spatial cluster.
 - **Why**: Prevents runtime halts caused by undefined `.toFixed()` calls on missing properties, ensuring 100% of interface links are responsive and scientifically informative.
 
@@ -143,7 +149,7 @@ Seamless, reliable astronomical navigation where every point of interest in the 
 ## 5. Verification & Test Plan
 
 1. **Manual Interaction Verification**:
-   - Open Site Map -> select a star (e.g. *Sirius*, *Vega*, *Betelgeuse*).
+   - Open Site Map -> select a star (e.g. _Sirius_, _Vega_, _Betelgeuse_).
    - Drag across the viewport in all directions to verify 360° orbit around the star without drifting to the Sun.
    - Zoom in and out to verify distance scaling remains anchored to the star.
    - Press `Escape` or click `☉ Back to the Sun` and verify smooth return to the Solar System.
