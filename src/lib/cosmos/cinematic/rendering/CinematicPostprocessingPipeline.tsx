@@ -135,10 +135,13 @@ export function CinematicPostprocessingPipeline({
     };
   }, [composerBundle]);
 
-  // Render via composer when enabled; otherwise allow R3F's default zero-overhead render pass
+  // Render via composer when enabled; otherwise explicitly render scene/camera
+  // because R3F disables its internal render loop whenever a positive-priority useFrame is mounted.
   useFrame(() => {
     if (composerBundle && adapted.enablePostprocessingBloom) {
       composerBundle.composer.render();
+    } else {
+      gl.render(scene, camera);
     }
   }, 1);
 

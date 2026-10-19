@@ -1,0 +1,3551 @@
+
+# OUR VISIBLE UNIVERSE ACADEMY
+# COSMOS CINEMATIC LEARNING SYSTEM
+# DEVELOPMENT PROMPT 17 OF 18
+
+TITLE:
+PRODUCTION-GRADE RENDERING PERFORMANCE ENGINEERING
+SEAMLESS EARTH-TO-UNIVERSE COSMIC ZOOM
+SOLAR SYSTEM CAMERA JITTER ELIMINATION
+LARGE-SCALE ASTRONOMICAL PRECISION
+STABLE GPU RENDERING ARCHITECTURE
+ADVANCED LEVEL OF DETAIL AND SPATIAL STREAMING
+WEBGL MEMORY AND RESOURCE MANAGEMENT
+SCIENTIFIC SCENE PERFORMANCE OPTIMIZATION
+ADAPTIVE RENDERING QUALITY
+OPTIMIZED COSMOS NARRATION SYNCHRONIZATION
+AUTOMATED PERFORMANCE AND FLICKER TESTING
+COMPLETE 24-MODULE PERFORMANCE REGRESSION
+
+DEVELOPMENT MODEL:
+GOOGLE AI STUDIO — ARGON 4
+
+REPOSITORY:
+https://github.com/Mukulsri369/ourvisibleuniverse
+
+WEBSITE:
+https://ourvisibleuniverse.in
+
+PRIORITY:
+P0 — CRITICAL PERFORMANCE AND STABILITY
+
+====================================================
+YOUR ROLE
+====================================================
+
+Operate as an expert real-time graphics
+performance engineering team:
+
+1. Principal WebGL rendering architect.
+2. Senior Three.js engine developer.
+3. React Three Fiber performance specialist.
+4. GPU profiling and optimization engineer.
+5. Computational geometry specialist.
+6. Astronomical coordinate-system expert.
+7. Floating-point precision engineer.
+8. Advanced cinematic camera engineer.
+9. Scientific LOD and spatial streaming architect.
+10. Shader and GPU memory optimization engineer.
+11. React and TypeScript performance engineer.
+12. Web Workers and concurrency specialist.
+13. Scientific simulation engineer.
+14. COSMOS learning systems integration specialist.
+15. Browser performance profiling specialist.
+16. Mobile graphics optimization engineer.
+17. Automated visual regression engineer.
+18. Senior scientific QA engineer.
+
+YOUR MISSION:
+
+Eliminate reproducible rendering defects
+and major avoidable performance bottlenecks
+throughout Our Visible Universe.
+
+Special attention must be given to
+severe fluctuation and instability
+during zoom-out from the Solar System.
+
+Create smooth, stable, accurate
+cinematic navigation across astronomical scales.
+
+Ensure all 24 learning modules remain usable
+on supported hardware.
+
+This is an IMPLEMENTATION and
+ROOT-CAUSE REMEDIATION prompt.
+
+Do not merely provide advice.
+
+Inspect code.
+
+Reproduce issues.
+
+Profile.
+
+Identify causes.
+
+Implement fixes.
+
+Benchmark.
+
+Run regressions.
+
+Document results.
+
+====================================================
+1. PRIMARY OBJECTIVE
+====================================================
+
+Optimize:
+
+A. MAIN OUR VISIBLE UNIVERSE EXPLORER
+
+The public-facing universe visualization
+and its cross-scale navigation.
+
+B. COSMIC LEARNING ACADEMY
+
+All 24 modules.
+
+C. COSMOS CINEMATIC PLAYER
+
+Fullscreen 3D scientific scenes.
+
+D. SCIENTIFIC LABORATORIES
+
+Orbital mechanics, stellar evolution,
+cosmology, observatories, N-body physics.
+
+E. CAMERA AND SCENE TRANSITIONS
+
+Earth.
+
+Moon.
+
+Solar System.
+
+Local stellar neighborhood.
+
+Milky Way.
+
+Local Group.
+
+Galaxy clusters.
+
+Cosmic web.
+
+Observable-universe representations.
+
+F. GPU AND MEMORY MANAGEMENT
+
+Textures.
+
+Geometry.
+
+Render targets.
+
+Shaders.
+
+Particles.
+
+WebGL contexts.
+
+G. LEARNING CONTINUITY
+
+Narration.
+
+Activities.
+
+Pause/resume.
+
+Scene restoration.
+
+Progress preservation.
+
+Do not sacrifice scientific calculations
+merely to improve frame rates.
+
+====================================================
+2. CRITICAL EXISTING PROBLEM
+====================================================
+
+The application's primary known
+user-observed defect is:
+
+SCREEN FLUCTUATION AND LAG
+WHEN ZOOMING OUT FROM THE SOLAR SYSTEM.
+
+This must be treated as a P0 issue.
+
+Investigate both:
+
+The main universe explorer.
+
+The Academy's cosmic zoom scenes.
+
+Reproduce the full journey:
+
+Earth surface or orbit.
+
+Earth-Moon region.
+
+Inner Solar System.
+
+Outer Solar System.
+
+Solar System exterior.
+
+Stellar neighborhood.
+
+Milky Way.
+
+Intergalactic space.
+
+Larger-scale structures.
+
+Repeat in reverse.
+
+THE GOAL:
+
+Smooth motion.
+
+No unexpected camera snapping.
+
+No rapid apparent camera oscillation.
+
+No uncontrolled object jitter.
+
+No repeated near/far clipping flicker.
+
+No visible LOD thrashing.
+
+No major sudden shader stalls.
+
+No unrelated scene resets.
+
+No unexpected loss of navigation context.
+
+Do not claim the issue is fixed
+merely because it is less visible
+on one developer machine.
+
+====================================================
+3. AUDIT THE ACTUAL REPOSITORY
+====================================================
+
+Read:
+
+src/components/academy/cinematic/
+CosmosCinematicSceneHost.tsx
+
+src/lib/cosmos/cinematic/
+CosmosCinematicQualityManager.ts
+
+src/lib/cosmos/cinematic/
+CosmosCinematicSceneRegistry.ts
+
+src/lib/cosmos/cinematic/
+CosmosCinematicSessionBridge.ts
+
+src/lib/cosmos/cinematic/
+CosmosAnimationCueController.ts
+
+src/components/academy/
+SolarSystemExplorer3D.tsx
+
+src/components/academy/
+CosmicZoomVisualizer3D.tsx
+
+src/stars/
+OpticsPostProcessing.tsx
+
+Inspect:
+
+All main-universe camera systems.
+
+All main-universe rendering components.
+
+All scene scale transforms.
+
+All coordinate systems.
+
+All astronomy catalog renderers.
+
+All React Three Fiber Canvas instances.
+
+All OrbitControls instances.
+
+All custom useFrame loops.
+
+All requestAnimationFrame loops.
+
+All postprocessing pipelines.
+
+All WebGL context listeners.
+
+All scientific visualization mounts.
+
+All asset loaders.
+
+All active animation services.
+
+Do not limit the audit
+to the Academy components.
+
+The main universe explorer is
+a mandatory optimization target.
+
+====================================================
+4. CURRENT TECHNOLOGY STACK
+====================================================
+
+Inspect package.json.
+
+Current versions include:
+
+Three.js 0.184.x.
+
+React Three Fiber 9.6.x.
+
+Drei 10.7.x.
+
+React.
+
+TypeScript.
+
+Vite.
+
+Framer Motion.
+
+Use the actual installed versions.
+
+Prefer compatible APIs.
+
+Do not blindly replace Three.js
+or React Three Fiber.
+
+Do not migrate the rendering system
+to an incompatible engine
+without measured justification.
+
+Do not introduce unnecessary packages.
+
+Prefer native Three.js and
+React Three Fiber capabilities
+where technically appropriate.
+
+====================================================
+5. MANDATORY ROOT-CAUSE REPORT
+====================================================
+
+Before changing critical rendering code,
+identify suspected problem categories.
+
+Potential causes include:
+
+Camera ownership conflicts.
+
+Incorrect orbit target updates.
+
+Abrupt camera preset changes.
+
+Extremely large coordinate values.
+
+Floating-point precision loss.
+
+Poor near/far clipping ratios.
+
+Depth-buffer precision artifacts.
+
+Layer unmounting and remounting.
+
+LOD transition thrashing.
+
+Unstable camera target interpolation.
+
+Repeated texture loading.
+
+Repeated shader compilation.
+
+GPU memory pressure.
+
+Multiple active WebGL canvases.
+
+Duplicate animation loops.
+
+React state updates inside render loops.
+
+Garbage collection pauses.
+
+Expensive geometry regeneration.
+
+Synchronous catalog parsing.
+
+Unbounded particle systems.
+
+Excessive postprocessing.
+
+These are hypotheses.
+
+Do not declare them confirmed
+until supported by code or runtime evidence.
+
+For each reproduced issue record:
+
+Symptom.
+
+Exact reproduction steps.
+
+Affected component.
+
+Observed timing or visual evidence.
+
+Confirmed cause.
+
+Affected code location.
+
+Proposed correction.
+
+Actual fix.
+
+Verification result.
+
+====================================================
+6. CREATE A PERFORMANCE BASELINE
+====================================================
+
+Measure the application BEFORE
+applying optimizations.
+
+Collect:
+
+Average FPS.
+
+Median frame time.
+
+P95 frame time.
+
+P99 frame time.
+
+Maximum significant frame stall.
+
+Draw calls.
+
+Rendered triangles.
+
+Geometry allocations.
+
+Texture allocations.
+
+GPU resource counts.
+
+Scene loading duration.
+
+Asset transfer size.
+
+Shader compilation stalls.
+
+React commit activity.
+
+Main-thread blocking tasks.
+
+Camera transition duration.
+
+Scene switching duration.
+
+WebGL context losses.
+
+Memory behavior over time.
+
+Record:
+
+Browser.
+
+Operating system.
+
+Device class.
+
+Graphics hardware where accessible.
+
+Viewport dimensions.
+
+Device pixel ratio.
+
+Rendering quality tier.
+
+Current active module.
+
+Scientific scene.
+
+Measurement duration.
+
+Warm versus cold cache.
+
+Do not compare different hardware
+as if it were a controlled benchmark.
+
+====================================================
+7. ESTABLISH A REPEATABLE ZOOM TEST
+====================================================
+
+Create a reproducible
+cross-scale navigation test.
+
+Test sequence:
+
+T0:
+Open the Solar System.
+
+T1:
+Focus Earth.
+
+T2:
+Move toward the Earth-Moon system.
+
+T3:
+Zoom outward to inner planets.
+
+T4:
+Zoom outward to outer planets.
+
+T5:
+Zoom beyond Neptune.
+
+T6:
+Transition toward nearby stars.
+
+T7:
+Reveal the Milky Way.
+
+T8:
+Reveal Local Group-scale structures.
+
+T9:
+Continue to cosmic web representation.
+
+T10:
+Reverse the journey.
+
+Repeat at least several times.
+
+Capture synchronized:
+
+Camera position.
+
+Camera target.
+
+Camera orientation.
+
+Zoom regime.
+
+Current scene ID.
+
+Active LOD levels.
+
+Current asset loading states.
+
+Frame timings.
+
+GPU resource metrics.
+
+Detect unexpected discontinuities.
+
+Do not rely solely on a human
+watching one short screen recording.
+
+====================================================
+8. INVESTIGATE CAMERA OWNERSHIP CONFLICTS
+====================================================
+
+The existing cinematic scene host
+contains a camera rig which:
+
+Receives narration camera cues.
+
+Receives COSMOS camera commands.
+
+Updates camera positions.
+
+Updates OrbitControls targets.
+
+Supports manual camera control.
+
+Processes updates in useFrame.
+
+Audit whether multiple systems
+can modify the same camera
+in the same frame.
+
+Possible conflicting owners:
+
+COSMOS camera director.
+
+OrbitControls damping.
+
+User gestures.
+
+Scene preset controller.
+
+Object-follow camera.
+
+Narration seek restoration.
+
+Quality or viewport resize logic.
+
+Create a single authoritative
+camera ownership contract.
+
+At any moment, identify
+which subsystem is permitted
+to control the camera.
+
+====================================================
+9. CAMERA OWNERSHIP STATES
+====================================================
+
+Implement or refine states such as:
+
+GUIDED_CINEMATIC.
+
+USER_ORBIT.
+
+USER_PAN.
+
+USER_ZOOM.
+
+OBJECT_FOLLOW.
+
+SCIENTIFIC_ACTIVITY.
+
+TRANSITIONING.
+
+SEEK_RESTORE.
+
+QUESTION_EXPLANATION.
+
+PAUSED.
+
+RECENTERING.
+
+REDUCED_MOTION.
+
+Use the existing camera director
+and player state machine.
+
+Do not create an unrelated
+competing state service.
+
+Define permitted transitions.
+
+Prevent stale camera commands.
+
+Prevent a previous narration cue
+from overwriting a newer user action.
+
+Do not let OrbitControls
+fight the cinematic camera rig.
+
+====================================================
+10. SPECIFIC CINEMATIC CAMERA BUG AUDIT
+====================================================
+
+Inspect the existing:
+
+CinematicCameraRig
+
+in CosmosCinematicSceneHost.tsx.
+
+The current orbit camera behavior
+uses elapsed time and modifies
+desired camera position components.
+
+Verify whether the orbit calculation
+uses an appropriate object-relative
+reference frame.
+
+A camera orbit around a planet
+must not accidentally orbit
+the universe scene origin.
+
+Preserve a stable target anchor.
+
+Use an orbit radius measured
+relative to the intended focus object.
+
+Make orientation and position
+consistent with that target.
+
+Also inspect:
+
+OrbitControls.update() calls.
+
+Camera.lookAt() calls.
+
+Manual camera transitions.
+
+Damping interpolation.
+
+Camera command restoration.
+
+Repeated projection updates.
+
+Test for double-updated orientations.
+
+Do not assume the existing
+orbiting implementation is correct.
+
+====================================================
+11. FIX INSTANT CAMERA PRESET JUMPS
+====================================================
+
+The existing SolarSystemExplorer3D
+contains camera presets that
+directly set camera positions.
+
+Audit all direct position changes.
+
+For transitions intended to be cinematic,
+use controlled smooth movement.
+
+Preserve:
+
+Starting camera pose.
+
+Target camera pose.
+
+Starting focus target.
+
+Final focus target.
+
+Transition duration.
+
+Scientific reference frame.
+
+Object-follow relationship.
+
+Do not smooth a deliberately
+instant emergency reset
+unless UX requirements call for it.
+
+Distinguish:
+
+Snap-to-view.
+
+Animate-to-view.
+
+Track-moving-object.
+
+Free camera exploration.
+
+A preset change must not accidentally
+restart a scientific simulation.
+
+====================================================
+12. FIX MOVING-OBJECT CAMERA TRACKING
+====================================================
+
+The Solar System explorer also
+tracks moving planets.
+
+Audit its existing position updates.
+
+The current implementation includes
+a per-frame tracking adjustment.
+
+Verify:
+
+Frame-rate independence.
+
+Correct target following.
+
+Stable camera offset.
+
+No overshoot.
+
+No drift.
+
+No unwanted cumulative error.
+
+Correct behavior during pause.
+
+Correct behavior at accelerated
+simulation times.
+
+Correct behavior after object switching.
+
+Use delta-time-based damping
+or a validated spring model.
+
+Avoid frame-count-dependent
+smoothing that behaves differently
+at 30 FPS versus 144 FPS.
+
+Avoid repeated object allocation
+inside the frame loop.
+
+====================================================
+13. CAMERA MOTION MATHEMATICS
+====================================================
+
+Use stable mathematical interpolation.
+
+Potential techniques:
+
+Delta-time-based exponential damping.
+
+Critically damped spring dynamics.
+
+Smooth quaternion interpolation.
+
+Spherical orbit interpolation.
+
+Bezier or spline paths.
+
+Stable target-relative transformations.
+
+Bounded velocity and acceleration.
+
+Use camera animation methods
+appropriate to each transition.
+
+Avoid linear interpolation
+between extremely different
+astronomical scales when unsuitable.
+
+Avoid lerping large positions
+in single-precision GPU space.
+
+Preserve correct object framing.
+
+====================================================
+14. PREVENT CAMERA JITTER
+====================================================
+
+Detect camera jitter using
+actual camera-state telemetry.
+
+Inspect:
+
+Unexpected angular velocity changes.
+
+Rapid alternating target movement.
+
+Position reversals unrelated to input.
+
+Large position discontinuities.
+
+Projection matrix changes.
+
+Incorrect damping.
+
+Multiple camera updates per frame.
+
+Stale animation callbacks.
+
+Unstable object-follow targets.
+
+Do not suppress scientifically legitimate
+orbital motion as camera jitter.
+
+Distinguish:
+
+Intended motion.
+
+Physical simulation movement.
+
+Camera motion error.
+
+Measure and classify them separately.
+
+====================================================
+15. LARGE-SCALE FLOATING-POINT PRECISION
+====================================================
+
+Astronomical coordinates can span
+enormous numerical ranges.
+
+Avoid directly supplying enormous
+absolute world coordinates
+to GPU scene geometry.
+
+Investigate:
+
+JavaScript Number precision.
+
+Float32 GPU attribute precision.
+
+Matrix multiplication errors.
+
+Near-origin precision.
+
+Far-distance precision.
+
+Camera-relative transformation.
+
+Large coordinate subtraction.
+
+Z-fighting from insufficient depth precision.
+
+Apply stable precision strategies.
+
+Use double-precision astronomical
+coordinates for authoritative calculations.
+
+Use camera-relative or local coordinates
+for GPU rendering where appropriate.
+
+Keep scientific data distinct
+from presentation coordinates.
+
+====================================================
+16. FLOATING ORIGIN ARCHITECTURE
+====================================================
+
+Investigate whether a floating-origin
+strategy is necessary for the
+main universe explorer and
+large-scale Academy scenes.
+
+Recommended conceptual model:
+
+AUTHORITATIVE WORLD FRAME
+
+Stores physical astronomical state.
+
+LOCAL SCENE FRAME
+
+Stores renderable scene positions.
+
+CAMERA FRAME
+
+Stores current observer-relative geometry.
+
+Do not force all cosmic scales
+into a single Float32 coordinate system.
+
+Rebase the local rendering origin
+when necessary.
+
+Make origin shifts deterministic.
+
+Do not allow an origin shift
+to move objects visually
+relative to the observer.
+
+Preserve:
+
+Selected object identity.
+
+Camera orientation.
+
+Object velocity.
+
+Scientific measurements.
+
+Orbital integrator state.
+
+User interaction targets.
+
+COSMOS narration context.
+
+Do not modify actual physics
+by changing the render origin.
+
+====================================================
+17. HIERARCHICAL ASTRONOMICAL REFERENCE FRAMES
+====================================================
+
+Use a scale-aware hierarchy.
+
+Possible regimes:
+
+PLANETARY SURFACE.
+
+PLANET-MOON SYSTEM.
+
+SOLAR SYSTEM.
+
+LOCAL STELLAR NEIGHBORHOOD.
+
+GALACTIC.
+
+LOCAL GROUP.
+
+EXTRAGALACTIC.
+
+COSMOLOGICAL.
+
+Every regime must declare:
+
+Coordinate frame.
+
+Distance unit.
+
+Scale transform.
+
+Origin.
+
+Target object.
+
+Camera representation.
+
+LOD policy.
+
+Scientific dataset.
+
+Transition requirements.
+
+Avoid multiplying arbitrary
+scale factors throughout unrelated files.
+
+Centralize the transform contract.
+
+Do not confuse observed redshift
+with a present-day Euclidean position.
+
+====================================================
+18. SCIENTIFIC DATA MUST REMAIN ACCURATE
+====================================================
+
+The render engine may use
+compressed educational distances.
+
+However:
+
+Actual orbital distances remain correct
+within the approved physical model.
+
+Actual planetary radii remain
+available as physical values.
+
+Actual stellar catalog coordinates
+remain unchanged.
+
+Actual galaxy measurements
+remain unchanged.
+
+Actual gravitational calculations
+remain unchanged.
+
+The renderer may change display scale.
+
+It must not silently change
+the scientific truth of the data.
+
+Maintain separate:
+
+Physical value.
+
+Physical unit.
+
+Display value.
+
+Render-space coordinate.
+
+Scale disclosure.
+
+====================================================
+19. DEPTH-BUFFER PRECISION
+====================================================
+
+Investigate the camera near/far ratio.
+
+The cinematic registry currently
+contains different nearClip
+and farClip values by scene.
+
+Validate each scene's ranges.
+
+Do not simply set:
+
+near = extremely tiny number
+
+far = astronomically huge number
+
+for one universal camera.
+
+This may cause depth precision loss.
+
+Compare strategies such as:
+
+Scene-specific near/far planes.
+
+Scale-regime camera configuration.
+
+Camera-relative coordinates.
+
+Hierarchical scene layers.
+
+Depth partitioning.
+
+Reversed depth buffer where supported.
+
+Logarithmic depth buffer where justified.
+
+Benchmark actual behavior.
+
+====================================================
+20. LOGARITHMIC VS REVERSED DEPTH
+====================================================
+
+Consult current Three.js documentation.
+
+Evaluate:
+
+logarithmicDepthBuffer
+
+reversedDepthBuffer
+
+EXT_clip_control support
+
+depth precision
+
+GPU performance cost
+
+shader compatibility
+
+postprocessing compatibility
+
+IMPORTANT:
+
+Logarithmic depth may require
+fragment depth writes and can
+reduce early fragment testing efficiency.
+
+Reversed depth requires
+compatible GPU and browser support.
+
+Do not enable both blindly.
+
+Choose the approach with
+the best measured accuracy,
+compatibility and performance
+for the current rendering stack.
+
+Provide safe fallbacks.
+
+Test z-fighting using actual scenes.
+
+====================================================
+21. PREVENT SCENE-BOUNDARY FLICKERING
+====================================================
+
+The existing CosmicZoomVisualizer3D
+switches between discrete
+astronomical scale layers.
+
+Audit its layer switching.
+
+Potential visual defects:
+
+Complete scene unmount.
+
+Black frame during load.
+
+New geometry compiled on entry.
+
+Starfield generation changed.
+
+Camera position reset.
+
+Controls remounted.
+
+Sudden object disappearance.
+
+Unmatched camera scale.
+
+Create a stable transition strategy.
+
+Possible approaches:
+
+Preload destination scene.
+
+Preserve current scene until ready.
+
+Use controlled crossfade.
+
+Use continuous scale interpolation.
+
+Use scientifically labeled handoff.
+
+Avoid expensive simultaneous
+full-scene rendering when unnecessary.
+
+Do not hide a broken transition
+behind a lengthy loading animation.
+
+====================================================
+22. STABLE SCALE-TRANSITION STATE MACHINE
+====================================================
+
+Create or refine a
+scale transition controller.
+
+Potential lifecycle states:
+
+IDLE.
+
+PREPARING_DESTINATION.
+
+DESTINATION_READY.
+
+TRANSITIONING.
+
+HANDOFF_PENDING.
+
+COMPLETED.
+
+CANCELLED.
+
+FAILED.
+
+When transitioning:
+
+Determine the target regime.
+
+Validate required assets.
+
+Prepare destination coordinates.
+
+Preserve camera orientation.
+
+Begin camera choreography.
+
+Synchronize necessary LOD resources.
+
+Perform deterministic handoff.
+
+Release unneeded resources safely.
+
+Do not trigger repeated transitions
+from overlapping scroll or wheel events.
+
+Support reverse and interrupted transitions.
+
+====================================================
+23. NO UNINTENDED LOD POPPING
+====================================================
+
+Astronomical visualizations need
+different representations by distance.
+
+Examples:
+
+Close planet:
+Detailed textured geometry.
+
+Mid-distance planet:
+Simplified material or mesh.
+
+Far planet:
+Compact billboard or point representation.
+
+Near stellar field:
+Individual stars.
+
+Distant galactic view:
+Instanced star distributions.
+
+Intergalactic overview:
+Galaxy-scale representation.
+
+Create clear LOD criteria.
+
+Prevent rapid oscillation near thresholds.
+
+Apply hysteresis.
+
+Use visual crossfades or
+transition bands where practical.
+
+Do not blend conflicting physical scales
+without explanatory representation.
+
+====================================================
+24. LEVEL OF DETAIL SELECTION
+====================================================
+
+Evaluate LOD using:
+
+Projected screen-space size.
+
+Camera distance.
+
+Display resolution.
+
+Object importance.
+
+Scientific lesson focus.
+
+Available GPU capability.
+
+Current quality tier.
+
+Scene composition.
+
+Use screen-space error or
+projected-size criteria
+where technically appropriate.
+
+Do not base every decision
+on arbitrary world-space distance.
+
+Maintain important selected objects
+at sufficient educational detail.
+
+Avoid over-rendering distant objects
+that occupy only a few pixels.
+
+====================================================
+25. PROCEDURAL STARFIELD STABILITY
+====================================================
+
+Inspect:
+
+CosmicZoomVisualizer3D.tsx
+
+The current cosmic zoom scene
+uses procedural random star and
+cosmic-web particle generation.
+
+Ensure that remounting or
+changing view does not produce
+unintended visible reshuffling.
+
+Use seeded deterministic generation
+where appropriate.
+
+Separate:
+
+Observed star catalog data.
+
+Scientific simulation particles.
+
+Decorative background particles.
+
+Do not present synthetic stars
+as exact cataloged observations.
+
+Cache stable procedural buffers.
+
+Do not regenerate them
+during ordinary camera movement.
+
+====================================================
+26. GALAXY AND COSMIC WEB RENDERING
+====================================================
+
+Optimize large particle environments.
+
+Potential approaches:
+
+THREE.Points.
+
+InstancedMesh.
+
+InstancedBufferGeometry.
+
+Shared buffer geometry.
+
+Spatial chunking.
+
+GPU instancing.
+
+Viewport culling.
+
+Frustum culling.
+
+Distance-based particle sampling.
+
+Spatial LOD.
+
+Typed arrays.
+
+GPU-friendly color attributes.
+
+Use actual scene requirements
+to choose rendering techniques.
+
+Do not create one React component
+for each stellar particle.
+
+Do not upload huge position buffers
+on every render frame.
+
+Avoid arbitrary particle counts
+without a measurable scene budget.
+
+====================================================
+27. PLANETARY AND STELLAR GEOMETRY
+====================================================
+
+Optimize reusable geometry.
+
+Examples:
+
+Planet spheres.
+
+Moon meshes.
+
+Orbit lines.
+
+Ring systems.
+
+Stellar disks.
+
+Galaxy representations.
+
+Spacecraft components.
+
+Scientific field vectors.
+
+Use appropriate mesh detail
+for the projected visual size.
+
+Cache compatible geometries.
+
+Share materials where possible.
+
+Avoid repeatedly rebuilding:
+
+SphereGeometry.
+
+TubeGeometry.
+
+Orbit line geometry.
+
+Ring particle buffers.
+
+Telescope components.
+
+Do not lower scientific detail
+so aggressively that important
+features disappear.
+
+====================================================
+28. GPU RESOURCE OWNERSHIP
+====================================================
+
+Implement an explicit resource
+ownership model for GPU assets.
+
+Audit creation and destruction of:
+
+BufferGeometry.
+
+Material.
+
+ShaderMaterial.
+
+Texture.
+
+CanvasTexture.
+
+DataTexture.
+
+WebGLRenderTarget.
+
+EffectComposer targets.
+
+Framebuffers.
+
+Scene-specific particle buffers.
+
+GPU buffers.
+
+GLTF-loaded resources.
+
+Distinguish:
+
+Shared globally cached resource.
+
+Scene-owned resource.
+
+Component-owned temporary resource.
+
+Externally managed resource.
+
+Do not dispose a shared resource
+while another active scene uses it.
+
+Do not leak scene-owned resources
+after unmount.
+
+Document cleanup ownership.
+
+====================================================
+29. WEBGL CONTEXT MANAGEMENT
+====================================================
+
+Inspect every React Three Fiber Canvas.
+
+The existing project contains
+separate Canvas instances in
+different scientific visualizers.
+
+This is not automatically a bug.
+
+The problem occurs if unnecessary
+heavy canvases remain active together
+or GPU resources are duplicated.
+
+Audit:
+
+Mounted canvas count.
+
+Active render loops.
+
+GPU load per canvas.
+
+Idle background scenes.
+
+Resource disposal.
+
+Context restoration.
+
+Page navigation.
+
+Fullscreen transitions.
+
+Where beneficial:
+
+Reuse a shared scene host.
+
+Suspend hidden scenes.
+
+Unmount truly unused canvases safely.
+
+Cache shared resources.
+
+Do not merge independent canvases
+if that destroys reliable functionality
+without a proven benefit.
+
+====================================================
+30. WEBGL CONTEXT LOSS RECOVERY
+====================================================
+
+The cinematic scene host already
+contains WebGL context-loss handlers.
+
+Audit:
+
+Listener registration.
+
+Listener cleanup.
+
+Correct lost-state handling.
+
+Fallback visibility.
+
+Resource restoration.
+
+Scene recreation.
+
+Narration preservation.
+
+Student progress preservation.
+
+Recovery retry behavior.
+
+Repeated context loss.
+
+A GPU interruption must not:
+
+Award learning progress.
+
+Erase activity state.
+
+Restart official assessment.
+
+Duplicate narration.
+
+Corrupt physics calculations.
+
+Simulate context loss in tests
+where technically possible.
+
+====================================================
+31. POSTPROCESSING PERFORMANCE
+====================================================
+
+Inspect:
+
+OpticsPostProcessing.tsx
+
+CinematicPostprocessingPipeline
+
+Any other render composers.
+
+Audit:
+
+EffectComposer ownership.
+
+Render-pass priority.
+
+Bloom thresholds.
+
+HDR render targets.
+
+Tone mapping.
+
+Resolution scaling.
+
+MSAA settings.
+
+Color-space conversion.
+
+Duplicate render passes.
+
+Shader compilation.
+
+Offscreen buffer allocations.
+
+Ensure that an active scene
+does not render redundantly
+through overlapping composers.
+
+Do not automatically remove
+scientifically useful postprocessing.
+
+Prefer one coherent render pipeline
+per active scene.
+
+Benchmark before and after changes.
+
+====================================================
+32. ADAPTIVE POSTPROCESSING
+====================================================
+
+Implement or refine
+quality-tier-dependent effects.
+
+HIGH CINEMATIC:
+
+Appropriate high-quality shading.
+
+Selective bloom.
+
+Full necessary material fidelity.
+
+Balanced anti-aliasing.
+
+Detailed atmospheres.
+
+BALANCED:
+
+Reduced postprocessing cost.
+
+Moderate atmospheric detail.
+
+Appropriate render resolution.
+
+LOW POWER:
+
+Minimal expensive postprocessing.
+
+Simplified shaders.
+
+Reduced overdraw.
+
+Appropriate texture resolution.
+
+Preserve:
+
+Readable objects.
+
+Correct colors where scientifically important.
+
+Scientific labels.
+
+Data graphs.
+
+Physics accuracy.
+
+Do not reduce instructional
+visibility to improve FPS.
+
+====================================================
+33. SHADER COMPILATION AND STALLS
+====================================================
+
+Investigate frame-time spikes
+caused by shader compilation.
+
+Identify whether scene transitions
+introduce new shader variants.
+
+Consider safe approaches:
+
+Precompile known materials.
+
+Warm up common scene shaders.
+
+Limit unnecessary shader variants.
+
+Reuse material instances.
+
+Preload destination scene resources.
+
+Defer nonessential visual effects.
+
+Avoid recompilation when
+COSMOS changes a narration cue.
+
+Do not perform heavy shader creation
+inside useFrame.
+
+Measure compile-related stalls.
+
+====================================================
+34. TEXTURE AND ASSET STREAMING
+====================================================
+
+Review the asset pipeline
+created during Prompt 06.
+
+Optimize:
+
+Texture dimensions.
+
+Texture compression.
+
+Mipmap generation.
+
+GLTF loading.
+
+Geometry decoding.
+
+Asset reuse.
+
+Browser caching.
+
+Progressive loading.
+
+Scene prefetch.
+
+Release of unused resources.
+
+Where compatible:
+
+KTX2/BasisU compressed textures.
+
+Meshoptimizer.
+
+Optimized glTF.
+
+Appropriate image formats.
+
+Avoid downloading a high-resolution
+planetary texture when the object
+occupies only a few screen pixels.
+
+Do not modify scientific
+image color mappings unintentionally.
+
+Preserve licensing and provenance.
+
+====================================================
+35. SMART ASSET PRELOADING
+====================================================
+
+Implement bounded scene preloading.
+
+Prioritize:
+
+Current scene.
+
+Current narration beat.
+
+Likely next chapter.
+
+Likely next zoom regime.
+
+Selected object.
+
+Required interactive experiment.
+
+Use an explicit resource budget.
+
+Do not preload all 24 modules
+and every celestial model at startup.
+
+Avoid competing network requests
+that delay the current lesson.
+
+Cancel or deprioritize stale loads.
+
+Use cached asset references
+where compatible.
+
+====================================================
+36. REACT RENDER-LOOP OPTIMIZATION
+====================================================
+
+Audit all useFrame callbacks.
+
+Look for:
+
+setState inside useFrame.
+
+New Vector3 allocations.
+
+New Color allocations.
+
+New matrices.
+
+Array cloning.
+
+Expensive object traversal.
+
+Geometry regeneration.
+
+Unnecessary raycasting.
+
+Repeated large array sorting.
+
+Frequent DOM updates.
+
+Repeated synchronous parsing.
+
+Use stable mutable references
+for high-frequency 3D values.
+
+Reuse temporary vectors.
+
+Apply delta-time-correct updates.
+
+Use React state for meaningful
+UI-level changes rather than
+every rendered animation sample.
+
+Do not introduce stale state
+or destroy component reactivity.
+
+====================================================
+37. SIMULATION CLOCK AND FRAME LOOP
+====================================================
+
+Separate:
+
+Scientific simulation time.
+
+Render frame time.
+
+COSMOS narration time.
+
+Cinematic camera time.
+
+Student interaction time.
+
+Do not bind physical integration
+directly to variable FPS.
+
+For suitable physics engines:
+
+Use a fixed simulation timestep
+or a validated adaptive solver.
+
+Use a bounded accumulator
+where appropriate.
+
+Interpolate rendered states
+without changing physics results.
+
+Prevent uncontrolled catch-up loops
+after long browser stalls.
+
+Avoid the spiral-of-death problem.
+
+Document time scaling.
+
+====================================================
+38. PHYSICS ENGINE PERFORMANCE
+====================================================
+
+Optimize numerical simulation
+without changing validated results.
+
+Target:
+
+N-body gravity.
+
+Orbital integration.
+
+Barycenter calculations.
+
+Scientific field visualization.
+
+Collision simulations.
+
+Stellar evolution track interpolation.
+
+Particle-based teaching experiments.
+
+Separate numerical computation
+from visual effects.
+
+Potential optimizations:
+
+Typed arrays.
+
+Spatial acceleration structures.
+
+Cached constants.
+
+Worker-based computation.
+
+Efficient integration.
+
+Controlled sample rates.
+
+Incremental data updates.
+
+Use Barnes-Hut or related
+approximations only where scientifically
+appropriate and validated.
+
+Do not silently replace exact
+small-N calculations with
+less accurate approximations.
+
+====================================================
+39. WEB WORKERS AND MAIN-THREAD LOAD
+====================================================
+
+Investigate heavy CPU tasks.
+
+Examples:
+
+Astronomical catalog parsing.
+
+Coordinate transformation batches.
+
+Large particle generation.
+
+Mesh preprocessing.
+
+Scientific data interpolation.
+
+N-body simulations.
+
+Spatial indexing.
+
+Some tasks may benefit
+from Web Workers.
+
+Use workers only where supported
+by the application architecture.
+
+Keep data transfer bounded.
+
+Avoid excessive structured cloning.
+
+Use transferable buffers
+when appropriate.
+
+Preserve correct lifecycle cleanup.
+
+Do not create a worker per particle
+or per small component.
+
+Measure the benefit before adoption.
+
+====================================================
+40. CATALOG AND DATASET SCALING
+====================================================
+
+Our Visible Universe aims to visualize
+a very large scientific catalog
+of discovered celestial objects.
+
+Optimize data handling for:
+
+Stars.
+
+Exoplanets.
+
+Galaxies.
+
+Compact objects.
+
+Solar System bodies.
+
+Large-scale structure.
+
+Use:
+
+Spatial indexing.
+
+Visible-region queries.
+
+Magnitude filters.
+
+Distance-dependent sampling.
+
+Hierarchical loading.
+
+Data tiling.
+
+Cache reuse.
+
+Bounded data subsets.
+
+Do not load an entire
+multi-million-object catalog
+into one React state object
+or render all records as meshes.
+
+Do not fabricate catalog objects
+to compensate for unavailable data.
+
+====================================================
+41. FRAME PACING AND STUTTER ANALYSIS
+====================================================
+
+The existing quality manager
+uses measured FPS windows.
+
+Average FPS alone is not sufficient.
+
+An application can report 60 FPS
+while still exhibiting major stalls.
+
+Add or improve:
+
+P50 frame time.
+
+P95 frame time.
+
+P99 frame time.
+
+Long-frame counts.
+
+Consecutive missed-frame bursts.
+
+Frame-time variance.
+
+Main-thread task timing.
+
+GPU timing where available.
+
+Scene transition latency.
+
+Distinguish:
+
+CPU bottleneck.
+
+GPU bottleneck.
+
+Network loading.
+
+Shader compilation.
+
+Garbage collection.
+
+Camera jitter.
+
+Render scheduling.
+
+Do not treat all stutters
+as GPU problems.
+
+====================================================
+42. ADAPTIVE QUALITY GOVERNOR
+====================================================
+
+Inspect:
+
+CosmosCinematicQualityManager.ts
+
+It currently supports:
+
+HIGH_CINEMATIC.
+
+BALANCED.
+
+LOW_POWER.
+
+A measured FPS window.
+
+Consecutive low-FPS detection.
+
+Cooldown-based downgrade.
+
+Manual preference handling.
+
+Preserve these useful safeguards.
+
+Improve where measurements justify it.
+
+Potential improvements:
+
+Frame-time percentile awareness.
+
+Scene-specific quality budgets.
+
+Adaptive DPR.
+
+Particle budget adjustment.
+
+Volumetric effect scaling.
+
+Texture LOD selection.
+
+Stable downgrade hysteresis.
+
+Respect for manual overrides.
+
+Do not oscillate quality every few seconds.
+
+Do not repeatedly recreate
+the WebGL renderer during tier changes.
+
+====================================================
+43. QUALITY CHANGE WITHOUT VISUAL FLICKER
+====================================================
+
+When quality changes:
+
+Maintain the active scene.
+
+Preserve camera pose.
+
+Preserve narration.
+
+Preserve simulation state.
+
+Preserve selected object.
+
+Preserve activity state.
+
+Avoid full scene teardown
+unless technically required.
+
+Transition rendering quality
+at controlled boundaries
+where practical.
+
+Do not change GPU settings
+in ways that create an
+unnecessary blank frame.
+
+If a change requires renderer
+recreation, document and minimize
+the unavoidable disruption.
+
+====================================================
+44. BATTERY-AWARE RENDERING
+====================================================
+
+Reduce unnecessary rendering
+when appropriate.
+
+Examples:
+
+Paused static scenes.
+
+Hidden browser tab.
+
+Background learning panel.
+
+No active scientific animation.
+
+No moving camera.
+
+No dynamic shader effects.
+
+Investigate:
+
+Demand-driven rendering.
+
+Scene invalidation.
+
+Reduced animation frequency.
+
+Pausing hidden render loops.
+
+IMPORTANT:
+
+Do not enable demand rendering blindly.
+
+Animated stars, orbit trajectories,
+moving camera scenes and narration
+may require continuous updates.
+
+Use demand mode only when
+all necessary visual state changes
+can reliably request frames.
+
+Preserve accurate resume behavior.
+
+====================================================
+45. MOBILE PERFORMANCE
+====================================================
+
+Optimize for mobile devices.
+
+Evaluate:
+
+DPR.
+
+GPU fill rate.
+
+Thermal constraints.
+
+Memory.
+
+Texture size.
+
+Particle overdraw.
+
+Shader instruction cost.
+
+Postprocessing.
+
+Browser context limits.
+
+Scene startup.
+
+Touch interaction latency.
+
+Support low-power rendering modes.
+
+Avoid sustained unnecessary
+high-load rendering during
+long educational sessions.
+
+Scientific interactions must remain usable.
+
+A mobile student should not
+be forced to use a desktop GPU
+to complete the course.
+
+====================================================
+46. SCIENTIFIC PRECISION REGRESSION
+====================================================
+
+Optimization must preserve accuracy.
+
+Validate:
+
+Planetary orbital positions.
+
+Keplerian motion.
+
+Barycenter behavior.
+
+Moon phase geometry.
+
+Eclipse alignments.
+
+Stellar physical parameters.
+
+Galaxy coordinate transformations.
+
+Gravitational lensing calculations.
+
+Cosmological redshift.
+
+Lookback-time calculations.
+
+Spacecraft trajectories.
+
+Telescope equations.
+
+N-body conservation behavior
+within declared tolerances.
+
+A faster but scientifically incorrect
+simulation is unacceptable.
+
+Keep physical computation
+separate from display simplification.
+
+====================================================
+47. COSMOS SYNCHRONIZATION REGRESSION
+====================================================
+
+Test performance improvements against
+the actual COSMOS learning flow.
+
+Confirm:
+
+Correct narration cue activation.
+
+Visual beat timing.
+
+Caption synchronization.
+
+Pause and resume.
+
+Seek restoration.
+
+Repeated playback.
+
+Voice interruptions.
+
+Temporary explanatory scenes.
+
+Student camera override.
+
+Activity interaction.
+
+Quiz presentation.
+
+Module navigation.
+
+No duplicate narration.
+
+No skipped required learning steps.
+
+No false activity completion.
+
+Never improve frame rate
+by disabling learning requirements.
+
+====================================================
+48. 24-MODULE PERFORMANCE COVERAGE
+====================================================
+
+Create a performance matrix
+covering all 24 Academy modules.
+
+Group tests by scene type.
+
+MODULES 01–04:
+
+Cross-scale navigation.
+
+Planetarium.
+
+Distance ladder.
+
+Light travel visualization.
+
+MODULES 05–08:
+
+Earth-Moon system.
+
+Solar System.
+
+Sun shaders.
+
+Orbital mechanics.
+
+MODULES 09–12:
+
+Stellar shaders.
+
+Stellar evolution.
+
+Nebula particles.
+
+Exoplanet light curves.
+
+MODULES 13–16:
+
+Galaxies.
+
+Black holes.
+
+Cosmic web.
+
+Dark matter visualizations.
+
+MODULES 17–20:
+
+Cosmic time.
+
+Expansion.
+
+Historical models.
+
+Deep-time future.
+
+MODULES 21–24:
+
+Telescopes.
+
+Spacecraft.
+
+Astrobiology.
+
+Scientific physics sandbox.
+
+All modules must remain functional.
+
+No module may be left with
+a permanently unusable renderer.
+
+====================================================
+49. PERFORMANCE ACCEPTANCE TARGETS
+====================================================
+
+Set measurable initial targets.
+
+These are engineering goals,
+not universal guarantees.
+
+CAPABLE DESKTOP:
+
+Aim for near-60 FPS
+during representative cinematic scenes.
+
+Target P95 frame time
+around or below 16.7–20 ms
+where hardware allows.
+
+BALANCED LAPTOP:
+
+Aim for approximately 45–60 FPS
+in common scenes where feasible.
+
+LOW-POWER MOBILE:
+
+Aim for a stable usable experience,
+preferably 30 FPS or better
+in representative supported scenes.
+
+HEAVY TRANSITIONS:
+
+Avoid sustained visible freezing.
+
+Avoid major uncontrolled frame spikes.
+
+CAMERA:
+
+No unexplained oscillation.
+
+No visual snapping during
+transitions intended to be smooth.
+
+SCENE QUALITY:
+
+No repeated LOD thrashing.
+
+No unexpected black frames.
+
+GPU MEMORY:
+
+No unbounded growth across
+repeated lesson navigation.
+
+These targets must be validated
+with actual measurements.
+
+If a device cannot achieve them,
+use a transparent lower-quality
+or accessible alternative.
+
+====================================================
+50. QUANTITATIVE CAMERA STABILITY TESTS
+====================================================
+
+Record camera telemetry.
+
+Measure:
+
+Position continuity.
+
+Orientation continuity.
+
+Angular velocity.
+
+Target movement.
+
+Target-follow error.
+
+Scale-regime changes.
+
+Transition duration.
+
+Unexpected reversals.
+
+Position discontinuities.
+
+Add deterministic camera tests
+where possible.
+
+A transition should not:
+
+Teleport unexpectedly.
+
+Rotate through a wrong axis.
+
+Lose its selected object.
+
+Jump after pause.
+
+Restart after a React rerender.
+
+Oscillate due to competing controllers.
+
+Switch reference frames silently.
+
+Document intentional camera cuts
+separately from unintended jumps.
+
+====================================================
+51. AUTOMATED FLICKER DETECTION
+====================================================
+
+Build repeatable browser
+visual regression testing.
+
+Capture sequential frames
+during a known zoom transition.
+
+Analyze:
+
+Unexpected blank frames.
+
+Large unexplained luminance flashes.
+
+Scene identity changes.
+
+Object disappearance.
+
+Object visibility oscillation.
+
+Camera discontinuity.
+
+Major shader artifacts.
+
+LOD threshold thrashing.
+
+Use consistent test seeds,
+camera paths and render settings.
+
+Do not classify deliberate
+solar eclipse darkness or
+intentional cinematic fades
+as rendering defects.
+
+Combine automated metrics
+with visual review.
+
+====================================================
+52. REPEATED MOUNT/UNMOUNT TESTING
+====================================================
+
+Test GPU resource behavior.
+
+Sequence:
+
+Open Module 01.
+
+Enter fullscreen.
+
+Play a complex scene.
+
+Exit.
+
+Open Module 06.
+
+Run Solar System explorer.
+
+Exit.
+
+Open Module 11.
+
+Render nebula scene.
+
+Exit.
+
+Open Module 14.
+
+Render black hole scene.
+
+Exit.
+
+Open Module 15.
+
+Render cosmic web.
+
+Exit.
+
+Repeat multiple cycles.
+
+Measure after each cycle:
+
+Textures.
+
+Geometries.
+
+Shader programs.
+
+Active render targets.
+
+Active WebGL contexts.
+
+Event listeners.
+
+Active animation loops.
+
+Heap memory.
+
+Identify leaks.
+
+Account for expected
+shared cache stabilization.
+
+Memory does not need
+to return to exactly zero,
+but must not grow without bound.
+
+====================================================
+53. CONTEXT LOSS AND RECOVERY TESTS
+====================================================
+
+Test:
+
+Context lost during narration.
+
+Context lost during scene transition.
+
+Context lost during activity.
+
+Context lost in manual camera mode.
+
+Context lost after quality change.
+
+Context restored during pause.
+
+Repeated context loss.
+
+Verify:
+
+No uncaught fatal error.
+
+Recoverable fallback where supported.
+
+Correct resource recreation.
+
+Preserved student learning state.
+
+No fake activity completion.
+
+No duplicated WebGL contexts.
+
+No duplicated COSMOS narration.
+
+Report unsupported recovery paths.
+
+====================================================
+54. WEB VITALS AND INITIAL LOADING
+====================================================
+
+Optimization should also improve
+how quickly students can begin learning.
+
+Measure where applicable:
+
+Page loading time.
+
+Initial bundle size.
+
+Largest Contentful Paint.
+
+Interaction to Next Paint.
+
+Long tasks or long animation frames.
+
+Initial scene readiness.
+
+First meaningful rendered scene.
+
+Time until controls respond.
+
+Narration readiness.
+
+Do not load the full
+24-module scene library eagerly.
+
+Use appropriate lazy-loading
+for large scientific scenes.
+
+Preserve useful prefetching
+for the current learning journey.
+
+====================================================
+55. DEVELOPMENT PROFILING TOOLS
+====================================================
+
+Use tools compatible
+with the actual environment.
+
+Potential tools:
+
+Chrome DevTools Performance.
+
+Chrome DevTools Memory.
+
+Browser GPU information.
+
+React DevTools Profiler.
+
+Three.js renderer.info.
+
+WebGL instrumentation.
+
+Spector.js if compatible.
+
+Playwright.
+
+PerformanceObserver.
+
+Browser performance traces.
+
+Custom camera telemetry.
+
+Custom scene transition metrics.
+
+WebGL context-loss test utilities.
+
+Use real collected evidence.
+
+Do not claim a GPU bottleneck
+based only on looking at source code.
+
+====================================================
+56. AUTOMATED TESTS
+====================================================
+
+Add meaningful tests for:
+
+Camera ownership.
+
+Camera interpolation.
+
+Camera target tracking.
+
+Frame-rate-independent damping.
+
+Near/far plane calculations.
+
+Floating-origin transformations.
+
+Coordinate reference frames.
+
+Scale-aware scene handoff.
+
+LOD hysteresis.
+
+Deterministic particle generation.
+
+Buffer reuse.
+
+Resource ownership.
+
+Renderer lifecycle.
+
+Context-loss recovery.
+
+Quality governor hysteresis.
+
+Narration interruption.
+
+Physics preservation.
+
+GPU asset cache behavior.
+
+Scene transition cancellation.
+
+Repeated navigation.
+
+Mobile fallback.
+
+Use actual runtime checks
+when available.
+
+Source structure checks alone
+are not sufficient.
+
+====================================================
+57. RUN REPOSITORY VALIDATION
+====================================================
+
+Inspect package.json
+and run relevant actual scripts.
+
+Examples from the current repository:
+
+npm run build
+
+npm run test:cinematic
+
+npm run test:rendering
+
+npm run test:assets
+
+npm run test:3d
+
+npm run test:visual
+
+npm run test:cosmos
+
+npm run test:narration
+
+npm run test:poc
+
+npm run test:qa
+
+npm run test:consistency
+
+Run additional relevant
+scientific physics tests.
+
+Do not assume any specific
+test is a browser performance test
+without checking its implementation.
+
+Some existing scripts may primarily
+verify source structure.
+
+Supplement them with real browser
+and performance measurements.
+
+====================================================
+58. PERFORMANCE TEST MATRIX
+====================================================
+
+Build a repeatable benchmark matrix.
+
+TEST A:
+
+Main universe zoom-out.
+
+TEST B:
+
+Main universe zoom-in.
+
+TEST C:
+
+Academy Module 01 cosmic zoom.
+
+TEST D:
+
+Module 06 Solar System flythrough.
+
+TEST E:
+
+Module 07 solar shader scene.
+
+TEST F:
+
+Module 08 orbital mechanics.
+
+TEST G:
+
+Module 11 nebula particles.
+
+TEST H:
+
+Module 13 galaxy rendering.
+
+TEST I:
+
+Module 14 black hole effects.
+
+TEST J:
+
+Module 15 cosmic web.
+
+TEST K:
+
+Module 17 cosmic time machine.
+
+TEST L:
+
+Module 22 spacecraft trajectory.
+
+TEST M:
+
+Module 24 physics sandbox.
+
+TEST N:
+
+Rapid module switching.
+
+TEST O:
+
+Repeated fullscreen entry and exit.
+
+TEST P:
+
+Long-duration learning session.
+
+For every scenario record:
+
+Hardware.
+
+Quality tier.
+
+Starting state.
+
+Test duration.
+
+Average FPS.
+
+P95 frame time.
+
+P99 frame time.
+
+Draw calls.
+
+Memory indicators.
+
+Visual defects.
+
+Scientific validation.
+
+Final status.
+
+====================================================
+59. PRIORITIZE ACTUAL ROOT CAUSES
+====================================================
+
+Apply fixes in this priority order.
+
+P0:
+
+Camera oscillation.
+
+Camera transform instability.
+
+Severe zoom flicker.
+
+Broken scene handoffs.
+
+Scientific coordinate corruption.
+
+WebGL context crashes.
+
+P1:
+
+Major frame-time stalls.
+
+GPU resource leaks.
+
+Repeated shader compilation.
+
+Excessive memory consumption.
+
+Unusable mobile scenes.
+
+P2:
+
+Unnecessary draw calls.
+
+Expensive idle rendering.
+
+Large asset transfers.
+
+Minor transition stalls.
+
+P3:
+
+Additional optional polish.
+
+Small shader improvements.
+
+Nonessential decorative effects.
+
+Do not spend most of the
+optimization effort improving
+unrelated visual details
+while the Solar System zoom
+problem remains unresolved.
+
+====================================================
+60. IMPLEMENTATION ROADMAP
+====================================================
+
+PHASE A — REPRODUCE
+
+1. Inspect the actual repository.
+
+2. Identify the main universe renderer.
+
+3. Inspect cinematic and standalone canvases.
+
+4. Reproduce Solar System zoom flicker.
+
+5. Capture the baseline performance trace.
+
+6. Capture camera telemetry.
+
+7. Record the root-cause candidates.
+
+PHASE B — CAMERA STABILITY
+
+8. Audit all camera owners.
+
+9. Fix conflicting controllers.
+
+10. Fix target-relative orbit behavior.
+
+11. Fix unintended camera preset jumps.
+
+12. Fix planet-follow damping.
+
+13. Implement stable camera state handoff.
+
+14. Validate pause/resume camera restoration.
+
+15. Test forward and reverse zoom paths.
+
+PHASE C — PRECISION
+
+16. Audit physical versus render coordinates.
+
+17. Implement appropriate local coordinate frames.
+
+18. Add floating-origin support if necessary.
+
+19. Optimize near/far clipping.
+
+20. Evaluate depth-buffer strategies.
+
+21. Verify all physical values remain accurate.
+
+PHASE D — SCENE TRANSITIONS
+
+22. Audit cosmic zoom layer switching.
+
+23. Stabilize destination scene preparation.
+
+24. Eliminate unintended blank frames.
+
+25. Implement appropriate transition hysteresis.
+
+26. Stabilize procedural particle buffers.
+
+27. Test cancellation and reverse transitions.
+
+PHASE E — GPU OPTIMIZATION
+
+28. Audit draw calls.
+
+29. Optimize instancing.
+
+30. Optimize geometry reuse.
+
+31. Optimize shader compilation.
+
+32. Optimize postprocessing.
+
+33. Optimize texture streaming.
+
+34. Fix confirmed GPU leaks.
+
+35. Improve WebGL recovery.
+
+PHASE F — CPU AND DATA
+
+36. Audit React render loops.
+
+37. Remove expensive per-frame allocations.
+
+38. Optimize astronomy catalog loading.
+
+39. Evaluate workers for heavy computations.
+
+40. Reduce main-thread blocking.
+
+41. Preserve scientific solver accuracy.
+
+PHASE G — ADAPTIVE QUALITY
+
+42. Improve performance telemetry.
+
+43. Improve quality-tier selection.
+
+44. Prevent quality oscillation.
+
+45. Improve mobile rendering paths.
+
+46. Optimize paused and hidden scenes.
+
+PHASE H — VALIDATION
+
+47. Run Solar System zoom tests.
+
+48. Run automated camera tests.
+
+49. Run physics regression tests.
+
+50. Run shader and asset tests.
+
+51. Run browser performance benchmarks.
+
+52. Run repeated mount/unmount tests.
+
+53. Run WebGL context recovery tests.
+
+54. Run 24-module regression checks.
+
+55. Capture before/after evidence.
+
+56. Fix remaining critical regressions.
+
+57. Produce the final performance report.
+
+58. Prepare for Prompt 18.
+
+Implement in independently
+verifiable increments.
+
+====================================================
+61. RECOMMENDED CODE ORGANIZATION
+====================================================
+
+Extend existing systems where possible.
+
+Potential reusable infrastructure:
+
+src/lib/rendering/performance/
+
+RenderPerformanceProfiler
+
+CameraStabilityMonitor
+
+GPUResourceTracker
+
+SceneTransitionProfiler
+
+AdaptiveQualityController
+
+SceneLODCoordinator
+
+AssetStreamingCoordinator
+
+ShaderWarmupManager
+
+WebGLContextRecovery
+
+Potential coordinate infrastructure:
+
+src/lib/astronomy/coordinates/
+
+AstronomicalReferenceFrames
+
+FloatingOriginTransform
+
+ScaleRegimeController
+
+CameraRelativeCoordinates
+
+Potential camera infrastructure:
+
+src/lib/cosmos/cinematic/
+
+CosmosCameraOwnershipController
+
+CosmosSmoothCameraTransition
+
+CosmosObjectTrackingCamera
+
+CosmosScaleTransitionCoordinator
+
+These are proposed logical divisions.
+
+Do not create unnecessary
+duplicate services or architecture.
+
+Prefer modifying existing
+compatible components.
+
+Maintain TypeScript correctness.
+
+Do not use @ts-nocheck
+as a shortcut in new critical code.
+
+====================================================
+62. SCIENTIFIC AND LEARNING SAFEGUARDS
+====================================================
+
+Performance optimization must not
+modify authoritative learning behavior.
+
+Preserve:
+
+CosmosLearningDirector.
+
+NarrationController.
+
+Cinematic cue definitions.
+
+Actual scientific calculations.
+
+Student activity validation.
+
+Quiz grading.
+
+Official final exam restrictions.
+
+Verified module completion.
+
+Stage achievements.
+
+Certificate authorization.
+
+Any rendering fallback must preserve
+the student's ability to learn.
+
+A visual quality downgrade
+must not become an academic downgrade.
+
+Do not award learning progress
+because a scene was loaded.
+
+Do not invalidate legitimate
+server-verified progress.
+
+====================================================
+63. FINAL PERFORMANCE REPORT
+====================================================
+
+Create:
+
+docs/academy/
+cinematic-performance-optimization-report.md
+
+Include:
+
+A. Initial performance findings.
+
+B. Solar System zoom reproduction steps.
+
+C. Confirmed root causes.
+
+D. Actual code changes.
+
+E. Camera architecture corrections.
+
+F. Coordinate precision strategy.
+
+G. Depth-buffer comparison.
+
+H. Scene transition improvements.
+
+I. LOD strategy.
+
+J. Particle and galaxy optimization.
+
+K. Shader compilation changes.
+
+L. Postprocessing changes.
+
+M. Texture/asset optimization.
+
+N. GPU memory findings.
+
+O. WebGL context management.
+
+P. Main-thread optimization.
+
+Q. React rendering improvements.
+
+R. Adaptive quality behavior.
+
+S. Mobile performance.
+
+T. Scientific regression results.
+
+U. COSMOS synchronization results.
+
+V. Before/after frame-time measurements.
+
+W. Camera stability evidence.
+
+X. Browser video or screenshot evidence.
+
+Y. Unresolved hardware-specific limitations.
+
+Z. Readiness for Prompt 18.
+
+Use statuses:
+
+PASS.
+
+PARTIAL.
+
+FAIL.
+
+NOT IMPLEMENTED.
+
+NOT TESTED.
+
+BLOCKED.
+
+Do not claim a performance improvement
+without comparable measurements.
+
+====================================================
+64. BEFORE-AND-AFTER BENCHMARK TABLE
+====================================================
+
+Produce a table with:
+
+Scenario.
+
+Device.
+
+Browser.
+
+Quality tier.
+
+Metric.
+
+Before.
+
+After.
+
+Difference.
+
+Scientific validation status.
+
+Visual QA status.
+
+Final status.
+
+Include at least:
+
+Solar System zoom-out.
+
+Solar System zoom-in.
+
+Cosmic Learning Module 01.
+
+Solar System Module 06.
+
+Nebula Module 11.
+
+Galaxy Module 13.
+
+Black hole Module 14.
+
+Cosmic Web Module 15.
+
+Repeated module navigation.
+
+Mobile low-power rendering.
+
+If a baseline was not measured:
+
+Mark it UNAVAILABLE.
+
+Do not fabricate the baseline.
+
+====================================================
+65. FINAL SUCCESS CONDITIONS
+====================================================
+
+PROMPT 17 IS COMPLETE ONLY WHEN:
+
+1. The main universe zoom-out
+   defect has been reproduced
+   and its cause investigated.
+
+2. Confirmed camera ownership
+   conflicts have been corrected.
+
+3. Camera motion is stable
+   during scale transitions.
+
+4. Planet-follow tracking is
+   frame-rate-independent.
+
+5. Reference frame and coordinate
+   precision are handled correctly.
+
+6. Rendering origin changes
+   preserve physical calculations.
+
+7. Near/far clipping is appropriate.
+
+8. Major z-fighting is addressed.
+
+9. Scene transitions are stable.
+
+10. Procedural data remains visually
+    deterministic where required.
+
+11. LOD thresholds do not
+    repeatedly oscillate.
+
+12. GPU geometry allocations
+    are properly managed.
+
+13. Texture and asset ownership
+    is documented.
+
+14. Repeated scene navigation
+    does not produce unbounded
+    GPU resource growth.
+
+15. Redundant render passes
+    have been investigated and removed
+    where appropriate.
+
+16. Major shader compilation stalls
+    have been addressed.
+
+17. React per-frame overhead
+    is controlled.
+
+18. Heavy calculations do not
+    unnecessarily block the UI.
+
+19. Adaptive quality behaves reliably.
+
+20. Manual quality preferences
+    remain respected.
+
+21. Low-power mobile fallback works.
+
+22. Scientific simulation accuracy
+    remains preserved.
+
+23. Narration synchronization works.
+
+24. Pause/resume and interruptions
+    preserve visual state.
+
+25. Required student activities remain valid.
+
+26. Fullscreen transitions work.
+
+27. All 24 modules pass relevant
+    functionality regressions
+    or remaining blockers are reported.
+
+28. Before/after performance measurements
+    are collected where possible.
+
+29. Camera stability is verified
+    using actual browser evidence.
+
+30. No known critical rendering regression
+    remains silently unreported.
+
+31. The platform is prepared for
+    final system-wide audit in Prompt 18.
+
+====================================================
+FINAL INSTRUCTION
+====================================================
+
+THIS IS THE MOST IMPORTANT
+RENDERING PERFORMANCE PHASE
+OF THE COMPLETE 18-PROMPT ROADMAP.
+
+THE MAIN PRIORITY IS:
+
+FIX THE SOLAR SYSTEM ZOOM
+FLICKERING AND LAG.
+
+NOT BY HIDING OBJECTS RANDOMLY.
+
+NOT BY DISABLING PHYSICS.
+
+NOT BY REDUCING EVERYTHING
+TO LOW-QUALITY GRAPHICS.
+
+NOT BY RESETTING THE CAMERA.
+
+NOT BY REMOVING SCIENTIFIC FEATURES.
+
+FIX THE ACTUAL CAUSES.
+
+THE FINAL EXPERIENCE SHOULD FEEL LIKE
+ONE COHERENT SCIENTIFIC UNIVERSE.
+
+THE STUDENT SHOULD BE ABLE TO TRAVEL:
+
+FROM EARTH
+
+TO THE MOON
+
+THROUGH THE SOLAR SYSTEM
+
+OUT TO NEARBY STARS
+
+THROUGH THE MILKY WAY
+
+TOWARD OTHER GALAXIES
+
+AND INTO LARGE-SCALE COSMIC STRUCTURES
+
+WITHOUT UNINTENDED CAMERA FLUCTUATION,
+MAJOR AVOIDABLE FREEZES OR
+SCIENTIFIC COORDINATE CORRUPTION.
+
+THE ACADEMY SHOULD ALSO SUPPORT
+SMOOTH, STABLE CINEMATIC LEARNING
+ACROSS ALL 24 MODULES.
+
+PROTECT:
+
+SCIENTIFIC ACCURACY.
+
+COSMOS NARRATION.
+
+REAL STUDENT INTERACTION.
+
+LEARNING CONTINUITY.
+
+OFFICIAL ASSESSMENT INTEGRITY.
+
+ACCESSIBILITY.
+
+RENDERING PERFORMANCE.
+
+DO NOT:
+
+Ignore the main universe explorer.
+
+Declare a root cause without evidence.
+
+Apply untested camera hacks.
+
+Blindly enable logarithmic depth.
+
+Create duplicate render loops.
+
+Create additional unnecessary canvases.
+
+Replace physics with decorative motion.
+
+Regenerate large particle buffers per frame.
+
+Lose student progress during rendering recovery.
+
+Claim universal 60 FPS without testing.
+
+Fabricate benchmark measurements.
+
+Begin Prompt 18 automatically.
+
+Deploy irreversible production changes
+without required authorization.
+
+REPRODUCE.
+
+PROFILE.
+
+DIAGNOSE.
+
+IMPLEMENT.
+
+MEASURE.
+
+VALIDATE.
+
+REFINE.
+
+DOCUMENT.
+
+BEGIN PROMPT 17 IMPLEMENTATION.

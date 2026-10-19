@@ -78,6 +78,7 @@ export class CosmosCinematicQualityManager {
   private consecutiveLowFrameWindows = 0;
   private lastDowngradeTimestamp = 0;
   private measuredFps: number | null = null;
+  private frameDeltaSamples: number[] = [];
   private listeners = new Set<(profile: CinematicQualityProfile) => void>();
 
   private constructor() {
@@ -166,6 +167,59 @@ export class CosmosCinematicQualityManager {
   }
 
   /**
+   * Feeds a per-frame delta (ms) into the rolling 120-frame percentile profiler.
+   */
+  public reportFrameDelta(frameMs: number): void {
+    if (!Number.isFinite(frameMs) || frameMs <= 0 || frameMs > 500) return;
+    this.frameDeltaSamples.push(frameMs);
+    if (this.frameDeltaSamples.length > 120) {
+      this.frameDeltaSamples.shift();
+    }
+  }
+
+  /**
+   * Returns real-time frame-pacing percentile metrics (p50, p95, p99, stutter count).
+   */
+  public getFramePacingMetrics(): {
+    sampleCount: number;
+    avgFrameMs: number;
+    p50FrameMs: number;
+    p95FrameMs: number;
+    p99FrameMs: number;
+    estimatedFps: number;
+    stutterFramesOver33ms: number;
+  } {
+    if (this.frameDeltaSamples.length === 0) {
+      return {
+        sampleCount: 0,
+        avgFrameMs: 16.67,
+        p50FrameMs: 16.67,
+        p95FrameMs: 16.67,
+        p99FrameMs: 16.67,
+        estimatedFps: this.measuredFps ?? 60,
+        stutterFramesOver33ms: 0,
+      };
+    }
+    const sorted = [...this.frameDeltaSamples].sort((a, b) => a - b);
+    const n = sorted.length;
+    const avg = sorted.reduce((a, b) => a + b, 0) / n;
+    const p50 = sorted[Math.min(n - 1, Math.floor(n * 0.5))] ?? avg;
+    const p95 = sorted[Math.min(n - 1, Math.floor(n * 0.95))] ?? avg;
+    const p99 = sorted[Math.min(n - 1, Math.floor(n * 0.99))] ?? avg;
+    const stutters = sorted.filter((v) => v > 33.34).length;
+
+    return {
+      sampleCount: n,
+      avgFrameMs: Number(avg.toFixed(2)),
+      p50FrameMs: Number(p50.toFixed(2)),
+      p95FrameMs: Number(p95.toFixed(2)),
+      p99FrameMs: Number(p99.toFixed(2)),
+      estimatedFps: Number((1000 / Math.max(1, avg)).toFixed(1)),
+      stutterFramesOver33ms: stutters,
+    };
+  }
+
+  /**
    * Reports a 1-second measured frame-rate window from the active R3F render loop.
    * Implements anti-oscillation hysteresis:
    * - Requires 3 consecutive windows below 38 FPS before stepping down one tier.
@@ -182,7 +236,10 @@ export class CosmosCinematicQualityManager {
       return this.currentTier;
     }
 
-    if (fps < 38) {
+    const pacing = this.getFramePacingMetrics();
+    const isStutteringSeverely = pacing.sampleCount >= 60 && pacing.p95FrameMs > 42;
+
+    if (fps < 38 || isStutteringSeverely) {
       this.consecutiveLowFrameWindows += 1;
       if (this.consecutiveLowFrameWindows >= 3) {
         this.consecutiveLowFrameWindows = 0;
@@ -211,6 +268,7 @@ export class CosmosCinematicQualityManager {
     this.consecutiveLowFrameWindows = 0;
     this.lastDowngradeTimestamp = 0;
     this.measuredFps = null;
+    this.frameDeltaSamples = [];
   }
 
   public subscribe(listener: (profile: CinematicQualityProfile) => void): () => void {

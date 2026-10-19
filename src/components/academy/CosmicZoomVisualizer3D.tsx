@@ -111,317 +111,318 @@ function CosmicScene({
   return (
     <group>
       {/* ================= LAYER 0: EARTH ================= */}
-      {layerIndex === 0 && (
-        <group>
-          {/* Earth Body */}
-          <mesh
-            ref={earthMeshRef}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("earth_body");
-            }}
-          >
-            <sphereGeometry args={[1.5, 48, 48]} />
-            <meshStandardMaterial color="#0284c7" roughness={0.6} metalness={0.1} />
-          </mesh>
+      <group visible={layerIndex === 0}>
+        {/* Earth Body */}
+        <mesh
+          ref={earthMeshRef}
+          onClick={(e) => {
+            if (layerIndex !== 0) return;
+            e.stopPropagation();
+            onSelectObjectId("earth_body");
+          }}
+        >
+          <sphereGeometry args={[1.5, 48, 48]} />
+          <meshStandardMaterial color="#0284c7" roughness={0.6} metalness={0.1} />
+        </mesh>
 
-          {/* Atmosphere Halo */}
-          <mesh
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("atmosphere_shell");
-            }}
-          >
-            <sphereGeometry args={[1.62, 32, 32]} />
-            <meshBasicMaterial
-              color="#38bdf8"
-              transparent
-              opacity={0.25}
-              side={THREE.BackSide}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
+        {/* Atmosphere Halo */}
+        <mesh
+          onClick={(e) => {
+            if (layerIndex !== 0) return;
+            e.stopPropagation();
+            onSelectObjectId("atmosphere_shell");
+          }}
+        >
+          <sphereGeometry args={[1.62, 32, 32]} />
+          <meshBasicMaterial
+            color="#38bdf8"
+            transparent
+            opacity={0.25}
+            side={THREE.BackSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
 
-          {/* Low Earth Orbit Path (ISS) */}
-          <mesh
-            rotation={[-Math.PI / 3, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("iss_orbit");
-            }}
-          >
-            <ringGeometry args={[1.8, 1.83, 64]} />
-            <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} side={THREE.DoubleSide} />
-          </mesh>
-        </group>
-      )}
+        {/* Low Earth Orbit Path (ISS) */}
+        <mesh
+          rotation={[-Math.PI / 3, 0, 0]}
+          onClick={(e) => {
+            if (layerIndex !== 0) return;
+            e.stopPropagation();
+            onSelectObjectId("iss_orbit");
+          }}
+        >
+          <ringGeometry args={[1.8, 1.83, 64]} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
 
       {/* ================= LAYER 1: EARTH & MOON ================= */}
-      {layerIndex === 1 && (
-        <group>
-          {/* Central Earth */}
-          <mesh
-            ref={earthMeshRef}
-            scale={0.9}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("earth_body");
-            }}
-          >
-            <sphereGeometry args={[1, 32, 32]} />
-            <meshStandardMaterial color="#0284c7" />
-          </mesh>
+      <group visible={layerIndex === 1}>
+        {/* Central Earth */}
+        <mesh
+          scale={0.9}
+          onClick={(e) => {
+            if (layerIndex !== 1) return;
+            e.stopPropagation();
+            onSelectObjectId("earth_body");
+          }}
+        >
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#0284c7" />
+        </mesh>
 
-          {/* Lunar Orbit Ellipse */}
-          <mesh
-            rotation={[-Math.PI / 2.2, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("lunar_orbit_ring");
-            }}
-          >
-            <ringGeometry args={[3.4, 3.42, 64]} />
-            <meshBasicMaterial color="#94a3b8" transparent opacity={0.4} side={THREE.DoubleSide} />
-          </mesh>
+        {/* Lunar Orbit Ellipse */}
+        <mesh
+          rotation={[-Math.PI / 2.2, 0, 0]}
+          onClick={(e) => {
+            if (layerIndex !== 1) return;
+            e.stopPropagation();
+            onSelectObjectId("lunar_orbit_ring");
+          }}
+        >
+          <ringGeometry args={[3.4, 3.42, 64]} />
+          <meshBasicMaterial color="#94a3b8" transparent opacity={0.4} side={THREE.DoubleSide} />
+        </mesh>
 
-          {/* The Moon */}
-          <mesh
-            ref={moonMeshRef}
-            position={[3.4, 0.4, 0]}
-            scale={0.3}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("moon_body");
-            }}
-          >
-            <sphereGeometry args={[1, 32, 32]} />
-            <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
-          </mesh>
-        </group>
-      )}
+        {/* The Moon */}
+        <mesh
+          ref={moonMeshRef}
+          position={[3.4, 0.4, 0]}
+          scale={0.3}
+          onClick={(e) => {
+            if (layerIndex !== 1) return;
+            e.stopPropagation();
+            onSelectObjectId("moon_body");
+          }}
+        >
+          <sphereGeometry args={[1, 32, 32]} />
+          <meshStandardMaterial color="#e2e8f0" roughness={0.9} />
+        </mesh>
+      </group>
 
       {/* ================= LAYER 2: SOLAR SYSTEM ================= */}
-      {layerIndex === 2 && (
-        <group ref={solarGroupRef}>
-          {/* Central Sun */}
-          <mesh
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("sun_star");
-            }}
-          >
-            <sphereGeometry args={[1.2, 32, 32]} />
-            <meshBasicMaterial color="#fef08a" />
-          </mesh>
-          <pointLight intensity={3} color="#ffffff" distance={20} />
+      <group ref={solarGroupRef} visible={layerIndex === 2}>
+        {/* Central Sun */}
+        <mesh
+          onClick={(e) => {
+            if (layerIndex !== 2) return;
+            e.stopPropagation();
+            onSelectObjectId("sun_star");
+          }}
+        >
+          <sphereGeometry args={[1.2, 32, 32]} />
+          <meshBasicMaterial color="#fef08a" />
+        </mesh>
+        <pointLight intensity={layerIndex === 2 ? 3 : 0} color="#ffffff" distance={20} />
 
-          {/* Planet Orbits & Meshes */}
-          {[
-            { id: "mercury", r: 1.8, size: 0.1, color: "#94a3b8" },
-            { id: "venus", r: 2.5, size: 0.18, color: "#fde047" },
-            { id: "earth_orbit", r: 3.4, size: 0.22, color: "#38bdf8", isEarth: true },
-            { id: "mars", r: 4.2, size: 0.14, color: "#f87171" },
-            { id: "jupiter_planet", r: 5.6, size: 0.55, color: "#fb923c" },
-            { id: "saturn", r: 7.0, size: 0.45, color: "#facc15" },
-            { id: "uranus", r: 8.2, size: 0.32, color: "#2dd4bf" },
-            { id: "neptune", r: 9.4, size: 0.3, color: "#60a5fa" },
-          ].map((p) => (
-            <group key={p.id} rotation={[-Math.PI / 2, 0, 0]}>
-              <mesh>
-                <ringGeometry args={[p.r, p.r + 0.02, 64]} />
-                <meshBasicMaterial
-                  color={p.isEarth ? "#38bdf8" : "#475569"}
-                  transparent
-                  opacity={p.isEarth ? 0.7 : 0.3}
-                  side={THREE.DoubleSide}
-                />
-              </mesh>
-              <mesh
-                position={[p.r, 0, 0]}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectObjectId(p.id);
-                }}
-              >
-                <sphereGeometry args={[p.size, 16, 16]} />
-                <meshStandardMaterial color={p.color} />
-              </mesh>
-            </group>
-          ))}
-        </group>
-      )}
+        {/* Planet Orbits & Meshes */}
+        {[
+          { id: "mercury", r: 1.8, size: 0.1, color: "#94a3b8" },
+          { id: "venus", r: 2.5, size: 0.18, color: "#fde047" },
+          { id: "earth_orbit", r: 3.4, size: 0.22, color: "#38bdf8", isEarth: true },
+          { id: "mars", r: 4.2, size: 0.14, color: "#f87171" },
+          { id: "jupiter_planet", r: 5.6, size: 0.55, color: "#fb923c" },
+          { id: "saturn", r: 7.0, size: 0.45, color: "#facc15" },
+          { id: "uranus", r: 8.2, size: 0.32, color: "#2dd4bf" },
+          { id: "neptune", r: 9.4, size: 0.3, color: "#60a5fa" },
+        ].map((p) => (
+          <group key={p.id} rotation={[-Math.PI / 2, 0, 0]}>
+            <mesh>
+              <ringGeometry args={[p.r, p.r + 0.02, 64]} />
+              <meshBasicMaterial
+                color={p.isEarth ? "#38bdf8" : "#475569"}
+                transparent
+                opacity={p.isEarth ? 0.7 : 0.3}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+            <mesh
+              position={[p.r, 0, 0]}
+              onClick={(e) => {
+                if (layerIndex !== 2) return;
+                e.stopPropagation();
+                onSelectObjectId(p.id);
+              }}
+            >
+              <sphereGeometry args={[p.size, 16, 16]} />
+              <meshStandardMaterial color={p.color} />
+            </mesh>
+          </group>
+        ))}
+      </group>
 
       {/* ================= LAYER 3: LOCAL STELLAR NEIGHBORHOOD ================= */}
-      {layerIndex === 3 && (
-        <group>
-          {/* Central Sun */}
-          <mesh
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("solar_system_star");
-            }}
-          >
-            <sphereGeometry args={[0.3, 16, 16]} />
-            <meshBasicMaterial color="#fef08a" />
-          </mesh>
+      <group visible={layerIndex === 3}>
+        {/* Central Sun */}
+        <mesh
+          onClick={(e) => {
+            if (layerIndex !== 3) return;
+            e.stopPropagation();
+            onSelectObjectId("solar_system_star");
+          }}
+        >
+          <sphereGeometry args={[0.3, 16, 16]} />
+          <meshBasicMaterial color="#fef08a" />
+        </mesh>
 
-          {/* Neighboring Stars */}
-          {[
-            { id: "alpha_centauri", pos: [2.2, 0.5, 1.0], color: "#fed7aa", size: 0.25 },
-            { id: "sirius_star", pos: [-3.5, 1.2, -1.8], color: "#e0f2fe", size: 0.35 },
-            { id: "procyon", pos: [-2.0, -1.8, 2.2], color: "#fef9c3", size: 0.22 },
-            { id: "vega", pos: [4.2, 2.5, -2.0], color: "#bae6fd", size: 0.3 },
-          ].map((s) => (
-            <group key={s.id} position={s.pos as [number, number, number]}>
-              <mesh
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelectObjectId(s.id);
-                }}
-              >
-                <sphereGeometry args={[s.size, 16, 16]} />
-                <meshBasicMaterial color={s.color} />
-              </mesh>
-            </group>
-          ))}
+        {/* Neighboring Stars */}
+        {[
+          { id: "alpha_centauri", pos: [2.2, 0.5, 1.0], color: "#fed7aa", size: 0.25 },
+          { id: "sirius_star", pos: [-3.5, 1.2, -1.8], color: "#e0f2fe", size: 0.35 },
+          { id: "procyon", pos: [-2.0, -1.8, 2.2], color: "#fef9c3", size: 0.22 },
+          { id: "vega", pos: [4.2, 2.5, -2.0], color: "#bae6fd", size: 0.3 },
+        ].map((s) => (
+          <group key={s.id} position={s.pos as [number, number, number]}>
+            <mesh
+              onClick={(e) => {
+                if (layerIndex !== 3) return;
+                e.stopPropagation();
+                onSelectObjectId(s.id);
+              }}
+            >
+              <sphereGeometry args={[s.size, 16, 16]} />
+              <meshBasicMaterial color={s.color} />
+            </mesh>
+          </group>
+        ))}
 
-          {/* Range sphere indicator */}
-          <mesh>
-            <sphereGeometry args={[5, 24, 24]} />
-            <meshBasicMaterial color="#38bdf8" wireframe transparent opacity={0.12} />
-          </mesh>
-        </group>
-      )}
+        {/* Range sphere indicator */}
+        <mesh>
+          <sphereGeometry args={[5, 24, 24]} />
+          <meshBasicMaterial color="#38bdf8" wireframe transparent opacity={0.12} />
+        </mesh>
+      </group>
 
       {/* ================= LAYER 4: THE MILKY WAY GALAXY ================= */}
-      {layerIndex === 4 && (
-        <group>
-          {/* Spiral Galaxy Particles */}
-          <points ref={milkyWayPointsRef}>
-            <bufferGeometry>
-              <bufferAttribute attach="attributes-position" args={[mwPositions, 3]} />
-              <bufferAttribute attach="attributes-color" args={[mwColors, 3]} />
-            </bufferGeometry>
-            <pointsMaterial
-              size={0.045}
-              vertexColors
-              blending={THREE.AdditiveBlending}
-              transparent
-              opacity={0.8}
-            />
-          </points>
+      <group visible={layerIndex === 4}>
+        {/* Spiral Galaxy Particles */}
+        <points ref={milkyWayPointsRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[mwPositions, 3]} />
+            <bufferAttribute attach="attributes-color" args={[mwColors, 3]} />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.045}
+            vertexColors
+            blending={THREE.AdditiveBlending}
+            transparent
+            opacity={0.8}
+          />
+        </points>
 
-          {/* Central Sagittarius A* Core */}
-          <mesh
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("sagittarius_a_star");
-            }}
-          >
-            <sphereGeometry args={[0.4, 24, 24]} />
-            <meshBasicMaterial color="#fef08a" />
-          </mesh>
+        {/* Central Sagittarius A* Core */}
+        <mesh
+          onClick={(e) => {
+            if (layerIndex !== 4) return;
+            e.stopPropagation();
+            onSelectObjectId("sagittarius_a_star");
+          }}
+        >
+          <sphereGeometry args={[0.4, 24, 24]} />
+          <meshBasicMaterial color="#fef08a" />
+        </mesh>
 
-          {/* Earth / Sun Marker in Orion Spur (2.2 units out from center) */}
-          <mesh
-            position={[1.8, 0.1, 1.2]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("sun_orion_spur");
-            }}
-          >
-            <sphereGeometry args={[0.12, 16, 16]} />
-            <meshBasicMaterial color="#38bdf8" />
-          </mesh>
-        </group>
-      )}
+        {/* Earth / Sun Marker in Orion Spur (2.2 units out from center) */}
+        <mesh
+          position={[1.8, 0.1, 1.2]}
+          onClick={(e) => {
+            if (layerIndex !== 4) return;
+            e.stopPropagation();
+            onSelectObjectId("sun_orion_spur");
+          }}
+        >
+          <sphereGeometry args={[0.12, 16, 16]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+      </group>
 
       {/* ================= LAYER 5: THE LOCAL GROUP ================= */}
-      {layerIndex === 5 && (
-        <group>
-          {/* Milky Way Disk */}
-          <mesh
-            position={[-2.2, 0, 0]}
-            rotation={[Math.PI / 3, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("milky_way_obj");
-            }}
-          >
-            <cylinderGeometry args={[1.4, 1.4, 0.08, 32]} />
-            <meshBasicMaterial color="#38bdf8" transparent opacity={0.7} />
-          </mesh>
+      <group visible={layerIndex === 5}>
+        {/* Milky Way Disk */}
+        <mesh
+          position={[-2.2, 0, 0]}
+          rotation={[Math.PI / 3, 0, 0]}
+          onClick={(e) => {
+            if (layerIndex !== 5) return;
+            e.stopPropagation();
+            onSelectObjectId("milky_way_obj");
+          }}
+        >
+          <cylinderGeometry args={[1.4, 1.4, 0.08, 32]} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={0.7} />
+        </mesh>
 
-          {/* Andromeda Galaxy M31 */}
-          <mesh
-            position={[2.5, 1.0, -1.0]}
-            rotation={[Math.PI / 4, 0.5, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("andromeda_m31");
-            }}
-          >
-            <cylinderGeometry args={[2.0, 2.0, 0.1, 32]} />
-            <meshBasicMaterial color="#fde047" transparent opacity={0.65} />
-          </mesh>
+        {/* Andromeda Galaxy M31 */}
+        <mesh
+          position={[2.5, 1.0, -1.0]}
+          rotation={[Math.PI / 4, 0.5, 0]}
+          onClick={(e) => {
+            if (layerIndex !== 5) return;
+            e.stopPropagation();
+            onSelectObjectId("andromeda_m31");
+          }}
+        >
+          <cylinderGeometry args={[2.0, 2.0, 0.1, 32]} />
+          <meshBasicMaterial color="#fde047" transparent opacity={0.65} />
+        </mesh>
 
-          {/* Triangulum Galaxy M33 */}
-          <mesh
-            position={[0.8, -1.8, 1.5]}
-            scale={0.7}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("triangulum_m33");
-            }}
-          >
-            <cylinderGeometry args={[0.9, 0.9, 0.06, 24]} />
-            <meshBasicMaterial color="#2dd4bf" transparent opacity={0.6} />
-          </mesh>
-        </group>
-      )}
+        {/* Triangulum Galaxy M33 */}
+        <mesh
+          position={[0.8, -1.8, 1.5]}
+          scale={0.7}
+          onClick={(e) => {
+            if (layerIndex !== 5) return;
+            e.stopPropagation();
+            onSelectObjectId("triangulum_m33");
+          }}
+        >
+          <cylinderGeometry args={[0.9, 0.9, 0.06, 24]} />
+          <meshBasicMaterial color="#2dd4bf" transparent opacity={0.6} />
+        </mesh>
+      </group>
 
       {/* ================= LAYER 6: THE OBSERVABLE UNIVERSE ================= */}
-      {layerIndex === 6 && (
-        <group>
-          {/* Cosmic Web Particle Filaments */}
-          <points ref={cosmicWebPointsRef}>
-            <bufferGeometry>
-              <bufferAttribute attach="attributes-position" args={[webPositions, 3]} />
-              <bufferAttribute attach="attributes-color" args={[webColors, 3]} />
-            </bufferGeometry>
-            <pointsMaterial
-              size={0.035}
-              vertexColors
-              blending={THREE.AdditiveBlending}
-              transparent
-              opacity={0.6}
-            />
-          </points>
+      <group visible={layerIndex === 6}>
+        {/* Cosmic Web Particle Filaments */}
+        <points ref={cosmicWebPointsRef}>
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[webPositions, 3]} />
+            <bufferAttribute attach="attributes-color" args={[webColors, 3]} />
+          </bufferGeometry>
+          <pointsMaterial
+            size={0.035}
+            vertexColors
+            blending={THREE.AdditiveBlending}
+            transparent
+            opacity={0.6}
+          />
+        </points>
 
-          {/* Central Origin Marker (Earth) */}
-          <mesh position={[0, 0, 0]}>
-            <sphereGeometry args={[0.15, 16, 16]} />
-            <meshBasicMaterial color="#38bdf8" />
-          </mesh>
+        {/* Central Origin Marker (Earth) */}
+        <mesh position={[0, 0, 0]}>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
 
-          {/* CMB Particle Horizon Shell */}
-          <mesh
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObjectId("cmb_horizon");
-            }}
-          >
-            <sphereGeometry args={[6.2, 32, 32]} />
-            <meshBasicMaterial
-              color="#fb7185"
-              wireframe
-              transparent
-              opacity={0.2}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-        </group>
-      )}
+        {/* CMB Particle Horizon Shell */}
+        <mesh
+          onClick={(e) => {
+            if (layerIndex !== 6) return;
+            e.stopPropagation();
+            onSelectObjectId("cmb_horizon");
+          }}
+        >
+          <sphereGeometry args={[6.2, 32, 32]} />
+          <meshBasicMaterial
+            color="#fb7185"
+            wireframe
+            transparent
+            opacity={0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      </group>
 
       {/* ================= "WHERE IS EARTH?" LOCATOR RETICLE ================= */}
       {locateEarthActive && (
@@ -455,6 +456,34 @@ function CosmicScene({
       )}
     </group>
   );
+}
+
+function CosmicZoomCameraController({ targetDistance }: { targetDistance: number }) {
+  const prevTargetRef = useRef(targetDistance);
+  const animatingRef = useRef(false);
+  const dirVec = useRef(new THREE.Vector3());
+
+  useEffect(() => {
+    if (Math.abs(prevTargetRef.current - targetDistance) > 0.01) {
+      prevTargetRef.current = targetDistance;
+      animatingRef.current = true;
+    }
+  }, [targetDistance]);
+
+  useFrame(({ camera }, delta) => {
+    if (!animatingRef.current) return;
+    const dt = Math.min(delta, 0.1);
+    const currentDist = camera.position.length();
+    if (currentDist < 0.001) return;
+    const nextDist = THREE.MathUtils.damp(currentDist, targetDistance, 5.5, dt);
+    dirVec.current.copy(camera.position).normalize().multiplyScalar(nextDist);
+    camera.position.copy(dirVec.current);
+    if (Math.abs(nextDist - targetDistance) < 0.03) {
+      animatingRef.current = false;
+    }
+  });
+
+  return null;
 }
 
 interface CosmicZoomVisualizer3DProps {
@@ -661,6 +690,7 @@ export function CosmicZoomVisualizer3D({ onInteract, onLayerChange }: CosmicZoom
             <Stars radius={100} depth={50} count={1600} factor={4} fade />
             <ambientLight intensity={0.4} />
             <directionalLight position={[5, 5, 5]} intensity={1.8} color="#ffffff" />
+            <CosmicZoomCameraController targetDistance={layer.cameraDistance} />
             <CosmicScene
               layerIndex={currentLayerIndex}
               locateEarthActive={locateEarthActive}
@@ -668,8 +698,10 @@ export function CosmicZoomVisualizer3D({ onInteract, onLayerChange }: CosmicZoom
             />
             <OrbitControls
               enableZoom={true}
-              maxDistance={layer.cameraDistance * 2.2}
-              minDistance={layer.cameraDistance * 0.4}
+              enableDamping={true}
+              dampingFactor={0.08}
+              maxDistance={32}
+              minDistance={1.8}
               autoRotate={!isPlayingTour}
               autoRotateSpeed={0.4}
             />

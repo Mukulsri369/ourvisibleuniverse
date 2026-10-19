@@ -66,7 +66,7 @@ export function OpticsPostProcessing() {
     const outputPass = new OutputPass();
     comp.addPass(outputPass);
 
-    return { comp, bloomPass, renderPass };
+    return { comp, bloomPass, renderPass, renderTarget };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, scene, camera]);
 
@@ -108,6 +108,8 @@ export function OpticsPostProcessing() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      composer.bloomPass.dispose();
+      composer.renderTarget.dispose();
       composer.comp.dispose();
     };
   }, [composer]);

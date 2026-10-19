@@ -1,0 +1,3029 @@
+
+# OUR VISIBLE UNIVERSE ACADEMY
+# COSMOS CINEMATIC LEARNING SYSTEM
+# DEVELOPMENT PROMPT 16 OF 18
+
+TITLE:
+WORLD-CLASS CINEMATIC LEARNING EXPERIENCE
+PREMIUM FULLSCREEN UX AND UI REFINEMENT
+RESPONSIVE MOBILE AND TABLET DESIGN
+NEXT-GENERATION COSMOS VOICE INTERFACE
+IMMERSIVE SCIENTIFIC VISUALIZATION CONTROLS
+ACCESSIBLE SCIENTIFIC LEARNING ENVIRONMENT
+SEAMLESS 24-MODULE DESIGN CONSISTENCY
+INTELLIGENT CINEMATIC OVERLAY SYSTEM
+CAPTION, TRANSCRIPT AND AUDIO POLISH
+STUDENT-FIRST INTERACTIVE LEARNING DESIGN
+PRODUCTION-QUALITY EXPERIENCE VALIDATION
+
+DEVELOPMENT MODEL:
+GOOGLE AI STUDIO — ARGON 4
+
+REPOSITORY:
+https://github.com/Mukulsri369/ourvisibleuniverse
+
+WEBSITE:
+https://ourvisibleuniverse.in
+
+PRIORITY:
+CRITICAL — FINAL CINEMATIC EXPERIENCE POLISH
+
+====================================================
+YOUR ROLE
+====================================================
+
+Act as an elite product and engineering team:
+
+1. Principal cinematic experience designer.
+2. Senior React and TypeScript engineer.
+3. Three.js / React Three Fiber UI engineer.
+4. Advanced UX design specialist.
+5. Premium digital product art director.
+6. Educational interaction design expert.
+7. Accessibility and WCAG specialist.
+8. Responsive web application architect.
+9. Mobile interaction design engineer.
+10. COSMOS AI voice UX specialist.
+11. Scientific visualization designer.
+12. Motion design specialist.
+13. Browser fullscreen API specialist.
+14. Real-time graphics performance engineer.
+15. Frontend architecture and state engineer.
+16. Design systems engineer.
+17. Visual regression testing specialist.
+18. End-to-end QA automation engineer.
+
+YOUR MISSION:
+
+Transform Our Visible Universe Academy
+into an extraordinarily beautiful,
+intuitive and accessible cinematic
+learning experience.
+
+The platform must feel like:
+
+A premium interactive planetarium.
+
+A beautifully designed scientific museum.
+
+A modern documentary streaming experience.
+
+An intelligent personal astronomy instructor.
+
+An interactive scientific laboratory.
+
+Students must be able to move naturally
+between learning, watching, exploring,
+experimenting and asking questions.
+
+THIS IS AN IMPLEMENTATION PROMPT.
+
+Improve actual React components,
+responsive layouts, interaction behavior,
+animations, controls and accessibility.
+
+Do not respond only with mockups,
+design suggestions or documentation.
+
+====================================================
+1. PRIMARY OBJECTIVE
+====================================================
+
+Polish the entire learning experience
+across all 24 Academy modules.
+
+The cinematic lesson production was
+targeted by Prompts 08–14.
+
+The interactive COSMOS integration
+was targeted by Prompt 15.
+
+Now focus on:
+
+VISUAL DESIGN.
+
+INTERACTION DESIGN.
+
+RESPONSIVE LAYOUT.
+
+FULLSCREEN IMMERSION.
+
+ACCESSIBILITY.
+
+CONTROL DISCOVERABILITY.
+
+LEARNING CONTINUITY.
+
+CAPTIONS AND TRANSCRIPTS.
+
+VOICE ASSISTANT PRESENTATION.
+
+SCIENTIFIC ANNOTATIONS.
+
+CINEMATIC TRANSITIONS.
+
+PERCEIVED PERFORMANCE.
+
+STUDENT CONFIDENCE.
+
+Ensure the final interface is beautiful
+without becoming visually distracting.
+
+Do not use decorative complexity
+as a substitute for good UX.
+
+====================================================
+2. INSPECT THE CURRENT REPOSITORY
+====================================================
+
+Read the actual implementation.
+
+Critical components:
+
+src/components/academy/cinematic/
+CosmosCinematicPlayer.tsx
+
+src/components/academy/cinematic/
+CosmosCinematicViewport.tsx
+
+src/components/academy/cinematic/
+CosmosCinematicControls.tsx
+
+src/components/academy/cinematic/
+CosmosCinematicOverlay.tsx
+
+src/components/academy/cinematic/
+CosmosCinematicCaptions.tsx
+
+src/components/academy/
+CosmosGuidedController.tsx
+
+Also inspect:
+
+CosmosCinematicSceneHost
+
+CosmosCinematicSessionBridge
+
+CosmosCinematicPlayerState
+
+CosmosAnimationCueController
+
+CosmosCinematicQualityManager
+
+CosmosLearningDirector
+
+CosmosLessonNavigator
+
+CosmosActivityGuide
+
+CosmosQuizGuide
+
+VoiceConversationController
+
+NarrationController
+
+Existing page layouts.
+
+Existing responsive styles.
+
+Existing design tokens.
+
+Existing accessibility features.
+
+Relevant documentation:
+
+docs/academy/cinematic-design-system.md
+
+docs/academy/cinematic-art-direction.md
+
+docs/academy/cinematic-camera-language.md
+
+docs/academy/cinematic-performance-budget.md
+
+Locate the actual Prompt 15
+implementation report if available.
+
+Do not assume Prompt 15 was
+fully implemented without verification.
+
+Preserve working functionality.
+
+====================================================
+3. CURRENT IMPLEMENTATION AUDIT
+====================================================
+
+The repository already contains:
+
+A cinematic fullscreen player.
+
+A native fullscreen request mechanism.
+
+A 100dvh viewport fallback.
+
+A centralized cinematic state machine.
+
+A HUD containing scientific objects.
+
+A chapter laboratory panel.
+
+COSMOS voice and text controls.
+
+Narration transport controls.
+
+A synchronized caption system.
+
+A transcript drawer.
+
+A scientific representation indicator.
+
+Activity and quiz overlays.
+
+Adaptive rendering quality options.
+
+A separate compact guided controller.
+
+Do not recreate these systems.
+
+Audit their actual appearance
+and behavior on different devices.
+
+Identify:
+
+Visual crowding.
+
+Readability problems.
+
+Overlapping overlays.
+
+Controls with small touch targets.
+
+Incorrect panel positioning.
+
+Keyboard-focus problems.
+
+Inconsistent spacing.
+
+Mobile layout overflow.
+
+Fullscreen inconsistencies.
+
+Unnecessary animation.
+
+Interaction latency.
+
+Conflicting controls.
+
+Improve the actual existing components.
+
+====================================================
+4. VISUAL DESIGN PHILOSOPHY
+====================================================
+
+DESIGN PRINCIPLE:
+
+THE UNIVERSE IS THE MAIN EXPERIENCE.
+
+The interface must support
+the scientific scene, not compete with it.
+
+Use a premium cinematic visual language.
+
+Characteristics:
+
+Deep-space backgrounds.
+
+Purposeful restrained accent colors.
+
+Elegant typography.
+
+Excellent spacing.
+
+Consistent iconography.
+
+High-quality visual hierarchy.
+
+Carefully controlled translucent panels.
+
+Subtle contextual animations.
+
+Premium scientific diagrams.
+
+Readable captions.
+
+Minimal distracting decoration.
+
+Avoid:
+
+Excessive gradients.
+
+Too many competing accent colors.
+
+Constantly blinking controls.
+
+Large floating panels everywhere.
+
+Tiny scientific labels.
+
+Visually noisy HUD elements.
+
+Unnecessary cards and badges.
+
+Oversized decorative typography.
+
+UI elements covering celestial objects.
+
+====================================================
+5. ADHERE TO THE EXISTING DESIGN SYSTEM
+====================================================
+
+Read:
+
+docs/academy/cinematic-design-system.md
+
+Preserve its established
+scientific visual identity.
+
+Use the approved:
+
+Color palette.
+
+Typography families.
+
+Scientific annotation colors.
+
+Lighting conventions.
+
+Camera motion language.
+
+Material styles.
+
+Contrast requirements.
+
+Narration caption treatment.
+
+Do not replace the application's
+entire visual identity.
+
+Refine it.
+
+Consolidate repeated design values
+into reusable typed design tokens.
+
+Where the existing design contains
+usability problems, improve it
+and document the deviation.
+
+====================================================
+6. BUILD A RESPONSIVE CINEMATIC LAYOUT SYSTEM
+====================================================
+
+Replace rigid overlay positioning
+where it causes collisions.
+
+Create a responsive layout strategy
+for the fullscreen player.
+
+Use actual container measurements,
+not just arbitrary viewport assumptions.
+
+Recommended layout regions:
+
+A. TOP NAVIGATION REGION
+
+Current module.
+
+Current chapter.
+
+Exit control.
+
+Optional settings.
+
+B. PRIMARY SCIENCE VIEWPORT
+
+3D visualization.
+
+Scientific objects.
+
+Minimal direct annotations.
+
+C. CONTEXTUAL INFORMATION REGION
+
+Scientific explanations.
+
+Object information.
+
+Representation disclosures.
+
+D. INTERACTIVE ACTIVITY REGION
+
+Parameter controls.
+
+Student task instructions.
+
+Validation feedback.
+
+E. NARRATION REGION
+
+COSMOS status.
+
+Captions.
+
+Transcript access.
+
+F. BOTTOM TRANSPORT REGION
+
+Play/pause.
+
+Repeat.
+
+Previous/next.
+
+Voice/text input.
+
+Manual/guided camera control.
+
+Adjust their arrangement by
+available viewport space.
+
+Do not require all regions
+to remain visible simultaneously.
+
+Prioritize the active learning task.
+
+====================================================
+7. DESKTOP CINEMATIC EXPERIENCE
+====================================================
+
+For spacious desktop layouts:
+
+Keep the scientific scene visually dominant.
+
+Use restrained corner panels.
+
+Maintain a clear top navigation area.
+
+Use a compact bottom transport dock.
+
+Place narration captions
+without covering primary subjects.
+
+Keep advanced laboratory controls
+in a collapsible side panel.
+
+Keep object inspection controls
+available on demand.
+
+Avoid large permanent panels
+on both sides of the viewport.
+
+When the student is watching narration:
+
+Minimize secondary controls.
+
+When the student starts an experiment:
+
+Make relevant controls prominent.
+
+When an official assessment begins:
+
+Prioritize question readability
+over decorative scenery.
+
+====================================================
+8. TABLET CINEMATIC EXPERIENCE
+====================================================
+
+For tablet devices:
+
+Use adaptive panel sizing.
+
+Support landscape and portrait.
+
+Preserve practical touch targets.
+
+Avoid relying on hover interactions.
+
+Scientific panels may become
+collapsible sheets.
+
+Keep captions readable.
+
+Ensure the 3D scene remains visible
+while an interactive control is open.
+
+Prevent overlays from competing
+with navigation gestures.
+
+Use pointer capabilities
+rather than device names
+to detect interaction patterns.
+
+====================================================
+9. MOBILE CINEMATIC EXPERIENCE
+====================================================
+
+Mobile must be treated
+as a first-class experience.
+
+Do not simply shrink the desktop UI.
+
+Implement a purpose-built
+mobile cinematic layout.
+
+Recommended behavior:
+
+Large immersive 3D viewport.
+
+Minimal top navigation.
+
+Compact visible narration status.
+
+Accessible captions.
+
+A small primary transport bar.
+
+A clear Ask COSMOS action.
+
+A bottom sheet for experiments.
+
+A separate accessible transcript view.
+
+A straightforward Exit action.
+
+Avoid placing five dense
+scientific panels above one another.
+
+Do not require students
+to horizontally scroll the interface
+to access essential controls.
+
+====================================================
+10. MOBILE BREAKPOINT STRATEGY
+====================================================
+
+Test responsive layouts around
+realistic viewport widths, including:
+
+320px.
+
+360px.
+
+375px.
+
+390px.
+
+430px.
+
+600px.
+
+768px.
+
+1024px.
+
+1280px.
+
+1440px and larger.
+
+These are testing reference widths,
+not a mandate to hardcode
+a unique layout for each size.
+
+Use responsive and container-based
+rules that behave between breakpoints.
+
+Also test short viewport heights.
+
+A wide but short landscape screen
+must not lose essential controls.
+
+====================================================
+11. SMART SCIENTIFIC PANELS
+====================================================
+
+The existing overlay contains
+object selectors, chapter controls,
+activity panels and quiz regions.
+
+Create a coherent panel-management system.
+
+Possible states:
+
+CLOSED.
+
+COMPACT.
+
+EXPANDED.
+
+FULLSCREEN_ACTIVITY.
+
+TRANSCRIPT.
+
+SETTINGS.
+
+Only the relevant panel
+should be prominent.
+
+Examples:
+
+During explanation:
+Compact contextual information.
+
+During telescope experiment:
+Aperture and wavelength controls.
+
+During orbital experiment:
+Physics parameter panel.
+
+During student questions:
+COSMOS explanation region.
+
+During official quiz:
+Question and answer interface.
+
+Do not display everything at once.
+
+====================================================
+12. INTELLIGENT UI PRIORITIZATION
+====================================================
+
+Design UI priority according
+to COSMOS learning state.
+
+STATE: NARRATING
+
+Prioritize scene, captions and pause.
+
+STATE: STUDENT_EXPLORING
+
+Prioritize camera and object controls.
+
+STATE: ACTIVITY_REQUIRED
+
+Prioritize activity instructions
+and required controls.
+
+STATE: WAITING_FOR_STUDENT
+
+Keep task controls visible.
+
+STATE: QUESTION_ACTIVE
+
+Prioritize COSMOS answer and context.
+
+STATE: QUIZ_REQUIRED
+
+Prioritize question navigation
+and answer selection.
+
+STATE: OFFICIAL_ASSESSMENT
+
+Keep assessment UI stable.
+
+STATE: MODULE_COMPLETED
+
+Show verified completion
+only after server confirmation.
+
+Map to real existing Director states.
+
+Do not invent a competing state machine.
+
+====================================================
+13. FULLSCREEN API AUDIT
+====================================================
+
+The player already uses:
+
+CosmosCinematicViewport.
+
+CosmosCinematicSessionBridge.
+
+Native browser fullscreen requests.
+
+Full-viewport fallback.
+
+Audit the real interaction flow.
+
+Native fullscreen normally requires
+a browser-recognized user activation.
+
+Ensure fullscreen requests are initiated
+through a valid user interaction.
+
+Do not rely on delayed effects
+that might lose user activation
+on stricter browsers.
+
+Inspect:
+
+requestFullscreen()
+
+fullscreenchange
+
+fullscreenerror
+
+exitFullscreen()
+
+WebKit-specific supported behavior.
+
+Browser compatibility.
+
+The fallback should remain available.
+
+Never claim native fullscreen succeeded
+when the application is only in
+CSS full-viewport mode.
+
+====================================================
+14. MOBILE SAFARI AND BROWSER FALLBACKS
+====================================================
+
+Test platform limitations carefully.
+
+Support:
+
+Chrome desktop.
+
+Edge desktop.
+
+Firefox desktop.
+
+Safari desktop where available.
+
+Chrome Android.
+
+Safari iPhone.
+
+Safari iPad.
+
+Other supported browsers.
+
+Native element fullscreen availability
+varies by browser and platform.
+
+If unsupported:
+
+Enter a reliable
+full-viewport cinematic presentation.
+
+Do not block learning.
+
+Do not repeatedly prompt
+the browser for fullscreen.
+
+Do not hide the Exit control.
+
+Do not assume every mobile browser
+supports the same orientation-lock API.
+
+Use graceful degradation.
+
+====================================================
+15. FULLSCREEN EXIT AND STATE RESTORATION
+====================================================
+
+The student may leave fullscreen by:
+
+Clicking Exit.
+
+Pressing Escape.
+
+Using native browser controls.
+
+Switching browser tabs.
+
+Changing app focus.
+
+Navigating to another module.
+
+Closing a nested panel.
+
+Ensure these actions behave predictably.
+
+On exit:
+
+Preserve the current module.
+
+Preserve chapter identity.
+
+Preserve narration position.
+
+Preserve active learning gate.
+
+Preserve legitimate experiment parameters.
+
+Preserve selected scientific object.
+
+Preserve appropriate camera state.
+
+Restore page scroll position.
+
+Restore keyboard focus appropriately.
+
+Do not reset learning progress.
+
+Do not accidentally submit
+an activity or assessment.
+
+====================================================
+16. MODAL ACCESSIBILITY AND FOCUS
+====================================================
+
+The current cinematic viewport
+uses a modal dialog role.
+
+Audit its actual accessibility behavior.
+
+Implement appropriate:
+
+Focus entry.
+
+Focus containment when modal.
+
+Focus return on close.
+
+Background inertness.
+
+Escape handling.
+
+Nested dialog behavior.
+
+Screen-reader title.
+
+Semantic button labels.
+
+Accessible error messages.
+
+Ensure background controls are not
+keyboard-accessible while a true
+modal fullscreen overlay is active.
+
+When a transcript drawer opens:
+
+Move focus appropriately.
+
+Allow keyboard navigation.
+
+Restore focus when it closes.
+
+Avoid trapping the student
+inside conflicting nested dialogs.
+
+Use established accessible primitives
+where compatible with the existing stack.
+
+====================================================
+17. SAFE AREA AND MOBILE VIEWPORT HANDLING
+====================================================
+
+Respect:
+
+Screen notches.
+
+Dynamic islands.
+
+Home indicators.
+
+Browser bottom toolbars.
+
+Navigation bars.
+
+Landscape safe areas.
+
+On-screen keyboards.
+
+Use:
+
+env(safe-area-inset-top)
+
+env(safe-area-inset-bottom)
+
+env(safe-area-inset-left)
+
+env(safe-area-inset-right)
+
+Where appropriate.
+
+Test the use of:
+
+100dvh.
+
+100svh.
+
+Viewport resize events.
+
+Available visual viewport behavior.
+
+When the keyboard appears,
+text input must remain visible.
+
+Do not position the question field
+behind the mobile keyboard.
+
+Avoid unexpected layout jumps.
+
+====================================================
+18. TOUCH TARGET AND CONTROL SIZING
+====================================================
+
+Audit:
+
+CosmosCinematicControls.tsx
+
+CosmosCinematicOverlay.tsx
+
+CosmosCinematicCaptions.tsx
+
+The current controls include
+small button heights and text sizes.
+
+Improve the interactive tap areas.
+
+Target approximately 44x44 CSS pixels
+for essential touch controls
+where practical.
+
+Use appropriate accessible spacing.
+
+Do not shrink controls below
+comfortable interaction sizes
+merely to fit them on one line.
+
+Use progressive disclosure.
+
+Prioritize:
+
+Pause.
+
+Resume.
+
+Ask COSMOS.
+
+Exit.
+
+Activity submit.
+
+Answer selection.
+
+Return to guided camera.
+
+Make icon-only controls
+accessible with clear labels.
+
+====================================================
+19. NEXT-GENERATION COSMOS TEACHER INTERFACE
+====================================================
+
+Refine the COSMOS presentation.
+
+The assistant should feel:
+
+Present.
+
+Responsive.
+
+Clear.
+
+Professional.
+
+Approachable.
+
+Scientifically credible.
+
+Use a compact COSMOS status indicator.
+
+Potential states:
+
+READY.
+
+NARRATING.
+
+LISTENING.
+
+THINKING.
+
+ANSWERING.
+
+PAUSED.
+
+WAITING_FOR_STUDENT.
+
+OFFLINE.
+
+ERROR.
+
+Use meaningful status text.
+
+A subtle waveform or activity
+animation may be used.
+
+Do not falsely indicate
+microphone recording.
+
+Do not show an active speaking waveform
+when narration has stopped.
+
+Keep student privacy expectations clear.
+
+====================================================
+20. COSMOS VOICE UI POLISH
+====================================================
+
+Improve:
+
+Microphone control.
+
+Permission explanation.
+
+Listening feedback.
+
+Speech processing feedback.
+
+Recognition failure messages.
+
+Push-to-talk interaction.
+
+Barge-in status.
+
+Typed fallback.
+
+Voice output availability.
+
+Language display.
+
+Avoid:
+
+Ambiguous microphone states.
+
+Repeated permission prompts.
+
+Unclear recording indicators.
+
+Obscured Ask COSMOS input.
+
+Duplicate voice activation buttons
+with conflicting behavior.
+
+A student should always know
+whether COSMOS is speaking,
+listening or waiting.
+
+====================================================
+21. CINEMATIC CAPTIONS REDESIGN
+====================================================
+
+Audit:
+
+CosmosCinematicCaptions.tsx
+
+Improve synchronized captions.
+
+Requirements:
+
+Readable typography.
+
+Adequate text size.
+
+High contrast.
+
+Comfortable line height.
+
+Appropriate line length.
+
+Responsive positioning.
+
+Minimal overlap with science content.
+
+Support approved lesson terminology.
+
+Provide caption enable/disable.
+
+Preserve exact approved narration text.
+
+Avoid inventing word-level sync timing
+when only narration segments are available.
+
+Do not use animated caption movement
+that harms reading comprehension.
+
+====================================================
+22. CAPTION PRESENTATION MODES
+====================================================
+
+Support appropriately:
+
+COMPACT CAPTIONS.
+
+LARGE CAPTIONS.
+
+HIGH-CONTRAST CAPTIONS.
+
+CAPTIONS OFF.
+
+TRANSCRIPT VIEW.
+
+Where compatible with student preferences.
+
+Allow reasonable text scaling.
+
+Do not make captions permanently
+cover the central scientific subject.
+
+On small mobile screens:
+
+Prioritize the narration content.
+
+Adapt the viewport composition.
+
+Avoid overlapping transport controls.
+
+Essential scientific explanations
+must remain available in text form.
+
+====================================================
+23. COMPLETE TRANSCRIPT EXPERIENCE
+====================================================
+
+The existing transcript drawer
+supports segment navigation.
+
+Refine its usability.
+
+Provide:
+
+Current segment highlighting.
+
+Clearly identified chapter.
+
+Readable paragraph spacing.
+
+Accessible navigation.
+
+Keyboard focus handling.
+
+Text search if practical.
+
+Clickable eligible segments.
+
+Correct seek restrictions.
+
+Readable scientific terminology.
+
+A safe Close action.
+
+For mobile:
+
+Use a full-height or appropriate
+bottom-sheet presentation.
+
+Do not let the drawer extend
+outside the visible screen.
+
+Do not allow transcript seeking
+to bypass required activity
+or assessment gates.
+
+====================================================
+24. TEXT-TO-SPEECH AND VISUAL SYNC
+====================================================
+
+Narration must remain authoritative.
+
+Audit the visual behavior during:
+
+Play.
+
+Pause.
+
+Resume.
+
+Replay.
+
+Seek.
+
+Voice interruption.
+
+Question answering.
+
+Playback rate changes.
+
+TTS fallback.
+
+Connection failure.
+
+Module navigation.
+
+Captions must correspond to
+the actual active narration segment.
+
+Do not display the next
+scientific concept too early.
+
+Do not let decorative animation
+suggest official progression.
+
+Avoid duplicate narration voices.
+
+====================================================
+25. ACADEMY NAVIGATION EXPERIENCE
+====================================================
+
+Create a consistent chapter and
+module navigation pattern.
+
+Students should always understand:
+
+Where they are.
+
+What they are learning.
+
+How much is left.
+
+What they have completed locally.
+
+Which requirements remain.
+
+What they can do next.
+
+Use compact module and chapter breadcrumbs.
+
+Avoid overwhelming students
+with all 24 modules on screen.
+
+Provide optional course overview.
+
+Preserve existing learning sequence rules.
+
+Do not confuse cinematic chapter progress
+with official verified completion.
+
+====================================================
+26. PREMIUM CHAPTER TRANSITIONS
+====================================================
+
+Polish transitions between chapters.
+
+Use the approved camera system.
+
+Examples:
+
+Earth orbit to Moon surface.
+
+Solar System to nearby stars.
+
+Stellar interior to H-R diagram.
+
+Galaxy to cosmic web.
+
+Light propagation to spectrum.
+
+Historic telescope to modern observatory.
+
+Spacecraft to trajectory graph.
+
+Transitions must feel purposeful.
+
+Do not apply the same
+zoom or dissolve everywhere.
+
+Avoid abrupt black screens.
+
+Preserve correct narration state.
+
+Preload appropriate assets
+when justified by performance budgets.
+
+====================================================
+27. CINEMATIC INTRODUCTIONS AND CONCLUSIONS
+====================================================
+
+Create refined entrance and exit moments.
+
+Each module may include:
+
+A short visual establishing shot.
+
+Module title.
+
+One concise learning objective.
+
+A seamless entrance to the first lesson.
+
+A meaningful final transition.
+
+Avoid long mandatory intros.
+
+Allow appropriate skipping
+of decorative presentation.
+
+Do not allow skipping to bypass
+required learning activity or
+official assessment conditions.
+
+Module conclusions should communicate
+what was actually learned.
+
+Do not announce verified completion
+without server confirmation.
+
+====================================================
+28. SCIENTIFIC LABELS AND ANNOTATIONS
+====================================================
+
+Improve presentation of:
+
+Object names.
+
+Distances.
+
+Masses.
+
+Velocities.
+
+Temperatures.
+
+Timescales.
+
+Coordinates.
+
+Scientific equations.
+
+Units.
+
+Confidence or uncertainty information.
+
+Representation disclosures.
+
+Ensure:
+
+Readable alignment.
+
+Clear hierarchy.
+
+Consistent formatting.
+
+Appropriate numerical precision.
+
+Correct units.
+
+Stable object anchoring.
+
+No overlap with essential controls.
+
+Do not place dozens of labels
+on screen simultaneously.
+
+Use selective labels based on
+the current COSMOS explanation.
+
+====================================================
+29. SCIENTIFIC LABEL COLLISION MANAGEMENT
+====================================================
+
+Introduce or refine
+screen-space annotation placement.
+
+Handle:
+
+Overlapping labels.
+
+Labels outside viewport.
+
+Objects behind the camera.
+
+Labels covering planets.
+
+Labels covering important diagrams.
+
+Dense galaxy environments.
+
+Moving objects.
+
+Changing camera angles.
+
+Consider:
+
+Priority ranking.
+
+Occlusion awareness.
+
+Label clustering.
+
+Distance-aware visibility.
+
+Safe screen regions.
+
+Accessible object lists.
+
+Avoid label flickering
+during minor camera movement.
+
+Do not change scientific data
+to solve layout problems.
+
+====================================================
+30. VISUAL SCIENTIFIC DISCLOSURES
+====================================================
+
+Students must distinguish:
+
+OBSERVED DATA.
+
+PHYSICS SIMULATION.
+
+EDUCATIONAL SCALE MODEL.
+
+SCIENTIFIC RECONSTRUCTION.
+
+SPECULATIVE SCENARIO.
+
+Use concise contextual explanations.
+
+Examples:
+
+"Illustrative Scale"
+
+"Model Reconstruction"
+
+"NASA Observational Data"
+
+"Simulated Density Field"
+
+"Conditional Future Scenario"
+
+Do not cover the scene
+with repeated disclosure banners.
+
+Provide a clear details view
+for scientific assumptions.
+
+Maintain the honesty of the
+scientific representation.
+
+====================================================
+31. SCIENTIFIC GRAPH DESIGN
+====================================================
+
+Standardize the visual treatment
+of scientific charts.
+
+Examples:
+
+H-R diagram.
+
+Exoplanet transit curve.
+
+Radial velocity.
+
+Galaxy rotation curve.
+
+CMB angular power spectrum.
+
+Cosmic expansion history.
+
+Telescope diffraction graph.
+
+Orbital energy.
+
+Numerical error over time.
+
+Requirements:
+
+Proper axis labels.
+
+Scientific units.
+
+Readable tick values.
+
+Correct scales.
+
+Data source identification.
+
+Appropriate legends.
+
+Visible selected values.
+
+Uncertainty representation.
+
+Accessible table alternative.
+
+Support small-screen readability.
+
+Do not sacrifice numerical
+accuracy for visual smoothness.
+
+====================================================
+32. INTERACTIVE EXPERIMENT UX
+====================================================
+
+Activity controls must feel
+like a scientific laboratory.
+
+Create a consistent pattern:
+
+Experiment title.
+
+Scientific objective.
+
+Selected parameters.
+
+Valid input controls.
+
+Current calculated output.
+
+Optional visualization.
+
+Observation instructions.
+
+Feedback.
+
+Reset.
+
+Submit or verify when appropriate.
+
+Separate:
+
+Change parameter.
+
+Run simulation.
+
+Observe result.
+
+Answer question.
+
+Verify completion.
+
+Do not imply a parameter change
+automatically proves success.
+
+Preserve the Prompt 15
+scientific validation architecture.
+
+====================================================
+33. VOICE-GUIDED CONTROL HIGHLIGHTING
+====================================================
+
+When COSMOS says:
+
+"Move the eccentricity slider."
+
+The interface should:
+
+Highlight that control.
+
+Ensure it is visible.
+
+Move focus only when appropriate.
+
+Avoid obscuring the visualization.
+
+Explain the control's effect.
+
+Wait for the student's input.
+
+When the student interacts:
+
+Update the scientific scene.
+
+Read the actual resulting state.
+
+Provide scientifically appropriate feedback.
+
+Do not animate unrelated controls.
+
+Do not force-scroll while
+the student is actively exploring.
+
+====================================================
+34. ACTIVITY GATE VISUAL DESIGN
+====================================================
+
+When a required activity begins:
+
+Make the objective unmistakable.
+
+Visually distinguish the active task.
+
+Show the required controls.
+
+Provide clear step-by-step guidance.
+
+Display actual progress within the activity.
+
+Indicate:
+
+Waiting for input.
+
+Result calculated.
+
+Needs revision.
+
+Evidence submitted.
+
+Verification pending.
+
+Verified by server.
+
+Do not use a green success state
+for a merely pending result.
+
+Do not automatically advance
+because an animation finished.
+
+====================================================
+35. PRACTICE AND OFFICIAL QUIZ UX
+====================================================
+
+Improve the assessment presentation.
+
+Practice mode:
+
+May show conceptual explanations.
+
+May offer hints.
+
+May allow demonstrations.
+
+Official mode:
+
+Shows questions clearly.
+
+Allows valid answer selection.
+
+Supports voice, mouse, touch and keyboard.
+
+Clearly confirms the chosen answer.
+
+Prevents accidental double submission.
+
+Shows server grading outcome.
+
+Does not expose answer keys.
+
+Does not present hints that solve
+active official questions.
+
+Distinguish both modes visually
+without changing authoritative rules.
+
+====================================================
+36. COMPLETION AND PROGRESS VISUALIZATION
+====================================================
+
+Use consistent progress language.
+
+Examples:
+
+Lesson explored.
+
+Chapter reviewed.
+
+Activity attempted.
+
+Activity validated.
+
+Verification pending.
+
+Module officially verified.
+
+Stage achievement earned.
+
+Final exam eligible.
+
+Certificate issued.
+
+Do not display "Completed"
+when only the cinematic narration ended
+if it could be mistaken for official credit.
+
+Use actual authoritative completion records.
+
+Preserve server-side verification rules.
+
+No client-side visual state may
+grant a badge or certificate.
+
+====================================================
+37. FOCUS AND KEYBOARD NAVIGATION
+====================================================
+
+Support complete keyboard access.
+
+Actions should include:
+
+Tab through controls.
+
+Shift+Tab to move backward.
+
+Enter/Space for actions.
+
+Escape for closing relevant overlays.
+
+Arrow keys for suitable sliders.
+
+Accessible selection controls.
+
+Return to guided camera.
+
+Question input submission.
+
+Transcript navigation.
+
+Do not assign global keyboard shortcuts
+that conflict with text input.
+
+Do not intercept Escape in a way
+that unexpectedly destroys an
+active official assessment.
+
+Avoid invisible keyboard focus.
+
+Use clear focus indicators.
+
+====================================================
+38. TOUCH AND GESTURE INTERACTION
+====================================================
+
+Support:
+
+Single-finger camera orbit.
+
+Pinch zoom.
+
+Appropriate two-finger gestures.
+
+Object selection.
+
+Slider dragging.
+
+Panel scrolling.
+
+Tap-to-focus actions.
+
+Avoid conflicts between:
+
+3D orbit controls.
+
+Vertical page scrolling.
+
+Bottom-sheet dragging.
+
+Slider interaction.
+
+Browser navigation gestures.
+
+Do not lock the entire screen
+into camera interaction mode.
+
+Provide a visible reset-camera action.
+
+Respect touch-action behavior.
+
+====================================================
+39. REDUCED-MOTION LEARNING MODE
+====================================================
+
+Respect:
+
+prefers-reduced-motion.
+
+Also provide a relevant
+in-app motion preference.
+
+When reduced motion is enabled:
+
+Avoid unnecessary cinematic flythroughs.
+
+Reduce rapid camera movement.
+
+Remove decorative particle motion.
+
+Limit parallax effects.
+
+Avoid rapid flashing.
+
+Use stable object framing.
+
+Preserve essential scientific animation
+when needed for understanding,
+with playback controls or alternative
+step-based explanations.
+
+Do not remove essential
+scientific information.
+
+Provide static diagrams,
+frame stepping or accessible
+data views where appropriate.
+
+====================================================
+40. SCIENTIFIC ANIMATION CONTROL
+====================================================
+
+Provide appropriate animation controls.
+
+Students should be able to:
+
+Pause.
+
+Resume.
+
+Repeat.
+
+Slow down where supported.
+
+Inspect a key scientific state.
+
+Step through a demonstration
+when appropriate.
+
+Return to guided playback.
+
+Distinguish:
+
+Narration speed.
+
+Cinematic animation speed.
+
+Scientific simulation time scale.
+
+Do not expose controls that
+silently violate scientific relationships.
+
+Avoid a universal speed slider
+that corrupts physics.
+
+====================================================
+41. MOBILE PORTRAIT SCIENTIFIC LAYOUTS
+====================================================
+
+Some visualizations do not fit
+well into a narrow portrait viewport.
+
+Examples:
+
+Wide galaxy comparisons.
+
+Large spectroscopic charts.
+
+Solar System distance diagrams.
+
+H-R diagrams.
+
+CMB spectra.
+
+Multi-object orbital systems.
+
+Provide appropriate mobile layouts.
+
+Possible strategies:
+
+Reframe camera.
+
+Simplify labels.
+
+Use a separate graph panel.
+
+Stack supporting charts vertically.
+
+Offer a focused science view.
+
+Use horizontal panning within
+a labeled scientific diagram
+where appropriate.
+
+Do not shrink every scientific graph
+until it becomes unreadable.
+
+Offer landscape viewing
+as an optional convenience,
+not a universal requirement.
+
+====================================================
+42. DESIGN SYSTEM COMPONENT LIBRARY
+====================================================
+
+Create reusable visual primitives.
+
+Potential components:
+
+CinematicTopBar
+
+CinematicTransportDock
+
+CosmosVoiceStatus
+
+CosmosQuestionComposer
+
+ResponsiveSciencePanel
+
+InteractiveExperimentSheet
+
+ScientificValueReadout
+
+ScientificAnnotation
+
+NarrationCaptionBar
+
+ChapterProgressIndicator
+
+LearningVerificationStatus
+
+CinematicSettingsPanel
+
+AccessibleTranscriptDrawer
+
+ScienceGraphContainer
+
+Only create new components
+when they meaningfully reduce
+duplication or improve behavior.
+
+Reuse current project UI primitives.
+
+Do not rewrite the entire app
+to achieve design consistency.
+
+====================================================
+43. CONTROL PERSONALIZATION
+====================================================
+
+Allow sensible learning preferences.
+
+Potential settings:
+
+Captions on/off.
+
+Caption size.
+
+Narration playback speed.
+
+Preferred voice where supported.
+
+Language.
+
+Learning level.
+
+Motion reduction.
+
+Visual quality.
+
+Scientific labels on/off.
+
+Guided camera mode.
+
+Manual camera mode.
+
+Auto-scroll preference.
+
+Preserve preferences appropriately.
+
+Do not expose unsupported settings.
+
+Do not allow a preference
+to override an official
+learning validation requirement.
+
+====================================================
+44. LOADING AND ERROR EXPERIENCES
+====================================================
+
+Design professional loading states.
+
+Possible states:
+
+Preparing scientific scene.
+
+Loading planetary textures.
+
+Preparing telescope model.
+
+Fetching observational data.
+
+Preparing narration.
+
+Waiting for microphone permission.
+
+Recovering rendering context.
+
+Restoring lesson checkpoint.
+
+Use informative messages.
+
+Avoid indefinite spinning indicators.
+
+When an asset fails:
+
+Offer retry.
+
+Offer an accessible fallback.
+
+Preserve learning state.
+
+Do not silently mark the scene complete.
+
+When a scientific dataset fails:
+
+Do not substitute invented data
+while claiming it is observational.
+
+====================================================
+45. CONNECTION AND OFFLINE EXPERIENCE
+====================================================
+
+When connectivity is interrupted:
+
+Keep available learning content accessible.
+
+Retain the current lesson checkpoint.
+
+Keep locally runnable simulations available.
+
+Show when official verification
+cannot be completed.
+
+Allow retry after reconnection.
+
+Display a clear distinction between:
+
+Local exploration.
+
+Pending evidence.
+
+Server-verified progress.
+
+Do not show offline activities
+as officially verified.
+
+Do not lose students' valid
+unfinished responses.
+
+====================================================
+46. RENDERING QUALITY UX
+====================================================
+
+Reuse:
+
+CosmosCinematicQualityManager.
+
+Provide understandable controls.
+
+Suggested labels:
+
+High Detail.
+
+Balanced.
+
+Low Power.
+
+Explain changes in plain language.
+
+Avoid forcing learners
+to understand GPU terminology.
+
+Adaptive quality changes
+should not unexpectedly
+restart narration or activities.
+
+Do not affect scientific calculations.
+
+Avoid noticeable flicker
+when quality tiers change.
+
+====================================================
+47. CINEMATIC CAMERA COMPOSITION
+====================================================
+
+Refine framing per module type.
+
+MODULES 01–04:
+
+Cosmic-scale journeys.
+
+Planetarium navigation.
+
+Scientific distance diagrams.
+
+MODULES 05–08:
+
+Solar System and orbital scenes.
+
+MODULES 09–12:
+
+Stars, nebulae and exoplanets.
+
+MODULES 13–16:
+
+Galaxies, compact objects
+and cosmic structure.
+
+MODULES 17–20:
+
+Cosmic timelines and historical models.
+
+MODULES 21–24:
+
+Observatories, spacecraft
+and scientific laboratories.
+
+Camera framing must adapt
+to captions and side panels.
+
+Do not place a critical object
+behind a permanent HUD region.
+
+Use safe composition areas.
+
+====================================================
+48. FULL 24-MODULE DESIGN CONSISTENCY
+====================================================
+
+Audit every module.
+
+Check:
+
+Consistent fullscreen launcher.
+
+Consistent exit behavior.
+
+Consistent narration controls.
+
+Consistent caption appearance.
+
+Consistent object interaction.
+
+Consistent laboratory controls.
+
+Consistent quiz presentation.
+
+Consistent science annotations.
+
+Consistent progress indicators.
+
+Consistent error behavior.
+
+Consistent accessible alternatives.
+
+Distinct scientific scenes are expected.
+
+Inconsistent interaction design is not.
+
+====================================================
+49. AUTOMATED ACCESSIBILITY TESTING
+====================================================
+
+Use appropriate testing tools
+available in the existing stack.
+
+Consider:
+
+axe-core.
+
+Playwright accessibility checks.
+
+Keyboard-only browser testing.
+
+Automated color contrast checks.
+
+Manual screen-reader verification
+where tools are available.
+
+Target WCAG 2.2 AA
+where applicable.
+
+Test:
+
+Text contrast.
+
+Focus visibility.
+
+Accessible names.
+
+Semantic controls.
+
+Modal focus management.
+
+Keyboard traps.
+
+Touch target size.
+
+Text resizing.
+
+Reduced motion.
+
+Caption readability.
+
+Form errors.
+
+Scientific graph alternatives.
+
+Do not claim WCAG conformance
+from automated tests alone.
+
+Document manual verification gaps.
+
+====================================================
+50. VIEWPORT AND DEVICE TEST MATRIX
+====================================================
+
+Test actual responsive behavior
+at representative sizes.
+
+MOBILE PORTRAIT:
+
+320×568.
+
+360×640.
+
+375×667.
+
+390×844.
+
+430×932.
+
+MOBILE LANDSCAPE:
+
+667×375.
+
+844×390.
+
+932×430.
+
+TABLET:
+
+768×1024.
+
+1024×768.
+
+DESKTOP:
+
+1280×720.
+
+1440×900.
+
+1920×1080.
+
+Include zoomed text and
+short-height edge cases.
+
+Use actual browser testing
+where available.
+
+Viewport simulation does not prove
+behavior on every physical device.
+
+Clearly label emulated tests.
+
+====================================================
+51. END-TO-END UX TEST SCENARIOS
+====================================================
+
+TEST 1:
+
+Student opens Module 01.
+
+Enters cinematic fullscreen.
+
+Watches the introduction.
+
+Enables captions.
+
+Opens transcript.
+
+Returns to animation.
+
+Exits fullscreen.
+
+Reenters without losing position.
+
+TEST 2:
+
+Student opens Module 08.
+
+Manually rotates the orbital simulation.
+
+Adjusts a scientific parameter.
+
+Asks COSMOS a question.
+
+Receives a visual explanation.
+
+Returns to guided camera.
+
+Resumes the lesson.
+
+TEST 3:
+
+Student opens Module 12 on mobile.
+
+Starts narration.
+
+Opens a transit experiment.
+
+Uses its controls.
+
+Reads the graph.
+
+Completes required input.
+
+Closes the activity.
+
+Continues the lesson.
+
+TEST 4:
+
+Student opens Module 16.
+
+Explores dark matter evidence.
+
+Switches between visualization
+and scientific graph.
+
+Reads model disclosures.
+
+Switches to reduced motion.
+
+Returns to normal view.
+
+TEST 5:
+
+Student opens Module 22.
+
+Inspects a spacecraft.
+
+Runs a trajectory activity.
+
+Uses mobile controls.
+
+Changes device orientation.
+
+Preserves valid scientific state.
+
+TEST 6:
+
+Student opens Module 24.
+
+Starts the capstone.
+
+Uses keyboard navigation.
+
+Opens accessible data alternatives.
+
+Submits valid work.
+
+Receives authoritative
+verification status.
+
+TEST 7:
+
+Student starts an official quiz.
+
+Uses voice to select an option.
+
+Confirms the answer.
+
+Disables voice.
+
+Continues with keyboard.
+
+Submits for server grading.
+
+No answer-revealing hints appear.
+
+====================================================
+52. INTERACTION REGRESSION TESTS
+====================================================
+
+Test:
+
+Rapid fullscreen entry/exit.
+
+Repeated opening of transcript.
+
+Switching captions on/off.
+
+Changing scientific labels.
+
+Switching camera modes.
+
+Opening and closing activity panels.
+
+Opening a nested question interface.
+
+Voice permission denied.
+
+Audio playback error.
+
+Slow scene loading.
+
+Browser page visibility changes.
+
+Device rotation.
+
+On-screen keyboard appearance.
+
+Navigation after pause.
+
+Question interruption during transition.
+
+Official assessment during fullscreen.
+
+Focus recovery after dialog exit.
+
+Scene reload without losing progress.
+
+No duplicated narration.
+
+No unexpected activity completion.
+
+====================================================
+53. PERFORMANCE AND UI RESPONSIVENESS
+====================================================
+
+Polish must not make rendering slower.
+
+Avoid:
+
+Excessive backdrop blur.
+
+Large animated shadows.
+
+Repeated expensive layout calculations.
+
+High-frequency React state updates.
+
+Unbounded CSS animations.
+
+Multiple fullscreen overlay trees.
+
+Duplicate voice status subscriptions.
+
+Unnecessary page rerenders.
+
+Large transcript rerenders.
+
+Expensive label collision calculations
+on every animation frame.
+
+Use appropriate throttling,
+memoization and event subscriptions.
+
+Keep high-frequency 3D updates
+outside ordinary React state
+where technically appropriate.
+
+Maintain existing rendering budgets.
+
+====================================================
+54. VISUAL REGRESSION SCREENSHOTS
+====================================================
+
+Capture actual screenshots.
+
+At minimum:
+
+Desktop standard lesson.
+
+Desktop fullscreen narration.
+
+Desktop interactive activity.
+
+Desktop official quiz.
+
+Mobile portrait narration.
+
+Mobile portrait activity.
+
+Mobile landscape scene.
+
+Tablet fullscreen.
+
+Transcript open.
+
+COSMOS voice listening.
+
+COSMOS answering a question.
+
+Reduced-motion presentation.
+
+Low-power rendering.
+
+Loading and error states.
+
+Capture representative views
+across the six Academy stages.
+
+Check for:
+
+Clipped text.
+
+Overlapping panels.
+
+Unreadable captions.
+
+Hidden buttons.
+
+Offscreen dialogs.
+
+Unreachable controls.
+
+Obscured astronomical objects.
+
+Incorrect safe-area spacing.
+
+Broken camera framing.
+
+Inconsistent colors.
+
+Tiny tap targets.
+
+Excessive visual clutter.
+
+Do not fabricate screenshots.
+
+====================================================
+55. DESIGN ACCEPTANCE CRITERIA
+====================================================
+
+Score actual tested interfaces
+from 0 to 5 in:
+
+Visual coherence.
+
+Cinematic immersion.
+
+Scientific readability.
+
+Typography.
+
+Control discoverability.
+
+Mobile usability.
+
+Tablet usability.
+
+Desktop presentation.
+
+COSMOS interaction clarity.
+
+Accessibility.
+
+Scientific diagram quality.
+
+Interaction reliability.
+
+Responsiveness.
+
+Performance.
+
+Consistency across modules.
+
+Target at least 4/5
+in the major applicable categories.
+
+Critical accessibility and
+functional failures must be fixed.
+
+Do not invent quality scores.
+
+Use documented review evidence.
+
+====================================================
+56. IMPLEMENTATION SEQUENCE
+====================================================
+
+PHASE A — AUDIT
+
+1. Inspect current components.
+
+2. Inspect current design system.
+
+3. Verify Prompt 15 integration.
+
+4. Capture current screenshots.
+
+5. Identify layout and accessibility issues.
+
+6. Establish baseline performance.
+
+PHASE B — CINEMATIC DESIGN
+
+7. Refine design tokens.
+
+8. Refine top navigation.
+
+9. Refine cinematic transport dock.
+
+10. Refine COSMOS teacher presentation.
+
+11. Refine scientific labels.
+
+12. Refine data visualization styling.
+
+PHASE C — RESPONSIVE UX
+
+13. Implement desktop responsive layout.
+
+14. Implement tablet layout.
+
+15. Implement mobile portrait layout.
+
+16. Implement mobile landscape layout.
+
+17. Fix safe-area behavior.
+
+18. Fix on-screen keyboard handling.
+
+19. Validate touch interactions.
+
+PHASE D — FULLSCREEN RELIABILITY
+
+20. Audit native fullscreen requests.
+
+21. Verify fallback mode.
+
+22. Improve fullscreen entry.
+
+23. Improve exit behavior.
+
+24. Implement focus restoration.
+
+25. Verify state continuity.
+
+PHASE E — LEARNING UX
+
+26. Refine caption presentation.
+
+27. Refine transcript navigation.
+
+28. Refine activity panels.
+
+29. Refine scientific control highlighting.
+
+30. Refine practice quiz design.
+
+31. Refine official quiz design.
+
+32. Refine progress and status messages.
+
+PHASE F — ACCESSIBILITY
+
+33. Improve keyboard navigation.
+
+34. Improve screen-reader semantics.
+
+35. Add reduced-motion handling.
+
+36. Improve touch target sizing.
+
+37. Improve contrast and text scaling.
+
+38. Validate 2D scientific alternatives.
+
+PHASE G — VISUAL POLISH
+
+39. Improve chapter transitions.
+
+40. Improve camera framing.
+
+41. Improve loading states.
+
+42. Improve error recovery UI.
+
+43. Improve mobile scientific charts.
+
+44. Ensure consistent design
+    across all 24 modules.
+
+PHASE H — VALIDATION
+
+45. Run automated accessibility checks.
+
+46. Run keyboard-only tests.
+
+47. Run desktop browser tests.
+
+48. Run mobile viewport tests.
+
+49. Run fullscreen state tests.
+
+50. Capture visual regressions.
+
+51. Measure performance impact.
+
+52. Repair confirmed defects.
+
+53. Verify student progress unchanged.
+
+54. Produce UX implementation report.
+
+55. Prepare for Prompt 17.
+
+Implement in safe, independently
+testable increments.
+
+====================================================
+57. RECOMMENDED CODE ORGANIZATION
+====================================================
+
+Prefer enhancing existing files.
+
+Potential shared UX components:
+
+src/components/academy/cinematic/ui/
+
+CinematicResponsiveLayout
+
+CinematicTopNavigation
+
+CinematicTransportDock
+
+CosmosVoiceIndicator
+
+CosmosQuestionPanel
+
+ScientificPanelManager
+
+ScientificExperimentSheet
+
+ScientificAnnotationLayer
+
+ScientificGraphFrame
+
+CinematicTranscriptDrawer
+
+CinematicAccessibilitySettings
+
+CinematicLoadingState
+
+CinematicErrorRecovery
+
+CinematicProgressStatus
+
+These are suggested logical names.
+
+Do not duplicate existing components.
+
+Do not create an entirely new
+parallel cinematic player.
+
+Reuse the established state machine
+and COSMOS session bridge.
+
+====================================================
+58. FINAL UX IMPLEMENTATION REPORT
+====================================================
+
+Create:
+
+docs/academy/
+cinematic-ux-accessibility-polish-report.md
+
+Include:
+
+A. Initial UX audit.
+
+B. Existing components reviewed.
+
+C. Design-system refinements.
+
+D. Desktop layout changes.
+
+E. Tablet layout changes.
+
+F. Mobile layout changes.
+
+G. Fullscreen compatibility results.
+
+H. Focus management changes.
+
+I. Caption and transcript improvements.
+
+J. COSMOS voice UI improvements.
+
+K. Scientific panel improvements.
+
+L. Activity UX changes.
+
+M. Quiz UX changes.
+
+N. Accessible alternatives.
+
+O. Keyboard testing.
+
+P. Screen-reader findings.
+
+Q. Reduced-motion implementation.
+
+R. Device viewport testing.
+
+S. Browser compatibility results.
+
+T. Screenshot comparisons.
+
+U. Performance measurements.
+
+V. Learning-state regression tests.
+
+W. Unresolved usability issues.
+
+X. Remaining accessibility gaps.
+
+Y. Full 24-module consistency matrix.
+
+Z. Readiness for Prompt 17.
+
+Use statuses:
+
+PASS.
+
+PARTIAL.
+
+FAIL.
+
+NOT IMPLEMENTED.
+
+NOT TESTED.
+
+BLOCKED.
+
+Do not claim accessibility or
+browser compatibility without
+actual evidence.
+
+====================================================
+59. CRITICAL SUCCESS CONDITIONS
+====================================================
+
+PROMPT 16 IS COMPLETE ONLY WHEN:
+
+1. The existing cinematic player
+   remains the single fullscreen
+   learning experience.
+
+2. Desktop presentation is polished.
+
+3. Tablet layouts are functional.
+
+4. Mobile layouts are genuinely usable.
+
+5. Essential controls have
+   comfortable interaction targets.
+
+6. The science viewport remains dominant.
+
+7. Overlapping panels have been addressed.
+
+8. Captions remain readable.
+
+9. The transcript works accessibly.
+
+10. Fullscreen entry is reliable
+    on supported browsers.
+
+11. Full-viewport fallback works.
+
+12. Fullscreen exit preserves
+    the learning session.
+
+13. COSMOS voice status is clear.
+
+14. Typed question input remains available.
+
+15. Scientific labels remain readable.
+
+16. Scientific graphs remain interpretable.
+
+17. Experiment controls remain functional.
+
+18. Activity requirements cannot
+    be bypassed by presentation changes.
+
+19. Official assessment behavior
+    remains secure.
+
+20. Focus management works correctly.
+
+21. Keyboard navigation is supported.
+
+22. Reduced-motion alternatives work.
+
+23. Scientific learning remains accessible
+    without advanced 3D effects.
+
+24. Quality changes do not
+    alter authoritative physics.
+
+25. Visual transitions remain smooth.
+
+26. Existing narration synchronization
+    remains correct.
+
+27. Major responsiveness and layout
+    defects have been corrected.
+
+28. No significant rendering regression
+    has been introduced.
+
+29. The experience is consistent
+    across all 24 modules.
+
+30. Actual browser and accessibility
+    test evidence is documented.
+
+====================================================
+FINAL INSTRUCTION
+====================================================
+
+TRANSFORM OUR VISIBLE UNIVERSE ACADEMY
+INTO A PREMIUM SCIENTIFIC LEARNING PRODUCT.
+
+THE USER SHOULD FEEL AS IF
+THEY ARE ENTERING A PERSONAL
+INTERACTIVE DIGITAL PLANETARIUM
+GUIDED BY AN INTELLIGENT TEACHER.
+
+THE EXPERIENCE MUST BE:
+
+BEAUTIFUL.
+
+SCIENTIFICALLY CLEAR.
+
+INTUITIVE.
+
+IMMERSIVE.
+
+RESPONSIVE.
+
+ACCESSIBLE.
+
+CONSISTENT.
+
+FAST.
+
+RELIABLE.
+
+EDUCATION-FIRST.
+
+DESKTOP USERS SHOULD ENJOY
+AN IMMERSIVE LARGE-SCREEN EXPERIENCE.
+
+MOBILE USERS SHOULD HAVE
+A PURPOSE-BUILT INTERACTIVE EXPERIENCE,
+NOT A SHRUNKEN DESKTOP INTERFACE.
+
+STUDENTS SHOULD ALWAYS UNDERSTAND:
+
+WHAT COSMOS IS EXPLAINING.
+
+WHAT THE ANIMATION REPRESENTS.
+
+WHICH CONTROL THEY CAN USE.
+
+WHAT SCIENTIFIC RESULT THEY OBSERVED.
+
+WHAT LEARNING STEP COMES NEXT.
+
+WHETHER THEIR PROGRESS IS VERIFIED.
+
+DO NOT:
+
+Build another fullscreen player.
+
+Create another COSMOS narrator.
+
+Sacrifice scientific readability
+for decorative animations.
+
+Hide mandatory student controls.
+
+Make essential interaction
+dependent on microphone access.
+
+Present locally pending progress
+as official completion.
+
+Bypass assessment requirements.
+
+Destroy existing cinematics.
+
+Introduce excessive UI animations.
+
+Claim mobile quality without testing.
+
+Claim accessibility compliance
+without supporting evidence.
+
+Claim visual completion
+from successful compilation alone.
+
+Begin Prompt 17 automatically.
+
+Deploy irreversible production changes
+without required authorization.
+
+IMPLEMENT, TEST, REFINE AND DOCUMENT
+THE COMPLETE PREMIUM CINEMATIC
+USER EXPERIENCE ACROSS ALL 24 MODULES.
+
+BEGIN PROMPT 16.

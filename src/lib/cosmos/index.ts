@@ -39,3 +39,8 @@ export * from "./CosmosQuizGuide";
 export { Module01CosmosAdapter } from "./adapters/module-01-adapter";
 export { Module14CosmosAdapter } from "./adapters/module-14-adapter";
 export { UniversalCosmosAdapter } from "./adapters/universal-adapter";
+
+// Prompt 16 Cinematic Design System & Responsive Panel Manager
+export * from "./cinematic/CinematicDesignTokens";
+export * from "./cinematic/CinematicPanelManager";
+

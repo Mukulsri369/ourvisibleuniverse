@@ -6,7 +6,14 @@ import { PLANETS, getPlanetEffectiveSize } from "./Planets";
 import { M31_PLANETS } from "./andromeda-data";
 import { GX_PLANET_INDEX } from "./galaxy-models";
 import { OBJECT_BY_ID, objectPosition } from "./observed-objects";
-import { floatingOriginManager, Vector3D } from "@/lib/astronomy/floating-origin";
+import { floatingOriginManager } from "@/lib/astronomy/floating-origin";
+import {
+  computeContinuousNearFar,
+  expDampLogRadius,
+  expDampScalar,
+  expDampVector3,
+  ScaleTransitionCoordinator,
+} from "@/lib/rendering/performance";
 
 // Custom orbit-style controller with smooth damped zoom & inertia
 export function CameraRig() {
@@ -20,6 +27,13 @@ export function CameraRig() {
   const pinch = useRef<number | null>(null);
   const followedPlanet = useRef<{ name: string; position: THREE.Vector3 } | null>(null);
   const fovTarget = useRef(40);
+  // Pre-allocated scratch vectors & state for zero-GC useFrame loop
+  const scratchPos = useRef(new THREE.Vector3());
+  const scratchTarget = useRef(new THREE.Vector3());
+  const originZero = useRef(new THREE.Vector3(0, 0, 0));
+  const scaleCoordinator = useRef(new ScaleTransitionCoordinator());
+  const lastReportedDist = useRef(8);
+  const lastReportTimestamp = useRef(0);
   const setCameraDistance = useStore((s) => s.setCameraDistance);
   const flyTo = useStore((s) => s.flyTo);
   const clearFly = useStore((s) => s.clearFly);
@@ -340,6 +354,7 @@ export function CameraRig() {
   }, [visitGalaxy]);
 
   useFrame((_, dt) => {
+    const clampedDt = Math.min(dt, 0.1);
     const reg = (window as Window).__planetPositions;
     const st = useStore.getState();
     const selectedStar = st.selectedStar;
@@ -347,7 +362,7 @@ export function CameraRig() {
 
     // Held-key zoom
     if (keys.current.out || keys.current.in) {
-      const rate = (st.zoomSpeed / 50) * 1.2 * Math.min(dt, 0.1);
+      const rate = (st.zoomSpeed / 50) * 1.2 * clampedDt;
       const dir = (keys.current.out ? 1 : 0) - (keys.current.in ? 1 : 0);
       desired.current.radius = Math.max(
         planetMinimumRadius(),
@@ -358,17 +373,44 @@ export function CameraRig() {
     // Free-look: the camera target is frozen in space, so the Solar System
     // drifts past instead of staying pinned to the centre of the screen.
     if (cameraFree) {
-      spherical.current.radius +=
-        (desired.current.radius - spherical.current.radius) * Math.min(1, dt * 4);
-      spherical.current.theta +=
-        (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
-      spherical.current.phi += (desired.current.phi - spherical.current.phi) * Math.min(1, dt * 6);
-      const p = new THREE.Vector3().setFromSpherical(spherical.current).add(target.current);
-      camera.position.copy(p);
+      spherical.current.radius = expDampLogRadius(
+        spherical.current.radius,
+        desired.current.radius,
+        4.0,
+        clampedDt,
+        minR,
+      );
+      spherical.current.theta = expDampScalar(
+        spherical.current.theta,
+        desired.current.theta,
+        6.0,
+        clampedDt,
+      );
+      spherical.current.phi = expDampScalar(
+        spherical.current.phi,
+        desired.current.phi,
+        6.0,
+        clampedDt,
+      );
+      scratchPos.current.setFromSpherical(spherical.current).add(target.current);
+      camera.position.copy(scratchPos.current);
       camera.lookAt(target.current);
-      setCameraDistance(spherical.current.radius);
+      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance =
+        spherical.current.radius;
+      const now = performance.now();
+      if (
+        Math.abs(spherical.current.radius - lastReportedDist.current) /
+          Math.max(1e-12, lastReportedDist.current) >
+          0.015 &&
+        now - lastReportTimestamp.current >= 50
+      ) {
+        lastReportedDist.current = spherical.current.radius;
+        lastReportTimestamp.current = now;
+        setCameraDistance(spherical.current.radius);
+      }
       return;
     }
+
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
       const p = reg?.get(visitPlanet);
@@ -383,83 +425,98 @@ export function CameraRig() {
           followedPlanet.current = { name: visitPlanet, position: p.clone() };
         }
         const distance = target.current.distanceTo(p);
-        const k =
-          distance > Math.max(desired.current.radius * 20, 1)
-            ? 1 - Math.exp(-1.8 * Math.min(dt, 0.1))
-            : 1 - Math.exp(-6 * Math.min(dt, 0.1));
-        target.current.lerp(p, k);
+        const lambda = distance > Math.max(desired.current.radius * 20, 1) ? 1.8 : 6.0;
+        expDampVector3(target.current, p, lambda, clampedDt);
       }
     } else if (visitGalaxy) {
       const f = visitGalaxy.focus;
       // Prefer the live position of the focused star system: it orbits its
       // galaxy's centre, so a static point would drift out of frame.
       const live = f?.key ? reg?.get(f.key) : undefined;
-      const gp = live
-        ? live.clone()
-        : f
-          ? new THREE.Vector3(f.x, f.y, f.z)
-          : new THREE.Vector3(visitGalaxy.x, visitGalaxy.y, visitGalaxy.z);
-      const dist = target.current.distanceTo(gp);
+      if (live) {
+        scratchTarget.current.copy(live);
+      } else if (f) {
+        scratchTarget.current.set(f.x, f.y, f.z);
+      } else {
+        scratchTarget.current.set(visitGalaxy.x, visitGalaxy.y, visitGalaxy.z);
+      }
+      const dist = target.current.distanceTo(scratchTarget.current);
       const reach = f ? f.distance : visitGalaxy.size;
-      const k = dist > reach ? dt * 1.4 : dt * 4;
-      target.current.lerp(gp, Math.min(1, k));
+      expDampVector3(target.current, scratchTarget.current, dist > reach ? 1.8 : 4.5, clampedDt);
     } else if (selectedObjectId) {
       const item = OBJECT_BY_ID.get(selectedObjectId);
       if (item) {
         const [x, y, z] = objectPosition(item);
-        const op = new THREE.Vector3(x, y, z);
-        const dist = target.current.distanceTo(op);
-        target.current.lerp(op, Math.min(1, dt * (dist > 5 ? 1.4 : 4)));
+        scratchTarget.current.set(x, y, z);
+        const dist = target.current.distanceTo(scratchTarget.current);
+        expDampVector3(target.current, scratchTarget.current, dist > 5 ? 1.8 : 4.5, clampedDt);
       }
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
       // Smoothly sweep the target from wherever we are toward the selected
       // star's system, then keep it anchored there.
-      const sp = new THREE.Vector3(selectedStar.x, selectedStar.y, selectedStar.z);
-      const dist = target.current.distanceTo(sp);
-      // Slower ease while far away for a cinematic approach, snappier as we arrive.
-      const k = dist > 5 ? dt * 1.4 : dt * 4;
-      target.current.lerp(sp, Math.min(1, k));
+      scratchTarget.current.set(selectedStar.x, selectedStar.y, selectedStar.z);
+      const dist = target.current.distanceTo(scratchTarget.current);
+      expDampVector3(target.current, scratchTarget.current, dist > 5 ? 1.8 : 4.5, clampedDt);
     } else if (!tourActive && !flyTo) {
       // Follow the drifting Sun so the user stays with the Solar System
       const sun = reg?.get("Sun");
-      if (sun) target.current.lerp(sun, Math.min(1, dt * 3));
-      else target.current.lerp(new THREE.Vector3(0, 0, 0), Math.min(1, dt * 1.5));
+      if (sun) expDampVector3(target.current, sun, 3.5, clampedDt);
+      else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
     }
 
-    // ease toward desired
-    // Multiplicative interpolation keeps close-up zoom smooth across the
-    // enormous gap between a galaxy and a planet's surface.
-    const zoomEase = 1 - Math.exp(-4 * Math.min(dt, 0.1));
-    spherical.current.radius = Math.exp(
-      Math.log(Math.max(minR, spherical.current.radius)) +
-        (Math.log(Math.max(minR, desired.current.radius)) -
-          Math.log(Math.max(minR, spherical.current.radius))) *
-          zoomEase,
+    // Multiplicative logarithmic interpolation keeps close-up zoom smooth across
+    // the enormous gap between a galaxy and a planet's surface.
+    spherical.current.radius = expDampLogRadius(
+      spherical.current.radius,
+      desired.current.radius,
+      4.5,
+      clampedDt,
+      minR,
     );
-    spherical.current.theta +=
-      (desired.current.theta - spherical.current.theta) * Math.min(1, dt * 6);
-    spherical.current.phi += (desired.current.phi - spherical.current.phi) * Math.min(1, dt * 6);
+    spherical.current.theta = expDampScalar(
+      spherical.current.theta,
+      desired.current.theta,
+      6.5,
+      clampedDt,
+    );
+    spherical.current.phi = expDampScalar(
+      spherical.current.phi,
+      desired.current.phi,
+      6.5,
+      clampedDt,
+    );
+
     if (tourActive || (isAutoOrbiting && !dragging.current)) {
-      desired.current.theta += dt * (tourActive ? 0.05 : 0.06);
+      desired.current.theta += clampedDt * (tourActive ? 0.05 : 0.06);
     }
     if (!dragging.current) {
-      velocity.current.theta *= 0.92;
-      velocity.current.phi *= 0.92;
+      const inertiaRetention = Math.pow(0.92, clampedDt * 60);
+      velocity.current.theta *= inertiaRetention;
+      velocity.current.phi *= inertiaRetention;
     }
-    const pos = new THREE.Vector3().setFromSpherical(spherical.current).add(target.current);
-    camera.position.copy(pos);
+
+    scratchPos.current.setFromSpherical(spherical.current).add(target.current);
+    camera.position.copy(scratchPos.current);
     camera.lookAt(target.current);
 
     // Synchronize high-precision 64-bit camera coordinates and active reference frame
-    floatingOriginManager.cameraWorldPos64.set(pos.x, pos.y, pos.z);
+    floatingOriginManager.cameraWorldPos64.set(
+      scratchPos.current.x,
+      scratchPos.current.y,
+      scratchPos.current.z,
+    );
     floatingOriginManager.cameraTarget64.set(target.current.x, target.current.y, target.current.z);
     const activeFrame = floatingOriginManager.updateActiveFrame(
       floatingOriginManager.cameraWorldPos64,
     );
-    (window as unknown as { __activeOriginName?: string }).__activeOriginName = activeFrame.name;
-
-    // dynamic FOV (unless tour or visit overrides)
     const r = spherical.current.radius;
+    const activeRegime = scaleCoordinator.current.updateRadiusWithHysteresis(r);
+    (window as unknown as { __activeOriginName?: string }).__activeOriginName = activeFrame.name;
+    (window as unknown as { __activeScaleRegimeId?: string }).__activeScaleRegimeId =
+      activeRegime.regimeId;
+    (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance = r;
+
+    // Smooth continuous dynamic FOV & clipping plane synchronization (eliminates 25% step-snap flicker)
     const t = Math.min(
       1,
       Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))),
@@ -470,25 +527,38 @@ export function CameraRig() {
       !selectedObjectId &&
       !visitGalaxy &&
       !(selectedStar && selectedStar.name !== "Sun")
-    )
-      fovTarget.current = 30 + t * 60;
-    const pc = camera as THREE.PerspectiveCamera;
-    pc.fov += (fovTarget.current - pc.fov) * Math.min(1, dt * 2);
-
-    // Bounded near/far clipping plane ratio to eliminate depth buffer precision fighting
-    // Maintains near/far depth ratio <= 10^7 across all astronomical scales
-    const targetNear = Math.max(1e-10, Math.min(0.05, r * 1e-4));
-    const targetFar = Math.max(200, Math.min(5e11, r * 1e5));
-    if (
-      Math.abs(pc.near - targetNear) / targetNear > 0.25 ||
-      Math.abs(pc.far - targetFar) / targetFar > 0.25
     ) {
-      pc.near = targetNear;
-      pc.far = targetFar;
+      fovTarget.current = 30 + t * 60;
+    }
+    const pc = camera as THREE.PerspectiveCamera;
+    const nextFov = expDampScalar(pc.fov, fovTarget.current, 2.5, clampedDt);
+    const clip = computeContinuousNearFar(r, 1e-10, 0.05, 200, 5e11);
+
+    const fovChanged = Math.abs(nextFov - pc.fov) > 0.001;
+    const nearChanged = Math.abs(pc.near - clip.near) / Math.max(1e-12, clip.near) > 0.015;
+    const farChanged = Math.abs(pc.far - clip.far) / Math.max(1, clip.far) > 0.015;
+
+    if (fovChanged || nearChanged || farChanged) {
+      pc.fov = nextFov;
+      pc.near = clip.near;
+      pc.far = clip.far;
       pc.updateProjectionMatrix();
     }
 
-    setCameraDistance(r);
+    // Throttle React Zustand store updates to prevent 60Hz UI re-render storms during zoom
+    const now = performance.now();
+    const relDistDelta =
+      Math.abs(r - lastReportedDist.current) / Math.max(1e-12, lastReportedDist.current);
+    const settled =
+      Math.abs(r - desired.current.radius) / Math.max(1e-12, desired.current.radius) < 0.005;
+    if (
+      (relDistDelta > 0.015 && now - lastReportTimestamp.current >= 50) ||
+      (settled && relDistDelta > 0.001)
+    ) {
+      lastReportedDist.current = r;
+      lastReportTimestamp.current = now;
+      setCameraDistance(r);
+    }
   });
 
   return null;

@@ -1357,8 +1357,18 @@ function MinorBodies() {
     return { geom: g, radii, thetas, heights, omegas };
   }, []);
 
+  const pointsRef = useRef<THREE.Points>(null!);
   const beltTick = useRef(0);
   useFrame(({ clock }) => {
+    const liveDist =
+      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
+      useStore.getState().cameraDistance;
+    // Beyond 25 ly, the entire Kuiper Belt (< 2.5 ly radius) is sub-pixel;
+    // skip CPU buffer rewrites and GPU uploads while zoomed out to stars/galaxies.
+    if (pointsRef.current) {
+      pointsRef.current.visible = liveDist <= 25;
+    }
+    if (liveDist > 25) return;
     // Rewriting tens of thousands of belt positions every frame is pure CPU
     // cost for motion the eye can't resolve; every 3rd frame looks identical.
     if (beltTick.current++ % 3 !== 0) return;
@@ -1376,7 +1386,7 @@ function MinorBodies() {
   });
 
   return (
-    <points geometry={geom} frustumCulled={false}>
+    <points ref={pointsRef} geometry={geom} frustumCulled={false}>
       <pointsMaterial
         vertexColors
         size={0.18 * P}
@@ -1478,6 +1488,8 @@ function useTrail(body: TrailBody) {
         uLen: { value: len },
       },
       vertexShader: /* glsl */ `
+        #include <common>
+        #include <logdepthbuf_pars_vertex>
         attribute float aIndex;
         uniform float uHead;
         uniform float uLen;
@@ -1490,13 +1502,16 @@ function useTrail(body: TrailBody) {
           gl_Position = projectionMatrix * mv;
           // Collapse the oldest vertex so the wrap-around segment vanishes.
           if (age > 0.995) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+          #include <logdepthbuf_vertex>
         }
       `,
       fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
         uniform vec3 uColor;
         uniform float uOpacity;
         varying float vAge;
         void main(){
+          #include <logdepthbuf_fragment>
           float a = pow(1.0 - vAge, 1.6) * uOpacity;
           if (a < 0.015) discard;
           gl_FragColor = vec4(uColor, a);
@@ -1512,6 +1527,16 @@ function useTrail(body: TrailBody) {
 
   const tick = useRef(0);
   useFrame(() => {
+    const liveDist =
+      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
+      useStore.getState().cameraDistance;
+    // Skip GPU buffer uploads for Solar System trails when zoomed out to galactic scales (> 25 ly)
+    if (liveDist > 25) {
+      const queued = trailSamples().get(body.name);
+      if (queued) queued.length = 0;
+      return;
+    }
+
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     // Moons publish sub-sampled orbit points; consume them all every frame.

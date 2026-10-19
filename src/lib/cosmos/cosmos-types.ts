@@ -208,6 +208,13 @@ export interface ConversationalTurnContext extends StudentQuestionContext {
   lastAnswerText?: string;
 }
 
+export type CinematicCaptionPresentationMode =
+  | "COMPACT"
+  | "LARGE"
+  | "HIGH_CONTRAST"
+  | "OFF"
+  | "TRANSCRIPT";
+
 /**
  * Student Learning & AI Preferences.
  */
@@ -229,6 +236,11 @@ export interface CosmosPreferences {
   followUpWindowSeconds: number; // Seconds to wait for student follow-up before auto-resume (default 6s)
   vadSensitivity: number; // Voice Activity Detection sensitivity (0.0 to 1.0)
   pushToTalkEnabled: boolean; // Push-to-talk mode
+  // Prompt 16 Cinematic UX, Accessibility & Personalization Preferences
+  captionPresentationMode: CinematicCaptionPresentationMode;
+  reducedMotionEnabled: boolean;
+  scientificLabelsEnabled: boolean;
+  accessibleDataTablePreferred: boolean;
 }
 
 export const COSMOS_DEFAULT_PREFERENCES: CosmosPreferences = {
@@ -248,6 +260,10 @@ export const COSMOS_DEFAULT_PREFERENCES: CosmosPreferences = {
   followUpWindowSeconds: 6,
   vadSensitivity: 0.5,
   pushToTalkEnabled: true,
+  captionPresentationMode: "COMPACT",
+  reducedMotionEnabled: false,
+  scientificLabelsEnabled: true,
+  accessibleDataTablePreferred: false,
 };
 
 /**

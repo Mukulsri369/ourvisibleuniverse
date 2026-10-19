@@ -8,6 +8,7 @@
 
 import {
   COSMOS_DEFAULT_PREFERENCES,
+  type CinematicCaptionPresentationMode,
   type CosmosLearningMode,
   type CosmosPreferences,
   type CosmosVoiceName,
@@ -116,6 +117,41 @@ export class LearningPreferenceManager {
 
   public static setPushToTalk(enabled: boolean): void {
     this.setPreferences({ pushToTalkEnabled: enabled });
+  }
+
+  public static setCaptionPresentationMode(mode: CinematicCaptionPresentationMode): void {
+    this.setPreferences({
+      captionPresentationMode: mode,
+      subtitlesEnabled: mode !== "OFF",
+    });
+  }
+
+  public static setReducedMotion(enabled: boolean): void {
+    this.setPreferences({ reducedMotionEnabled: enabled });
+  }
+
+  public static setScientificLabelsEnabled(enabled: boolean): void {
+    this.setPreferences({ scientificLabelsEnabled: enabled });
+  }
+
+  public static setAccessibleDataTablePreferred(enabled: boolean): void {
+    this.setPreferences({ accessibleDataTablePreferred: enabled });
+  }
+
+  /**
+   * Checks whether reduced motion is active via student preference or OS media query.
+   */
+  public static isReducedMotionActive(): boolean {
+    const prefs = this.getPreferences();
+    if (prefs.reducedMotionEnabled) return true;
+    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+      try {
+        return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      } catch {
+        return false;
+      }
+    }
+    return false;
   }
 
   /**

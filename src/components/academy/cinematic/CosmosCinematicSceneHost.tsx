@@ -164,6 +164,12 @@ function CinematicCameraRig({
   const desiredPosRef = useRef(new THREE.Vector3(...scene.defaultCameraPosition));
   const desiredTargetRef = useRef(new THREE.Vector3(...scene.defaultCameraTarget));
   const currentTargetRef = useRef(new THREE.Vector3(...scene.defaultCameraTarget));
+  const orbitRadiusRef = useRef(
+    Math.hypot(
+      scene.defaultCameraPosition[0] - scene.defaultCameraTarget[0],
+      scene.defaultCameraPosition[2] - scene.defaultCameraTarget[2],
+    ) || 10,
+  );
   const cameraPausedRef = useRef(false);
   const orbitModeActiveRef = useRef(false);
 
@@ -181,6 +187,11 @@ function CinematicCameraRig({
     if (!activeCue || isManualCameraMode) return;
     desiredPosRef.current.set(...activeCue.cameraPosition);
     desiredTargetRef.current.set(...activeCue.cameraTarget);
+    orbitRadiusRef.current =
+      Math.hypot(
+        desiredPosRef.current.x - desiredTargetRef.current.x,
+        desiredPosRef.current.z - desiredTargetRef.current.z,
+      ) || 8.0;
     orbitModeActiveRef.current = activeCue.cameraAction === "ORBIT_OBJECT";
     cameraPausedRef.current = false;
 
@@ -188,6 +199,9 @@ function CinematicCameraRig({
       camera.position.copy(desiredPosRef.current);
       currentTargetRef.current.copy(desiredTargetRef.current);
       camera.lookAt(currentTargetRef.current);
+      if (controlsRef.current) {
+        controlsRef.current.target.copy(currentTargetRef.current);
+      }
     }
   }, [activeCue, isManualCameraMode, reducedMotion, camera]);
 
@@ -214,10 +228,18 @@ function CinematicCameraRig({
         } else {
           desiredTargetRef.current.set(...scene.defaultCameraTarget);
         }
+        orbitRadiusRef.current =
+          Math.hypot(
+            desiredPosRef.current.x - desiredTargetRef.current.x,
+            desiredPosRef.current.z - desiredTargetRef.current.z,
+          ) || 8.0;
         if (reducedMotion) {
           camera.position.copy(desiredPosRef.current);
           currentTargetRef.current.copy(desiredTargetRef.current);
           camera.lookAt(currentTargetRef.current);
+          if (controlsRef.current) {
+            controlsRef.current.target.copy(currentTargetRef.current);
+          }
         }
         break;
 
@@ -240,8 +262,14 @@ function CinematicCameraRig({
             obj.position[1] + zoomDist * 0.55,
             obj.position[2] + zoomDist,
           );
+          orbitRadiusRef.current = Math.hypot(zoomDist * 0.45, zoomDist);
         } else if (latestCameraCommand.cameraPosition) {
           desiredPosRef.current.set(...latestCameraCommand.cameraPosition);
+          orbitRadiusRef.current =
+            Math.hypot(
+              desiredPosRef.current.x - desiredTargetRef.current.x,
+              desiredPosRef.current.z - desiredTargetRef.current.z,
+            ) || 8.0;
         }
         break;
       }
@@ -249,21 +277,25 @@ function CinematicCameraRig({
   }, [latestCameraCommand, scene, reducedMotion, camera]);
 
   useFrame((state, delta) => {
+    CosmosCinematicQualityManager.getInstance().reportFrameDelta(delta * 1000);
+
     if (isManualCameraMode || cameraPausedRef.current) {
       if (controlsRef.current) {
         controlsRef.current.update();
+        currentTargetRef.current.copy(controlsRef.current.target);
       }
       return;
     }
 
     const dt = Math.min(delta, 0.1);
-    const lambda = reducedMotion ? 25.0 : 3.2;
+    const lambda = reducedMotion ? 25.0 : 3.6;
 
+    // Target-centered orbital motion around desiredTargetRef (never around world origin 0,0,0)
     if (orbitModeActiveRef.current && !reducedMotion) {
-      const angle = state.clock.elapsedTime * 0.16;
-      const radius = Math.hypot(desiredPosRef.current.x, desiredPosRef.current.z) || 10;
-      desiredPosRef.current.x = Math.sin(angle) * radius;
-      desiredPosRef.current.z = Math.cos(angle) * radius;
+      const angle = state.clock.elapsedTime * 0.18;
+      const radius = orbitRadiusRef.current;
+      desiredPosRef.current.x = desiredTargetRef.current.x + Math.sin(angle) * radius;
+      desiredPosRef.current.z = desiredTargetRef.current.z + Math.cos(angle) * radius;
     }
 
     camera.position.x = THREE.MathUtils.damp(
@@ -304,18 +336,19 @@ function CinematicCameraRig({
       dt,
     );
 
+    // Single-owner camera governance: during guided cinematic playback,
+    // CinematicCameraRig exclusively owns camera.position and lookAt,
+    // while syncing controlsRef.current.target for seamless handoff when user drags.
     if (controlsRef.current) {
       controlsRef.current.target.copy(currentTargetRef.current);
-      controlsRef.current.update();
-    } else {
-      camera.lookAt(currentTargetRef.current);
     }
+    camera.lookAt(currentTargetRef.current);
   });
 
   return (
     <OrbitControls
       ref={controlsRef}
-      enableDamping
+      enableDamping={isManualCameraMode || cameraPausedRef.current}
       dampingFactor={0.08}
       enableZoom
       enablePan={isManualCameraMode}

@@ -1,15 +1,15 @@
 /**
  * COSMOS Fullscreen Cinematic Learning Player & Reusable Launcher
  * Project: Our Visible Universe Academy
- * Scope: Prompt 03 — Complete Production Fullscreen Cinematic Learning Player
+ * Scope: Prompt 03 & Prompt 16 — Complete Production Fullscreen Cinematic Learning Player
  *
  * Connects:
  * - CosmosCinematicSessionBridge (Single authoritative connection to CosmosLearningDirector & NarrationController)
- * - CosmosCinematicViewport (Native Fullscreen API + 100dvh safe-area fallback)
- * - CosmosCinematicSceneHost (Three.js / R3F 3D scene host + camera rig + annotations)
- * - CosmosCinematicOverlay (Top bar, object inspector, activity gate, quiz overlay, Q&A response)
- * - CosmosCinematicCaptions (Synchronized NarrationSegment captions & terminology highlights)
- * - CosmosCinematicControls (Transport, Mic, Ask COSMOS, CC, Labels, Camera, Speed, Quality, Exit)
+ * - CosmosCinematicViewport (Native Fullscreen API + WCAG Modal Accessibility + Safe-Area Fallback)
+ * - CosmosCinematicSceneHost (Three.js / R3F 3D scene host + camera rig + collision-managed annotations)
+ * - CosmosCinematicOverlay (Smart responsive panels, object inspector, 2D data table, activity gate, quiz overlay, Q&A)
+ * - CosmosCinematicCaptions (5 caption modes, synchronized NarrationSegment captions & searchable transcript drawer)
+ * - CosmosCinematicControls (>=44px touch targets, COSMOS Teacher Status, Ask COSMOS, Mic, Personalization & Exit)
  */
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -17,6 +17,7 @@ import { Film, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { LearningLevel } from "@/lib/academy/types";
 import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
+import { LearningPreferenceManager } from "@/lib/cosmos/LearningPreferenceManager";
 import { LessonContentProvider } from "@/lib/cosmos/LessonContentProvider";
 import { CosmosCinematicSessionBridge } from "@/lib/cosmos/cinematic/CosmosCinematicSessionBridge";
 import { CosmosAnimationCueController } from "@/lib/cosmos/cinematic/CosmosAnimationCueController";
@@ -44,7 +45,7 @@ export interface EnterCinematicModeButtonProps {
 
 /**
  * Distinct "ENTER CINEMATIC MODE" button available across all 24 Cosmic Journey modules.
- * Must be triggered by a direct student click so browser `requestFullscreen()` is authorized.
+ * Triggered directly by a student click so browser `requestFullscreen()` is authorized.
  */
 export function EnterCinematicModeButton({
   moduleId,
@@ -72,7 +73,7 @@ export function EnterCinematicModeButton({
         onClick={() => void handleEnterCinematic()}
         data-testid="enter-cinematic-mode-compact-btn"
         aria-label="Enter Cinematic Mode"
-        className={`bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs px-3 h-8 border border-cyan-300/40 shadow-md ${className}`}
+        className={`bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs px-3.5 min-h-[38px] border border-cyan-300/40 shadow-md ${className}`}
       >
         <Film className="size-3.5 mr-1.5" />
         <span>ENTER CINEMATIC MODE</span>
@@ -87,7 +88,7 @@ export function EnterCinematicModeButton({
       onClick={() => void handleEnterCinematic()}
       data-testid="enter-cinematic-mode-btn"
       aria-label={`Enter Fullscreen Cinematic Learning Mode for Module ${moduleId}: ${moduleTitle}`}
-      className={`bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:via-sky-400 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm px-4 py-2 h-auto border border-cyan-300/40 shadow-lg shadow-cyan-950/50 flex items-center gap-2 ${className}`}
+      className={`bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:via-sky-400 hover:to-indigo-500 text-white font-bold text-xs sm:text-sm px-4 py-2.5 min-h-[44px] border border-cyan-300/40 shadow-lg shadow-cyan-950/50 flex items-center gap-2 ${className}`}
     >
       <Film className="size-4 text-cyan-100" />
       <span>ENTER CINEMATIC MODE</span>
@@ -100,7 +101,9 @@ interface CosmosCinematicPlayerProps {
   reducedMotion?: boolean;
 }
 
-export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematicPlayerProps) {
+export function CosmosCinematicPlayer({
+  reducedMotion: propReducedMotion,
+}: CosmosCinematicPlayerProps) {
   const bridge = CosmosCinematicSessionBridge.getInstance();
   const director = CosmosLearningDirector.getInstance();
   const cueController = CosmosAnimationCueController.getInstance();
@@ -118,8 +121,22 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
   const [latestCameraCommand, setLatestCameraCommand] = useState<CinematicCameraCommand | null>(
     () => cueController.getState().lastCameraCommand,
   );
+  const [reducedMotion, setReducedMotion] = useState<boolean>(() =>
+    typeof propReducedMotion === "boolean"
+      ? propReducedMotion
+      : LearningPreferenceManager.isReducedMotionActive(),
+  );
+  const [showAccessibleDataView, setShowAccessibleDataView] = useState<boolean>(
+    () => LearningPreferenceManager.getPreferences().accessibleDataTablePreferred || false,
+  );
 
-  // Subscribe to authoritative bridge, director, and cue updates
+  useEffect(() => {
+    if (typeof propReducedMotion === "boolean") {
+      setReducedMotion(propReducedMotion);
+    }
+  }, [propReducedMotion]);
+
+  // Subscribe to authoritative bridge, director, cue, and student accessibility preferences
   useEffect(() => {
     const unsubBridge = bridge.subscribe((nextSnap) => {
       setSnapshot(nextSnap);
@@ -136,17 +153,25 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
     const unsubCam = bridge.subscribeCameraCommands((cmd) => {
       setLatestCameraCommand(cmd);
     });
+    const unsubPrefs = LearningPreferenceManager.subscribe((prefs) => {
+      if (typeof propReducedMotion !== "boolean") {
+        setReducedMotion(
+          Boolean(prefs.reducedMotionEnabled) || LearningPreferenceManager.isReducedMotionActive(),
+        );
+      }
+      setShowAccessibleDataView(Boolean(prefs.accessibleDataTablePreferred));
+    });
 
     return () => {
       unsubBridge();
       unsubDirector();
       unsubCue();
       unsubCam();
+      unsubPrefs();
     };
-  }, [bridge, director, cueController]);
+  }, [bridge, director, cueController, propReducedMotion]);
 
-  // When the player transitions to ENTERING_FULLSCREEN or READY after clicking ENTER CINEMATIC MODE,
-  // request native browser fullscreen on the mounted viewportRef if not already in native fullscreen
+  // Request native browser fullscreen on the mounted viewportRef when transitioning to REQUESTING_NATIVE
   useEffect(() => {
     if (
       snapshot.playerState !== "CLOSED" &&
@@ -183,6 +208,10 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
     snapshot.language,
   );
 
+  const isGateLocked =
+    snapshot.interactionState === "ACTIVITY_REQUIRED" ||
+    snapshot.interactionState === "OFFICIAL_EXAM_ACTIVE";
+
   const handleRequestNativeFullscreen = () => {
     if (viewportRef.current) {
       void bridge.requestBrowserFullscreen(viewportRef.current);
@@ -195,12 +224,12 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
       bridge.dispatchCameraCommand({
         action: "FOCUS_OBJECT",
         targetObjectId: objectId,
-        durationMs: 900,
+        durationMs: reducedMotion ? 0 : 900,
       });
     } else {
       bridge.dispatchCameraCommand({
         action: "RESTORE_CAMERA",
-        durationMs: 800,
+        durationMs: reducedMotion ? 0 : 800,
       });
     }
   };
@@ -214,7 +243,7 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
         document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]') ||
         document.querySelector("[data-cosmos-section], section");
       if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
       }
     }
   };
@@ -247,6 +276,11 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
           snapshot={snapshot}
           directorSnapshot={directorSnapshot}
           scene={scene}
+          showAccessibleDataView={showAccessibleDataView}
+          onToggleAccessibleDataView={(show) => {
+            setShowAccessibleDataView(show);
+            LearningPreferenceManager.setAccessibleDataTablePreferred(show);
+          }}
           onExitCinematicMode={() => void bridge.exitCinematicMode()}
           onRequestNativeFullscreen={handleRequestNativeFullscreen}
           onSelectObject={handleSelectObject}
@@ -271,12 +305,18 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
             activeSegmentId={snapshot.currentNarrationSegmentId}
             playbackStatus={snapshot.currentPlaybackState}
             allSegments={allSegments}
+            isGateLocked={isGateLocked}
             onSeekSegment={(segId) => bridge.seekToNarrationSegment(segId)}
           />
 
           <CosmosCinematicControls
             snapshot={snapshot}
+            directorSnapshot={directorSnapshot}
             speechSpeed={directorSnapshot.speechSpeed || 1.0}
+            reducedMotion={reducedMotion}
+            onToggleReducedMotion={(enabled) => setReducedMotion(enabled)}
+            showAccessibleDataView={showAccessibleDataView}
+            onToggleAccessibleDataView={(enabled) => setShowAccessibleDataView(enabled)}
             onPlayOrResume={() => void bridge.playOrResume()}
             onPause={() => bridge.pause()}
             onRepeat={() => void bridge.repeatCurrentExplanation()}

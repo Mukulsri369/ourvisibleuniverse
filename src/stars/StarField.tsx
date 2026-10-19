@@ -246,7 +246,9 @@ export function StarField() {
     spectralBlend.current += (spectralTarget.current - spectralBlend.current) * 0.05;
 
     lodCooldown.current += dt;
-    const camDist = useStore.getState().cameraDistance;
+    const camDist =
+      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
+      useStore.getState().cameraDistance;
 
     // Debounce tile requests: check every 0.35s and require >= 25% distance delta
     if (lodCooldown.current > 0.35) {
@@ -292,6 +294,8 @@ export function StarField() {
         uCinematic: { value: 0 },
       },
       vertexShader: /* glsl */ `
+        #include <common>
+        #include <logdepthbuf_pars_vertex>
         attribute vec3 aVelocity;
         attribute float aSize;
         attribute float aPhase;
@@ -351,9 +355,11 @@ export function StarField() {
           }
 
           gl_Position = projectionMatrix * mv;
+          #include <logdepthbuf_vertex>
         }
       `,
       fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
         uniform sampler2D uTex;
         uniform float uFocus;
         uniform float uCinematic;
@@ -364,6 +370,7 @@ export function StarField() {
         varying float vIsSkyDirection;
 
         void main() {
+          #include <logdepthbuf_fragment>
           vec4 tex = texture2D(uTex, gl_PointCoord);
           if (tex.a < 0.04) discard;
 

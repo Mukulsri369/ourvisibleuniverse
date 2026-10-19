@@ -346,9 +346,22 @@ function KeplerOrbitLine({
     return { points: pts, labelPos: maxPos };
   }, [body, scaledDistance]);
 
-  const lineGeo = useMemo(() => {
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }, [points]);
+  const lineObj = useMemo(() => {
+    const geo = new THREE.BufferGeometry().setFromPoints(points);
+    const mat = new THREE.LineBasicMaterial({
+      color: new THREE.Color(body.color),
+      transparent: true,
+      opacity: 0.35,
+    });
+    return { line: new THREE.Line(geo, mat), geo, mat };
+  }, [points, body.color]);
+
+  useEffect(() => {
+    return () => {
+      lineObj.geo.dispose();
+      lineObj.mat.dispose();
+    };
+  }, [lineObj]);
 
   const sprite = useMemo(() => {
     if (!showInclination) return null;
@@ -359,18 +372,7 @@ function KeplerOrbitLine({
 
   return (
     <group>
-      <primitive
-        object={
-          new THREE.Line(
-            lineGeo,
-            new THREE.LineBasicMaterial({
-              color: new THREE.Color(body.color),
-              transparent: true,
-              opacity: 0.35,
-            }),
-          )
-        }
-      />
+      <primitive object={lineObj.line} />
       {showInclination && sprite && (
         <primitive object={sprite} position={[labelPos.x, labelPos.y + 1.0, labelPos.z]} />
       )}
@@ -436,6 +438,11 @@ function PlanetMesh({
     }
   }, [body.radiusKm, exaggeratedSize, earthRadiusUnit]);
 
+  const emissiveColor = useMemo(
+    () => (body.emissive ? new THREE.Color(body.emissive) : new THREE.Color(0x000000)),
+    [body.emissive],
+  );
+
   useFrame((_, delta) => {
     if (!groupRef.current) return;
 
@@ -497,7 +504,7 @@ function PlanetMesh({
           color={body.color}
           roughness={0.7}
           metalness={0.15}
-          emissive={body.emissive ? new THREE.Color(body.emissive) : new THREE.Color(0x000000)}
+          emissive={emissiveColor}
         />
       </mesh>
 
@@ -635,61 +642,91 @@ function CameraRig({
   controlsRef: React.RefObject<OrbitControlsLike | null>;
 }) {
   const { camera } = useThree();
+  const desiredPosRef = useRef(new THREE.Vector3(18, 16, 26));
+  const desiredTargetRef = useRef(new THREE.Vector3(0, 0, 0));
+  const transitionRemainingRef = useRef(0);
+  const deltaVecRef = useRef(new THREE.Vector3());
+  const prevTrackedPosRef = useRef<{ name: string; pos: THREE.Vector3 } | null>(null);
 
   useEffect(() => {
-    const controls = controlsRef.current;
+    prevTrackedPosRef.current = null;
+    if (preset === "free") {
+      transitionRemainingRef.current = 0;
+      return;
+    }
+
+    transitionRemainingRef.current = 0.85;
     if (preset === "topdown") {
-      camera.position.set(0, 75, 0.001);
-      if (controls) {
-        controls.target.set(0, 0, 0);
-        controls.update();
-      }
+      desiredPosRef.current.set(0, 75, 0.001);
+      desiredTargetRef.current.set(0, 0, 0);
     } else if (preset === "edgeon") {
-      camera.position.set(0, 0.5, 65);
-      if (controls) {
-        controls.target.set(0, 0, 0);
-        controls.update();
-      }
+      desiredPosRef.current.set(0, 0.5, 65);
+      desiredTargetRef.current.set(0, 0, 0);
     } else if (preset === "inner") {
-      camera.position.set(12, 14, 18);
-      if (controls) {
-        controls.target.set(4, 0, 0);
-        controls.update();
-      }
+      desiredPosRef.current.set(12, 14, 18);
+      desiredTargetRef.current.set(4, 0, 0);
     } else if (preset === "outer") {
-      camera.position.set(28, 25, 45);
-      if (controls) {
-        controls.target.set(10, 0, 0);
-        controls.update();
-      }
+      desiredPosRef.current.set(28, 25, 45);
+      desiredTargetRef.current.set(10, 0, 0);
     } else if (preset === "sun") {
-      camera.position.set(0, 3, 7.5);
-      if (controls) {
-        controls.target.set(0, 0, 0);
-        controls.update();
-      }
+      desiredPosRef.current.set(0, 3, 7.5);
+      desiredTargetRef.current.set(0, 0, 0);
     } else if (preset === "focus" && selectedPlanet) {
-      const pPos = positionsMap.current[selectedPlanet] || new THREE.Vector3(0, 0, 0);
+      const pPos = positionsMap.current[selectedPlanet];
+      const px = pPos ? pPos.x : 0;
+      const py = pPos ? pPos.y : 0;
+      const pz = pPos ? pPos.z : 0;
       const isGiant = ["Jupiter", "Saturn"].includes(selectedPlanet);
       const offsetDist = isGiant ? 6.5 : 3.8;
-      camera.position.set(pPos.x + offsetDist, pPos.y + offsetDist * 0.45, pPos.z + offsetDist);
-      if (controls) {
-        controls.target.copy(pPos);
-        controls.update();
+      desiredPosRef.current.set(px + offsetDist, py + offsetDist * 0.45, pz + offsetDist);
+      desiredTargetRef.current.set(px, py, pz);
+      if (pPos) {
+        prevTrackedPosRef.current = { name: selectedPlanet, pos: pPos.clone() };
       }
     }
-  }, [preset, selectedPlanet, camera, controlsRef, positionsMap]);
+  }, [preset, selectedPlanet, positionsMap]);
 
-  useFrame(() => {
-    if (preset === "focus" && selectedPlanet && controlsRef.current) {
+  useFrame((_, rawDelta) => {
+    const dt = Math.min(rawDelta, 0.1);
+    const controls = controlsRef.current;
+
+    // 1. Track moving planet with frame-rate-independent exponential damping & zero per-frame allocation
+    if (preset === "focus" && selectedPlanet && controls) {
       const pPos = positionsMap.current[selectedPlanet];
       if (pPos) {
-        // Smoothly track moving planet
-        const delta = pPos.clone().sub(controlsRef.current.target);
-        controlsRef.current.target.addScaledVector(delta, 0.08);
-        camera.position.addScaledVector(delta, 0.08);
-        controlsRef.current.update();
+        if (prevTrackedPosRef.current?.name === selectedPlanet) {
+          deltaVecRef.current.copy(pPos).sub(prevTrackedPosRef.current.pos);
+          // Carry both camera and target along with the moving planet's orbital displacement
+          controls.target.add(deltaVecRef.current);
+          camera.position.add(deltaVecRef.current);
+          desiredPosRef.current.add(deltaVecRef.current);
+          desiredTargetRef.current.copy(pPos);
+          prevTrackedPosRef.current.pos.copy(pPos);
+        } else {
+          prevTrackedPosRef.current = { name: selectedPlanet, pos: pPos.clone() };
+        }
+
+        // Exponentially damp any residual target offset (frame-rate independent across 30–144 FPS)
+        const trackFactor = 1 - Math.exp(-10.0 * dt);
+        deltaVecRef.current.copy(pPos).sub(controls.target);
+        controls.target.addScaledVector(deltaVecRef.current, trackFactor);
+        camera.position.addScaledVector(deltaVecRef.current, trackFactor);
       }
+    }
+
+    // 2. Smoothly animate preset transitions without instant teleport jumps
+    if (transitionRemainingRef.current > 0) {
+      transitionRemainingRef.current = Math.max(0, transitionRemainingRef.current - dt);
+      const dampFactor = 1 - Math.exp(-6.5 * dt);
+      camera.position.lerp(desiredPosRef.current, dampFactor);
+      if (controls) {
+        controls.target.lerp(desiredTargetRef.current, dampFactor);
+        controls.update();
+      } else {
+        camera.lookAt(desiredTargetRef.current);
+      }
+    } else if (preset === "focus" && controls) {
+      controls.update();
     }
   });
 
