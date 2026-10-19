@@ -18,6 +18,10 @@ import type { CinematicCameraType } from "../cinematic-storyboard-types";
 import type { CosmosLanguage, NarrationSegment } from "../cosmos-types";
 import type { CinematicCameraActionType, CinematicTimePolicy } from "./CosmosCinematicPlayerState";
 import { CosmosCinematicSceneRegistry } from "./CosmosCinematicSceneRegistry";
+import {
+  CosmosProofOfConceptCatalog,
+  type ProofOfConceptSceneComponentId,
+} from "./poc/CosmosProofOfConceptManifest";
 
 export interface RegisteredAnimationCue {
   cueId: string;
@@ -39,6 +43,11 @@ export interface RegisteredAnimationCue {
   activeAnnotationIds: string[];
   transition: "smooth" | "cut" | "cross_dissolve" | "scale_bridge";
   layerOrPresetIndex: number;
+  chapterCode?: string;
+  beatId?: string;
+  beatTitle?: string;
+  beatIndex?: number;
+  sceneComponentId?: ProofOfConceptSceneComponentId;
 }
 
 export class CosmosAnimationCueRegistry {
@@ -187,57 +196,52 @@ export class CosmosAnimationCueRegistry {
       animationAction = "await_student_activity_interaction";
     }
 
-    // Module-specific precision refinements for representative integration proofs (Modules 01, 08, 14)
-    if (moduleId === "01") {
-      // Map Module 01's 6 sublessons to the 7 Cosmic Zoom Layers (0..6)
-      const zoomLayerIdx = Math.min(6, sublessonIndex === 5 ? 6 : sublessonIndex);
-      const layerDistances = [5.5, 8.0, 11.0, 14.5, 16.0, 18.0, 20.0];
-      const dist = layerDistances[zoomLayerIdx] || 11.0;
-      cameraPosition = [
-        seg.sectionId === "deepDive" ? 2.4 : 0,
-        2.5 + zoomLayerIdx * 0.35,
-        seg.sectionId === "takeaway" ? dist * 0.82 : dist,
-      ];
-      cameraTarget = [0, 0, 0];
-      animationAction = `cosmic_zoom_layer_${zoomLayerIdx}`;
-    } else if (moduleId === "08") {
-      // Map Module 08's 8 sublessons to orbital mechanics presets
-      const presets = [
-        "gravity_inverse_square",
-        "newton_cannonball_orbit",
-        "elliptical_eccentricity",
-        "vis_viva_velocity",
-        "newton_laws_vectors",
-        "kepler_equal_areas",
-        "escape_velocity_threshold",
-        "binary_barycenter_wobble",
-      ];
-      animationAction = presets[sublessonIndex] || "circular_orbit";
-      timePolicy = "SIMULATION_CONTINUOUS";
-    } else if (moduleId === "14") {
-      // Map Module 14's 8 sublessons to compact object / relativistic lensing states
-      const bhStates = [
-        "core_collapse_supernova",
-        "neutron_star_crust",
-        "pulsar_lighthouse_beam",
-        "schwarzschild_event_horizon",
-        "gravitational_lensing_einstein_ring",
-        "tidal_spaghettification_gradient",
-        "stellar_vs_supermassive_scale",
-        "binary_inspiral_gw_chirp",
-      ];
-      animationAction = bhStates[sublessonIndex] || "schwarzschild_event_horizon";
-      cameraArchetype = "relativistic_horizon_framing";
+    // Module-specific precision refinements for Proof-of-Concept Reference Modules (01, 08, 14)
+    let chapterCode: string | undefined;
+    let beatId: string | undefined;
+    let beatTitle: string | undefined;
+    let beatIndex: number | undefined;
+    let sceneComponentId: ProofOfConceptSceneComponentId | undefined;
+
+    if (CosmosProofOfConceptCatalog.isProofOfConceptModule(moduleId)) {
+      const pocMatch = CosmosProofOfConceptCatalog.getBeatForNarrationSegment(
+        moduleId,
+        seg.lessonId,
+        seg.segmentId,
+      );
+      if (pocMatch) {
+        const { chapter, beat } = pocMatch;
+        chapterCode = chapter.chapterCode;
+        beatId = beat.beatId;
+        beatTitle = beat.title;
+        beatIndex = beat.beatIndex;
+        sceneComponentId = chapter.sceneComponentId;
+        cameraArchetype = beat.cameraArchetype;
+        cameraAction = beat.cameraAction;
+        cameraPosition = [...beat.cameraPosition];
+        cameraTarget = [...beat.cameraTarget];
+        animationAction = beat.animationAction;
+        timePolicy = beat.timePolicy;
+        simulationTimeScale = beat.simulationTimeScale;
+      }
     }
 
+    const pocMatchForHighlights = CosmosProofOfConceptCatalog.isProofOfConceptModule(moduleId)
+      ? CosmosProofOfConceptCatalog.getBeatForNarrationSegment(moduleId, seg.lessonId, seg.segmentId)
+      : null;
+
     const highlightedObjects = [
+      ...(pocMatchForHighlights?.beat.highlightedObjects || []),
       primaryObjectId,
       ...(seg.visualizationReference?.targetObject
         ? [seg.visualizationReference.targetObject]
         : []),
     ].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
 
-    const activeAnnotationIds = sceneDesc.annotations.map((a) => a.annotationId);
+    const activeAnnotationIds = [
+      ...(pocMatchForHighlights?.chapter.chapterAnnotations.map((a) => a.annotationId) || []),
+      ...sceneDesc.annotations.map((a) => a.annotationId),
+    ].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
 
     return {
       cueId: `cue-m${moduleId}-${seg.segmentId}`,
@@ -257,8 +261,15 @@ export class CosmosAnimationCueRegistry {
       simulationTimeScale,
       highlightedObjects,
       activeAnnotationIds,
-      transition: seg.sectionId === "title" ? "scale_bridge" : "smooth",
+      transition:
+        pocMatchForHighlights?.beat.transitionType ||
+        (seg.sectionId === "title" ? "scale_bridge" : "smooth"),
       layerOrPresetIndex: sublessonIndex,
+      chapterCode,
+      beatId,
+      beatTitle,
+      beatIndex,
+      sceneComponentId,
     };
   }
 }

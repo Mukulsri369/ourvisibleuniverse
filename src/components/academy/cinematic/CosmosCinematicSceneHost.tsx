@@ -1,24 +1,33 @@
 /**
  * COSMOS Scientific 3D Scene Host & Cinematic Camera Rig
  * Project: Our Visible Universe Academy
- * Scope: Prompt 03 — Sections 10, 11, 15, 21, 22, 23, 24
+ * Scope: Prompt 03 & Prompt 05 — Next-Generation Scientific 3D Rendering Engine
  *
  * Implements:
  * - Single dedicated React Three Fiber <Canvas> when Cinematic Mode is open
  * - WebGL support check & webglcontextlost / webglcontextrestored recovery
  * - Adaptive DPR & particle budget governed by CosmosCinematicQualityManager
- * - Cinematic Camera Controller supporting FOCUS_OBJECT, ORBIT_OBJECT, ZOOM_TO_OBJECT,
- *   PAN_TO_REGION, FOLLOW_TRAJECTORY, RESTORE_CAMERA, APPLY_CAMERA_PRESET,
- *   SEEK_CAMERA_TRANSITION, and PAUSE_CAMERA_MOVEMENT with exponential spring damping
- * - 3D world-anchored scientific annotations (<Html> from @react-three/drei)
- * - Representative scientific scenes for Module 01 (Cosmic Scale Hierarchy),
- *   Module 08 (Newtonian & Keplerian Orbital Mechanics), Module 14 (Relativistic Black Hole
- *   & Compact Objects), plus Stellar Physics, Galactic Structure, and Cosmological Expansion.
+ * - Quality-aware HDR Postprocessing (CinematicPostprocessingPipeline with high-threshold
+ *   selective bloom and ACES Filmic tone mapping)
+ * - Physically grounded low-ambient lighting & collimated solar terminators
+ * - Three Upgraded Reference Scenes:
+ *   1. Reference Scene A (Module 01): Cosmic Scale Hierarchy (Earth with continents, oceans,
+ *      clouds, city lights & Rayleigh Kármán limb; airless cratered Moon; deterministic
+ *      Milky Way barred-spiral disk; logarithmic scale coordination)
+ *   2. Reference Scene B (Module 08): Newtonian & Keplerian Orbital Mechanics (G2V Star with
+ *      convective granulation & limb darkening; orbiting planets with live day-night
+ *      terminators; Keplerian ellipse & equal-area swept sectors; live velocity & gravity
+ *      force vectors; gravitational potential well embedding grid)
+ *   3. Reference Scene C (Module 14): Black Holes & Extreme Compact Objects (Schwarzschild/Kerr
+ *      Event Horizon shadow, Photon Sphere, Doppler-beamed & gravitationally redshifted
+ *      accretion disk, gravitational lensing halo, Blandford-Znajek jets, Flamm's paraboloid
+ *      spacetime curvature funnel, and rotating Pulsar lighthouse beam)
+ * - Plus Stellar Physics (with cue-driven interior cutaway), Nebula Volume, and Galactic Structure scenes
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Html, OrbitControls, Stars } from "@react-three/drei";
+import { OrbitControls, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import type {
   CinematicCameraCommand,
@@ -31,6 +40,38 @@ import {
 } from "@/lib/cosmos/cinematic/CosmosCinematicQualityManager";
 import type { CinematicSceneDescriptor } from "@/lib/cosmos/cinematic/CosmosCinematicSceneRegistry";
 import type { RegisteredAnimationCue } from "@/lib/cosmos/cinematic/CosmosAnimationCueRegistry";
+import { CosmosCinematicAssetManager } from "@/lib/cosmos/cinematic/assets";
+import {
+  AstronomicalScaleCoordinator,
+  CinematicPostprocessingPipeline,
+  CosmosScientificSceneLibrary,
+  ScientificResourceManager,
+} from "@/lib/cosmos/cinematic/rendering";
+import {
+  GalaxyParticleField,
+  IrregularCelestialBodyRenderer,
+  NebulaVolume,
+  OrbitalTrajectoryRenderer,
+  PulsarBeamRenderer,
+  ScientificAnnotation,
+  ScientificBlackHoleEffects,
+  ScientificPlanetMaterial,
+  ScientificSpacecraftRenderer,
+  ScientificStarMaterial,
+  ScientificTelescopeCutaway,
+  ScientificVectorField,
+  StarClusterRenderer,
+  type VectorArrowDescriptor,
+} from "./science";
+import {
+  Module01CinematicDirectorScene,
+  Module05CinematicDirectorScene,
+  Module06CinematicDirectorScene,
+  Module07CinematicDirectorScene,
+  Module08CinematicDirectorScene,
+  Module14CinematicDirectorScene,
+} from "./scenes";
+import { CosmosProofOfConceptCatalog } from "@/lib/cosmos/cinematic/poc";
 import { CosmosCinematicFallback } from "./CosmosCinematicFallback";
 
 interface CosmosCinematicSceneHostProps {
@@ -41,7 +82,10 @@ interface CosmosCinematicSceneHostProps {
   reducedMotion: boolean;
   onSelectObject: (objectId: string) => void;
   onEnableManualCamera: () => void;
-  onSceneError: (code: "WEBGL_UNSUPPORTED" | "WEBGL_CONTEXT_LOST" | "SCENE_LOAD_FAILED", msg: string) => void;
+  onSceneError: (
+    code: "WEBGL_UNSUPPORTED" | "WEBGL_CONTEXT_LOST" | "SCENE_LOAD_FAILED",
+    msg: string,
+  ) => void;
   onClearError: () => void;
   onExitCinematicMode: () => void;
 }
@@ -89,7 +133,7 @@ function PerformanceMonitorLoop() {
 
 /**
  * Cinematic Camera Rig with Smooth Exponential Damping, Aspect Ratio Sync,
- * Reduced-Motion Instant Keyframes, and Manual Student Orbit Handoff (Prompt 03 Section 11).
+ * Reduced-Motion Instant Keyframes, and Manual Student Orbit Handoff.
  */
 function CinematicCameraRig({
   scene,
@@ -115,7 +159,6 @@ function CinematicCameraRig({
   const cameraPausedRef = useRef(false);
   const orbitModeActiveRef = useRef(false);
 
-  // Keep perspective aspect ratio and clipping planes synchronized on fullscreen/viewport resize
   useEffect(() => {
     if ((camera as THREE.PerspectiveCamera).isPerspectiveCamera) {
       const persp = camera as THREE.PerspectiveCamera;
@@ -126,7 +169,6 @@ function CinematicCameraRig({
     }
   }, [camera, size.width, size.height, scene.nearClip, scene.farClip]);
 
-  // Update target camera position & lookAt when activeCue changes
   useEffect(() => {
     if (!activeCue || isManualCameraMode) return;
     desiredPosRef.current.set(...activeCue.cameraPosition);
@@ -141,7 +183,6 @@ function CinematicCameraRig({
     }
   }, [activeCue, isManualCameraMode, reducedMotion, camera]);
 
-  // Respond to explicit CinematicCameraCommand actions (Section 11)
   useEffect(() => {
     if (!latestCameraCommand) return;
 
@@ -217,10 +258,24 @@ function CinematicCameraRig({
       desiredPosRef.current.z = Math.cos(angle) * radius;
     }
 
-    // Smooth exponential damping for position & orientation
-    camera.position.x = THREE.MathUtils.damp(camera.position.x, desiredPosRef.current.x, lambda, dt);
-    camera.position.y = THREE.MathUtils.damp(camera.position.y, desiredPosRef.current.y, lambda, dt);
-    camera.position.z = THREE.MathUtils.damp(camera.position.z, desiredPosRef.current.z, lambda, dt);
+    camera.position.x = THREE.MathUtils.damp(
+      camera.position.x,
+      desiredPosRef.current.x,
+      lambda,
+      dt,
+    );
+    camera.position.y = THREE.MathUtils.damp(
+      camera.position.y,
+      desiredPosRef.current.y,
+      lambda,
+      dt,
+    );
+    camera.position.z = THREE.MathUtils.damp(
+      camera.position.z,
+      desiredPosRef.current.z,
+      lambda,
+      dt,
+    );
 
     currentTargetRef.current.x = THREE.MathUtils.damp(
       currentTargetRef.current.x,
@@ -268,564 +323,608 @@ function CinematicCameraRig({
 }
 
 /**
- * MODULE 01 (& Cosmic Scale / Solar System Modules) 3D Scene:
- * Multi-layer Cosmic Hierarchy (Earth, Kármán Atmosphere, Moon Orbit, Milky Way Spiral & Cosmic Web).
+ * REFERENCE SCENE A — MODULE 01 (& Cosmic Scale / Observational Geometry Modules):
+ * Multi-layer Cosmic Hierarchy with Photorealistic Earth, Rayleigh Kármán Atmosphere,
+ * Cratered Airless Moon, Logarithmic Distance Rings, and Deterministic Milky Way Barred Spiral.
  */
 function CosmicHierarchyScene3D({
+  sceneId,
   qualityProfile,
   activeCue,
+  isSimulationRunning,
+  simulationTimeScale,
+  normalizedProgress,
+  activeHighlightedObjects,
+  onSelectObject,
+}: {
+  sceneId: string;
+  qualityProfile: CinematicQualityProfile;
+  activeCue: RegisteredAnimationCue | null;
+  isSimulationRunning: boolean;
+  simulationTimeScale: number;
+  normalizedProgress: number;
+  activeHighlightedObjects: string[];
+  onSelectObject: (id: string) => void;
+}) {
+  const moonOrbitGroupRef = useRef<THREE.Group>(null);
+  const sublessonIdx = activeCue?.layerOrPresetIndex ?? 0;
+
+  // Map sublesson index (0..7) to logarithmic scale regime (10^7 m to 10^25 m)
+  const scaleTransform = useMemo(
+    () => AstronomicalScaleCoordinator.evaluateScaleTransition(7 + sublessonIdx * 2.5),
+    [sublessonIdx],
+  );
+
+  useFrame((_, delta) => {
+    if (!isSimulationRunning || !moonOrbitGroupRef.current) return;
+    moonOrbitGroupRef.current.rotation.y += Math.min(delta, 0.1) * simulationTimeScale * 0.42;
+  });
+
+  const earthHighlighted =
+    activeHighlightedObjects.includes("earth") ||
+    activeHighlightedObjects.includes("karman_atmosphere");
+  const moonHighlighted = activeHighlightedObjects.includes("moon");
+
+  return (
+    <group>
+      {/* Photorealistic Earth with Continents, Oceans, Cloud Deck, City Lights & Rayleigh Kármán Limb */}
+      <ScientificPlanetMaterial
+        objectId="earth"
+        sceneId={sceneId}
+        presetId="earth"
+        position={[0, 0, 0]}
+        radius={1.45}
+        starPosition={[14, 5, 10]}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlighted={earthHighlighted}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
+
+      {/* Inclined Lunar Orbit & Airless Cratered Moon */}
+      <group rotation={[0.09, 0, 0]}>
+        <OrbitalTrajectoryRenderer
+          semiMajorAxis={4.2}
+          eccentricity={0.0549}
+          colorHex="#38bdf8"
+          opacity={0.45}
+          showApsidesMarkers={false}
+        />
+
+        <group ref={moonOrbitGroupRef}>
+          <ScientificPlanetMaterial
+            objectId="moon"
+            sceneId={sceneId}
+            presetId="moon"
+            position={[4.2, 0, 0]}
+            radius={0.4}
+            starPosition={[14, 5, 10]}
+            qualityTier={qualityProfile.tier}
+            isSimulationRunning={isSimulationRunning}
+            simulationTimeScale={simulationTimeScale}
+            highlighted={moonHighlighted}
+            narrativeProgress={normalizedProgress}
+            onSelectObject={onSelectObject}
+          />
+        </group>
+      </group>
+
+      {/* Deterministic Milky Way Barred-Spiral Disk (Galactic / Cosmological Scale Regime) */}
+      <GalaxyParticleField
+        objectId="milky_way_disk"
+        morphology="barred_spiral"
+        position={[0, -1.8, -3.5]}
+        rotation={[0.35, 0, 0]}
+        radius={7.8}
+        armCount={4}
+        seed={202601}
+        opacity={Math.max(0.38, scaleTransform.galacticLayerOpacity)}
+        pointSize={sublessonIdx >= 4 ? 0.08 : 0.05}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        onSelectObject={onSelectObject}
+      />
+    </group>
+  );
+}
+
+/**
+ * REFERENCE SCENE B — MODULE 08 (& Planetary Systems Modules 05, 06, 12, 19, 22, 23, 24):
+ * Symplectic Newtonian & Keplerian Orbital Mechanics Laboratory with Real-Time Force & Velocity
+ * Vectors, Equal-Area Swept Sectors, Photorealistic Planets, and Potential Well Grid.
+ */
+function OrbitalMechanicsScene3D({
+  sceneId,
+  moduleId,
+  qualityProfile,
+  activeCue,
+  isSimulationRunning,
+  simulationTimeScale,
+  normalizedProgress,
+  activeHighlightedObjects,
+  onSelectObject,
+}: {
+  sceneId: string;
+  moduleId: string;
+  qualityProfile: CinematicQualityProfile;
+  activeCue: RegisteredAnimationCue | null;
+  isSimulationRunning: boolean;
+  simulationTimeScale: number;
+  normalizedProgress: number;
+  activeHighlightedObjects: string[];
+  onSelectObject: (id: string) => void;
+}) {
+  const orbitPhaseRef = useRef(0.35);
+  const [planetPos, setPlanetPos] = useState<[number, number, number]>([4.9, 0, 0]);
+  const [companionPos, setCompanionPos] = useState<[number, number, number]>([-7.8, 0, 2.0]);
+  const [starPos, setStarPos] = useState<[number, number, number]>([0, 0, 0]);
+  const [vectors, setVectors] = useState<VectorArrowDescriptor[]>([]);
+
+  const sublessonIdx = activeCue?.layerOrPresetIndex ?? 0;
+  const eccentricity =
+    sublessonIdx === 2 || sublessonIdx === 5 ? 0.42 : sublessonIdx === 6 ? 0.65 : 0.12;
+  const semiMajorAxis = 5.4;
+  const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity);
+  const focalOffset = semiMajorAxis * eccentricity;
+
+  useFrame((_, delta) => {
+    if (!isSimulationRunning) return;
+    const dt = Math.min(delta, 0.1) * simulationTimeScale;
+
+    const currentX = Math.cos(orbitPhaseRef.current) * semiMajorAxis - focalOffset;
+    const currentZ = Math.sin(orbitPhaseRef.current) * semiMinorAxis;
+    const r = Math.max(1.6, Math.hypot(currentX, currentZ));
+
+    // Vis-Viva orbital angular rate: omega ~ (a / r)^(3/2)
+    const angularRate = 0.82 * Math.pow(semiMajorAxis / r, 1.5);
+    orbitPhaseRef.current = (orbitPhaseRef.current + dt * angularRate) % (Math.PI * 2);
+
+    const px = Math.cos(orbitPhaseRef.current) * semiMajorAxis - focalOffset;
+    const pz = Math.sin(orbitPhaseRef.current) * semiMinorAxis;
+    setPlanetPos([px, 0, pz]);
+
+    // Tangent velocity vector v = (-a*sin(theta), 0, b*cos(theta))
+    const vx = -Math.sin(orbitPhaseRef.current) * semiMajorAxis;
+    const vz = Math.cos(orbitPhaseRef.current) * semiMinorAxis;
+    const vMag = Math.sqrt(Math.max(0.2, 2 / r - 1 / semiMajorAxis)) * 2.4;
+
+    // Centripetal gravitational force vector F_g directed toward central star at (0,0,0)
+    const fgLen = Math.min(2.6, (6.5 / (r * r)) * 2.2);
+
+    setVectors([
+      {
+        origin: [px, 0, pz],
+        direction: [vx, 0, vz],
+        length: vMag,
+        colorHex: "#38bdf8", // Orbital velocity vector (Cyan)
+      },
+      {
+        origin: [px, 0, pz],
+        direction: [-px, 0, -pz],
+        length: fgLen,
+        colorHex: "#10b981", // Centripetal gravitational force F_g (Emerald)
+      },
+    ]);
+
+    const compAngle = orbitPhaseRef.current * 0.42 + 2.1;
+    setCompanionPos([Math.cos(compAngle) * 8.4, 0, Math.sin(compAngle) * 8.4]);
+
+    const wobbleRadius = sublessonIdx === 7 ? 0.62 : 0.1;
+    setStarPos([
+      -Math.cos(orbitPhaseRef.current) * wobbleRadius,
+      0,
+      -Math.sin(orbitPhaseRef.current) * wobbleRadius,
+    ]);
+  });
+
+  // Choose companion planet preset (Saturn with rings for Module 06, Europa for Module 23, Jupiter default)
+  const companionPreset =
+    moduleId === "06" ? "saturn" : moduleId === "23" ? "europa" : "jupiter";
+
+  return (
+    <group>
+      {/* Central G2V Primary Star with Convective Granulation & Limb Darkening */}
+      <ScientificStarMaterial
+        objectId="central_star"
+        sceneId={sceneId}
+        name="Central Primary Star (1.0 M_☉)"
+        temperatureK={5772}
+        position={starPos}
+        radius={1.35}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlighted={activeHighlightedObjects.includes("central_star")}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
+
+      {/* Keplerian Elliptical Trajectory + Equal-Area Swept Sectors */}
+      <OrbitalTrajectoryRenderer
+        semiMajorAxis={semiMajorAxis}
+        eccentricity={eccentricity}
+        colorHex="#38bdf8"
+        opacity={0.72}
+        showEqualAreaSectors={sublessonIdx === 5 || sublessonIdx === 2}
+        showApsidesMarkers
+      />
+
+      {/* Live Velocity (v) & Centripetal Gravity (F_g) Vectors + Potential Well Grid */}
+      <ScientificVectorField
+        vectors={vectors}
+        showPotentialWellGrid={qualityProfile.tier !== "LOW_POWER"}
+        potentialWellDepth={1.8}
+        potentialWellRadius={8.8}
+      />
+
+      {/* Orbiting Test Planet with Live Solar Terminator */}
+      <ScientificPlanetMaterial
+        objectId="orbiting_planet"
+        sceneId={sceneId}
+        presetId={moduleId === "19" ? "mars" : "earth"}
+        position={planetPos}
+        radius={0.48}
+        starPosition={starPos}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlighted={activeHighlightedObjects.includes("orbiting_planet")}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
+
+      {/* Outer Resonant Gas Giant / Ringed Planet Companion */}
+      <ScientificPlanetMaterial
+        objectId="companion_body"
+        sceneId={sceneId}
+        presetId={companionPreset}
+        position={companionPos}
+        radius={0.68}
+        starPosition={starPos}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlighted={activeHighlightedObjects.includes("companion_body")}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
+    </group>
+  );
+}
+
+/**
+ * REFERENCE SCENE C — MODULE 14 (Black Holes, Relativistic Accretion & Pulsars):
+ * Schwarzschild/Kerr Black Hole with Doppler-Beamed Accretion Disk, Photon Sphere,
+ * Gravitational Lensing Halo, Blandford-Znajek Polar Jets, Spacetime Potential Funnel,
+ * and Companion Rotating Pulsar Lighthouse.
+ */
+function BlackHoleRelativityScene3D({
+  sceneId,
+  qualityProfile,
+  activeCue,
+  reducedMotion,
   isSimulationRunning,
   simulationTimeScale,
   activeHighlightedObjects,
   onSelectObject,
 }: {
+  sceneId: string;
   qualityProfile: CinematicQualityProfile;
   activeCue: RegisteredAnimationCue | null;
+  reducedMotion: boolean;
   isSimulationRunning: boolean;
   simulationTimeScale: number;
   activeHighlightedObjects: string[];
   onSelectObject: (id: string) => void;
 }) {
-  const earthRef = useRef<THREE.Mesh>(null);
-  const moonGroupRef = useRef<THREE.Group>(null);
-  const galaxyPointsRef = useRef<THREE.Points>(null);
-
   const sublessonIdx = activeCue?.layerOrPresetIndex ?? 0;
-  const segCount = qualityProfile.sphereSegments;
-  const particleCount = Math.max(
-    400,
-    Math.floor(2400 * qualityProfile.particleBudgetMultiplier),
-  );
-
-  // Generate spiral galaxy particle buffer once per quality tier
-  const [galaxyPositions, galaxyColors] = useMemo(() => {
-    const pos = new Float32Array(particleCount * 3);
-    const col = new Float32Array(particleCount * 3);
-    const coreColor = new THREE.Color("#fde68a");
-    const armColor = new THREE.Color("#38bdf8");
-
-    for (let i = 0; i < particleCount; i++) {
-      const i3 = i * 3;
-      const r = Math.random() * 7.5 + 0.4;
-      const branch = ((i % 2) * Math.PI * 2) / 2;
-      const spin = r * 2.2;
-      const spread = (Math.random() - 0.5) * 0.45 * r;
-
-      pos[i3] = Math.cos(branch + spin) * r + spread;
-      pos[i3 + 1] = (Math.random() - 0.5) * 0.35;
-      pos[i3 + 2] = Math.sin(branch + spin) * r + spread;
-
-      const mixed = coreColor.clone().lerp(armColor, r / 8.0);
-      col[i3] = mixed.r;
-      col[i3 + 1] = mixed.g;
-      col[i3 + 2] = mixed.b;
-    }
-    return [pos, col];
-  }, [particleCount]);
-
-  useFrame((_, delta) => {
-    if (!isSimulationRunning) return;
-    const dt = delta * simulationTimeScale;
-    if (earthRef.current) {
-      earthRef.current.rotation.y += dt * 0.32;
-    }
-    if (moonGroupRef.current) {
-      moonGroupRef.current.rotation.y += dt * 0.48;
-    }
-    if (galaxyPointsRef.current) {
-      galaxyPointsRef.current.rotation.y += dt * 0.06;
-    }
-  });
-
-  const earthHighlighted = activeHighlightedObjects.includes("earth");
-  const moonHighlighted = activeHighlightedObjects.includes("moon");
 
   return (
     <group>
-      {/* Earth Sphere */}
-      <mesh
-        ref={earthRef}
-        position={[0, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("earth");
-        }}
-      >
-        <sphereGeometry args={[1.45, segCount, segCount]} />
-        <meshStandardMaterial
-          color="#0284c7"
-          emissive={earthHighlighted ? "#0ea5e9" : "#082f49"}
-          emissiveIntensity={earthHighlighted ? 0.55 : 0.2}
-          roughness={0.55}
-          metalness={0.12}
-        />
-      </mesh>
+      {/* Relativistic Black Hole, Photon Sphere, Doppler-Beamed Disk & Jets */}
+      <ScientificBlackHoleEffects
+        objectId="event_horizon"
+        sceneId={sceneId}
+        schwarzschildRadius={1.35}
+        spinParameterAStar={sublessonIdx >= 4 ? 0.65 : 0.0}
+        dopplerBeamingStrength={0.92}
+        showJets
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlightedObjectIds={activeHighlightedObjects}
+        onSelectObject={onSelectObject}
+      />
 
-      {/* Kármán Line Atmospheric Shell (100 km boundary representation) */}
-      {qualityProfile.enableAtmosphericGlow && (
-        <mesh
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelectObject("karman_atmosphere");
-          }}
-        >
-          <sphereGeometry args={[1.62, Math.max(16, segCount / 2), Math.max(16, segCount / 2)]} />
-          <meshBasicMaterial
-            color="#38bdf8"
-            transparent
-            opacity={sublessonIdx === 0 ? 0.32 : 0.16}
-            side={THREE.BackSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
+      {/* Pedagogical Flamm's Paraboloid Spacetime Embedding Grid */}
+      {qualityProfile.tier !== "LOW_POWER" && (
+        <ScientificVectorField
+          showPotentialWellGrid
+          potentialWellDepth={2.8}
+          potentialWellRadius={8.5}
+          gridColorHex="#818cf8"
+        />
       )}
 
-      {/* Lunar Orbit Ring & Orbiting Moon */}
-      <group rotation={[0.09, 0, 0]}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[4.16, 4.22, 96]} />
-          <meshBasicMaterial color="#38bdf8" transparent opacity={0.35} side={THREE.DoubleSide} />
-        </mesh>
-
-        <group ref={moonGroupRef}>
-          <mesh
-            position={[4.2, 0, 0]}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelectObject("moon");
-            }}
-          >
-            <sphereGeometry args={[0.4, Math.max(16, segCount / 2), Math.max(16, segCount / 2)]} />
-            <meshStandardMaterial
-              color="#cbd5e1"
-              emissive={moonHighlighted ? "#38bdf8" : "#1e293b"}
-              emissiveIntensity={moonHighlighted ? 0.6 : 0.15}
-              roughness={0.85}
-            />
-          </mesh>
-        </group>
-      </group>
-
-      {/* Outer Milky Way Spiral Disk Particle Cloud (Visible on Galactic / Cosmic Scale cues) */}
-      <points
-        ref={galaxyPointsRef}
-        position={[0, -1.8, -3.5]}
-        rotation={[0.35, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("milky_way_disk");
-        }}
-      >
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[galaxyPositions, 3]}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            args={[galaxyColors, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={sublessonIdx >= 4 ? 0.08 : 0.045}
-          vertexColors
-          transparent
-          opacity={sublessonIdx >= 4 ? 0.9 : 0.45}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
+      {/* Companion Rotating Neutron Star / Pulsar Lighthouse (Highlighted in Pulsar sublessons) */}
+      <PulsarBeamRenderer
+        objectId="pulsar_remnant"
+        position={[6.2, 0.8, -2.4]}
+        neutronStarRadius={0.42}
+        magneticTiltDeg={38}
+        reducedMotion={reducedMotion}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        onSelectObject={onSelectObject}
+      />
     </group>
   );
 }
 
 /**
- * MODULE 08 3D Scene:
- * Symplectic Newtonian & Keplerian Orbital Mechanics Laboratory
+ * STELLAR PHYSICS, CUTAWAY & NEBULAE SCENE (Modules 07, 09, 10, 11):
+ * Multi-Spectral Blackbody Stars (O-Type Blue Supergiant, G2V Solar Star with Cue-Driven
+ * Interior Cutaway, M-Type Red Giant) + Ionized Emission Nebula & Star Cluster.
  */
-function OrbitalMechanicsScene3D({
+function StellarPhysicsScene3D({
+  sceneId,
+  moduleId,
   qualityProfile,
   activeCue,
   isSimulationRunning,
   simulationTimeScale,
+  normalizedProgress,
+  activeHighlightedObjects,
   onSelectObject,
 }: {
+  sceneId: string;
+  moduleId: string;
   qualityProfile: CinematicQualityProfile;
   activeCue: RegisteredAnimationCue | null;
   isSimulationRunning: boolean;
   simulationTimeScale: number;
+  normalizedProgress: number;
+  activeHighlightedObjects: string[];
   onSelectObject: (id: string) => void;
 }) {
-  const planetRef = useRef<THREE.Mesh>(null);
-  const companionRef = useRef<THREE.Mesh>(null);
-  const starRef = useRef<THREE.Mesh>(null);
-  const orbitPhaseRef = useRef(0);
-
   const sublessonIdx = activeCue?.layerOrPresetIndex ?? 0;
-  // Vary eccentricity based on sublesson (08-03 elliptical, 08-06 Kepler equal areas, 08-07 escape)
-  const eccentricity =
-    sublessonIdx === 2 || sublessonIdx === 5 ? 0.42 : sublessonIdx === 6 ? 0.65 : 0.08;
-  const semiMajorAxis = 5.4;
-  const semiMinorAxis = semiMajorAxis * Math.sqrt(1 - eccentricity * eccentricity);
-  const focalOffset = semiMajorAxis * eccentricity;
-
-  // Precompute Keplerian ellipse curve points
-  const orbitLineGeometry = useMemo(() => {
-    const pts: THREE.Vector3[] = [];
-    for (let i = 0; i <= 128; i++) {
-      const theta = (i / 128) * Math.PI * 2;
-      pts.push(
-        new THREE.Vector3(
-          Math.cos(theta) * semiMajorAxis - focalOffset,
-          0,
-          Math.sin(theta) * semiMinorAxis,
-        ),
-      );
-    }
-    return new THREE.BufferGeometry().setFromPoints(pts);
-  }, [semiMajorAxis, semiMinorAxis, focalOffset]);
-
-  useFrame((_, delta) => {
-    if (!isSimulationRunning) return;
-    const dt = delta * simulationTimeScale;
-
-    // Vis-Viva angular speed modulation (faster at periapsis, slower at apoapsis)
-    const currentX = Math.cos(orbitPhaseRef.current) * semiMajorAxis - focalOffset;
-    const currentZ = Math.sin(orbitPhaseRef.current) * semiMinorAxis;
-    const r = Math.max(1.8, Math.hypot(currentX, currentZ));
-    const angularRate = 0.85 * Math.pow(semiMajorAxis / r, 1.5);
-
-    orbitPhaseRef.current += dt * angularRate;
-
-    if (planetRef.current) {
-      planetRef.current.position.set(
-        Math.cos(orbitPhaseRef.current) * semiMajorAxis - focalOffset,
-        0,
-        Math.sin(orbitPhaseRef.current) * semiMinorAxis,
-      );
-      planetRef.current.rotation.y += dt * 0.8;
-    }
-
-    if (companionRef.current) {
-      const compAngle = orbitPhaseRef.current * 0.42 + 2.1;
-      companionRef.current.position.set(Math.cos(compAngle) * 8.2, 0, Math.sin(compAngle) * 8.2);
-    }
-
-    // Barycenter stellar reflex wobble (highlighted in Sublesson 08-08)
-    if (starRef.current) {
-      const wobbleRadius = sublessonIdx === 7 ? 0.65 : 0.12;
-      starRef.current.position.set(
-        -Math.cos(orbitPhaseRef.current) * wobbleRadius,
-        0,
-        -Math.sin(orbitPhaseRef.current) * wobbleRadius,
-      );
-    }
-  });
-
-  const segs = qualityProfile.sphereSegments;
+  const cueActionText = (activeCue?.animationAction || "").toLowerCase();
+  // Activate interior octant cutaway on core/fusion sublessons
+  const showSolarCutaway =
+    sublessonIdx === 1 ||
+    sublessonIdx === 2 ||
+    cueActionText.includes("core") ||
+    cueActionText.includes("cutaway");
 
   return (
     <group>
-      {/* Central Primary Star */}
-      <mesh
-        ref={starRef}
+      {/* Central G2V Star (5,772 K) with Interior Cutaway Capability */}
+      <ScientificStarMaterial
+        objectId="main_sequence_star"
+        sceneId={sceneId}
+        name="G2V Main-Sequence Star (5,772 K)"
+        temperatureK={5772}
         position={[0, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("central_star");
-        }}
-      >
-        <sphereGeometry args={[1.35, segs, segs]} />
-        <meshStandardMaterial
-          color="#fbbf24"
-          emissive="#f59e0b"
-          emissiveIntensity={1.2}
-          roughness={0.25}
-        />
-      </mesh>
+        radius={1.65}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        showCutaway={showSolarCutaway}
+        highlighted={activeHighlightedObjects.includes("main_sequence_star")}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
 
-      {/* Keplerian Elliptical Orbit Path */}
-      <lineLoop geometry={orbitLineGeometry}>
-        <lineBasicMaterial color="#38bdf8" transparent opacity={0.65} />
-      </lineLoop>
-
-      {/* Orbiting Test Planet */}
-      <mesh
-        ref={planetRef}
-        position={[semiMajorAxis - focalOffset, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("orbiting_planet");
-        }}
-      >
-        <sphereGeometry args={[0.45, Math.max(16, segs / 2), Math.max(16, segs / 2)]} />
-        <meshStandardMaterial
-          color="#38bdf8"
-          emissive="#0284c7"
-          emissiveIntensity={0.45}
-          roughness={0.5}
-        />
-      </mesh>
-
-      {/* Outer Resonant Companion */}
-      <mesh
-        ref={companionRef}
-        position={[-7.8, 0, 2.0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("companion_body");
-        }}
-      >
-        <sphereGeometry args={[0.62, Math.max(16, segs / 2), Math.max(16, segs / 2)]} />
-        <meshStandardMaterial
-          color="#fb923c"
-          emissive="#ea580c"
-          emissiveIntensity={0.35}
-          roughness={0.6}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-/**
- * MODULE 14 3D Scene:
- * Relativistic Compact Objects (Schwarzschild Event Horizon, Photon Sphere, Doppler Accretion Disk & Polar Jets)
- */
-function BlackHoleRelativityScene3D({
-  qualityProfile,
-  isSimulationRunning,
-  simulationTimeScale,
-  onSelectObject,
-}: {
-  qualityProfile: CinematicQualityProfile;
-  isSimulationRunning: boolean;
-  simulationTimeScale: number;
-  onSelectObject: (id: string) => void;
-}) {
-  const diskGroupRef = useRef<THREE.Group>(null);
-  const lensedRingRef = useRef<THREE.Mesh>(null);
-  const segs = qualityProfile.sphereSegments;
-
-  useFrame((_, delta) => {
-    if (!isSimulationRunning) return;
-    const dt = delta * simulationTimeScale;
-    if (diskGroupRef.current) {
-      diskGroupRef.current.rotation.y += dt * 0.75;
-    }
-    if (lensedRingRef.current) {
-      lensedRingRef.current.rotation.z += dt * 0.35;
-    }
-  });
-
-  return (
-    <group>
-      {/* Event Horizon Shadow Sphere (r_s = 2GM/c²) */}
-      <mesh
-        position={[0, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("event_horizon");
-        }}
-      >
-        <sphereGeometry args={[1.35, segs, segs]} />
-        <meshBasicMaterial color="#000000" />
-      </mesh>
-
-      {/* Photon Sphere Ring (r_ph = 1.5 r_s) */}
-      <mesh
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("photon_sphere");
-        }}
-      >
-        <torusGeometry args={[2.025, 0.045, 24, 96]} />
-        <meshBasicMaterial
-          color="#e0f2fe"
-          transparent
-          opacity={0.85}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-
-      {/* Relativistic Accretion Disk (r_ISCO = 3 r_s to 5.4 r_s) */}
-      <group
-        ref={diskGroupRef}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("accretion_disk");
-        }}
-      >
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[2.35, 5.2, 96, 8]} />
-          <meshBasicMaterial
-            color="#fb923c"
-            side={THREE.DoubleSide}
-            transparent
-            opacity={0.82}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-
-        {/* Inner Hot ISCO Rim */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[2.05, 2.55, 96, 4]} />
-          <meshBasicMaterial
-            color="#38bdf8"
-            side={THREE.DoubleSide}
-            transparent
-            opacity={0.9}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-      </group>
-
-      {/* Gravitationally Lensed Upper/Lower Halo Ring */}
-      <mesh ref={lensedRingRef} rotation={[0.12, 0, 0]}>
-        <ringGeometry args={[2.1, 3.35, 96, 4]} />
-        <meshBasicMaterial
-          color="#f97316"
-          side={THREE.DoubleSide}
-          transparent
-          opacity={0.48}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-
-      {/* Blandford–Znajek Relativistic Polar Jets */}
-      <group
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("relativistic_jets");
-        }}
-      >
-        <mesh position={[0, 3.6, 0]}>
-          <cylinderGeometry args={[0.42, 0.08, 4.8, 32, 1, true]} />
-          <meshBasicMaterial
-            color="#60a5fa"
-            transparent
-            opacity={0.42}
-            side={THREE.DoubleSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-        <mesh position={[0, -3.6, 0]}>
-          <cylinderGeometry args={[0.08, 0.42, 4.8, 32, 1, true]} />
-          <meshBasicMaterial
-            color="#60a5fa"
-            transparent
-            opacity={0.42}
-            side={THREE.DoubleSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-/**
- * STELLAR PHYSICS 3D Scene (Modules 07, 09, 10, 11):
- * Multi-Spectral Blackbody Stars (O-Type Supergiant, G2V Solar Star, M-Type Red Giant)
- */
-function StellarPhysicsScene3D({
-  qualityProfile,
-  isSimulationRunning,
-  simulationTimeScale,
-  onSelectObject,
-}: {
-  qualityProfile: CinematicQualityProfile;
-  isSimulationRunning: boolean;
-  simulationTimeScale: number;
-  onSelectObject: (id: string) => void;
-}) {
-  const solarRef = useRef<THREE.Mesh>(null);
-  const blueRef = useRef<THREE.Mesh>(null);
-  const redRef = useRef<THREE.Mesh>(null);
-  const segs = qualityProfile.sphereSegments;
-
-  useFrame((_, delta) => {
-    if (!isSimulationRunning) return;
-    const dt = delta * simulationTimeScale;
-    if (solarRef.current) solarRef.current.rotation.y += dt * 0.25;
-    if (blueRef.current) blueRef.current.rotation.y += dt * 0.4;
-    if (redRef.current) redRef.current.rotation.y += dt * 0.12;
-  });
-
-  return (
-    <group>
-      {/* Central G2V Star */}
-      <mesh
-        ref={solarRef}
-        position={[0, 0, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("main_sequence_star");
-        }}
-      >
-        <sphereGeometry args={[1.65, segs, segs]} />
-        <meshStandardMaterial color="#fff4ea" emissive="#fbbf24" emissiveIntensity={1.1} />
-      </mesh>
-
-      {/* O-Type Blue Supergiant */}
-      <mesh
-        ref={blueRef}
+      {/* O-Type Blue Supergiant (32,000 K) */}
+      <ScientificStarMaterial
+        objectId="blue_supergiant"
+        sceneId={sceneId}
+        name="O-Type Blue Supergiant (32,000 K)"
+        temperatureK={32000}
         position={[-4.8, 0.8, -1.5]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("blue_supergiant");
-        }}
-      >
-        <sphereGeometry args={[2.2, segs, segs]} />
-        <meshStandardMaterial color="#9bb0ff" emissive="#3b82f6" emissiveIntensity={1.25} />
-      </mesh>
+        radius={2.15}
+        sunspotStrength={0.1}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlighted={activeHighlightedObjects.includes("blue_supergiant")}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
 
-      {/* M-Type Red Giant */}
-      <mesh
-        ref={redRef}
+      {/* M-Type Red Giant (3,200 K) */}
+      <ScientificStarMaterial
+        objectId="red_giant_branch"
+        sceneId={sceneId}
+        name="M-Type Red Giant (3,200 K)"
+        temperatureK={3200}
         position={[4.8, -0.5, -1.2]}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelectObject("red_giant_branch");
-        }}
-      >
-        <sphereGeometry args={[2.5, segs, segs]} />
-        <meshStandardMaterial color="#ff6b3d" emissive="#ea580c" emissiveIntensity={0.95} />
-      </mesh>
+        radius={2.45}
+        sunspotStrength={0.65}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlighted={activeHighlightedObjects.includes("red_giant_branch")}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
+
+      {/* Background Ionized H II Emission Nebula or Supernova Remnant Volume */}
+      <NebulaVolume
+        objectId="nebula_volume"
+        sceneId={sceneId}
+        nebulaType={moduleId === "10" ? "supernova_remnant" : "emission"}
+        position={[0, 0.4, -4.2]}
+        scale={7.5}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        onSelectObject={onSelectObject}
+      />
+
+      {/* Embedded Young Open Star Cluster */}
+      <StarClusterRenderer
+        objectId="open_cluster"
+        clusterType="open"
+        position={[0, 0.4, -3.5]}
+        radius={4.2}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        onSelectObject={onSelectObject}
+      />
     </group>
   );
 }
 
 /**
- * 3D World-Anchored Scientific Annotations Layer (Prompt 03 Section 15)
+ * GALACTIC STRUCTURE, COSMIC WEB & COSMOLOGY SCENE (Modules 13, 15, 16, 17, 18, 20):
+ * Barred Spiral Galaxy, Globular Cluster Halo, and Dark Matter / Cosmic Web Distribution.
  */
-function SceneScientificAnnotations({
-  scene,
-  enabled,
+function GalacticAndCosmologyScene3D({
+  sceneId,
+  qualityProfile,
+  isSimulationRunning,
+  simulationTimeScale,
+  onSelectObject,
 }: {
-  scene: CinematicSceneDescriptor;
-  enabled: boolean;
+  sceneId: string;
+  qualityProfile: CinematicQualityProfile;
+  isSimulationRunning: boolean;
+  simulationTimeScale: number;
+  onSelectObject: (id: string) => void;
 }) {
-  if (!enabled) return null;
+  return (
+    <group>
+      <GalaxyParticleField
+        objectId="primary_galaxy_disk"
+        morphology="barred_spiral"
+        position={[0, 0, 0]}
+        rotation={[0.42, 0, 0.12]}
+        radius={7.2}
+        armCount={4}
+        seed={1313}
+        opacity={0.92}
+        pointSize={0.07}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        onSelectObject={onSelectObject}
+      />
+
+      <StarClusterRenderer
+        objectId="globular_halo"
+        clusterType="globular"
+        position={[3.8, 2.1, -1.8]}
+        radius={2.2}
+        seed={1515}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        onSelectObject={onSelectObject}
+      />
+
+      <NebulaVolume
+        objectId="galactic_halo_gas"
+        sceneId={sceneId}
+        nebulaType="reflection"
+        position={[0, 0, -1.5]}
+        scale={8.2}
+        densityScale={0.75}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        onSelectObject={onSelectObject}
+      />
+    </group>
+  );
+}
+
+/**
+ * OBSERVATORY INSTRUMENTS & SPACECRAFT MISSIONS SCENE (Modules 21 & 22):
+ * Renders node-addressable JWST, Hubble, Voyager, Chandrayaan-3 Vikram/Pragyan,
+ * Cassegrain Telescope Optical Cutaway & Ray Paths, and Bennu Rubble-Pile Asteroid.
+ */
+function ObservatoryAndSpacecraftScene3D({
+  sceneId,
+  moduleId,
+  qualityProfile,
+  activeCue,
+  isSimulationRunning,
+  simulationTimeScale,
+  normalizedProgress,
+  activeHighlightedObjects,
+  onSelectObject,
+}: {
+  sceneId: string;
+  moduleId: string;
+  qualityProfile: CinematicQualityProfile;
+  activeCue: RegisteredAnimationCue | null;
+  isSimulationRunning: boolean;
+  simulationTimeScale: number;
+  normalizedProgress: number;
+  activeHighlightedObjects: string[];
+  onSelectObject: (id: string) => void;
+}) {
+  const subIdx = activeCue?.layerOrPresetIndex ?? 0;
+  const spacecraftId =
+    moduleId === "21"
+      ? subIdx % 2 === 0
+        ? "asset_spacecraft_jwst_v2"
+        : "asset_spacecraft_hst_v2"
+      : subIdx % 4 === 0
+        ? "asset_spacecraft_jwst_v2"
+        : subIdx % 4 === 1
+          ? "asset_spacecraft_voyager_v2"
+          : subIdx % 4 === 2
+            ? "asset_spacecraft_chandrayaan3_vikram_v2"
+            : "asset_spacecraft_hst_v2";
 
   return (
     <group>
-      {scene.annotations.map((ann) => (
-        <Html
-          key={ann.annotationId}
-          position={ann.worldPosition}
-          center
-          distanceFactor={15}
-          zIndexRange={[10, 0]}
-        >
-          <div
-            data-testid={`scene-annotation-${ann.annotationId}`}
-            className="pointer-events-none select-none bg-[#050914]/85 backdrop-blur-md border border-cyan-400/40 px-2.5 py-1 text-[11px] font-mono text-slate-100 whitespace-nowrap shadow-lg"
-          >
-            <span className="text-cyan-400 font-bold block">{ann.label}</span>
-            <span className="text-slate-200 text-[10px]">{ann.value}</span>
-          </div>
-        </Html>
-      ))}
+      {/* Primary Space Observatory / Mission Vehicle */}
+      <ScientificSpacecraftRenderer
+        objectId="primary_spacecraft"
+        sceneId={sceneId}
+        assetId={spacecraftId}
+        position={[-2.2, 0.2, 0]}
+        scale={1.35}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        simulationTimeScale={simulationTimeScale}
+        highlighted={activeHighlightedObjects.includes("primary_spacecraft")}
+        highlightedPartNodeId={activeHighlightedObjects[0] || null}
+        narrativeProgress={normalizedProgress}
+        onSelectObject={onSelectObject}
+      />
+
+      {/* Interactive Cassegrain Optical Cutaway & Collimated Ray Bench */}
+      <ScientificTelescopeCutaway
+        objectId="telescope_optical_cutaway"
+        sceneId={sceneId}
+        position={[2.4, 0.2, 0]}
+        scale={1.15}
+        qualityTier={qualityProfile.tier}
+        showRayPaths
+        highlightedNodeId={activeHighlightedObjects[0] || null}
+        isSimulationRunning={isSimulationRunning}
+        onSelectObject={onSelectObject}
+      />
+
+      {/* Target Irregular Asteroid 101955 Bennu (OSIRIS-REx Rubble-Pile Shape Model) */}
+      <IrregularCelestialBodyRenderer
+        objectId="target_asteroid_bennu"
+        sceneId={sceneId}
+        position={[0, -2.2, -2.5]}
+        scale={0.75}
+        qualityTier={qualityProfile.tier}
+        isSimulationRunning={isSimulationRunning}
+        onSelectObject={onSelectObject}
+      />
     </group>
   );
 }
@@ -858,6 +957,25 @@ export function CosmosCinematicSceneHost({
       );
     }
   }, [onSceneError]);
+
+  // Synchronize active animation cue across all registered scientific objects in the scene
+  useEffect(() => {
+    CosmosScientificSceneLibrary.getInstance().evaluateCueAcrossScene(
+      scene.sceneId,
+      activeCue,
+      snapshot.normalizedSegmentProgress,
+    );
+  }, [scene.sceneId, activeCue, snapshot.normalizedSegmentProgress]);
+
+  // Preload only the active module's verified assets and release module scope on unmount (Section 28)
+  useEffect(() => {
+    const assetMgr = CosmosCinematicAssetManager.getInstance();
+    assetMgr.preloadModuleAssets(snapshot.currentModuleId, qualityProfile.tier, true);
+    return () => {
+      assetMgr.releaseModuleScope(snapshot.currentModuleId);
+      ScientificResourceManager.getInstance().releaseSceneScope(`scene:${scene.sceneId}`);
+    };
+  }, [snapshot.currentModuleId, qualityProfile.tier, scene.sceneId]);
 
   const handleRetryWebGL = () => {
     setContextLost(false);
@@ -921,19 +1039,32 @@ export function CosmosCinematicSceneHost({
         }}
       >
         <color attach="background" args={["#03050A"]} />
-        <ambientLight intensity={0.42} />
-        <directionalLight position={[10, 12, 10]} intensity={1.85} color="#fff4ea" />
-        <pointLight position={[-8, -5, -8]} intensity={0.45} color="#38bdf8" />
 
-        <Stars
-          radius={120}
-          depth={60}
-          count={starCount}
-          factor={3.5}
-          saturation={0.2}
-          fade
-          speed={reducedMotion || !snapshot.isSimulationRunning ? 0 : 0.4}
+        {/* Physically Grounded Low-Ambient Lighting (Preserves Dark Planetary Night Sides & Terminators) */}
+        <ambientLight intensity={0.11} />
+        <directionalLight position={[14, 5, 10]} intensity={2.15} color="#fff4ea" />
+        <pointLight position={[-10, -4, -10]} intensity={0.22} color="#38bdf8" />
+
+        {/* Quality-Aware HDR Postprocessing (Selective High-Threshold Bloom + ACES Filmic) */}
+        <CinematicPostprocessingPipeline
+          qualityTier={qualityProfile.tier}
+          exposure={1.08}
+          toneMapping="aces"
+          reducedMotion={reducedMotion}
         />
+
+        {/* Contextual Background Starfield (Omitted in deep intergalactic scenes if inappropriate) */}
+        {scene.sceneArchetype !== "cosmological_expansion" && (
+          <Stars
+            radius={120}
+            depth={60}
+            count={starCount}
+            factor={3.2}
+            saturation={0.25}
+            fade
+            speed={reducedMotion || !snapshot.isSimulationRunning ? 0 : 0.32}
+          />
+        )}
 
         <PerformanceMonitorLoop />
 
@@ -946,43 +1077,162 @@ export function CosmosCinematicSceneHost({
           onEnableManualCamera={onEnableManualCamera}
         />
 
-        {/* Render Module-Appropriate Scientific 3D Scene */}
-        {scene.sceneArchetype === "orbital_mechanics" ? (
-          <OrbitalMechanicsScene3D
+        {/* Render Module-Appropriate Scientific 3D Scene (44 Distinct Chapters across Modules 01, 05, 06, 07, 08, 14) */}
+        {snapshot.currentModuleId === "01" ? (
+          <Module01CinematicDirectorScene
+            sceneId={scene.sceneId}
             qualityProfile={qualityProfile}
             activeCue={activeCue}
             isSimulationRunning={snapshot.isSimulationRunning}
             simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "05" ? (
+          <Module05CinematicDirectorScene
+            sceneId={scene.sceneId}
+            lessonId={snapshot.currentSublessonId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            reducedMotion={reducedMotion}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "06" ? (
+          <Module06CinematicDirectorScene
+            sceneId={scene.sceneId}
+            lessonId={snapshot.currentSublessonId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            reducedMotion={reducedMotion}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "07" ? (
+          <Module07CinematicDirectorScene
+            sceneId={scene.sceneId}
+            lessonId={snapshot.currentSublessonId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            reducedMotion={reducedMotion}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "08" ? (
+          <Module08CinematicDirectorScene
+            sceneId={scene.sceneId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "14" ? (
+          <Module14CinematicDirectorScene
+            sceneId={scene.sceneId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            reducedMotion={reducedMotion}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : scene.sceneArchetype === "orbital_mechanics" ? (
+          <OrbitalMechanicsScene3D
+            sceneId={scene.sceneId}
+            moduleId={scene.moduleId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
             onSelectObject={onSelectObject}
           />
         ) : scene.sceneArchetype === "black_hole_relativity" ? (
           <BlackHoleRelativityScene3D
-            qualityProfile={qualityProfile}
-            isSimulationRunning={snapshot.isSimulationRunning}
-            simulationTimeScale={snapshot.simulationTimeScale}
-            onSelectObject={onSelectObject}
-          />
-        ) : scene.sceneArchetype === "stellar_physics" ? (
-          <StellarPhysicsScene3D
-            qualityProfile={qualityProfile}
-            isSimulationRunning={snapshot.isSimulationRunning}
-            simulationTimeScale={snapshot.simulationTimeScale}
-            onSelectObject={onSelectObject}
-          />
-        ) : (
-          <CosmicHierarchyScene3D
+            sceneId={scene.sceneId}
             qualityProfile={qualityProfile}
             activeCue={activeCue}
+            reducedMotion={reducedMotion}
             isSimulationRunning={snapshot.isSimulationRunning}
             simulationTimeScale={snapshot.simulationTimeScale}
             activeHighlightedObjects={snapshot.activeHighlightedObjects}
             onSelectObject={onSelectObject}
           />
+        ) : scene.sceneArchetype === "stellar_physics" ? (
+          <StellarPhysicsScene3D
+            sceneId={scene.sceneId}
+            moduleId={scene.moduleId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : scene.sceneArchetype === "galactic_structure" ||
+          scene.sceneArchetype === "cosmological_expansion" ? (
+          <GalacticAndCosmologyScene3D
+            sceneId={scene.sceneId}
+            qualityProfile={qualityProfile}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            onSelectObject={onSelectObject}
+          />
+        ) : scene.sceneArchetype === "observatory_instrument" ? (
+          <ObservatoryAndSpacecraftScene3D
+            sceneId={scene.sceneId}
+            moduleId={scene.moduleId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : (
+          <CosmicHierarchyScene3D
+            sceneId={scene.sceneId}
+            qualityProfile={qualityProfile}
+            activeCue={activeCue}
+            isSimulationRunning={snapshot.isSimulationRunning}
+            simulationTimeScale={snapshot.simulationTimeScale}
+            normalizedProgress={snapshot.normalizedSegmentProgress}
+            activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
         )}
 
-        <SceneScientificAnnotations
+        {/* World-Anchored Scientific Annotations & 3D Object Focus Outlines */}
+        <ScientificAnnotation
           scene={scene}
+          chapterAnnotations={
+            CosmosProofOfConceptCatalog.getChapterManifest(
+              snapshot.currentModuleId,
+              snapshot.currentSublessonId,
+            )?.chapterAnnotations
+          }
           enabled={snapshot.scientificLabelsEnabled}
+          learningLevel={snapshot.learningLevel}
+          highlightedObjectIds={snapshot.activeHighlightedObjects}
+          selectedObjectId={snapshot.selectedObjectId}
         />
       </Canvas>
     </div>

@@ -201,3 +201,16 @@
 - **Performance & Quality Gate**: Max Draw Calls $\le 35$, Max Particles $= 6000$ (High) / $1500$ (Low-Power), Rubric Score: **5.0 / 5.0 (Approved)**.
 
 ---
+
+## Stage 2 — Implemented 3D Chapter Scenes (`Module06ChapterScenes.tsx`)
+
+| Chapter Code | Lesson ID | 3D Scene Component ID | Primary Scientific Equations & Telemetry | Activity Adapter Bridge |
+| :--- | :--- | :--- | :--- | :--- |
+| **06.1** | `sub-01` | `m06_ch1_solar_system_formation` | $L = I\omega = \text{const}$, $r_{\text{frost}} \approx 2.7\text{ AU}$ ($T_{\text{cond}}(\text{H}_2\text{O}) \approx 170\text{ K}$) | — |
+| **06.2** | `sub-02` | `m06_ch2_terrestrial_planets` | $\rho = 3.93\text{–}5.51\text{ g/cm}^3$, $T_s = T_{\text{eq}}(1 + \frac{3}{4}\tau_{\text{IR}})^{1/4}$ (Venus $737\text{ K}$) | `act_06_density_table` (`classify_density_architecture`) |
+| **06.3** | `sub-03` | `m06_ch3_gas_giants` | $P_{\text{H-metal}} \ge 1.4\text{ Mbar}$, $\rho_{\text{Saturn}} = 0.687\text{ g/cm}^3 < \rho_{\text{H}_2\text{O}}$ | `act_06_solar_system_tour` (`inspect_planetary_regimes`) |
+| **06.4** | `sub-04` | `m06_ch4_ice_giants` | $\varepsilon_{\text{Uranus}} = 97.77^\circ$, $v_{\text{wind,Neptune}} \approx 2100\text{ km/h}$, superionic $\text{H}_2\text{O–NH}_3\text{–CH}_4$ | `act_06_solar_system_tour` (`inspect_planetary_regimes`) |
+| **06.5** | `sub-05` | `m06_ch5_dwarf_planets` | $\Lambda = \frac{M^2}{m_{\text{belt}}a^{3/2}} < 1$, $2:3$ Neptune–Pluto mean-motion resonance | — |
+| **06.6** | `sub-06` | `m06_ch6_asteroids_comets` | Kirkwood gaps ($3:1, 5:2, 2:1$), $\hat{\mathbf{r}}_{\text{ion}} = +\hat{\mathbf{r}}_\odot$, DART $\Delta P = -33.0\text{ min}$ | — |
+| **06.7** | `sub-07` | `m06_ch7_moons_and_rings` | $d_{\text{Roche}} \approx 2.44 R_p(\rho_p/\rho_m)^{1/3}$, Laplace resonance $\omega_{\text{Io}} - 3\omega_{\text{Eu}} + 2\omega_{\text{Ga}} = 0$ | — |
+| **06.8** | `sub-08` | `m06_ch8_planetary_comparison` | $g = GM/R^2$, $v_{\text{esc}} = \sqrt{2GM/R}$, $r_{\text{HZ}} = \sqrt{L_\star/S_{\text{eff}}}$ | `act_06_solar_system_tour` (`complete_experiment`) |

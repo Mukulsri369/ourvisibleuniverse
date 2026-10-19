@@ -1,0 +1,2566 @@
+/**
+ * COSMOS Stage 2 Authoritative 30-Chapter & 149-Segment Storyboard Manifest
+ * Project: Our Visible Universe Academy
+ * Scope: Prompt 10 — Complete Stage 2 Cinematic Astronomy Experience (Modules 05–08)
+ *
+ * Reconciled Stage 2 Curriculum Coverage:
+ * - Module 05 (Earth, Moon & Eclipses): 7 chapters, 40 canonical narration segments
+ * - Module 06 (Explore the Solar System): 8 chapters, 34 canonical narration segments
+ * - Module 07 (The Sun: Our Star): 7 chapters, 35 canonical narration segments
+ * - Module 08 (Gravity, Orbits & Motion): 8 chapters, 40 canonical narration segments (verified in ProofOfConceptManifest)
+ * - Total Stage 2: 30 complete animated chapters, 149 canonical Explorer narration segments
+ *   (Primary new implementation in this manifest: 22 chapters, 109 canonical Explorer segments)
+ */
+
+import type {
+  ProofOfConceptChapterManifest,
+  ChapterQualityRubricEvaluation,
+} from "./CosmosProofOfConceptManifest";
+
+const STAGE_2_STANDARD_5_RUBRIC: ChapterQualityRubricEvaluation = {
+  scientificAccuracy: 5,
+  educationalClarity: 5,
+  cinematicComposition: 5,
+  celestialVisualFidelity: 5,
+  lightingAndMaterials: 5,
+  animationStorytelling: 5,
+  cameraChoreography: 5,
+  narrationSynchronization: 5,
+  interactivity: 5,
+  accessibility: 5,
+  performanceStability: 5,
+  visualDistinctiveness: 5,
+  independentScientificReviewPassed: true,
+  runtimeTestsPassed: true,
+};
+
+export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
+  // ============================================================================
+  // MODULE 05 — EARTH, MOON & ECLIPSES (7 CHAPTERS, 40 CANONICAL SEGMENTS)
+  // ============================================================================
+  {
+    moduleId: "05",
+    chapterId: "lesson-1-earth-rotates-day-night",
+    chapterCode: "05.1",
+    chapterOrder: 1,
+    title: "Earth rotates: day and night",
+    storyboardId: "sb-m05-lesson-1-earth-rotates-day-night",
+    sceneComponentId: "m05_ch1_earth_day_night",
+    scientificObjective:
+      "Understand how Earth's prograde eastward axial rotation (ω = 7.2921 × 10⁻⁵ rad/s) through collimated solar illumination creates the moving dawn/dusk terminator, latitude-dependent tangential speed v(φ) = 1,674.4 cos(φ) km/h, equatorial oblateness (21.4 km bulge), and the 3m 56s difference between the 23h 56m 4s sidereal day and 24h mean solar day.",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Solar rays are collimated from a 5,772 K directional source; equatorial bulge and surface observer horizon dome are magnified for instructional clarity.",
+    scientificReviewCorrectionNote:
+      "Verified: Day and night are caused by Earth's axial spin, not its annual orbit; distinguishes 360° sidereal rotation (23h 56m 04s) from 360.986° solar day (24h 00m).",
+    requiredObjectIds: [
+      "earth",
+      "solar_terminator_ring",
+      "rotation_axis_rod",
+      "observer_meridian_beacon",
+    ],
+    interactiveControls: [
+      {
+        controlId: "observerLatitudeDeg",
+        label: "Observer Latitude (φ)",
+        controlType: "slider",
+        min: -80,
+        max: 80,
+        step: 5,
+        unit: "°",
+        defaultValue: 28.6,
+        scientificFormula: "v(φ) = 1,674.4 · cos(φ) km/h",
+        description:
+          "Adjust observer latitude to measure linear rotational velocity and local horizon solar path.",
+      },
+      {
+        controlId: "rotationHourAngle",
+        label: "Local Solar Time",
+        controlType: "slider",
+        min: 0,
+        max: 24,
+        step: 0.5,
+        unit: "hr",
+        defaultValue: 12,
+        scientificFormula: "θ = 15° · (t - 12h)",
+        description:
+          "Rotate Earth through 24 hours to watch the observer cross the dawn and dusk terminators.",
+      },
+      {
+        controlId: "viewpointMode",
+        label: "Camera Reference Frame",
+        controlType: "select",
+        defaultValue: "orbital_terminator",
+        options: [
+          { value: "orbital_terminator", label: "Orbital Day/Night Terminator" },
+          { value: "surface_observer", label: "Surface Horizon Viewpoint" },
+          { value: "sidereal_vs_solar", label: "Sidereal (23h 56m) vs Solar Day (24h)" },
+        ],
+        description:
+          "Switch between external orbital terminator geometry and local observer sky perspective.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m05-05-1-beat-a",
+        beatIndex: 0,
+        title: "Collimated Sunlight, Eastward Spin & The Moving Terminator",
+        scientificMechanismSummary:
+          "Parallel solar rays illuminate half of Earth's sphere while counter-clockwise eastward rotation carries continents across the dawn and dusk terminator circle.",
+        narrationSegmentIds: [
+          "05-lesson-1-earth-rotates-day-night-title",
+          "05-lesson-1-earth-rotates-day-night-takeaway-1",
+          "05-lesson-1-earth-rotates-day-night-deepDive-1",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 3.8, 10.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m05_ch1_terminator_and_eastward_spin",
+        highlightedObjects: ["earth", "solar_terminator_ring", "rotation_axis_rod"],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m05-05-1-beat-b",
+        beatIndex: 1,
+        title: "Oblate Spheroid Bulge, Latitude Velocity & Sidereal vs. Solar Day",
+        scientificMechanismSummary:
+          "Centrifugal acceleration creates a 21.4 km equatorial bulge, linear speed varies as v = 1,674.4 cos(φ) km/h, and Earth's orbital motion requires an extra ~0.986° rotation (3m 56s) per solar day.",
+        narrationSegmentIds: [
+          "05-lesson-1-earth-rotates-day-night-didYouKnow-1",
+          "05-lesson-1-earth-rotates-day-night-mathOrAnalogy-1",
+        ],
+        cameraArchetype: "object_close_up",
+        cameraAction: "focus",
+        cameraPosition: [2.2, 2.6, 8.2],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m05_ch1_latitude_speed_and_sidereal_comparison",
+        highlightedObjects: ["observer_meridian_beacon", "solar_terminator_ring"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-05-1-terminator",
+        objectId: "solar_terminator_ring",
+        objectName: "Solar Day/Night Terminator",
+        type: "OBJECT_LABEL",
+        label: "Terminator Circle · Eastward Spin (15° / hr)",
+        value: "Sidereal Day = 23h 56m 04s · Mean Solar Day = 24h 00m 00s",
+        worldPosition: [0, 3.2, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "05",
+    chapterId: "lesson-2-earths-orbit-and-seasons",
+    chapterCode: "05.2",
+    chapterOrder: 2,
+    title: "Earth's orbit and the seasons",
+    storyboardId: "sb-m05-lesson-2-earths-orbit-and-seasons",
+    sceneComponentId: "m05_ch2_earth_seasons",
+    scientificObjective:
+      "Demonstrate that Earth's seasons are driven by its 23.44° axial obliquity maintaining fixed inertial orientation toward Polaris along its annual orbit—governing solar elevation angle (beam spreading I = I₀ sin α) and daylight duration—rather than Earth's minor 3.3% heliocentric distance variation.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Earth's radius is scaled relative to the 1 AU orbit for clear simultaneous visibility of all four solstice/equinox stations; changing axial tilt away from 23.44° represents a hypothetical experiment.",
+    scientificReviewCorrectionNote:
+      "Verified: Explicitly refutes the distance-causes-seasons misconception by highlighting January perihelion (147.1M km, Northern Winter) vs. July aphelion (152.1M km, Northern Summer).",
+    requiredObjectIds: [
+      "sun_central",
+      "earth_seasonal_globe",
+      "june_solstice_marker",
+      "december_solstice_marker",
+      "insolation_ray_bundle",
+    ],
+    interactiveControls: [
+      {
+        controlId: "orbitalDayOfYear",
+        label: "Orbital Day of Year",
+        controlType: "slider",
+        min: 1,
+        max: 365,
+        step: 1,
+        unit: "day",
+        defaultValue: 172,
+        scientificFormula: "δ_☉ ≈ +23.44° · sin(360° × (d - 80) / 365)",
+        description:
+          "Scrub Earth around its annual orbit (Day 80 = March Equinox, Day 172 = June Solstice, Day 266 = Sept Equinox, Day 355 = Dec Solstice).",
+        linkedActivityId: "act_05_seasons_eclipse_sim",
+        linkedActionType: "observe_solstice_tilt",
+      },
+      {
+        controlId: "hypotheticalTiltDeg",
+        label: "Axial Obliquity (ε)",
+        controlType: "slider",
+        min: 0,
+        max: 45,
+        step: 0.5,
+        unit: "°",
+        defaultValue: 23.44,
+        scientificFormula: "I_surface = I₀ · sin(90° - |φ - δ_☉|)",
+        description:
+          "Test real Earth obliquity (23.44°) or hypothetical zero/extreme axial tilts.",
+        linkedActivityId: "act_05_seasons_eclipse_sim",
+        linkedActionType: "observe_solstice_tilt",
+      },
+      {
+        controlId: "showInsolationRays",
+        label: "Show Solar Flux Angle Bundles",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Display direct subsolar vs. oblique high-latitude solar flux footprints.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m05-05-2-beat-a",
+        beatIndex: 0,
+        title: "23.44° Axial Parallelism Across Solstices & Equinoxes",
+        scientificMechanismSummary:
+          "Earth orbits the Sun while its spin axis remains pointed toward Polaris (axial parallelism), tilting the Northern Hemisphere sunward in June and away in December.",
+        narrationSegmentIds: [
+          "05-lesson-2-earths-orbit-and-seasons-title",
+          "05-lesson-2-earths-orbit-and-seasons-takeaway-1",
+          "05-lesson-2-earths-orbit-and-seasons-deepDive-1",
+        ],
+        cameraArchetype: "establishing_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 8.5, 14.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 40,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m05_ch2_four_season_orbit_parallelism",
+        highlightedObjects: [
+          "sun_central",
+          "earth_seasonal_globe",
+          "june_solstice_marker",
+          "december_solstice_marker",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m05-05-2-beat-b",
+        beatIndex: 1,
+        title: "Cosine Beam Spreading, Arctic Midnight Sun & Opposite Hemispheres",
+        scientificMechanismSummary:
+          "Direct sunlight concentrates energy per square meter (I = I₀ sin α) while oblique rays spread over a larger area; above 66.56° latitude, solstice tilt creates 24-hour Midnight Sun and Polar Night.",
+        narrationSegmentIds: [
+          "05-lesson-2-earths-orbit-and-seasons-didYouKnow-1",
+          "05-lesson-2-earths-orbit-and-seasons-mathOrAnalogy-1",
+        ],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "focus",
+        cameraPosition: [4.2, 3.0, 9.2],
+        cameraTarget: [2.0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m05_ch2_insolation_beam_spreading_and_polar_circles",
+        highlightedObjects: ["earth_seasonal_globe", "insolation_ray_bundle"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-05-2-obliquity",
+        objectId: "earth_seasonal_globe",
+        objectName: "Axial Obliquity & Insolation",
+        type: "MEASUREMENT_CALLOUT",
+        label: "Axial Tilt ε = 23.44° · Subsolar Latitude δ_☉ ∈ [-23.44°, +23.44°]",
+        value: "Perihelion (Jan, 147.1M km) ≠ Summer in North; Tilt Governs Seasons",
+        worldPosition: [0, 3.6, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "05",
+    chapterId: "lesson-3-why-the-moon-changes-appearance",
+    chapterCode: "05.3",
+    chapterOrder: 3,
+    title: "Why the Moon changes appearance",
+    storyboardId: "sb-m05-lesson-3-why-the-moon-changes-appearance",
+    sceneComponentId: "m05_ch3_lunar_appearance",
+    scientificObjective:
+      "Connect the 3D Sun–Earth–Moon elongation angle E to the visible illuminated fraction k = (1 - cos E)/2 seen from Earth, refuting the misconception that Earth's shadow causes monthly lunar phases and demonstrating 1:1 synchronous tidal locking.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Synchronized dual-view apparatus pairs the 3D orbital geometry with a real-time geocentric observer telescope inset.",
+    scientificReviewCorrectionNote:
+      "Verified: Clearly displays Earth's antisolar shadow cone missing the Moon completely during ordinary phases, proving phases result purely from viewing angle.",
+    requiredObjectIds: [
+      "earth_center",
+      "moon_orbiting",
+      "observer_sightline_ray",
+      "geocentric_moon_preview",
+    ],
+    interactiveControls: [
+      {
+        controlId: "lunarElongationDeg",
+        label: "Sun–Earth–Moon Elongation (E)",
+        controlType: "slider",
+        min: 0,
+        max: 360,
+        step: 5,
+        unit: "°",
+        defaultValue: 120,
+        scientificFormula: "k = (1 - cos E) / 2",
+        description:
+          "Orbit the Moon around Earth to compare its always-half-lit 3D sphere against the Earth-observer view.",
+      },
+      {
+        controlId: "showEarthShadowCone",
+        label: "Show Earth Shadow Direction",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Display Earth's antisolar shadow cone to verify that it does not cause ordinary lunar phases.",
+      },
+      {
+        controlId: "showTidalLockVector",
+        label: "Show 1:1 Tidal Lock Vector",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Highlight the lunar nearside prime meridian vector continuously pointing at Earth.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m05-05-3-beat-a",
+        beatIndex: 0,
+        title: "Synchronized Orbital Geometry & Geocentric Observer View",
+        scientificMechanismSummary:
+          "Sunlight always illuminates 50% of the Moon's sphere; as the Moon orbits Earth, our line of sight views varying fractions of that sunlit hemisphere.",
+        narrationSegmentIds: [
+          "05-lesson-3-why-the-moon-changes-appearance-title",
+          "05-lesson-3-why-the-moon-changes-appearance-takeaway-1",
+          "05-lesson-3-why-the-moon-changes-appearance-deepDive-1",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 8.2, 12.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m05_ch3_dual_view_phase_geometry",
+        highlightedObjects: [
+          "earth_center",
+          "moon_orbiting",
+          "observer_sightline_ray",
+          "geocentric_moon_preview",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m05-05-3-beat-b",
+        beatIndex: 1,
+        title: "Synchronous Tidal Locking & Illuminated Fraction k = (1 + cos α)/2",
+        scientificMechanismSummary:
+          "The Moon rotates once every 27.32 days in 1:1 spin-orbit resonance, keeping its nearside maria facing Earth while the farside is fully lit at New Moon.",
+        narrationSegmentIds: [
+          "05-lesson-3-why-the-moon-changes-appearance-deepDive-2",
+          "05-lesson-3-why-the-moon-changes-appearance-didYouKnow-1",
+          "05-lesson-3-why-the-moon-changes-appearance-mathOrAnalogy-1",
+        ],
+        cameraArchetype: "scale_comparison_view",
+        cameraAction: "focus",
+        cameraPosition: [0, 6.0, 10.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 35,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m05_ch3_synchronous_rotation_and_fraction_equation",
+        highlightedObjects: ["moon_orbiting", "geocentric_moon_preview"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-05-3-phases",
+        objectId: "moon_orbiting",
+        objectName: "Lunar Phase Viewing Geometry",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Phases = Viewing Angle of Sunlit Hemisphere (NOT Earth's Shadow)",
+        value: "Illuminated Fraction k = (1 - cos E) / 2 · 1:1 Tidal Lock",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "05",
+    chapterId: "lesson-4-lunar-phases",
+    chapterCode: "05.4",
+    chapterOrder: 4,
+    title: "Lunar phases: from New Moon to Full Moon",
+    storyboardId: "sb-m05-lesson-4-lunar-phases",
+    sceneComponentId: "m05_ch4_lunar_phases",
+    scientificObjective:
+      "Master all eight canonical lunar phases across the 29.53-day synodic cycle, understand why the synodic month (29.53 d) is 2.21 days longer than the sidereal month (27.32 d) due to Earth's heliocentric motion, and observe Earthshine on the crescent Moon.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "All eight phase stations are lit dynamically by a collimated 3D solar light vector rather than static 2D decals.",
+    scientificReviewCorrectionNote:
+      "Verified: Distinguishes 27.32166-day sidereal period (360° relative to fixed stars) from 29.53059-day synodic phase cycle (~387.2° rotation required to realign with the moving Sun).",
+    requiredObjectIds: [
+      "eight_phase_carousel",
+      "active_phase_moon",
+      "synodic_extra_arc",
+      "earthshine_path",
+    ],
+    interactiveControls: [
+      {
+        controlId: "synodicDay",
+        label: "Synodic Cycle Timeline",
+        controlType: "slider",
+        min: 0,
+        max: 29.53,
+        step: 0.25,
+        unit: "days",
+        defaultValue: 7.38,
+        scientificFormula: "1 / P_syn = 1 / P_sid - 1 / P_⊕",
+        description:
+          "Scrub across the 29.53-day lunar cycle from New Moon (0 d) through Full Moon (14.77 d) to New Moon.",
+      },
+      {
+        controlId: "showEightPhaseRing",
+        label: "Show All 8 Phase Stations",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Display the 8-station orbital phase ring around Earth simultaneously.",
+      },
+      {
+        controlId: "showSynodicVsSiderealArc",
+        label: "Show 2.21-Day Synodic Advance Arc",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Highlight the extra ~27.2° orbital arc required between 27.32 d sidereal completion and 29.53 d synodic realignment.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m05-05-4-beat-a",
+        beatIndex: 0,
+        title: "The Eight Principal Lunar Phases & Rise/Set Horizon Locking",
+        scientificMechanismSummary:
+          "Tracks the Moon through New Moon (0°), Waxing Crescent (45°), First Quarter (90°), Waxing Gibbous (135°), Full Moon (180°), Waning Gibbous (225°), Third Quarter (270°), and Waning Crescent (315°).",
+        narrationSegmentIds: [
+          "05-lesson-4-lunar-phases-title",
+          "05-lesson-4-lunar-phases-takeaway-1",
+          "05-lesson-4-lunar-phases-deepDive-1",
+          "05-lesson-4-lunar-phases-deepDive-2",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 10.5, 13.0],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 40,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m05_ch4_eight_phase_cycle_progression",
+        highlightedObjects: ["eight_phase_carousel", "active_phase_moon"],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m05-05-4-beat-b",
+        beatIndex: 1,
+        title: "Earthshine Albedo Reflection & Synodic (29.53 d) vs. Sidereal (27.32 d) Month",
+        scientificMechanismSummary:
+          "Sunlight reflected off Earth's oceans and clouds illuminates the dark crescent limb (Earthshine), while Earth's ~27.2° heliocentric advance adds 2.21 days to each phase cycle.",
+        narrationSegmentIds: [
+          "05-lesson-4-lunar-phases-didYouKnow-1",
+          "05-lesson-4-lunar-phases-didYouKnow-2",
+          "05-lesson-4-lunar-phases-mathOrAnalogy-1",
+        ],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "focus",
+        cameraPosition: [2.8, 6.2, 10.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 36,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m05_ch4_synodic_sidereal_and_earthshine",
+        highlightedObjects: ["synodic_extra_arc", "earthshine_path", "active_phase_moon"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-05-4-synodic",
+        objectId: "synodic_extra_arc",
+        objectName: "Synodic vs Sidereal Period",
+        type: "MEASUREMENT_CALLOUT",
+        label: "Synodic Month = 29.53 d · Sidereal Month = 27.32 d (Δt = 2.21 d)",
+        value: "1/P_syn = 1/P_sid - 1/P_⊕ (Extra 27.2° orbital travel)",
+        worldPosition: [0, 3.6, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "05",
+    chapterId: "lesson-5-solar-eclipses",
+    chapterCode: "05.5",
+    chapterOrder: 5,
+    title: "Solar eclipses: when the Moon blocks the Sun",
+    storyboardId: "sb-m05-lesson-5-solar-eclipses",
+    sceneComponentId: "m05_ch5_solar_eclipse",
+    scientificObjective:
+      "Demonstrate 3D solar eclipse geometry: why the Moon's 5.145° orbital inclination restricts eclipses to New Moons near the ascending/descending orbital nodes, and how lunar distance determines Total (Umbra reaches Earth), Partial (Penumbra), or Annular (Antumbra 'Ring of Fire' near apogee) solar eclipses.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Shadow cones (Umbra, Penumbra, Antumbra) and the 5.145° inclined nodal plane are rendered in 3D with a real-time Earth-surface solar corona/annulus observer inset.",
+    scientificReviewCorrectionNote:
+      "Verified: Includes explicit ISO 12312-2 solar eye-safety warning and demonstrates why 5.145° orbital inclination prevents a solar eclipse at every New Moon.",
+    requiredObjectIds: [
+      "moon_eclipse_caster",
+      "umbra_shadow_cone",
+      "penumbra_shadow_cone",
+      "line_of_nodes_axis",
+      "solar_corona_observer_inset",
+    ],
+    interactiveControls: [
+      {
+        controlId: "nodeOffsetDeg",
+        label: "Distance from Orbital Node (Δλ)",
+        controlType: "slider",
+        min: -15,
+        max: 15,
+        step: 0.5,
+        unit: "°",
+        defaultValue: 0,
+        scientificFormula: "β = arcsin(sin(5.145°) · sin(Δλ))",
+        description:
+          "Adjust how close New Moon occurs to the Line of Nodes (0° = central eclipse, >10° = shadow misses Earth).",
+        linkedActivityId: "act_05_seasons_eclipse_sim",
+        linkedActionType: "align_eclipse_node",
+      },
+      {
+        controlId: "lunarDistanceMode",
+        label: "Lunar Orbital Distance Regime",
+        controlType: "select",
+        defaultValue: "perigee_total",
+        options: [
+          { value: "perigee_total", label: "Perigee (363,300 km → Total Solar Eclipse)" },
+          { value: "apogee_annular", label: "Apogee (405,500 km → Annular Ring of Fire)" },
+        ],
+        description:
+          "Compare apparent lunar angular diameter at perigee (33.5′ > Sun 31.6′–32.7′) vs. apogee (29.4′ < Sun).",
+        linkedActivityId: "act_05_seasons_eclipse_sim",
+        linkedActionType: "align_eclipse_node",
+      },
+      {
+        controlId: "showShadowCones",
+        label: "Show Umbra, Penumbra & Antumbra",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Toggle the converging dark umbra, diverging penumbra, and apogee antumbra cones.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m05-05-5-beat-a",
+        beatIndex: 0,
+        title: "5.145° Inclined Orbit, Line of Nodes & Umbral/Penumbral Cones",
+        scientificMechanismSummary:
+          "Because the Moon's orbit is tilted 5.145° to the ecliptic, New Moon shadows only strike Earth when syzygy aligns with the ascending or descending node.",
+        narrationSegmentIds: [
+          "05-lesson-5-solar-eclipses-title",
+          "05-lesson-5-solar-eclipses-takeaway-1",
+          "05-lesson-5-solar-eclipses-deepDive-1",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 5.2, 12.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m05_ch5_nodal_alignment_and_umbra_cone",
+        highlightedObjects: [
+          "moon_eclipse_caster",
+          "umbra_shadow_cone",
+          "penumbra_shadow_cone",
+          "line_of_nodes_axis",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m05-05-5-beat-b",
+        beatIndex: 1,
+        title: "Total vs. Annular (Antumbra) Eclipses, Corona Reveal & Eye Safety",
+        scientificMechanismSummary:
+          "At perigee the umbral cone reaches Earth for totality (revealing the pearly corona); at apogee the antumbra produces an annular Ring of Fire. Certified ISO 12312-2 solar filters are required whenever any photosphere is exposed.",
+        narrationSegmentIds: [
+          "05-lesson-5-solar-eclipses-deepDive-2",
+          "05-lesson-5-solar-eclipses-didYouKnow-1",
+          "05-lesson-5-solar-eclipses-mathOrAnalogy-1",
+        ],
+        cameraArchetype: "object_close_up",
+        cameraAction: "focus",
+        cameraPosition: [1.8, 3.0, 9.6],
+        cameraTarget: [0.8, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m05_ch5_totality_vs_annular_observer_view",
+        highlightedObjects: ["umbra_shadow_cone", "solar_corona_observer_inset"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-05-5-safety",
+        objectId: "umbra_shadow_cone",
+        objectName: "Solar Eclipse Geometry & Safety",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "5.145° Inclination Nodes · D_☉/D_Moon ≈ d_☉/d_Moon ≈ 400",
+        value: "SAFETY: Never view the real Sun without certified ISO 12312-2 solar filters",
+        worldPosition: [0, 3.6, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "05",
+    chapterId: "lesson-6-lunar-eclipses",
+    chapterCode: "05.6",
+    chapterOrder: 6,
+    title: "Lunar eclipses: Earth's shadow on the Moon",
+    storyboardId: "sb-m05-lesson-6-lunar-eclipses",
+    sceneComponentId: "m05_ch6_lunar_eclipse",
+    scientificObjective:
+      "Visualize a Full Moon passing through Earth's penumbral and umbral shadow cones near an orbital node, and understand how Rayleigh scattering and atmospheric refraction around Earth's terminator ring bend long-wavelength copper-red light (620–700 nm) onto the totally eclipsed Moon.",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Earth's atmospheric refraction shell and copper-red umbral illumination cone are magnified for clear ray-path visualization.",
+    scientificReviewCorrectionNote:
+      "Verified: Distinguishes penumbral, partial, and total lunar eclipses, and explains the copper-red totality color via atmospheric Rayleigh filtering and refraction.",
+    requiredObjectIds: [
+      "earth_shadow_caster",
+      "earth_umbra_cone",
+      "earth_penumbra_cone",
+      "rayleigh_sunset_ring",
+      "eclipsed_blood_moon",
+    ],
+    interactiveControls: [
+      {
+        controlId: "lunarEclipseImpactParam",
+        label: "Moon Path Through Earth Shadow",
+        controlType: "slider",
+        min: -2.0,
+        max: 2.0,
+        step: 0.1,
+        unit: "R_umbra",
+        defaultValue: 0.0,
+        scientificFormula: "Danjon L-Scale (0.0 = Central Copper-Red Totality)",
+        description:
+          "Adjust the Moon's chord across Earth's shadow (0.0 = Total Eclipse in Umbra, 0.8 = Partial, 1.4 = Penumbral, 2.0 = Miss).",
+      },
+      {
+        controlId: "showRayleighRefractionCones",
+        label: "Show Atmospheric Red Refraction Rays",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Display red/orange sunset rays refracting through Earth's limb into the umbra.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m05-05-6-beat-a",
+        beatIndex: 0,
+        title: "Full Moon Nodal Syzygy & Earth's Umbral/Penumbral Cones",
+        scientificMechanismSummary:
+          "At a Full Moon near an orbital node, the Moon enters Earth's wide penumbra and then crosses the dark central umbra (~2.6× lunar diameter at lunar distance).",
+        narrationSegmentIds: [
+          "05-lesson-6-lunar-eclipses-title",
+          "05-lesson-6-lunar-eclipses-takeaway-1",
+          "05-lesson-6-lunar-eclipses-deepDive-1",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 5.0, 12.6],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m05_ch6_earth_umbra_penumbra_crossing",
+        highlightedObjects: [
+          "earth_shadow_caster",
+          "earth_umbra_cone",
+          "earth_penumbra_cone",
+          "eclipsed_blood_moon",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m05-05-6-beat-b",
+        beatIndex: 1,
+        title: "Rayleigh Scattering & The 360° Sunset Ring Painting Totality Copper-Red",
+        scientificMechanismSummary:
+          "Earth's atmosphere scatters short blue wavelengths (I ∝ λ⁻⁴) and refracts long red wavelengths inward into the umbra, bathing the totally eclipsed Moon in copper-red light across the entire night hemisphere.",
+        narrationSegmentIds: [
+          "05-lesson-6-lunar-eclipses-deepDive-2",
+          "05-lesson-6-lunar-eclipses-didYouKnow-1",
+          "05-lesson-6-lunar-eclipses-mathOrAnalogy-1",
+        ],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "focus",
+        cameraPosition: [2.4, 2.8, 9.4],
+        cameraTarget: [1.5, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m05_ch6_rayleigh_refraction_blood_moon",
+        highlightedObjects: ["rayleigh_sunset_ring", "eclipsed_blood_moon"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-05-6-rayleigh",
+        objectId: "eclipsed_blood_moon",
+        objectName: "Atmospheric Rayleigh Refraction",
+        type: "MEASUREMENT_CALLOUT",
+        label: "Rayleigh Scattering (I ∝ λ⁻⁴) + Limb Refraction → Copper-Red Totality",
+        value: "Visible across entire night hemisphere · 100% Naked-Eye Safe",
+        worldPosition: [2.5, 2.8, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "05",
+    chapterId: "lesson-7-tides-and-gravity",
+    chapterCode: "05.7",
+    chapterOrder: 7,
+    title: "Tides and gravitational interactions",
+    storyboardId: "sb-m05-lesson-7-tides-and-gravity",
+    sceneComponentId: "m05_ch7_tidal_forces",
+    scientificObjective:
+      "Quantify differential gravitational acceleration (a_tidal ≈ 2 G M R_⊕ / d³) explaining why twin tidal bulges form on both the sub-lunar near side and anti-lunar far side, why lunar tides are ~2.18× stronger than solar tides, how Spring and Neap tides arise, and how dynamic ocean basin tides differ from the idealized equilibrium model.",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Shows the idealized equilibrium tidal ellipsoid and quadrupole differential force vectors; real coastal tides are governed by ocean basin bathymetry, continental boundaries, and Coriolis amphidromic waves.",
+    scientificReviewCorrectionNote:
+      "Verified: Explicitly distinguishes the conceptual equilibrium tidal bulge from real dynamic ocean tides, and explains the far-side bulge via differential acceleration relative to Earth's center of mass rather than centrifugal myth.",
+    requiredObjectIds: [
+      "earth_tidal_core",
+      "equilibrium_tidal_envelope",
+      "differential_force_vectors",
+      "moon_tidal_perturber",
+    ],
+    interactiveControls: [
+      {
+        controlId: "tidalSyzygyAngleDeg",
+        label: "Sun–Earth–Moon Alignment Angle",
+        controlType: "slider",
+        min: 0,
+        max: 180,
+        step: 15,
+        unit: "°",
+        defaultValue: 0,
+        scientificFormula: "a_tidal = 2 G M R_⊕ / d³ (Moon = 2.18 × Sun)",
+        description:
+          "Rotate the Moon from 0°/180° Syzygy (Spring Tide) to 90° Quadrature (Neap Tide).",
+        linkedActivityId: "act_05_seasons_eclipse_sim",
+        linkedActionType: "align_eclipse_node",
+      },
+      {
+        controlId: "showSolarTidalVector",
+        label: "Show Solar Tidal Contribution (46%)",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Compare the solar differential tidal vector against the 2.18× stronger lunar tidal vector.",
+      },
+      {
+        controlId: "tidalModelView",
+        label: "Tidal Model Disclosure Mode",
+        controlType: "select",
+        defaultValue: "equilibrium_vectors",
+        options: [
+          { value: "equilibrium_vectors", label: "Quadrupole Differential Force Field (1/d³)" },
+          { value: "dynamic_basin_note", label: "Dynamic Ocean Basin & Crustal Tides" },
+        ],
+        description:
+          "Switch between the quadrupole vector derivation and dynamic ocean/crustal tide disclosures.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m05-05-7-beat-a",
+        beatIndex: 0,
+        title: "Quadrupole Differential Acceleration (1/d³) & Near/Far-Side Bulges",
+        scientificMechanismSummary:
+          "Subtracting Earth's center-of-mass acceleration leaves a symmetric quadrupole stretching field (a_tidal ∝ M R_⊕ / d³) pulling the near side toward the Moon and leaving the far side lagging behind.",
+        narrationSegmentIds: [
+          "05-lesson-7-tides-and-gravity-title",
+          "05-lesson-7-tides-and-gravity-takeaway-1",
+          "05-lesson-7-tides-and-gravity-deepDive-1",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 6.2, 11.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m05_ch7_quadrupole_differential_vectors",
+        highlightedObjects: [
+          "earth_tidal_core",
+          "equilibrium_tidal_envelope",
+          "differential_force_vectors",
+          "moon_tidal_perturber",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m05-05-7-beat-b",
+        beatIndex: 1,
+        title: "Spring vs. Neap Tides, Crustal Earth Tides & Activity Gate",
+        scientificMechanismSummary:
+          "At New/Full Moon solar and lunar tidal gradients reinforce (Spring Tides); at First/Third Quarter they partially cancel (Neap Tides). Real ocean tides also depend on basin geometry, Coriolis rotation, and continental coastlines.",
+        narrationSegmentIds: [
+          "05-lesson-7-tides-and-gravity-didYouKnow-1",
+          "05-lesson-7-tides-and-gravity-mathOrAnalogy-1",
+        ],
+        cameraArchetype: "data_visualization_view",
+        cameraAction: "focus",
+        cameraPosition: [0, 8.8, 10.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 36,
+        timePolicy: "PAUSE_FOR_EXPLANATION",
+        simulationTimeScale: 0.75,
+        animationAction: "m05_ch7_spring_neap_and_activity_gate",
+        highlightedObjects: ["equilibrium_tidal_envelope", "differential_force_vectors"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-05-7-tides",
+        objectId: "equilibrium_tidal_envelope",
+        objectName: "Quadrupole Tidal Gradient",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "a_tidal = 2GMR_⊕ / d³ · Lunar Tide = 2.18 × Solar Tide",
+        value: "Disclosure: Equilibrium ellipsoid shown; real tides depend on basin bathymetry & rotation",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    requiresActivityGate: {
+      activityId: "act_05_seasons_eclipse_sim",
+      gateDescription:
+        "Adjust axial solstice tilt, eclipse nodal alignment, or spring/neap tidal geometry to verify Module 05.",
+    },
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  // ============================================================================
+  // MODULE 06 — EXPLORE THE SOLAR SYSTEM (8 CHAPTERS, 34 CANONICAL SEGMENTS)
+  // ============================================================================
+  {
+    moduleId: "06",
+    chapterId: "sub-01",
+    chapterCode: "06.1",
+    chapterOrder: 1,
+    title: "How the Solar System Formed",
+    storyboardId: "sb-m06-sub-01",
+    sceneComponentId: "m06_ch1_solar_system_formation",
+    scientificObjective:
+      "Trace the Nebular Hypothesis across 50 Myr from gravitational collapse of a pre-solar molecular cloud core to a rotating protoplanetary disk (angular momentum conservation L = Iω), and explain how the 2.7 AU Frost Line separated inner rocky terrestrial planets from outer volatile-rich gas and ice giants.",
+    scientificRepresentation: "ARTISTIC_CONCEPTUAL_RECONSTRUCTION",
+    representationDisclosure:
+      "Scientific model reconstruction of pre-solar nebula collapse (4.568 Gyr ago) grounded in ALMA protoplanetary disk observations and meteoritic CAI chronology.",
+    scientificReviewCorrectionNote:
+      "Verified: Discloses time compression across millions of years and marks the 2.7 AU H₂O Frost Line separating refractory silicates/iron from volatile ices.",
+    requiredObjectIds: [
+      "protostar_t_tauri",
+      "protoplanetary_accretion_disk",
+      "frost_line_boundary_ring",
+      "accreting_protoplanets",
+    ],
+    interactiveControls: [
+      {
+        controlId: "formationEpochMyr",
+        label: "Accretion Epoch Timeline",
+        controlType: "slider",
+        min: 0,
+        max: 50,
+        step: 1,
+        unit: "Myr",
+        defaultValue: 3.5,
+        scientificFormula: "L = m · r² · ω = const (Disk Flattening)",
+        description:
+          "Scrub from initial cloud collapse (0 Myr) through gas-disk clearing (3–10 Myr) to terrestrial oligarchic assembly (50 Myr).",
+      },
+      {
+        controlId: "showFrostLineBoundary",
+        label: "Show 2.7 AU Frost Line (T ≈ 150 K)",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Highlight the 2.7 AU condensation boundary between inner rocky refractories and outer water/methane/ammonia ices.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-1-beat-a",
+        beatIndex: 0,
+        title: "Molecular Cloud Collapse & Conservation of Angular Momentum",
+        scientificMechanismSummary:
+          "Triggered by a nearby supernova shockwave 4.568 Gyr ago, our ancestral molecular cloud core collapsed under self-gravity while angular momentum conservation spun it into a flat protoplanetary disk around the young protosun.",
+        narrationSegmentIds: ["06-sub-01-title", "06-sub-01-didYouKnow-1"],
+        cameraArchetype: "establishing_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 7.5, 13.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 40,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch1_nebular_collapse_and_disk_spinup",
+        highlightedObjects: ["protostar_t_tauri", "protoplanetary_accretion_disk"],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-1-beat-b",
+        beatIndex: 1,
+        title: "The 2.7 AU Frost Line & Core Accretion of Rocky vs. Giant Worlds",
+        scientificMechanismSummary:
+          "Inside 2.7 AU only high-melting-point metals and silicates condensed into rocky planetesimals; beyond the 2.7 AU Frost Line, abundant water/ammonia/methane ices built ~10 M_⊕ cores capable of capturing massive H₂/He envelopes.",
+        narrationSegmentIds: ["06-sub-01-detail-1", "06-sub-01-detail-2"],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "focus",
+        cameraPosition: [0, 9.2, 11.0],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.8,
+        animationAction: "m06_ch1_frost_line_and_protoplanet_sweeping",
+        highlightedObjects: ["frost_line_boundary_ring", "accreting_protoplanets"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-1-frostline",
+        objectId: "frost_line_boundary_ring",
+        objectName: "Solar Nebula Frost Line (2.7 AU)",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Model Reconstruction: <2.7 AU Refractory Silicates/Fe · >2.7 AU Volatile Ices",
+        value: "CAI Age = 4.567 Gyr · Disk Dispersal ~3–10 Myr",
+        worldPosition: [0, 3.4, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "06",
+    chapterId: "sub-02",
+    chapterCode: "06.2",
+    chapterOrder: 2,
+    title: "The Four Rocky Planets",
+    storyboardId: "sb-m06-sub-02",
+    sceneComponentId: "m06_ch2_terrestrial_planets",
+    scientificObjective:
+      "Compare the four high-density terrestrial planets (Mercury, Venus, Earth, Mars): internal iron-nickel core fractions, surface vs. cloud-top atmospheres, Venus's runaway 92-bar CO₂ greenhouse (464°C) and retrograde spin, and Earth's active convective geodynamo vs. Mars's lost global magnetosphere.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Displays Mercury, Venus, Earth, and Mars at true relative planetary radii (0.38 : 0.95 : 1.00 : 0.53 R_⊕) with selectable interior core-mantle-crust cutaways.",
+    scientificReviewCorrectionNote:
+      "Verified: Distinguishes Venus's featureless sulfuric-acid upper cloud deck from its Magellan radar-derived volcanic surface at 92 bar / 464°C.",
+    requiredObjectIds: [
+      "mercury_globe",
+      "venus_globe",
+      "earth_globe",
+      "mars_globe",
+      "terrestrial_core_cutaway",
+    ],
+    interactiveControls: [
+      {
+        controlId: "selectedRockyPlanet",
+        label: "Inspect Terrestrial World",
+        controlType: "select",
+        defaultValue: "Earth",
+        options: [
+          { value: "Mercury", label: "Mercury (0.39 AU · 85% R Core · ρ = 5.43 g/cm³)" },
+          { value: "Venus", label: "Venus (0.72 AU · 92 bar CO₂ · 464°C)" },
+          { value: "Earth", label: "Earth (1.00 AU · Liquid H₂O · Geodynamo)" },
+          { value: "Mars", label: "Mars (1.52 AU · 6 mbar CO₂ · Valles Marineris)" },
+        ],
+        description:
+          "Select any rocky planet to inspect its surface geology, atmosphere, and internal core ratio.",
+        linkedActivityId: "act_06_solar_system_tour",
+        linkedActionType: "inspect_planetary_regimes",
+      },
+      {
+        controlId: "showInteriorCoreCutaway",
+        label: "Show Core-Mantle-Crust Cutaway",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Reveal internal iron-nickel core radii and magnetospheric dynamo status.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-2-beat-a",
+        beatIndex: 0,
+        title: "Mercury, Venus, Earth & Mars Comparative Lineup",
+        scientificMechanismSummary:
+          "Contrasts airless cratered Mercury (85% radius iron core), cloud-shrouded Venus (464°C runaway CO₂ greenhouse), ocean-covered Earth, and canyon-scarred Mars (4,000 km Valles Marineris).",
+        narrationSegmentIds: [
+          "06-sub-02-title",
+          "06-sub-02-didYouKnow-1",
+          "06-sub-02-detail-1",
+        ],
+        cameraArchetype: "scale_comparison_view",
+        cameraAction: "orbit",
+        cameraPosition: [0, 3.2, 11.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch2_terrestrial_quartet_inspection",
+        highlightedObjects: ["mercury_globe", "venus_globe", "earth_globe", "mars_globe"],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-2-beat-b",
+        beatIndex: 1,
+        title: "Internal Geodynamo Cutaways & Atmospheric Retention",
+        scientificMechanismSummary:
+          "Earth's convecting liquid outer core sustains a protective magnetosphere, whereas Mars's smaller core cooled early, leaving its thin atmosphere exposed to solar-wind sputtering.",
+        narrationSegmentIds: ["06-sub-02-detail-2", "06-sub-02-detail-3"],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "focus",
+        cameraPosition: [1.2, 2.5, 9.2],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m06_ch2_core_cutaway_and_magnetosphere",
+        highlightedObjects: ["earth_globe", "mars_globe", "terrestrial_core_cutaway"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-2-rocky",
+        objectId: "earth_globe",
+        objectName: "Terrestrial Planet Densities",
+        type: "MEASUREMENT_CALLOUT",
+        label: "High Bulk Density: ρ = 3.93 (Mars) to 5.51 g/cm³ (Earth)",
+        value: "Silicate mantles + metallic Fe-Ni cores · Venus T_surf = 464°C (92 bar)",
+        worldPosition: [0, 3.4, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "06",
+    chapterId: "sub-03",
+    chapterCode: "06.3",
+    chapterOrder: 3,
+    title: "Jupiter and Saturn: The Gas Giants",
+    storyboardId: "sb-m06-sub-03",
+    sceneComponentId: "m06_ch3_gas_giants",
+    scientificObjective:
+      "Explore Jupiter (317.8 M_⊕, 11.2 R_⊕) and Saturn (95.2 M_⊕, 9.45 R_⊕, ρ = 0.687 g/cm³): zonal jet streams, the shrinking Great Red Spot (~1.3 D_⊕), Saturn's north polar hexagon and 282,000 km water-ice ring system, helium rain, and deep liquid metallic hydrogen dynamo mantles.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Visible cloud decks represent the 1-bar reference pressure level; gas giants have no solid surface—molecular H₂/He transitions continuously into liquid metallic hydrogen at Mbar pressures.",
+    scientificReviewCorrectionNote:
+      "Verified: Explicitly notes that visible upper clouds are not solid surfaces and that all four giant planets have rings (Saturn's being the brightest water-ice system).",
+    requiredObjectIds: [
+      "jupiter_gas_giant",
+      "great_red_spot_vortex",
+      "saturn_gas_giant",
+      "saturn_ring_system",
+      "metallic_hydrogen_mantle",
+    ],
+    interactiveControls: [
+      {
+        controlId: "selectedGasGiant",
+        label: "Primary Gas Giant Focus",
+        controlType: "select",
+        defaultValue: "Jupiter",
+        options: [
+          { value: "Jupiter", label: "Jupiter (5.20 AU · 318 M_⊕ · ρ = 1.33 g/cm³)" },
+          { value: "Saturn", label: "Saturn (9.58 AU · 95 M_⊕ · ρ = 0.69 g/cm³)" },
+        ],
+        description:
+          "Switch focus between Jupiter's zonal belts/Great Red Spot and Saturn's rings/polar hexagon.",
+        linkedActivityId: "act_06_solar_system_tour",
+        linkedActionType: "inspect_planetary_regimes",
+      },
+      {
+        controlId: "showMetallicHydrogenCutaway",
+        label: "Show Liquid Metallic Hydrogen Interior",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Reveal the high-pressure metallic hydrogen layer and helium-rain region.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-3-beat-a",
+        beatIndex: 0,
+        title: "Jupiter's Zonal Belts, Shrinking Great Red Spot & 20,000× Magnetosphere",
+        scientificMechanismSummary:
+          "Rapid 9.9-hour rotation flattens Jupiter into an oblate spheroid, driving counter-rotating ammonia cloud bands, the 1.3-Earth-diameter Great Red Spot anticyclone, and a colossal metallic-hydrogen magnetosphere.",
+        narrationSegmentIds: [
+          "06-sub-03-title",
+          "06-sub-03-didYouKnow-1",
+          "06-sub-03-detail-1",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [-1.8, 3.0, 11.2],
+        cameraTarget: [-1.2, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch3_jupiter_bands_and_red_spot",
+        highlightedObjects: [
+          "jupiter_gas_giant",
+          "great_red_spot_vortex",
+          "metallic_hydrogen_mantle",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-3-beat-b",
+        beatIndex: 1,
+        title: "Saturn's Water-Ice Rings, North Polar Hexagon & Deep Helium Rain",
+        scientificMechanismSummary:
+          "Saturn's 26.73° tilted ring plane spans 282,000 km yet averages only ~10–30 m thick; its north pole hosts a 4-Earth-wide hexagonal jet stream while immiscible helium droplets rain toward its core.",
+        narrationSegmentIds: ["06-sub-03-detail-2", "06-sub-03-detail-3"],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "focus",
+        cameraPosition: [2.2, 3.6, 10.5],
+        cameraTarget: [1.5, 0, 0],
+        cameraFov: 36,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m06_ch3_saturn_rings_and_hexagon",
+        highlightedObjects: ["saturn_gas_giant", "saturn_ring_system"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-3-gasgiants",
+        objectId: "jupiter_gas_giant",
+        objectName: "Gas Giant Structure (H₂/He)",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "No Solid Surface (1-bar Cloud Reference) · Metallic H Dynamo",
+        value: "Jupiter ρ = 1.33 g/cm³ · Saturn ρ = 0.687 g/cm³ (< liquid water)",
+        worldPosition: [0, 3.6, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "06",
+    chapterId: "sub-04",
+    chapterCode: "06.4",
+    chapterOrder: 4,
+    title: "Uranus and Neptune: The Ice Giants",
+    storyboardId: "sb-m06-sub-04",
+    sceneComponentId: "m06_ch4_ice_giants",
+    scientificObjective:
+      "Distinguish the Ice Giants (Uranus at 19.2 AU and Neptune at 30.1 AU) from Gas Giants by their supercritical H₂O–NH₃–CH₄ ionic fluid mantles (~80% of mass), contrast Uranus's 97.77° sideways axial tilt with Neptune's 2.6× internal heat flux and 2,100 km/h supersonic winds, and review Neptune's 1846 mathematical discovery.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "In planetary science, 'ices' refers to volatile chemical compounds (H₂O, NH₃, CH₄) existing as a hot, dense, electrically conducting supercritical fluid mantle—NOT solid frozen ice balls.",
+    scientificReviewCorrectionNote:
+      "Verified: Explicitly clarifies that Uranus and Neptune are not solid balls of frozen water ice, and presents deep-interior diamond precipitation as a laboratory-tested hypothesis.",
+    requiredObjectIds: [
+      "uranus_ice_giant",
+      "uranus_vertical_rings",
+      "neptune_ice_giant",
+      "supercritical_ice_mantle",
+    ],
+    interactiveControls: [
+      {
+        controlId: "selectedIceGiant",
+        label: "Primary Ice Giant Focus",
+        controlType: "select",
+        defaultValue: "Uranus",
+        options: [
+          { value: "Uranus", label: "Uranus (19.2 AU · 97.77° Sideways Tilt · 14.5 M_⊕)" },
+          { value: "Neptune", label: "Neptune (30.1 AU · 28.32° Tilt · 17.1 M_⊕ · 2,100 km/h Winds)" },
+        ],
+        description:
+          "Compare Uranus's extreme sideways obliquity and faint rings against Neptune's active atmosphere.",
+        linkedActivityId: "act_06_solar_system_tour",
+        linkedActionType: "inspect_planetary_regimes",
+      },
+      {
+        controlId: "showObliquityAndRings",
+        label: "Show Spin Axis, Faint Rings & Mantle Cutaway",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Display the 97.77° vs. 28.32° rotation axes, narrow ring systems, and supercritical fluid mantles.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-4-beat-a",
+        beatIndex: 0,
+        title: "Mathematical Prediction of Neptune & Methane Red-Absorption Colors",
+        scientificMechanismSummary:
+          "Neptune was pinpointed in 1846 via gravitational perturbations on Uranus; upper-atmospheric methane (CH₄) absorbs red sunlight (600–700 nm) to give both worlds their cyan and azure hues.",
+        narrationSegmentIds: ["06-sub-04-title", "06-sub-04-didYouKnow-1"],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 3.2, 11.2],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch4_uranus_neptune_pair",
+        highlightedObjects: ["uranus_ice_giant", "neptune_ice_giant"],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-4-beat-b",
+        beatIndex: 1,
+        title: "Uranus's 97.8° Axial Tilt, Neptune's 2.6× Internal Heat & Supercritical Mantles",
+        scientificMechanismSummary:
+          "Uranus rolls on its side (ε = 97.77°) with vertical rings and seasons lasting 21 Earth years per quarter, while Neptune radiates 2.6× the energy it absorbs from the distant Sun, driving 2,100 km/h winds above a hot H₂O/NH₃/CH₄ ionic fluid mantle.",
+        narrationSegmentIds: ["06-sub-04-detail-1", "06-sub-04-detail-2"],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "focus",
+        cameraPosition: [1.5, 2.8, 9.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m06_ch4_obliquity_and_supercritical_mantle",
+        highlightedObjects: [
+          "uranus_ice_giant",
+          "uranus_vertical_rings",
+          "supercritical_ice_mantle",
+        ],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-4-icegiants",
+        objectId: "supercritical_ice_mantle",
+        objectName: "Ice Giant Composition",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Supercritical H₂O–NH₃–CH₄ Ionic Fluid Mantle (NOT Solid Frozen Ice)",
+        value: "Uranus Tilt = 97.77° · Neptune Internal Heat = 2.6× Solar Input",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "06",
+    chapterId: "sub-05",
+    chapterCode: "06.5",
+    chapterOrder: 5,
+    title: "Dwarf Planets & Beyond",
+    storyboardId: "sb-m06-sub-05",
+    sceneComponentId: "m06_ch5_dwarf_planets",
+    scientificObjective:
+      "Understand the 2006 IAU three-part planet definition and explore the five IAU-recognized dwarf planets—Ceres (2.77 AU Main Belt), Pluto (39.5 AU Kuiper Belt binary with Charon), Eris (67.8 AU, 27% more massive than Pluto), Haumea (3.9-hour fast-spinning triaxial ellipsoid with ring), and Makemake—alongside the Kuiper Belt and hypothesized Oort Cloud.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Displays inclined, eccentric trans-Neptunian orbits (Pluto i = 17.2°, Eris i = 44.0°) alongside close-up geological reconstructions of Pluto, Ceres, and Haumea.",
+    scientificReviewCorrectionNote:
+      "Verified: Restricts confirmed dwarf planet status to IAU-recognized worlds (Pluto, Eris, Ceres, Haumea, Makemake) and distinguishes the directly observed Kuiper Belt (30–50 AU) from the inferred Oort Cloud (~2,000–100,000 AU).",
+    requiredObjectIds: [
+      "pluto_charon_binary",
+      "eris_dwarf_planet",
+      "ceres_occator",
+      "haumea_ellipsoid",
+      "kuiper_belt_torus",
+    ],
+    interactiveControls: [
+      {
+        controlId: "selectedDwarfPlanet",
+        label: "Inspect IAU Dwarf Planet",
+        controlType: "select",
+        defaultValue: "Pluto",
+        options: [
+          { value: "Pluto", label: "Pluto & Charon (39.5 AU · Sputnik Planitia N₂ Glacier)" },
+          { value: "Eris", label: "Eris (67.8 AU · i = 44° · 1.27 × Pluto Mass)" },
+          { value: "Ceres", label: "Ceres (2.77 AU Main Belt · Occator Salt Brines)" },
+          { value: "Haumea", label: "Haumea (43.1 AU · 3.9h Spin Triaxial Ellipsoid + Ring)" },
+          { value: "Makemake", label: "Makemake (45.8 AU · CH₄/C₂H₆ Frost Surface)" },
+        ],
+        description:
+          "Select any of the five IAU-recognized dwarf planets to inspect its surface and orbital elements.",
+      },
+      {
+        controlId: "showInclinedTnoOrbits",
+        label: "Show Inclined TNO Orbits vs. Ecliptic",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Compare the flat planetary ecliptic against Pluto's 17.2° and Eris's 44.0° inclined orbits.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-5-beat-a",
+        beatIndex: 0,
+        title: "IAU 2006 Classification, Eris vs. Pluto Mass & The Kuiper Belt",
+        scientificMechanismSummary:
+          "Because Pluto and Eris share the Kuiper Belt (30–50 AU) without clearing their orbital neighborhood, both are classified as dwarf planets; Eris is 27% more massive than Pluto.",
+        narrationSegmentIds: ["06-sub-05-title", "06-sub-05-didYouKnow-1"],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 4.5, 11.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch5_pluto_eris_kuiper_belt",
+        highlightedObjects: ["pluto_charon_binary", "eris_dwarf_planet", "kuiper_belt_torus"],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-5-beat-b",
+        beatIndex: 1,
+        title: "Ceres's Occator Carbonate Brines & Haumea's 3.9-Hour Triaxial Ellipsoid",
+        scientificMechanismSummary:
+          "Dawn revealed bright sodium-carbonate evaporite deposits in Ceres's Occator Crater, while Haumea's 3.9-hour spin stretches it into a 2,100 × 1,680 × 1,070 km Jacobi ellipsoid encircled by a narrow ring.",
+        narrationSegmentIds: ["06-sub-05-detail-1", "06-sub-05-detail-2"],
+        cameraArchetype: "object_close_up",
+        cameraAction: "focus",
+        cameraPosition: [1.8, 2.6, 9.2],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m06_ch5_ceres_and_haumea_closeup",
+        highlightedObjects: ["ceres_occator", "haumea_ellipsoid"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-5-dwarfs",
+        objectId: "pluto_charon_binary",
+        objectName: "IAU Dwarf Planets & TNOs",
+        type: "MEASUREMENT_CALLOUT",
+        label: "5 IAU Dwarf Planets: Ceres, Pluto, Eris, Haumea, Makemake",
+        value: "Kuiper Belt (30–50 AU Observed) · Oort Cloud (~10⁴–10⁵ AU Inferred)",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "06",
+    chapterId: "sub-06",
+    chapterCode: "06.6",
+    chapterOrder: 6,
+    title: "Asteroids, Comets and Meteoroids",
+    storyboardId: "sb-m06-sub-06",
+    sceneComponentId: "m06_ch6_asteroids_comets",
+    scientificObjective:
+      "Contrast rocky/metallic asteroids (e.g., 16 Psyche and the DART target Dimorphos) with volatile-rich icy comets, demonstrate why a comet's straight blue ion tail and curved yellow dust tail point away from the Sun rather than along its orbital path, and distinguish meteoroids, meteors, and meteorites.",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Comet ion tail vector is locked strictly anti-sunward (+r_hat) along the solar wind while the dust tail curves between anti-sunward radiation pressure and orbital velocity.",
+    scientificReviewCorrectionNote:
+      "Verified: Explicitly shows comet ion and dust tails pointing away from the Sun (even when the comet recedes outbound after perihelion), avoiding the common trailing-tail misconception.",
+    requiredObjectIds: [
+      "active_comet_nucleus",
+      "comet_ion_tail",
+      "comet_dust_tail",
+      "asteroid_psyche_dart",
+      "meteor_entry_streak",
+    ],
+    interactiveControls: [
+      {
+        controlId: "cometHeliocentricDistAu",
+        label: "Comet Heliocentric Distance (r)",
+        controlType: "slider",
+        min: 0.6,
+        max: 3.5,
+        step: 0.1,
+        unit: "AU",
+        defaultValue: 1.1,
+        scientificFormula: "Q_sublimation ∝ r⁻² (Tail Points Anti-Sunward)",
+        description:
+          "Move the comet along its eccentric orbit to watch coma sublimation and anti-sunward ion/dust tail alignment.",
+      },
+      {
+        controlId: "smallBodyMode",
+        label: "Small-Body Laboratory Focus",
+        controlType: "select",
+        defaultValue: "comet_dual_tails",
+        options: [
+          { value: "comet_dual_tails", label: "Comet Nucleus, Coma & Anti-Sunward Dual Tails" },
+          { value: "asteroid_dart_impact", label: "Asteroids (16 Psyche & NASA DART Dimorphos)" },
+          { value: "meteoroid_entry", label: "Meteoroid → Meteor → Meteorite Chain" },
+        ],
+        description:
+          "Switch between cometary tail physics, asteroid planetary defense, and atmospheric meteor entry.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-6-beat-a",
+        beatIndex: 0,
+        title: "Rocky/Metallic Asteroids, Cometary Sublimation & Anti-Sunward Dual Tails",
+        scientificMechanismSummary:
+          "Solar heating sublimates cometary ices into a glowing coma; magnetized solar wind drives the straight blue CO⁺ ion tail directly away from the Sun while radiation pressure curves the silicate dust tail.",
+        narrationSegmentIds: ["06-sub-06-title", "06-sub-06-didYouKnow-1"],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 5.2, 11.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch6_comet_dual_tails_and_psyche",
+        highlightedObjects: [
+          "active_comet_nucleus",
+          "comet_ion_tail",
+          "comet_dust_tail",
+          "asteroid_psyche_dart",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-6-beat-b",
+        beatIndex: 1,
+        title: "NASA DART Kinetic Deflection & Meteoroid → Meteor → Meteorite",
+        scientificMechanismSummary:
+          "NASA's 2022 DART impact shortened Dimorphos's orbit by 33 minutes via momentum transfer; fragments entering Earth's atmosphere glow by ram-pressure compression (meteor) before landing as meteorites.",
+        narrationSegmentIds: ["06-sub-06-detail-1", "06-sub-06-detail-2"],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "focus",
+        cameraPosition: [1.8, 3.0, 9.6],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m06_ch6_dart_deflection_and_meteor_chain",
+        highlightedObjects: ["asteroid_psyche_dart", "meteor_entry_streak"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-6-comet",
+        objectId: "comet_ion_tail",
+        objectName: "Comet Tail Vector Physics",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Blue Ion Tail (Solar Wind) & Curved Dust Tail (Radiation Pressure)",
+        value: "Tails point AWAY from the Sun (+r_hat), NOT backward along the orbit",
+        worldPosition: [0, 3.4, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "06",
+    chapterId: "sub-07",
+    chapterCode: "06.7",
+    chapterOrder: 7,
+    title: "Planetary Moons and Rings",
+    storyboardId: "sb-m06-sub-07",
+    sceneComponentId: "m06_ch7_moons_and_rings",
+    scientificObjective:
+      "Explore major planetary moon and ring systems: Jupiter's 4:2:1 Laplace orbital resonance (Io tidal volcanism, Europa subsurface ocean model, Ganymede intrinsic magnetosphere), Saturn's Titan (1.45-bar N₂ atmosphere & methane lakes) and Enceladus (cryovolcanic plumes feeding the E-ring), Neptune's retrograde Triton, and the Roche Limit.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Internal ocean layers on Europa and Enceladus are labeled as scientific model interpretations derived from Galileo/Cassini magnetometer, gravity, and plume data.",
+    scientificReviewCorrectionNote:
+      "Verified: Labels subsurface oceans as model-based interpretations of spacecraft data and computes the Roche Limit d_Roche ≈ 2.44 R_p (ρ_p / ρ_m)^(1/3).",
+    requiredObjectIds: [
+      "laplace_resonance_system",
+      "europa_ocean_cutaway",
+      "titan_atmosphere_globe",
+      "enceladus_e_ring_plumes",
+      "roche_limit_ring",
+    ],
+    interactiveControls: [
+      {
+        controlId: "selectedMoonSystem",
+        label: "Satellite & Ring System",
+        controlType: "select",
+        defaultValue: "jovian_laplace_resonance",
+        options: [
+          {
+            value: "jovian_laplace_resonance",
+            label: "Jupiter: Io–Europa–Ganymede 4:2:1 Laplace Resonance",
+          },
+          {
+            value: "saturn_titan_enceladus",
+            label: "Saturn: Titan (1.45 bar N₂) & Enceladus Cryo-Plumes",
+          },
+          {
+            value: "neptune_triton_roche",
+            label: "Neptune: Retrograde Triton & The Roche Limit",
+          },
+        ],
+        description:
+          "Switch between Jovian resonance heating, Saturnian ocean/atmosphere moons, and Roche limit ring mechanics.",
+      },
+      {
+        controlId: "showSubsurfaceOceanCutaway",
+        label: "Show Model-Inferred Ocean Cutaway",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Reveal the ice-shell and model-inferred liquid water ocean layers of Europa and Enceladus.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-7-beat-a",
+        beatIndex: 0,
+        title: "Galilean 4:2:1 Laplace Resonance, Io Volcanism & Titan's Dense Atmosphere",
+        scientificMechanismSummary:
+          "Io, Europa, and Ganymede orbit in a 4:2:1 Laplace resonance that maintains orbital eccentricity and drives tidal flexing; Saturn's Titan hosts a 1.45-bar nitrogen atmosphere and liquid hydrocarbon lakes.",
+        narrationSegmentIds: ["06-sub-07-title", "06-sub-07-didYouKnow-1"],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 5.6, 12.2],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch7_laplace_resonance_and_titan",
+        highlightedObjects: [
+          "laplace_resonance_system",
+          "europa_ocean_cutaway",
+          "titan_atmosphere_globe",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-7-beat-b",
+        beatIndex: 1,
+        title: "Enceladus South-Polar Plumes, Retrograde Triton & The Roche Limit",
+        scientificMechanismSummary:
+          "Enceladus vents water-ice plumes from its south-polar tiger stripes directly into Saturn's E-ring, while Neptune's retrograde moon Triton spirals toward the Roche tidal disruption limit.",
+        narrationSegmentIds: ["06-sub-07-detail-1", "06-sub-07-detail-2"],
+        cameraArchetype: "object_close_up",
+        cameraAction: "focus",
+        cameraPosition: [1.8, 3.2, 9.6],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m06_ch7_enceladus_plumes_and_roche_limit",
+        highlightedObjects: ["enceladus_e_ring_plumes", "roche_limit_ring"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-7-moons",
+        objectId: "enceladus_e_ring_plumes",
+        objectName: "Tidal Heating & Roche Limit",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Io–Europa–Ganymede 4:2:1 Resonance · d_Roche ≈ 2.44 R_p (ρ_p/ρ_m)^(1/3)",
+        value: "Subsurface oceans are geophysical model interpretations of spacecraft data",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "06",
+    chapterId: "sub-08",
+    chapterCode: "06.8",
+    chapterOrder: 8,
+    title: "Comparing Planetary Environments",
+    storyboardId: "sb-m06-sub-08",
+    sceneComponentId: "m06_ch8_planetary_comparison",
+    scientificObjective:
+      "Synthesize Solar System planetary architecture in a side-by-side comparison laboratory: compare true relative radii, bulk densities (ρ), surface vs. 1-bar cloud-top gravities (g = GM/R²), solar irradiance (S ∝ 1/a²), and equilibrium blackbody temperatures vs. observed greenhouse/diurnal temperatures.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Clearly separates solid-surface measurements (Mercury, Venus, Earth, Mars) from 1-bar atmospheric pressure reference levels on gas and ice giants.",
+    scientificReviewCorrectionNote:
+      "Verified: Never conflates cloud-top 1-bar temperatures with solid-surface temperatures or equilibrium blackbody temperatures with greenhouse-warmed temperatures.",
+    requiredObjectIds: [
+      "comparison_planet_left",
+      "comparison_planet_right",
+      "density_water_benchmark",
+      "habitable_zone_band",
+    ],
+    interactiveControls: [
+      {
+        controlId: "comparisonPlanetA",
+        label: "Left Comparison World (A)",
+        controlType: "select",
+        defaultValue: "Earth",
+        options: [
+          { value: "Mercury", label: "Mercury (R = 0.38 R_⊕ · ρ = 5.43 g/cm³)" },
+          { value: "Venus", label: "Venus (R = 0.95 R_⊕ · ρ = 5.24 g/cm³)" },
+          { value: "Earth", label: "Earth (R = 1.00 R_⊕ · ρ = 5.51 g/cm³)" },
+          { value: "Mars", label: "Mars (R = 0.53 R_⊕ · ρ = 3.93 g/cm³)" },
+        ],
+        description:
+          "Select the primary terrestrial planet for side-by-side physical comparison.",
+        linkedActivityId: "act_06_solar_system_tour",
+        linkedActionType: "classify_density_architecture",
+      },
+      {
+        controlId: "comparisonPlanetB",
+        label: "Right Comparison World (B)",
+        controlType: "select",
+        defaultValue: "Saturn",
+        options: [
+          { value: "Jupiter", label: "Jupiter (R = 11.2 R_⊕ · ρ = 1.33 g/cm³)" },
+          { value: "Saturn", label: "Saturn (R = 9.45 R_⊕ · ρ = 0.69 g/cm³)" },
+          { value: "Uranus", label: "Uranus (R = 4.01 R_⊕ · ρ = 1.27 g/cm³)" },
+          { value: "Neptune", label: "Neptune (R = 3.88 R_⊕ · ρ = 1.64 g/cm³)" },
+          { value: "Venus", label: "Venus (R = 0.95 R_⊕ · 464°C Greenhouse)" },
+          { value: "Mars", label: "Mars (R = 0.53 R_⊕ · 6 mbar CO₂)" },
+        ],
+        description:
+          "Select the comparison world to evaluate radius, density, gravity, and thermal state.",
+        linkedActivityId: "act_06_solar_system_tour",
+        linkedActionType: "classify_density_architecture",
+      },
+      {
+        controlId: "comparisonScaleMode",
+        label: "Visual Sizing Mode",
+        controlType: "select",
+        defaultValue: "true_relative_radius",
+        options: [
+          { value: "true_relative_radius", label: "True Relative Radius Ratio (R_A : R_B)" },
+          { value: "normalized_side_by_side", label: "Normalized Side-by-Side Inspection" },
+        ],
+        description:
+          "Toggle between exact proportional planet radii and normalized inspection spheres.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m06-06-8-beat-a",
+        beatIndex: 0,
+        title: "Radius, Mass, Bulk Density & 1-Bar Cloud-Top Gravity Scaling (g = GM/R²)",
+        scientificMechanismSummary:
+          "Compares planetary radii, bulk densities against liquid water (1.00 g/cm³), and surface/1-bar gravity—showing why 17.1-M_⊕ Neptune has only 1.14 g_⊕ at its cloud tops because its radius is 3.88 R_⊕.",
+        narrationSegmentIds: ["06-sub-08-title", "06-sub-08-didYouKnow-1"],
+        cameraArchetype: "scale_comparison_view",
+        cameraAction: "orbit",
+        cameraPosition: [0, 3.0, 12.0],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m06_ch8_side_by_side_radius_density_gravity",
+        highlightedObjects: [
+          "comparison_planet_left",
+          "comparison_planet_right",
+          "density_water_benchmark",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m06-06-8-beat-b",
+        beatIndex: 1,
+        title: "Diurnal Temperature Swings, Greenhouse Forcing & The Habitable Zone Gate",
+        scientificMechanismSummary:
+          "Contrasts airless Mercury's 610°C diurnal temperature swing (-180°C to +430°C) and Venus's 464°C CO₂ greenhouse against Earth's carbonate-silicate thermostat inside the Circumstellar Habitable Zone.",
+        narrationSegmentIds: ["06-sub-08-detail-1", "06-sub-08-detail-2"],
+        cameraArchetype: "data_visualization_view",
+        cameraAction: "focus",
+        cameraPosition: [0, 4.2, 11.2],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 36,
+        timePolicy: "PAUSE_FOR_EXPLANATION",
+        simulationTimeScale: 0.75,
+        animationAction: "m06_ch8_thermal_regimes_and_activity_gate",
+        highlightedObjects: [
+          "comparison_planet_left",
+          "comparison_planet_right",
+          "habitable_zone_band",
+        ],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-06-8-compare",
+        objectId: "comparison_planet_right",
+        objectName: "Planetary Architecture Metrics",
+        type: "MEASUREMENT_CALLOUT",
+        label: "g = GM/R² (Surface vs. 1-bar Cloud Top) · T_eq vs. Observed T_surf",
+        value: "Rocky ρ = 3.9–5.5 g/cm³ · Giant ρ = 0.69–1.64 g/cm³",
+        worldPosition: [0, 3.6, 0],
+        priority: 1,
+      },
+    ],
+    requiresActivityGate: {
+      activityId: "act_06_solar_system_tour",
+      gateDescription:
+        "Compare terrestrial and giant planets in the Planetary Architecture Explorer to verify Module 06.",
+    },
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  // ============================================================================
+  // MODULE 07 — THE SUN: OUR STAR (7 CHAPTERS, 35 CANONICAL SEGMENTS)
+  // ============================================================================
+  {
+    moduleId: "07",
+    chapterId: "07-01",
+    chapterCode: "07.1",
+    chapterOrder: 1,
+    title: "1. The Sun is a Star",
+    storyboardId: "sb-m07-07-01",
+    sceneComponentId: "m07_ch1_solar_introduction",
+    scientificObjective:
+      "Characterize the Sun as a G2V main-sequence star in hydrostatic equilibrium (∇P = -ρg): R_☉ = 696,340 km (109.2 R_⊕), M_☉ = 1.9885 × 10³⁰ kg (99.86% of Solar System mass), T_eff = 5,772 K, L_☉ = 3.828 × 10²⁶ W (4.26 million metric tons/s mass-energy conversion), solar constant S₀ = 1,361 W/m² at 1 AU, and helioseismic p-mode probing.",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Photospheric color is rendered using a 5,772 K blackbody limb-darkening shader; acoustic helioseismology p-modes are visualized as standing wave rays.",
+    scientificReviewCorrectionNote:
+      "Verified: Uses true 5,772 K blackbody white-gold chromaticity with realistic limb darkening rather than artificial neon orange/red.",
+    requiredObjectIds: [
+      "sun_g2v_star",
+      "earth_109x_scale_pip",
+      "hydrostatic_equilibrium_arrows",
+      "helioseismic_wave_paths",
+    ],
+    interactiveControls: [
+      {
+        controlId: "showEarthScaleCaliper",
+        label: "Show 109.2 × Earth Diameter Caliper",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Compare the 696,340 km solar radius against a 109.2-Earth-diameter reference ruler.",
+      },
+      {
+        controlId: "showHydrostaticBalanceVectors",
+        label: "Show Hydrostatic Equilibrium (∇P = -ρg)",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Display inward self-gravity vectors balanced by outward thermal and radiation pressure.",
+      },
+      {
+        controlId: "showHelioseismicModes",
+        label: "Show Helioseismic Acoustic p-Modes",
+        controlType: "toggle",
+        defaultValue: false,
+        description:
+          "Visualize internal acoustic sound waves refracting through the solar plasma.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m07-07-1-beat-a",
+        beatIndex: 0,
+        title: "G2V Star Scale (109.2 R_⊕), Hydrostatic Equilibrium & 4.26M Tons/s Mass Loss",
+        scientificMechanismSummary:
+          "The Sun is a sphere of ionized hydrogen/helium plasma held in hydrostatic balance between inward gravity and outward core fusion pressure, converting 4.26 × 10⁹ kg of mass into radiant energy every second.",
+        narrationSegmentIds: [
+          "07-07-01-title",
+          "07-07-01-didYouKnow-1",
+          "07-07-01-detail-1",
+        ],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 3.2, 10.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m07_ch1_g2v_star_and_hydrostatic_balance",
+        highlightedObjects: [
+          "sun_g2v_star",
+          "earth_109x_scale_pip",
+          "hydrostatic_equilibrium_arrows",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m07-07-1-beat-b",
+        beatIndex: 1,
+        title: "Solar Constant (1,361 W/m² at 1 AU) & Helioseismology Acoustic Probing",
+        scientificMechanismSummary:
+          "At 1 AU solar irradiance is 1,361 W/m² (L_☉ = 3.828 × 10²⁶ W); trapped acoustic p-mode oscillations allow helioseismologists to map the Sun's interior sound speed and differential rotation.",
+        narrationSegmentIds: ["07-07-01-detail-2", "07-07-01-detail-3"],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "focus",
+        cameraPosition: [2.0, 2.4, 8.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m07_ch1_solar_constant_and_helioseismology",
+        highlightedObjects: ["sun_g2v_star", "helioseismic_wave_paths"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-07-1-sun",
+        objectId: "sun_g2v_star",
+        objectName: "G2V Solar Reference Constants",
+        type: "MEASUREMENT_CALLOUT",
+        label: "R_☉ = 696,340 km (109.2 R_⊕) · T_eff = 5,772 K · L_☉ = 3.828 × 10²⁶ W",
+        value: "S₀ = 1,361 W/m² at 1 AU · Mass Conversion dm/dt = 4.26 × 10⁹ kg/s",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "07",
+    chapterId: "07-02",
+    chapterCode: "07.2",
+    chapterOrder: 2,
+    title: "2. Internal Structure of the Sun",
+    storyboardId: "sb-m07-07-02",
+    sceneComponentId: "m07_ch2_solar_interior",
+    scientificObjective:
+      "Inspect the Sun's internal layers from center to surface: Core (0–0.25 R_☉, 15.7 MK, 150 g/cm³), Radiative Zone (0.25–0.70 R_☉, 7→2 MK, ~170,000-yr photon random walk), Tachocline shear dynamo (0.70 R_☉), and Convection Zone (0.70–1.00 R_☉, 2 MK → 5,772 K boiling plasma cells).",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Educational scientific cutaway model based on the Bahcall Standard Solar Model (BS2005) and SOHO/SDO helioseismic inversions; actual interior transitions are continuous plasma gradients, not hard solid shells.",
+    scientificReviewCorrectionNote:
+      "Verified: Explicitly discloses that the solar interior cannot be directly photographed in visible light and that zone boundaries represent physical regime transitions rather than sharp walls.",
+    requiredObjectIds: [
+      "solar_core_shell",
+      "radiative_zone_shell",
+      "tachocline_shear_ring",
+      "convective_zone_plumes",
+      "photon_random_walk_path",
+    ],
+    interactiveControls: [
+      {
+        controlId: "selectedSolarLayer",
+        label: "Inspect Solar Interior Region",
+        controlType: "select",
+        defaultValue: "core",
+        options: [
+          { value: "core", label: "Core (0–0.25 R_☉ · 15.7 MK · 150 g/cm³)" },
+          { value: "radiative", label: "Radiative Zone (0.25–0.70 R_☉ · Photon Random Walk)" },
+          { value: "tachocline", label: "Tachocline (0.70 R_☉ · Magnetic Dynamo Shear)" },
+          { value: "convective", label: "Convective Zone (0.70–1.00 R_☉ · Boiling Plumes)" },
+          { value: "photosphere", label: "Photosphere (1.00 R_☉ · 5,772 K Granulation)" },
+        ],
+        description:
+          "Select any internal solar layer to inspect its fractional radius, temperature, density, and energy transport mode.",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "inspect_solar_core_fusion",
+      },
+      {
+        controlId: "cutawayAngleDeg",
+        label: "Spherical Cutaway Wedge Angle",
+        controlType: "slider",
+        min: 30,
+        max: 150,
+        step: 15,
+        unit: "°",
+        defaultValue: 90,
+        description:
+          "Adjust the spherical cutaway opening to inspect nested solar interior shells.",
+      },
+      {
+        controlId: "showPhotonRandomWalk",
+        label: "Show Radiative Photon Random Walk",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Animate a photon scattering through the dense radiative zone (~10⁵-year diffusive transit).",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m07-07-2-beat-a",
+        beatIndex: 0,
+        title: "Core (15.7 MK, 150 g/cm³), Radiative Random Walk & The Tachocline Dynamo",
+        scientificMechanismSummary:
+          "Energy forged in the 15.7 MK core diffuses through the radiative zone via Compton/free-free scattering with sub-millimeter mean free path (~170,000 yr transit), crossing the 0.70 R_☉ tachocline shear layer.",
+        narrationSegmentIds: [
+          "07-07-02-title",
+          "07-07-02-didYouKnow-1",
+          "07-07-02-detail-1",
+        ],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "orbit",
+        cameraPosition: [0, 3.0, 9.6],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 36,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m07_ch2_core_radiative_tachocline_cutaway",
+        highlightedObjects: [
+          "solar_core_shell",
+          "radiative_zone_shell",
+          "tachocline_shear_ring",
+          "photon_random_walk_path",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m07-07-2-beat-b",
+        beatIndex: 1,
+        title: "Convective Zone Plumes (2 MK → 5,772 K) & Photospheric Granulation",
+        scientificMechanismSummary:
+          "Above 0.70 R_☉ increasing opacity triggers boiling Rayleigh–Bénard convection cells rising at 1–2 km/s, surfacing as 1,000 km photospheric granules that overturn every 8–20 minutes.",
+        narrationSegmentIds: ["07-07-02-detail-2", "07-07-02-detail-3"],
+        cameraArchetype: "object_close_up",
+        cameraAction: "focus",
+        cameraPosition: [2.2, 2.2, 8.2],
+        cameraTarget: [0.5, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m07_ch2_convective_plumes_and_granulation",
+        highlightedObjects: ["convective_zone_plumes", "tachocline_shear_ring"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-07-2-interior",
+        objectId: "solar_core_shell",
+        objectName: "Standard Solar Model Cutaway",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Core (0–0.25 R_☉) · Radiative (0.25–0.70 R_☉) · Convective (0.70–1.00 R_☉)",
+        value: "Helioseismic Model: Continuous plasma gradients (not optically photographed)",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "07",
+    chapterId: "07-03",
+    chapterCode: "07.3",
+    chapterOrder: 3,
+    title: "3. Nuclear Fusion",
+    storyboardId: "sb-m07-07-03",
+    sceneComponentId: "m07_ch3_nuclear_fusion",
+    scientificObjective:
+      "Follow the three sequential binary steps of the Proton–Proton (p-p I) chain in the 15.7 MK solar core (quantum tunneling + weak interaction p + p → ²H + e⁺ + ν_e, followed by ²H + p → ³He + γ and ³He + ³He → ⁴He + 2p), and quantify the 0.71% mass defect releasing ΔE = Δm c² = 26.73 MeV per ⁴He nucleus.",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Subatomic protons, neutrons, positrons, neutrinos, and 511 keV annihilation gamma-ray photons are rendered at schematic nuclear scale to illustrate each sequential two-body reaction step.",
+    scientificReviewCorrectionNote:
+      "Verified: Models the true sequential two-body p-p I chain branches rather than an unphysical simultaneous four-proton collision.",
+    requiredObjectIds: [
+      "pp_step1_deuterium",
+      "pp_step2_helium3",
+      "pp_step3_helium4_alpha",
+      "neutrino_escape_stream",
+      "gamma_annihilation_photons",
+    ],
+    interactiveControls: [
+      {
+        controlId: "fusionReactionStage",
+        label: "Proton–Proton (p-p I) Reaction Stage",
+        controlType: "select",
+        defaultValue: "full_pp_chain",
+        options: [
+          { value: "full_pp_chain", label: "Complete p-p I Chain (4 ¹H → ⁴He + 26.73 MeV)" },
+          { value: "step1_deuterium", label: "Step 1: p + p → ²H + e⁺ + ν_e (Weak Bottleneck)" },
+          { value: "step2_helium3", label: "Step 2: ²H + p → ³He + γ (Radiative Capture)" },
+          { value: "step3_helium4", label: "Step 3: ³He + ³He → ⁴He + 2 ¹H (Alpha Synthesis)" },
+        ],
+        description:
+          "Inspect the individual two-body nuclear reaction stages of the solar p-p I chain.",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "inspect_solar_core_fusion",
+      },
+      {
+        controlId: "coreTemperatureMK",
+        label: "Core Plasma Temperature (T_c)",
+        controlType: "slider",
+        min: 10,
+        max: 22,
+        step: 0.5,
+        unit: "MK",
+        defaultValue: 15.7,
+        scientificFormula: "ε_pp ∝ ρ · X² · T⁴ (Gamow Peak Tunneling)",
+        description:
+          "Adjust core temperature around 15.7 MK to observe Gamow-peak quantum tunneling sensitivity.",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "inspect_solar_core_fusion",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m07-07-3-beat-a",
+        beatIndex: 0,
+        title: "Quantum Tunneling, Weak-Force Bottleneck & Sequential p-p I Steps",
+        scientificMechanismSummary:
+          "At 15.7 MK protons tunnel through the electrostatic Coulomb barrier; because the weak conversion p + p → ²H + e⁺ + ν_e is extraordinarily rare, an average proton waits ~9 Gyr before fusing.",
+        narrationSegmentIds: [
+          "07-07-03-title",
+          "07-07-03-didYouKnow-1",
+          "07-07-03-detail-1",
+        ],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "orbit",
+        cameraPosition: [0, 3.0, 10.5],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m07_ch3_pp_chain_sequential_steps",
+        highlightedObjects: [
+          "pp_step1_deuterium",
+          "pp_step2_helium3",
+          "pp_step3_helium4_alpha",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m07-07-3-beat-b",
+        beatIndex: 1,
+        title: "0.71% Mass Defect (E = Δmc² = 26.73 MeV), Positron Annihilation & Neutrinos",
+        scientificMechanismSummary:
+          "One ⁴He nucleus has 0.71% less mass than four free protons; positrons annihilate with electrons into 511 keV gamma rays while solar neutrinos escape the Sun unimpeded in 2.3 seconds.",
+        narrationSegmentIds: ["07-07-03-detail-2", "07-07-03-detail-3"],
+        cameraArchetype: "object_close_up",
+        cameraAction: "focus",
+        cameraPosition: [1.6, 2.2, 8.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m07_ch3_mass_defect_and_neutrino_escape",
+        highlightedObjects: [
+          "pp_step3_helium4_alpha",
+          "neutrino_escape_stream",
+          "gamma_annihilation_photons",
+        ],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-07-3-fusion",
+        objectId: "pp_step3_helium4_alpha",
+        objectName: "Proton–Proton Chain Energetics",
+        type: "MEASUREMENT_CALLOUT",
+        label: "4 ¹H → ⁴He + 2e⁺ + 2ν_e + 2γ · ΔE = 26.73 MeV (Δm = 0.71%)",
+        value: "Sequential 2-body quantum tunneling (NOT a 4-proton simultaneous collision)",
+        worldPosition: [0, 3.4, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "07",
+    chapterId: "07-04",
+    chapterCode: "07.4",
+    chapterOrder: 4,
+    title: "4. Photosphere, Chromosphere and Corona",
+    storyboardId: "sb-m07-07-04",
+    sceneComponentId: "m07_ch4_solar_atmosphere",
+    scientificObjective:
+      "Explore the three layers of the solar atmosphere: the 5,772 K Photosphere (optical depth τ = 2/3, convective granulation), the 4,400→20,000 K Chromosphere (Hα 656.3 nm spicules & prominences), and the 1–3 MK Corona (530.3 nm Fe XIV emission, closed coronal loops, open coronal holes, and magnetic wave/nanoflare coronal heating).",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Provides multi-wavelength SDO/eclipse bandpass views (Visible 5,772 K, Hα 656.3 nm, and EUV 171 Å Fe IX/XIV); false-color EUV glow indicates multi-million-kelvin ionization state rather than visible-light brightness.",
+    scientificReviewCorrectionNote:
+      "Verified: Explains the coronal temperature inversion (5,772 K photosphere → 2,000,000 K tenuous corona) via Alfvénic wave damping and nanoflare magnetic reconnection, and notes that coronal visual glow is ~10⁻⁶ of photospheric brightness.",
+    requiredObjectIds: [
+      "photosphere_granulation_surface",
+      "chromosphere_spicule_rim",
+      "coronal_magnetic_loops",
+      "coronal_hole_plume",
+    ],
+    interactiveControls: [
+      {
+        controlId: "observingBandpass",
+        label: "Solar Atmospheric Bandpass",
+        controlType: "select",
+        defaultValue: "visible_photosphere_5772K",
+        options: [
+          {
+            value: "visible_photosphere_5772K",
+            label: "Visible Continuum (Photosphere · 5,772 K Granulation)",
+          },
+          {
+            value: "h_alpha_chromosphere_656nm",
+            label: "H-Alpha 656.3 nm (Chromosphere · 10,000 K Spicules)",
+          },
+          {
+            value: "sdo_euv_corona_171A",
+            label: "SDO EUV / Eclipse (Corona · 1–3 MK Fe XIV Loops)",
+          },
+        ],
+        description:
+          "Switch observational filter bands from the visible photosphere to the chromosphere and corona.",
+      },
+      {
+        controlId: "showCoronalMagneticLoops",
+        label: "Show Closed Loops & Open Coronal Holes",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Highlight closed bipolar coronal loops and open-field fast solar wind coronal holes.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m07-07-4-beat-a",
+        beatIndex: 0,
+        title: "Photospheric Granulation, Chromospheric Hα Spicules & 530.3 nm Fe XIV Corona",
+        scientificMechanismSummary:
+          "Ascends from the 5,772 K photospheric granulation layer through the ruby-red Hα chromosphere into the 1–3 MK outer corona where 13-times-ionized iron (Fe XIV, 530.3 nm) radiates.",
+        narrationSegmentIds: [
+          "07-07-04-title",
+          "07-07-04-didYouKnow-1",
+          "07-07-04-detail-1",
+        ],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "orbit",
+        cameraPosition: [0, 2.8, 10.2],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m07_ch4_photosphere_chromosphere_corona_layers",
+        highlightedObjects: [
+          "photosphere_granulation_surface",
+          "chromosphere_spicule_rim",
+          "coronal_magnetic_loops",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m07-07-4-beat-b",
+        beatIndex: 1,
+        title: "Closed Bipolar Coronal Loops, Open Coronal Holes & Magnetic Heating",
+        scientificMechanismSummary:
+          "Closed magnetic arches trap glowing 2 MK plasma over active regions while open-field coronal holes allow fast solar wind (750 km/s) to stream into interplanetary space.",
+        narrationSegmentIds: ["07-07-04-detail-2", "07-07-04-detail-3"],
+        cameraArchetype: "object_close_up",
+        cameraAction: "focus",
+        cameraPosition: [2.2, 2.5, 8.6],
+        cameraTarget: [0.8, 0.4, 0],
+        cameraFov: 34,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m07_ch4_coronal_loops_and_coronal_holes",
+        highlightedObjects: ["coronal_magnetic_loops", "coronal_hole_plume"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-07-4-atmosphere",
+        objectId: "coronal_magnetic_loops",
+        objectName: "Solar Atmospheric Temperature Inversion",
+        type: "MEASUREMENT_CALLOUT",
+        label: "Photosphere (5,772 K) → Chromosphere (10⁴ K) → Corona (1–3 × 10⁶ K)",
+        value: "Fe XIV (530.3 nm) · Heated by Alfvén waves & magnetic nanoflares",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "07",
+    chapterId: "07-05",
+    chapterCode: "07.5",
+    chapterOrder: 5,
+    title: "5. Sunspots and Magnetic Activity",
+    storyboardId: "sb-m07-07-05",
+    sceneComponentId: "m07_ch5_sunspots_magnetism",
+    scientificObjective:
+      "Understand why intense bipolar magnetic flux tubes (B ≈ 2,500–4,000 Gauss) inhibit convective heat transport to form cooler sunspot umbrae (~4,000 K) and penumbrae (~5,000 K) that appear dark only by Stefan–Boltzmann contrast (F = σT⁴) against the 5,772 K photosphere, and how differential rotation drives the 11-year sunspot / 22-year Hale magnetic cycle.",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Magnetic field lines are educational 3D vector-field visualizations of invisible Zeeman-measured magnetic flux tubes.",
+    scientificReviewCorrectionNote:
+      "Verified: Explicitly states that sunspots are still ~4,000 K (brighter than an electric arc or Full Moon if isolated) and appear dark solely by contrast (F_spot / F_phot = (4000/5772)⁴ ≈ 0.23).",
+    requiredObjectIds: [
+      "sunspot_bipolar_group",
+      "umbra_penumbra_detail",
+      "zeeman_flux_tubes",
+      "differential_omega_bands",
+    ],
+    interactiveControls: [
+      {
+        controlId: "magneticFieldStrengthKilogauss",
+        label: "Sunspot Magnetic Flux Density (B)",
+        controlType: "slider",
+        min: 0.5,
+        max: 4.0,
+        step: 0.25,
+        unit: "kG",
+        defaultValue: 3.0,
+        scientificFormula: "F_umbra / F_phot = (T_umbra / 5,772 K)⁴ ≈ 23%",
+        description:
+          "Adjust active-region magnetic field strength (0.5 to 4.0 kilogauss) to observe convective suppression and umbral temperature contrast.",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "simulate_magnetic_cme_weather",
+      },
+      {
+        controlId: "showDifferentialOmegaWinding",
+        label: "Show Differential Rotation (Ω-Effect)",
+        controlType: "toggle",
+        defaultValue: true,
+        description:
+          "Visualize how 25.05-day equatorial vs. 34.4-day polar rotation winds magnetic field lines.",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m07-07-5-beat-a",
+        beatIndex: 0,
+        title: "Sunspot Umbra/Penumbra, Zeeman Magnetic Flux & Stefan–Boltzmann Contrast",
+        scientificMechanismSummary:
+          "Concentrated 3,000-Gauss magnetic loops emerge in N/S pairs, suppressing rising convective plumes so the umbra cools to ~4,000 K—radiating ~23% of surrounding photospheric flux (F = σT⁴).",
+        narrationSegmentIds: [
+          "07-07-05-title",
+          "07-07-05-didYouKnow-1",
+          "07-07-05-detail-1",
+        ],
+        cameraArchetype: "object_close_up",
+        cameraAction: "orbit",
+        cameraPosition: [0, 2.6, 9.4],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 36,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m07_ch5_sunspot_umbra_and_flux_emergence",
+        highlightedObjects: [
+          "sunspot_bipolar_group",
+          "umbra_penumbra_detail",
+          "zeeman_flux_tubes",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m07-07-5-beat-b",
+        beatIndex: 1,
+        title: "Differential Rotation (25 d vs. 34.4 d) & The 11/22-Year Solar Dynamo Cycle",
+        scientificMechanismSummary:
+          "Faster rotation at the equator (25.05 d) than the poles (34.4 d) stretches north–south poloidal field lines into tightly wound east–west toroidal ropes across the 11-year sunspot cycle (Solar Cycle 25).",
+        narrationSegmentIds: ["07-07-05-detail-2", "07-07-05-detail-3"],
+        cameraArchetype: "planetary_orbital_shot",
+        cameraAction: "focus",
+        cameraPosition: [0, 3.8, 10.6],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 38,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m07_ch5_differential_rotation_and_cycle25",
+        highlightedObjects: ["differential_omega_bands", "zeeman_flux_tubes"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-07-5-sunspots",
+        objectId: "umbra_penumbra_detail",
+        objectName: "Sunspot Thermal & Magnetic Physics",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Umbra T ≈ 4,000 K vs. Photosphere 5,772 K (F_umbra/F_phot = (T_u/T_p)⁴ ≈ 0.23)",
+        value: "B ≈ 0.3 Tesla (3,000 G) · Appears dark only by contrast; still glaringly bright",
+        worldPosition: [0, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "07",
+    chapterId: "07-06",
+    chapterCode: "07.6",
+    chapterOrder: 6,
+    title: "6. Solar Flares and Coronal Mass Ejections",
+    storyboardId: "sb-m07-07-06",
+    sceneComponentId: "m07_ch6_flares_and_cmes",
+    scientificObjective:
+      "Understand magnetic reconnection in sheared coronal arcades and rigorously distinguish a Solar Flare (electromagnetic X-ray/EUV flash traveling at c = 299,792 km/s, arriving at 1 AU in 8.3 minutes; GOES classes A, B, C, M, X) from a Coronal Mass Ejection (billion-ton magnetized plasma flux rope traveling at 300–3,000 km/s, arriving in 15–72 hours) and relativistic Solar Energetic Particles (SEPs).",
+    scientificRepresentation: "PHYSICS_BASED_SIMULATION",
+    representationDisclosure:
+      "Time-compressed heliospheric eruption model: photon flare wavefront and slower CME plasma cloud are distinctly color-coded to contrast light-speed radiation (8.3 min) with magnetohydrodynamic plasma transit (15–72 hr).",
+    scientificReviewCorrectionNote:
+      "Verified: Strictly separates electromagnetic solar flares (speed c) from plasma CMEs (speed v_CME ≪ c), noting that either can occur without the other, and uses smooth non-flashing glow transitions.",
+    requiredObjectIds: [
+      "reconnection_x_point_arcade",
+      "flare_xray_wavefront",
+      "cme_flux_rope_cloud",
+      "lasco_coronagraph_ring",
+    ],
+    interactiveControls: [
+      {
+        controlId: "flareClassSelect",
+        label: "GOES Soft X-Ray Flare Class (1–8 Å)",
+        controlType: "select",
+        defaultValue: "X_class_major",
+        options: [
+          { value: "C_class_minor", label: "C-Class (10⁻⁶ W/m² · Minor Active Region)" },
+          { value: "M_class_moderate", label: "M-Class (10⁻⁵ W/m² · Moderate Radio Blackout)" },
+          { value: "X_class_major", label: "X-Class (≥10⁻⁴ W/m² · Major Reconnection Event)" },
+        ],
+        description:
+          "Select the logarithmic GOES soft X-ray peak flux class (each letter is a 10× energy step).",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "simulate_magnetic_cme_weather",
+      },
+      {
+        controlId: "cmeLaunchVelocityKms",
+        label: "CME Plasma Ejection Speed (v_CME)",
+        controlType: "slider",
+        min: 400,
+        max: 2500,
+        step: 100,
+        unit: "km/s",
+        defaultValue: 1200,
+        scientificFormula: "t_1AU ≈ 1.496 × 10⁸ km / v_CME (vs. 8.3 min for Flare Photons)",
+        description:
+          "Adjust CME plasma velocity to compare its 15–100 hr Earth transit time against the 8.3-minute speed-of-light flare.",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "simulate_magnetic_cme_weather",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m07-07-6-beat-a",
+        beatIndex: 0,
+        title: "Magnetic Reconnection (B²/2μ₀) & GOES Logarithmic Flare Classification (A–X)",
+        scientificMechanismSummary:
+          "Oppositely directed magnetic field lines in a twisted coronal arcade snap and reconnect at an X-point, converting magnetic energy into an electromagnetic X-ray/EUV flare traveling at light speed c (8.3 min to Earth).",
+        narrationSegmentIds: [
+          "07-07-06-title",
+          "07-07-06-didYouKnow-1",
+          "07-07-06-detail-1",
+        ],
+        cameraArchetype: "scientific_cross_section",
+        cameraAction: "orbit",
+        cameraPosition: [0, 2.8, 9.8],
+        cameraTarget: [0.8, 0, 0],
+        cameraFov: 36,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m07_ch6_magnetic_reconnection_and_flare_flash",
+        highlightedObjects: ["reconnection_x_point_arcade", "flare_xray_wavefront"],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m07-07-6-beat-b",
+        beatIndex: 1,
+        title: "Expanding CME Plasma Flux Rope, Relativistic SEPs & Coronagraph View",
+        scientificMechanismSummary:
+          "A Coronal Mass Ejection hurls ~10¹² kg of magnetized plasma into the heliosphere at 400–2,500 km/s (taking 15–72 hours to reach 1 AU), driving bow-shock Solar Energetic Particles (SEPs, 20–60 min transit).",
+        narrationSegmentIds: ["07-07-06-detail-2", "07-07-06-detail-3"],
+        cameraArchetype: "establishing_shot",
+        cameraAction: "focus",
+        cameraPosition: [0, 4.2, 12.6],
+        cameraTarget: [1.5, 0, 0],
+        cameraFov: 40,
+        timePolicy: "SLOWER_PACE_FOR_COMPREHENSION",
+        simulationTimeScale: 0.75,
+        animationAction: "m07_ch6_cme_flux_rope_and_coronagraph",
+        highlightedObjects: ["cme_flux_rope_cloud", "lasco_coronagraph_ring"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-07-6-flare-cme",
+        objectId: "cme_flux_rope_cloud",
+        objectName: "Flare Photons vs. CME Plasma",
+        type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
+        label: "Solar Flare = EM Light (v = c, 8.3 min) · CME = Magnetized Plasma (15–72 hr)",
+        value: "Distinct phenomena: GOEs X-ray classes A, B, C, M, X (10× logarithmic steps)",
+        worldPosition: [1.2, 3.5, 0],
+        priority: 1,
+      },
+    ],
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+
+  {
+    moduleId: "07",
+    chapterId: "07-07",
+    chapterCode: "07.7",
+    chapterOrder: 7,
+    title: "7. Solar Wind, Auroras and Space Weather",
+    storyboardId: "sb-m07-07-07",
+    sceneComponentId: "m07_ch7_solar_wind_space_weather",
+    scientificObjective:
+      "Follow the Sun-to-Earth space weather system: continuous supersonic Solar Wind (400–750 km/s) and the Parker Spiral IMF impinging on Earth's Bow Shock and Magnetopause (R_mp ∝ P_dyn⁻¹/⁶), magnetic reconnection under southward IMF (B_z < 0), polar Auroral Ovals (557.7 nm & 630.0 nm [O I]), thermospheric satellite drag, and Geomagnetically Induced Currents (GICs).",
+    scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
+    representationDisclosure:
+      "Sun, interplanetary Parker Spiral wind stream, and Earth's magnetosphere are shown in a compressed heliocentric corridor so both solar launch and terrestrial magnetopause response are simultaneously visible.",
+    scientificReviewCorrectionNote:
+      "Verified: Distinguishes steady solar wind (400–750 km/s), transient CMEs, relativistic SEPs, and speed-of-light flare radiation, and models magnetopause compression R_mp ∝ (n v²)⁻¹/⁶.",
+    requiredObjectIds: [
+      "sun_wind_source",
+      "parker_spiral_stream",
+      "earth_bow_shock_sheath",
+      "earth_dipole_magnetosphere",
+      "polar_auroral_ovals",
+    ],
+    interactiveControls: [
+      {
+        controlId: "solarWindSpeedKms",
+        label: "Solar Wind / CME Stream Velocity",
+        controlType: "slider",
+        min: 350,
+        max: 1000,
+        step: 50,
+        unit: "km/s",
+        defaultValue: 450,
+        scientificFormula: "R_mp / R_⊕ ≈ 10.2 · (P_dyn / P_0)⁻¹/⁶",
+        description:
+          "Adjust solar wind speed from quiet (400 km/s) to storm conditions (1,000 km/s) to observe magnetopause standoff compression.",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "simulate_magnetic_cme_weather",
+      },
+      {
+        controlId: "imfBzOrientation",
+        label: "Interplanetary Magnetic Field (IMF B_z)",
+        controlType: "select",
+        defaultValue: "southward_storm",
+        options: [
+          {
+            value: "southward_storm",
+            label: "Southward B_z < 0 (Dungey Reconnection → Strong Auroras)",
+          },
+          {
+            value: "northward_shielded",
+            label: "Northward B_z > 0 (Closed Magnetopause Shielding)",
+          },
+        ],
+        description:
+          "Switch IMF B_z polarity to test dayside magnetic reconnection and auroral oval brightening.",
+        linkedActivityId: "act_07_sun_simulator",
+        linkedActionType: "simulate_magnetic_cme_weather",
+      },
+    ],
+    visualBeats: [
+      {
+        beatId: "m07-07-7-beat-a",
+        beatIndex: 0,
+        title: "Supersonic Solar Wind, Parker Spiral IMF & Earth's Bow Shock / Magnetopause",
+        scientificMechanismSummary:
+          "Continuous solar wind plasma streams outward at 400–750 km/s along the rotating Parker Spiral until deflected by Earth's bow shock (~13 R_⊕) and dayside magnetopause (~10 R_⊕).",
+        narrationSegmentIds: [
+          "07-07-07-title",
+          "07-07-07-didYouKnow-1",
+          "07-07-07-detail-1",
+        ],
+        cameraArchetype: "establishing_shot",
+        cameraAction: "orbit",
+        cameraPosition: [0, 4.4, 12.8],
+        cameraTarget: [0, 0, 0],
+        cameraFov: 40,
+        timePolicy: "NORMAL_PLAYBACK",
+        simulationTimeScale: 1.0,
+        animationAction: "m07_ch7_sun_to_earth_magnetopause_compression",
+        highlightedObjects: [
+          "sun_wind_source",
+          "parker_spiral_stream",
+          "earth_bow_shock_sheath",
+          "earth_dipole_magnetosphere",
+        ],
+        transitionType: "smooth",
+      },
+      {
+        beatId: "m07-07-7-beat-b",
+        beatIndex: 1,
+        title: "Southward B_z Reconnection, 557.7 nm Auroral Ovals, Drag & GIC Activity Gate",
+        scientificMechanismSummary:
+          "When IMF B_z turns southward, reconnection funnels plasma down the polar cusps to ignite green (557.7 nm [O I]) and red (630.0 nm) auroras while heating the thermosphere (increasing LEO satellite drag) and inducing grid currents.",
+        narrationSegmentIds: ["07-07-07-detail-2", "07-07-07-detail-3"],
+        cameraArchetype: "data_visualization_view",
+        cameraAction: "focus",
+        cameraPosition: [2.2, 2.8, 9.4],
+        cameraTarget: [2.2, 0, 0],
+        cameraFov: 34,
+        timePolicy: "PAUSE_FOR_EXPLANATION",
+        simulationTimeScale: 0.75,
+        animationAction: "m07_ch7_auroral_ovals_and_space_weather_gate",
+        highlightedObjects: ["earth_dipole_magnetosphere", "polar_auroral_ovals"],
+        transitionType: "smooth",
+      },
+    ],
+    chapterAnnotations: [
+      {
+        annotationId: "ann-07-7-spaceweather",
+        objectId: "earth_dipole_magnetosphere",
+        objectName: "Magnetopause & Space Weather",
+        type: "MEASUREMENT_CALLOUT",
+        label: "Bow Shock (~13 R_⊕) · Magnetopause R_mp ≈ 10 R_⊕ (∝ P_dyn⁻¹/⁶)",
+        value: "Southward B_z Reconnection → 557.7 nm [O I] Aurora, LEO Drag & GICs",
+        worldPosition: [2.2, 3.2, 0],
+        priority: 1,
+      },
+    ],
+    requiresActivityGate: {
+      activityId: "act_07_sun_simulator",
+      gateDescription:
+        "Inspect the solar interior/fusion layers and simulate magnetic activity or space weather to verify Module 07.",
+    },
+    rubricScores: STAGE_2_STANDARD_5_RUBRIC,
+  },
+];

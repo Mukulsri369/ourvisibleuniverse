@@ -177,3 +177,15 @@
 - **Performance & Quality Gate**: Max Draw Calls $\le 35$, Max Particles $= 6000$ (High) / $1500$ (Low-Power), Rubric Score: **5.0 / 5.0 (Approved)**.
 
 ---
+
+## Stage 2 — Implemented 3D Chapter Scenes (`Module05ChapterScenes.tsx`)
+
+| Chapter Code | Lesson ID | 3D Scene Component ID | Primary Scientific Equations & Telemetry | Activity Adapter Bridge |
+| :--- | :--- | :--- | :--- | :--- |
+| **05.1** | `lesson-1-earth-rotates-day-night` | `m05_ch1_earth_day_night` | $v(\phi) = 1674.4\cos\phi\text{ km/h}$, $\text{LST} = (\text{UTC} + \lambda/15^\circ)\bmod 24$, $\mathbf{n}\cdot\hat{\mathbf{s}} = 0$ | — |
+| **05.2** | `lesson-2-earth-orbits-sun-seasons` | `m05_ch2_earth_seasons` | $\delta_\odot = 23.44^\circ\sin\lambda_\odot$, $I = I_0\sin(90^\circ - |\phi - \delta_\odot|)$ | `act_05_seasons_eclipse_sim` (`adjust_solar_insolation_tilt`) |
+| **05.3** | `lesson-3-the-moon-in-our-sky` | `m05_ch3_lunar_appearance` | $P_{\text{rot}} = P_{\text{orb}} = 27.322\text{ d}$, $\Delta\theta_{\text{lon}} \approx \pm 7.9^\circ$ (59% visible) | — |
+| **05.4** | `lesson-4-phases-of-the-moon` | `m05_ch4_lunar_phases` | $f = \frac{1 - \cos\psi}{2}$, $1/P_{\text{syn}} = 1/P_{\text{sid}} - 1/P_\oplus$ ($29.53\text{ d}$) | — |
+| **05.5** | `lesson-5-solar-eclipses` | `m05_ch5_solar_eclipse` | $\Delta y = d_{\text{Moon}}\sin i\sin\Delta\lambda$, $\theta_\odot \approx \theta_{\text{Moon}} \approx 0.52^\circ$ | `act_05_seasons_eclipse_sim` (`align_eclipse_node`) |
+| **05.6** | `lesson-6-lunar-eclipses` | `m05_ch6_lunar_eclipse` | $\sigma_{\text{Rayleigh}} \propto \lambda^{-4}$, copper-red atmospheric lens refraction into umbra | — |
+| **05.7** | `lesson-7-tides-and-gravity` | `m05_ch7_tidal_forces` | $a_{\text{tidal}} \approx \frac{2GM_{\text{Moon}}R_\oplus}{r^3}$ (near + far bulges), $F_{\text{tid},\odot}/F_{\text{tid},\text{Moon}} \approx 0.46$ | `act_05_eclipse_table` (`complete_experiment`) |

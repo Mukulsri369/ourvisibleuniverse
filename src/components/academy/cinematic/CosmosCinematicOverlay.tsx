@@ -11,7 +11,7 @@
  *   and Context-Preserving Student Question & Answer Card.
  */
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Sparkles,
   Minimize2,
@@ -26,10 +26,18 @@ import {
   Crosshair,
   ExternalLink,
   AlertCircle,
+  FileCheck2,
+  Sliders,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CinematicPlayerStateSnapshot } from "@/lib/cosmos/cinematic/CosmosCinematicPlayerState";
 import type { CinematicSceneDescriptor } from "@/lib/cosmos/cinematic/CosmosCinematicSceneRegistry";
+import { CosmosCinematicAssetManager } from "@/lib/cosmos/cinematic/assets";
+import {
+  CosmosChapterInteractionStore,
+  CosmosProofOfConceptCatalog,
+} from "@/lib/cosmos/cinematic/poc";
 import type { DirectorStateSnapshot } from "@/lib/cosmos/learning-director-types";
 
 interface CosmosCinematicOverlayProps {
@@ -73,6 +81,69 @@ export function CosmosCinematicOverlay({
       ? quizState.questions[quizState.activeQuestionIndex]
       : null;
 
+  const [showAssetCredits, setShowAssetCredits] = useState(false);
+  const [showChapterLab, setShowChapterLab] = useState(true);
+  const moduleAssetCredits = useMemo(
+    () =>
+      CosmosCinematicAssetManager.getInstance().getModuleAttributions(
+        snapshot.currentModuleId,
+      ),
+    [snapshot.currentModuleId],
+  );
+
+  // Proof-of-Concept 22-Chapter Manifest & Live Interactive Store (Modules 01, 08, 14)
+  const pocChapter = useMemo(() => {
+    if (!CosmosProofOfConceptCatalog.isProofOfConceptModule(snapshot.currentModuleId)) {
+      return null;
+    }
+    const cleanChapterId = snapshot.currentLessonId.replace(
+      new RegExp(`^${snapshot.currentModuleId}-`),
+      "",
+    );
+    return CosmosProofOfConceptCatalog.getChapterManifest(
+      snapshot.currentModuleId,
+      cleanChapterId,
+    );
+  }, [snapshot.currentLessonId, snapshot.currentModuleId]);
+
+  const pocBeatResolution = useMemo(() => {
+    if (!pocChapter || !snapshot.currentSegmentId) return null;
+    return CosmosProofOfConceptCatalog.getBeatForNarrationSegment(
+      pocChapter.moduleId,
+      pocChapter.chapterId,
+      snapshot.currentSegmentId,
+    );
+  }, [pocChapter, snapshot.currentSegmentId]);
+
+  const [chapterControlValues, setChapterControlValues] = useState<
+    Record<string, number | boolean | string>
+  >(() =>
+    pocChapter
+      ? CosmosChapterInteractionStore.getInstance().getChapterValues(
+          pocChapter.moduleId,
+          pocChapter.chapterId,
+        )
+      : {},
+  );
+
+  useEffect(() => {
+    if (!pocChapter) return;
+    const store = CosmosChapterInteractionStore.getInstance();
+    setChapterControlValues(store.getChapterValues(pocChapter.moduleId, pocChapter.chapterId));
+    return store.subscribe(() => {
+      setChapterControlValues(store.getChapterValues(pocChapter.moduleId, pocChapter.chapterId));
+    });
+  }, [pocChapter]);
+
+  const liveChapterTelemetry = useMemo(() => {
+    if (!pocChapter) return [];
+    return CosmosChapterInteractionStore.getInstance().computeChapterLiveTelemetry(
+      pocChapter.moduleId,
+      pocChapter.chapterId,
+      snapshot.learningLevel,
+    );
+  }, [pocChapter, chapterControlValues, snapshot.learningLevel]);
+
   const isActivityActive = snapshot.interactionState === "ACTIVITY_REQUIRED";
   const isQuizActive =
     snapshot.interactionState === "QUIZ_REQUIRED" ||
@@ -109,8 +180,21 @@ export function CosmosCinematicOverlay({
             data-testid="cinematic-chapter-title"
             className="text-xs text-cyan-200/90 font-medium truncate"
           >
-            Chapter: {snapshot.currentChapterTitle}
+            {pocChapter ? `Chapter ${pocChapter.chapterCode}: ` : "Chapter: "}
+            {snapshot.currentChapterTitle}
+            {pocBeatResolution
+              ? ` • Beat ${pocBeatResolution.beat.beatIndex + 1}/${pocChapter?.visualBeats.length || 2} (${pocBeatResolution.beat.title})`
+              : ""}
           </p>
+          {pocChapter && (
+            <p
+              data-testid="cinematic-scientific-review-disclosure"
+              className="text-[10px] font-mono text-slate-400 truncate mt-0.5"
+            >
+              {pocChapter.scientificRepresentation.replace(/_/g, " ")} •{" "}
+              {pocChapter.representationDisclosure}
+            </p>
+          )}
         </div>
 
         {/* TOP RIGHT: Fullscreen/Fallback Indicator, Cue Telemetry & Exit Action */}
@@ -213,6 +297,40 @@ export function CosmosCinematicOverlay({
                   <span>{snapshot.scaleAdjustmentNotice}</span>
                 </div>
               )}
+
+              {/* Public Scientific Asset Credits & License Provenance Toggle (Prompt 06 Section 7) */}
+              <div className="pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  data-testid="cinematic-asset-credits-toggle"
+                  onClick={() => setShowAssetCredits((prev) => !prev)}
+                  className="w-full flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-cyan-300 hover:text-white"
+                >
+                  <span className="flex items-center gap-1">
+                    <FileCheck2 className="size-3 text-emerald-400" />
+                    <span>3D Asset Credits & Provenance ({moduleAssetCredits.length})</span>
+                  </span>
+                  <span>{showAssetCredits ? "Hide" : "Inspect"}</span>
+                </button>
+
+                {showAssetCredits && (
+                  <div
+                    data-testid="cinematic-asset-credits-panel"
+                    className="mt-2 space-y-2 max-h-48 overflow-y-auto pr-1 text-[10px] text-slate-300 border-t border-white/10 pt-2"
+                  >
+                    {moduleAssetCredits.map((credit) => (
+                      <div key={credit.assetId} className="space-y-0.5 bg-white/[0.03] p-2 border border-white/10">
+                        <div className="font-semibold text-white">{credit.displayName}</div>
+                        <div className="text-slate-400">{credit.sourceOrganization}</div>
+                        <div className="text-slate-300 leading-snug">{credit.formattedCreditLine}</div>
+                        <div className="text-amber-300/90 font-mono text-[9px]">
+                          License: {credit.licenseIdentifier} • {credit.noEndorsementNotice}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -265,6 +383,167 @@ export function CosmosCinematicOverlay({
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Proof-of-Concept Interactive Chapter Controls & Real-Time Physics Telemetry (Modules 01, 08, 14) */}
+          {pocChapter && (
+            <div
+              role="region"
+              aria-label="Interactive Chapter Laboratory Controls"
+              data-testid="cinematic-chapter-interactive-panel"
+              className="bg-[#050914]/88 backdrop-blur-md border border-cyan-500/35 p-3 space-y-2.5 text-xs shadow-xl"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowChapterLab((prev) => !prev)}
+                  className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-300 hover:text-white"
+                >
+                  <Sliders className="size-3 text-cyan-400" />
+                  <span>Chapter {pocChapter.chapterCode} Interactive Parameters</span>
+                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    data-testid="cinematic-btn-reset-chapter-controls"
+                    onClick={() =>
+                      CosmosChapterInteractionStore.getInstance().resetChapterDefaults(
+                        pocChapter.moduleId,
+                        pocChapter.chapterId,
+                      )
+                    }
+                    className="text-[10px] font-mono text-slate-400 hover:text-cyan-300 flex items-center gap-0.5"
+                    title="Reset chapter controls to scientific defaults"
+                  >
+                    <RotateCcw className="size-2.5" />
+                    <span>Reset</span>
+                  </button>
+                </div>
+              </div>
+
+              {showChapterLab && (
+                <>
+                  {/* Interactive Sliders, Toggles & Selectors */}
+                  <div className="space-y-2 pt-1 border-t border-white/10">
+                    {pocChapter.interactiveControls.map((ctrl) => {
+                      const val =
+                        chapterControlValues[ctrl.controlId] !== undefined
+                          ? chapterControlValues[ctrl.controlId]
+                          : ctrl.defaultValue;
+
+                      if (ctrl.controlType === "toggle") {
+                        const checked = Boolean(val);
+                        return (
+                          <label
+                            key={ctrl.controlId}
+                            className="flex items-center justify-between gap-2 text-[11px] text-slate-200 cursor-pointer"
+                          >
+                            <span>{ctrl.label}</span>
+                            <input
+                              type="checkbox"
+                              data-testid={`cinematic-control-${ctrl.controlId}`}
+                              checked={checked}
+                              onChange={(e) =>
+                                CosmosChapterInteractionStore.getInstance().setControlValue(
+                                  pocChapter.moduleId,
+                                  pocChapter.chapterId,
+                                  ctrl.controlId,
+                                  e.target.checked,
+                                )
+                              }
+                              className="accent-cyan-400 h-3.5 w-3.5"
+                            />
+                          </label>
+                        );
+                      }
+
+                      if (ctrl.controlType === "select" && ctrl.options) {
+                        const strVal = String(val);
+                        return (
+                          <div key={ctrl.controlId} className="space-y-1">
+                            <span className="text-[11px] text-slate-300 block">{ctrl.label}</span>
+                            <select
+                              data-testid={`cinematic-control-${ctrl.controlId}`}
+                              value={strVal}
+                              onChange={(e) =>
+                                CosmosChapterInteractionStore.getInstance().setControlValue(
+                                  pocChapter.moduleId,
+                                  pocChapter.chapterId,
+                                  ctrl.controlId,
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full bg-slate-900 border border-white/20 text-cyan-200 text-[11px] px-2 py-1 font-mono"
+                            >
+                              {ctrl.options.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        );
+                      }
+
+                      const numVal = Number(val);
+                      return (
+                        <div key={ctrl.controlId} className="space-y-0.5">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="text-slate-300">{ctrl.label}</span>
+                            <span className="font-mono text-cyan-300">
+                              {numVal}
+                              {ctrl.unit ? ` ${ctrl.unit}` : ""}
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            data-testid={`cinematic-control-${ctrl.controlId}`}
+                            min={ctrl.min}
+                            max={ctrl.max}
+                            step={ctrl.step}
+                            value={numVal}
+                            onChange={(e) =>
+                              CosmosChapterInteractionStore.getInstance().setControlValue(
+                                pocChapter.moduleId,
+                                pocChapter.chapterId,
+                                ctrl.controlId,
+                                parseFloat(e.target.value),
+                              )
+                            }
+                            className="w-full accent-cyan-400 h-1.5 bg-slate-800 cursor-pointer"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Live Validated Physics Telemetry Readouts */}
+                  {liveChapterTelemetry.length > 0 && (
+                    <div
+                      data-testid="cinematic-chapter-live-telemetry"
+                      className="pt-2 border-t border-white/10 space-y-1 font-mono text-[10px]"
+                    >
+                      {liveChapterTelemetry.map((metric) => (
+                        <div key={metric.metricId} className="flex flex-col">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-slate-400">{metric.label}:</span>
+                            <span className="text-emerald-300 font-semibold text-right">
+                              {metric.value}
+                              {metric.unit ? ` ${metric.unit}` : ""}
+                            </span>
+                          </div>
+                          {metric.formula && (
+                            <span className="text-[9px] text-cyan-300/80">
+                              {metric.formula}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>

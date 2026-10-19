@@ -257,6 +257,37 @@ export class CosmosActivityAdapter {
         selectedTarget: "Moon",
       };
     }
+    if (moduleId === "05") {
+      return {
+        axialTiltDeg: 23.44,
+        orbitalMonth: 6,
+        lunarInclinationDeg: 5.145,
+        tidalSyzygyAligned: true,
+        interacted: false,
+        interactionCount: 0,
+      };
+    }
+    if (moduleId === "06") {
+      return {
+        formationEpochMyr: 3.5,
+        frostLineAU: 2.7,
+        comparisonPlanetA: "Earth",
+        comparisonPlanetB: "Saturn",
+        interacted: false,
+        interactionCount: 0,
+      };
+    }
+    if (moduleId === "07") {
+      return {
+        coreTemperatureMK: 15.7,
+        coreDensityGcm3: 150,
+        solarCyclePhaseYear: 4.5,
+        cmeVelocityKms: 1200,
+        imfBzNt: -12,
+        interacted: false,
+        interactionCount: 0,
+      };
+    }
     if (moduleId === "14") {
       return {
         massSolar: 10,
@@ -280,6 +311,33 @@ export class CosmosActivityAdapter {
         "retrograde_burn",
         "adjust_eccentricity",
         "verify_kepler_third_law",
+      ];
+    }
+    if (moduleId === "05") {
+      return [
+        "adjust_solar_insolation_tilt",
+        "align_eclipse_node",
+        "inspect_tidal_quadrupole",
+        "interact_parameter",
+        "complete_experiment",
+      ];
+    }
+    if (moduleId === "06") {
+      return [
+        "inspect_planetary_regimes",
+        "classify_density_architecture",
+        "compare_planetary_gravity",
+        "interact_parameter",
+        "complete_experiment",
+      ];
+    }
+    if (moduleId === "07") {
+      return [
+        "inspect_solar_core_fusion",
+        "simulate_magnetic_cme_weather",
+        "toggle_coronal_eclipse_occulter",
+        "interact_parameter",
+        "complete_experiment",
       ];
     }
     if (moduleId === "01") {

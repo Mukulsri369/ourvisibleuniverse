@@ -1,0 +1,82 @@
+# COSMOS Stage 2 Cinematic Astronomy Experience — Implementation & Scientific Audit Report
+
+- **Project**: Our Visible Universe Academy (`cosmic-journey`)
+- **Stage**: Stage 2 — *Our Cosmic Neighborhood* (`stage-2-cosmic-neighborhood`)
+- **Modules Covered**:
+  - **Module 05**: *Earth, Moon & Eclipses* (`7` chapters, `40` canonical narration segments)
+  - **Module 06**: *Explore the Solar System* (`8` chapters, `34` canonical narration segments)
+  - **Module 07**: *The Sun: Our Star* (`7` chapters, `35` canonical narration segments)
+  - **Module 08**: *Gravity, Orbits & Motion* (`8` chapters, `40` canonical narration segments)
+- **Total Reconciled Stage 2 Chapters**: **30** (`7 + 8 + 7 + 8`)
+- **Total Reconciled Stage 2 Canonical Explorer Segments**: **149** (`40 + 34 + 35 + 40`)
+- **Multi-Tier Adaptation**: `junior`, `explorer`, and `astronomer` tiers across all 30 chapters
+
+---
+
+## 1. Phase A — Stage 2 Curriculum & Chapter Reconciliation
+
+| Module ID | Module Title | Reconciled Lesson / Chapter IDs | Chapter Count | Explorer Segments | Junior Segments | Astronomer Segments | Primary 3D Director Component |
+| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **`05`** | Earth, Moon & Eclipses | `lesson-1-earth-rotates-day-night` .. `lesson-7-tides-and-gravity` | **7** | **40** | 40 | 40 | `Module05CinematicDirectorScene` |
+| **`06`** | Explore the Solar System | `sub-01` .. `sub-08` | **8** | **34** | 26 | 34 | `Module06CinematicDirectorScene` |
+| **`07`** | The Sun: Our Star | `sub-01` .. `sub-07` | **7** | **35** | 28 | 35 | `Module07CinematicDirectorScene` |
+| **`08`** | Gravity, Orbits & Motion | `08-01` .. `08-08` | **8** | **40** | 32 | 40 | `Module08CinematicDirectorScene` |
+| **Total** | **Stage 2 — Our Cosmic Neighborhood** | **30 Distinct Sublessons** | **30** | **149** | **126** | **149** | **Single Persistent R3F Canvas** |
+
+---
+
+## 2. Phase B — Module 05: *Earth, Moon & Eclipses* (7 Chapters, 40 Segments)
+
+| Chapter | Lesson ID | 3D Scene Component | Scientific Visuals & Physical Invariants | Interactive Controls & Activity Bridge |
+| :--- | :--- | :--- | :--- | :--- |
+| **05.1** | `lesson-1-earth-rotates-day-night` | `m05_ch1_earth_day_night` | Collimated solar illumination ($\mathbf{n}\cdot\hat{\mathbf{s}} = 0$), sharp solar terminator, $23.44^\circ$ axial obliquity, latitude-dependent tangential velocity $v(\phi) = 1674.4\cos\phi\text{ km/h}$, sidereal ($23\text{h }56\text{m }4\text{s}$) vs solar day ($24\text{h }00\text{m}$). | `observerLatitudeDeg`, `observerLongitudeDeg`, `showTerminatorCircle` |
+| **05.2** | `lesson-2-earth-orbits-sun-seasons` | `m05_ch2_earth_seasons` | Parallel inertial spin axis across all 12 orbital months, solar declination $\delta_\odot = 23.44^\circ\sin\lambda_\odot$, insolation projection $I = I_0\sin(\alpha)$, explicit perihelion (Jan, $147.1\times 10^6\text{ km}$) vs aphelion (Jul, $152.1\times 10^6\text{ km}$) proof that distance does not drive seasons. | `orbitalMonth`, `axialTiltDeg`, `showInsolationBeam` $\rightarrow$ `act_05_seasons_eclipse_sim` |
+| **05.3** | `lesson-3-the-moon-in-our-sky` | `m05_ch3_lunar_appearance` | Near-side basaltic maria (*Mare Tranquillitatis*, *Oceanus Procellarum*) vs cratered anorthositic highlands, $1:1$ synchronous tidal lock vector ($27.322\text{ d}$), optical libration in longitude ($\pm 7.9^\circ$) & latitude ($\pm 6.7^\circ$) revealing $59\%$ of lunar surface. | `librationExaggeration`, `showTidalLockVector`, `lunarViewHemisphere` |
+| **05.4** | `lesson-4-phases-of-the-moon` | `m05_ch4_lunar_phases` | Dual-perspective geometry: space view ($50\%$ of Moon always lit by Sun) vs Earth-observer phase fraction $f = (1 - \cos\psi)/2$, Earthshine on waxing crescent, sidereal ($27.32\text{ d}$) vs synodic ($29.53\text{ d}$) month. | `synodicPhaseAngleDeg`, `showEarthshineGlow`, `showPhaseCalloutVectors` |
+| **05.5** | `lesson-5-solar-eclipses` | `m05_ch5_solar_eclipse` | $5.145^\circ$ inclined lunar orbit with ascending/descending node markers ($\Omega, \mho$), converging dark umbral cone & diverging penumbral frustum, perigee total eclipse vs apogee annular "Ring of Fire" antumbra. | `lunarDistanceRatio`, `nodalOffsetDeg`, `showShadowCones` $\rightarrow$ `act_05_seasons_eclipse_sim` |
+| **05.6** | `lesson-6-lunar-eclipses` | `m05_ch6_lunar_eclipse` | Earth's umbral & penumbral shadow cones at Full Moon node, $\lambda^{-4}$ Rayleigh scattering filtering blue light while refracting $620\text{–}700\text{ nm}$ red sunset rays into the umbra ("Blood Moon", Danjon scale $L=0\text{–}4$). | `impactParameterUmbra`, `atmosphericDustDanjon`, `showRefractedRedRays` |
+| **05.7** | `lesson-7-tides-and-gravity` | `m05_ch7_tidal_forces` | Quadrupole differential gravitational field $a_{\text{tidal}} \approx \pm 2GM_{\text{Moon}}R_\oplus / r^3$ producing **both** near-side and far-side ocean bulges, solar tidal vector ($46\%$ of lunar amplitude), Spring (syzygy) vs Neap (quadrature) tides, and $30\text{ cm}$ solid Earth crustal tide. | `lunarSyzygyAngleDeg`, `tidalExaggeration`, `showSolarTidalVector` $\rightarrow$ `act_05_eclipse_table` |
+
+---
+
+## 3. Phase C — Module 06: *Explore the Solar System* (8 Chapters, 34 Segments)
+
+| Chapter | Lesson ID | 3D Scene Component | Scientific Visuals & Physical Invariants | Interactive Controls & Activity Bridge |
+| :--- | :--- | :--- | :--- | :--- |
+| **06.1** | `sub-01` | `m06_ch1_solar_system_formation` | Nebular collapse conserving angular momentum ($L = I\omega$), T-Tauri protostar with bipolar Herbig-Haro outflow jets, protoplanetary accretion disk, and the $2.7\text{ AU}$ Frost Line ($T_{\text{cond}}(\text{H}_2\text{O}) \approx 170\text{ K}$) separating refractory rocky inner worlds from volatile outer giants. | `formationEpochMyr`, `showFrostLineBoundary`, `nebularTurbulenceScale` |
+| **06.2** | `sub-02` | `m06_ch2_terrestrial_planets` | Comparative quartet of Mercury, Venus, Earth, and Mars with interior core-mantle-crust cutaways: Mercury's $85\%\,R$ iron core, Venus's $92\text{ bar}$ $\text{CO}_2$ runaway greenhouse ($737\text{ K}$), Earth's liquid ocean & magnetosphere, and Mars's iron-oxide regolith. | `focusedTerrestrialPlanet`, `showInteriorCoreCutaway`, `greenhouseOpticalDepth` $\rightarrow$ `act_06_density_table` |
+| **06.3** | `sub-03` | `m06_ch3_gas_giants` | Jupiter ($318\,M_\oplus$) and Saturn ($95\,M_\oplus$) with zonal belt/zone jets, Great Red Spot anticyclone, $1.4\text{ Mbar}$ liquid metallic hydrogen dynamo shell, Saturn's north polar hexagon, and bulk density $\rho_{\text{Saturn}} = 0.687\text{ g/cm}^3 < \rho_{\text{H}_2\text{O}}$. | `selectedGasGiant`, `metallicHydrogenCutaway`, `zonalWindSpeedMultiplier` $\rightarrow$ `act_06_solar_system_tour` |
+| **06.4** | `sub-04` | `m06_ch4_ice_giants` | Uranus ($\varepsilon = 97.77^\circ$ extreme sideways axial tilt and $59^\circ$-tilted off-center quadrupole magnetosphere) and Neptune ($2100\text{ km/h}$ supersonic winds, $2.61\times$ internal heat ratio), red-absorbing methane haze, and superionic $\text{H}_2\text{O–NH}_3\text{–CH}_4$ mantle. | `selectedIceGiant`, `showTiltedMagnetosphere`, `showSuperionicMantle` $\rightarrow$ `act_06_solar_system_tour` |
+| **06.5** | `sub-05` | `m06_ch5_dwarf_planets` | All 5 IAU dwarf planets: Ceres in the Main Belt, Pluto–Charon mutual binary barycenter outside Pluto's surface, Haumea's rapid $3.9\text{ h}$ Jacobi triaxial ellipsoid + ring, Makemake, and Eris ($e = 0.44$, $i = 44^\circ$), plus Margot's planetary discriminant $\Lambda < 1$. | `focusedDwarfPlanet`, `showOrbitalInclinationFans`, `plutoBarycenterZoom` |
+| **06.6** | `sub-06` | `m06_ch6_asteroids_comets` | Main Asteroid Belt with Jupiter $3:1, 5:2, 2:1$ Kirkwood resonance gaps, active comet with curved radiation-pressure dust tail and straight anti-sunward ionized $\text{CO}^+$ plasma tail ($\hat{\mathbf{r}}_{\text{ion}} = +\hat{\mathbf{r}}_\odot$), and NASA DART kinetic deflection ($\Delta P = -33.0\text{ min}$). | `cometHeliocentricDistAU`, `solarWindSpeedKms`, `showDartDeflectionDelta` |
+| **06.7** | `sub-07` | `m06_ch7_moons_and_rings` | Galilean $1:2:4$ Laplace resonance ($\omega_{\text{Io}} - 3\omega_{\text{Eu}} + 2\omega_{\text{Ga}} = 0$) driving Io volcanism & Europa's subsurface ocean, Saturn's A/B/C rings & Cassini Division inside the Roche limit $d_{\text{Roche}} \approx 2.44 R_p(\rho_p/\rho_m)^{1/3}$, Enceladus cryo-plumes, Titan, and retrograde Triton. | `moonSystemFocus`, `showRocheLimitBoundary`, `cryoPlumeIntensity` |
+| **06.8** | `sub-08` | `m06_ch8_planetary_comparison` | Side-by-side comparative planetology laboratory pairing any two Solar System worlds with true vs normalized radius toggle, surface/1-bar gravity vectors ($g = GM/R^2$), escape velocity ($v_{\text{esc}} = \sqrt{2GM/R}$), and the $1.00\text{ g/cm}^3$ liquid water density plane. | `comparisonPlanetA`, `comparisonPlanetB`, `comparisonScaleMode` $\rightarrow$ `act_06_solar_system_tour` |
+
+---
+
+## 4. Phase D — Module 07: *The Sun: Our Star* (7 Chapters, 35 Segments)
+
+| Chapter | Lesson ID | 3D Scene Component | Scientific Visuals & Physical Invariants | Interactive Controls & Activity Bridge |
+| :--- | :--- | :--- | :--- | :--- |
+| **07.1** | `sub-01` | `m07_ch1_solar_core_fusion` | Proton–Proton I chain ($4\,{}^1\text{H} \rightarrow {}^4\text{He} + 2e^+ + 2\nu_e + 2\gamma + 26.73\text{ MeV}$), Coulomb barrier & Gamow quantum tunneling wavefunction envelope, $0.71\%$ mass defect ($\Delta m = 4.26\times 10^9\text{ kg/s}$), neutrino escape, and hydrostatic equilibrium ($\nabla P = -\rho g$). | `coreTemperatureMK`, `coreDensityGcm3`, `showQuantumTunnelingWave` $\rightarrow$ `act_07_sun_simulator` |
+| **07.2** | `sub-02` | `m07_ch2_solar_interior_layers` | 3D wedge cutaway of Core ($0\text{–}0.25\,R_\odot$), Radiative Zone ($0.25\text{–}0.71\,R_\odot$), Tachocline shear layer ($0.71\,R_\odot$), and Convective Zone ($0.71\text{–}1.00\,R_\odot$), with animated stochastic photon random walk ($N \approx (L/\ell)^2 \Rightarrow \tau_{\text{diff}} \approx 1.7\times 10^5\text{ yr}$). | `interiorCutawayAngleDeg`, `radiativeOpacityMultiplier`, `showRandomWalkPhotonPath` $\rightarrow$ `act_07_solar_layers` |
+| **07.3** | `sub-03` | `m07_ch3_solar_atmosphere_eclipse` | $5772\text{ K}$ photosphere with limb darkening, ruby-red $\text{H}\alpha$ ($656.28\text{ nm}$) chromosphere & spicule jets, narrow transition region, $1.5\text{–}3.0\text{ MK}$ corona (Fe XIV $530.3\text{ nm}$), total eclipse lunar occulter toggle, and Alfvén-wave / nanoflare heating flux. | `eclipseOcculterActive`, `coronalMagneticWaveFlux`, `atmosphericFilterBand` |
+| **07.4** | `sub-04` | `m07_ch4_sunspots_granulation_prominences` | Convective granulation cells ($1000\text{ km}$ bright upwellings + dark lanes), bipolar sunspot pair with dark umbra ($3800\text{ K}$) & penumbra where magnetic pressure inhibits convection ($P_{\text{gas,spot}} + B^2/(2\mu_0) = P_{\text{gas,ext}}$), and Kippenhahn–Schlüter prominence arcade. | `sunspotMagneticFieldGauss`, `prominenceArchHeightMm`, `showSubsurfaceFluxRopes` |
+| **07.5** | `sub-05` | `m07_ch5_magnetic_dynamo_cycle` | Differential rotation ($\Omega_{\text{eq}} \approx 25\text{ d}$ vs $\Omega_{\text{pole}} \approx 35\text{ d}$) winding poloidal field into toroidal $\Omega$-effect flux ropes, Spörer's Law butterfly latitude migration ($\pm 35^\circ \rightarrow \pm 8^\circ$), and $11\text{-yr}$ Schwabe / $22\text{-yr}$ Hale polarity cycle. | `solarCyclePhaseYear`, `differentialShearRate`, `showButterflyLatitudeBands` |
+| **07.6** | `sub-06` | `m07_ch6_flares_cmes_heliosphere` | Magnetic reconnection X-point flare flash (A/B/C/M/X soft X-ray scale), expanding twisted magnetic flux-rope CME shock front ($10^{12}\text{ kg}$), Parker Archimedean spiral interplanetary magnetic field, and ~120 AU Heliopause boundary. | `cmeVelocityKms`, `flareClassLogPower`, `showParkerSpiralField` $\rightarrow$ `act_07_sun_simulator` |
+| **07.7** | `sub-07` | `m07_ch7_space_weather_magnetosphere` | Supersonic solar wind bow shock, Earth's dayside magnetopause compression ($R_{\text{mp}} \propto (\rho v_{\text{sw}}^2)^{-1/6}$), Dungey-cycle dayside reconnection under southward IMF ($B_z < 0$), stretched magnetotail, and $557.7\text{ nm}$ green / $630.0\text{ nm}$ red polar auroral ovals. | `solarWindSpeedKms`, `imfBzSouthwardNt`, `showAuroralOvalRings` $\rightarrow$ `act_07_sun_simulator` |
+
+---
+
+## 5. Phase E — Module 08: *Gravity, Orbits & Motion* (8 Chapters, 40 Segments)
+
+| Chapter | Lesson ID | 3D Scene Component | Scientific Visuals & Physical Invariants | Interactive Controls & Activity Bridge |
+| :--- | :--- | :--- | :--- | :--- |
+| **08.1** | `08-01` | `m08_ch1_gravity_inverse_square` | $F = G M_1 m_2 / r^2$, equal-and-opposite action-reaction vectors $|\mathbf{F}_{12}| = |\mathbf{F}_{21}|$, $1/r^2$ steps ($1 \rightarrow 1/4 \rightarrow 1/9$), tidal differential gradient $\Delta F \propto 1/r^3$, and scalar potential diagram $\Phi(r) = -GM/r$. | `massMultiplierM1`, `separationDistanceR`, `showTidalGradient` |
+| **08.2** | `08-02` | `m08_ch2_orbital_free_fall` | Newton's cannonball perpetual free fall, circular orbit orthogonal $\mathbf{v} \perp \mathbf{F}_g$ ($W = 0$), and elliptical inbound ($+W$) vs outbound ($-W$) gravitational work. | `cannonballLaunchSpeedRatio`, `orbitEccentricity`, `showWorkAngleMarker` |
+| **08.3** | `08-03` | `m08_ch3_conic_orbit_geometry` | Conic section family ($e=0, 0<e<1, e=1, e=1.2$), primary star strictly at occupied focus $F_1=(0,0,0)$, empty focus $F_2=(-2ae,0,0)$, $r_p = a(1-e)$, $r_a = a(1+e)$, and Hohmann transfer ellipse ($\Delta v_1, \Delta v_2$). | `semiMajorAxisAU`, `eccentricity`, `showHohmannTransfer` $\rightarrow$ `act_08_orbit_sandbox` |
+| **08.4** | `08-04` | `m08_ch4_vis_viva_velocity` | Vis-viva $v^2 = GM(2/r - 1/a)$, Equivalence Principle co-orbiting pebble & station, LEO ($7.66\text{ km/s}$) vs GEO ($3.07\text{ km/s}$), and continuous xenon ion spiral vs impulsive chemical burn. | `orbitalRadiusRe`, `propulsionMode`, `showEquivalencePebble` |
+| **08.5** | `08-05` | `m08_ch5_newton_laws_motion` | 1st Law (straight-line inertial tangent upon gravity release), 2nd Law ($\mathbf{a} = \mathbf{F}/m$ with $81:1$ Moon-to-Earth acceleration ratio), and 3rd Law (Tsiolkovsky vacuum rocket recoil $\Delta v = v_e\ln(m_0/m_f)$). | `newtonLawDemonstration`, `gravityTetherEnabled`, `exhaustVelocityKms` |
+| **08.6** | `08-06` | `m08_ch6_kepler_three_laws` | Simultaneous 1st Law (occupied focus $F_1$), 2nd Law (equal-area swept sectors $\Delta A_{\text{peri}} = \Delta A_{\text{apo}}$ via $L = mrv_\perp = \text{const}$), and 3rd Law ($T^2 = a^3$ concentric harmonic race). | `keplerEccentricity`, `showEqualAreaSectors`, `showHarmonicPlanetRace` $\rightarrow$ `act_08_orbit_sandbox` |
+| **08.7** | `08-07` | `m08_ch7_escape_velocity_well` | Bound ellipse ($E<0$), parabolic escape threshold $v_{\text{esc}} = \sqrt{2GM/r} = \sqrt{2}\,v_{\text{circ}}$ ($E=0$), and hyperbolic trajectory ($E>0$) over a 3D gravitational potential funnel. | `launchSpeedToCircularRatio`, `centralBodyPreset` $\rightarrow$ `act_08_orbit_sandbox` |
+| **08.8** | `08-08` | `m08_ch8_barycenter_multibody` | Mutual two-body motion around stationary center of mass ($+$) with $r_1 = aq/(1+q)$ and $r_2 = a/(1+q)$ (primary never pinned at origin!), plus co-rotating $L_1\text{–}L_5$ Lagrange points, Trojan triangles, and Hill sphere $r_H \approx a(q/3)^{1/3}$. | `massRatioQ`, `showLagrangePoints`, `showHillSphere` |
