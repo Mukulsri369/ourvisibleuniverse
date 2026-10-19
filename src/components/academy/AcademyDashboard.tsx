@@ -40,6 +40,11 @@ import { CosmicCertificateModal } from "./CosmicCertificateModal";
 import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import { CosmosLearningSessionManager } from "@/lib/cosmos/CosmosLearningSessionManager";
 import type { CosmosLearningSessionRecord } from "@/lib/cosmos/learning-director-types";
+import {
+  CosmosCinematicPlayer,
+  EnterCinematicModeButton,
+} from "./cinematic/CosmosCinematicPlayer";
+import { CosmosCinematicSessionBridge } from "@/lib/cosmos/cinematic/CosmosCinematicSessionBridge";
 
 // Lazy-loaded module layouts to optimize initial bundle size and isolate module evaluation
 const LessonLayout = lazy(() =>
@@ -394,6 +399,33 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-28 space-y-8">
+          {/* Immersive Fullscreen Cinematic Learning Mode Banner (Available for all 24 Modules) */}
+          <div
+            data-testid="module-cinematic-mode-banner"
+            className="rounded-2xl border border-cyan-500/35 bg-gradient-to-r from-slate-900/95 via-cyan-950/35 to-indigo-950/40 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-cyan-950/20"
+          >
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-cyan-400">
+                <Sparkles className="size-3.5 text-cyan-400" />
+                <span>COSMOS Cinematic Learning System</span>
+              </div>
+              <h2 className="text-sm sm:text-base font-bold text-white">
+                Experience Module {activeLessonModule.id}: {activeLessonModule.title} in Fullscreen 3D
+              </h2>
+              <p className="text-xs text-slate-300">
+                Synchronized COSMOS AI narration, interactive 3D scientific animations, camera choreography, and live Q&A.
+              </p>
+            </div>
+
+            <div className="shrink-0">
+              <EnterCinematicModeButton
+                moduleId={activeLessonModule.id}
+                moduleTitle={activeLessonModule.title}
+                learningLevel={selectedLevel}
+              />
+            </div>
+          </div>
+
           {/* Centralized COSMOS AI Astronomy Voice Teacher for all 24 Modules */}
           <CosmosCompanion
             key={activeLessonModule.id}
@@ -450,6 +482,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
 
         {/* Persistent Compact Guided Teacher Panel (COSMOS 2.0 Director) */}
         <CosmosGuidedController />
+
+        {/* Fullscreen Cinematic Learning Player (Prompt 03) */}
+        <CosmosCinematicPlayer reducedMotion={settings.reducedMotion} />
       </div>
     );
   }

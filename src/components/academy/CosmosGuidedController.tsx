@@ -14,6 +14,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import { LearningPreferenceManager } from "@/lib/cosmos/LearningPreferenceManager";
+import { CosmosCinematicSessionBridge } from "@/lib/cosmos/cinematic/CosmosCinematicSessionBridge";
 import type { DirectorStateSnapshot } from "@/lib/cosmos/learning-director-types";
 import {
   Play,
@@ -223,6 +224,24 @@ export function CosmosGuidedController({ className = "" }: CosmosGuidedControlle
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() =>
+                void CosmosCinematicSessionBridge.getInstance().enterCinematicMode({
+                  moduleId: snapshot.moduleId,
+                  moduleTitle: snapshot.moduleTitle,
+                  learningLevel: snapshot.learningLevel,
+                  sublessonId: currentStep?.lessonId,
+                })
+              }
+              aria-label="Enter Fullscreen Cinematic Mode"
+              title="Enter Fullscreen Cinematic Mode"
+              data-testid="guided-controller-enter-cinematic-btn"
+              className="px-2 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/40 text-cyan-200 hover:text-white text-[10px] font-bold transition-colors flex items-center gap-1"
+            >
+              <Sparkles className="size-3 text-cyan-300" />
+              <span>Cinematic</span>
+            </button>
             <button
               onClick={() => setIsMinimized(!isMinimized)}
               aria-label={isMinimized ? "Maximize panel" : "Minimize panel"}

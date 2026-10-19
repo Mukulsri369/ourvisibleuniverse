@@ -3,6 +3,8 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { COSMIC_ZOOM_LAYERS, ZoomLayer } from "@/lib/academy/lessons/module-01-our-place";
+import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import { VisualizationActionController } from "@/lib/cosmos/VisualizationActionController";
 import {
   ZoomIn,
   ZoomOut,
@@ -470,6 +472,77 @@ export function CosmicZoomVisualizer3D({ onInteract, onLayerChange }: CosmicZoom
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Synchronize with VisualizationActionController & Cosmos3DAdapter (Prompt 03 Section 24)
+  useEffect(() => {
+    const unregisterAction = VisualizationActionController.registerHandler("cosmic_scale", (action) => {
+      const scaleLvl =
+        typeof (action as any).scaleLevel === "number"
+          ? (action as any).scaleLevel
+          : typeof action.parameters?.scaleLevel === "number"
+            ? (action.parameters.scaleLevel as number)
+            : undefined;
+      if (
+        typeof scaleLvl === "number" &&
+        scaleLvl >= 0 &&
+        scaleLvl < COSMIC_ZOOM_LAYERS.length
+      ) {
+        setCurrentLayerIndex(scaleLvl);
+      }
+      if (action.targetObject === "earth" || action.cameraAction === "highlight") {
+        setLocateEarthActive(true);
+      }
+    });
+
+    const unregisterScene = Cosmos3DAdapter.getInstance().registerScene({
+      sceneId: "cosmic_scale",
+      getCurrentSimulationState: () => ({
+        sceneId: "cosmic_scale",
+        isRunning: isPlayingTour,
+        timeScale: 1,
+        activeExperimentId: `layer_${currentLayerIndex}`,
+        activeParameters: {
+          layerIndex: currentLayerIndex,
+          layerName: COSMIC_ZOOM_LAYERS[currentLayerIndex]?.name || "Earth",
+        },
+      }),
+      getSelectedObject: () => null,
+      focusObject: (targetName: string) => {
+        if (targetName.toLowerCase().includes("earth")) {
+          setCurrentLayerIndex(0);
+          setLocateEarthActive(true);
+        } else if (targetName.toLowerCase().includes("moon")) {
+          setCurrentLayerIndex(1);
+        } else if (targetName.toLowerCase().includes("solar")) {
+          setCurrentLayerIndex(2);
+        } else if (targetName.toLowerCase().includes("milky")) {
+          setCurrentLayerIndex(4);
+        }
+        return true;
+      },
+      highlightObject: () => {
+        setLocateEarthActive(true);
+        return true;
+      },
+      playDemonstration: () => {
+        setIsPlayingTour(true);
+        return true;
+      },
+      pauseSimulation: () => {
+        setIsPlayingTour(false);
+        return true;
+      },
+      resumeSimulation: () => {
+        setIsPlayingTour(true);
+        return true;
+      },
+    });
+
+    return () => {
+      unregisterAction();
+      unregisterScene();
+    };
+  }, [currentLayerIndex, isPlayingTour]);
 
   const layer = COSMIC_ZOOM_LAYERS[currentLayerIndex];
 

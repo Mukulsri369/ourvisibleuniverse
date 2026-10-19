@@ -36,6 +36,7 @@ import { Cosmos3DTools } from "@/lib/cosmos/Cosmos3DTools";
 import { UniversalCosmosAdapter } from "@/lib/cosmos/adapters/universal-adapter";
 import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import { askCosmosQuestion } from "@/lib/cosmos/cosmos.functions";
+import { EnterCinematicModeButton } from "./cinematic/CosmosCinematicPlayer";
 import {
   Bot,
   Sparkles,
@@ -575,7 +576,17 @@ export function CosmosCompanion({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {!isExamMode && (
+            <EnterCinematicModeButton
+              moduleId={moduleId}
+              moduleTitle={moduleTitle}
+              learningLevel={learningLevel}
+              sublessonId={sublessonId}
+              variant="compact"
+            />
+          )}
+
           {/* Awareness indicator pill */}
           <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300">
             <span className="size-2 rounded-full bg-cyan-400" />
