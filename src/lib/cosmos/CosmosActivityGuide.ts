@@ -58,8 +58,9 @@ export class CosmosActivityGuide {
   }
 
   /**
-   * Observes genuine student clicks and slider changes inside any `#module-XX-activities`
-   * container so all 24 module laboratories report real student participation.
+   * Observes genuine student slider and parameter changes inside any `#module-XX-activities`
+   * container for initial exploratory step tracking, while requiring actual experimental
+   * verification for completion.
    */
   private attachUniversalActivityDOMObserver(): void {
     if (typeof window === "undefined" || typeof document === "undefined") return;
@@ -71,13 +72,12 @@ export class CosmosActivityGuide {
       const activityContainer = target.closest('[id^="module-"][id$="-activities"]');
       if (!activityContainer) return;
 
-      const interactiveControl = target.closest("button, input, select, [role='slider'], canvas");
+      const interactiveControl = target.closest("input, select, [role='slider']");
       if (!interactiveControl) return;
 
       const idMatch = activityContainer.id.match(/^module-(\d{2})-activities$/);
       const detectedModuleId = idMatch ? idMatch[1] : this.activeModuleId;
 
-      // Avoid double-reporting for Module 08 presets which already report detailed orbital telemetry
       if (
         detectedModuleId === "08" &&
         interactiveControl.closest('[data-cosmos-control="eccentricity-control"]')
@@ -86,18 +86,16 @@ export class CosmosActivityGuide {
       }
 
       const controlLabel =
-        (interactiveControl as HTMLElement).innerText?.trim().slice(0, 40) ||
         interactiveControl.getAttribute("aria-label") ||
         interactiveControl.tagName.toLowerCase();
 
-      void this.handleStudentActivityInteraction(detectedModuleId, `control_${controlLabel}`, {
+      void this.handleStudentActivityInteraction(detectedModuleId, "interact_parameter", {
         interacted: true,
         lastControlUsed: controlLabel,
       });
     };
 
     document.addEventListener("change", handleInteraction, { passive: true });
-    document.addEventListener("click", handleInteraction, { passive: true });
   }
 
   public static getInstance(): CosmosActivityGuide {

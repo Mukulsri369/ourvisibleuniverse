@@ -352,7 +352,7 @@ export function LessonLayout({
       </section>
 
       {/* Signature 3D Experience: Cinematic Cosmic Zoom-Out */}
-      <section>
+      <section id="m01-cosmic-zoom">
         <CosmicZoomVisualizer3D
           onInteract={handleVisualizationInteract}
           onLayerChange={(layerIndex) => {
@@ -365,7 +365,7 @@ export function LessonLayout({
       </section>
 
       {/* Interactive Hands-On Activities Suite */}
-      <section className="space-y-8">
+      <section id="module-01-activities" className="space-y-8">
         <div className="border-b border-white/10 pb-3">
           <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">
             Hands-On Interactive Laboratory

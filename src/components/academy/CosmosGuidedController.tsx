@@ -168,9 +168,7 @@ export function CosmosGuidedController({ className = "" }: CosmosGuidedControlle
 
   const handleToggleAutoScroll = () => {
     const prefs = LearningPreferenceManager.getPreferences();
-    LearningPreferenceManager.savePreferences({
-      autoScrollEnabled: !prefs.autoScrollEnabled,
-    });
+    LearningPreferenceManager.setAutoScroll(!prefs.autoScrollEnabled);
   };
 
   return (

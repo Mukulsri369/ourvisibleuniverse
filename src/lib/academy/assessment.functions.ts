@@ -24,7 +24,7 @@ const submitAssessmentSchema = z.object({
  * Returns only sanitized questions (NO correct answers, NO explanations).
  */
 export const startAssessmentAttempt = createServerFn({ method: "POST" })
-  .validator((input) => startAssessmentSchema.parse(input))
+  .inputValidator((input) => startAssessmentSchema.parse(input))
   .handler(async ({ data }) => {
     let userId = `anon_${Math.random().toString(36).substring(2, 9)}`;
 
@@ -59,7 +59,7 @@ export const startAssessmentAttempt = createServerFn({ method: "POST" })
  * and if >= 70% in official mode, records verified completion and stage badges.
  */
 export const submitAssessmentAttempt = createServerFn({ method: "POST" })
-  .validator((input) => submitAssessmentSchema.parse(input))
+  .inputValidator((input) => submitAssessmentSchema.parse(input))
   .handler(async ({ data }) => {
     let userId = "";
 
@@ -102,29 +102,37 @@ export const submitAssessmentAttempt = createServerFn({ method: "POST" })
   });
 
 /**
+ * Helper to resolve authenticated userId strictly from request Bearer token.
+ * Never trusts client-supplied userId parameters.
+ */
+async function resolveAuthenticatedUserId(): Promise<string> {
+  try {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const request = getRequest();
+    const authHeader = request?.headers?.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: userData } = await supabaseAdmin.auth.getUser(token);
+      if (userData?.user?.id) {
+        return userData.user.id;
+      }
+    }
+  } catch {
+    // Unauthenticated
+  }
+
+  return "";
+}
+
+/**
  * Checks server-authoritative eligibility for the Cosmic Explorer Final Knowledge Assessment.
  * Verifies that all 24 modules have verified completion on the backend.
  */
 export const getFinalExamEligibility = createServerFn({ method: "POST" })
-  .validator((input: { userId?: string } = {}) => input)
-  .handler(async ({ data }) => {
-    let userId = data?.userId || "";
-
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const request = getRequest();
-      const authHeader = request?.headers?.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabaseAdmin.auth.getUser(token);
-        if (userData?.user?.id) {
-          userId = userData.user.id;
-        }
-      }
-    } catch {
-      // Unauthenticated
-    }
+  .inputValidator((input: { userId?: string } = {}) => input)
+  .handler(async () => {
+    const userId = await resolveAuthenticatedUserId();
 
     if (!userId) {
       return {
@@ -147,25 +155,9 @@ export const getFinalExamEligibility = createServerFn({ method: "POST" })
  * Strictly verifies that the student has passed the final examination in the database.
  */
 export const claimOfficialCertificate = createServerFn({ method: "POST" })
-  .validator((input: { courseVersion?: string; userId?: string } = {}) => input)
-  .handler(async ({ data }) => {
-    let userId = data?.userId || "";
-
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const request = getRequest();
-      const authHeader = request?.headers?.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabaseAdmin.auth.getUser(token);
-        if (userData?.user?.id) {
-          userId = userData.user.id;
-        }
-      }
-    } catch {
-      // Unauthenticated
-    }
+  .inputValidator((input: { courseVersion?: string; userId?: string } = {}) => input)
+  .handler(async () => {
+    const userId = await resolveAuthenticatedUserId();
 
     if (!userId) {
       throw new Error("Student authentication required to claim official verified certificate.");

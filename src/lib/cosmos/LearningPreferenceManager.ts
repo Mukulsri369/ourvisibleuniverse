@@ -82,6 +82,10 @@ export class LearningPreferenceManager {
     return this.setPreferences(updates);
   }
 
+  public static savePreferences(updates: Partial<CosmosPreferences>): CosmosPreferences {
+    return this.setPreferences(updates);
+  }
+
   public static setVoiceName(voiceName: CosmosVoiceName): void {
     this.setPreferences({ preferredVoiceName: voiceName });
   }

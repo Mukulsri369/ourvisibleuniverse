@@ -16,7 +16,7 @@ const submitActivitySchema = z.object({
  * Retrieves the authoritative completion status & requirement checklist for a module.
  */
 export const getModuleCompletionStatus = createServerFn({ method: "POST" })
-  .validator((input) => moduleStatusSchema.parse(input))
+  .inputValidator((input) => moduleStatusSchema.parse(input))
   .handler(async ({ data }) => {
     let userId = "";
 
@@ -48,7 +48,7 @@ export const getModuleCompletionStatus = createServerFn({ method: "POST" })
  * Submits an educational simulation or lab outcome for server-side physical validation.
  */
 export const submitActivityOutcome = createServerFn({ method: "POST" })
-  .validator((input) => submitActivitySchema.parse(input))
+  .inputValidator((input) => submitActivitySchema.parse(input))
   .handler(async ({ data }) => {
     let userId = "";
 
@@ -86,7 +86,7 @@ export const submitActivityOutcome = createServerFn({ method: "POST" })
  * Explicit re-evaluation trigger after finishing a lesson or assessment.
  */
 export const recheckModuleCompletion = createServerFn({ method: "POST" })
-  .validator((input) => moduleStatusSchema.parse(input))
+  .inputValidator((input) => moduleStatusSchema.parse(input))
   .handler(async ({ data }) => {
     let userId = "";
 

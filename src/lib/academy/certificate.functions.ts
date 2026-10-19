@@ -2,32 +2,36 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { CertificateTheme } from "./certificate-types";
 
+async function resolveCertAuthenticatedUserId(): Promise<string> {
+  try {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const request = getRequest();
+    const authHeader = request?.headers?.get("authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: userData } = await supabaseAdmin.auth.getUser(token);
+      if (userData?.user?.id) {
+        return userData.user.id;
+      }
+    }
+  } catch {
+    // Unauthenticated
+  }
+
+  return "";
+}
+
 /**
  * Server function to issue an authoritative certificate.
  * Enforces authentication and evaluates eligibility server-side.
  */
 export const issueOfficialCertificate = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (input: { userId?: string; level?: "junior" | "explorer" | "astronomer" } = {}) => input,
   )
   .handler(async ({ data }) => {
-    let userId = data?.userId || "";
-
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const request = getRequest();
-      const authHeader = request?.headers?.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabaseAdmin.auth.getUser(token);
-        if (userData?.user?.id) {
-          userId = userData.user.id;
-        }
-      }
-    } catch {
-      // Unauthenticated
-    }
+    const userId = await resolveCertAuthenticatedUserId();
 
     if (!userId) {
       throw new Error("Student authentication required to claim official verified certificate.");
@@ -41,25 +45,9 @@ export const issueOfficialCertificate = createServerFn({ method: "POST" })
  * Retrieve active certificate for current user.
  */
 export const getActiveCertificate = createServerFn({ method: "GET" })
-  .validator((input: { userId?: string } = {}) => input)
-  .handler(async ({ data }) => {
-    let userId = data?.userId || "";
-
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const request = getRequest();
-      const authHeader = request?.headers?.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabaseAdmin.auth.getUser(token);
-        if (userData?.user?.id) {
-          userId = userData.user.id;
-        }
-      }
-    } catch {
-      // Unauthenticated
-    }
+  .inputValidator((input: { userId?: string } = {}) => input)
+  .handler(async () => {
+    const userId = await resolveCertAuthenticatedUserId();
 
     if (!userId) return null;
 
@@ -72,7 +60,7 @@ export const getActiveCertificate = createServerFn({ method: "GET" })
  * Does not require authentication.
  */
 export const verifyCertificatePublic = createServerFn({ method: "GET" })
-  .validator((input: { certificateId: string }) => input)
+  .inputValidator((input: { certificateId: string }) => input)
   .handler(async ({ data }) => {
     const { verifyCertificatePublicServer } = await import("./certificate.server");
     return verifyCertificatePublicServer(data.certificateId);
@@ -82,7 +70,7 @@ export const verifyCertificatePublic = createServerFn({ method: "GET" })
  * Generates and returns a base64-encoded PDF document for direct download or preview.
  */
 export const generateCertificatePdfPayload = createServerFn({ method: "POST" })
-  .validator((input: { certificateNumber: string; theme?: CertificateTheme }) => input)
+  .inputValidator((input: { certificateNumber: string; theme?: CertificateTheme }) => input)
   .handler(async ({ data }) => {
     const { verifyCertificatePublicServer } = await import("./certificate.server");
     const { generateCertificatePdf } = await import("./certificate-pdf");
@@ -160,7 +148,7 @@ async function extractAdminToken(): Promise<string> {
  * Admin: List all certificates with filtering & pagination
  */
 export const adminListCertificates = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (
       input: {
         search?: string;
@@ -182,7 +170,7 @@ export const adminListCertificates = createServerFn({ method: "POST" })
  * Admin: Get certificate details, evidence, and audit trail
  */
 export const adminGetCertificateDetails = createServerFn({ method: "POST" })
-  .validator((input: { certificateNumber: string; adminToken?: string }) => input)
+  .inputValidator((input: { certificateNumber: string; adminToken?: string }) => input)
   .handler(async ({ data }) => {
     const token = data?.adminToken || (await extractAdminToken());
     const { adminGetCertificateDetailsServer } = await import("./certificate.server");
@@ -193,7 +181,7 @@ export const adminGetCertificateDetails = createServerFn({ method: "POST" })
  * Admin: Revoke a certificate with mandatory reason
  */
 export const adminRevokeCertificate = createServerFn({ method: "POST" })
-  .validator((input: { certificateNumber: string; reason: string; adminToken?: string }) => input)
+  .inputValidator((input: { certificateNumber: string; reason: string; adminToken?: string }) => input)
   .handler(async ({ data }) => {
     const token = data?.adminToken || (await extractAdminToken());
     const { adminRevokeCertificateServer } = await import("./certificate.server");
@@ -204,7 +192,7 @@ export const adminRevokeCertificate = createServerFn({ method: "POST" })
  * Admin: Correct certificate details
  */
 export const adminCorrectCertificate = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (input: {
       certificateNumber: string;
       reason: string;
@@ -231,7 +219,7 @@ export const adminCorrectCertificate = createServerFn({ method: "POST" })
  * Admin: Reissue certificate with historical supersession
  */
 export const adminReissueCertificate = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (input: {
       certificateNumber: string;
       reason: string;
@@ -253,7 +241,7 @@ export const adminReissueCertificate = createServerFn({ method: "POST" })
  * Admin: Get certificate registry stats
  */
 export const adminGetCertificateStats = createServerFn({ method: "POST" })
-  .validator((input: { adminToken?: string } = {}) => input)
+  .inputValidator((input: { adminToken?: string } = {}) => input)
   .handler(async ({ data }) => {
     const token = data?.adminToken || (await extractAdminToken());
     const { adminGetCertificateStatsServer } = await import("./certificate.server");
@@ -264,7 +252,7 @@ export const adminGetCertificateStats = createServerFn({ method: "POST" })
  * Open Badges 3.0 / W3C Verifiable Credential standard metadata export
  */
 export const getCertificateOpenBadgePayload = createServerFn({ method: "GET" })
-  .validator((input: { certificateNumber: string }) => input)
+  .inputValidator((input: { certificateNumber: string }) => input)
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin

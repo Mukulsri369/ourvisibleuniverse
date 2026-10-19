@@ -265,27 +265,36 @@ export class CosmosLessonNavigator {
       // not a valid selector string
     }
 
-    // 2. Direct ID lookup
-    const cleanId = target.replace(/^#/, "");
+    // 2. Direct ID lookup (strip leading # or extract value if an attribute selector was passed)
+    const attrMatch = target.match(/\[data-[a-z-]+=["']?([^"'\]\s]+)["']?\]/i);
+    const cleanId = (attrMatch ? attrMatch[1] : target.replace(/^#/, "")).replace(/["'[\]]/g, "");
+    if (!cleanId) return null;
+
     const byId = document.getElementById(cleanId);
     if (byId) return byId;
 
     // 3. Cosmos data attribute lookups (including normalized base section ID)
-    const bySegment = document.querySelector(`[data-cosmos-segment="${cleanId}"]`);
-    if (bySegment instanceof HTMLElement) return bySegment;
+    try {
+      const bySegment = document.querySelector(`[data-cosmos-segment="${cleanId}"]`);
+      if (bySegment instanceof HTMLElement) return bySegment;
+
+      const secMatch = cleanId.match(/-sec-(.+)$/);
+      const rawSec = secMatch ? secMatch[1] : cleanId;
+      const baseSec = rawSec.replace(/-\d+$/, "");
+
+      const bySection =
+        document.querySelector(`[data-cosmos-section="${rawSec}"]`) ||
+        document.querySelector(`[data-cosmos-section="${baseSec}"]`) ||
+        document.querySelector(`[id$="-sec-${baseSec}"]`);
+      if (bySection instanceof HTMLElement) return bySection;
+
+      const byStep = document.querySelector(`[data-cosmos-step="${cleanId}"]`);
+      if (byStep instanceof HTMLElement) return byStep;
+    } catch {
+      // ignore selector syntax errors
+    }
 
     const secMatch = cleanId.match(/-sec-(.+)$/);
-    const rawSec = secMatch ? secMatch[1] : cleanId;
-    const baseSec = rawSec.replace(/-\d+$/, "");
-
-    const bySection =
-      document.querySelector(`[data-cosmos-section="${rawSec}"]`) ||
-      document.querySelector(`[data-cosmos-section="${baseSec}"]`) ||
-      document.querySelector(`[id$="-sec-${baseSec}"]`);
-    if (bySection instanceof HTMLElement) return bySection;
-
-    const byStep = document.querySelector(`[data-cosmos-step="${cleanId}"]`);
-    if (byStep instanceof HTMLElement) return byStep;
 
     // 4. Semantic region fallbacks across all 24 modules
     if (cleanId.endsWith("-quiz")) {

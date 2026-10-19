@@ -475,18 +475,18 @@ export function CosmicZoomVisualizer3D({ onInteract, onLayerChange }: CosmicZoom
 
   // Auto-tour step timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlayingTour) {
-      interval = setInterval(() => {
-        setCurrentLayerIndex((prev) => {
-          const next = (prev + 1) % COSMIC_ZOOM_LAYERS.length;
-          onLayerChange?.(next);
-          return next;
-        });
-      }, 4500);
-    }
+    if (!isPlayingTour) return;
+    const interval = setInterval(() => {
+      setCurrentLayerIndex((prev) => (prev + 1) % COSMIC_ZOOM_LAYERS.length);
+    }, 4500);
     return () => clearInterval(interval);
-  }, [isPlayingTour, onLayerChange]);
+  }, [isPlayingTour]);
+
+  useEffect(() => {
+    if (isPlayingTour) {
+      onLayerChange?.(currentLayerIndex);
+    }
+  }, [currentLayerIndex, isPlayingTour, onLayerChange]);
 
   const handleNextLayer = () => {
     if (currentLayerIndex < COSMIC_ZOOM_LAYERS.length - 1) {

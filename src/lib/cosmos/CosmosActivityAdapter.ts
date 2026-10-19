@@ -596,7 +596,7 @@ export class CosmosActivityAdapter {
       resolved.completedActions.push(actionName);
     }
 
-    // Advance the current instruction step
+    // Advance the current instruction step when the student performs the requested action or meaningful parameter update
     let completedStep: ActivityInstructionStep | undefined;
     const currentStepIdx = resolved.instructionSteps.findIndex(
       (s) => s.stepId === resolved.currentStepId && !s.completed,
@@ -605,9 +605,25 @@ export class CosmosActivityAdapter {
     const targetIdx = currentStepIdx !== -1 ? currentStepIdx : fallbackIdx;
 
     if (targetIdx !== -1) {
-      resolved.instructionSteps[targetIdx].completed = true;
-      completedStep = resolved.instructionSteps[targetIdx];
-      resolved.lastObservationFeedback = completedStep.observationFeedback;
+      const candidateStep = resolved.instructionSteps[targetIdx];
+      const isFinalVerifyStep =
+        targetIdx === resolved.instructionSteps.length - 1 &&
+        resolved.instructionSteps.length > 1;
+      const hasExplicitVerificationData =
+        actionName === candidateStep.expectedActionName ||
+        actionName.includes("verify") ||
+        actionName.includes("complete") ||
+        actionName.includes("submit") ||
+        Object.keys(updatedParameters).some(
+          (k) => !["interacted", "lastControlUsed"].includes(k),
+        );
+
+      // Do not mark the final verification step complete on a generic button click unless verified telemetry is supplied
+      if (!isFinalVerifyStep || hasExplicitVerificationData) {
+        resolved.instructionSteps[targetIdx].completed = true;
+        completedStep = resolved.instructionSteps[targetIdx];
+        resolved.lastObservationFeedback = completedStep.observationFeedback;
+      }
     }
 
     // Move cursor to next incomplete step if any
@@ -635,6 +651,7 @@ export class CosmosActivityAdapter {
   /**
    * 11. getValidationResult()
    * Validates the activity state against authoritative server rules (`submitActivityOutcome`).
+   * Never marks an activity COMPLETED unless server validation succeeds.
    */
   public async getValidationResult(
     activityIdOrModuleId?: string,
@@ -692,32 +709,9 @@ export class CosmosActivityAdapter {
         state: this.getActivityState(resolved.activityId),
       };
     } catch (err: any) {
-      // If student is unauthenticated or offline, verify that real student interaction occurred
-      const hasInteracted =
-        resolved.completedActions.length > 0 || Boolean(resolved.currentParameters.interacted);
-
-      if (hasInteracted) {
-        const fallbackReason = `Experimental observations for ${resolved.title} verified based on live simulation telemetry.`;
-        resolved.lastValidationResult = {
-          isValid: true,
-          reason: fallbackReason,
-          timestamp: Date.now(),
-        };
-        resolved.status = "COMPLETED";
-        resolved.instructionSteps.forEach((s) => {
-          s.completed = true;
-        });
-        this.notifyListeners(resolved);
-        return {
-          isValid: true,
-          reason: fallbackReason,
-          state: this.getActivityState(resolved.activityId),
-        };
-      }
-
       const failReason =
         err?.message ||
-        "Please interact with the simulation controls before requesting verification.";
+        "Server verification could not be completed. Please complete the simulation experiment and try again.";
       resolved.status = "NEEDS_RETRY";
       resolved.lastValidationResult = {
         isValid: false,
@@ -734,33 +728,11 @@ export class CosmosActivityAdapter {
   }
 
   private buildValidatedPayloadForModule(
-    moduleId: string,
+    _moduleId: string,
     currentParams: Record<string, unknown>,
   ): Record<string, unknown> {
-    if (moduleId === "08") {
-      return {
-        eccentricity: Number(currentParams.eccentricity ?? 0.12),
-        semiMajorAxisAU: Number(currentParams.semiMajorAxisAU ?? 1.0),
-        periapsisKm: Number(currentParams.periapsisKm ?? 1400),
-        success: true,
-        ...currentParams,
-      };
-    }
-    if (moduleId === "01") {
-      return {
-        stepCount: Number(currentParams.stepCount ?? 12),
-        minScaleMeters: 1,
-        maxScaleMeters: 1e22,
-        ...currentParams,
-      };
-    }
+    // Forward only the actual observed parameters from the simulation without injecting hardcoded passing values
     return {
-      success: true,
-      verified: true,
-      placedCount: 4,
-      classifiedCount: 4,
-      benchmarkCount: 4,
-      alignedCount: 3,
       ...currentParams,
     };
   }

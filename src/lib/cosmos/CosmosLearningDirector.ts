@@ -174,7 +174,12 @@ export class CosmosLearningDirector {
       this.notifySubscribers();
     });
 
-    // 4. Check for restorable session from previous visit
+    // 4. Subscribe to preference changes (e.g., auto-scroll toggle)
+    LearningPreferenceManager.subscribe(() => {
+      this.notifySubscribers();
+    });
+
+    // 5. Check for restorable session from previous visit
     this.restoreSavedSessionIfAvailable();
   }
 
@@ -845,19 +850,21 @@ export class CosmosLearningDirector {
         this.activeSegmentId = seg.segmentId;
         this.activeHighlightedText = seg.displayText;
 
-        // Apply visual text highlight
-        this.attentionController.highlightSegment({
-          segmentId: seg.segmentId,
-          sectionId: seg.sectionId,
-          lessonId: seg.lessonId,
-          displayText: seg.displayText,
-          spokenText: seg.spokenText,
-          keyTerminology: seg.keyTerminology,
-          targetElementSelector: `[data-cosmos-segment="${seg.segmentId}"]`,
-        });
+        if (this.isGuidedModeActive || narState.status === "playing") {
+          // Apply visual text highlight
+          this.attentionController.highlightSegment({
+            segmentId: seg.segmentId,
+            sectionId: seg.sectionId,
+            lessonId: seg.lessonId,
+            displayText: seg.displayText,
+            spokenText: seg.spokenText,
+            keyTerminology: seg.keyTerminology,
+            targetElementSelector: `[data-cosmos-segment="${seg.segmentId}"]`,
+          });
 
-        // Trigger gentle auto-scroll if enabled and not suspended
-        void this.lessonNavigator.scrollToTarget(`[data-cosmos-segment="${seg.segmentId}"]`);
+          // Trigger gentle auto-scroll if enabled and not suspended
+          void this.lessonNavigator.scrollToTarget(seg.segmentId);
+        }
       }
 
       // Check if narration completed for the active step

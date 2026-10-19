@@ -10,14 +10,14 @@ import { createServerFn } from "@tanstack/react-start";
 import type { CosmosAnswer, StudentQuestionContext } from "./cosmos-types";
 
 export const askCosmosQuestion = createServerFn({ method: "POST" })
-  .validator((input: { question: string; context: StudentQuestionContext }) => input)
+  .inputValidator((input: { question: string; context: StudentQuestionContext }) => input)
   .handler(async ({ data }) => {
     const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
     return AIServiceProviderServer.answerStudentQuestion(data.question, data.context);
   });
 
 export const getCosmosModuleContext = createServerFn({ method: "GET" })
-  .validator(
+  .inputValidator(
     (input: {
       moduleId: string;
       sublessonId?: string;
@@ -34,7 +34,7 @@ export const getCosmosModuleContext = createServerFn({ method: "GET" })
   });
 
 export const synthesizeSegmentAudio = createServerFn({ method: "POST" })
-  .validator(
+  .inputValidator(
     (input: {
       courseVersion?: string;
       moduleId: string;
@@ -51,14 +51,14 @@ export const synthesizeSegmentAudio = createServerFn({ method: "POST" })
   });
 
 export const converseWithCosmos = createServerFn({ method: "POST" })
-  .validator((input: { question: string; context: any }) => input)
+  .inputValidator((input: { question: string; context: any }) => input)
   .handler(async ({ data }) => {
     const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
     return AIServiceProviderServer.answerConversationalTurn(data.question, data.context);
   });
 
 export const createLiveSession = createServerFn({ method: "POST" })
-  .validator((input: { moduleId: string; userId?: string }) => input)
+  .inputValidator((input: { moduleId: string; userId?: string }) => input)
   .handler(async ({ data }) => {
     const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
     return AIServiceProviderServer.createLiveSession(data);

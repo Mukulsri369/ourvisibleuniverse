@@ -534,18 +534,29 @@ export async function submitAssessmentAttemptServer(
       const evaluation = await evaluateModuleCompletionServer(input.userId, formattedModId);
       verifiedCompletionAwarded = evaluation.isVerifiedComplete;
 
-      // Check if stage badge was unlocked
+      // Check if stage badge was unlocked (canonical table: academy_stage_achievements)
       const moduleNum = parseInt(formattedModId, 10);
       if (!isNaN(moduleNum) && moduleNum >= 1 && moduleNum <= 24) {
         const stageId = Math.ceil(moduleNum / 4);
-        const { data: stageBadge } = await supabaseAdmin
-          .from("academy_stage_badges")
-          .select("badge_id")
+        const { data: stageAchievement } = await supabaseAdmin
+          .from("academy_stage_achievements")
+          .select("badge_key")
           .eq("user_id", input.userId)
           .eq("stage_id", stageId)
           .maybeSingle();
 
-        if (stageBadge && STAGE_BADGES[stageId]) {
+        let hasStageBadge = Boolean(stageAchievement);
+        if (!hasStageBadge) {
+          const { data: legacyBadge } = await supabaseAdmin
+            .from("academy_stage_badges")
+            .select("badge_id")
+            .eq("user_id", input.userId)
+            .eq("stage_id", stageId)
+            .maybeSingle();
+          hasStageBadge = Boolean(legacyBadge);
+        }
+
+        if (hasStageBadge && STAGE_BADGES[stageId]) {
           newStageBadgeAwarded = STAGE_BADGES[stageId].title;
         }
       }

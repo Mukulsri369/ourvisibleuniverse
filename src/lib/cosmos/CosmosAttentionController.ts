@@ -41,10 +41,17 @@ export class CosmosAttentionController {
     const matchedElements: HTMLElement[] = [];
 
     // 1. Check exact segment ID attribute
-    const bySegment = document.querySelectorAll(`[data-cosmos-segment="${target.segmentId}"]`);
-    bySegment.forEach((el) => {
-      if (el instanceof HTMLElement) matchedElements.push(el);
-    });
+    try {
+      const cleanSegId = (target.segmentId || "").replace(/["'[\]]/g, "");
+      if (cleanSegId) {
+        const bySegment = document.querySelectorAll(`[data-cosmos-segment="${cleanSegId}"]`);
+        bySegment.forEach((el) => {
+          if (el instanceof HTMLElement) matchedElements.push(el);
+        });
+      }
+    } catch {
+      // invalid selector ignored
+    }
 
     // 2. If no exact segment attribute, check section attribute or element selector
     if (matchedElements.length === 0 && target.targetElementSelector) {
@@ -63,15 +70,20 @@ export class CosmosAttentionController {
       const baseSection = target.sectionId.replace(/-\d+$/, "");
       const sectionCandidates = this.getSectionCandidates(target.sectionId, baseSection);
       for (const candidate of sectionCandidates) {
-        const bySection = document.querySelectorAll(
-          `[data-cosmos-section="${candidate}"], [id$="-sec-${candidate}"]`,
-        );
-        bySection.forEach((el) => {
-          if (el instanceof HTMLElement && !matchedElements.includes(el)) {
-            matchedElements.push(el);
-          }
-        });
-        if (matchedElements.length > 0) break;
+        try {
+          const cleanCandidate = candidate.replace(/["'[\]]/g, "");
+          const bySection = document.querySelectorAll(
+            `[data-cosmos-section="${cleanCandidate}"], [id$="-sec-${cleanCandidate}"]`,
+          );
+          bySection.forEach((el) => {
+            if (el instanceof HTMLElement && !matchedElements.includes(el)) {
+              matchedElements.push(el);
+            }
+          });
+          if (matchedElements.length > 0) break;
+        } catch {
+          // ignore selector syntax error
+        }
       }
     }
 

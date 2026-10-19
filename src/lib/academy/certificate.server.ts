@@ -134,26 +134,51 @@ export async function issueOfficialCertificateServer(
 
   // If eligibility record was not cached or db was partitioned, verify directly against module completions & attempts
   if (!isEligible) {
-    // Check module completions count
-    const { count: completedModuleCount } = await supabaseAdmin
-      .from("academy_module_completions")
+    // Check verified module completions count (canonical table: academy_verified_completions, with fallback to academy_module_completions)
+    const { count: verifiedCompCount } = await supabaseAdmin
+      .from("academy_verified_completions")
       .select("*", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("is_verified_complete", true);
+      .eq("user_id", userId);
+
+    let completedModuleCount = verifiedCompCount ?? 0;
+    if (completedModuleCount < CERTIFICATE_CONSTANTS.TOTAL_MODULES_REQUIRED) {
+      const { count: legacyCount } = await supabaseAdmin
+        .from("academy_module_completions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("is_verified_complete", true);
+      completedModuleCount = Math.max(completedModuleCount, legacyCount ?? 0);
+    }
 
     const hasAllModules =
-      (completedModuleCount ?? 0) >= CERTIFICATE_CONSTANTS.TOTAL_MODULES_REQUIRED;
+      completedModuleCount >= CERTIFICATE_CONSTANTS.TOTAL_MODULES_REQUIRED;
 
-    // Check latest passed final exam attempt
-    const { data: latestExam } = await supabaseAdmin
+    // Check latest passed final exam attempt (canonical assessment_id: cosmic_explorer_final_exam, with fallback to module_id = exam)
+    let latestExam: any = null;
+    const { data: canonicalExam } = await supabaseAdmin
       .from("academy_assessment_attempts")
       .select("*")
       .eq("user_id", userId)
-      .eq("module_id", "exam")
+      .eq("assessment_id", "cosmic_explorer_final_exam")
       .eq("passed", true)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+
+    if (canonicalExam) {
+      latestExam = canonicalExam;
+    } else {
+      const { data: legacyExam } = await supabaseAdmin
+        .from("academy_assessment_attempts")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("module_id", "exam")
+        .eq("passed", true)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      latestExam = legacyExam;
+    }
 
     const examScore = latestExam?.percentage ?? 0;
     const examPassed =
