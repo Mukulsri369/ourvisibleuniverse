@@ -475,24 +475,23 @@ export function CosmicZoomVisualizer3D({ onInteract, onLayerChange }: CosmicZoom
 
   // Synchronize with VisualizationActionController & Cosmos3DAdapter (Prompt 03 Section 24)
   useEffect(() => {
-    const unregisterAction = VisualizationActionController.registerHandler("cosmic_scale", (action) => {
-      const scaleLvl =
-        typeof (action as any).scaleLevel === "number"
-          ? (action as any).scaleLevel
-          : typeof action.parameters?.scaleLevel === "number"
-            ? (action.parameters.scaleLevel as number)
-            : undefined;
-      if (
-        typeof scaleLvl === "number" &&
-        scaleLvl >= 0 &&
-        scaleLvl < COSMIC_ZOOM_LAYERS.length
-      ) {
-        setCurrentLayerIndex(scaleLvl);
-      }
-      if (action.targetObject === "earth" || action.cameraAction === "highlight") {
-        setLocateEarthActive(true);
-      }
-    });
+    const unregisterAction = VisualizationActionController.registerHandler(
+      "cosmic_scale",
+      (action) => {
+        const scaleLvl =
+          typeof (action as any).scaleLevel === "number"
+            ? (action as any).scaleLevel
+            : typeof action.parameters?.scaleLevel === "number"
+              ? (action.parameters.scaleLevel as number)
+              : undefined;
+        if (typeof scaleLvl === "number" && scaleLvl >= 0 && scaleLvl < COSMIC_ZOOM_LAYERS.length) {
+          setCurrentLayerIndex(scaleLvl);
+        }
+        if (action.targetObject === "earth" || action.cameraAction === "highlight") {
+          setLocateEarthActive(true);
+        }
+      },
+    );
 
     const unregisterScene = Cosmos3DAdapter.getInstance().registerScene({
       sceneId: "cosmic_scale",

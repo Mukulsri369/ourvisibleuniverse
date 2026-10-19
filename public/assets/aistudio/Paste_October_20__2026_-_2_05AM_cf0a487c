@@ -1,0 +1,3022 @@
+
+# OUR VISIBLE UNIVERSE ACADEMY
+# COSMOS CINEMATIC LEARNING SYSTEM
+# DEVELOPMENT PROMPT 15 OF 18
+
+TITLE:
+COSMOS INTELLIGENT LEARNING ORCHESTRATION
+COMPLETE 24-MODULE INTERACTIVE INTEGRATION
+REAL-TIME SCIENTIFIC EXPERIMENT GUIDANCE
+VOICE AND TEXT STUDENT INTERACTIONS
+SIMULATION-AWARE AI TUTORING
+SCIENTIFIC ACTIVITY VALIDATION
+PRACTICE AND OFFICIAL QUIZ INTEGRATION
+CINEMATIC NARRATION SYNCHRONIZATION
+VERIFIED LEARNING PROGRESSION
+CROSS-MODULE STUDENT JOURNEY
+SECURE ASSESSMENT AND CERTIFICATE INTEGRITY
+
+MODEL:
+GOOGLE AI STUDIO — ARGON 4
+
+REPOSITORY:
+https://github.com/Mukulsri369/ourvisibleuniverse
+
+WEBSITE:
+https://ourvisibleuniverse.in
+
+PRIORITY:
+CRITICAL — COMPLETE LEARNING SYSTEM INTEGRATION
+
+====================================================
+YOUR ROLE
+====================================================
+
+Act as a multidisciplinary engineering team:
+
+1. Principal AI learning systems architect.
+2. Senior React and TypeScript engineer.
+3. COSMOS orchestration specialist.
+4. Interactive educational simulation engineer.
+5. Scientific activity validation engineer.
+6. Multimodal voice AI engineer.
+7. Learning experience designer.
+8. Astronomy and physics educator.
+9. Fullstack application architect.
+10. Server-side assessment security engineer.
+11. Student progress systems engineer.
+12. Accessibility specialist.
+13. Cinematic interaction designer.
+14. Real-time application performance engineer.
+15. Automated end-to-end testing engineer.
+16. Senior security and quality assurance engineer.
+
+YOUR MISSION:
+
+Transform the fully animated Cosmic Learning
+Academy into a truly intelligent,
+interactive and scientifically rigorous
+AI-guided education platform.
+
+COSMOS must behave like a real teacher,
+not merely a narrator.
+
+It must explain concepts, demonstrate
+real scientific simulations, guide
+student interactions, observe meaningful
+experiment outcomes, answer questions,
+ask practice questions, validate progress
+and resume learning naturally.
+
+The system must operate consistently
+across all 24 Cosmic Learning Academy modules.
+
+THIS IS AN IMPLEMENTATION PROMPT.
+
+Build, integrate, test and repair
+actual working functionality.
+
+Do not deliver documentation only.
+
+====================================================
+1. PRIMARY OBJECTIVE
+====================================================
+
+Integrate all cinematic learning modules
+developed during Prompts 08–14.
+
+The Academy contains:
+
+24 learning modules.
+
+6 learning stages.
+
+172 instructional chapters
+according to the current storyboard inventory.
+
+960 canonical Space Explorer narration
+segments according to the current
+stage-by-stage storyboard totals.
+
+24 primary module activities.
+
+Module knowledge assessments.
+
+A final course examination.
+
+Verified stage achievements.
+
+A verifiable completion certificate.
+
+These counts must be reconciled
+against the live curriculum.
+
+Your task is not to create
+another animation library.
+
+Your task is to make all existing
+animations, simulations, activities,
+narration, quizzes and progression
+work together as one learning experience.
+
+====================================================
+2. CORE STUDENT EXPERIENCE
+====================================================
+
+Implement the following complete
+learning interaction cycle.
+
+STEP 1:
+The student opens a lesson.
+
+STEP 2:
+COSMOS reads the lesson objective.
+
+STEP 3:
+The correct cinematic scientific
+scene becomes active.
+
+STEP 4:
+COSMOS begins explaining the concept.
+
+STEP 5:
+The animation visually demonstrates
+the exact concept being narrated.
+
+STEP 6:
+Relevant objects, parameters
+and annotations are highlighted.
+
+STEP 7:
+COSMOS asks the student
+to inspect or manipulate a simulation.
+
+STEP 8:
+The cinematic narration pauses
+at the appropriate activity gate.
+
+STEP 9:
+The relevant simulation control
+is revealed and highlighted.
+
+STEP 10:
+COSMOS explains the required action.
+
+STEP 11:
+The student changes an actual
+scientific simulation parameter.
+
+STEP 12:
+The physics engine updates
+the scientific result.
+
+STEP 13:
+The interaction adapter receives
+the updated validated simulation state.
+
+STEP 14:
+COSMOS observes the meaningful result.
+
+STEP 15:
+COSMOS provides feedback.
+
+STEP 16:
+The student completes the required
+experiment or receives another attempt.
+
+STEP 17:
+The existing validation system
+checks the required learning evidence.
+
+STEP 18:
+COSMOS continues the lesson
+only when progression is allowed.
+
+STEP 19:
+The student may complete
+practice questions.
+
+STEP 20:
+The student may enter the official
+assessment according to current rules.
+
+STEP 21:
+Official assessment results
+are evaluated by the server.
+
+STEP 22:
+Module completion status is
+retrieved from the authoritative server.
+
+STEP 23:
+COSMOS guides the student
+toward the next module.
+
+NEVER simulate completion.
+
+NEVER silently skip required input.
+
+NEVER mark a module verified
+because its animations finished.
+
+====================================================
+3. INSPECT THE CURRENT ARCHITECTURE
+====================================================
+
+Before implementing anything,
+read the actual repository.
+
+Critical COSMOS files:
+
+src/lib/cosmos/CosmosLearningDirector.ts
+
+src/lib/cosmos/CosmosActivityGuide.ts
+
+src/lib/cosmos/CosmosActivityAdapter.ts
+
+src/lib/cosmos/CosmosQuizGuide.ts
+
+src/lib/cosmos/CosmosInputCoordinator.ts
+
+src/lib/cosmos/CosmosLessonNavigator.ts
+
+src/lib/cosmos/VoiceConversationController.ts
+
+src/lib/cosmos/NarrationController.ts
+
+src/lib/cosmos/LessonContentProvider.ts
+
+src/lib/cosmos/Cosmos3DAdapter.ts
+
+src/lib/cosmos/VisualizationActionController.ts
+
+src/lib/cosmos/learning-director-types.ts
+
+Cinematic integration:
+
+src/lib/cosmos/cinematic/
+CosmosCinematicSessionBridge.ts
+
+src/lib/cosmos/cinematic/
+CosmosAnimationCueController.ts
+
+src/lib/cosmos/cinematic/
+CosmosCinematicSceneRegistry.ts
+
+src/components/academy/
+CosmosGuidedController.tsx
+
+src/components/academy/
+UnifiedAssessmentEngine.tsx
+
+Learning verification:
+
+src/lib/academy/completion-rules.ts
+
+src/lib/academy/completion.functions.ts
+
+src/lib/academy/completion.server.ts
+
+src/lib/academy/learning.functions.ts
+
+src/lib/academy/assessment.functions.ts
+
+src/lib/academy/progress.ts
+
+Also inspect:
+
+Activity validator implementation.
+
+Actual database schemas.
+
+Supabase RLS policies.
+
+Final exam code.
+
+Stage badge logic.
+
+Certificate issuance and verification.
+
+Actual 24-module registry.
+
+Existing cinematic scenes.
+
+Existing storyboards.
+
+Inspect real code before choosing
+implementation changes.
+
+====================================================
+4. PRESERVE THE SINGLE LEARNING DIRECTOR
+====================================================
+
+CosmosLearningDirector must remain
+the central authority for the
+active teaching journey.
+
+Do not create another
+AI teaching state machine.
+
+NarrationController remains authoritative
+for narration playback.
+
+CosmosCinematicSessionBridge remains
+the connection between the teaching state
+and the cinematic presentation.
+
+CosmosActivityGuide remains responsible
+for activity teaching coordination.
+
+CosmosQuizGuide remains responsible
+for guided quiz interactions.
+
+Assessment grading must remain
+authoritative on the server.
+
+Implement one coherent orchestration flow.
+
+Prevent:
+
+Duplicate narration.
+
+Conflicting activity state.
+
+Multiple simultaneous questions.
+
+Competing camera commands.
+
+Duplicate completion events.
+
+Repeated assessment submissions.
+
+Stale scene events.
+
+Conflicting learning progress updates.
+
+====================================================
+5. DEFINE A UNIFIED LEARNING CONTRACT
+====================================================
+
+Create or extend typed contracts
+connecting all learning systems.
+
+A learning step should reference:
+
+courseId
+
+moduleId
+
+chapterId
+
+lessonId
+
+stepId
+
+narrationSegmentIds
+
+sceneId
+
+animationCueIds
+
+scientificObjectIds
+
+learningObjective
+
+requiredStudentAction
+
+activityId
+
+activityStepId
+
+quizQuestionId
+
+assessmentMode
+
+inputRequirements
+
+completionCondition
+
+timePolicy
+
+resumePolicy
+
+accessibilityMode
+
+scientificRepresentation
+
+Only include fields relevant
+to the actual step.
+
+Do not store independent duplicated
+copies of the same authoritative data.
+
+Every ID must resolve to an existing
+approved registry entry.
+
+Reject unknown IDs safely.
+
+====================================================
+6. DEFINE THE INTERACTION EVENT CONTRACT
+====================================================
+
+Implement a typed event bridge between
+scientific simulations and COSMOS.
+
+Examples of valid events:
+
+SIMULATION_READY
+
+PARAMETER_CHANGED
+
+EXPERIMENT_STARTED
+
+EXPERIMENT_STATE_UPDATED
+
+MEASUREMENT_OBSERVED
+
+OBJECT_SELECTED
+
+SCIENTIFIC_RESULT_COMPUTED
+
+ACTIVITY_STEP_VALIDATED
+
+ACTIVITY_VALIDATION_FAILED
+
+ACTIVITY_EVIDENCE_SUBMITTED
+
+ACTIVITY_SERVER_VERIFIED
+
+QUIZ_ANSWER_SELECTED
+
+QUIZ_ANSWER_CONFIRMED
+
+ASSESSMENT_SUBMITTED
+
+ASSESSMENT_GRADED
+
+MODULE_COMPLETION_CONFIRMED
+
+Use explicit event identities.
+
+Each relevant event should carry:
+
+sessionId
+
+moduleId
+
+activityId
+
+experimentId
+
+eventId
+
+eventType
+
+scientificParameters
+
+simulationResult
+
+source
+
+sequenceNumber
+
+timestamp
+
+validationVersion
+
+Other metadata when necessary.
+
+Use actual project naming conventions.
+
+Do not use arbitrary DOM event
+names as the primary scientific contract.
+
+====================================================
+7. CRITICAL ACTIVITY OBSERVER AUDIT
+====================================================
+
+The current CosmosActivityGuide
+contains a universal DOM change observer
+for module activity containers.
+
+It reports broad control interactions
+such as interact_parameter.
+
+The existing adapter also stores
+interacted flags and action names.
+
+These can be useful exploratory signals.
+
+However:
+
+A generic slider change is not
+proof that a scientific task was completed.
+
+A control receiving focus is not
+proof of a valid experiment.
+
+A generic onInteract callback is not
+proof of the required learning outcome.
+
+A scene being opened is not
+proof of scientific understanding.
+
+Audit every route that promotes:
+
+DOM interaction
+
+to activity-step completion
+
+to verified server evidence.
+
+Separate these concepts:
+
+EXPLORATION_EVENT.
+
+MEANINGFUL_SIMULATION_ACTION.
+
+SCIENTIFIC_RESULT.
+
+VALIDATED_ACTIVITY_STEP.
+
+SERVER_ACCEPTED_ACTIVITY_EVIDENCE.
+
+AUTHORITATIVE_MODULE_COMPLETION.
+
+Do not treat these states
+as interchangeable.
+
+====================================================
+8. REPLACE HEURISTIC COMPLETION
+WITH SCIENTIFIC EVIDENCE
+====================================================
+
+Where an activity requires
+a scientifically meaningful result,
+define a measurable validator.
+
+Example:
+
+Module 08 orbital mechanics.
+
+Student changes eccentricity.
+
+The ellipse visibly changes.
+
+This is an interaction.
+
+The system calculates the orbit.
+
+This is a scientific result.
+
+The student demonstrates the required
+correct Keplerian relationship.
+
+This may satisfy a learning criterion.
+
+The server checks the submitted
+evidence under the approved rules.
+
+Only then may relevant verified
+progress be awarded.
+
+Implement typed validators
+specific to each real activity.
+
+Do not let generic interaction counts
+substitute for result validation.
+
+====================================================
+9. ACTIVITY VALIDATION ARCHITECTURE
+====================================================
+
+Create or extend a reusable
+scientific activity validation pipeline.
+
+Suggested logical components:
+
+CosmosExperimentEventBridge
+
+CosmosActivityEvidenceCollector
+
+CosmosScientificOutcomeValidator
+
+CosmosActivityFeedbackCoordinator
+
+CosmosLearningGateController
+
+CosmosActivityRecoveryManager
+
+Use current project conventions.
+
+Do not introduce redundant services.
+
+The pipeline must distinguish:
+
+Observed UI behavior.
+
+Simulation engine output.
+
+Locally checked educational result.
+
+Submitted evidence.
+
+Server-accepted evidence.
+
+Server-verified completion.
+
+Every step should have
+an explicit state transition.
+
+====================================================
+10. VALIDATED EXPERIMENT RESULT CONTRACT
+====================================================
+
+Create typed scientific-result metadata.
+
+Potential fields:
+
+activityId
+
+experimentId
+
+modelId
+
+modelVersion
+
+inputParameters
+
+units
+
+calculatedResults
+
+resultUncertainty
+
+expectedScientificRelationship
+
+studentResponse
+
+validationCriteria
+
+validationStatus
+
+attemptId
+
+evidenceId
+
+verifiedAt
+
+Authoritative verification metadata
+must come from the server.
+
+Do not trust a client-supplied
+verifiedAt timestamp as proof.
+
+The browser may display pending results.
+
+It must not invent verified results.
+
+====================================================
+11. MODULES 01–04 INTEGRATION
+====================================================
+
+MODULE 01:
+Cosmic Zoom activity.
+
+Verify the student actually explores
+the required distance-scale relationships.
+
+MODULE 02:
+Planetarium navigation.
+
+Verify appropriate constellation,
+sky-position or observer interactions.
+
+MODULE 03:
+Distance and parallax laboratory.
+
+Validate relevant scientific calculations.
+
+MODULE 04:
+Cosmic lookback laboratory.
+
+Validate light travel or
+approved lookback-time relationships.
+
+COSMOS should guide the student
+using the correct scientific scene.
+
+Each activity must maintain:
+
+Narration synchronization.
+
+Real simulation state.
+
+Meaningful action detection.
+
+Scientific feedback.
+
+Proper completion criteria.
+
+====================================================
+12. MODULES 05–08 INTEGRATION
+====================================================
+
+MODULE 05:
+Earth-Moon and eclipse simulator.
+
+Verify meaningful interaction
+with orbital geometry or axial tilt.
+
+MODULE 06:
+Solar System tour.
+
+Verify actual planetary
+comparison or exploration criteria.
+
+MODULE 07:
+Solar physics laboratory.
+
+Validate required scientific parameter
+or magnetic-activity observations.
+
+MODULE 08:
+Orbital mechanics laboratory.
+
+Validate mathematical orbital
+relationships and required experiments.
+
+Example:
+
+COSMOS describes eccentricity.
+
+The simulation highlights the ellipse.
+
+The student changes eccentricity.
+
+The orbit geometry updates.
+
+COSMOS observes the calculated result.
+
+The student answers a relevant question.
+
+Valid evidence is submitted.
+
+Only accepted completion
+allows automatic progression.
+
+====================================================
+13. MODULES 09–12 INTEGRATION
+====================================================
+
+MODULE 09:
+Hertzsprung–Russell diagram.
+
+Validate classification or
+temperature/luminosity relationships.
+
+MODULE 10:
+Stellar evolution laboratory.
+
+Validate actual stellar model
+and fate prediction results.
+
+MODULE 11:
+Star-forming cloud laboratory.
+
+Validate the selected Jeans-model
+criteria and assumptions.
+
+MODULE 12:
+Exoplanet transit laboratory.
+
+Validate transit calculations
+and scientific interpretation.
+
+COSMOS must not invent the
+numerical result of a simulation.
+
+It must read the actual
+calculated state.
+
+====================================================
+14. MODULES 13–16 INTEGRATION
+====================================================
+
+MODULE 13:
+Galaxy morphology laboratory.
+
+Validate scientific classification.
+
+MODULE 14:
+Black hole visualization.
+
+Validate actual mass-radius
+or approved scientific calculations.
+
+MODULE 15:
+Cosmic Web Explorer.
+
+Validate real supported
+filament, cluster or void inspection.
+
+MODULE 16:
+Dark matter rotation laboratory.
+
+Validate a model comparison or
+approved rotation-curve fit.
+
+Do not equate a colorful
+dark matter halo visualization
+with evidence analysis.
+
+COSMOS should explain the relationship
+between observed data and model results.
+
+====================================================
+15. MODULES 17–20 INTEGRATION
+====================================================
+
+MODULE 17:
+CMB Explorer.
+
+Validate relevant acoustic-peak
+or CMB observational interpretation.
+
+MODULE 18:
+Redshift and expansion laboratory.
+
+Validate wavelength/redshift
+or model-based distance calculations.
+
+MODULE 19:
+Historical cosmological model comparator.
+
+Validate scientifically and
+historically accurate comparison.
+
+MODULE 20:
+Cosmic future timeline laboratory.
+
+Validate understanding of
+model-dependent future scenarios.
+
+COSMOS must distinguish:
+
+Observation.
+
+Model.
+
+Prediction.
+
+Historical reconstruction.
+
+Speculative future.
+
+Do not mark a student correct
+for accepting a scientifically
+unsupported statement.
+
+====================================================
+16. MODULES 21–24 INTEGRATION
+====================================================
+
+MODULE 21:
+Telescope optics laboratory.
+
+Validate aperture and
+diffraction-related calculations.
+
+MODULE 22:
+Gravity-assist trajectory simulator.
+
+Validate meaningful encounter geometry
+and modeled energy behavior.
+
+MODULE 23:
+Habitable world and biosignature lab.
+
+Validate scientific evidence interpretation,
+including false-positive consideration.
+
+MODULE 24:
+Unified scientific capstone laboratory.
+
+Validate actual multidisciplinary
+scientific activities.
+
+The capstone should reuse
+approved existing simulations.
+
+Do not create fake copies
+of prior experiments.
+
+====================================================
+17. ALL 24 ACTIVITY IDS
+====================================================
+
+Use the actual rules in:
+
+src/lib/academy/completion-rules.ts
+
+The current primary IDs include:
+
+01 act_01_cosmic_zoom
+02 act_02_planetarium_nav
+03 act_03_distance_ladder_lab
+04 act_04_lookback_time_machine
+
+05 act_05_seasons_eclipse_sim
+06 act_06_solar_system_tour
+07 act_07_sun_simulator
+08 act_08_orbital_mechanics_lab
+
+09 act_09_hr_diagram_lab
+10 act_10_stellar_evolution_timeline
+11 act_11_star_nursery_collapse
+12 act_12_transit_detection_lab
+
+13 act_13_galaxy_morphology_lab
+14 act_14_black_hole_visualizer
+15 act_15_cosmic_web_explorer
+16 act_16_dark_matter_rotation_lab
+
+17 act_17_cmb_explorer
+18 act_18_redshift_expansion_lab
+19 act_19_model_comparator
+20 act_20_future_timeline_lab
+
+21 act_21_telescope_optics_lab
+22 act_22_gravity_assist_trajectory
+23 act_23_habitable_world_lab
+24 act_24_cosmic_lab_capstone
+
+Verify all IDs against the current code.
+
+For every activity, create an
+integration and validation matrix.
+
+Document:
+
+Existing component.
+
+Actual controls.
+
+Required scientific action.
+
+Calculated result.
+
+Completion criterion.
+
+Accessible alternative.
+
+COSMOS guidance behavior.
+
+Server validation path.
+
+Runtime test status.
+
+====================================================
+18. INTELLIGENT ACTIVITY GUIDANCE
+====================================================
+
+COSMOS should guide activities
+through a repeatable teaching process.
+
+FIRST:
+Introduce the scientific objective.
+
+SECOND:
+Show the relevant scene.
+
+THIRD:
+Explain what the controls do.
+
+FOURTH:
+Highlight the correct control.
+
+FIFTH:
+Demonstrate an approved example
+without issuing completion credit.
+
+SIXTH:
+Ask the student to perform the task.
+
+SEVENTH:
+Wait for real student input.
+
+EIGHTH:
+Observe the resulting scientific state.
+
+NINTH:
+Provide helpful scientific feedback.
+
+TENTH:
+Validate the activity outcome.
+
+ELEVENTH:
+Proceed or offer another attempt.
+
+Do not rapidly narrate over
+uncompleted activities.
+
+Do not automatically advance
+when a timer expires.
+
+====================================================
+19. CONTEXT-AWARE REAL-TIME FEEDBACK
+====================================================
+
+COSMOS must be able to read
+approved actual simulation values.
+
+Example:
+
+The student is exploring
+the telescope aperture laboratory.
+
+Current aperture:
+0.2 meters.
+
+Current observation wavelength:
+550 nanometers.
+
+COSMOS should calculate or receive
+the correct diffraction-limited
+angular resolution.
+
+COSMOS may explain:
+
+"The angular resolution improves
+as the aperture becomes larger,
+assuming the idealized
+diffraction-limited model."
+
+Do not let the AI model fabricate
+physical measurements.
+
+Pass validated scientific results
+through a controlled context interface.
+
+Distinguish a numerical calculation
+from an AI-generated explanation.
+
+====================================================
+20. STUDENT ERROR HANDLING
+====================================================
+
+When a student performs
+an incorrect scientific action:
+
+Do not immediately skip ahead.
+
+Provide constructive feedback.
+
+Explain the underlying concept
+at the appropriate learning level.
+
+Highlight the relevant parameter.
+
+Offer another attempt.
+
+Avoid repeatedly repeating
+the identical instruction.
+
+Maintain the current simulation state
+when it is useful for learning.
+
+Allow reset when necessary.
+
+Do not change student input
+without clear authorization.
+
+Do not silently submit answers.
+
+====================================================
+21. DIFFERENTIATE PRACTICE
+FROM OFFICIAL ASSESSMENT
+====================================================
+
+The application contains
+practice and official assessment modes.
+
+These must remain distinct.
+
+PRACTICE MODE:
+
+COSMOS may provide conceptual hints.
+
+COSMOS may explain mistakes.
+
+COSMOS may demonstrate scientific principles.
+
+COSMOS may suggest further exploration.
+
+Practice completion does not
+automatically award official credit.
+
+OFFICIAL ASSESSMENT MODE:
+
+COSMOS may read questions.
+
+COSMOS may read options.
+
+COSMOS may clarify navigation controls.
+
+COSMOS may record student-selected answers.
+
+COSMOS may confirm intended selections.
+
+COSMOS must not reveal correct answers.
+
+COSMOS must not provide tailored hints
+that effectively solve active questions.
+
+COSMOS must not activate answer-revealing
+visual aids during restricted questions.
+
+The server grades official attempts.
+
+====================================================
+22. CRITICAL ASSESSMENT FALLBACK AUDIT
+====================================================
+
+Inspect:
+
+UnifiedAssessmentEngine.tsx
+
+It currently has a fallbackQuestions
+code path.
+
+Determine whether these questions
+can enter official assessment mode.
+
+Ensure:
+
+Official questions come from
+an authorized assessment attempt.
+
+Any server-generated attempt metadata
+is preserved.
+
+Answer keys are not exposed
+to ordinary student clients.
+
+Fallback questions may be used for
+practice only if appropriately identified.
+
+An unavailable official question service
+must not silently become a
+locally generated official examination.
+
+Do not treat locally evaluated
+fallback results as certified grades.
+
+If official services are unavailable:
+
+Show a recoverable error.
+
+Allow legitimate practice
+where supported.
+
+Preserve unsent local input.
+
+Do not award official completion.
+
+====================================================
+23. ASSESSMENT PASSING THRESHOLDS
+====================================================
+
+Do not introduce a single
+hardcoded passing threshold.
+
+The current module completion rules
+specify a passing threshold of 70%.
+
+The final certification exam
+requires at least 80% according
+to the existing certificate pathway.
+
+Audit:
+
+completion-rules.ts
+
+assessment.functions.ts
+
+assessment.server.ts
+
+completion.server.ts
+
+Final exam implementation.
+
+Certificate eligibility logic.
+
+Confirm each authoritative requirement.
+
+Use per-assessment rule metadata.
+
+Do not change an existing pass threshold
+merely to match a previous prompt.
+
+Resolve discrepancies between:
+
+Documentation.
+
+UI labels.
+
+Server grading.
+
+Completion verification.
+
+Final exam eligibility.
+
+The backend must remain authoritative.
+
+====================================================
+24. CRITICAL VERIFIED PROGRESS FIX
+====================================================
+
+Audit:
+
+CosmosLearningDirector.ts
+
+Specifically:
+
+evaluateModuleJourneyCompletion()
+
+The current fallback path can infer
+isVerifiedComplete from local
+activity/quiz step statuses
+when the server completion check fails.
+
+That path must be corrected.
+
+A network error must not
+turn local progress into
+authoritative completion.
+
+Required states:
+
+NOT_STARTED
+
+IN_PROGRESS
+
+PENDING_VERIFICATION
+
+VERIFIED_COMPLETE
+
+VERIFICATION_FAILED
+
+SERVER_UNAVAILABLE
+
+Use naming appropriate
+to the existing codebase.
+
+When server verification fails:
+
+Preserve local learning progress.
+
+Show the last known server
+verification status when available.
+
+Display a pending or unavailable state.
+
+Allow the student to retry.
+
+Do not say "authoritatively verified."
+
+Do not award a badge.
+
+Do not increase verified module counts
+based only on local flags.
+
+Do not unlock the official final exam.
+
+Do not claim certificate eligibility.
+
+====================================================
+25. VERIFIED BADGE AND EXAM ELIGIBILITY
+====================================================
+
+The current Learning Director
+also reads locally cached verifiedModules
+for stage and final-exam status.
+
+Audit this behavior.
+
+Locally cached information may support
+non-authoritative display.
+
+However:
+
+Verified badges.
+
+Exam eligibility.
+
+Certificate eligibility.
+
+Official completion.
+
+Must be derived from
+authoritative server records.
+
+A modified localStorage value
+must never unlock a secure capability.
+
+Do not count an offline
+pending completion as verified.
+
+Use the existing authorized
+server queries.
+
+Avoid duplicated verification logic.
+
+====================================================
+26. ACTIVITY EVIDENCE SECURITY AUDIT
+====================================================
+
+Inspect:
+
+CosmosActivityAdapter.ts
+
+CosmosActivityGuide.ts
+
+completion.server.ts
+
+activity-validator.server.ts
+
+learning.server.ts
+
+Focus on the distinction between:
+
+Activity interaction.
+
+Activity result.
+
+Submitted evidence.
+
+Accepted evidence.
+
+Verified completion.
+
+The current code contains generic
+parameter interactions and server-side
+activity evidence matching.
+
+Audit whether activity evidence
+is scientifically validated
+before it satisfies completion.
+
+A record existing in the database
+must not automatically mean
+the intended experiment passed.
+
+Verify:
+
+Correct activity ownership.
+
+Correct activity ID.
+
+Valid parameter types.
+
+Scientific outcome validity.
+
+Required task criteria.
+
+Authorized user identity.
+
+Applicable lesson version.
+
+Server-side validation.
+
+Idempotent submission.
+
+Replay resistance where relevant.
+
+Do not trust client-supplied
+"isCorrect" or "verified" flags.
+
+====================================================
+27. INSTRUCTIONAL PROGRESS AUDIT
+====================================================
+
+Review the instructional
+completion criteria.
+
+The current server completion engine
+includes lesson progress checks.
+
+Determine whether an arbitrary
+lesson progress row can satisfy
+all intended instructional requirements.
+
+If this weakens the course design:
+
+Replace the fragile proxy
+with meaningful approved
+chapter or lesson coverage.
+
+Examples:
+
+Recorded access to required sections.
+
+Legitimate lesson checkpoint completion.
+
+Correctly verified conceptual milestones.
+
+Relevant approved accessible alternatives.
+
+Preserve the intended minimum
+engagement rules.
+
+Do not make time spent or scroll depth
+the sole proof of learning.
+
+Do not silently invalidate
+legitimate past student progress.
+
+Plan safe migration where necessary.
+
+====================================================
+28. OFFLINE LEARNING AND SYNC
+====================================================
+
+The application already supports
+local progress and an offline queue.
+
+Preserve offline functionality.
+
+Allow:
+
+Viewing cached lesson content.
+
+Exploring locally available simulations.
+
+Saving a narration checkpoint.
+
+Recording pending activity evidence.
+
+Resuming after reconnecting.
+
+Clearly distinguish:
+
+Local progress.
+
+Pending verification.
+
+Officially verified progress.
+
+On reconnection:
+
+Validate queued evidence.
+
+Deduplicate submissions.
+
+Reject stale invalid attempts.
+
+Restore server-authoritative state.
+
+Reconcile conflicting records safely.
+
+Do not grant official grades offline.
+
+Never silently erase completed
+verified student records.
+
+====================================================
+29. VOICE AND TEXT INPUT
+====================================================
+
+Support:
+
+Voice questions.
+
+Typed questions.
+
+Voice commands.
+
+Typed commands.
+
+Click selection.
+
+Touch selection.
+
+Keyboard navigation.
+
+Accessible form controls.
+
+Student phrases may include:
+
+"Pause."
+
+"Continue."
+
+"Repeat that."
+
+"Explain it again."
+
+"Show me the orbit."
+
+"Increase the mass."
+
+"Change the viewing angle."
+
+"My answer is B."
+
+"Confirm my answer."
+
+"I don't understand."
+
+"Give me another example."
+
+"Return to the lesson."
+
+Route each request to
+the correct existing controller.
+
+Use approved intent parsing.
+
+Do not execute arbitrary code
+generated from spoken instructions.
+
+====================================================
+30. SCIENTIFIC SIMULATION COMMANDS
+====================================================
+
+Student speech must translate into
+validated scientific actions.
+
+Example:
+
+Student says:
+"Increase the eccentricity."
+
+COSMOS should:
+
+Identify the active module.
+
+Identify the active simulation.
+
+Find its supported parameter schema.
+
+Check allowed parameter range.
+
+Resolve an unambiguous adjustment.
+
+Request clarification only when
+the value or action is genuinely unclear.
+
+Update the actual simulation.
+
+Read the resulting scientific state.
+
+Explain what changed.
+
+Do not change arbitrary DOM inputs
+or execute dynamic JavaScript
+derived from natural-language text.
+
+Use the existing allowlisted
+Cosmos3DAdapter capabilities.
+
+====================================================
+31. AMBIGUOUS STUDENT RESPONSES
+====================================================
+
+Handle input ambiguity safely.
+
+Examples:
+
+"Make it bigger."
+
+Possible meanings:
+
+Planet radius.
+
+Camera zoom.
+
+Orbital radius.
+
+Stellar radius.
+
+The system must use current context.
+
+If ambiguity remains significant,
+ask one natural clarification.
+
+Examples:
+
+"Do you want to increase
+the planet's radius
+or move the camera closer?"
+
+Do not guess a physical parameter
+when an incorrect adjustment
+would invalidate an activity.
+
+The same principle applies
+to ambiguous quiz answers.
+
+====================================================
+32. REAL-TIME VOICE INTERRUPTION
+====================================================
+
+Preserve the existing
+VoiceConversationController.
+
+The voice experience must support:
+
+Barge-in where available.
+
+Narration interruption.
+
+Audio buffer cancellation.
+
+Microphone permission handling.
+
+Question recognition.
+
+Contextual question answering.
+
+Follow-up discussion.
+
+Return to guided learning.
+
+Voice connection recovery.
+
+State restoration.
+
+No duplicated audio.
+
+No repeated narration fragments
+unless requested.
+
+For unsupported microphone access:
+
+Provide a reliable typed fallback.
+
+Do not block official learning
+because a device lacks a microphone.
+
+====================================================
+33. PRESERVE SCIENTIFIC VISUAL CONTEXT
+====================================================
+
+When COSMOS is interrupted,
+capture the relevant scene state.
+
+Potential snapshot fields:
+
+moduleId
+
+chapterId
+
+narrationSegmentId
+
+narrationProgress
+
+activeAnimationCue
+
+cameraState
+
+simulationParameters
+
+simulationTime
+
+activeScientificObjects
+
+selectedObjectId
+
+activeGraphState
+
+activityState
+
+quizState
+
+interactionMode
+
+When the explanation finishes:
+
+Restore the appropriate state.
+
+Resume the intended narration point.
+
+Preserve legitimate student changes.
+
+Do not overwrite a valid experiment
+with a stale snapshot.
+
+Use explicit restore policies.
+
+====================================================
+34. CINEMATIC AND ACTIVITY GATE SYNCHRONIZATION
+====================================================
+
+The animation engine already
+supports time policies.
+
+Ensure:
+
+Narration time.
+
+Cinematic cue time.
+
+Scientific simulation time.
+
+Interactive experiment time.
+
+Remain correctly coordinated.
+
+Example:
+
+COSMOS explains a gravity-assist trajectory.
+
+The animated spacecraft approaches a planet.
+
+COSMOS pauses at the activity gate.
+
+The student adjusts flyby geometry.
+
+The simulation continues according
+to its scientific time policy.
+
+The narration remains paused.
+
+COSMOS receives the actual result.
+
+The student finishes the experiment.
+
+Narration resumes from the
+correct instructional segment.
+
+Do not freeze an experiment
+that a student needs to manipulate.
+
+Do not allow an unrelated
+background simulation to mark
+an activity complete.
+
+====================================================
+35. FULLSCREEN LEARNING INTEGRATION
+====================================================
+
+The existing cinematic player
+must support the full teaching cycle.
+
+Students should be able to:
+
+Enter fullscreen.
+
+Watch an explanation.
+
+Open scientific controls.
+
+Manipulate the simulation.
+
+Speak or type a question.
+
+Read captions.
+
+Pause and replay.
+
+Complete an activity.
+
+Navigate to a practice question.
+
+Answer using voice or click.
+
+Return to a previous chapter.
+
+Leave fullscreen.
+
+Continue in normal lesson view.
+
+Re-enter fullscreen.
+
+Preserve exact valid learning state.
+
+Do not restart the lesson
+on ordinary presentation-mode changes.
+
+Do not mount duplicate narration instances.
+
+Do not create duplicate physics canvases.
+
+====================================================
+36. CONTEXT-AWARE SCREEN HIGHLIGHTING
+====================================================
+
+COSMOS must guide student attention.
+
+When explaining a control:
+
+Scroll or move to the relevant region.
+
+Highlight the correct element.
+
+Provide the control's name.
+
+Explain the scientific effect.
+
+Wait for relevant action.
+
+When a graph changes:
+
+Highlight the relevant curve or axis.
+
+When an object changes:
+
+Focus the camera appropriately.
+
+When an answer is requested:
+
+Show the active question.
+
+Do not highlight unrelated controls.
+
+Do not fight student scrolling.
+
+Respect reduced motion and
+manual navigation preferences.
+
+====================================================
+37. THREE LEARNING LEVELS
+====================================================
+
+Support:
+
+JUNIOR EXPLORER.
+
+SPACE EXPLORER.
+
+YOUNG ASTRONOMER.
+
+JUNIOR:
+
+Simple explanations.
+
+Short instructions.
+
+Visual demonstrations.
+
+Frequent comprehension checks.
+
+Few simultaneous parameters.
+
+SPACE EXPLORER:
+
+Scientific terminology.
+
+Interactive experiments.
+
+Basic quantitative reasoning.
+
+More detailed feedback.
+
+YOUNG ASTRONOMER:
+
+Advanced physical parameters.
+
+Equations.
+
+Scientific data analysis.
+
+Model assumptions.
+
+Error and uncertainty interpretation.
+
+Learning level changes must not
+invalidate verified historical records.
+
+Do not change physical laws
+or fabricated measurement values
+based on learning level.
+
+====================================================
+38. GUIDED LEARNING VS FREE EXPLORATION
+====================================================
+
+Support clearly distinct modes.
+
+GUIDED LEARNING:
+
+COSMOS controls the lesson sequence.
+
+FREE EXPLORATION:
+
+The student may manipulate
+supported simulations independently.
+
+INTERACTIVE ACTIVITY:
+
+The system waits for required
+scientific learning actions.
+
+PRACTICE:
+
+Hints and conceptual assistance allowed.
+
+OFFICIAL ASSESSMENT:
+
+Academic integrity enforced.
+
+The UI should clearly indicate
+which mode is active.
+
+Do not let a free-exploration action
+automatically satisfy an official
+activity requirement unless it
+meets the approved verification rules.
+
+====================================================
+39. CONTEXT-AWARE TEACHING MEMORY
+====================================================
+
+COSMOS should remember appropriate
+context within the active learning session.
+
+Examples:
+
+The current lesson.
+
+The active scientific experiment.
+
+Parameters the student changed.
+
+Questions the student asked.
+
+Current misconceptions discussed.
+
+Relevant practice attempts.
+
+Previous completed learning stages.
+
+Use this context to avoid
+repeating explanations unnecessarily.
+
+Do not store unrestricted audio
+or sensitive conversation transcripts
+by default.
+
+Use data minimization.
+
+Respect existing account
+and student privacy settings.
+
+====================================================
+40. PERSONALIZED REMEDIATION
+====================================================
+
+When a student struggles:
+
+Identify the relevant topic.
+
+Offer a simpler scientific explanation.
+
+Use an approved alternate visualization.
+
+Present a worked practice example
+where permitted.
+
+Let the student retry.
+
+Provide meaningful feedback.
+
+Do not alter official assessment scores.
+
+Do not secretly answer
+official exam questions.
+
+Do not force repeated questions
+after a student demonstrates
+the required understanding.
+
+====================================================
+41. CROSS-MODULE SCIENTIFIC CONNECTIONS
+====================================================
+
+COSMOS should connect previously
+learned concepts.
+
+Examples:
+
+Module 08:
+Orbital mechanics.
+
+Module 22:
+Gravity-assist trajectories.
+
+Explain how the same laws
+relate to spacecraft flight.
+
+Module 04:
+Light and spectra.
+
+Module 21:
+Telescope spectroscopy.
+
+Connect observation with instrumentation.
+
+Module 09:
+Stellar temperature.
+
+Module 23:
+Exoplanet habitability.
+
+Connect host-star properties
+with planetary environments.
+
+Module 12:
+Exoplanet transits.
+
+Module 24:
+Scientific data analysis.
+
+Connect the transit model
+to an experiment.
+
+Use existing relevant lesson content.
+
+Do not introduce unrelated concepts
+that derail the current lesson.
+
+====================================================
+42. COMPLETE MODULE JOURNEY
+====================================================
+
+Implement reliable progression from:
+
+Module 01
+
+through
+
+Module 24
+
+and then to the final examination.
+
+At each module boundary:
+
+Load authoritative completion status.
+
+Explain remaining requirements.
+
+Offer legitimate next actions.
+
+Navigate without losing learning state.
+
+Keep previous modules accessible
+according to existing course rules.
+
+At each stage boundary:
+
+Verify stage module completions.
+
+Retrieve server-authorized badge status.
+
+Show earned achievements correctly.
+
+Never invent badges based
+on local progress inference.
+
+At Module 24 completion:
+
+Explain final exam eligibility.
+
+Do not issue a certificate automatically.
+
+====================================================
+43. STUDENT PROGRESS DASHBOARD
+====================================================
+
+Ensure the academy dashboard
+accurately reflects:
+
+Current module.
+
+Current chapter.
+
+Lesson exploration.
+
+Activity progress.
+
+Pending evidence.
+
+Practice score.
+
+Official assessment status.
+
+Server-verified modules.
+
+Stage achievements.
+
+Final exam eligibility.
+
+Certificate status.
+
+Separate:
+
+Narration watched.
+
+Activity attempted.
+
+Activity validated.
+
+Officially verified completion.
+
+The student should understand
+what still needs to be completed.
+
+No visual animation should
+falsely imply academic certification.
+
+====================================================
+44. SECURITY AND DATA INTEGRITY
+====================================================
+
+Audit the server and database boundaries.
+
+Verify:
+
+Authenticated user ownership.
+
+Supabase RLS policies.
+
+Assessment attempt authorization.
+
+Activity evidence validation.
+
+Quiz answer secrecy.
+
+Role-based access control.
+
+Badge issuance authorization.
+
+Certificate issuance authorization.
+
+Idempotent requests.
+
+Input schema validation.
+
+Rate limiting where appropriate.
+
+Replay/duplicate submission handling.
+
+Privacy-safe learning telemetry.
+
+Do not trust browser localStorage
+for privileged decisions.
+
+Do not allow a client-generated
+"verified" property to grant credit.
+
+Do not weaken scientific
+or academic integrity to make tests pass.
+
+====================================================
+45. 24-MODULE INTERACTION COVERAGE MATRIX
+====================================================
+
+Create an audit matrix covering
+all 24 modules.
+
+Required columns:
+
+Module ID.
+
+Activity ID.
+
+Existing simulation component.
+
+Scientific learning objective.
+
+Supported parameters.
+
+Actual student action.
+
+Scientific result.
+
+Activity validator.
+
+Server validation path.
+
+COSMOS instructional steps.
+
+Narration-to-visual mapping.
+
+Question interruption behavior.
+
+Accessible alternative.
+
+Official assessment integration.
+
+Verified completion status.
+
+Browser test status.
+
+Final integration status.
+
+Each module must be evaluated separately.
+
+Do not use one generic PASS
+for all 24 modules.
+
+====================================================
+46. ADVERSARIAL LEARNING TESTS
+====================================================
+
+Test these critical scenarios.
+
+A:
+Student watches an entire chapter
+without touching required controls.
+
+Result:
+No activity completion.
+
+B:
+Student changes an unrelated slider.
+
+Result:
+No false scientific verification.
+
+C:
+Student changes a required parameter
+but produces the wrong scientific outcome.
+
+Result:
+Appropriate feedback, no false pass.
+
+D:
+Student performs the correct experiment.
+
+Result:
+Evidence submitted and verified
+according to official rules.
+
+E:
+Server becomes unavailable
+after local activity completion.
+
+Result:
+Pending verification only.
+
+F:
+Student modifies localStorage
+to insert all 24 module IDs.
+
+Result:
+No authorized badge, exam or
+certificate eligibility.
+
+G:
+Student asks for a hint
+during an official assessment.
+
+Result:
+COSMOS enforces official rules.
+
+H:
+Official question fetch fails.
+
+Result:
+No locally fabricated
+certified assessment.
+
+I:
+Student interrupts narration
+during scientific simulation.
+
+Result:
+Preserved teaching context.
+
+J:
+Student closes fullscreen
+during a required activity.
+
+Result:
+No lost valid progress.
+
+K:
+Student reloads before server confirmation.
+
+Result:
+Pending evidence is reconciled safely.
+
+L:
+Student repeats an already submitted
+activity evidence request.
+
+Result:
+No duplicate verified credit.
+
+====================================================
+47. AUTOMATED INTEGRATION TESTS
+====================================================
+
+Create meaningful tests covering:
+
+Learning director states.
+
+Required step sequencing.
+
+Activity gate enforcement.
+
+Simulation event handling.
+
+Scientific result validation.
+
+Server evidence acceptance.
+
+Local versus verified progress.
+
+Question navigation.
+
+Voice option selection.
+
+Answer confirmation.
+
+Practice hints.
+
+Official assessment restrictions.
+
+Assessment attempt submission.
+
+Stage badge verification.
+
+Final exam eligibility.
+
+Cinematic pause/resume.
+
+Narration-to-scene synchronization.
+
+Student camera override.
+
+Cross-module navigation.
+
+Session persistence.
+
+Offline reconciliation.
+
+Duplicate event prevention.
+
+Resource cleanup.
+
+Prefer actual runtime
+and behavioral tests.
+
+Do not consider a source
+keyword check sufficient proof.
+
+====================================================
+48. RUN EXISTING TEST SCRIPTS
+====================================================
+
+Inspect package.json and run
+the relevant actual scripts.
+
+The repository currently includes:
+
+npm run test:cosmos
+
+npm run test:narration
+
+npm run test:realtime
+
+npm run test:3d
+
+npm run test:cinematic
+
+npm run test:student
+
+npm run test:assessment
+
+npm run test:completion
+
+npm run test:modules-01-12
+
+npm run test:modules-13-24
+
+npm run test:achievements
+
+npm run test:exam
+
+npm run test:certificate
+
+npm run test:verification
+
+npm run test:poc
+
+npm run test:qa
+
+npm run build
+
+Run actual available commands.
+
+Inspect test quality.
+
+Some scripts may verify structural
+patterns rather than real user behavior.
+
+Do not mislabel structural
+checks as full end-to-end tests.
+
+Add browser tests where missing.
+
+====================================================
+49. FULL BROWSER LEARNING JOURNEYS
+====================================================
+
+Use Playwright or equivalent
+where available.
+
+Test at least one substantive
+scientific interaction from
+each of the 24 modules.
+
+Also test complete learning paths.
+
+JOURNEY 1:
+
+Start Module 01.
+
+Listen to COSMOS.
+
+Complete a real activity.
+
+Answer a practice question.
+
+Attempt official assessment.
+
+Verify server progress.
+
+Navigate to Module 02.
+
+JOURNEY 2:
+
+Open Module 08.
+
+Manipulate orbital parameters.
+
+Ask a scientific question.
+
+Resume simulation.
+
+Complete the validated activity.
+
+JOURNEY 3:
+
+Open Module 12.
+
+Perform transit detection.
+
+Use a voice response.
+
+Change the chosen answer.
+
+Submit only after confirmation.
+
+JOURNEY 4:
+
+Open Module 16.
+
+Adjust a halo model.
+
+Review scientific feedback.
+
+Verify actual server evidence.
+
+JOURNEY 5:
+
+Open Module 22.
+
+Perform a gravity-assist experiment.
+
+Inspect numerical outputs.
+
+Ask COSMOS why the speed changed.
+
+Return to the activity.
+
+JOURNEY 6:
+
+Open Module 24.
+
+Complete the real capstone.
+
+Verify official final exam eligibility.
+
+Ensure no unauthorized certificate
+can be issued.
+
+Use actual test accounts.
+
+Do not corrupt production students' data.
+
+====================================================
+50. ACCESSIBILITY TESTING
+====================================================
+
+All required interactions must support:
+
+Keyboard.
+
+Mouse.
+
+Touch.
+
+Typed answers.
+
+Captions.
+
+Screen-reader descriptions.
+
+Reduced-motion behavior.
+
+Appropriate 2D scientific alternatives.
+
+A student unable to use
+a microphone must still
+be able to complete the course.
+
+A student using low-power hardware
+must not be disqualified because
+a complex 3D effect cannot render.
+
+Accessible alternatives must
+meet equivalent approved
+learning objectives.
+
+Do not treat an accessible
+alternative as inferior credit.
+
+====================================================
+51. PERFORMANCE AND RELIABILITY
+====================================================
+
+The integration layer must not
+create additional performance problems.
+
+Avoid:
+
+Duplicate subscriptions.
+
+Repeated animation event listeners.
+
+Multiple narration controllers.
+
+New render loops for every activity.
+
+Large learning-state React rerenders.
+
+Repeated module data fetching.
+
+Unbounded telemetry queues.
+
+Leaking event handlers.
+
+Repeated assessment initialization.
+
+Unnecessary scene remounting.
+
+Heavy AI response processing
+on the animation thread.
+
+Instrument:
+
+Cue activation latency.
+
+Simulation interaction latency.
+
+Activity validation latency.
+
+Narration interruption delay.
+
+Session restoration behavior.
+
+Assessment submission failures.
+
+Memory growth during prolonged learning.
+
+Use actual measurements.
+
+Do not fabricate benchmark results.
+
+====================================================
+52. DEVELOPMENT ORDER
+====================================================
+
+PHASE A — AUDIT
+
+1. Inspect existing COSMOS code.
+
+2. Inspect activity adapters.
+
+3. Inspect all 24 completion rules.
+
+4. Inspect official assessment logic.
+
+5. Inspect cinematic integration.
+
+6. Identify false completion risks.
+
+7. Establish baseline tests.
+
+PHASE B — ACTIVITY INTEGRATION
+
+8. Define the scientific event contract.
+
+9. Audit universal DOM interaction handling.
+
+10. Implement typed scientific events.
+
+11. Implement validated activity results.
+
+12. Connect actual simulation adapters.
+
+13. Build module-specific evidence checks.
+
+14. Verify all 24 primary activities.
+
+PHASE C — COSMOS TEACHING
+
+15. Integrate instructional steps.
+
+16. Integrate scene highlighting.
+
+17. Integrate parameter demonstrations.
+
+18. Implement simulation-aware feedback.
+
+19. Implement retry and remediation.
+
+20. Validate pause/resume behavior.
+
+PHASE D — MULTIMODAL INPUT
+
+21. Integrate voice commands.
+
+22. Integrate typed commands.
+
+23. Validate ambiguous responses.
+
+24. Integrate question interruption.
+
+25. Validate scene restoration.
+
+PHASE E — ASSESSMENTS
+
+26. Audit practice and official modes.
+
+27. Secure fallback question behavior.
+
+28. Reconcile passing thresholds.
+
+29. Verify server-side grading.
+
+30. Validate final exam restrictions.
+
+PHASE F — PROGRESS SECURITY
+
+31. Remove unsafe verified-progress fallbacks.
+
+32. Audit instructional completion criteria.
+
+33. Verify server-authoritative badges.
+
+34. Verify server-authoritative exam eligibility.
+
+35. Verify certificate authorization.
+
+36. Test offline reconciliation.
+
+PHASE G — CROSS-MODULE JOURNEY
+
+37. Integrate all six stages.
+
+38. Validate next-module navigation.
+
+39. Verify dashboard completion states.
+
+40. Verify cinematic-to-normal transitions.
+
+41. Verify accessible alternatives.
+
+PHASE H — QUALITY
+
+42. Run integration tests.
+
+43. Run scientific activity tests.
+
+44. Run security adversarial tests.
+
+45. Run browser learning journeys.
+
+46. Fix confirmed defects.
+
+47. Measure performance.
+
+48. Test student-data preservation.
+
+49. Produce complete integration report.
+
+50. Prepare for Prompt 16.
+
+Work in safe, verifiable increments.
+
+====================================================
+53. RECOMMENDED IMPLEMENTATION STRUCTURE
+====================================================
+
+Extend existing code.
+
+Potential shared services:
+
+src/lib/cosmos/integration/
+
+CosmosExperimentEventBridge.ts
+
+CosmosActivityEvidenceCoordinator.ts
+
+CosmosScientificOutcomeValidator.ts
+
+CosmosActivityLearningGate.ts
+
+CosmosExperimentFeedbackManager.ts
+
+CosmosLearningSessionRecovery.ts
+
+CosmosAssessmentModeGuard.ts
+
+CosmosVerifiedProgressAdapter.ts
+
+CosmosCrossModuleJourney.ts
+
+These are logical suggestions.
+
+Do not create files that duplicate
+existing working functionality.
+
+Prefer improving:
+
+CosmosActivityAdapter.
+
+CosmosActivityGuide.
+
+CosmosLearningDirector.
+
+CosmosQuizGuide.
+
+CosmosInputCoordinator.
+
+CosmosCinematicSessionBridge.
+
+Existing completion and assessment services.
+
+Maintain proper TypeScript types.
+
+Avoid any and @ts-nocheck shortcuts
+in new critical code.
+
+====================================================
+54. FINAL QUALITY REPORT
+====================================================
+
+Create:
+
+docs/academy/
+cosmos-interactive-learning-integration-report.md
+
+Include:
+
+A. Architecture audit.
+
+B. Activity observer findings.
+
+C. Scientific evidence architecture.
+
+D. All 24 activity mappings.
+
+E. Actual completed integrations.
+
+F. COSMOS teaching flow.
+
+G. Simulation-aware AI responses.
+
+H. Voice input integration.
+
+I. Typed input integration.
+
+J. Quiz and assessment integration.
+
+K. Official fallback assessment audit.
+
+L. Completion threshold verification.
+
+M. Local versus server progress fixes.
+
+N. Offline behavior.
+
+O. Stage badge verification.
+
+P. Final exam eligibility.
+
+Q. Certificate authorization.
+
+R. Cinematic mode integration.
+
+S. Fullscreen and accessibility results.
+
+T. Cross-module learning journeys.
+
+U. Scientific calculation tests.
+
+V. Automated integration tests.
+
+W. Browser end-to-end evidence.
+
+X. Security adversarial tests.
+
+Y. Performance findings.
+
+Z. Remaining blockers and Prompt 16 readiness.
+
+Use statuses:
+
+PASS
+
+PARTIAL
+
+FAIL
+
+NOT IMPLEMENTED
+
+NOT TESTED
+
+BLOCKED
+
+Do not claim success from code
+compilation alone.
+
+====================================================
+55. COMPLETION GATES
+====================================================
+
+Prompt 15 passes only when:
+
+1. All 24 module activity definitions
+   are connected to valid learning flows.
+
+2. Generic DOM interaction is not
+   mistaken for scientific achievement.
+
+3. Required scientific experiment
+   results are meaningfully validated.
+
+4. Activity evidence is subject
+   to appropriate server verification.
+
+5. COSMOS can guide each activity
+   without bypassing student input.
+
+6. Scientific simulations expose
+   their actual supported state.
+
+7. COSMOS feedback reflects actual
+   scientific results.
+
+8. Voice and text interactions work.
+
+9. Questions can interrupt narration.
+
+10. Lesson context restores correctly.
+
+11. Cinematic mode and activity mode
+    remain synchronized.
+
+12. Practice and official assessment
+    behavior is properly separated.
+
+13. Official answer integrity
+    is maintained.
+
+14. Local progress cannot masquerade
+    as verified completion.
+
+15. Badges are server-authoritative.
+
+16. Final exam eligibility
+    is server-authoritative.
+
+17. Certificate issuance remains secure.
+
+18. Offline learning remains usable
+    without falsely awarding credit.
+
+19. Students can navigate across
+    the entire 24-module journey.
+
+20. Required learning steps
+    cannot be skipped automatically.
+
+21. Accessible alternatives remain usable.
+
+22. No critical scientific errors
+    remain in integrated results.
+
+23. No critical regression has been
+    introduced to existing cinematic scenes.
+
+24. Behavioral tests cover each
+    module's required interaction.
+
+25. Browser and security testing
+    results are documented honestly.
+
+====================================================
+56. FINAL INSTRUCTION
+====================================================
+
+TRANSFORM COSMOS INTO A TRULY
+INTERACTIVE SCIENTIFIC LEARNING DIRECTOR.
+
+THE SYSTEM MUST NOT MERELY
+READ TEXT AND PLAY ANIMATIONS.
+
+IT MUST:
+
+EXPLAIN.
+
+DEMONSTRATE.
+
+GUIDE.
+
+OBSERVE.
+
+LISTEN.
+
+INTERACT.
+
+VALIDATE.
+
+CORRECT.
+
+ENCOURAGE SCIENTIFIC REASONING.
+
+PRESERVE LEARNING CONTEXT.
+
+RESUME NATURALLY.
+
+VERIFY REAL ACHIEVEMENT.
+
+THE STUDENT SHOULD FEEL AS IF
+A KNOWLEDGEABLE ASTRONOMY TEACHER
+IS GUIDING THEM THROUGH
+A LIVE INTERACTIVE UNIVERSE.
+
+CRITICAL REQUIREMENTS:
+
+NO FAKE STUDENT INTERACTIONS.
+
+NO AUTOMATIC ACTIVITY PASSING.
+
+NO SCIENTIFICALLY INVALID FEEDBACK.
+
+NO DUPLICATE NARRATION SYSTEMS.
+
+NO OFFICIAL ASSESSMENT ANSWER LEAKS.
+
+NO FALSE VERIFIED PROGRESS.
+
+NO CLIENT-SIDE CERTIFICATE BYPASS.
+
+NO UNSUPPORTED SIMULATION COMMANDS.
+
+NO LOSS OF ACTIVE LEARNING STATE.
+
+NO UNNECESSARY VISUAL REGRESSIONS.
+
+DO NOT:
+
+Replace existing physics engines.
+
+Rebuild the existing cinematic architecture.
+
+Invent successful validation results.
+
+Modify grading thresholds without
+checking authoritative requirements.
+
+Destroy valid historical progress.
+
+Claim full testing without evidence.
+
+Begin Prompt 16 automatically.
+
+Deploy irreversible production changes
+without required authorization.
+
+IMPLEMENT, TEST, SECURE AND DOCUMENT
+THE COMPLETE 24-MODULE
+COSMOS INTERACTIVE LEARNING SYSTEM.
+
+BEGIN PROMPT 15.

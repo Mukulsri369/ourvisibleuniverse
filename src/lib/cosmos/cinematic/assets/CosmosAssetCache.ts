@@ -21,19 +21,10 @@ import { COSMOS_VERIFIED_ASSET_MANIFEST } from "./CosmosAssetManifest";
 import type { CelestialTextureBundle } from "./CosmosTextureVariantManager";
 
 export type AssetPreloadPriority =
-  | "CRITICAL_VISIBLE"
-  | "ACTIVE_SCENE"
-  | "NEXT_CHAPTER_PRELOAD"
-  | "BACKGROUND";
+  "CRITICAL_VISIBLE" | "ACTIVE_SCENE" | "NEXT_CHAPTER_PRELOAD" | "BACKGROUND";
 
 export type CachedAssetStatus =
-  | "NOT_LOADED"
-  | "QUEUED"
-  | "LOADING"
-  | "READY"
-  | "EVICTED"
-  | "FALLBACK_ACTIVE"
-  | "ERROR";
+  "NOT_LOADED" | "QUEUED" | "LOADING" | "READY" | "EVICTED" | "FALLBACK_ACTIVE" | "ERROR";
 
 export interface CachedAssetEntry {
   cacheKey: string;
@@ -161,12 +152,9 @@ export class CosmosAssetCache {
   /**
    * Evicts unreferenced (refCount === 0) entries in LRU order to stay under the quality tier GPU budget.
    */
-  public enforceMemoryBudget(
-    qualityTier: CinematicQualityTier,
-    incomingBytes = 0,
-  ): number {
+  public enforceMemoryBudget(qualityTier: CinematicQualityTier, incomingBytes = 0): number {
     const capBytes = QUALITY_TIER_MEMORY_CAP_BYTES[qualityTier];
-    let currentBytes = this.getTotalEstimatedGpuBytes();
+    const currentBytes = this.getTotalEstimatedGpuBytes();
     if (currentBytes + incomingBytes <= capBytes) {
       return 0;
     }
@@ -231,7 +219,10 @@ export class CosmosAssetCache {
     return entry || null;
   }
 
-  public getStatus(assetId: string, qualityTier: CinematicQualityTier = "HIGH_CINEMATIC"): CachedAssetStatus {
+  public getStatus(
+    assetId: string,
+    qualityTier: CinematicQualityTier = "HIGH_CINEMATIC",
+  ): CachedAssetStatus {
     const entry = this.entries.get(`${assetId}:${qualityTier}`);
     if (entry) return entry.status;
     return COSMOS_VERIFIED_ASSET_MANIFEST[assetId] ? "NOT_LOADED" : "ERROR";

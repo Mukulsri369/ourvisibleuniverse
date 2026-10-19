@@ -124,7 +124,11 @@ export function ScientificStarMaterial({
         },
         displayScale: radius,
         renderingQuality: qualityTier,
-        supportedAnimations: ["convective_granulation", "differential_rotation", "interior_cutaway"],
+        supportedAnimations: [
+          "convective_granulation",
+          "differential_rotation",
+          "interior_cutaway",
+        ],
         supportedHighlights: ["corona_emphasis", "core_cutaway"],
         supportedCameraTargets: [objectId],
         scientificSources: ["IAU 2015 Resolution B2 / NASA SDO"],

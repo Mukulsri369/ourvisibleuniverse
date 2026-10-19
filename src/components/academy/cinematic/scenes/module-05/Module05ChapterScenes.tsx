@@ -197,9 +197,7 @@ function EarthDayNightScene({
 
       {/* Translucent Night-Hemisphere Shadow Shroud (-X side) */}
       <mesh position={[-0.02, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <sphereGeometry
-          args={[earthRadius * 1.018, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]}
-        />
+        <sphereGeometry args={[earthRadius * 1.018, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]} />
         <meshBasicMaterial
           color="#020617"
           transparent
@@ -230,12 +228,7 @@ function EarthDayNightScene({
           {viewpointMode === "surface_observer" && (
             <mesh rotation={[0, 0, -latRad]}>
               <sphereGeometry args={[0.55, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
-              <meshBasicMaterial
-                color="#38bdf8"
-                transparent
-                opacity={0.28}
-                wireframe
-              />
+              <meshBasicMaterial color="#38bdf8" transparent opacity={0.28} wireframe />
             </mesh>
           )}
         </group>
@@ -256,11 +249,7 @@ function EarthDayNightScene({
       )}
 
       {/* Collimated Sunlight & Tangential Velocity Vectors */}
-      <ScientificFieldRenderer
-        vectors={velocityVectors}
-        fieldLines={[]}
-        equipotentialRings={[]}
-      />
+      <ScientificFieldRenderer vectors={velocityVectors} fieldLines={[]} equipotentialRings={[]} />
     </group>
   );
 }
@@ -289,8 +278,7 @@ function EarthSeasonsScene({
   useFrame((_, delta) => {
     if (isSimulationRunning && !reducedMotion) {
       autoAngleRef.current =
-        (autoAngleRef.current + Math.min(delta, 0.1) * simulationTimeScale * 0.18) %
-        (Math.PI * 2);
+        (autoAngleRef.current + Math.min(delta, 0.1) * simulationTimeScale * 0.18) % (Math.PI * 2);
     }
     // Map dayOfYear (172 = June Solstice at -X, 355 = Dec Solstice at +X)
     const baseOrbitalAngle = ((dayOfYear - 172) / 365) * Math.PI * 2 + Math.PI;
@@ -305,10 +293,26 @@ function EarthSeasonsScene({
   // Four cardinal seasonal stations
   const cardinalStations = useMemo(
     () => [
-      { id: "june_solstice_marker", pos: [-orbitRadius, 0, 0] as [number, number, number], color: "#10b981" },
-      { id: "sept_equinox_marker", pos: [0, 0, orbitRadius] as [number, number, number], color: "#38bdf8" },
-      { id: "december_solstice_marker", pos: [orbitRadius, 0, 0] as [number, number, number], color: "#f59e0b" },
-      { id: "march_equinox_marker", pos: [0, 0, -orbitRadius] as [number, number, number], color: "#a855f7" },
+      {
+        id: "june_solstice_marker",
+        pos: [-orbitRadius, 0, 0] as [number, number, number],
+        color: "#10b981",
+      },
+      {
+        id: "sept_equinox_marker",
+        pos: [0, 0, orbitRadius] as [number, number, number],
+        color: "#38bdf8",
+      },
+      {
+        id: "december_solstice_marker",
+        pos: [orbitRadius, 0, 0] as [number, number, number],
+        color: "#f59e0b",
+      },
+      {
+        id: "march_equinox_marker",
+        pos: [0, 0, -orbitRadius] as [number, number, number],
+        color: "#a855f7",
+      },
     ],
     [orbitRadius],
   );
@@ -458,10 +462,11 @@ function LunarAppearanceScene({
   useFrame((_, delta) => {
     if (isSimulationRunning && !reducedMotion) {
       animOffsetRef.current =
-        (animOffsetRef.current + Math.min(delta, 0.1) * simulationTimeScale * 0.25) %
-        (Math.PI * 2);
+        (animOffsetRef.current + Math.min(delta, 0.1) * simulationTimeScale * 0.25) % (Math.PI * 2);
     }
-    setElongRad(((baseElongationDeg * Math.PI) / 180 + animOffsetRef.current * 0.35) % (Math.PI * 2));
+    setElongRad(
+      ((baseElongationDeg * Math.PI) / 180 + animOffsetRef.current * 0.35) % (Math.PI * 2),
+    );
   });
 
   // Sun is at +X (+14, 0, 0). Elongation E = 0° means Moon is at (+R, 0, 0) between Earth and Sun.
@@ -591,11 +596,7 @@ function LunarAppearanceScene({
         />
       </group>
 
-      <ScientificFieldRenderer
-        vectors={sightVectors}
-        fieldLines={[]}
-        equipotentialRings={[]}
-      />
+      <ScientificFieldRenderer vectors={sightVectors} fieldLines={[]} equipotentialRings={[]} />
     </group>
   );
 }
@@ -627,7 +628,9 @@ function LunarPhasesScene({
         (cycleOffsetRef.current + Math.min(delta, 0.1) * simulationTimeScale * 0.22) %
         (Math.PI * 2);
     }
-    setActiveAngle(((synodicDay / 29.53059) * Math.PI * 2 + cycleOffsetRef.current * 0.3) % (Math.PI * 2));
+    setActiveAngle(
+      ((synodicDay / 29.53059) * Math.PI * 2 + cycleOffsetRef.current * 0.3) % (Math.PI * 2),
+    );
   });
 
   const ringRadius = 4.8;

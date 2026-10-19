@@ -137,9 +137,7 @@ export class CosmosAnimationCueRegistry {
     // Camera orbital offset per segment section type so camera moves purposefully with narration
     const basePos = sceneDesc.defaultCameraPosition;
     let cameraPosition: [number, number, number] = [...basePos];
-    let cameraTarget: [number, number, number] = primaryObj
-      ? [...primaryObj.position]
-      : [0, 0, 0];
+    let cameraTarget: [number, number, number] = primaryObj ? [...primaryObj.position] : [0, 0, 0];
 
     if (seg.sectionId === "title" || seg.sectionId === "introduction") {
       cameraArchetype = "scale_comparison_view";
@@ -162,11 +160,7 @@ export class CosmosAnimationCueRegistry {
       cameraAction = "ORBIT_OBJECT";
       const angle = (segmentIndex % 6) * 0.45;
       const dist = Math.max(6.5, basePos[2] * 0.82);
-      cameraPosition = [
-        Math.sin(angle) * dist,
-        basePos[1] * 0.88,
-        Math.cos(angle) * dist,
-      ];
+      cameraPosition = [Math.sin(angle) * dist, basePos[1] * 0.88, Math.cos(angle) * dist];
       timePolicy =
         moduleId === "08" || moduleId === "14"
           ? "SIMULATION_CONTINUOUS"
@@ -227,7 +221,11 @@ export class CosmosAnimationCueRegistry {
     }
 
     const pocMatchForHighlights = CosmosProofOfConceptCatalog.isProofOfConceptModule(moduleId)
-      ? CosmosProofOfConceptCatalog.getBeatForNarrationSegment(moduleId, seg.lessonId, seg.segmentId)
+      ? CosmosProofOfConceptCatalog.getBeatForNarrationSegment(
+          moduleId,
+          seg.lessonId,
+          seg.segmentId,
+        )
       : null;
 
     const highlightedObjects = [

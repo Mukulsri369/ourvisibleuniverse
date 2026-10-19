@@ -40,10 +40,7 @@ import { CosmicCertificateModal } from "./CosmicCertificateModal";
 import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import { CosmosLearningSessionManager } from "@/lib/cosmos/CosmosLearningSessionManager";
 import type { CosmosLearningSessionRecord } from "@/lib/cosmos/learning-director-types";
-import {
-  CosmosCinematicPlayer,
-  EnterCinematicModeButton,
-} from "./cinematic/CosmosCinematicPlayer";
+import { CosmosCinematicPlayer, EnterCinematicModeButton } from "./cinematic/CosmosCinematicPlayer";
 import { CosmosCinematicSessionBridge } from "@/lib/cosmos/cinematic/CosmosCinematicSessionBridge";
 
 // Lazy-loaded module layouts to optimize initial bundle size and isolate module evaluation
@@ -273,8 +270,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
 
   const [previewModule, setPreviewModule] = useState<ModuleContract | null>(null);
   const [showCertificateModal, setShowCertificateModal] = useState<boolean>(false);
-  const [savedGuidedSession, setSavedGuidedSession] =
-    useState<CosmosLearningSessionRecord | null>(null);
+  const [savedGuidedSession, setSavedGuidedSession] = useState<CosmosLearningSessionRecord | null>(
+    null,
+  );
 
   useEffect(() => {
     setSavedGuidedSession(CosmosLearningSessionManager.getSession());
@@ -410,10 +408,12 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 <span>COSMOS Cinematic Learning System</span>
               </div>
               <h2 className="text-sm sm:text-base font-bold text-white">
-                Experience Module {activeLessonModule.id}: {activeLessonModule.title} in Fullscreen 3D
+                Experience Module {activeLessonModule.id}: {activeLessonModule.title} in Fullscreen
+                3D
               </h2>
               <p className="text-xs text-slate-300">
-                Synchronized COSMOS AI narration, interactive 3D scientific animations, camera choreography, and live Q&A.
+                Synchronized COSMOS AI narration, interactive 3D scientific animations, camera
+                choreography, and live Q&A.
               </p>
             </div>
 
@@ -569,7 +569,8 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                   Resume Module {savedGuidedSession.moduleId}: {savedGuidedSession.moduleTitle}
                 </h3>
                 <p className="text-xs text-slate-300 mt-0.5">
-                  Last active step: <strong className="text-white">{savedGuidedSession.lessonTitle}</strong>
+                  Last active step:{" "}
+                  <strong className="text-white">{savedGuidedSession.lessonTitle}</strong>
                 </p>
               </div>
             </div>

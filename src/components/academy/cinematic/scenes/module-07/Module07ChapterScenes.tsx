@@ -82,7 +82,8 @@ function SolarCoreFusionScene({
 
   useFrame((_, delta) => {
     if (!isSimulationRunning) return;
-    phaseRef.current = (phaseRef.current + delta * simulationTimeScale * 0.85 * reactionRateScale) % (Math.PI * 2);
+    phaseRef.current =
+      (phaseRef.current + delta * simulationTimeScale * 0.85 * reactionRateScale) % (Math.PI * 2);
     const s = Math.sin(phaseRef.current);
     const sep = Math.max(0.28, 1.45 - Math.abs(s) * 1.15);
 
@@ -93,7 +94,7 @@ function SolarCoreFusionScene({
       he4Ref.current.scale.setScalar(pulse);
     }
     if (neutrinoRingRef.current) {
-      const expand = ((phaseRef.current / (Math.PI * 2)) * 4.2) + 0.6;
+      const expand = (phaseRef.current / (Math.PI * 2)) * 4.2 + 0.6;
       neutrinoRingRef.current.scale.setScalar(expand);
     }
   });
@@ -136,12 +137,7 @@ function SolarCoreFusionScene({
         }}
       >
         <sphereGeometry args={[3.35, 36, 24]} />
-        <meshBasicMaterial
-          color="#fef08a"
-          transparent
-          opacity={0.14}
-          depthWrite={false}
-        />
+        <meshBasicMaterial color="#fef08a" transparent opacity={0.14} depthWrite={false} />
       </mesh>
 
       {/* Central Helium-4 Alpha Particle Product Node */}
@@ -328,11 +324,7 @@ function SolarInteriorLayersScene({
         }}
       >
         <sphereGeometry args={[0.78, 32, 24]} />
-        <meshStandardMaterial
-          color="#fef9c3"
-          emissive="#fde047"
-          emissiveIntensity={1.8}
-        />
+        <meshStandardMaterial color="#fef9c3" emissive="#fde047" emissiveIntensity={1.8} />
       </mesh>
 
       {/* Radiative Zone Shell (0.25–0.71 R_sun => r = 2.13) */}
@@ -605,11 +597,7 @@ function SunspotsGranulationProminencesScene({
           }}
         >
           <sphereGeometry args={[g.r, 16, 12]} />
-          <meshStandardMaterial
-            color="#fef08a"
-            emissive="#facc15"
-            emissiveIntensity={0.95}
-          />
+          <meshStandardMaterial color="#fef08a" emissive="#facc15" emissiveIntensity={0.95} />
         </mesh>
       ))}
 
@@ -691,7 +679,7 @@ function MagneticDynamoCycleScene({
       const baseLon = (i / numLines) * Math.PI * 2;
       const pts: Array<[number, number, number]> = [];
       for (let s = 0; s <= 40; s++) {
-        const lat = ((s / 40) - 0.5) * Math.PI * 0.88; // -79 deg to +79 deg
+        const lat = (s / 40 - 0.5) * Math.PI * 0.88; // -79 deg to +79 deg
         // Equatorial regions advance faster in longitude (Omega effect)
         const lonAdvance = Math.pow(Math.cos(lat), 2) * windingTurns * Math.PI;
         const lon = baseLon + lonAdvance;
@@ -912,9 +900,7 @@ function SpaceWeatherMagnetosphereScene({
   // Dayside magnetopause standoff distance compresses as dynamic pressure rises
   const standoffScale = Math.max(0.68, Math.pow(400 / swSpeed, 1 / 3));
   const southwardReconnection = imfBz < -2;
-  const auroraBrightness = southwardReconnection
-    ? Math.min(1.0, Math.abs(imfBz) / 18)
-    : 0.22;
+  const auroraBrightness = southwardReconnection ? Math.min(1.0, Math.abs(imfBz) / 18) : 0.22;
 
   // Earth's Asymmetric Magnetosphere Field Lines (Compressed Dayside -X, Stretched Magnetotail +X)
   const magnetosphereLines = useMemo<FieldLineDescriptor[]>(() => {
@@ -924,7 +910,7 @@ function SpaceWeatherMagnetosphereScene({
       const zOff = i * 0.45;
       const pts: Array<[number, number, number]> = [];
       for (let s = 0; s <= 24; s++) {
-        const lat = ((s / 24) - 0.5) * Math.PI * 0.82;
+        const lat = (s / 24 - 0.5) * Math.PI * 0.82;
         const r = 2.6 * standoffScale * Math.pow(Math.cos(lat), 2);
         pts.push([-r * Math.cos(lat), r * Math.sin(lat) * 1.35, zOff]);
       }
@@ -1023,11 +1009,7 @@ function SpaceWeatherMagnetosphereScene({
             {/* 630.0 nm High-Altitude Red Auroral Crown */}
             <mesh position={[0, 0, -pole * 0.06]}>
               <torusGeometry args={[0.62, 0.032, 16, 48]} />
-              <meshBasicMaterial
-                color="#fb7185"
-                transparent
-                opacity={auroraBrightness * 0.75}
-              />
+              <meshBasicMaterial color="#fb7185" transparent opacity={auroraBrightness * 0.75} />
             </mesh>
           </group>
         ))}
@@ -1095,5 +1077,3 @@ export function Module07CinematicDirectorScene(props: Module07ChapterSceneProps)
       return <SolarCoreFusionScene {...props} />;
   }
 }
-
-

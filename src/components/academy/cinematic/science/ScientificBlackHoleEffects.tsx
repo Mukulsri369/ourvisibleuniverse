@@ -132,9 +132,18 @@ export function ScientificBlackHoleEffects({
         },
         displayScale: rS,
         renderingQuality: qualityTier,
-        supportedAnimations: ["keplerian_accretion_shear", "doppler_beaming", "polar_jet_collimation"],
+        supportedAnimations: [
+          "keplerian_accretion_shear",
+          "doppler_beaming",
+          "polar_jet_collimation",
+        ],
         supportedHighlights: ["photon_sphere", "accretion_disk", "event_horizon"],
-        supportedCameraTargets: ["event_horizon", "photon_sphere", "accretion_disk", "relativistic_jets"],
+        supportedCameraTargets: [
+          "event_horizon",
+          "photon_sphere",
+          "accretion_disk",
+          "relativistic_jets",
+        ],
         scientificSources: [
           "Event Horizon Telescope Collaboration (2019, 2022)",
           "Shakura & Sunyaev (1973)",
@@ -199,7 +208,9 @@ export function ScientificBlackHoleEffects({
           onSelectObject?.("event_horizon");
         }}
       >
-        <sphereGeometry args={[rS, adapted.profile.sphereSegments, adapted.profile.sphereSegments]} />
+        <sphereGeometry
+          args={[rS, adapted.profile.sphereSegments, adapted.profile.sphereSegments]}
+        />
         <meshBasicMaterial color="#000000" />
       </mesh>
 

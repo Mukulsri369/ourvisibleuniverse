@@ -107,10 +107,7 @@ export class CosmosCinematicSessionBridge {
     const isPlayerOpen = currentSnap.playerState !== "CLOSED";
 
     const moduleId = String(dirSnap.moduleId || "01").padStart(2, "0");
-    const sceneDesc = CosmosCinematicSceneRegistry.getSceneForModule(
-      moduleId,
-      dirSnap.moduleTitle,
-    );
+    const sceneDesc = CosmosCinematicSceneRegistry.getSceneForModule(moduleId, dirSnap.moduleTitle);
 
     const step = dirSnap.currentStep;
     const sublessonId = step?.lessonId || currentSnap.currentSublessonId || "lesson-1";
@@ -140,9 +137,7 @@ export class CosmosCinematicSessionBridge {
       dirSnap.state === "REVIEWING_FEEDBACK"
     ) {
       interactionState =
-        dirSnap.activeQuizState?.mode === "official"
-          ? "OFFICIAL_EXAM_ACTIVE"
-          : "QUIZ_REQUIRED";
+        dirSnap.activeQuizState?.mode === "official" ? "OFFICIAL_EXAM_ACTIVE" : "QUIZ_REQUIRED";
     } else if (dirSnap.state === "ANSWERING_STUDENT_QUESTION" || dirSnap.isMicrophoneActive) {
       interactionState = "VOICE_INTERRUPTION";
     }
@@ -246,8 +241,7 @@ export class CosmosCinematicSessionBridge {
       isSimulationRunning: cueExec.isSimulationRunning,
       simulationTimeScale: cueExec.simulationTimeScale,
       currentAnimationCueId: cueExec.activeCue?.cueId || currentSnap.currentAnimationCueId,
-      currentCameraPresetId:
-        cueExec.activeCue?.cameraPresetId || currentSnap.currentCameraPresetId,
+      currentCameraPresetId: cueExec.activeCue?.cameraPresetId || currentSnap.currentCameraPresetId,
       currentTimePolicy: cueExec.activeCue?.timePolicy || currentSnap.currentTimePolicy,
       activeHighlightedObjects:
         cueExec.activeCue?.highlightedObjects || currentSnap.activeHighlightedObjects,
@@ -452,8 +446,8 @@ export class CosmosCinematicSessionBridge {
         : typeof document !== "undefined"
           ? Boolean(
               document.fullscreenElement ||
-                (document as any).webkitFullscreenElement ||
-                (document as any).msFullscreenElement,
+              (document as any).webkitFullscreenElement ||
+              (document as any).msFullscreenElement,
             )
           : false;
 

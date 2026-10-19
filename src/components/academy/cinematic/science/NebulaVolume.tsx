@@ -22,11 +22,7 @@ import {
 } from "@/lib/cosmos/cinematic/rendering";
 
 export type NebulaCategoryType =
-  | "emission"
-  | "reflection"
-  | "dark"
-  | "planetary_nebula"
-  | "supernova_remnant";
+  "emission" | "reflection" | "dark" | "planetary_nebula" | "supernova_remnant";
 
 export interface NebulaVolumeProps {
   objectId: string;

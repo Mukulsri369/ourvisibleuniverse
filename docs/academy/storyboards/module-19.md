@@ -204,3 +204,16 @@
 - **Performance & Quality Gate**: Max Draw Calls $\le 35$, Max Particles $= 6000$ (High) / $1500$ (Low-Power), Rubric Score: **5.0 / 5.0 (Approved)**.
 
 ---
+
+## Stage 5 Prompt 13 — Authoritative 3D Scene & Epistemic Audit (`CosmosStage5Manifest.ts`)
+
+| Chapter ID | 3D Scene Component ID | Representation Category | Epistemic Classification & Physical Equations |
+| :--- | :--- | :--- | :--- |
+| **`m19-l1`** | `m19_ch1_critical_density_geometry` | `NUMERICAL_SCIENTIFIC_MODEL` | **Critical Density & Spatial Geometry**: $\rho_{\text{crit}} = 3H_0^2/(8\pi G) \approx 8.5 \times 10^{-27}\text{ kg/m}^3$; $\Omega_{\text{tot}} = \Omega_m + \Omega_\Lambda \approx 1.000$ ($\Omega_K = 1 - \Omega_{\text{tot}} \approx 0$). |
+| **`m19-l2`** | `m19_ch2_four_cosmic_fates_manifold` | `SPECULATIVE_FUTURE` | **Four Cosmic Fates Manifold**: Contrasts Big Freeze ($w = -1$, favored by $\Lambda\text{CDM}$), Big Rip ($w < -1$ phantom divergence), Big Crunch, and Big Bounce trajectories. |
+| **`m19-l3`** | `m19_ch3_solar_red_giant_fate` | `NUMERICAL_SCIENTIFIC_MODEL` | **Solar & Inner Planet Destiny**: $+1.1\text{ Gyr}$ moist greenhouse ocean loss, $+5.0\text{ Gyr}$ Red Giant expansion, and $+7.6\text{ Gyr}$ planetary nebula + $0.54\ M_\odot$ C-O White Dwarf. |
+| **`m19-l4`** | `m19_ch4_milkomeda_local_isolation` | `NUMERICAL_SCIENTIFIC_MODEL` | **Milkomeda Merger & de Sitter Horizon**: Milky Way–Andromeda merger at $+4.5\text{ Gyr}$ ($v_{\text{rad}} \approx -110\text{ km/s}$); unbound galaxies exit the de Sitter horizon ($d_H = c/H_\infty \approx 16.5\text{ Gly}$) by $t > 100\text{ Gyr}$. |
+| **`m19-l5`** | `m19_ch5_stelliferous_fadeout` | `SPECULATIVE_FUTURE` | **End of the Stelliferous Era**: Fully convective red dwarfs ($0.08\text{–}0.25\ M_\odot$) fuse hydrogen for $10^{12}\text{–}10^{13}\text{ yr}$; star formation ceases by $t \sim 10^{14}\text{ yr}$. |
+| **`m19-l6`** | `m19_ch6_hawking_evaporation_black_holes` | `SPECULATIVE_FUTURE` | **Degenerate & Black Hole Eras**: Hawking temperature $T_H = \hbar c^3/(8\pi G M k_B)$ and evaporation lifetime $t_{\text{evap}} = 5120\pi G^2 M^3/(\hbar c^4) \approx 2.1 \times 10^{67}(M/M_\odot)^3\text{ yr}$; proton decay ($\tau_p > 1.6 \times 10^{34}\text{ yr}$) flagged as unconfirmed. |
+| **`m19-l7`** | `m19_ch7_dark_era_heat_death` | `SPECULATIVE_FUTURE` | **The Dark Era & Heat Death ($t > 10^{100}\text{ yr}$)**: Asymptotic approach to maximum de Sitter horizon entropy $S \to S_{\text{max}}$ where $\Delta T \to 0$ and extractable work $W \to 0$. |
+| **`m19-l8`** | `m19_ch8_deep_future_synthesis` | `SPECULATIVE_FUTURE` | **Five Ages Synthesis & Epistemic Audit**: Logarithmic timeline ($10^0$ to $10^{100}\text{ yr}$) separating measured cosmological parameters from theoretical extrapolations. |

@@ -189,10 +189,7 @@ export class CosmosTextureVariantManager {
     const tierOrder: CinematicQualityTier[] = ["LOW_POWER", "BALANCED", "HIGH_CINEMATIC"];
     const finalTier =
       tierOrder[
-        Math.min(
-          tierOrder.indexOf(globalQualityTier),
-          tierOrder.indexOf(screenRecommendedTier),
-        )
+        Math.min(tierOrder.indexOf(globalQualityTier), tierOrder.indexOf(screenRecommendedTier))
       ];
 
     this.activeObjectTier.set(objectId, finalTier);
@@ -275,7 +272,12 @@ export class CosmosTextureVariantManager {
             elevation = 0.2;
             rough = 38; // Smooth liquid water for sun-glint specular reflection
           }
-        } else if (subjectId === "moon" || subjectId === "mercury" || subjectId === "callisto" || subjectId === "ceres") {
+        } else if (
+          subjectId === "moon" ||
+          subjectId === "mercury" ||
+          subjectId === "callisto" ||
+          subjectId === "ceres"
+        ) {
           // Airless cratered regolith (LROC / MESSENGER / Galileo reference)
           const mareBasin = n1 < 0.44 ? 0.58 : 1.0;
           const baseTone = subjectId === "mercury" ? 132 : subjectId === "callisto" ? 105 : 152;
@@ -422,10 +424,8 @@ export class CosmosTextureVariantManager {
           const xLeft = (x - 1 + width) % width;
           const xRight = (x + 1) % width;
 
-          const dX =
-            (heightField[y * width + xRight] - heightField[y * width + xLeft]) * strength;
-          const dY =
-            (heightField[yDown * width + x] - heightField[yUp * width + x]) * strength;
+          const dX = (heightField[y * width + xRight] - heightField[y * width + xLeft]) * strength;
+          const dY = (heightField[yDown * width + x] - heightField[yUp * width + x]) * strength;
           const invLen = 1.0 / Math.hypot(dX, dY, 1.0);
 
           const nx = (-dX * invLen * 0.5 + 0.5) * 255;

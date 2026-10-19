@@ -92,7 +92,10 @@ export function GravityConceptScene({
   const showTidalVectors = Boolean(controls.showTidalVectors ?? true);
 
   const planetX = 2.2 + separationAu * 2.1; // Maps 1..3 AU to 4.3..8.5 u
-  const forceScale = Math.min(2.8, Math.max(0.35, (primaryMassSolar / (separationAu * separationAu)) * 1.9));
+  const forceScale = Math.min(
+    2.8,
+    Math.max(0.35, (primaryMassSolar / (separationAu * separationAu)) * 1.9),
+  );
 
   const vectors: VectorArrowDescriptor[] = useMemo(() => {
     const arr: VectorArrowDescriptor[] = [
@@ -253,7 +256,13 @@ export function OrbitalMotionScene({
     // Dot product F_g · v determines sign of work (+W inbound emerald, -W outbound rose, 0 cyan)
     const dot = ux * gx + uz * gz;
     const vColor =
-      regime === "circular" ? "#22d3ee" : dot > 0.08 ? "#10b981" : dot < -0.08 ? "#f43f5e" : "#22d3ee";
+      regime === "circular"
+        ? "#22d3ee"
+        : dot > 0.08
+          ? "#10b981"
+          : dot < -0.08
+            ? "#f43f5e"
+            : "#22d3ee";
 
     setVectors([
       {
@@ -463,7 +472,13 @@ export function OrbitalGeometryScene({
             <Line points={parabolaPts} color="#fbbf24" lineWidth={1.8} transparent opacity={0.75} />
           )}
           {hyperbolaPts.length >= 2 && (
-            <Line points={hyperbolaPts} color="#e879f9" lineWidth={1.8} transparent opacity={0.78} />
+            <Line
+              points={hyperbolaPts}
+              color="#e879f9"
+              lineWidth={1.8}
+              transparent
+              opacity={0.78}
+            />
           )}
         </>
       )}
@@ -1039,8 +1054,7 @@ export function EscapeVelocityScene({
     setProbePos(trajectoryPoints[idx]);
   });
 
-  const trajColor =
-    launchRatio < 1.405 ? "#38bdf8" : launchRatio <= 1.425 ? "#10b981" : "#f59e0b";
+  const trajColor = launchRatio < 1.405 ? "#38bdf8" : launchRatio <= 1.425 ? "#10b981" : "#f59e0b";
 
   return (
     <group>

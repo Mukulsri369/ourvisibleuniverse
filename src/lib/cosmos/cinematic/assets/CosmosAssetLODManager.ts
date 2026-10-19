@@ -79,10 +79,7 @@ export class DimensionalScaleConverter {
     const relX = params.worldPositionUnits[0] - params.cameraPositionUnits[0];
     const relY = params.worldPositionUnits[1] - params.cameraPositionUnits[1];
     const relZ = params.worldPositionUnits[2] - params.cameraPositionUnits[2];
-    const cameraRelativeDistanceUnits = Math.max(
-      1e-5,
-      Math.hypot(relX, relY, relZ),
-    );
+    const cameraRelativeDistanceUnits = Math.max(1e-5, Math.hypot(relX, relY, relZ));
 
     const earthNormalizedPhysical = params.physicalRadiusKm / this.EARTH_RADIUS_KM;
     const scaleCompressionFactor =
@@ -157,9 +154,8 @@ export class CosmosAssetLODManager {
 
     // Determine raw candidate LOD from screen pixels
     let targetDescriptor: AssetLODDescriptor =
-      available.find(
-        (d) => projectedPx >= d.minScreenPixels && projectedPx < d.maxScreenPixels,
-      ) || available[available.length - 1];
+      available.find((d) => projectedPx >= d.minScreenPixels && projectedPx < d.maxScreenPixels) ||
+      available[available.length - 1];
 
     // Apply symmetric hysteresis if an existing state is present so minor camera movements never oscillate
     if (existing) {
@@ -234,7 +230,10 @@ export class CosmosAssetLODManager {
    * Returns a shared, cached SphereGeometry for the resolved LOD segment count
    * so multiple celestial bodies reuse GPU vertex/index buffers without reallocation.
    */
-  public getSharedSphereGeometry(widthSegments: number, heightSegments: number): THREE.SphereGeometry {
+  public getSharedSphereGeometry(
+    widthSegments: number,
+    heightSegments: number,
+  ): THREE.SphereGeometry {
     const key = `sphere:${widthSegments}x${heightSegments}`;
     let geom = this.sharedSphereGeometries.get(key);
     if (!geom) {

@@ -20,10 +20,7 @@
 import * as THREE from "three";
 import type { CinematicQualityTier } from "../../cinematic-storyboard-types";
 import { CosmosCinematicQualityManager } from "../CosmosCinematicQualityManager";
-import {
-  CosmosAssetAttribution,
-  type AssetAttributionCredit,
-} from "./CosmosAssetAttribution";
+import { CosmosAssetAttribution, type AssetAttributionCredit } from "./CosmosAssetAttribution";
 import {
   CosmosAssetCache,
   type AssetMemoryTelemetry,
@@ -31,14 +28,8 @@ import {
   type CachedAssetEntry,
   type CachedAssetStatus,
 } from "./CosmosAssetCache";
-import {
-  CosmosAssetLODManager,
-  type EvaluatedAssetLODState,
-} from "./CosmosAssetLODManager";
-import {
-  CosmosAssetLoader,
-  type LoadedScientificModelInstance,
-} from "./CosmosAssetLoader";
+import { CosmosAssetLODManager, type EvaluatedAssetLODState } from "./CosmosAssetLODManager";
+import { CosmosAssetLoader, type LoadedScientificModelInstance } from "./CosmosAssetLoader";
 import {
   COSMOS_VERIFIED_ASSET_MANIFEST,
   MODULE_PRIMARY_ASSET_MAP,
@@ -116,10 +107,7 @@ export class CosmosCinematicAssetManager {
   /**
    * Synchronous cache lookup for an already loaded asset entry.
    */
-  public getAsset(
-    assetId: string,
-    qualityTier?: CinematicQualityTier,
-  ): CachedAssetEntry | null {
+  public getAsset(assetId: string, qualityTier?: CinematicQualityTier): CachedAssetEntry | null {
     const resolvedQuality =
       qualityTier ?? CosmosCinematicQualityManager.getInstance().getActivePreset();
     return this.cache.getEntry(assetId, resolvedQuality);
@@ -129,13 +117,9 @@ export class CosmosCinematicAssetManager {
    * Loads or retrieves a verified scientific asset, enforcing license compliance,
    * interactive node validation, quality-tier memory budgets, and fallback recovery.
    */
-  public loadAsset(
-    assetId: string,
-    options: LoadAssetOptions = {},
-  ): CachedAssetEntry {
+  public loadAsset(assetId: string, options: LoadAssetOptions = {}): CachedAssetEntry {
     const qualityTier =
-      options.qualityTier ??
-      CosmosCinematicQualityManager.getInstance().getActivePreset();
+      options.qualityTier ?? CosmosCinematicQualityManager.getInstance().getActivePreset();
     const holderId = options.holderId ?? "default_scene";
     const record = COSMOS_VERIFIED_ASSET_MANIFEST[assetId];
 
@@ -281,8 +265,7 @@ export class CosmosCinematicAssetManager {
     qualityTier?: CinematicQualityTier,
     holderId = "preload_queue",
   ): CachedAssetEntry {
-    const tier =
-      qualityTier ?? CosmosCinematicQualityManager.getInstance().getActivePreset();
+    const tier = qualityTier ?? CosmosCinematicQualityManager.getInstance().getActivePreset();
     return this.loadAsset(assetId, {
       qualityTier: tier,
       holderId,
@@ -300,10 +283,8 @@ export class CosmosCinematicAssetManager {
     includeNextModule = false,
   ): string[] {
     const normalizedModId = String(moduleId).padStart(2, "0");
-    const tier =
-      qualityTier ?? CosmosCinematicQualityManager.getInstance().getActivePreset();
-    const mapping =
-      MODULE_PRIMARY_ASSET_MAP[normalizedModId] || MODULE_PRIMARY_ASSET_MAP["01"];
+    const tier = qualityTier ?? CosmosCinematicQualityManager.getInstance().getActivePreset();
+    const mapping = MODULE_PRIMARY_ASSET_MAP[normalizedModId] || MODULE_PRIMARY_ASSET_MAP["01"];
 
     const loadedIds: string[] = [];
     for (const primaryId of mapping.primaryAssetIds) {

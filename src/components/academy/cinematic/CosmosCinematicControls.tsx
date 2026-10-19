@@ -116,8 +116,7 @@ export function CosmosCinematicControls({
     }
 
     if (typeof window === "undefined") return;
-    const SpeechRec =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRec) {
       setVoiceErrorNotice(

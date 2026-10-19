@@ -44,8 +44,7 @@ export class ScientificRenderingQualityAdapter {
   ): AdaptedRenderingParameters {
     const activeTier: CinematicQualityTier =
       tier ?? CosmosCinematicQualityManager.getInstance().getTier();
-    const profile =
-      CINEMATIC_QUALITY_PROFILES[activeTier] ?? CINEMATIC_QUALITY_PROFILES.BALANCED;
+    const profile = CINEMATIC_QUALITY_PROFILES[activeTier] ?? CINEMATIC_QUALITY_PROFILES.BALANCED;
 
     switch (activeTier) {
       case "HIGH_CINEMATIC":

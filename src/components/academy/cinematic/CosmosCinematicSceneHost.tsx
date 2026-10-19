@@ -69,7 +69,18 @@ import {
   Module06CinematicDirectorScene,
   Module07CinematicDirectorScene,
   Module08CinematicDirectorScene,
+  Module13CinematicDirectorScene,
   Module14CinematicDirectorScene,
+  Module15CinematicDirectorScene,
+  Module16CinematicDirectorScene,
+  Module17CinematicDirectorScene,
+  Module18CinematicDirectorScene,
+  Module19CinematicDirectorScene,
+  Module20CinematicDirectorScene,
+  Module21CinematicDirectorScene,
+  Module22CinematicDirectorScene,
+  Module23CinematicDirectorScene,
+  Module24CinematicDirectorScene,
 } from "./scenes";
 import { CosmosProofOfConceptCatalog } from "@/lib/cosmos/cinematic/poc";
 import { CosmosCinematicFallback } from "./CosmosCinematicFallback";
@@ -119,10 +130,7 @@ function PerformanceMonitorLoop() {
     const now = performance.now();
     const elapsed = now - windowStartRef.current;
     if (elapsed >= 1000) {
-      CosmosCinematicQualityManager.getInstance().reportFrameWindow(
-        frameCountRef.current,
-        elapsed,
-      );
+      CosmosCinematicQualityManager.getInstance().reportFrameWindow(frameCountRef.current, elapsed);
       frameCountRef.current = 0;
       windowStartRef.current = now;
     }
@@ -521,8 +529,7 @@ function OrbitalMechanicsScene3D({
   });
 
   // Choose companion planet preset (Saturn with rings for Module 06, Europa for Module 23, Jupiter default)
-  const companionPreset =
-    moduleId === "06" ? "saturn" : moduleId === "23" ? "europa" : "jupiter";
+  const companionPreset = moduleId === "06" ? "saturn" : moduleId === "23" ? "europa" : "jupiter";
 
   return (
     <group>
@@ -1139,6 +1146,22 @@ export function CosmosCinematicSceneHost({
             activeHighlightedObjects={snapshot.activeHighlightedObjects}
             onSelectObject={onSelectObject}
           />
+        ) : snapshot.currentModuleId === "13" ? (
+          <Module13CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("13", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m13_ch1_hubble_tuning_fork"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
         ) : snapshot.currentModuleId === "14" ? (
           <Module14CinematicDirectorScene
             sceneId={scene.sceneId}
@@ -1149,6 +1172,166 @@ export function CosmosCinematicSceneHost({
             simulationTimeScale={snapshot.simulationTimeScale}
             normalizedProgress={snapshot.normalizedSegmentProgress}
             activeHighlightedObjects={snapshot.activeHighlightedObjects}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "15" ? (
+          <Module15CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("15", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m15_ch1_cosmic_hierarchy_ladder"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "16" ? (
+          <Module16CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("16", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m16_ch1_cosmic_energy_pie"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "17" ? (
+          <Module17CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("17", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m17_ch1_big_bang_metric_intro"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "18" ? (
+          <Module18CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("18", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m18_ch1_comoving_expansion_grid"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "19" ? (
+          <Module19CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("19", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m19_ch1_ancient_worldviews_sky"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "20" ? (
+          <Module20CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("20", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m20_ch1_solar_red_giant_track"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "21" ? (
+          <Module21CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("21", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m21_ch1_photon_bucket_light_power"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "22" ? (
+          <Module22CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("22", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m22_ch1_sputnik_leo_mechanics"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "23" ? (
+          <Module23CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("23", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m23_ch1_chnops_water_chemistry"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
+            onSelectObject={onSelectObject}
+          />
+        ) : snapshot.currentModuleId === "24" ? (
+          <Module24CinematicDirectorScene
+            sceneComponentId={
+              CosmosProofOfConceptCatalog.getChapterManifest("24", snapshot.currentSublessonId)
+                ?.sceneComponentId || "m24_ch1_citizen_science_zooniverse"
+            }
+            chapterId={snapshot.currentSublessonId}
+            activeBeatIndex={0}
+            highlightedObjectIds={snapshot.activeHighlightedObjects}
+            timeScale={snapshot.simulationTimeScale}
+            isPaused={!snapshot.isSimulationRunning}
+            showLabels={snapshot.showLabelsAndFormulae}
+            reducedMotion={reducedMotion}
+            qualityTier={qualityProfile.tier}
             onSelectObject={onSelectObject}
           />
         ) : scene.sceneArchetype === "orbital_mechanics" ? (

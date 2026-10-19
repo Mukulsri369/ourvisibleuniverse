@@ -211,3 +211,16 @@
 - **Performance & Quality Gate**: Max Draw Calls $\le 35$, Max Particles $= 6000$ (High) / $1500$ (Low-Power), Rubric Score: **5.0 / 5.0 (Approved)**.
 
 ---
+
+## Stage 5 Prompt 13 — Authoritative 3D Scene & Epistemic Audit (`CosmosStage5Manifest.ts`)
+
+| Chapter ID | 3D Scene Component ID | Representation Category | Epistemic Classification & Physical Equations |
+| :--- | :--- | :--- | :--- |
+| **`m17-l1`** | `m17_ch1_expansion_of_space_grid` | `NUMERICAL_SCIENTIFIC_MODEL` | **Metric Expansion vs Explosion**: $v = H_0 d$, $d(t) = a(t)\chi$. Bound Local Group remains fixed in radius while intergalactic comoving grid stretches isotropically from every observer node. |
+| **`m17-l2`** | `m17_ch2_cosmological_redshift_wave` | `OBSERVED_DATA` | **Cosmological Redshift**: $1 + z = \lambda_{\text{obs}} / \lambda_{\text{emit}} = a_0 / a(t_{\text{emit}})$. Stretching photon wavepacket along FLRW geodesic. |
+| **`m17-l3`** | `m17_ch3_reverse_cosmic_timeline` | `NUMERICAL_SCIENTIFIC_MODEL` | **Reverse Cosmic Film & Epistemic Boundary**: $T(a) \propto 1/a(t)$, $\rho_r \propto a^{-4}$. Explicitly marks $t \to 0$ Planck epoch ($t_P \approx 5.4 \times 10^{-44}\text{ s}$) as the boundary of classical General Relativity. |
+| **`m17-l4`** | `m17_ch4_bbn_nuclear_reactor` | `NUMERICAL_SCIENTIFIC_MODEL` | **Big Bang Nucleosynthesis ($t \approx 180\text{ s}$)**: Deuterium bottleneck ($E_B = 2.22\text{ MeV}$) clears at $T \approx 9 \times 10^8\text{ K}$, locking in $Y_p = 2(n/p)/[1+(n/p)] \approx 25\%$ $^4\text{He}$ and $\sim 75\%$ $^1\text{H}$ by mass. |
+| **`m17-l5`** | `m17_ch5_recombination_fog_clearing` | `NUMERICAL_SCIENTIFIC_MODEL` | **Recombination & Surface of Last Scattering**: $z \approx 1090$, $t \approx 378,000\text{ yr}$, $T \approx 3000\text{ K}$. Free electron fraction $x_e$ drops from $1 \to 10^{-4}$, decoupling Thomson-scattered photons. |
+| **`m17-l6`** | `m17_ch6_cmb_planck_sphere` | `OBSERVED_DATA` | **Planck 2018 CMB & Acoustic Peaks**: $T_0 = 2.72548 \pm 0.00057\text{ K}$, $\Delta T / T \approx 10^{-5}$ (amplified $10^5\times$), first acoustic peak $\ell_1 \approx 220$ ($r_s \approx 147\text{ Mpc}$, $\Omega_K \approx 0$). |
+| **`m17-l7`** | `m17_ch7_cosmic_inflation_curvature` | `EDUCATIONAL_APPROXIMATION` | **Cosmic Inflation ($N \ge 60$ e-folds)**: Exponential stretch $e^{60} \approx 10^{26}$ flattens curvature and seeds quantum perturbations; explicitly badged as a theoretical extension under active polarization testing. |
+| **`m17-l8`** | `m17_ch8_three_pillars_synthesis` | `OBSERVED_DATA` | **Three Observational Pillars Synthesis**: Independent concordance of Hubble expansion, BBN light-element yields, and Planck CMB acoustic spectrum at $\Omega_b h^2 = 0.0224 \pm 0.0001$. |

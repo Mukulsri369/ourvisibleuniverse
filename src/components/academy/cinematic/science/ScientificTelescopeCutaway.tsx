@@ -94,10 +94,7 @@ export function ScientificTelescopeCutaway({
       {showRayPaths && (
         <lineSegments name="optical_ray_path">
           <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              args={[rayPositions, 3]}
-            />
+            <bufferAttribute attach="attributes-position" args={[rayPositions, 3]} />
           </bufferGeometry>
           <lineBasicMaterial
             color={highlightedNodeId === "optical_ray_path" ? "#fde047" : "#38bdf8"}

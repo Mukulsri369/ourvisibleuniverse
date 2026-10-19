@@ -63,7 +63,9 @@ export class CosmosAssetAttribution {
       record.licenseIdentifier === "LICENSE_REVIEW_REQUIRED" ||
       record.licenseIdentifier === "BLOCKED_UNLICENSED"
     ) {
-      issues.push(`Asset license status '${record.licenseIdentifier}' is not approved for production.`);
+      issues.push(
+        `Asset license status '${record.licenseIdentifier}' is not approved for production.`,
+      );
     }
 
     if (!record.sourceOrganization || record.sourceOrganization.trim().length < 3) {

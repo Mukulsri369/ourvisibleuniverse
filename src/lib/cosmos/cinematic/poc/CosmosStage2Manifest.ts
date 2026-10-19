@@ -208,8 +208,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         unit: "°",
         defaultValue: 23.44,
         scientificFormula: "I_surface = I₀ · sin(90° - |φ - δ_☉|)",
-        description:
-          "Test real Earth obliquity (23.44°) or hypothetical zero/extreme axial tilts.",
+        description: "Test real Earth obliquity (23.44°) or hypothetical zero/extreme axial tilts.",
         linkedActivityId: "act_05_seasons_eclipse_sim",
         linkedActionType: "observe_solstice_tilt",
       },
@@ -218,8 +217,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         label: "Show Solar Flux Angle Bundles",
         controlType: "toggle",
         defaultValue: true,
-        description:
-          "Display direct subsolar vs. oblique high-latitude solar flux footprints.",
+        description: "Display direct subsolar vs. oblique high-latitude solar flux footprints.",
       },
     ],
     visualBeats: [
@@ -445,8 +443,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         label: "Show All 8 Phase Stations",
         controlType: "toggle",
         defaultValue: true,
-        description:
-          "Display the 8-station orbital phase ring around Earth simultaneously.",
+        description: "Display the 8-station orbital phase ring around Earth simultaneously.",
       },
       {
         controlId: "showSynodicVsSiderealArc",
@@ -872,7 +869,8 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Quadrupole Tidal Gradient",
         type: "UNCERTAINTY_OR_ILLUSTRATION_NOTICE",
         label: "a_tidal = 2GMR_⊕ / d³ · Lunar Tide = 2.18 × Solar Tide",
-        value: "Disclosure: Equilibrium ellipsoid shown; real tides depend on basin bathymetry & rotation",
+        value:
+          "Disclosure: Equilibrium ellipsoid shown; real tides depend on basin bathymetry & rotation",
         worldPosition: [0, 3.5, 0],
         priority: 1,
       },
@@ -1029,8 +1027,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         label: "Show Core-Mantle-Crust Cutaway",
         controlType: "toggle",
         defaultValue: true,
-        description:
-          "Reveal internal iron-nickel core radii and magnetospheric dynamo status.",
+        description: "Reveal internal iron-nickel core radii and magnetospheric dynamo status.",
       },
     ],
     visualBeats: [
@@ -1040,11 +1037,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Mercury, Venus, Earth & Mars Comparative Lineup",
         scientificMechanismSummary:
           "Contrasts airless cratered Mercury (85% radius iron core), cloud-shrouded Venus (464°C runaway CO₂ greenhouse), ocean-covered Earth, and canyon-scarred Mars (4,000 km Valles Marineris).",
-        narrationSegmentIds: [
-          "06-sub-02-title",
-          "06-sub-02-didYouKnow-1",
-          "06-sub-02-detail-1",
-        ],
+        narrationSegmentIds: ["06-sub-02-title", "06-sub-02-didYouKnow-1", "06-sub-02-detail-1"],
         cameraArchetype: "scale_comparison_view",
         cameraAction: "orbit",
         cameraPosition: [0, 3.2, 11.8],
@@ -1132,8 +1125,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         label: "Show Liquid Metallic Hydrogen Interior",
         controlType: "toggle",
         defaultValue: true,
-        description:
-          "Reveal the high-pressure metallic hydrogen layer and helium-rain region.",
+        description: "Reveal the high-pressure metallic hydrogen layer and helium-rain region.",
       },
     ],
     visualBeats: [
@@ -1143,11 +1135,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Jupiter's Zonal Belts, Shrinking Great Red Spot & 20,000× Magnetosphere",
         scientificMechanismSummary:
           "Rapid 9.9-hour rotation flattens Jupiter into an oblate spheroid, driving counter-rotating ammonia cloud bands, the 1.3-Earth-diameter Great Red Spot anticyclone, and a colossal metallic-hydrogen magnetosphere.",
-        narrationSegmentIds: [
-          "06-sub-03-title",
-          "06-sub-03-didYouKnow-1",
-          "06-sub-03-detail-1",
-        ],
+        narrationSegmentIds: ["06-sub-03-title", "06-sub-03-didYouKnow-1", "06-sub-03-detail-1"],
         cameraArchetype: "planetary_orbital_shot",
         cameraAction: "orbit",
         cameraPosition: [-1.8, 3.0, 11.2],
@@ -1226,7 +1214,10 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         defaultValue: "Uranus",
         options: [
           { value: "Uranus", label: "Uranus (19.2 AU · 97.77° Sideways Tilt · 14.5 M_⊕)" },
-          { value: "Neptune", label: "Neptune (30.1 AU · 28.32° Tilt · 17.1 M_⊕ · 2,100 km/h Winds)" },
+          {
+            value: "Neptune",
+            label: "Neptune (30.1 AU · 28.32° Tilt · 17.1 M_⊕ · 2,100 km/h Winds)",
+          },
         ],
         description:
           "Compare Uranus's extreme sideways obliquity and faint rings against Neptune's active atmosphere.",
@@ -1651,8 +1642,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
           { value: "Earth", label: "Earth (R = 1.00 R_⊕ · ρ = 5.51 g/cm³)" },
           { value: "Mars", label: "Mars (R = 0.53 R_⊕ · ρ = 3.93 g/cm³)" },
         ],
-        description:
-          "Select the primary terrestrial planet for side-by-side physical comparison.",
+        description: "Select the primary terrestrial planet for side-by-side physical comparison.",
         linkedActivityId: "act_06_solar_system_tour",
         linkedActionType: "classify_density_architecture",
       },
@@ -1799,8 +1789,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         label: "Show Helioseismic Acoustic p-Modes",
         controlType: "toggle",
         defaultValue: false,
-        description:
-          "Visualize internal acoustic sound waves refracting through the solar plasma.",
+        description: "Visualize internal acoustic sound waves refracting through the solar plasma.",
       },
     ],
     visualBeats: [
@@ -1810,11 +1799,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "G2V Star Scale (109.2 R_⊕), Hydrostatic Equilibrium & 4.26M Tons/s Mass Loss",
         scientificMechanismSummary:
           "The Sun is a sphere of ionized hydrogen/helium plasma held in hydrostatic balance between inward gravity and outward core fusion pressure, converting 4.26 × 10⁹ kg of mass into radiant energy every second.",
-        narrationSegmentIds: [
-          "07-07-01-title",
-          "07-07-01-didYouKnow-1",
-          "07-07-01-detail-1",
-        ],
+        narrationSegmentIds: ["07-07-01-title", "07-07-01-didYouKnow-1", "07-07-01-detail-1"],
         cameraArchetype: "planetary_orbital_shot",
         cameraAction: "orbit",
         cameraPosition: [0, 3.2, 10.8],
@@ -1932,11 +1917,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Core (15.7 MK, 150 g/cm³), Radiative Random Walk & The Tachocline Dynamo",
         scientificMechanismSummary:
           "Energy forged in the 15.7 MK core diffuses through the radiative zone via Compton/free-free scattering with sub-millimeter mean free path (~170,000 yr transit), crossing the 0.70 R_☉ tachocline shear layer.",
-        narrationSegmentIds: [
-          "07-07-02-title",
-          "07-07-02-didYouKnow-1",
-          "07-07-02-detail-1",
-        ],
+        narrationSegmentIds: ["07-07-02-title", "07-07-02-didYouKnow-1", "07-07-02-detail-1"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "orbit",
         cameraPosition: [0, 3.0, 9.6],
@@ -2049,11 +2030,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Quantum Tunneling, Weak-Force Bottleneck & Sequential p-p I Steps",
         scientificMechanismSummary:
           "At 15.7 MK protons tunnel through the electrostatic Coulomb barrier; because the weak conversion p + p → ²H + e⁺ + ν_e is extraordinarily rare, an average proton waits ~9 Gyr before fusing.",
-        narrationSegmentIds: [
-          "07-07-03-title",
-          "07-07-03-didYouKnow-1",
-          "07-07-03-detail-1",
-        ],
+        narrationSegmentIds: ["07-07-03-title", "07-07-03-didYouKnow-1", "07-07-03-detail-1"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "orbit",
         cameraPosition: [0, 3.0, 10.5],
@@ -2062,11 +2039,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         timePolicy: "NORMAL_PLAYBACK",
         simulationTimeScale: 1.0,
         animationAction: "m07_ch3_pp_chain_sequential_steps",
-        highlightedObjects: [
-          "pp_step1_deuterium",
-          "pp_step2_helium3",
-          "pp_step3_helium4_alpha",
-        ],
+        highlightedObjects: ["pp_step1_deuterium", "pp_step2_helium3", "pp_step3_helium4_alpha"],
         transitionType: "smooth",
       },
       {
@@ -2167,11 +2140,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Photospheric Granulation, Chromospheric Hα Spicules & 530.3 nm Fe XIV Corona",
         scientificMechanismSummary:
           "Ascends from the 5,772 K photospheric granulation layer through the ruby-red Hα chromosphere into the 1–3 MK outer corona where 13-times-ionized iron (Fe XIV, 530.3 nm) radiates.",
-        narrationSegmentIds: [
-          "07-07-04-title",
-          "07-07-04-didYouKnow-1",
-          "07-07-04-detail-1",
-        ],
+        narrationSegmentIds: ["07-07-04-title", "07-07-04-didYouKnow-1", "07-07-04-detail-1"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "orbit",
         cameraPosition: [0, 2.8, 10.2],
@@ -2274,11 +2243,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Sunspot Umbra/Penumbra, Zeeman Magnetic Flux & Stefan–Boltzmann Contrast",
         scientificMechanismSummary:
           "Concentrated 3,000-Gauss magnetic loops emerge in N/S pairs, suppressing rising convective plumes so the umbra cools to ~4,000 K—radiating ~23% of surrounding photospheric flux (F = σT⁴).",
-        narrationSegmentIds: [
-          "07-07-05-title",
-          "07-07-05-didYouKnow-1",
-          "07-07-05-detail-1",
-        ],
+        narrationSegmentIds: ["07-07-05-title", "07-07-05-didYouKnow-1", "07-07-05-detail-1"],
         cameraArchetype: "object_close_up",
         cameraAction: "orbit",
         cameraPosition: [0, 2.6, 9.4],
@@ -2287,11 +2252,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         timePolicy: "NORMAL_PLAYBACK",
         simulationTimeScale: 1.0,
         animationAction: "m07_ch5_sunspot_umbra_and_flux_emergence",
-        highlightedObjects: [
-          "sunspot_bipolar_group",
-          "umbra_penumbra_detail",
-          "zeeman_flux_tubes",
-        ],
+        highlightedObjects: ["sunspot_bipolar_group", "umbra_penumbra_detail", "zeeman_flux_tubes"],
         transitionType: "smooth",
       },
       {
@@ -2388,11 +2349,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Magnetic Reconnection (B²/2μ₀) & GOES Logarithmic Flare Classification (A–X)",
         scientificMechanismSummary:
           "Oppositely directed magnetic field lines in a twisted coronal arcade snap and reconnect at an X-point, converting magnetic energy into an electromagnetic X-ray/EUV flare traveling at light speed c (8.3 min to Earth).",
-        narrationSegmentIds: [
-          "07-07-06-title",
-          "07-07-06-didYouKnow-1",
-          "07-07-06-detail-1",
-        ],
+        narrationSegmentIds: ["07-07-06-title", "07-07-06-didYouKnow-1", "07-07-06-detail-1"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "orbit",
         cameraPosition: [0, 2.8, 9.8],
@@ -2504,11 +2461,7 @@ export const STAGE_2_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Supersonic Solar Wind, Parker Spiral IMF & Earth's Bow Shock / Magnetopause",
         scientificMechanismSummary:
           "Continuous solar wind plasma streams outward at 400–750 km/s along the rotating Parker Spiral until deflected by Earth's bow shock (~13 R_⊕) and dayside magnetopause (~10 R_⊕).",
-        narrationSegmentIds: [
-          "07-07-07-title",
-          "07-07-07-didYouKnow-1",
-          "07-07-07-detail-1",
-        ],
+        narrationSegmentIds: ["07-07-07-title", "07-07-07-didYouKnow-1", "07-07-07-detail-1"],
         cameraArchetype: "establishing_shot",
         cameraAction: "orbit",
         cameraPosition: [0, 4.4, 12.8],

@@ -37,11 +37,13 @@ export function CosmosCinematicViewport({
     };
 
     const handleFullscreenError = () => {
-      bridge.getStateManager().recordError(
-        "FULLSCREEN_PERMISSION_DENIED",
-        "Native browser fullscreen encountered an error; continuing in Full-Viewport Cinematic Mode.",
-        { recoverable: true, fallbackAvailable: true, enterErrorState: false },
-      );
+      bridge
+        .getStateManager()
+        .recordError(
+          "FULLSCREEN_PERMISSION_DENIED",
+          "Native browser fullscreen encountered an error; continuing in Full-Viewport Cinematic Mode.",
+          { recoverable: true, fallbackAvailable: true, enterErrorState: false },
+        );
       bridge.getStateManager().updateState({
         fullscreenState: "VIEWPORT_FALLBACK",
       });
@@ -69,8 +71,7 @@ export function CosmosCinematicViewport({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        const fsEl =
-          document.fullscreenElement || (document as any).webkitFullscreenElement;
+        const fsEl = document.fullscreenElement || (document as any).webkitFullscreenElement;
         if (!fsEl) {
           e.preventDefault();
           onExitCinematicMode();

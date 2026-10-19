@@ -212,7 +212,8 @@ export function ScientificPlanetMaterial({
     const camDist = camera.position.distanceTo(new THREE.Vector3(...position));
     CosmosAssetLODManager.getInstance().evaluateLOD({
       objectId,
-      assetId: presetId === "earth" ? "asset_planet_earth_reference_v2" : `asset_planet_${presetId}_v1`,
+      assetId:
+        presetId === "earth" ? "asset_planet_earth_reference_v2" : `asset_planet_${presetId}_v1`,
       displayRadiusUnits: radius,
       cameraDistanceUnits: camDist,
       viewportHeightPx: size.height || 1080,

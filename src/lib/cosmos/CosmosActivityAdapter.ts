@@ -665,16 +665,13 @@ export class CosmosActivityAdapter {
     if (targetIdx !== -1) {
       const candidateStep = resolved.instructionSteps[targetIdx];
       const isFinalVerifyStep =
-        targetIdx === resolved.instructionSteps.length - 1 &&
-        resolved.instructionSteps.length > 1;
+        targetIdx === resolved.instructionSteps.length - 1 && resolved.instructionSteps.length > 1;
       const hasExplicitVerificationData =
         actionName === candidateStep.expectedActionName ||
         actionName.includes("verify") ||
         actionName.includes("complete") ||
         actionName.includes("submit") ||
-        Object.keys(updatedParameters).some(
-          (k) => !["interacted", "lastControlUsed"].includes(k),
-        );
+        Object.keys(updatedParameters).some((k) => !["interacted", "lastControlUsed"].includes(k));
 
       // Do not mark the final verification step complete on a generic button click unless verified telemetry is supplied
       if (!isFinalVerifyStep || hasExplicitVerificationData) {

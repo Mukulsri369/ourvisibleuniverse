@@ -99,11 +99,7 @@ async function runValidation(): Promise<void> {
     const astronomerSegs = LessonContentProvider.getSegmentsForModule(modId, "astronomer", "en");
     const allTiersResolve = [...juniorSegs, ...providerSegments, ...astronomerSegs].every((seg) =>
       Boolean(
-        CosmosProofOfConceptCatalog.getBeatForNarrationSegment(
-          modId,
-          seg.lessonId,
-          seg.segmentId,
-        ),
+        CosmosProofOfConceptCatalog.getBeatForNarrationSegment(modId, seg.lessonId, seg.segmentId),
       ),
     );
     assertCheck(
@@ -216,17 +212,8 @@ async function runValidation(): Promise<void> {
   );
 
   // Module 08 Kepler / Orbital Mechanics test
-  interactionStore.setControlValue(
-    "08",
-    "08-06",
-    "harmonicPlanetSemiMajorAu",
-    4.0,
-  );
-  const keplerTelemetry = interactionStore.computeChapterLiveTelemetry(
-    "08",
-    "08-06",
-    "astronomer",
-  );
+  interactionStore.setControlValue("08", "08-06", "harmonicPlanetSemiMajorAu", 4.0);
+  const keplerTelemetry = interactionStore.computeChapterLiveTelemetry("08", "08-06", "astronomer");
   assertCheck(
     "Module 08 Chapter 08.6 Kepler's Third Law accurately computes P = 8.00 yr for a = 4.00 AU (1 M☉)",
     keplerTelemetry.some((m) => m.value.includes("8.00")),
@@ -263,8 +250,7 @@ async function runValidation(): Promise<void> {
   assertCheck(
     "Module 14 black hole control adjustment automatically bridges to CosmosActivityAdapter",
     Boolean(
-      mod14Activity &&
-        Math.abs(Number(mod14Activity.currentParameters.radiusKm) - 29.53) < 0.1,
+      mod14Activity && Math.abs(Number(mod14Activity.currentParameters.radiusKm) - 29.53) < 0.1,
     ),
     `massSolar=${mod14Activity?.currentParameters.massSolar}, radiusKm=${mod14Activity?.currentParameters.radiusKm}`,
   );
@@ -334,7 +320,9 @@ async function runValidation(): Promise<void> {
   // ---------------------------------------------------------------------------
   // 5. Scientific Review Disclosures, Rubric Scores & Asset Provenance Coverage
   // ---------------------------------------------------------------------------
-  console.log("\n--- 5. Scientific Review Disclosures, Rubric Scores & Verified Asset Provenance ---");
+  console.log(
+    "\n--- 5. Scientific Review Disclosures, Rubric Scores & Verified Asset Provenance ---",
+  );
   let validDisclosuresAndRubrics = 0;
   for (const ch of PROOF_OF_CONCEPT_CHAPTER_MANIFESTS) {
     if (

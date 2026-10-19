@@ -158,10 +158,7 @@ export function CosmosCinematicPlayer({ reducedMotion = false }: CosmosCinematic
   }, [snapshot.playerState, snapshot.fullscreenState, bridge]);
 
   const handleSceneError = useCallback(
-    (
-      code: "WEBGL_UNSUPPORTED" | "WEBGL_CONTEXT_LOST" | "SCENE_LOAD_FAILED",
-      msg: string,
-    ) => {
+    (code: "WEBGL_UNSUPPORTED" | "WEBGL_CONTEXT_LOST" | "SCENE_LOAD_FAILED", msg: string) => {
       bridge.getStateManager().recordError(code, msg, {
         recoverable: code !== "WEBGL_UNSUPPORTED",
         fallbackAvailable: true,

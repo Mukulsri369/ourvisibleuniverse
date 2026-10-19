@@ -19,10 +19,7 @@ import {
   CosmosAnimationCueRegistry,
   type RegisteredAnimationCue,
 } from "./CosmosAnimationCueRegistry";
-import type {
-  CinematicCameraCommand,
-  CinematicTimePolicy,
-} from "./CosmosCinematicPlayerState";
+import type { CinematicCameraCommand, CinematicTimePolicy } from "./CosmosCinematicPlayerState";
 import { CosmosCinematicSceneRegistry } from "./CosmosCinematicSceneRegistry";
 
 export type AnimationCueEventType =
@@ -82,9 +79,7 @@ export class CosmosAnimationCueController {
     return {
       ...this.state,
       activeCue: this.state.activeCue ? { ...this.state.activeCue } : null,
-      lastCameraCommand: this.state.lastCameraCommand
-        ? { ...this.state.lastCameraCommand }
-        : null,
+      lastCameraCommand: this.state.lastCameraCommand ? { ...this.state.lastCameraCommand } : null,
       preservedCueBeforeInterruption: this.state.preservedCueBeforeInterruption
         ? { ...this.state.preservedCueBeforeInterruption }
         : null,

@@ -181,7 +181,9 @@ export const adminGetCertificateDetails = createServerFn({ method: "POST" })
  * Admin: Revoke a certificate with mandatory reason
  */
 export const adminRevokeCertificate = createServerFn({ method: "POST" })
-  .inputValidator((input: { certificateNumber: string; reason: string; adminToken?: string }) => input)
+  .inputValidator(
+    (input: { certificateNumber: string; reason: string; adminToken?: string }) => input,
+  )
   .handler(async ({ data }) => {
     const token = data?.adminToken || (await extractAdminToken());
     const { adminRevokeCertificateServer } = await import("./certificate.server");

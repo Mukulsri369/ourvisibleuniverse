@@ -149,7 +149,12 @@ assertCheck(
 );
 
 // Trigger interactive controls in Modules 05, 06, 07, and 08 and verify ActivityAdapter state updates
-interactionStore.setControlValue("05", "lesson-2-earths-orbit-and-seasons", "orbitalMonthIndex", 12);
+interactionStore.setControlValue(
+  "05",
+  "lesson-2-earths-orbit-and-seasons",
+  "orbitalMonthIndex",
+  12,
+);
 interactionStore.setControlValue("05", "lesson-5-solar-eclipses", "nodeOffsetDeg", 0);
 interactionStore.setControlValue("06", "sub-02", "selectedRockyPlanet", "Venus");
 interactionStore.setControlValue("06", "sub-08", "comparisonPlanetB", "Neptune");

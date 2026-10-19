@@ -279,11 +279,12 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
     }
 
     if (typeof window === "undefined") return;
-    const SpeechRec =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRec) {
-      toast.info("Browser speech recognition is unavailable. Use keyboard keys 1-4 or click an option.");
+      toast.info(
+        "Browser speech recognition is unavailable. Use keyboard keys 1-4 or click an option.",
+      );
       return;
     }
 

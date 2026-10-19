@@ -84,10 +84,7 @@ export function CosmosCinematicOverlay({
   const [showAssetCredits, setShowAssetCredits] = useState(false);
   const [showChapterLab, setShowChapterLab] = useState(true);
   const moduleAssetCredits = useMemo(
-    () =>
-      CosmosCinematicAssetManager.getInstance().getModuleAttributions(
-        snapshot.currentModuleId,
-      ),
+    () => CosmosCinematicAssetManager.getInstance().getModuleAttributions(snapshot.currentModuleId),
     [snapshot.currentModuleId],
   );
 
@@ -100,10 +97,7 @@ export function CosmosCinematicOverlay({
       new RegExp(`^${snapshot.currentModuleId}-`),
       "",
     );
-    return CosmosProofOfConceptCatalog.getChapterManifest(
-      snapshot.currentModuleId,
-      cleanChapterId,
-    );
+    return CosmosProofOfConceptCatalog.getChapterManifest(snapshot.currentModuleId, cleanChapterId);
   }, [snapshot.currentLessonId, snapshot.currentModuleId]);
 
   const pocBeatResolution = useMemo(() => {
@@ -206,9 +200,7 @@ export function CosmosCinematicOverlay({
           >
             <span
               className={`size-2 rounded-full ${
-                snapshot.fullscreenState === "NATIVE_FULLSCREEN"
-                  ? "bg-emerald-400"
-                  : "bg-cyan-400"
+                snapshot.fullscreenState === "NATIVE_FULLSCREEN" ? "bg-emerald-400" : "bg-cyan-400"
               }`}
             />
             <span>
@@ -274,9 +266,7 @@ export function CosmosCinematicOverlay({
                     <button
                       key={obj.objectId}
                       type="button"
-                      onClick={() =>
-                        onSelectObject(isSelected ? null : obj.objectId)
-                      }
+                      onClick={() => onSelectObject(isSelected ? null : obj.objectId)}
                       className={`px-2.5 py-1 text-xs font-mono border transition-colors ${
                         isSelected
                           ? "bg-cyan-500 text-slate-950 border-cyan-300 font-bold"
@@ -319,10 +309,15 @@ export function CosmosCinematicOverlay({
                     className="mt-2 space-y-2 max-h-48 overflow-y-auto pr-1 text-[10px] text-slate-300 border-t border-white/10 pt-2"
                   >
                     {moduleAssetCredits.map((credit) => (
-                      <div key={credit.assetId} className="space-y-0.5 bg-white/[0.03] p-2 border border-white/10">
+                      <div
+                        key={credit.assetId}
+                        className="space-y-0.5 bg-white/[0.03] p-2 border border-white/10"
+                      >
                         <div className="font-semibold text-white">{credit.displayName}</div>
                         <div className="text-slate-400">{credit.sourceOrganization}</div>
-                        <div className="text-slate-300 leading-snug">{credit.formattedCreditLine}</div>
+                        <div className="text-slate-300 leading-snug">
+                          {credit.formattedCreditLine}
+                        </div>
                         <div className="text-amber-300/90 font-mono text-[9px]">
                           License: {credit.licenseIdentifier} • {credit.noEndorsementNotice}
                         </div>
@@ -354,19 +349,25 @@ export function CosmosCinematicOverlay({
                 {selectedObj.physicalMetrics.mass && (
                   <div className="flex justify-between gap-2">
                     <span className="text-slate-400">Mass:</span>
-                    <span className="text-slate-100 text-right">{selectedObj.physicalMetrics.mass}</span>
+                    <span className="text-slate-100 text-right">
+                      {selectedObj.physicalMetrics.mass}
+                    </span>
                   </div>
                 )}
                 {selectedObj.physicalMetrics.radius && (
                   <div className="flex justify-between gap-2">
                     <span className="text-slate-400">Radius:</span>
-                    <span className="text-slate-100 text-right">{selectedObj.physicalMetrics.radius}</span>
+                    <span className="text-slate-100 text-right">
+                      {selectedObj.physicalMetrics.radius}
+                    </span>
                   </div>
                 )}
                 {selectedObj.physicalMetrics.distance && (
                   <div className="flex justify-between gap-2">
                     <span className="text-slate-400">Orbit/Dist:</span>
-                    <span className="text-cyan-300 text-right">{selectedObj.physicalMetrics.distance}</span>
+                    <span className="text-cyan-300 text-right">
+                      {selectedObj.physicalMetrics.distance}
+                    </span>
                   </div>
                 )}
                 {selectedObj.physicalMetrics.temperature && (
@@ -534,9 +535,7 @@ export function CosmosCinematicOverlay({
                             </span>
                           </div>
                           {metric.formula && (
-                            <span className="text-[9px] text-cyan-300/80">
-                              {metric.formula}
-                            </span>
+                            <span className="text-[9px] text-cyan-300/80">{metric.formula}</span>
                           )}
                         </div>
                       ))}

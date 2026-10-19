@@ -148,8 +148,9 @@ async function runAssetPipelineValidation(): Promise<void> {
     "Synthesized JWST GLB 2.0 binary container passes header, version 2, extension, copyright, and node hierarchy inspection",
   );
 
-  const codecComparison =
-    CosmosAssetValidation.evaluateGeometryOptimizationStrategies("asset_spacecraft_jwst_v2");
+  const codecComparison = CosmosAssetValidation.evaluateGeometryOptimizationStrategies(
+    "asset_spacecraft_jwst_v2",
+  );
   assertCondition(
     codecComparison.meshoptBytes < codecComparison.uncompressedBytes &&
       codecComparison.meshoptDecodeMs < codecComparison.dracoDecodeMs &&

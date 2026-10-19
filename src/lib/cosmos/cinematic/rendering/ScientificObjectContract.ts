@@ -87,7 +87,8 @@ export interface DeterministicShaderUniformState {
   cutawayRevealAngleRad: number; // Clamped [0.0, Math.PI]
   dopplerBeamingStrength: number; // Clamped [0.0, 1.5]
   lensingDeflectionStrength: number; // Clamped [0.0, 2.0]
-  visualizationMode: "photometric" | "cross_section" | "false_color_spectroscopic" | "gravitational_potential";
+  visualizationMode:
+    "photometric" | "cross_section" | "false_color_spectroscopic" | "gravitational_potential";
 }
 
 export interface ScientificObjectResourceLifecycle {
@@ -122,7 +123,10 @@ export interface ScientificObjectInstanceController {
   contract: ScientificCinematicObjectContract;
   focus: () => { targetPosition: [number, number, number]; recommendedDistance: number };
   highlight: (enabled: boolean, strength?: number) => void;
-  setVisualParameter: (key: keyof DeterministicShaderUniformState, value: number | string) => boolean;
+  setVisualParameter: (
+    key: keyof DeterministicShaderUniformState,
+    value: number | string,
+  ) => boolean;
   evaluateAnimationCue: (cue: RegisteredAnimationCue | null, normalizedProgress: number) => void;
   setSimulationTime: (simulationTimeSeconds: number) => void;
   pauseVisualEffects: () => void;

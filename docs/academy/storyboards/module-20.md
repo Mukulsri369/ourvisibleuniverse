@@ -201,3 +201,16 @@
 - **Performance & Quality Gate**: Max Draw Calls $\le 35$, Max Particles $= 6000$ (High) / $1500$ (Low-Power), Rubric Score: **5.0 / 5.0 (Approved)**.
 
 ---
+
+## Stage 5 Prompt 13 — Authoritative 3D Scene & Epistemic Audit (`CosmosStage5Manifest.ts`)
+
+| Chapter ID | 3D Scene Component ID | Representation Category | Epistemic Classification & Physical Equations |
+| :--- | :--- | :--- | :--- |
+| **`m20-l1`** | `m20_ch1_ancient_horizon_monuments` | `HISTORICAL_RECONSTRUCTION` | **Ancient Skies & Horizon Monuments**: Solstice azimuth $\cos A = \sin\delta / \cos\phi$ ($\delta = \pm 23.44^\circ$), Babylonian $18\text{ yr } 11.3\text{ d}$ Saros cycle, and Chinese $1054\text{ CE}$ Crab Supernova record. |
+| **`m20-l2`** | `m20_ch2_greek_eratosthenes_ptolemy` | `HISTORICAL_RECONSTRUCTION` | **Greek Geodesy & Ptolemaic Models**: Eratosthenes Alexandria shadow angle $\theta = 7.2^\circ \implies C \approx 40,000\text{ km}$, Hipparchus $25,772\text{-yr}$ axial precession, and Ptolemaic deferent-epicycle geometry. |
+| **`m20-l3`** | `m20_ch3_islamic_global_observatories` | `HISTORICAL_RECONSTRUCTION` | **Islamic Golden Age & Global Astronomy**: Al-Sufi's $964\text{ CE}$ Andromeda record, Ulugh Beg's $40\text{ m}$ Samarkand meridian sextant, Aryabhata's axial rotation, and Mayan Dresden Codex Venus tables. |
+| **`m20-l4`** | `m20_ch4_copernican_retrograde_orrery` | `HISTORICAL_RECONSTRUCTION` | **Copernican Revolution & Tycho Brahe**: Heliocentric apparent retrograde loop as faster inner Earth ($29.8\text{ km/s}$) overtakes Mars ($24.1\text{ km/s}$), plus Tycho's $\pm 1'$ naked-eye mural quadrant. |
+| **`m20-l5`** | `m20_ch5_galileo_kepler_newton` | `NUMERICAL_SCIENTIFIC_MODEL` | **Galileo, Kepler & Newton**: Full phases of Venus refuting pure Ptolemaic geometry ($1610$), Kepler's Mars ellipse ($e = 0.0934$, $P^2 = a^3$), and Newton's $F = G m_1 m_2 / r^2$. |
+| **`m20-l6`** | `m20_ch6_spectroscopy_parallax_lab` | `OBSERVED_DATA` | **Parallax & Spectroscopy**: Bessel's $1838$ parallax of 61 Cygni ($p = 0.314'' \implies d = 3.18\text{ pc}$), Kirchhoff–Bunsen spectral laws ($1859$), and $1868$ solar Helium discovery ($587.6\text{ nm}$). |
+| **`m20-l7`** | `m20_ch7_leavitt_hubble_cepheid` | `OBSERVED_DATA` | **Island Universes & Expanding Space**: Leavitt's Period–Luminosity law ($1912$), Payne-Gaposchkin's $1925$ $\sim 98\%$ H/He thesis, Hubble's $1923$ M31 Cepheid V1 ($P = 31.4\text{ d}$), and Lemaître–Hubble expansion. |
+| **`m20-l8`** | `m20_ch8_multimessenger_observatory` | `OBSERVED_DATA` | **Multi-Messenger Frontier**: $1965$ CMB, $1995$ 51 Pegasi b ($6,000+$ exoplanets), $2015$ LIGO GW150914 ($h \sim 10^{-21}$), $2017$ GW170817 kilonova, $2019$ EHT M87*, and $2022$ JWST. |

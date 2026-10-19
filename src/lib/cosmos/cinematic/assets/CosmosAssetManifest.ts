@@ -101,7 +101,8 @@ export interface CosmosVerifiedAssetRecord {
   licenseURL: string;
   requiredAttribution: string;
   usageRestrictions: string;
-  commercialUseStatus: "PERMITTED_WITH_ATTRIBUTION" | "PERMITTED_PUBLIC_DOMAIN" | "RESTRICTED_NON_COMMERCIAL";
+  commercialUseStatus:
+    "PERMITTED_WITH_ATTRIBUTION" | "PERMITTED_PUBLIC_DOMAIN" | "RESTRICTED_NON_COMMERCIAL";
   noEndorsementNotice: string;
   scientificRepresentation: ScientificRepresentationCategory;
   sourceDataVersion: string;
@@ -110,7 +111,8 @@ export interface CosmosVerifiedAssetRecord {
   optimizedAssetPath: string;
   originalFormat: string;
   optimizedFormat: AssetFormatIdentifier;
-  compressionCodec: "MESHOPT" | "DRACO" | "KTX2_UASTC" | "TYPED_FLOAT32" | "UNCOMPRESSED_PROCEDURAL";
+  compressionCodec:
+    "MESHOPT" | "DRACO" | "KTX2_UASTC" | "TYPED_FLOAT32" | "UNCOMPRESSED_PROCEDURAL";
   availableLODLevels: AssetLODDescriptor[];
   textureVariants: Record<CinematicQualityTier, AssetTextureVariantDescriptor>;
   estimatedGpuMemory: {
@@ -193,10 +195,9 @@ function buildStandardPlanetaryLODs(
   ];
 }
 
-function buildStandardPlanetaryTextureVariants(includeNormal = true): Record<
-  CinematicQualityTier,
-  AssetTextureVariantDescriptor
-> {
+function buildStandardPlanetaryTextureVariants(
+  includeNormal = true,
+): Record<CinematicQualityTier, AssetTextureVariantDescriptor> {
   return {
     HIGH_CINEMATIC: {
       qualityTier: "HIGH_CINEMATIC",
@@ -253,7 +254,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     usageRestrictions:
       "Public domain under 17 U.S.C. § 105. Must not use NASA insignia or imply official NASA endorsement. Cloud layer is a scale-adjusted synoptic synthesis, not live meteorological telemetry.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
-    noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy or its commercial products.",
+    noEndorsementNotice:
+      "NASA does not endorse Our Visible Universe Academy or its commercial products.",
     scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
     sourceDataVersion: "BMNG-2004.12 + ETOPO1-v2 + VIIRS-2016",
     downloadDate: "2026-10-19",
@@ -294,7 +296,10 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
       "m08_orbital_mechanics_lab",
       "m23_astrobiology_worlds_3d",
     ],
-    relatedNarrationCueIds: ["cue-m01-01-lesson-1-what-is-space-title", "cue-m01-01-lesson-2-earth-our-home-title"],
+    relatedNarrationCueIds: [
+      "cue-m01-01-lesson-1-what-is-space-title",
+      "cue-m01-01-lesson-2-earth-our-home-title",
+    ],
     validationStatus: "READY",
   },
 
@@ -310,7 +315,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
     requiredAttribution:
       "Lunar albedo and elevation relief derived from NASA Lunar Reconnaissance Orbiter (LROC WAC / LOLA CGI Moon Kit, SVS #4720). Courtesy NASA/GSFC/ASU.",
-    usageRestrictions: "Public domain under 17 U.S.C. § 105. Airless body must render with zero atmospheric scattering.",
+    usageRestrictions:
+      "Public domain under 17 U.S.C. § 105. Airless body must render with zero atmospheric scattering.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
     scientificRepresentation: "OBSERVATION_BASED",
@@ -337,7 +343,11 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
       defaultDisplayRadiusUnits: 0.42,
       measurementSource: "NASA LRO LOLA / JPL DE440",
     },
-    requiredInteractiveNodeIds: ["moon_surface_mesh", "moon_tycho_crater_anchor", "moon_mare_tranquillitatis_anchor"],
+    requiredInteractiveNodeIds: [
+      "moon_surface_mesh",
+      "moon_tycho_crater_anchor",
+      "moon_mare_tranquillitatis_anchor",
+    ],
     relatedModuleIds: ["01", "03", "05", "06", "08", "22"],
     relatedSceneIds: [
       "m01_cosmic_zoom_hierarchy",
@@ -359,7 +369,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA Solar System Exploration / MESSENGER MDIS Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Mercury global surface reference derived from NASA MESSENGER MDIS mosaic. Courtesy NASA/JHUAPL/CIW.",
+    requiredAttribution:
+      "Mercury global surface reference derived from NASA MESSENGER MDIS mosaic. Courtesy NASA/JHUAPL/CIW.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -389,7 +400,11 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     },
     requiredInteractiveNodeIds: ["mercury_surface_mesh", "mercury_iron_core_cutaway"],
     relatedModuleIds: ["01", "06", "08"],
-    relatedSceneIds: ["m01_cosmic_zoom_hierarchy", "m06_solar_system_orrery_3d", "m08_orbital_mechanics_lab"],
+    relatedSceneIds: [
+      "m01_cosmic_zoom_hierarchy",
+      "m06_solar_system_orrery_3d",
+      "m08_orbital_mechanics_lab",
+    ],
     relatedNarrationCueIds: ["cue-m06-06-sub-02-title"],
     validationStatus: "READY",
   },
@@ -404,7 +419,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA Solar System Exploration / JPL Magellan Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Venus radar topography and cloud albedo derived from NASA Magellan & Pioneer Venus data. Courtesy NASA/JPL-Caltech.",
+    requiredAttribution:
+      "Venus radar topography and cloud albedo derived from NASA Magellan & Pioneer Venus data. Courtesy NASA/JPL-Caltech.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -434,7 +450,11 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     },
     requiredInteractiveNodeIds: ["venus_cloud_deck_mesh", "venus_radar_surface_mesh"],
     relatedModuleIds: ["01", "06", "19", "23"],
-    relatedSceneIds: ["m01_cosmic_zoom_hierarchy", "m06_solar_system_orrery_3d", "m23_astrobiology_worlds_3d"],
+    relatedSceneIds: [
+      "m01_cosmic_zoom_hierarchy",
+      "m06_solar_system_orrery_3d",
+      "m23_astrobiology_worlds_3d",
+    ],
     relatedNarrationCueIds: ["cue-m06-06-sub-02-title"],
     validationStatus: "READY",
   },
@@ -449,7 +469,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / JPL / USGS / MOLA Science Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Mars global mosaic and laser altimetry relief derived from NASA Viking & Mars Global Surveyor MOLA. Courtesy NASA/JPL-Caltech/USGS.",
+    requiredAttribution:
+      "Mars global mosaic and laser altimetry relief derived from NASA Viking & Mars Global Surveyor MOLA. Courtesy NASA/JPL-Caltech/USGS.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -505,8 +526,10 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / JPL / Cassini Imaging Team / JunoCam",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Jupiter cylindrical cloud map derived from NASA Cassini ISS and JunoCam observations. Courtesy NASA/JPL-Caltech/SSI/SwRI.",
-    usageRestrictions: "Public domain under 17 U.S.C. § 105. Differential zonal wind animation is time-accelerated for educational clarity.",
+    requiredAttribution:
+      "Jupiter cylindrical cloud map derived from NASA Cassini ISS and JunoCam observations. Courtesy NASA/JPL-Caltech/SSI/SwRI.",
+    usageRestrictions:
+      "Public domain under 17 U.S.C. § 105. Differential zonal wind animation is time-accelerated for educational clarity.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
     scientificRepresentation: "OBSERVATION_BASED",
@@ -539,7 +562,11 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
       "jupiter_equatorial_zone_anchor",
     ],
     relatedModuleIds: ["01", "06", "08", "12", "22"],
-    relatedSceneIds: ["m01_cosmic_zoom_hierarchy", "m06_solar_system_orrery_3d", "m08_orbital_mechanics_lab"],
+    relatedSceneIds: [
+      "m01_cosmic_zoom_hierarchy",
+      "m06_solar_system_orrery_3d",
+      "m08_orbital_mechanics_lab",
+    ],
     relatedNarrationCueIds: ["cue-m06-06-sub-03-title"],
     validationStatus: "READY",
   },
@@ -554,7 +581,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / JPL-Caltech / SSI Cassini Imaging Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Saturn atmosphere and radial ring optical-depth profile derived from NASA/ESA Cassini ISS & UVIS occultation profiles. Courtesy NASA/JPL-Caltech/SSI.",
+    requiredAttribution:
+      "Saturn atmosphere and radial ring optical-depth profile derived from NASA/ESA Cassini ISS & UVIS occultation profiles. Courtesy NASA/JPL-Caltech/SSI.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA and ESA do not endorse Our Visible Universe Academy.",
@@ -604,7 +632,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA Solar System Exploration / JPL",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Uranus methane-absorption appearance derived from NASA Voyager 2 ISS and HST OPAL observations. Courtesy NASA/JPL-Caltech/STScI.",
+    requiredAttribution:
+      "Uranus methane-absorption appearance derived from NASA Voyager 2 ISS and HST OPAL observations. Courtesy NASA/JPL-Caltech/STScI.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -649,7 +678,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA Solar System Exploration / JPL",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Neptune atmospheric bands and vortex features derived from NASA Voyager 2 and HST OPAL observations. Courtesy NASA/JPL-Caltech/STScI.",
+    requiredAttribution:
+      "Neptune atmospheric bands and vortex features derived from NASA Voyager 2 and HST OPAL observations. Courtesy NASA/JPL-Caltech/STScI.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -743,7 +773,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / JPL / Galileo SSI & Juno Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Europa surface lineae mosaic derived from NASA Galileo SSI & Voyager observations; interior ocean depth is an induced-magnetic-field model reconstruction. Courtesy NASA/JPL-Caltech/USGS.",
+    requiredAttribution:
+      "Europa surface lineae mosaic derived from NASA Galileo SSI & Voyager observations; interior ocean depth is an induced-magnetic-field model reconstruction. Courtesy NASA/JPL-Caltech/USGS.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -793,7 +824,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / JPL / USGS Galileo SSI Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Io global sulfur volcanism mosaic derived from NASA Galileo SSI & Voyager imagery. Courtesy NASA/JPL-Caltech/USGS.",
+    requiredAttribution:
+      "Io global sulfur volcanism mosaic derived from NASA Galileo SSI & Voyager imagery. Courtesy NASA/JPL-Caltech/USGS.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -837,7 +869,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / JPL-Caltech / SSI / Cassini RADAR & VIMS Teams",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Titan atmospheric haze and radar lake mapping derived from NASA/ESA/ASI Cassini-Huygens mission. Courtesy NASA/JPL-Caltech/SSI.",
+    requiredAttribution:
+      "Titan atmospheric haze and radar lake mapping derived from NASA/ESA/ASI Cassini-Huygens mission. Courtesy NASA/JPL-Caltech/SSI.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA and ESA do not endorse Our Visible Universe Academy.",
@@ -864,7 +897,11 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
       defaultDisplayRadiusUnits: 0.58,
       measurementSource: "NASA/ESA Cassini-Huygens",
     },
-    requiredInteractiveNodeIds: ["titan_surface_mesh", "titan_atmosphere_shell", "titan_kraken_mare_anchor"],
+    requiredInteractiveNodeIds: [
+      "titan_surface_mesh",
+      "titan_atmosphere_shell",
+      "titan_kraken_mare_anchor",
+    ],
     relatedModuleIds: ["06", "23"],
     relatedSceneIds: ["m06_solar_system_orrery_3d", "m23_astrobiology_worlds_3d"],
     relatedNarrationCueIds: ["cue-m06-06-sub-07-title"],
@@ -873,7 +910,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
 
   asset_moon_enceladus_cassini_v1: {
     assetId: "asset_moon_enceladus_cassini_v1",
-    displayName: "Enceladus — High-Albedo Ice Shell, South-Polar Tiger Stripes & Cryovolcanic Plumes",
+    displayName:
+      "Enceladus — High-Albedo Ice Shell, South-Polar Tiger Stripes & Cryovolcanic Plumes",
     scientificObjectType: "moon_rocky_icy",
     deliveryStrategy: "HYBRID_PROCEDURAL_SURFACE_MAPS",
     sourceOrganization: "NASA / JPL-Caltech / Space Science Institute",
@@ -881,7 +919,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / JPL-Caltech / SSI Cassini Imaging Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Enceladus ice shell and Tiger Stripes fractures derived from NASA Cassini ISS mosaic. Courtesy NASA/JPL-Caltech/SSI.",
+    requiredAttribution:
+      "Enceladus ice shell and Tiger Stripes fractures derived from NASA Cassini ISS mosaic. Courtesy NASA/JPL-Caltech/SSI.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -908,7 +947,11 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
       defaultDisplayRadiusUnits: 0.35,
       measurementSource: "NASA Cassini",
     },
-    requiredInteractiveNodeIds: ["enceladus_ice_shell_mesh", "enceladus_tiger_stripes_anchor", "enceladus_plume_jets"],
+    requiredInteractiveNodeIds: [
+      "enceladus_ice_shell_mesh",
+      "enceladus_tiger_stripes_anchor",
+      "enceladus_plume_jets",
+    ],
     relatedModuleIds: ["06", "23"],
     relatedSceneIds: ["m06_solar_system_orrery_3d", "m23_astrobiology_worlds_3d"],
     relatedNarrationCueIds: ["cue-m06-06-sub-07-title"],
@@ -917,7 +960,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
 
   asset_smallbody_asteroid_bennu_v1: {
     assetId: "asset_smallbody_asteroid_bennu_v1",
-    displayName: "101955 Bennu — OSIRIS-REx Non-Spherical Spinning-Top Rubble-Pile Asteroid Shape Model",
+    displayName:
+      "101955 Bennu — OSIRIS-REx Non-Spherical Spinning-Top Rubble-Pile Asteroid Shape Model",
     scientificObjectType: "moon_rocky_icy",
     deliveryStrategy: "AUTHENTIC_SCIENTIFIC_GLB_DERIVATIVE",
     sourceOrganization: "NASA Goddard Space Flight Center / University of Arizona (OSIRIS-REx)",
@@ -925,7 +969,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA / University of Arizona / OSIRIS-REx Altimetry Working Group",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Bennu polyhedral shape profile derived from NASA OSIRIS-REx laser altimetry (OLA) and stereophotoclinometry. Courtesy NASA/Goddard/University of Arizona.",
+    requiredAttribution:
+      "Bennu polyhedral shape profile derived from NASA OSIRIS-REx laser altimetry (OLA) and stereophotoclinometry. Courtesy NASA/Goddard/University of Arizona.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
@@ -1006,7 +1051,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
   // =========================================================================
   asset_spacecraft_jwst_v2: {
     assetId: "asset_spacecraft_jwst_v2",
-    displayName: "James Webb Space Telescope (JWST) — 18-Segment Beryllium-Gold Observatory Assembly v2",
+    displayName:
+      "James Webb Space Telescope (JWST) — 18-Segment Beryllium-Gold Observatory Assembly v2",
     scientificObjectType: "spacecraft_instrument",
     deliveryStrategy: "AUTHENTIC_SCIENTIFIC_GLB_DERIVATIVE",
     sourceOrganization: "NASA Goddard Space Flight Center / STScI / ESA / CSA",
@@ -1036,7 +1082,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         hysteresisPixels: 16,
         triangleCount: 9420,
         geometricErrorRatio: 0.0009,
-        description: "Full 18 individualized hexagonal primary segments, secondary tripod struts, 5-layer Kapton sunshield, ISIM aft bus & solar array",
+        description:
+          "Full 18 individualized hexagonal primary segments, secondary tripod struts, 5-layer Kapton sunshield, ISIM aft bus & solar array",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1101,7 +1148,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
 
   asset_spacecraft_hst_v2: {
     assetId: "asset_spacecraft_hst_v2",
-    displayName: "Hubble Space Telescope (HST) — 2.4m Ritchey-Chrétien Low-Earth Orbit Observatory v2",
+    displayName:
+      "Hubble Space Telescope (HST) — 2.4m Ritchey-Chrétien Low-Earth Orbit Observatory v2",
     scientificObjectType: "spacecraft_instrument",
     deliveryStrategy: "AUTHENTIC_SCIENTIFIC_GLB_DERIVATIVE",
     sourceOrganization: "NASA Goddard Space Flight Center / STScI / ESA",
@@ -1109,7 +1157,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA GSFC / STScI 3D Resources",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Hubble Space Telescope geometry derived from NASA 3D Resources. Courtesy NASA/GSFC/STScI/ESA.",
+    requiredAttribution:
+      "Hubble Space Telescope geometry derived from NASA 3D Resources. Courtesy NASA/GSFC/STScI/ESA.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA and ESA do not endorse Our Visible Universe Academy.",
@@ -1129,7 +1178,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         hysteresisPixels: 14,
         triangleCount: 6840,
         geometricErrorRatio: 0.001,
-        description: "Detailed cylindrical OTA baffle, open aperture door, 2.4m primary mirror, dual solar arrays & HGA masts",
+        description:
+          "Detailed cylindrical OTA baffle, open aperture door, 2.4m primary mirror, dual solar arrays & HGA masts",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1189,7 +1239,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
 
   asset_spacecraft_voyager_v2: {
     assetId: "asset_spacecraft_voyager_v2",
-    displayName: "Voyager 1 / 2 Interstellar Probe — 3.7m High-Gain Dish, RTG Boom & Golden Record v2",
+    displayName:
+      "Voyager 1 / 2 Interstellar Probe — 3.7m High-Gain Dish, RTG Boom & Golden Record v2",
     scientificObjectType: "spacecraft_instrument",
     deliveryStrategy: "AUTHENTIC_SCIENTIFIC_GLB_DERIVATIVE",
     sourceOrganization: "NASA / Jet Propulsion Laboratory (JPL-Caltech)",
@@ -1197,7 +1248,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "NASA JPL 3D Resources Team",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
-    requiredAttribution: "Voyager spacecraft structural design derived from NASA JPL 3D Resources. Courtesy NASA/JPL-Caltech.",
+    requiredAttribution:
+      "Voyager spacecraft structural design derived from NASA JPL 3D Resources. Courtesy NASA/JPL-Caltech.",
     usageRestrictions: "Public domain under 17 U.S.C. § 105.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA and JPL-Caltech do not endorse Our Visible Universe Academy.",
@@ -1217,7 +1269,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         hysteresisPixels: 14,
         triangleCount: 5620,
         geometricErrorRatio: 0.0011,
-        description: "Full 3.7m parabolic HGA dish, decagonal electronics bus, triple MHW-RTG boom, science scan platform, magnetometer truss & Golden Record cover",
+        description:
+          "Full 3.7m parabolic HGA dish, decagonal electronics bus, triple MHW-RTG boom, science scan platform, magnetometer truss & Golden Record cover",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1282,12 +1335,14 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     deliveryStrategy: "AUTHENTIC_SCIENTIFIC_GLB_DERIVATIVE",
     sourceOrganization: "ISRO Public Mission Press Kit / Clean-Room First-Party Reconstruction",
     sourceURL: "https://www.isro.gov.in/Chandrayaan3_Details.html",
-    originalAuthor: "Our Visible Universe Academy Engineering Team (from ISRO published dimensions)",
+    originalAuthor:
+      "Our Visible Universe Academy Engineering Team (from ISRO published dimensions)",
     licenseIdentifier: "CLEAN_ROOM_FIRST_PARTY",
     licenseURL: "https://ourvisibleuniverse.in/licenses",
     requiredAttribution:
       "First-party clean-room 3D educational model constructed from published ISRO Chandrayaan-3 Vikram Lander (2.0m x 2.0m x 1.16m) and Pragyan Rover technical specifications.",
-    usageRestrictions: "First-party educational model. ISRO name used purely for factual mission identification without implying official endorsement.",
+    usageRestrictions:
+      "First-party educational model. ISRO name used purely for factual mission identification without implying official endorsement.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "ISRO does not endorse Our Visible Universe Academy.",
     scientificRepresentation: "SCALE_ADJUSTED_EDUCATIONAL_MODEL",
@@ -1306,7 +1361,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         hysteresisPixels: 14,
         triangleCount: 5120,
         geometricErrorRatio: 0.0012,
-        description: "Full gold-MLI Vikram lander core, 4 telescopic landing struts, ChaSTE thermal probe, deployment ramp & 6-wheel Pragyan rover",
+        description:
+          "Full gold-MLI Vikram lander core, 4 telescopic landing struts, ChaSTE thermal probe, deployment ramp & 6-wheel Pragyan rover",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1377,7 +1433,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     originalAuthor: "Our Visible Universe Academy Engineering Team",
     licenseIdentifier: "CLEAN_ROOM_FIRST_PARTY",
     licenseURL: "https://ourvisibleuniverse.in/licenses",
-    requiredAttribution: "First-party interactive 3D optical ray-tracing assembly modeling parabolic primary and hyperbolic secondary reflection geometry.",
+    requiredAttribution:
+      "First-party interactive 3D optical ray-tracing assembly modeling parabolic primary and hyperbolic secondary reflection geometry.",
     usageRestrictions: "First-party educational model.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "First-party asset.",
@@ -1397,7 +1454,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         hysteresisPixels: 12,
         triangleCount: 4860,
         geometricErrorRatio: 0.001,
-        description: "Full cutaway optical tube, parabolic primary mirror with central baffle, spider vanes, hyperbolic secondary mirror, Cassegrain CCD focal plane & collimated ray bundle",
+        description:
+          "Full cutaway optical tube, parabolic primary mirror with central baffle, spider vanes, hyperbolic secondary mirror, Cassegrain CCD focal plane & collimated ray bundle",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1454,14 +1512,17 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     displayName: "Planckian OBAFGKM Stellar Photosphere, Corona & 3D Interior Cutaway Rig v2",
     scientificObjectType: "star_main_sequence",
     deliveryStrategy: "PHYSICALLY_INFORMED_GLSL_SHADER",
-    sourceOrganization: "NASA Solar Dynamics Observatory (SDO) Reference / ESA Gaia DR3 Spectral Calibration",
+    sourceOrganization:
+      "NASA Solar Dynamics Observatory (SDO) Reference / ESA Gaia DR3 Spectral Calibration",
     sourceURL: "https://sdo.gsfc.nasa.gov/",
-    originalAuthor: "Our Visible Universe Academy Rendering Engine (calibrated to SDO AIA/HMI & Planckian Locus)",
+    originalAuthor:
+      "Our Visible Universe Academy Rendering Engine (calibrated to SDO AIA/HMI & Planckian Locus)",
     licenseIdentifier: "PUBLIC_DOMAIN_NASA_17USC105",
     licenseURL: "https://www.nasa.gov/nasa-brand-center/images-and-media/",
     requiredAttribution:
       "Solar surface convection and coronal loop structures calibrated to NASA Solar Dynamics Observatory (SDO) AIA/HMI observations; interior core/radiative/convective shells are helioseismic standard solar model reconstructions (Bahcall et al.).",
-    usageRestrictions: "Interior layers are physics-based helioseismic models, not direct interior photographs.",
+    usageRestrictions:
+      "Interior layers are physics-based helioseismic models, not direct interior photographs.",
     commercialUseStatus: "PERMITTED_PUBLIC_DOMAIN",
     noEndorsementNotice: "NASA does not endorse Our Visible Universe Academy.",
     scientificRepresentation: "PHYSICS_BASED_SIMULATION",
@@ -1494,7 +1555,21 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
       "convective_zone",
       "corona_shell",
     ],
-    relatedModuleIds: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "12", "20", "24"],
+    relatedModuleIds: [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07",
+      "08",
+      "09",
+      "10",
+      "12",
+      "20",
+      "24",
+    ],
     relatedSceneIds: [
       "m01_cosmic_zoom_hierarchy",
       "m07_solar_interior_dynamo_3d",
@@ -1508,7 +1583,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
 
   asset_nebula_orion_m42_volumetric_v2: {
     assetId: "asset_nebula_orion_m42_volumetric_v2",
-    displayName: "Interstellar Nebulae (H-alpha / [O III] Emission, Reflection & Dark Barnard Cloud) Volumetric Rig v2",
+    displayName:
+      "Interstellar Nebulae (H-alpha / [O III] Emission, Reflection & Dark Barnard Cloud) Volumetric Rig v2",
     scientificObjectType: "nebula_emission",
     deliveryStrategy: "LABELED_VOLUMETRIC_RECONSTRUCTION",
     sourceOrganization: "NASA / ESA / CSA / STScI (Hubble & James Webb Space Telescope)",
@@ -1521,7 +1597,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     usageRestrictions:
       "CC BY 4.0 requires attribution to ESA/Webb, NASA & CSA. 3D depth geometry must be explicitly disclosed as a model-dependent reconstruction rather than a direct 3D tomographic measurement.",
     commercialUseStatus: "PERMITTED_WITH_ATTRIBUTION",
-    noEndorsementNotice: "ESA/Webb, NASA, CSA, and STScI do not endorse Our Visible Universe Academy.",
+    noEndorsementNotice:
+      "ESA/Webb, NASA, CSA, and STScI do not endorse Our Visible Universe Academy.",
     scientificRepresentation: "ARTISTIC_SCIENTIFIC_RECONSTRUCTION",
     sourceDataVersion: "ESA-Webb-M42-M16-Volumetric-v2",
     downloadDate: "2026-10-19",
@@ -1538,7 +1615,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         hysteresisPixels: 15,
         triangleCount: 4096,
         geometricErrorRatio: 0.002,
-        description: "Multi-shell volumetric FBM shader (24 raymarch steps) + embedded OB ionizing star cluster",
+        description:
+          "Multi-shell volumetric FBM shader (24 raymarch steps) + embedded OB ionizing star cluster",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1603,7 +1681,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     usageRestrictions:
       "Distant galactic spiral arms and dark matter NFW halos combine cataloged parameters with seeded procedural density-wave sampling.",
     commercialUseStatus: "PERMITTED_WITH_ATTRIBUTION",
-    noEndorsementNotice: "ESA and the Gaia Collaboration do not endorse Our Visible Universe Academy.",
+    noEndorsementNotice:
+      "ESA and the Gaia Collaboration do not endorse Our Visible Universe Academy.",
     scientificRepresentation: "PHYSICS_BASED_SIMULATION",
     sourceDataVersion: "Gaia-DR3-SDSS-DR17-v2",
     downloadDate: "2026-10-19",
@@ -1621,7 +1700,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         triangleCount: 0,
         particleCount: 4200,
         geometricErrorRatio: 0.001,
-        description: "4,200 single-draw-call GPU point sprites with Pop I/II spectral color & differential rotation",
+        description:
+          "4,200 single-draw-call GPU point sprites with Pop I/II spectral color & differential rotation",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1651,7 +1731,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         triangleCount: 2,
         particleCount: 1,
         geometricErrorRatio: 0.035,
-        description: "Sub-12px screen-space Sérsic surface-brightness impostor preventing distant galaxy mesh overhead",
+        description:
+          "Sub-12px screen-space Sérsic surface-brightness impostor preventing distant galaxy mesh overhead",
       },
     ],
     textureVariants: buildStandardPlanetaryTextureVariants(false),
@@ -1693,12 +1774,15 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
 
   asset_compact_blackhole_kerr_relativity_v2: {
     assetId: "asset_compact_blackhole_kerr_relativity_v2",
-    displayName: "Schwarzschild/Kerr Relativistic Black Hole, Photon Ring, Doppler Accretion Disk & Pulsar Magnetosphere v2",
+    displayName:
+      "Schwarzschild/Kerr Relativistic Black Hole, Photon Ring, Doppler Accretion Disk & Pulsar Magnetosphere v2",
     scientificObjectType: "black_hole_relativistic",
     deliveryStrategy: "PHYSICALLY_INFORMED_GLSL_SHADER",
-    sourceOrganization: "Event Horizon Telescope (EHT) Collaboration / NASA GSFC Relativistic Visualization Reference",
+    sourceOrganization:
+      "Event Horizon Telescope (EHT) Collaboration / NASA GSFC Relativistic Visualization Reference",
     sourceURL: "https://eventhorizontelescope.org/",
-    originalAuthor: "Event Horizon Telescope Collaboration (CC BY 4.0) / Our Visible Universe Academy GR Shader Engine",
+    originalAuthor:
+      "Event Horizon Telescope Collaboration (CC BY 4.0) / Our Visible Universe Academy GR Shader Engine",
     licenseIdentifier: "CC_BY_4_0_ESO",
     licenseURL: "https://creativecommons.org/licenses/by/4.0/",
     requiredAttribution:
@@ -1706,7 +1790,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
     usageRestrictions:
       "Analytical Paczyński-Wiita / Novikov-Thorne real-time shader approximation; full numerical GRMHD ray-tracing disclosure displayed in HUD.",
     commercialUseStatus: "PERMITTED_WITH_ATTRIBUTION",
-    noEndorsementNotice: "The Event Horizon Telescope Collaboration, ESO, and NASA do not endorse Our Visible Universe Academy.",
+    noEndorsementNotice:
+      "The Event Horizon Telescope Collaboration, ESO, and NASA do not endorse Our Visible Universe Academy.",
     scientificRepresentation: "PHYSICS_BASED_SIMULATION",
     sourceDataVersion: "EHT-M87-SgrA-GRMHD-v2",
     downloadDate: "2026-10-19",
@@ -1723,7 +1808,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
         hysteresisPixels: 14,
         triangleCount: 9600,
         geometricErrorRatio: 0.0008,
-        description: "Full Schwarzschild/Kerr shadow, photon ring, high-resolution Doppler-beamed accretion disk, gravitational lensing halo, relativistic jets & pulsar magnetosphere",
+        description:
+          "Full Schwarzschild/Kerr shadow, photon ring, high-resolution Doppler-beamed accretion disk, gravitational lensing halo, relativistic jets & pulsar magnetosphere",
       },
       {
         lodId: "LOD1_MEDIUM",
@@ -1756,7 +1842,8 @@ export const COSMOS_VERIFIED_ASSET_MANIFEST: Record<string, CosmosVerifiedAssetR
       axialTiltDeg: 18.0,
       rotationPeriodHours: 0.001,
       defaultDisplayRadiusUnits: 1.35,
-      measurementSource: "General Relativity (Schwarzschild 1916; Kerr 1963; Bardeen-Press-Teukolsky 1972)",
+      measurementSource:
+        "General Relativity (Schwarzschild 1916; Kerr 1963; Bardeen-Press-Teukolsky 1972)",
     },
     requiredInteractiveNodeIds: [
       "event_horizon_shadow",
@@ -1811,7 +1898,11 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
   "02": {
     primaryAssetIds: ["asset_planet_earth_reference_v2", "asset_star_spectral_photosphere_v2"],
     supportingAssetIds: ["asset_galaxy_catalog_particle_field_v2"],
-    reusableProceduralComponents: ["ScientificPlanetMaterial", "ScientificAtmosphere", "StarClusterRenderer"],
+    reusableProceduralComponents: [
+      "ScientificPlanetMaterial",
+      "ScientificAtmosphere",
+      "StarClusterRenderer",
+    ],
   },
   "03": {
     primaryAssetIds: [
@@ -1821,12 +1912,23 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
       "asset_galaxy_catalog_particle_field_v2",
     ],
     supportingAssetIds: ["asset_spacecraft_voyager_v2"],
-    reusableProceduralComponents: ["OrbitalTrajectoryRenderer", "ScientificVectorField", "ScientificAnnotation"],
+    reusableProceduralComponents: [
+      "OrbitalTrajectoryRenderer",
+      "ScientificVectorField",
+      "ScientificAnnotation",
+    ],
   },
   "04": {
-    primaryAssetIds: ["asset_star_spectral_photosphere_v2", "asset_instrument_cassegrain_reflector_v1"],
+    primaryAssetIds: [
+      "asset_star_spectral_photosphere_v2",
+      "asset_instrument_cassegrain_reflector_v1",
+    ],
     supportingAssetIds: ["asset_planet_earth_reference_v2", "asset_spacecraft_jwst_v2"],
-    reusableProceduralComponents: ["ScientificStarMaterial", "ScientificTelescopeCutaway", "ScientificVectorField"],
+    reusableProceduralComponents: [
+      "ScientificStarMaterial",
+      "ScientificTelescopeCutaway",
+      "ScientificVectorField",
+    ],
   },
   "05": {
     primaryAssetIds: [
@@ -1883,7 +1985,10 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
       "asset_moon_luna_lroc_v2",
       "asset_spacecraft_voyager_v2",
     ],
-    supportingAssetIds: ["asset_planet_mars_viking_mola_v2", "asset_planet_jupiter_cassini_juno_v2"],
+    supportingAssetIds: [
+      "asset_planet_mars_viking_mola_v2",
+      "asset_planet_jupiter_cassini_juno_v2",
+    ],
     reusableProceduralComponents: [
       "ScientificPlanetMaterial",
       "ScientificStarMaterial",
@@ -1895,7 +2000,11 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
   "09": {
     primaryAssetIds: ["asset_star_spectral_photosphere_v2"],
     supportingAssetIds: ["asset_galaxy_catalog_particle_field_v2"],
-    reusableProceduralComponents: ["ScientificStarMaterial", "StarClusterRenderer", "ScientificAnnotation"],
+    reusableProceduralComponents: [
+      "ScientificStarMaterial",
+      "StarClusterRenderer",
+      "ScientificAnnotation",
+    ],
   },
   "10": {
     primaryAssetIds: [
@@ -1912,8 +2021,15 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
     ],
   },
   "11": {
-    primaryAssetIds: ["asset_nebula_orion_m42_volumetric_v2", "asset_galaxy_catalog_particle_field_v2"],
-    supportingAssetIds: ["asset_star_spectral_photosphere_v2", "asset_spacecraft_jwst_v2", "asset_spacecraft_hst_v2"],
+    primaryAssetIds: [
+      "asset_nebula_orion_m42_volumetric_v2",
+      "asset_galaxy_catalog_particle_field_v2",
+    ],
+    supportingAssetIds: [
+      "asset_star_spectral_photosphere_v2",
+      "asset_spacecraft_jwst_v2",
+      "asset_spacecraft_hst_v2",
+    ],
     reusableProceduralComponents: ["NebulaVolume", "StarClusterRenderer", "ScientificStarMaterial"],
   },
   "12": {
@@ -1931,12 +2047,22 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
     ],
   },
   "13": {
-    primaryAssetIds: ["asset_galaxy_catalog_particle_field_v2", "asset_compact_blackhole_kerr_relativity_v2"],
+    primaryAssetIds: [
+      "asset_galaxy_catalog_particle_field_v2",
+      "asset_compact_blackhole_kerr_relativity_v2",
+    ],
     supportingAssetIds: ["asset_nebula_orion_m42_volumetric_v2", "asset_spacecraft_hst_v2"],
-    reusableProceduralComponents: ["GalaxyParticleField", "StarClusterRenderer", "ScientificBlackHoleEffects"],
+    reusableProceduralComponents: [
+      "GalaxyParticleField",
+      "StarClusterRenderer",
+      "ScientificBlackHoleEffects",
+    ],
   },
   "14": {
-    primaryAssetIds: ["asset_compact_blackhole_kerr_relativity_v2", "asset_star_spectral_photosphere_v2"],
+    primaryAssetIds: [
+      "asset_compact_blackhole_kerr_relativity_v2",
+      "asset_star_spectral_photosphere_v2",
+    ],
     supportingAssetIds: ["asset_nebula_orion_m42_volumetric_v2"],
     reusableProceduralComponents: [
       "ScientificBlackHoleEffects",
@@ -1948,22 +2074,40 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
   "15": {
     primaryAssetIds: ["asset_galaxy_catalog_particle_field_v2"],
     supportingAssetIds: ["asset_nebula_orion_m42_volumetric_v2"],
-    reusableProceduralComponents: ["GalaxyParticleField", "ScientificVectorField", "ScientificAnnotation"],
+    reusableProceduralComponents: [
+      "GalaxyParticleField",
+      "ScientificVectorField",
+      "ScientificAnnotation",
+    ],
   },
   "16": {
-    primaryAssetIds: ["asset_galaxy_catalog_particle_field_v2", "asset_compact_blackhole_kerr_relativity_v2"],
+    primaryAssetIds: [
+      "asset_galaxy_catalog_particle_field_v2",
+      "asset_compact_blackhole_kerr_relativity_v2",
+    ],
     supportingAssetIds: ["asset_star_spectral_photosphere_v2"],
-    reusableProceduralComponents: ["GalaxyParticleField", "OrbitalTrajectoryRenderer", "ScientificVectorField"],
+    reusableProceduralComponents: [
+      "GalaxyParticleField",
+      "OrbitalTrajectoryRenderer",
+      "ScientificVectorField",
+    ],
   },
   "17": {
-    primaryAssetIds: ["asset_galaxy_catalog_particle_field_v2", "asset_nebula_orion_m42_volumetric_v2"],
+    primaryAssetIds: [
+      "asset_galaxy_catalog_particle_field_v2",
+      "asset_nebula_orion_m42_volumetric_v2",
+    ],
     supportingAssetIds: ["asset_spacecraft_jwst_v2"],
     reusableProceduralComponents: ["GalaxyParticleField", "NebulaVolume", "ScientificStarMaterial"],
   },
   "18": {
     primaryAssetIds: ["asset_galaxy_catalog_particle_field_v2"],
     supportingAssetIds: ["asset_star_spectral_photosphere_v2"],
-    reusableProceduralComponents: ["GalaxyParticleField", "ScientificVectorField", "ScientificAnnotation"],
+    reusableProceduralComponents: [
+      "GalaxyParticleField",
+      "ScientificVectorField",
+      "ScientificAnnotation",
+    ],
   },
   "19": {
     primaryAssetIds: [
@@ -1971,7 +2115,11 @@ export const MODULE_PRIMARY_ASSET_MAP: Record<
       "asset_star_spectral_photosphere_v2",
       "asset_instrument_cassegrain_reflector_v1",
     ],
-    supportingAssetIds: ["asset_planet_venus_v1", "asset_planet_jupiter_cassini_juno_v2", "asset_spacecraft_hst_v2"],
+    supportingAssetIds: [
+      "asset_planet_venus_v1",
+      "asset_planet_jupiter_cassini_juno_v2",
+      "asset_spacecraft_hst_v2",
+    ],
     reusableProceduralComponents: [
       "ScientificPlanetMaterial",
       "OrbitalTrajectoryRenderer",

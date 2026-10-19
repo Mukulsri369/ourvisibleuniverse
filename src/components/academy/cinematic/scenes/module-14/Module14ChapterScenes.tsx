@@ -201,10 +201,7 @@ export function StellarCollapseScene({
           </mesh>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <ringGeometry args={[0.32, 0.56, 32]} />
-            <meshBasicMaterial
-              color={mZams > 20 ? "#fbbf24" : "#64748b"}
-              side={THREE.DoubleSide}
-            />
+            <meshBasicMaterial color={mZams > 20 ? "#fbbf24" : "#64748b"} side={THREE.DoubleSide} />
           </mesh>
         </group>
       </group>
@@ -238,7 +235,7 @@ export function CompactObjectsScene({
     const arr: { pos: [number, number, number]; scale: [number, number, number] }[] = [];
     for (let gx = -4; gx <= 4; gx++) {
       for (let gz = -3; gz <= 3; gz++) {
-        const h = 0.08 + (((Math.abs(gx * 7 + gz * 13)) % 10) / 10) * 0.28;
+        const h = 0.08 + ((Math.abs(gx * 7 + gz * 13) % 10) / 10) * 0.28;
         arr.push({
           pos: [2.2 + gx * 0.34, -1.25 + h / 2, gz * 0.34],
           scale: [0.22, h, 0.22],
@@ -443,9 +440,7 @@ export function BlackHoleConceptScene({
 // ============================================================================
 // CHAPTER 14.4 — EVENT HORIZONS & PHOTON SPHERES (1.0 r_s, 1.5 r_s, 2.60 r_s, 3.0 r_s)
 // ============================================================================
-export function EventHorizonScene({
-  onSelectObject,
-}: Module14SceneProps) {
+export function EventHorizonScene({ onSelectObject }: Module14SceneProps) {
   const controls = useM14Controls("event-horizons");
   const impactParamRs = Number(controls.photonImpactParameterRs ?? 2.6);
   const showMetricShells = Boolean(controls.showMetricShells ?? true);
@@ -497,8 +492,7 @@ export function EventHorizonScene({
     return pts;
   }, [impactParamRs, rs, rPhotonSphere]);
 
-  const rayColor =
-    impactParamRs < 2.55 ? "#f43f5e" : impactParamRs <= 2.65 ? "#fbbf24" : "#22d3ee";
+  const rayColor = impactParamRs < 2.55 ? "#f43f5e" : impactParamRs <= 2.65 ? "#fbbf24" : "#22d3ee";
 
   return (
     <group>
@@ -535,12 +529,7 @@ export function EventHorizonScene({
           {/* b_c ≈ 2.60 r_s Critical Impact Parameter / Apparent Shadow Ring */}
           <mesh>
             <ringGeometry args={[bCritical - 0.03, bCritical + 0.03, 64]} />
-            <meshBasicMaterial
-              color="#fbbf24"
-              side={THREE.DoubleSide}
-              transparent
-              opacity={0.78}
-            />
+            <meshBasicMaterial color="#fbbf24" side={THREE.DoubleSide} transparent opacity={0.78} />
           </mesh>
 
           {/* 3.0 r_s Schwarzschild ISCO (Innermost Stable Circular Orbit for Matter) */}
@@ -683,14 +672,7 @@ export function PulsarMagnetarScene({
       {/* Magnetar Twisted Toroidal Flux Loops (10¹⁰–10¹¹ Tesla) */}
       {isMagnetar &&
         magnetarLoops.map((pts, idx) => (
-          <Line
-            key={idx}
-            points={pts}
-            color="#e879f9"
-            lineWidth={1.8}
-            transparent
-            opacity={0.78}
-          />
+          <Line key={idx} points={pts} color="#e879f9" lineWidth={1.8} transparent opacity={0.78} />
         ))}
     </group>
   );

@@ -13,11 +13,7 @@
 import * as THREE from "three";
 
 export type ManagedResourceCategory =
-  | "geometry"
-  | "material"
-  | "texture"
-  | "render_target"
-  | "particle_buffer";
+  "geometry" | "material" | "texture" | "render_target" | "particle_buffer";
 
 export interface ManagedResourceRecord {
   resourceKey: string;

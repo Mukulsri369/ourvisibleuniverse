@@ -23,7 +23,10 @@ import { blackbodyTemperatureToColor } from "./ScientificLightingController";
 import { ScientificRenderingQualityAdapter } from "./ScientificRenderingQualityAdapter";
 import { ScientificResourceManager } from "./ScientificResourceManager";
 
-import { CosmosTextureVariantManager, type CelestialTextureSubjectId } from "../assets/CosmosTextureVariantManager";
+import {
+  CosmosTextureVariantManager,
+  type CelestialTextureSubjectId,
+} from "../assets/CosmosTextureVariantManager";
 
 export type PlanetaryBodyPresetId =
   | "mercury"

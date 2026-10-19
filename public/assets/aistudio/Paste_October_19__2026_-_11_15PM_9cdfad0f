@@ -1,0 +1,3926 @@
+
+# OUR VISIBLE UNIVERSE ACADEMY
+# COSMOS CINEMATIC LEARNING SYSTEM
+# DEVELOPMENT PROMPT 13 OF 18
+
+TITLE:
+COMPLETE STAGE 5 CINEMATIC COSMOLOGY EXPERIENCE
+THE BIG BANG AND COSMIC EVOLUTION
+THE EXPANDING UNIVERSE
+THE COMPLETE HISTORY OF HUMAN COSMOLOGY
+THE DISTANT FUTURE OF THE UNIVERSE
+INTERACTIVE 3D COSMIC TIME MACHINE
+COSMOLOGICAL REDSHIFT AND HORIZON SIMULATORS
+HISTORICAL SCIENTIFIC MODEL COMPARISONS
+DEEP-TIME FUTURE SCENARIO LABORATORY
+FULL COSMOS AI NARRATION SYNCHRONIZATION
+
+MODEL:
+GOOGLE AI STUDIO — ARGON 4
+
+REPOSITORY:
+https://github.com/Mukulsri369/ourvisibleuniverse
+
+WEBSITE:
+https://ourvisibleuniverse.in
+
+PRIORITY:
+CRITICAL — STAGE 5 CINEMATIC PRODUCTION
+
+====================================================
+YOUR ROLE
+====================================================
+
+Act as a multidisciplinary scientific
+visualization and development team:
+
+1. Principal cinematic experience director.
+2. Senior Three.js / React Three Fiber engineer.
+3. Cosmologist specializing in the early universe.
+4. General relativity and spacetime specialist.
+5. Observational cosmology researcher.
+6. Cosmic microwave background researcher.
+7. Historian of astronomy and scientific ideas.
+8. Computational astrophysics engineer.
+9. Stellar evolution specialist.
+10. Scientific data visualization architect.
+11. GPU shader and particle effects engineer.
+12. Advanced cinematic camera engineer.
+13. COSMOS AI narration integration engineer.
+14. Astronomy education designer.
+15. Scientific fact-checker.
+16. Accessibility specialist.
+17. WebGL optimization engineer.
+18. Automated QA and scientific testing engineer.
+
+YOUR MISSION:
+
+Create the most immersive and
+scientifically responsible cinematic
+cosmology learning experience possible
+within the existing web architecture.
+
+Students must be able to travel
+through cosmic history, explore
+the meaning of expansion, compare
+historical cosmological models and
+investigate alternative future scenarios.
+
+COSMOS must guide every visual sequence
+using the actual approved lesson content.
+
+THIS IS AN IMPLEMENTATION PROMPT.
+
+Build functional animations, scenes,
+scientific demonstrations, narration
+mappings, student interactions and tests.
+
+Do not deliver planning documents only.
+
+====================================================
+1. PRIMARY OBJECTIVE
+====================================================
+
+Complete Stage 5:
+
+UNDERSTANDING THE UNIVERSE.
+
+MODULE 17:
+Big Bang & Cosmic Evolution.
+
+MODULE 18:
+The Expanding Universe.
+
+MODULE 19:
+Visible Universe History.
+
+MODULE 20:
+The Future of the Universe.
+
+Current storyboard documentation identifies:
+
+MODULE 17:
+8 instructional chapters.
+45 narration segments.
+
+MODULE 18:
+8 instructional chapters.
+46 narration segments.
+
+MODULE 19:
+8 instructional chapters.
+51 narration segments.
+
+MODULE 20:
+8 instructional chapters.
+32 narration segments.
+
+TOTAL:
+
+32 CHAPTERS.
+
+174 CANONICAL EXPLORER NARRATION SEGMENTS.
+
+Verify these figures against
+the actual current course registry.
+
+If documentation and live code disagree,
+use approved current instructional data
+and document the discrepancies.
+
+EVERY CHAPTER MUST HAVE
+AN APPROPRIATE DISTINCT CINEMATIC SCENE.
+
+EVERY ACTUAL NARRATION SEGMENT
+MUST MAP TO MEANINGFUL VISUAL BEHAVIOR.
+
+====================================================
+2. INSPECT PREVIOUS IMPLEMENTATIONS
+====================================================
+
+Review the completed or available results
+from Prompts 01–12.
+
+Read:
+
+docs/academy/storyboards/module-17.md
+
+docs/academy/storyboards/module-18.md
+
+docs/academy/storyboards/module-19.md
+
+docs/academy/storyboards/module-20.md
+
+docs/academy/cinematic-learning-architecture.md
+
+docs/academy/cinematic-design-system.md
+
+docs/academy/cinematic-camera-language.md
+
+docs/academy/cinematic-animation-cue-spec.md
+
+docs/academy/cinematic-performance-budget.md
+
+docs/academy/cinematic-asset-requirements.md
+
+Locate the actual implementation reports
+from previous development phases.
+
+Do not assume every previous prompt
+was implemented successfully.
+
+Verify actual code and runtime behavior.
+
+Inspect the existing:
+
+CosmosCinematicPlayer.
+
+CosmosCinematicSceneHost.
+
+CosmosCinematicSceneRegistry.
+
+CosmosCinematicSessionBridge.
+
+CosmosAnimationCueRegistry.
+
+CosmosAnimationCueController.
+
+CosmosCinematicQualityManager.
+
+CosmosLearningDirector.
+
+NarrationController.
+
+LessonContentProvider.
+
+Cosmos3DAdapter.
+
+VisualizationActionController.
+
+CosmosActivityGuide.
+
+CosmosQuizGuide.
+
+Scientific scene adapters.
+
+Rendering systems.
+
+Asset pipeline.
+
+Cinematic camera systems.
+
+Reuse working infrastructure.
+
+Do not create duplicate narrators,
+timelines, renderers or learning directors.
+
+====================================================
+3. REUSE EXISTING COSMOLOGY COMPONENTS
+====================================================
+
+The repository already includes:
+
+src/components/academy/
+CosmicTimeMachine3D.tsx
+
+src/components/academy/
+CosmicExpansionObservatory3D.tsx
+
+src/components/academy/
+HistoricalModelComparator.tsx
+
+src/components/academy/
+CosmicFutureTimelineLab.tsx
+
+Inspect these implementations.
+
+Some currently rely substantially
+on 2D Canvas or conventional React UI.
+
+They contain useful educational
+content and scientific controls.
+
+Preserve valid existing functionality.
+
+Upgrade the presentation to use the
+shared cinematic 3D rendering system
+where it produces a genuine improvement.
+
+The storyboards propose components such as:
+
+CosmicEvolutionChronicle3D
+
+MetricExpansionVisualizer3D
+
+HistoricalCosmology3D
+
+DeepTimeFutureVisualizer3D
+
+Treat these as planned extensions.
+
+Do not assume they already exist.
+
+Some legacy implementations may have
+TypeScript checking disabled.
+
+Do not introduce new @ts-nocheck
+code as a development shortcut.
+
+Use typed adapters and validated data.
+
+====================================================
+4. SCIENTIFIC COSMOLOGY PRINCIPLES
+====================================================
+
+THIS SECTION IS MANDATORY.
+
+The Big Bang model describes
+the evolution of an expanding universe
+from an early hot, dense state.
+
+DO NOT DEPICT THE BIG BANG AS:
+
+A conventional explosion at
+one central point in empty space.
+
+A fireball expanding outward
+through a pre-existing static void.
+
+A directly observed singularity.
+
+A complete scientific explanation
+of why the universe exists.
+
+A proven model of what existed
+before the earliest accessible epochs.
+
+Instead, explain:
+
+Expansion of cosmological distances.
+
+Evolution of the scale factor.
+
+Early high temperature and density.
+
+Cooling with cosmic expansion.
+
+Formation of nuclei.
+
+Formation of atoms.
+
+Cosmic microwave background.
+
+First stars and galaxies.
+
+Large-scale structure formation.
+
+Modern accelerated expansion.
+
+Use careful, age-appropriate
+scientific language.
+
+====================================================
+5. OBSERVATION VS MODEL VS SPECULATION
+====================================================
+
+Every scientific scene must declare
+its representation type.
+
+OBSERVED DATA.
+
+NUMERICAL SCIENTIFIC MODEL.
+
+EDUCATIONAL APPROXIMATION.
+
+HISTORICAL RECONSTRUCTION.
+
+SPECULATIVE FUTURE SCENARIO.
+
+Examples:
+
+Planck CMB temperature map:
+Observation-based data product.
+
+Early-universe plasma animation:
+Scientific reconstruction.
+
+Scale-factor grid:
+Mathematical educational model.
+
+Ptolemaic cosmos:
+Historical model reconstruction.
+
+Big Rip:
+Conditional speculative scenario.
+
+This classification must remain available
+to COSMOS and the student.
+
+Do not make an unsupported
+scientific model appear observed.
+
+Do not present speculative futures
+as settled predictions.
+
+====================================================
+6. PREMIUM CINEMATIC VISUAL IDENTITY
+====================================================
+
+Stage 5 must have a distinctive
+cosmological visual language.
+
+VISUAL GOALS:
+
+Massive astronomical scale.
+
+Deep cosmic history.
+
+Elegant chronological transitions.
+
+Scientific particle visualizations.
+
+Dynamic density fields.
+
+Cosmic microwave background maps.
+
+Realistic or defensible galaxy distributions.
+
+Professional scientific graphs.
+
+Animated spacetime/metric diagrams.
+
+Historical astronomical instruments.
+
+Detailed historical model reconstructions.
+
+Deep-time cosmic scenarios.
+
+Cinematic scientific annotations.
+
+Readable timelines.
+
+Purposeful camera choreography.
+
+Avoid:
+
+Generic orange explosion backgrounds.
+
+Random glowing particles.
+
+Incorrect cosmic center imagery.
+
+Repeated rotating galaxies.
+
+Decorative spacetime grids
+without scientific explanation.
+
+False-color data without labels.
+
+Confusing diagrams.
+
+Misleading future predictions.
+
+Each animation must visually teach
+the specific narrated concept.
+
+====================================================
+7. COMPLETE MODULE 17 IMPLEMENTATION
+====================================================
+
+MODULE:
+
+BIG BANG & COSMIC EVOLUTION
+
+PRIMARY EXPERIENCE:
+
+A FULLY INTERACTIVE CINEMATIC
+COSMIC EVOLUTION CHRONICLE.
+
+EXISTING COMPONENT:
+
+CosmicTimeMachine3D.tsx
+
+SCENE REFERENCE:
+
+m17_big_bang_chronicle_3d
+
+Verify actual registry values.
+
+Students should travel through
+different cosmic epochs using
+a mathematically meaningful timeline.
+
+The timeline must distinguish:
+
+Time since the hot Big Bang.
+
+Cosmic scale factor.
+
+Redshift.
+
+Temperature.
+
+Matter composition.
+
+Major physical processes.
+
+The animation must not confuse
+cosmic time with narration playback time.
+
+====================================================
+8. CHAPTER 17.1 — WHAT THE BIG BANG
+MODEL DESCRIBES
+====================================================
+
+LESSON ID:
+m17-l1
+
+Create a powerful but accurate
+introduction to modern cosmology.
+
+VISUAL BEAT A:
+
+Begin with galaxies observed
+across cosmic distances.
+
+VISUAL BEAT B:
+
+Reveal measured cosmic redshift.
+
+VISUAL BEAT C:
+
+Introduce expansion of a
+mathematical spatial coordinate grid.
+
+VISUAL BEAT D:
+
+Move backward along a
+cosmic expansion model.
+
+VISUAL BEAT E:
+
+Illustrate a hotter, denser
+earlier universe.
+
+SCIENTIFIC REQUIREMENTS:
+
+The universe does not require
+a unique expansion center.
+
+A cosmological grid is an analogy.
+
+The Big Bang model does not
+automatically establish a spatial edge.
+
+Do not show a literal external observer
+watching the entire universe explode.
+
+Clearly label conceptual diagrams.
+
+INTERACTION:
+
+Move the cosmological timeline.
+
+Inspect temperature trends.
+
+Change display scale.
+
+Compare earlier and later epochs.
+
+====================================================
+9. CHAPTER 17.2 — THE EARLY
+HOT, DENSE UNIVERSE
+====================================================
+
+LESSON ID:
+m17-l2
+
+Create an educational early-universe
+thermodynamics visualization.
+
+SHOW:
+
+Hot radiation-dominated conditions.
+
+Dense primordial plasma.
+
+Particle interactions.
+
+Cooling with expansion.
+
+Changing relative contributions
+of radiation and matter.
+
+Relevant particle species
+at suitable educational levels.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not claim the application can
+visualize a scientifically established
+picture of t = 0.
+
+Distinguish theoretically modeled
+early epochs from well-constrained
+later cosmological conditions.
+
+If introducing inflation:
+
+Explain its status as an influential
+early-universe theoretical framework.
+
+Do not imply the exact mechanism,
+duration and energy scale are measured
+with complete certainty.
+
+Keep quantum gravity questions
+explicitly unresolved.
+
+====================================================
+10. CHAPTER 17.3 — PRIMORDIAL
+NUCLEOSYNTHESIS
+====================================================
+
+LESSON ID:
+m17-l3
+
+Create a detailed scientific
+formation-of-light-nuclei animation.
+
+SHOW:
+
+Protons.
+
+Neutrons.
+
+Deuterium formation.
+
+Helium production.
+
+Trace light-nuclei production.
+
+Temperature changes.
+
+Reaction-rate changes.
+
+Primordial abundance predictions.
+
+Use a scientifically grounded
+Big Bang nucleosynthesis model.
+
+CINEMATIC BEATS:
+
+Begin with free nucleons.
+
+Illustrate changing conditions.
+
+Demonstrate nuclear reactions.
+
+Reveal formation of light nuclei.
+
+Show the resulting abundance comparison.
+
+SCIENTIFIC REQUIREMENTS:
+
+This phase occurs mainly
+during the early minutes
+of the hot Big Bang evolution.
+
+Do not confuse nucleosynthesis
+with formation of neutral atoms.
+
+Do not use arbitrary particle proportions
+while claiming measured abundances.
+
+Use documented reaction models
+or approved precomputed data.
+
+====================================================
+11. CHAPTER 17.4 — ATOMS AND
+THE COSMIC MICROWAVE BACKGROUND
+====================================================
+
+LESSON ID:
+m17-l4
+
+THIS IS A FLAGSHIP COSMOLOGY CHAPTER.
+
+Create a scientifically grounded
+recombination and CMB visualization.
+
+SHOW:
+
+Ionized primordial plasma.
+
+Photons scattering on free electrons.
+
+Cosmic cooling.
+
+Formation of neutral hydrogen.
+
+Declining free-electron abundance.
+
+Photon decoupling.
+
+Last-scattering surface concept.
+
+CMB radiation observed today.
+
+SCIENTIFIC REQUIREMENTS:
+
+Recombination and photon decoupling
+occurred around 380,000 years
+after the hot Big Bang in the
+standard cosmological description.
+
+Avoid treating recombination
+as an instantaneous universal switch.
+
+Distinguish formation of atoms
+from formation of nuclei.
+
+Do not describe the CMB as
+the first electromagnetic radiation
+ever produced.
+
+Explain why the CMB is
+the oldest electromagnetic signal
+directly observed from the early universe.
+
+Use real CMB observations when available.
+
+====================================================
+12. COSMIC MICROWAVE BACKGROUND DATA
+====================================================
+
+Integrate trustworthy CMB resources.
+
+POTENTIAL SOURCES:
+
+ESA Planck legacy archive.
+
+NASA WMAP data products.
+
+Published CMB angular power spectrum data.
+
+Approved cosmological parameter sets.
+
+Use:
+
+Temperature anisotropy maps.
+
+Angular power spectra.
+
+Multipole index.
+
+Acoustic peaks.
+
+Relevant measured uncertainties.
+
+Distinguish:
+
+Real measurement.
+
+Beam and noise limitations.
+
+Foreground-cleaned data product.
+
+Theory prediction.
+
+Do not invent Planck measurements.
+
+Do not simply generate random noise
+and label it observed CMB data.
+
+Respect observational color scales.
+
+CMB maps often use exaggerated
+temperature differences for visibility.
+
+Explain that anisotropies are tiny
+relative to the approximately
+2.725 K mean temperature.
+
+====================================================
+13. CHAPTER 17.5 — COSMIC DARK AGES
+====================================================
+
+LESSON ID:
+m17-l5
+
+Create a visually distinctive
+dark-age simulation.
+
+SHOW:
+
+Neutral hydrogen.
+
+Helium.
+
+Growing dark matter structure
+in the selected scientific model.
+
+Dense gas regions.
+
+Absence of widespread stellar light.
+
+Cosmic gravitational clustering.
+
+CINEMATIC EXPERIENCE:
+
+Move through a mostly unlit
+early cosmic volume.
+
+Use scientific density overlays
+rather than decorative bright stars.
+
+Highlight regions of
+gravitationally growing structure.
+
+Introduce the future formation
+of the first luminous objects.
+
+SCIENTIFIC REQUIREMENTS:
+
+Dark Ages means no ordinary stars
+had yet formed to illuminate the cosmos.
+
+It does not imply the complete
+absence of radiation or matter.
+
+Do not fill the scene with
+bright mature galaxies.
+
+Use an appropriate cosmic epoch label.
+
+====================================================
+14. CHAPTER 17.6 — THE FIRST
+STARS AND GALAXIES
+====================================================
+
+LESSON ID:
+m17-l6
+
+Create an immersive cosmic-dawn sequence.
+
+SHOW:
+
+Primordial gas clouds.
+
+Early dark matter halos
+in the selected model.
+
+Gas cooling.
+
+Gravitational collapse.
+
+First stellar populations.
+
+Stellar radiation.
+
+Early galaxy assembly.
+
+Early reionization regions.
+
+CINEMATIC BEATS:
+
+Reveal a dense primordial gas region.
+
+Illustrate star-forming collapse.
+
+Introduce the first luminous stars.
+
+Expand to early galactic structures.
+
+Show growing reionized regions.
+
+SCIENTIFIC REQUIREMENTS:
+
+The exact first-star population
+has not been comprehensively
+directly observed.
+
+Individual first-star properties
+are strongly model-dependent.
+
+Do not claim every first star
+had one exact mass or lifetime.
+
+Distinguish observed early galaxies
+from modeled primordial stars.
+
+====================================================
+15. CHAPTER 17.7 — GALAXY EVOLUTION
+OVER BILLIONS OF YEARS
+====================================================
+
+LESSON ID:
+m17-l7
+
+Create a scientific cosmic
+structure evolution sequence.
+
+SHOW:
+
+Early galaxies.
+
+Cosmic star formation history.
+
+Galaxy interactions.
+
+Gas accretion.
+
+Stellar population development.
+
+Cluster formation.
+
+Growth of cosmic structure.
+
+Evolution toward the modern universe.
+
+Use scientific data or
+model snapshots where available.
+
+CINEMATIC EXPERIENCE:
+
+A time-compressed galaxy population
+evolution experience.
+
+Link redshift to cosmic epoch.
+
+Show changing star formation activity.
+
+Reveal the development of
+the cosmic web.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not assume every galaxy
+passes through the same exact
+morphological sequence.
+
+Document the simulation model.
+
+Avoid implying cosmic history
+is directly observed as a complete
+continuous 3D movie.
+
+====================================================
+16. CHAPTER 17.8 — THE MODERN
+UNIVERSE AND BEYOND
+====================================================
+
+LESSON ID:
+m17-l8
+
+Create a cinematic conclusion
+to the universe's history.
+
+SHOW:
+
+Modern galaxies.
+
+Galaxy clusters.
+
+Cosmic web.
+
+Present cosmological scale factor.
+
+Approximately 13.8-billion-year
+cosmic age in the standard model.
+
+Expansion history.
+
+Relevant observational horizons.
+
+Connect the early universe
+to present-day observations.
+
+Explain:
+
+What the model establishes.
+
+What remains unknown.
+
+Why new observations matter.
+
+This chapter should transition
+naturally into Module 18.
+
+Do not label the observable universe
+as the entire universe.
+
+====================================================
+17. MODULE 17 INTERACTIVE CMB ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_17_cmb_explorer
+
+Verify the actual registry.
+
+Build a genuine CMB
+Power Spectrum Explorer.
+
+The student should:
+
+Inspect a CMB anisotropy map.
+
+Explore angular scales.
+
+Switch to the angular power spectrum.
+
+Identify acoustic peaks.
+
+Compare observations with
+an approved theoretical model.
+
+Understand what different features
+constrain about cosmological physics.
+
+At higher learning levels,
+support relevant parameter exploration.
+
+Do not replace real CMB data
+with a decorative sine wave.
+
+Use the existing activity validation system.
+
+Do not award completion for
+merely watching the animation.
+
+====================================================
+18. MODULE 17 COSMIC TIME ENGINE
+====================================================
+
+Use a time model that supports
+extremely different cosmic epochs.
+
+Relevant independent quantities:
+
+Cosmic time t.
+
+Scale factor a(t).
+
+Redshift z.
+
+Temperature T.
+
+Narration timeline position.
+
+Visual animation progress.
+
+Avoid assuming these values
+change linearly together.
+
+For the standard cosmological relation:
+
+1 + z = 1/a
+
+when the present-day scale factor
+is normalized to unity.
+
+Use the approved cosmological model
+to derive relationships.
+
+Avoid setting arbitrary values
+for t, z and a independently.
+
+Use stable mathematical interpolation.
+
+Respect scientific model limitations.
+
+====================================================
+19. COMPLETE MODULE 18 IMPLEMENTATION
+====================================================
+
+MODULE:
+
+THE EXPANDING UNIVERSE
+
+PRIMARY EXPERIENCE:
+
+A PREMIUM INTERACTIVE
+COSMOLOGICAL EXPANSION OBSERVATORY.
+
+EXISTING COMPONENT:
+
+CosmicExpansionObservatory3D.tsx
+
+SCENE REFERENCE:
+
+m18_metric_expansion_horizons_3d
+
+Verify current registry identifiers.
+
+Students should explore how
+cosmological distances, redshifts
+and observational horizons relate.
+
+Do not present expansion as
+a universal local outward force.
+
+====================================================
+20. CHAPTER 18.1 — WHAT COSMIC
+EXPANSION MEANS
+====================================================
+
+LESSON ID:
+m18-l1
+
+Create a cinematic explanation
+of metric expansion.
+
+SHOW:
+
+An idealized distribution of galaxies.
+
+Comoving coordinates.
+
+Changing scale factor.
+
+Increasing proper separation
+between suitable comoving observers.
+
+A local bound system comparison.
+
+SCIENTIFIC REQUIREMENTS:
+
+The expansion of space is a useful
+cosmological description.
+
+The simplified expanding grid
+does not imply a physical lattice.
+
+Do not depict one galaxy
+at the center of all cosmic expansion.
+
+Do not imply every physical object
+expands together with the universe.
+
+INTERACTION:
+
+Change scale factor.
+
+Inspect separation of galaxy pairs.
+
+Choose the reference observer.
+
+Explain why each comoving observer
+can see a broad Hubble-flow pattern.
+
+====================================================
+21. CHAPTER 18.2 — HOW
+GALAXY DISTANCES CHANGE
+====================================================
+
+LESSON ID:
+m18-l2
+
+Create a mathematical
+distance-evolution demonstration.
+
+SHOW:
+
+Multiple comoving galaxies.
+
+Increasing cosmological scale factor.
+
+Proper distance between selected pairs.
+
+A reference comoving distance.
+
+Different cosmic epochs.
+
+CINEMATIC SEQUENCE:
+
+Select two galaxy markers.
+
+Measure their comoving separation.
+
+Move the cosmic timeline.
+
+Observe proper distance changing.
+
+Compare with local bound-system behavior.
+
+SCIENTIFIC MODEL:
+
+For a fixed comoving separation:
+
+D_proper(t) = a(t) × D_comoving
+
+under the relevant FLRW conventions.
+
+Do not imply distant galaxy positions
+at one observation time are directly
+observed as simultaneous states.
+
+====================================================
+22. CHAPTER 18.3 — THE
+HUBBLE–LEMAÎTRE RELATIONSHIP
+====================================================
+
+LESSON ID:
+m18-l3
+
+Create a scientific redshift
+and distance visualization.
+
+SHOW:
+
+A nearby galaxy sample.
+
+Observed redshift data.
+
+Appropriate distance estimates.
+
+Hubble-flow relationship.
+
+Peculiar velocity scatter.
+
+A fitted relationship where valid.
+
+INTERACTION:
+
+Select a galaxy.
+
+Inspect redshift.
+
+Inspect distance estimate.
+
+Plot the observational point.
+
+Compare model slope.
+
+SCIENTIFIC REQUIREMENTS:
+
+Use:
+
+v ≈ H0 × d
+
+only where appropriate
+for the low-redshift relation.
+
+Explain that large-redshift cosmology
+requires the full expansion history
+and careful distance definitions.
+
+Do not label redshift-derived values
+as independently measured distances.
+
+Avoid inventing survey observations.
+
+====================================================
+23. CHAPTER 18.4 — COSMOLOGICAL REDSHIFT
+====================================================
+
+LESSON ID:
+m18-l4
+
+Create an interactive
+spectral redshift laboratory.
+
+SHOW:
+
+Emission of a spectral feature.
+
+Photon propagation through
+an expanding cosmological model.
+
+Evolution of its wavelength.
+
+Observed redshift.
+
+Connection to the scale factor.
+
+SCIENTIFIC RELATION:
+
+1 + z =
+lambda_observed / lambda_emitted
+
+for the corresponding spectral feature
+under the appropriate redshift convention.
+
+INTERACTION:
+
+Choose emission wavelength.
+
+Choose cosmological redshift.
+
+Inspect observed wavelength.
+
+Compare low and high redshift.
+
+Show the shift on a real spectrum.
+
+Distinguish cosmological redshift
+from local Doppler shifts.
+
+Do not claim redshift is caused
+by ordinary friction with space.
+
+====================================================
+24. CHAPTER 18.5 — THE SCALE FACTOR a(t)
+====================================================
+
+LESSON ID:
+m18-l5
+
+Create a flagship
+expansion-history visualization.
+
+SHOW:
+
+Scale factor versus cosmic time.
+
+Hubble parameter evolution.
+
+Matter-dominated expansion.
+
+Radiation-dominated expansion.
+
+Late-time accelerated expansion.
+
+A suitable FLRW model comparison.
+
+INTERACTION:
+
+Change supported cosmological parameters.
+
+Observe resulting model curves.
+
+Inspect cosmic time.
+
+Inspect redshift.
+
+Inspect current expansion rate.
+
+SCIENTIFIC REQUIREMENTS:
+
+Use numerical or analytic solutions
+appropriate to the chosen model.
+
+Do not animate a(t) arbitrarily
+without a valid expansion relation.
+
+Clearly distinguish a(t)
+from redshift and cosmic age.
+
+Use labeled assumptions.
+
+====================================================
+25. CHAPTER 18.6 — LOOKBACK TIME
+AND COSMIC HORIZON
+====================================================
+
+LESSON ID:
+m18-l6
+
+Create a scientific
+light-cone and lookback-time visualizer.
+
+SHOW:
+
+A distant galaxy.
+
+Photon propagation.
+
+Emission epoch.
+
+Observation epoch.
+
+Cosmological scale-factor evolution.
+
+Light-cone geometry.
+
+Lookback time.
+
+SCIENTIFIC REQUIREMENTS:
+
+Distinguish:
+
+Light-travel time.
+
+Proper distance at emission.
+
+Proper distance today.
+
+Comoving distance.
+
+Luminosity distance.
+
+Angular-diameter distance.
+
+Avoid equating all cosmological
+distance measures.
+
+Use the selected cosmological model
+to calculate consistent outputs.
+
+====================================================
+26. CHAPTER 18.7 — OBSERVABLE-UNIVERSE HORIZONS
+====================================================
+
+LESSON ID:
+m18-l7
+
+Create an exceptionally clear
+cosmological horizon laboratory.
+
+SHOW:
+
+Past light cone.
+
+Particle horizon.
+
+Observable region.
+
+Cosmological event horizon
+where defined by the model.
+
+Hubble radius as a separate concept.
+
+CINEMATIC EXPERIENCE:
+
+Begin with a local observer.
+
+Reveal the past light cone.
+
+Expand into a spacetime diagram.
+
+Highlight the particle horizon.
+
+Compare with other horizon definitions.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not equate:
+
+Particle horizon.
+
+Hubble sphere.
+
+Cosmological event horizon.
+
+Do not portray any as
+a physical wall in space.
+
+Explain why the observable-universe
+radius can exceed cosmic age × c
+under cosmological distance definitions.
+
+====================================================
+27. CHAPTER 18.8 — EXPANSION
+VERSUS GRAVITATIONALLY BOUND SYSTEMS
+====================================================
+
+LESSON ID:
+m18-l8
+
+Create a local-versus-cosmic
+motion comparison.
+
+SHOW:
+
+Solar System.
+
+Gravitationally bound galaxies.
+
+Galaxy groups.
+
+Widely separated Hubble-flow galaxies.
+
+A locally bound system.
+
+A large-scale expanding model.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not claim the Solar System
+expands proportionally with a(t).
+
+Explain why local dynamics
+can dominate over cosmological expansion.
+
+Do not use one arbitrary
+binding threshold for all systems.
+
+INTERACTION:
+
+Select a system.
+
+Inspect its approximate binding regime.
+
+Toggle cosmological versus
+local motion demonstrations.
+
+Clearly label simplified examples.
+
+====================================================
+28. MODULE 18 REDSHIFT ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_18_redshift_expansion_lab
+
+Verify the real registry ID.
+
+Build a functional Cosmological
+Redshift & Expansion Laboratory.
+
+Student tasks:
+
+Identify a spectral feature.
+
+Record its emitted wavelength.
+
+Inspect the observed wavelength.
+
+Calculate redshift.
+
+Adjust cosmological parameters
+within an approved model.
+
+Explore the relationship
+between redshift and scale factor.
+
+Use:
+
+z = lambda_observed / lambda_emitted - 1
+
+Provide actual scientific feedback.
+
+Do not create arbitrary slider values
+with disconnected graph animations.
+
+Use verified activity completion.
+
+====================================================
+29. COMPLETE MODULE 19 IMPLEMENTATION
+====================================================
+
+MODULE:
+
+VISIBLE UNIVERSE HISTORY
+
+PRIMARY EXPERIENCE:
+
+AN INTERACTIVE CINEMATIC JOURNEY
+THROUGH HUMAN UNDERSTANDING
+OF THE COSMOS.
+
+EXISTING COMPONENT:
+
+HistoricalModelComparator.tsx
+
+SCENE REFERENCE:
+
+m19_historical_cosmology_models_3d
+
+Verify actual identifiers.
+
+Integrate with the existing
+Visible Universe History content
+where appropriate.
+
+Do not create conflicting
+historical timelines for
+different sections of the website.
+
+Show how evidence and mathematics
+changed scientific explanations.
+
+====================================================
+30. HISTORICAL ACCURACY RULES
+====================================================
+
+Avoid an oversimplified narrative:
+
+"Everyone believed Earth was flat,
+then everyone believed Earth was
+the center of the universe,
+then Copernicus discovered the truth."
+
+This is historically misleading.
+
+Many ancient cultures had
+different cosmological traditions.
+
+Spherical-Earth ideas were known
+long before the early modern period.
+
+Geocentric models were often
+mathematically sophisticated.
+
+Important astronomical knowledge
+developed across multiple civilizations.
+
+Scientific change was not always linear.
+
+Show:
+
+Historical model.
+
+Historical date or period.
+
+Originating cultural context.
+
+What it explained.
+
+What it failed to explain.
+
+Evidence that challenged it.
+
+Later refinements.
+
+Use properly attributed sources.
+
+Avoid imposing modern claims
+onto ancient models without evidence.
+
+====================================================
+31. CHAPTER 19.1 — DIVERSE
+EARLY IDEAS ABOUT THE COSMOS
+====================================================
+
+LESSON ID:
+m19-l1
+
+Create an immersive introduction
+to early cosmological thought.
+
+SHOW:
+
+Selected ancient sky representations.
+
+Cultural astronomical traditions.
+
+Early celestial calendars.
+
+Cosmological illustrations.
+
+Different Earth-shape concepts.
+
+Important observational motivations.
+
+CINEMATIC EXPERIENCE:
+
+Begin beneath an ancient night sky.
+
+Transition between appropriately
+attributed historical models.
+
+Reveal how humans interpreted
+celestial regularities.
+
+SCIENTIFIC REQUIREMENTS:
+
+Avoid claiming all ancient peoples
+believed in a flat Earth.
+
+Do not merge unrelated traditions
+into a fictional universal chronology.
+
+Differentiate artistic reconstruction
+from surviving historical evidence.
+
+====================================================
+32. CHAPTER 19.2 — EVIDENCE
+FOR A SPHERICAL EARTH
+====================================================
+
+LESSON ID:
+m19-l2
+
+Create an interactive historical
+geometry laboratory.
+
+SHOW:
+
+Earth's curved shape.
+
+Lunar eclipse shadow geometry.
+
+Different star visibility
+at different latitudes.
+
+Changes in solar elevation.
+
+Eratosthenes-style shadow measurement.
+
+Geometric Earth-circumference estimate.
+
+INTERACTION:
+
+Choose observer latitude.
+
+Inspect solar shadow angle.
+
+Change geographic separation
+in an educational model.
+
+Estimate Earth's circumference.
+
+Use correct geometry.
+
+Avoid suggesting the same single
+observation alone establishes
+all aspects of modern geodesy.
+
+====================================================
+33. CHAPTER 19.3 — MAJOR
+GEOCENTRIC MODELS
+====================================================
+
+LESSON ID:
+m19-l3
+
+Create a detailed historical
+geocentric model simulator.
+
+SHOW:
+
+Earth-centered celestial geometry.
+
+Aristotelian ideas where appropriate.
+
+Ptolemaic deferents.
+
+Epicycles.
+
+Eccentric circles.
+
+Equant concept where appropriate.
+
+Retrograde planetary motion.
+
+CINEMATIC EXPERIENCE:
+
+Begin with a geocentric model.
+
+Show planetary motion as modeled.
+
+Highlight retrograde loops.
+
+Compare with actual observational
+retrograde geometry.
+
+SCIENTIFIC REQUIREMENTS:
+
+Present the model as historical,
+not as correct modern dynamics.
+
+Do not claim all geocentric models
+were equally simple or identical.
+
+Preserve the mathematical character
+of the historical explanation.
+
+====================================================
+34. CHAPTER 19.4 — GLOBAL
+ASTRONOMICAL TRADITIONS
+====================================================
+
+LESSON ID:
+m19-l4
+
+Create a globally inclusive
+astronomy-history experience.
+
+Include appropriately sourced examples
+from traditions such as:
+
+Indian astronomy.
+
+Chinese astronomy.
+
+Greek and Hellenistic astronomy.
+
+Islamic-world astronomy.
+
+Mesoamerican astronomy.
+
+Other traditions represented
+in the approved curriculum.
+
+Potential subjects:
+
+Celestial calendars.
+
+Planetary calculations.
+
+Eclipse prediction.
+
+Astronomical instruments.
+
+Star catalogs.
+
+Mathematical astronomy.
+
+Historical observatories.
+
+SCIENTIFIC AND HISTORICAL REQUIREMENTS:
+
+Do not invent contributions
+or dates.
+
+Do not present one civilization
+as the sole origin of all astronomy.
+
+Treat historical ideas in their
+proper cultural and chronological context.
+
+====================================================
+35. CHAPTER 19.5 — THE
+HELIOCENTRIC REVOLUTION
+====================================================
+
+LESSON ID:
+m19-l5
+
+Create a beautiful comparison of:
+
+Geocentric representation.
+
+Copernican heliocentric representation.
+
+Earth's orbital motion.
+
+Planetary retrograde geometry.
+
+Apparent motion from Earth.
+
+CINEMATIC TRANSITION:
+
+Show a historically grounded
+planetary observation.
+
+Demonstrate retrograde motion
+in the selected geocentric model.
+
+Switch to the heliocentric geometry.
+
+Show the relative orbital-motion
+explanation of apparent retrograde.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not portray the Copernican system
+as immediately achieving the full
+accuracy of modern Newtonian dynamics.
+
+Explain that early heliocentric
+models still had limitations.
+
+Distinguish model simplicity,
+predictive accuracy and physical theory.
+
+====================================================
+36. CHAPTER 19.6 — TELESCOPIC
+AND MATHEMATICAL BREAKTHROUGHS
+====================================================
+
+LESSON ID:
+m19-l6
+
+Create a historical scientific
+discovery laboratory.
+
+SHOW:
+
+Galilean telescope observations.
+
+Phases of Venus.
+
+Galilean moons of Jupiter.
+
+Kepler's elliptical orbits.
+
+Newtonian gravitation.
+
+Relevant historical instruments.
+
+CINEMATIC EXPERIENCE:
+
+Begin with a historical telescope.
+
+Show an appropriate telescope observation.
+
+Reveal the scientific significance.
+
+Transition to orbital geometry.
+
+Demonstrate Keplerian mathematical
+improvements.
+
+Connect to gravitational dynamics.
+
+Do not invent exact historical
+images or observational dates.
+
+Label reconstructions.
+
+====================================================
+37. CHAPTER 19.7 — MAPPING
+THE MILKY WAY AND THE GREAT DEBATE
+====================================================
+
+LESSON ID:
+m19-l7
+
+Create a historical galaxy-scale
+scientific discovery journey.
+
+SHOW:
+
+Historical maps of the Milky Way.
+
+Changing stellar distance knowledge.
+
+Cepheid variable-star observations.
+
+Spiral nebulae.
+
+The Andromeda distance problem.
+
+Hubble's extragalactic distance evidence.
+
+The shift from one galaxy
+to a universe of many galaxies.
+
+SCIENTIFIC REQUIREMENTS:
+
+Explain observational distance methods.
+
+Distinguish historical measurements
+from modern revised distances.
+
+Avoid assigning a single discovery
+credit without appropriate context.
+
+Represent the Great Debate accurately.
+
+====================================================
+38. CHAPTER 19.8 — MODERN COSMOLOGY
+====================================================
+
+LESSON ID:
+m19-l8
+
+Create a cinematic chronological
+overview of modern cosmology.
+
+SHOW:
+
+Relativity.
+
+Friedmann/Lemaître expansion models.
+
+Galaxy redshift observations.
+
+Discovery of the CMB.
+
+Modern galaxy surveys.
+
+Dark matter evidence.
+
+Dark energy evidence.
+
+Space observatories.
+
+Current questions.
+
+CINEMATIC EXPERIENCE:
+
+Transition from historical instruments
+to modern astronomical observatories.
+
+Show observation-driven discoveries.
+
+Reveal how modern cosmological models
+are tested using multiple datasets.
+
+Conclude with the current
+scientific picture and its uncertainties.
+
+Do not imply any cosmological theory
+is beyond scientific revision.
+
+====================================================
+39. MODULE 19 HISTORICAL MODEL ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_19_model_comparator
+
+Verify the current registry.
+
+Build a working Historical
+Cosmological Model Comparator.
+
+The student should:
+
+Choose two historical models.
+
+Inspect their geometry.
+
+Observe modeled planetary motion.
+
+Compare retrograde explanations.
+
+Select relevant observations.
+
+Identify strengths and limitations.
+
+Demonstrate actual understanding
+through required activity input.
+
+Do not complete the activity
+merely because an animation plays.
+
+====================================================
+40. COMPLETE MODULE 20 IMPLEMENTATION
+====================================================
+
+MODULE:
+
+THE FUTURE OF THE UNIVERSE
+
+PRIMARY EXPERIENCE:
+
+AN IMMERSIVE DEEP-TIME
+COSMIC FUTURE SIMULATOR.
+
+EXISTING COMPONENT:
+
+CosmicFutureTimelineLab.tsx
+
+SCENE REFERENCE:
+
+m20_deep_time_future_3d
+
+Verify current identifiers.
+
+The experience must clearly distinguish:
+
+Well-established physical principles.
+
+Current best-supported projections.
+
+Model-dependent scenarios.
+
+Highly speculative assumptions.
+
+Do not portray future cosmic history
+as a directly observed documentary.
+
+====================================================
+41. DEEP-TIME TIMELINE ARCHITECTURE
+====================================================
+
+Build a logarithmic future timeline.
+
+Support appropriate time spans:
+
+Years.
+
+Thousands of years.
+
+Millions of years.
+
+Billions of years.
+
+Trillions of years.
+
+Much longer theoretical eras.
+
+Allow very large scientific timescales
+without numeric overflow.
+
+Use log10(years) or an equivalent
+robust time representation.
+
+Do not store times such as
+10^100 years in ordinary calculations
+that lose meaningful numeric precision
+without a defined strategy.
+
+Different future scenarios must
+share clear time-reference conventions.
+
+Do not assume a single
+continuous simulation solver
+can accurately predict every epoch.
+
+Use approved milestone datasets
+and conditional scenario models.
+
+====================================================
+42. CHAPTER 20.1 — FUTURE EVOLUTION
+OF THE SUN
+====================================================
+
+LESSON ID:
+sub_sun_future
+
+Create a premium solar
+evolution timeline.
+
+SHOW:
+
+Present-day Sun.
+
+Main-sequence continuation.
+
+Increasing luminosity.
+
+Late stellar evolution.
+
+Red giant phase.
+
+Envelope loss.
+
+White dwarf remnant.
+
+Cooling evolution.
+
+CINEMATIC SCENE:
+
+Begin with the modern Solar System.
+
+Advance through a model-based
+stellar evolution track.
+
+Show the Sun changing over time.
+
+Display its changing radius
+and luminosity.
+
+Use approved stellar evolution
+data where available.
+
+SCIENTIFIC REQUIREMENTS:
+
+The Sun is not expected to
+become a core-collapse supernova.
+
+The Sun is not expected to
+become a stellar black hole.
+
+Avoid claiming exact dates
+for model-dependent transitions.
+
+====================================================
+43. CHAPTER 20.2 — LONG-TERM
+FUTURE OF EARTH
+====================================================
+
+LESSON ID:
+sub_earth_future
+
+Create a scientific planetary
+future scenario visualization.
+
+SHOW:
+
+Changing solar luminosity.
+
+Long-term climate forcing.
+
+Possible ocean loss.
+
+Habitability changes.
+
+Red giant evolution.
+
+Potential late orbital effects.
+
+Model-dependent ultimate Earth fate.
+
+CINEMATIC EXPERIENCE:
+
+Begin with modern Earth.
+
+Show a gradual increase
+in solar energy.
+
+Explore potential climate outcomes.
+
+Transition to the Sun's later stages.
+
+Explain uncertainties in
+Earth's ultimate orbital survival.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not claim an exact date
+when every form of life must end.
+
+Avoid treating all climate
+and planetary evolution uncertainties
+as solved.
+
+Distinguish solar evolution
+from human-caused contemporary
+climate change.
+
+====================================================
+44. CHAPTER 20.3 — FUTURE MOTIONS
+OF GALAXIES
+====================================================
+
+LESSON ID:
+sub_galaxy_motions
+
+Create a conditional
+Local Group future simulator.
+
+SHOW:
+
+Milky Way.
+
+Andromeda.
+
+Triangulum.
+
+Relevant massive satellites.
+
+Measured present-day constraints.
+
+Alternative possible trajectories.
+
+Potential close encounter.
+
+Potential merger.
+
+Potential noncollision scenario.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not portray the Milky Way
+and Andromeda merger as inevitable.
+
+A NASA-discussed 2025 analysis
+estimated approximately a 50%
+collision chance within 10 billion years,
+given its model and uncertainties.
+
+Other analyses may reach different results.
+
+The animation must label any
+particular outcome as conditional.
+
+Do not assert the detailed future
+orbit is precisely known.
+
+====================================================
+45. CHAPTER 20.4 — STELLAR EVOLUTION
+ACROSS COSMIC TIME
+====================================================
+
+LESSON ID:
+sub_stellar_evolution_time
+
+Create a scientific stellar-population
+evolution demonstration.
+
+SHOW:
+
+Different stellar masses.
+
+Different stellar lifetimes.
+
+High-mass star disappearance.
+
+Long-lived red dwarf populations.
+
+Compact stellar remnants.
+
+Population changes.
+
+CINEMATIC FEATURE:
+
+Display many representative stars
+with different masses.
+
+Advance a time-compressed
+stellar population model.
+
+Show which classes continue
+to emit light at different epochs.
+
+Use model-based population evolution.
+
+Do not assume all stars
+have the same lifetime.
+
+====================================================
+46. CHAPTER 20.5 — DECLINING
+COSMIC STAR FORMATION
+====================================================
+
+LESSON ID:
+sub_declining_star_formation
+
+Create an observational and
+model-based cosmic timeline.
+
+SHOW:
+
+Cosmic star formation rate density.
+
+Observed cosmic star formation history.
+
+Peak historical star formation.
+
+Later decline.
+
+Future model projections.
+
+Gas supply and galaxy evolution.
+
+CINEMATIC EXPERIENCE:
+
+Transition from a
+galactic star-forming region
+to a cosmic population chart.
+
+Reveal how star formation
+varies with cosmic epoch.
+
+Continue beyond the observed range
+using clearly labeled projections.
+
+SCIENTIFIC REQUIREMENTS:
+
+Observed historical data and
+future extrapolations must remain
+visually and textually distinct.
+
+Do not invent future observed data.
+
+====================================================
+47. CHAPTER 20.6 — THE DISTANT FUTURE
+OF COSMIC STRUCTURES
+====================================================
+
+LESSON ID:
+sub_cosmic_structures_future
+
+Create a long-term cosmological
+structure evolution sequence.
+
+SHOW:
+
+Gravitationally bound systems.
+
+Galaxy populations.
+
+Expansion of large-scale distances.
+
+Changing horizon relationships.
+
+Long-lived stellar remnants.
+
+Black holes.
+
+Future structure scenarios.
+
+SCIENTIFIC REQUIREMENTS:
+
+The result depends on
+the assumed expansion model.
+
+Do not universally claim
+every galaxy will physically
+disintegrate due to expansion.
+
+Distinguish bound systems
+from objects participating
+in the large-scale Hubble flow.
+
+Do not assume proton decay
+has been experimentally confirmed.
+
+====================================================
+48. CHAPTER 20.7 — HEAT-DEATH SCENARIOS
+AND THERMODYNAMICS
+====================================================
+
+LESSON ID:
+sub_heat_death_entropy
+
+Create a scientifically responsible
+long-term thermodynamic simulation.
+
+SHOW:
+
+Declining usable energy gradients.
+
+Stellar activity reduction.
+
+Compact-object populations.
+
+Thermodynamic entropy concepts.
+
+Black hole evaporation
+in the theoretical framework.
+
+Long-term radiation dilution.
+
+Potential heat-death scenario.
+
+SCIENTIFIC REQUIREMENTS:
+
+Heat death is a conditional
+cosmological projection.
+
+Do not treat it as
+directly observed future history.
+
+Black hole evaporation depends
+on mass and surrounding conditions.
+
+Do not claim all black holes
+evaporate at one fixed time.
+
+The ~10^100-year timescale
+is an illustrative order of magnitude
+associated with certain supermassive
+black hole evaporation estimates,
+not a universal cosmic event date.
+
+Do not assume proton decay
+without declaring the hypothesis.
+
+====================================================
+49. CHAPTER 20.8 — ALTERNATIVE
+COSMOLOGICAL POSSIBILITIES
+====================================================
+
+LESSON ID:
+sub_cosmic_possibilities
+
+Create an interactive
+future-scenario comparison system.
+
+SUPPORTED CONDITIONAL SCENARIOS:
+
+Continued accelerated expansion.
+
+Heat-death-like future.
+
+Evolving dark energy models.
+
+Possible recollapsing scenarios.
+
+Phantom-energy Big Rip models.
+
+Other scientifically reviewed models
+covered by the approved lesson.
+
+For every scenario:
+
+Declare assumptions.
+
+Show the relevant cosmological parameters.
+
+Explain the physical mechanism.
+
+Display a conditional timeline.
+
+Identify current observational constraints.
+
+Do not imply every scenario
+is equally likely or supported.
+
+IMPORTANT:
+
+DESI results and other cosmological
+measurements remain actively interpreted.
+
+Some combinations favor a changing
+dark energy equation of state.
+
+Other measurements and analyses
+remain compatible with Lambda-CDM.
+
+Do not present evolving dark energy
+as conclusively established.
+
+Do not present the Big Rip
+as the expected measured fate.
+
+====================================================
+50. MODULE 20 INTERACTIVE FUTURE ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_20_future_timeline_lab
+
+Verify the actual registry.
+
+Create a meaningful
+Long-Term Cosmic Future Simulator.
+
+Student controls may include:
+
+Future epoch.
+
+Logarithmic time scale.
+
+Solar evolution track.
+
+Galaxy orbit scenario.
+
+Cosmological expansion model.
+
+Equation-of-state parameter
+where appropriate.
+
+Stellar population assumptions.
+
+Display corresponding
+model-dependent scientific results.
+
+Require the student to identify
+the difference between:
+
+Measured evidence.
+
+Physical prediction.
+
+Conditional extrapolation.
+
+Speculative assumption.
+
+Do not grant verified completion
+for moving a decorative slider alone.
+
+====================================================
+51. SCIENTIFIC COSMOLOGY DATA SOURCES
+====================================================
+
+Evaluate authoritative resources.
+
+POTENTIAL SOURCES:
+
+ESA Planck legacy data.
+
+NASA WMAP legacy observations.
+
+NASA cosmic history resources.
+
+NASA James Webb observations.
+
+DESI published cosmology releases.
+
+SDSS public survey products.
+
+Pantheon+ published supernova data.
+
+Peer-reviewed Friedmann cosmology models.
+
+Reviewed stellar evolution tracks.
+
+Relevant historic astronomy sources.
+
+REFERENCE URLS:
+
+https://science.nasa.gov/universe/
+
+https://pla.esac.esa.int/
+
+https://lambda.gsfc.nasa.gov/
+
+https://data.desi.lbl.gov/
+
+https://www.sdss.org/
+
+https://docs.mesastar.org/
+
+Use appropriately licensed
+and scientifically validated data.
+
+Record:
+
+Data source.
+
+Version.
+
+Publication.
+
+Retrieval date.
+
+Physical units.
+
+Model assumptions.
+
+Uncertainty information.
+
+Observational limitations.
+
+Do not fabricate measurements.
+
+====================================================
+52. PHYSICS AND MATHEMATICAL VALIDATION
+====================================================
+
+Implement and test the equations
+required by the actual lessons.
+
+Validate:
+
+Redshift-scale-factor relationships.
+
+FLRW expansion equations.
+
+Hubble parameter behavior.
+
+Comoving and proper distances.
+
+Lookback-time integrals.
+
+Particle horizon calculation.
+
+Event horizon conditions.
+
+Hubble radius definition.
+
+Primordial abundance models.
+
+CMB angular power spectrum interpretation.
+
+Stellar evolution timeline mappings.
+
+Cosmological future projections.
+
+Historical orbital geometry.
+
+Use documented parameter assumptions.
+
+Do not silently mix different
+cosmological parameter sets.
+
+For illustrative models,
+clearly state approximations.
+
+Do not describe a stylized animation
+as an exact Einstein equation solution.
+
+====================================================
+53. COSMIC VISUALIZATION CLOCK SYSTEM
+====================================================
+
+Stage 5 needs multiple distinct clocks.
+
+A. COSMOS narration playback.
+
+B. Cinematic scene progress.
+
+C. Cosmic historical time.
+
+D. Cosmological scale factor.
+
+E. Future logarithmic time.
+
+F. Historical human chronology.
+
+G. Student-controlled simulation time.
+
+These must not be combined
+into one global animation timer.
+
+When COSMOS describes recombination,
+the scientific scene should display
+the appropriate cosmic epoch.
+
+When COSMOS discusses historical 1543,
+the history scene should show
+the corresponding historical context.
+
+When COSMOS discusses 10^12 years,
+the future timeline must use
+the correct future-time representation.
+
+Support:
+
+Pause.
+
+Resume.
+
+Seek.
+
+Replay.
+
+Student question interruption.
+
+Deterministic visual restoration.
+
+====================================================
+54. COSMOS NARRATION COVERAGE
+====================================================
+
+ALL 174 CANONICAL SEGMENTS
+MUST BE ACCOUNTED FOR.
+
+MODULE 17:
+45.
+
+MODULE 18:
+46.
+
+MODULE 19:
+51.
+
+MODULE 20:
+32.
+
+For every actual narration segment:
+
+Resolve module ID.
+
+Resolve chapter ID.
+
+Resolve scientific concept.
+
+Resolve active scene.
+
+Resolve animation beat.
+
+Resolve cosmic or historical time.
+
+Resolve camera action.
+
+Resolve annotations.
+
+Resolve data graph state.
+
+Resolve interactive state.
+
+Resolve time policy.
+
+Resolve pause behavior.
+
+Resolve restoration behavior.
+
+If a scene cannot support the cue,
+report the limitation.
+
+Do not silently use one
+generic space animation.
+
+====================================================
+55. CONTEXT-AWARE COSMOS QUESTIONS
+====================================================
+
+Students must be able
+to interrupt naturally.
+
+EXAMPLE A — MODULE 17:
+
+Student:
+"Was the Big Bang an explosion?"
+
+EXPECTED:
+
+Pause the visual narrative.
+
+Keep the scale-factor model visible.
+
+COSMOS explains the distinction
+between spatial expansion and
+an ordinary explosion.
+
+Use an approved explanatory diagram.
+
+Restore the lesson.
+
+EXAMPLE B — MODULE 18:
+
+Student:
+"If galaxies move away, where is
+the center of the universe?"
+
+EXPECTED:
+
+Preserve the expansion visualization.
+
+Show equivalent comoving observers.
+
+Explain why standard homogeneous
+cosmology has no unique spatial center.
+
+Discuss local peculiar motions.
+
+Do not invent an observed
+universal rotation center.
+
+EXAMPLE C — MODULE 19:
+
+Student:
+"Did everyone believe
+Earth was flat?"
+
+EXPECTED:
+
+Explain the diversity of
+historical cosmological traditions.
+
+Show sourced historical examples.
+
+Avoid misleading universal claims.
+
+EXAMPLE D — MODULE 20:
+
+Student:
+"Will the universe definitely
+end in a Big Rip?"
+
+EXPECTED:
+
+Explain that this is conditional
+on particular dark energy behavior.
+
+Compare with better-established
+standard model scenarios.
+
+Restore the previous visual state.
+
+No duplicate narration service.
+
+No lost student progress.
+
+====================================================
+56. SCIENTIFIC CAMERA CHOREOGRAPHY
+====================================================
+
+Reuse Prompt 07's camera framework.
+
+MODULE 17:
+
+Cosmic history progression.
+
+Mathematical scale transitions.
+
+CMB all-sky projection.
+
+First star and galaxy scenes.
+
+MODULE 18:
+
+Comoving observer viewpoints.
+
+Expanding geometric grids.
+
+Photon light-cone diagrams.
+
+Cosmological distance comparisons.
+
+MODULE 19:
+
+Historical instrument viewpoints.
+
+Geocentric model observation.
+
+Heliocentric comparison.
+
+Historical timeline transitions.
+
+MODULE 20:
+
+Deep-time cosmic views.
+
+Stellar evolution transitions.
+
+Galactic future scenarios.
+
+Thermodynamic model diagrams.
+
+Do not use a literal
+continuous camera journey
+where the scientific model
+requires a change of reference frame.
+
+Avoid abrupt jumps and flickering.
+
+====================================================
+57. PREMIUM CINEMATIC RENDERING
+====================================================
+
+Reuse the scientific rendering
+system from Prompt 05.
+
+Potential visual primitives:
+
+Cosmic density fields.
+
+Early plasma educational particles.
+
+Photon scattering visualizations.
+
+CMB sky maps.
+
+Early galaxy populations.
+
+Cosmic timeline backgrounds.
+
+Expansion geometry.
+
+Historical orbital models.
+
+Stellar future evolution.
+
+Conditional cosmic future scenes.
+
+Use restrained postprocessing.
+
+Do not turn the Big Bang
+into a decorative particle explosion.
+
+Do not portray dark energy
+as visible glowing smoke.
+
+Do not introduce unnecessary
+heavy volumetric effects.
+
+Use appropriate 3D, 2D and
+data visualization representations
+based on educational value.
+
+====================================================
+58. STAGE 5 PERFORMANCE
+====================================================
+
+Reuse:
+
+CosmosCinematicQualityManager.
+
+Optimize:
+
+Large galaxy fields.
+
+Timeline rendering.
+
+CMB texture loading.
+
+Density-field data.
+
+Historical model transitions.
+
+Long-range coordinate systems.
+
+Scientific graph updates.
+
+Asset preloading.
+
+Animation cue activation.
+
+GPU resource cleanup.
+
+Avoid:
+
+Loading full astronomy datasets
+into each student's browser.
+
+Creating a Canvas per chapter.
+
+Recomputing complete cosmological
+histories every animation frame.
+
+Unnecessary React rerenders.
+
+Repeated CMB texture uploads.
+
+Expensive unbounded particle systems.
+
+Duplicate timers.
+
+Multiple active heavy scenes.
+
+Respect the existing performance budget.
+
+====================================================
+59. ACCESSIBILITY AND EDUCATION
+====================================================
+
+Support:
+
+Junior Explorer.
+
+Space Explorer.
+
+Young Astronomer.
+
+Desktop.
+
+Tablet.
+
+Mobile.
+
+Native fullscreen where supported.
+
+Full-viewport fallback.
+
+Keyboard navigation.
+
+Touch controls.
+
+Captions.
+
+Text transcript.
+
+Screen-reader explanations.
+
+Reduced motion.
+
+Accessible data graphs.
+
+Text and table alternatives.
+
+Color-accessible timeline indicators.
+
+Scientific uncertainty labels.
+
+Do not require students to view
+rapid cosmic-scale zooming
+to understand a lesson.
+
+All essential learning concepts
+must have accessible alternatives.
+
+====================================================
+60. ACTIVITY AND ASSESSMENT INTEGRITY
+====================================================
+
+Integrate the actual activity gates:
+
+act_17_cmb_explorer
+
+act_18_redshift_expansion_lab
+
+act_19_model_comparator
+
+act_20_future_timeline_lab
+
+Verify current registry identifiers.
+
+Student actions must affect
+real supported scientific models.
+
+Required activity completion
+must use the existing authoritative
+verification infrastructure.
+
+Animation playback is not
+proof of student achievement.
+
+Do not bypass:
+
+Official quiz grading.
+
+Stage completion.
+
+Student progress.
+
+Final exam eligibility.
+
+Certificate security.
+
+During official assessments,
+do not provide answer-revealing
+cinematic visual assistance.
+
+====================================================
+61. SCIENTIFIC UNIT TESTING
+====================================================
+
+Build meaningful numerical tests.
+
+MODULE 17:
+
+Epoch ordering.
+
+Temperature versus scale factor
+under stated assumptions.
+
+Redshift conversion.
+
+CMB metadata validity.
+
+Nucleosynthesis abundance data.
+
+Cosmic age conversion.
+
+MODULE 18:
+
+Hubble relationship.
+
+Scale-factor equations.
+
+Cosmological redshift.
+
+Comoving distance.
+
+Lookback time.
+
+Horizon definitions.
+
+Locally bound system handling.
+
+MODULE 19:
+
+Geocentric motion model.
+
+Heliocentric geometry.
+
+Retrograde motion.
+
+Historical chronology.
+
+Earth circumference geometry.
+
+MODULE 20:
+
+Logarithmic future time.
+
+Stellar evolution milestones.
+
+Conditional galaxy orbit scenarios.
+
+Future cosmology equations.
+
+Black hole evaporation scaling
+under declared assumptions.
+
+Scenario parameter validation.
+
+Document mathematical tolerances.
+
+Do not use source keyword checks
+as scientific test substitutes.
+
+====================================================
+62. NARRATION AND INTERACTION TESTS
+====================================================
+
+Test:
+
+All actual cue mappings.
+
+Correct epoch activation.
+
+Scene initialization.
+
+Pause.
+
+Resume.
+
+Seeking.
+
+Replay.
+
+Question interruption.
+
+Multiple follow-up questions.
+
+Cosmological model switching.
+
+Historical model switching.
+
+Future scenario switching.
+
+Fullscreen transitions.
+
+Student camera control.
+
+Activity waiting states.
+
+Assessment restrictions.
+
+Scientific annotations.
+
+Reduced-motion view.
+
+Resource cleanup.
+
+No duplicate audio.
+
+No unauthorized progress issuance.
+
+====================================================
+63. FULL BROWSER END-TO-END TESTS
+====================================================
+
+Use Playwright or equivalent
+where supported.
+
+MODULE 17:
+
+Open all eight chapters.
+
+Travel through early cosmic history.
+
+Inspect primordial nuclei formation.
+
+Inspect recombination and CMB.
+
+Explore cosmic dark ages.
+
+Observe first-star formation.
+
+Navigate to modern cosmic structures.
+
+Complete the actual CMB activity.
+
+MODULE 18:
+
+Open all eight chapters.
+
+Explore expansion geometry.
+
+Change scale factor.
+
+Inspect Hubble-flow relationships.
+
+Calculate redshift.
+
+Explore lookback time.
+
+Compare horizon definitions.
+
+Inspect a bound-system example.
+
+Complete the redshift activity.
+
+MODULE 19:
+
+Open all eight chapters.
+
+Inspect early worldviews.
+
+Measure Earth using a historical
+geometric demonstration.
+
+Compare geocentric models.
+
+Explore historical traditions.
+
+Inspect heliocentric orbital motion.
+
+Study telescopic observations.
+
+Explore the Great Debate.
+
+Review modern cosmology.
+
+Complete the real model comparison.
+
+MODULE 20:
+
+Open all eight chapters.
+
+Explore the Sun's future.
+
+Inspect Earth's possible futures.
+
+Compare galaxy trajectories.
+
+Explore stellar population evolution.
+
+Inspect long-term structure.
+
+Examine heat-death assumptions.
+
+Compare alternative cosmic outcomes.
+
+Complete the real future timeline activity.
+
+For all four modules:
+
+Test COSMOS interruption.
+
+Test restoration.
+
+Test fullscreen.
+
+Test mobile.
+
+Test accessibility fallbacks.
+
+====================================================
+64. VISUAL REGRESSION TESTING
+====================================================
+
+Capture actual browser screenshots
+or videos where available.
+
+For each chapter:
+
+Opening state.
+
+Primary scientific explanation.
+
+Interactive or concluding state.
+
+Check:
+
+Cosmic chronology consistency.
+
+Scale transition stability.
+
+CMB display correctness.
+
+Readable scientific annotations.
+
+Correct expansion geometry.
+
+Historical model geometry.
+
+Deep-time timeline readability.
+
+Model uncertainty labels.
+
+COSMOS synchronization.
+
+Camera stability.
+
+No black screens.
+
+No broken shaders.
+
+No generic filler animation.
+
+No false visual scientific claims.
+
+Do not fabricate screenshots.
+
+====================================================
+65. PERFORMANCE BENCHMARKS
+====================================================
+
+Measure:
+
+Average FPS.
+
+P95 frame time.
+
+Draw calls.
+
+Scene load time.
+
+Texture decoding time.
+
+CMB asset loading time.
+
+Scientific graph update cost.
+
+Timeline interpolation overhead.
+
+Camera transition duration.
+
+Cue activation latency.
+
+Memory after repeated module navigation.
+
+GPU resource estimates.
+
+Test representative hardware
+where available.
+
+Use real measurements.
+
+Do not promise universally
+perfect performance.
+
+Correct significant regressions.
+
+====================================================
+66. QUALITY ACCEPTANCE RUBRIC
+====================================================
+
+Evaluate each actual chapter.
+
+Score 0–5 in:
+
+Scientific correctness.
+
+Educational clarity.
+
+Historical accuracy.
+
+Visual fidelity.
+
+Animation storytelling.
+
+Cinematic composition.
+
+Scientific graph readability.
+
+Camera stability.
+
+COSMOS synchronization.
+
+Real student interaction.
+
+Model uncertainty communication.
+
+Accessibility.
+
+Performance stability.
+
+Scientific accuracy is mandatory.
+
+Historical accuracy is mandatory
+for Module 19.
+
+Evidence/model distinction is mandatory
+for Modules 17, 18 and 20.
+
+Target at least 4/5 in major
+visual categories.
+
+Do not invent review scores.
+
+====================================================
+67. IMPLEMENTATION ROADMAP
+====================================================
+
+PHASE A — AUDIT
+
+1. Inspect current repository.
+
+2. Read all Stage 5 storyboards.
+
+3. Reconcile 32 chapters / 174 segments.
+
+4. Verify previous cinematic systems.
+
+5. Inspect existing cosmology visualizers.
+
+6. Review scientific content.
+
+7. Capture visual/performance baselines.
+
+PHASE B — MODULE 17
+
+8. Implement Big Bang model introduction.
+
+9. Implement hot early universe.
+
+10. Implement primordial nucleosynthesis.
+
+11. Implement recombination and CMB.
+
+12. Implement cosmic dark ages.
+
+13. Implement cosmic dawn.
+
+14. Implement galaxy evolution.
+
+15. Implement modern-universe conclusion.
+
+16. Integrate real CMB activity.
+
+17. Verify all eight chapters.
+
+PHASE C — MODULE 18
+
+18. Implement metric expansion.
+
+19. Implement evolving galaxy separations.
+
+20. Implement Hubble-Lemaître observations.
+
+21. Implement cosmological redshift.
+
+22. Implement scale-factor visualization.
+
+23. Implement lookback-time geometry.
+
+24. Implement cosmic horizons.
+
+25. Implement bound-system comparison.
+
+26. Integrate redshift activity.
+
+27. Verify all eight chapters.
+
+PHASE D — MODULE 19
+
+28. Implement early cosmological ideas.
+
+29. Implement spherical-Earth evidence.
+
+30. Implement geocentric models.
+
+31. Implement global astronomy traditions.
+
+32. Implement heliocentric revolution.
+
+33. Implement telescopic breakthroughs.
+
+34. Implement Milky Way historical mapping.
+
+35. Implement modern cosmology timeline.
+
+36. Integrate historical model activity.
+
+37. Verify all eight chapters.
+
+PHASE E — MODULE 20
+
+38. Implement solar future.
+
+39. Implement Earth future.
+
+40. Implement galaxy-motion scenarios.
+
+41. Implement stellar population futures.
+
+42. Implement cosmic star-formation decline.
+
+43. Implement long-term cosmic structures.
+
+44. Implement heat-death scenario.
+
+45. Implement alternative cosmic futures.
+
+46. Integrate future timeline activity.
+
+47. Verify all eight chapters.
+
+PHASE F — INTEGRATION
+
+48. Register all narration cues.
+
+49. Integrate camera choreography.
+
+50. Integrate scientific annotations.
+
+51. Connect all activity gates.
+
+52. Verify question interruptions.
+
+53. Verify deterministic restoration.
+
+54. Verify fullscreen navigation.
+
+PHASE G — QUALITY
+
+55. Run mathematical validation.
+
+56. Run scientific accuracy review.
+
+57. Run historical accuracy review.
+
+58. Run automated integration tests.
+
+59. Run browser end-to-end tests.
+
+60. Capture visual evidence.
+
+61. Benchmark performance.
+
+62. Correct significant defects.
+
+63. Run previous module regression tests.
+
+64. Produce final implementation report.
+
+65. Prepare for Prompt 14.
+
+Implement in testable increments.
+
+====================================================
+68. RECOMMENDED CODE ORGANIZATION
+====================================================
+
+Extend the existing cinematic
+scene architecture.
+
+Suggested logical structure:
+
+src/components/academy/cinematic/scenes/
+
+module-17/
+  BigBangModelScene
+  EarlyHotUniverseScene
+  PrimordialNucleosynthesisScene
+  RecombinationCMBScene
+  CosmicDarkAgesScene
+  CosmicDawnScene
+  GalaxyEvolutionTimelineScene
+  ModernUniverseScene
+
+module-18/
+  MetricExpansionScene
+  GalaxyDistanceEvolutionScene
+  HubbleLemaitreScene
+  CosmologicalRedshiftScene
+  ScaleFactorScene
+  CosmicLookbackScene
+  CosmologicalHorizonsScene
+  BoundSystemsExpansionScene
+
+module-19/
+  AncientCosmologyScene
+  SphericalEarthEvidenceScene
+  GeocentricModelsScene
+  GlobalAstronomyHistoryScene
+  HeliocentricRevolutionScene
+  HistoricalTelescopeScene
+  GreatDebateScene
+  ModernCosmologyHistoryScene
+
+module-20/
+  SolarFutureScene
+  EarthFutureScene
+  GalaxyFutureScenarioScene
+  StellarPopulationFutureScene
+  CosmicStarFormationFutureScene
+  CosmicStructureFutureScene
+  HeatDeathScenarioScene
+  AlternativeCosmicFuturesScene
+
+These names are suggestions.
+
+Reuse existing components where suitable.
+
+Do not create unnecessarily duplicated:
+
+Time engines.
+
+Renderers.
+
+Cosmology solvers.
+
+Scientific constants.
+
+Camera services.
+
+Narration subscriptions.
+
+Student progress handlers.
+
+====================================================
+69. FINAL IMPLEMENTATION REPORT
+====================================================
+
+Create:
+
+docs/academy/
+cinematic-stage-5-implementation-report.md
+
+Include:
+
+A. Verified current curriculum counts.
+
+B. Module 17 chapter results.
+
+C. Module 18 chapter results.
+
+D. Module 19 chapter results.
+
+E. Module 20 chapter results.
+
+F. Narration segment coverage.
+
+G. Scientific data references.
+
+H. Cosmological model assumptions.
+
+I. Historical source references.
+
+J. Scientific corrections.
+
+K. Reused existing components.
+
+L. New components implemented.
+
+M. COSMOS synchronization results.
+
+N. Student activity results.
+
+O. Fullscreen behavior.
+
+P. Accessible alternatives.
+
+Q. Visual comparison evidence.
+
+R. Scientific test results.
+
+S. Browser test results.
+
+T. Performance benchmarks.
+
+U. Remaining limitations.
+
+V. Readiness for Prompt 14.
+
+Use statuses:
+
+PASS.
+
+PARTIAL.
+
+FAIL.
+
+NOT IMPLEMENTED.
+
+NOT TESTED.
+
+BLOCKED.
+
+Do not mark an untested scene PASS.
+
+====================================================
+70. MANDATORY CHAPTER COVERAGE MATRIX
+====================================================
+
+Produce one row for every actual
+Stage 5 instructional chapter.
+
+Required fields:
+
+Module.
+
+Chapter ID.
+
+Chapter title.
+
+Storyboard ID.
+
+Scientific objective.
+
+Actual scene.
+
+Animation beats.
+
+Narration segment IDs.
+
+Camera choreography.
+
+Scientific data source.
+
+Representation type.
+
+Student interaction.
+
+Pause/resume.
+
+Model assumptions.
+
+Scientific correctness.
+
+Historical accuracy where relevant.
+
+Accessibility.
+
+Visual quality.
+
+Performance.
+
+Final status.
+
+Also provide segment-level
+mapping verification.
+
+A generic starfield does not count
+as completed cinematic coverage.
+
+====================================================
+71. FINAL SUCCESS CONDITIONS
+====================================================
+
+PROMPT 13 IS COMPLETE ONLY WHEN:
+
+1. Module 17 has eight functioning
+   distinct cinematic chapters.
+
+2. Module 18 has eight functioning
+   distinct cinematic chapters.
+
+3. Module 19 has eight functioning
+   distinct cinematic chapters.
+
+4. Module 20 has eight functioning
+   distinct cinematic chapters.
+
+5. All actual COSMOS narration segments
+   have meaningful visual mappings.
+
+6. The Big Bang is not portrayed
+   as a local explosion into empty space.
+
+7. The early cosmic epochs are
+   scientifically consistent.
+
+8. Primordial nucleosynthesis is
+   distinct from atom formation.
+
+9. The CMB uses verified scientific
+   data or correctly labeled models.
+
+10. The cosmic dark ages and
+    first stars are explained accurately.
+
+11. Galaxy evolution uses defensible
+    observational or model-based data.
+
+12. Cosmological expansion uses
+    valid mathematical relationships.
+
+13. Redshift calculations are correct.
+
+14. Horizon definitions are distinguished.
+
+15. Bound-system behavior is explained
+    without misleading universal expansion.
+
+16. Historical cosmological models
+    are represented accurately.
+
+17. Global astronomical traditions
+    receive appropriate historical treatment.
+
+18. Retrograde-motion comparisons work.
+
+19. Future cosmic scenarios are
+    presented conditionally.
+
+20. Sun and stellar evolution futures
+    use approved model tracks.
+
+21. Galaxy future uncertainties
+    are communicated honestly.
+
+22. Heat-death and Big Rip scenarios
+    are not presented as certain events.
+
+23. All four student activities use
+    real supported interactions.
+
+24. COSMOS controls the instructional
+    cinematic visual progression.
+
+25. Student questions preserve context.
+
+26. Pause, resume and seeking work.
+
+27. Camera movements remain stable.
+
+28. Fullscreen mode works.
+
+29. Mobile and accessible alternatives work.
+
+30. Major performance regressions
+    have been addressed.
+
+31. Official assessment and certificate
+    integrity remains preserved.
+
+32. Scientific and browser test outcomes
+    are documented honestly.
+
+33. The system is ready to expand into
+    Modules 21–24 during Prompt 14.
+
+====================================================
+FINAL INSTRUCTION
+====================================================
+
+CREATE AN EXTRAORDINARY CINEMATIC
+JOURNEY THROUGH THE HISTORY,
+STRUCTURE AND POSSIBLE FUTURE
+OF THE UNIVERSE.
+
+MODULE 17 MUST FEEL LIKE
+AN IMMERSIVE COSMIC TIME MACHINE.
+
+MODULE 18 MUST FEEL LIKE
+A REAL SCIENTIFIC COSMOLOGY
+AND EXPANSION OBSERVATORY.
+
+MODULE 19 MUST FEEL LIKE
+AN INTERACTIVE HISTORY OF
+HUMAN UNDERSTANDING OF THE COSMOS.
+
+MODULE 20 MUST FEEL LIKE
+A DEEP-TIME SCIENTIFIC FUTURE
+SCENARIO LABORATORY.
+
+EVERY CHAPTER MUST HAVE:
+
+DISTINCT EDUCATIONAL ANIMATIONS.
+
+SCIENCE-FIRST CINEMATIC VISUAL DESIGN.
+
+COSMOS NARRATION SYNCHRONIZATION.
+
+PURPOSEFUL CAMERA CHOREOGRAPHY.
+
+CORRECT MATHEMATICAL RELATIONSHIPS.
+
+OBSERVATION AND MODEL DISCLOSURES.
+
+REAL INTERACTIVE LEARNING TOOLS.
+
+FULLSCREEN PRESENTATION.
+
+ACCESSIBLE ALTERNATIVES.
+
+MEASURED PERFORMANCE.
+
+DO NOT:
+
+Show the Big Bang as a literal
+explosion from a central location.
+
+Invent unobserved CMB measurements.
+
+Show a physical edge of all space.
+
+Mix cosmological distance definitions.
+
+Erase uncertainty from cosmological models.
+
+Present a universal flat-Earth
+belief as established historical fact.
+
+Present future scenarios as
+already observed facts.
+
+Assume a guaranteed
+Milky Way-Andromeda merger.
+
+Claim proton decay has been observed.
+
+Claim the Big Rip will definitely happen.
+
+Create generic particle animations
+unrelated to lesson narration.
+
+Duplicate COSMOS learning services.
+
+Bypass verified activity requirements.
+
+Alter official quiz or certificate security.
+
+Claim completion without runtime verification.
+
+Begin Prompt 14 automatically.
+
+Deploy irreversible production changes
+without the required authorization.
+
+IMPLEMENT, SCIENTIFICALLY VALIDATE,
+TEST, REFINE AND DOCUMENT
+THE COMPLETE STAGE 5 CINEMATIC EXPERIENCE.
+
+BEGIN PROMPT 13.

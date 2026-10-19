@@ -318,4 +318,3 @@ export class CosmosStepSequenceGenerator {
     return stageTransitions[moduleId] || "Let us continue to the next scientific insight.";
   }
 }
-

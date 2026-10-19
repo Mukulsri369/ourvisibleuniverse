@@ -43,8 +43,12 @@ function runPipelineStage(targetStage: string): void {
   }
 
   if (targetStage === "all" || targetStage === "inspect-gltf" || targetStage === "optimize-model") {
-    console.log("\n=== [STAGE 2 & 3: inspect-gltf & optimize-model (Meshopt vs Draco Evaluation)] ===");
-    for (const rec of records.filter((r) => r.deliveryStrategy === "AUTHENTIC_SCIENTIFIC_GLB_DERIVATIVE")) {
+    console.log(
+      "\n=== [STAGE 2 & 3: inspect-gltf & optimize-model (Meshopt vs Draco Evaluation)] ===",
+    );
+    for (const rec of records.filter(
+      (r) => r.deliveryStrategy === "AUTHENTIC_SCIENTIFIC_GLB_DERIVATIVE",
+    )) {
       const glb = loader.synthesizeVerifiedGLBContainer(rec);
       const inspection = CosmosAssetValidation.inspectGLBContainer(glb);
       const opt = CosmosAssetValidation.evaluateGeometryOptimizationStrategies(rec.assetId);
@@ -55,7 +59,9 @@ function runPipelineStage(targetStage: string): void {
   }
 
   if (targetStage === "all" || targetStage === "compress-textures") {
-    console.log("\n=== [STAGE 4: compress-textures (Multi-Resolution Albedo/Normal/Roughness Bundles)] ===");
+    console.log(
+      "\n=== [STAGE 4: compress-textures (Multi-Resolution Albedo/Normal/Roughness Bundles)] ===",
+    );
     const gpuSupport = texMgr.detectGPUCompressionSupport(null);
     console.log(`  • GPU Transcode Target: ${gpuSupport.selectedTranscodeTarget}`);
     for (const tier of ["HIGH_CINEMATIC", "BALANCED", "LOW_POWER"] as const) {
@@ -67,7 +73,9 @@ function runPipelineStage(targetStage: string): void {
   }
 
   if (targetStage === "all" || targetStage === "generate-lod" || targetStage === "validate-model") {
-    console.log("\n=== [STAGE 5 & 6: generate-lod & validate-model (Interactive Node Survival)] ===");
+    console.log(
+      "\n=== [STAGE 5 & 6: generate-lod & validate-model (Interactive Node Survival)] ===",
+    );
     for (const rec of records) {
       const instance = loader.loadHierarchicalScientificModel(rec.assetId, "LOD0_HIGH");
       const check = CosmosAssetValidation.validateOptimizedAssetInteractivity(rec, instance);
@@ -78,7 +86,11 @@ function runPipelineStage(targetStage: string): void {
     }
   }
 
-  if (targetStage === "all" || targetStage === "build-asset-manifest" || targetStage === "benchmark-assets") {
+  if (
+    targetStage === "all" ||
+    targetStage === "build-asset-manifest" ||
+    targetStage === "benchmark-assets"
+  ) {
     console.log("\n=== [STAGE 7 & 8: build-asset-manifest & benchmark-assets] ===");
     const coverage = getComplete172ChapterAssetCoverageMatrix();
     const readyCount = coverage.filter((c) => c.coverageStatus === "READY").length;

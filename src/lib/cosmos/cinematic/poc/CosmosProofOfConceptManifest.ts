@@ -18,15 +18,35 @@ import type {
   CinematicCameraType,
   ScientificRepresentationCategory,
 } from "../../cinematic-storyboard-types";
-import type {
-  CinematicCameraActionType,
-  CinematicTimePolicy,
-} from "../CosmosCinematicPlayerState";
+import type { CinematicCameraActionType, CinematicTimePolicy } from "../CosmosCinematicPlayerState";
 import type { CinematicScientificAnnotation } from "../CosmosCinematicSceneRegistry";
 import { STAGE_2_NEW_CHAPTER_MANIFESTS } from "./CosmosStage2Manifest";
+import { STAGE_4_NEW_CHAPTER_MANIFESTS } from "./CosmosStage4Manifest";
+import { STAGE_5_NEW_CHAPTER_MANIFESTS } from "./CosmosStage5Manifest";
+import { STAGE_6_NEW_CHAPTER_MANIFESTS } from "./CosmosStage6Manifest";
 
-export type ProofOfConceptModuleId = "01" | "05" | "06" | "07" | "08" | "14";
+export type ProofOfConceptModuleId =
+  | "01"
+  | "05"
+  | "06"
+  | "07"
+  | "08"
+  | "13"
+  | "14"
+  | "15"
+  | "16"
+  | "17"
+  | "18"
+  | "19"
+  | "20"
+  | "21"
+  | "22"
+  | "23"
+  | "24";
 export type Stage2ModuleId = "05" | "06" | "07" | "08";
+export type Stage4ModuleId = "13" | "14" | "15" | "16";
+export type Stage5ModuleId = "17" | "18" | "19" | "20";
+export type Stage6ModuleId = "21" | "22" | "23" | "24";
 
 export type ProofOfConceptSceneComponentId =
   // Module 01 (6 distinct chapter scenes)
@@ -70,6 +90,15 @@ export type ProofOfConceptSceneComponentId =
   | "m08_ch6_kepler_three_laws"
   | "m08_ch7_escape_velocity_well"
   | "m08_ch8_barycenter_multibody"
+  // Module 13 (6 distinct chapter scenes)
+  | "m13_ch1_hubble_tuning_fork"
+  | "m13_ch2_milky_way_anatomy"
+  | "m13_ch3_local_group_neighborhood"
+  | "m13_ch4_galactic_cores_agn"
+  | "m13_ch5_galaxy_rotation_curves"
+  | "m13_ch5_rotation_curves_halos"
+  | "m13_ch6_galaxy_mergers_evolution"
+  | "m13_ch6_galaxy_collisions"
   // Module 14 (8 distinct chapter scenes)
   | "m14_ch1_massive_stellar_collapse"
   | "m14_ch2_white_dwarf_vs_neutron_star"
@@ -78,7 +107,108 @@ export type ProofOfConceptSceneComponentId =
   | "m14_ch5_relativistic_accretion_disk"
   | "m14_ch6_pulsar_magnetar_lighthouse"
   | "m14_ch7_supermassive_black_holes"
-  | "m14_ch8_gravitational_wave_chirp";
+  | "m14_ch8_gravitational_wave_chirp"
+  // Module 15 (7 distinct chapter scenes)
+  | "m15_ch1_cosmic_hierarchy_ladder"
+  | "m15_ch1_galaxies_not_isolated"
+  | "m15_ch2_galaxy_groups_compact"
+  | "m15_ch2_local_group_dynamics"
+  | "m15_ch3_galaxy_clusters_icm"
+  | "m15_ch3_cluster_intracluster_gas"
+  | "m15_ch4_laniakea_supercluster"
+  | "m15_ch4_superclusters_laniakea"
+  | "m15_ch5_cosmic_web_filaments"
+  | "m15_ch5_cosmic_filaments_whim"
+  | "m15_ch6_cosmic_voids_basins"
+  | "m15_ch6_cosmic_voids"
+  | "m15_ch7_structure_formation_evolution"
+  | "m15_ch7_structure_formation_gravity"
+  // Module 16 (9 distinct chapter scenes)
+  | "m16_ch1_cosmic_energy_pie"
+  | "m16_ch1_visible_invisible_matter"
+  | "m16_ch2_rotation_curve_discrepancy"
+  | "m16_ch2_rotation_curve_decomposition"
+  | "m16_ch3_gravitational_lensing_bench"
+  | "m16_ch3_gravitational_lensing_bullet"
+  | "m16_ch4_nfw_dark_matter_halos"
+  | "m16_ch4_zwicky_coma_virial"
+  | "m16_ch5_dark_matter_candidates"
+  | "m16_ch5_dark_matter_evidence_pillars"
+  | "m16_ch6_hubble_lemiaitre_expansion"
+  | "m16_ch6_measuring_cosmic_expansion"
+  | "m16_ch7_supernova_acceleration_evidence"
+  | "m16_ch7_supernova_acceleration"
+  | "m16_ch8_dark_energy_models"
+  | "m16_ch9_open_questions_models"
+  // Module 17 (8 distinct chapter scenes)
+  | "m17_ch1_big_bang_metric_intro"
+  | "m17_ch2_primordial_plasma_thermodynamics"
+  | "m17_ch3_primordial_nucleosynthesis_bbn"
+  | "m17_ch4_recombination_cmb_surface"
+  | "m17_ch5_cosmic_dark_ages_21cm"
+  | "m17_ch6_cosmic_dawn_reionization"
+  | "m17_ch7_cosmic_noon_galaxy_evolution"
+  | "m17_ch8_modern_universe_web"
+  // Module 18 (8 distinct chapter scenes)
+  | "m18_ch1_comoving_expansion_grid"
+  | "m18_ch2_proper_comoving_distance_evolution"
+  | "m18_ch3_hubble_lemaitre_diagram_3d"
+  | "m18_ch4_cosmological_redshift_spectrometer"
+  | "m18_ch5_flrw_scale_factor_solver"
+  | "m18_ch6_lookback_light_cone_distances"
+  | "m18_ch7_cosmological_horizons_spacetime"
+  | "m18_ch8_bound_vs_expanding_systems"
+  // Module 19 (8 distinct chapter scenes)
+  | "m19_ch1_ancient_worldviews_sky"
+  | "m19_ch2_eratosthenes_spherical_earth_lab"
+  | "m19_ch3_ptolemaic_epicycle_equant_3d"
+  | "m19_ch4_global_astronomy_traditions_3d"
+  | "m19_ch5_copernican_heliocentric_retrograde"
+  | "m19_ch6_galileo_kepler_newton_breakthrough"
+  | "m19_ch7_great_debate_cepheid_distance"
+  | "m19_ch8_modern_cosmology_observatories"
+  // Module 20 (8 distinct chapter scenes)
+  | "m20_ch1_solar_red_giant_track"
+  | "m20_ch2_earth_insolation_orbital_fate"
+  | "m20_ch3_local_group_conditional_merger"
+  | "m20_ch4_stellar_population_lifetimes"
+  | "m20_ch5_cosmic_star_formation_decline"
+  | "m20_ch6_deep_time_cosmic_structures"
+  | "m20_ch7_hawking_evaporation_heat_death"
+  | "m20_ch8_alternative_cosmic_fates"
+  // Module 21 (8 distinct chapter scenes)
+  | "m21_ch1_why_telescopes_photon_bucket"
+  | "m21_ch2_refractor_reflector_cutaway"
+  | "m21_ch3_diffraction_airy_resolution"
+  | "m21_ch4_space_vs_ground_adaptive_optics"
+  | "m21_ch5_radio_interferometry_array"
+  | "m21_ch6_infrared_ultraviolet_cryogenic"
+  | "m21_ch7_xray_wolter_grazing_optics"
+  | "m21_ch8_spectroscopy_doppler_analyzer"
+  // Module 22 (8 distinct chapter scenes)
+  | "m22_ch1_sputnik_early_satellites"
+  | "m22_ch2_vostok_human_spaceflight"
+  | "m22_ch3_apollo_chandrayaan_lunar_lor"
+  | "m22_ch4_iss_orbital_habitat_eclss"
+  | "m22_ch5_mars_edl_perseverance_rover"
+  | "m22_ch6_voyager_gravity_assist_heliopause"
+  | "m22_ch7_space_observatories_l2_halo"
+  | "m22_ch8_interplanetary_mission_planner"
+  // Module 23 (10 distinct chapter scenes)
+  | "m23_ch1_thermodynamic_life_definition"
+  | "m23_ch2_earth_carbonate_silicate_cradle"
+  | "m23_ch3_water_carbon_redox_triad"
+  | "m23_ch4_extremophile_boundary_envelope"
+  | "m23_ch5_mars_paleolake_perchlorate_target"
+  | "m23_ch6_europa_enceladus_ocean_worlds"
+  | "m23_ch7_kopparapu_habitable_zone_sim"
+  | "m23_ch8_biosignature_disequilibrium_lab"
+  | "m23_ch9_seti_drake_waterfall_observatory"
+  | "m23_ch10_cold_scale_evidence_boundary"
+  // Module 24 (3 distinct chapter scenes)
+  | "m24_ch1_unified_cosmic_physics_sandbox"
+  | "m24_ch2_numerical_integrator_error_lab"
+  | "m24_ch3_capstone_synthesis_graduation_lab";
 
 export interface ChapterInteractiveControlSpec {
   controlId: string;
@@ -202,7 +332,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "km",
         defaultValue: 100,
         scientificFormula: "P(z) = P₀ · exp(-z / 8.5 km)",
-        description: "Ascend from sea level through the 100 km Kármán convention to the 408 km ISS orbit.",
+        description:
+          "Ascend from sea level through the 100 km Kármán convention to the 408 km ISS orbit.",
       },
       {
         controlId: "showVacuumCube",
@@ -470,24 +601,30 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         defaultValue: "educational",
         options: [
           { value: "educational", label: "Educational Display Scale (Simultaneous Inspection)" },
-          { value: "true_30_earth_diameters", label: "True Proportional Scale (30 D_⊕ = 384,400 km)" },
+          {
+            value: "true_30_earth_diameters",
+            label: "True Proportional Scale (30 D_⊕ = 384,400 km)",
+          },
         ],
         scientificFormula: "a_Moon = 384,400 km ≈ 30.17 × D_⊕",
-        description: "Switch between close-up educational view and true 30-Earth-diameter proportional geometry.",
+        description:
+          "Switch between close-up educational view and true 30-Earth-diameter proportional geometry.",
       },
       {
         controlId: "showTidalLockVector",
         label: "Near-Side Tidal Lock Vector",
         controlType: "toggle",
         defaultValue: true,
-        description: "Show the lunar prime-meridian vector pointing continuously at Earth (P_spin = P_orbit = 27.32 d).",
+        description:
+          "Show the lunar prime-meridian vector pointing continuously at Earth (P_spin = P_orbit = 27.32 d).",
       },
       {
         controlId: "showTheiaModel",
         label: "Theia Giant-Impact Model Reconstruction",
         controlType: "toggle",
         defaultValue: false,
-        description: "Display chronological model reconstruction of the ~4.5 Gyr proto-Earth / Theia impact.",
+        description:
+          "Display chronological model reconstruction of the ~4.5 Gyr proto-Earth / Theia impact.",
       },
     ],
     visualBeats: [
@@ -607,7 +744,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "AU",
         defaultValue: 5.2,
         scientificFormula: "1 AU = 149,597,870.7 km (t_light = 499.0 s)",
-        description: "Fly smoothly from Mercury (0.39 AU) and Earth (1.00 AU) out to Neptune (30.1 AU) and the Kuiper Belt.",
+        description:
+          "Fly smoothly from Mercury (0.39 AU) and Earth (1.00 AU) out to Neptune (30.1 AU) and the Kuiper Belt.",
       },
       {
         controlId: "locateEarthBeacon",
@@ -621,7 +759,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         label: "Expanding Sunlight Transit Wavefront",
         controlType: "toggle",
         defaultValue: true,
-        description: "Visualize light travel time: 8.3 min to Earth, 43 min to Jupiter, 4.16 hr to Neptune.",
+        description:
+          "Visualize light travel time: 8.3 min to Earth, 43 min to Jupiter, 4.16 hr to Neptune.",
       },
     ],
     visualBeats: [
@@ -729,7 +868,12 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Gaia DR3 / Spitzer SBbc structural reconstruction: Point-cloud particles represent stellar population density distributions, not 1:1 individually cataloged stars across the entire disk.",
     scientificReviewCorrectionNote:
       "Verified: Explicitly distinguished observed Gaia local neighborhood stars from the reconstructed global barred-spiral density field.",
-    requiredObjectIds: ["milky_way_disk", "orion_spur_sun_beacon", "sgr_a_star_core", "galactic_orbit_ring"],
+    requiredObjectIds: [
+      "milky_way_disk",
+      "orion_spur_sun_beacon",
+      "sgr_a_star_core",
+      "galactic_orbit_ring",
+    ],
     interactiveControls: [
       {
         controlId: "galacticPerspective",
@@ -742,7 +886,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
           { value: "solar_neighborhood", label: "Orion–Cygnus Spur Neighborhood (R₀ = 26,670 ly)" },
         ],
         scientificFormula: "T_gal = 2π R₀ / v_LSR ≈ 225–230 Myr",
-        description: "Inspect the Milky Way face-on, edge-on (100:1 aspect ratio), or centered on the Orion Spur.",
+        description:
+          "Inspect the Milky Way face-on, edge-on (100:1 aspect ratio), or centered on the Orion Spur.",
       },
       {
         controlId: "showGalacticOrbit",
@@ -872,7 +1017,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "tier",
         defaultValue: 6,
         scientificFormula: "R_horizon ≈ 46.5 Gly (Comoving Diameter ≈ 93 Gly)",
-        description: "Scrub across all 7 cosmic address tiers from Earth (0) to the Observable Horizon (6).",
+        description:
+          "Scrub across all 7 cosmic address tiers from Earth (0) to the Observable Horizon (6).",
         linkedActivityId: "act_01_cosmic_zoom",
         linkedActionType: "scrub_scale_layer",
       },
@@ -881,7 +1027,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         label: "Show Unobservable Universe Continuation",
         controlType: "toggle",
         defaultValue: true,
-        description: "Illustrate cosmic web structure continuing beyond our 46.5 Gly light-travel horizon.",
+        description:
+          "Illustrate cosmic web structure continuing beyond our 46.5 Gly light-travel horizon.",
       },
     ],
     visualBeats: [
@@ -982,7 +1129,12 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Pedagogical Diagram Notice: The 3D wireframe depression represents scalar gravitational potential Φ(r) = -GM/r, not a literal elastic rubber sheet in space.",
     scientificReviewCorrectionNote:
       "Verified: Explicitly labeled the 3D funnel as a pedagogical gravitational potential diagram Φ(r) = -GM/r and enforced exact equal-length force arrows |F₁₂| = |F₂₁|.",
-    requiredObjectIds: ["central_star", "orbiting_planet", "gravity_force_vectors", "potential_well_grid"],
+    requiredObjectIds: [
+      "central_star",
+      "orbiting_planet",
+      "gravity_force_vectors",
+      "potential_well_grid",
+    ],
     interactiveControls: [
       {
         controlId: "primaryMassSolar",
@@ -1104,10 +1256,14 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         options: [
           { value: "circular", label: "Circular Orbit (v ⊥ F_g = 90° • Constant Speed)" },
           { value: "elliptical", label: "Elliptical Orbit (e = 0.50 • Work W = F_g · dr varies)" },
-          { value: "suborbital_cannonball", label: "Newton's Cannonball (Suborbital vs Orbital Speed)" },
+          {
+            value: "suborbital_cannonball",
+            label: "Newton's Cannonball (Suborbital vs Orbital Speed)",
+          },
         ],
         scientificFormula: "W = ∫ F_g · dr = F_g · v cos(θ) dt",
-        description: "Compare orthogonal zero-work circular motion with elliptical energy exchange.",
+        description:
+          "Compare orthogonal zero-work circular motion with elliptical energy exchange.",
       },
     ],
     visualBeats: [
@@ -1178,7 +1334,13 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Exact Keplerian focus geometry: The central star sits at focus F₁ (origin), while the ellipse geometric center is shifted by c = -a·e.",
     scientificReviewCorrectionNote:
       "Verified: The attracting star is strictly placed at focus F₁ = (0,0,0), never at the geometric center of a non-circular ellipse.",
-    requiredObjectIds: ["central_star", "orbiting_planet", "focus_f1_marker", "focus_f2_marker", "hohmann_transfer_arc"],
+    requiredObjectIds: [
+      "central_star",
+      "orbiting_planet",
+      "focus_f1_marker",
+      "focus_f2_marker",
+      "hohmann_transfer_arc",
+    ],
     interactiveControls: [
       {
         controlId: "eccentricity",
@@ -1189,7 +1351,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         step: 0.05,
         defaultValue: 0.48,
         scientificFormula: "r_p = a(1 - e) • r_a = a(1 + e) • c = a·e",
-        description: "Reshape the orbit from a perfect circle (e=0) to a highly elongated comet-like ellipse.",
+        description:
+          "Reshape the orbit from a perfect circle (e=0) to a highly elongated comet-like ellipse.",
         linkedActivityId: "module08-orbital-simulation",
         linkedActionType: "change_eccentricity",
       },
@@ -1198,14 +1361,16 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         label: "Show Parabolic (e=1) & Hyperbolic (e=1.2) Family",
         controlType: "toggle",
         defaultValue: true,
-        description: "Overlay open parabolic escape and interstellar hyperbolic ('Oumuamua e=1.20) trajectories.",
+        description:
+          "Overlay open parabolic escape and interstellar hyperbolic ('Oumuamua e=1.20) trajectories.",
       },
       {
         controlId: "showHohmannTransfer",
         label: "Show Hohmann Transfer Ellipse (Δv₁, Δv₂)",
         controlType: "toggle",
         defaultValue: true,
-        description: "Display the minimum-energy elliptical transfer orbit between inner and outer circular orbits.",
+        description:
+          "Display the minimum-energy elliptical transfer orbit between inner and outer circular orbits.",
       },
     ],
     visualBeats: [
@@ -1288,14 +1453,16 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "R_⊕",
         defaultValue: 6.61,
         scientificFormula: "v_circ = √(GM_⊕ / r) • T = 2π √(r³ / GM_⊕)",
-        description: "Adjust orbital radius from LEO (1.06 R_⊕ = 6,779 km) to Geostationary (6.61 R_⊕ = 42,164 km).",
+        description:
+          "Adjust orbital radius from LEO (1.06 R_⊕ = 6,779 km) to Geostationary (6.61 R_⊕ = 42,164 km).",
       },
       {
         controlId: "showIonSpiral",
         label: "Compare Chemical Δv vs Low-Thrust Ion Spiral",
         controlType: "toggle",
         defaultValue: true,
-        description: "Show continuous multi-revolution xenon ion spiral alongside impulsive Hohmann transfer.",
+        description:
+          "Show continuous multi-revolution xenon ion spiral alongside impulsive Hohmann transfer.",
       },
     ],
     visualBeats: [
@@ -1391,7 +1558,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         label: "Central Gravitational Attraction Active",
         controlType: "toggle",
         defaultValue: true,
-        description: "Release gravity in Law 1 to watch the planet coast along its straight inertial tangent.",
+        description:
+          "Release gravity in Law 1 to watch the planet coast along its straight inertial tangent.",
       },
     ],
     visualBeats: [
@@ -1478,7 +1646,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         step: 0.05,
         defaultValue: 0.52,
         scientificFormula: "dA / dt = L / (2m) = const",
-        description: "Change eccentricity and verify that periapsis and apoapsis sectors sweep identical areas.",
+        description:
+          "Change eccentricity and verify that periapsis and apoapsis sectors sweep identical areas.",
       },
       {
         controlId: "harmonicPlanetSemiMajorAu",
@@ -1490,7 +1659,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "AU",
         defaultValue: 4.0,
         scientificFormula: "T² = a³ (Solar Units) ⇒ T = a^(3/2) yr",
-        description: "Test Kepler's 3rd Law (e.g., a = 4.0 AU → T = 8.0 yr; a = 9.0 AU → T = 27.0 yr).",
+        description:
+          "Test Kepler's 3rd Law (e.g., a = 4.0 AU → T = 8.0 yr; a = 9.0 AU → T = 27.0 yr).",
       },
     ],
     visualBeats: [
@@ -1561,19 +1731,25 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Idealized vacuum escape speed v_esc = √(2GM/r); practical surface launches require additional Δv to overcome atmospheric drag and gravity losses.",
     scientificReviewCorrectionNote:
       "Verified: Explicitly distinguished idealized vacuum escape speed v_esc = √(2GM/r) from atmospheric launch requirements.",
-    requiredObjectIds: ["central_star", "escape_probe", "bound_reference_orbit", "escape_trajectory_arc"],
+    requiredObjectIds: [
+      "central_star",
+      "escape_probe",
+      "bound_reference_orbit",
+      "escape_trajectory_arc",
+    ],
     interactiveControls: [
       {
         controlId: "launchSpeedRatio",
         label: "Launch Velocity Ratio (v₀ / v_circ)",
         controlType: "slider",
         min: 0.85,
-        max: 1.80,
+        max: 1.8,
         step: 0.05,
         unit: "× v_circ",
         defaultValue: 1.41,
         scientificFormula: "v_esc = √2 · v_circ ≈ 1.414 · v_circ (E_tot = 0)",
-        description: "Increase launch speed across √2 ≈ 1.414× circular speed to break out of the gravity well.",
+        description:
+          "Increase launch speed across √2 ≈ 1.414× circular speed to break out of the gravity well.",
       },
       {
         controlId: "escapeBodyPreset",
@@ -1585,7 +1761,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
           { value: "sun_1au", label: "Sun from 1 AU (v_esc = 42.12 km/s)" },
           { value: "jupiter", label: "Jupiter Cloud Top (v_esc = 59.50 km/s)" },
         ],
-        description: "Compare escape speed and atmospheric retention across Earth, the Sun at 1 AU, and Jupiter.",
+        description:
+          "Compare escape speed and atmospheric retention across Earth, the Sun at 1 AU, and Jupiter.",
       },
     ],
     visualBeats: [
@@ -1670,9 +1847,10 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         min: 0.05,
         max: 1.0,
         step: 0.05,
-        defaultValue: 0.40,
+        defaultValue: 0.4,
         scientificFormula: "M₁ · r₁ = m₂ · r₂ ⇒ r₁ = a · q / (1 + q)",
-        description: "Change the mass ratio from planet-star wobble (q=0.05) to equal-mass binary stars (q=1.00).",
+        description:
+          "Change the mass ratio from planet-star wobble (q=0.05) to equal-mass binary stars (q=1.00).",
         linkedActivityId: "module08-orbital-simulation",
         linkedActionType: "verify_orbit",
       },
@@ -1681,7 +1859,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         label: "Show L1–L5 Lagrange Points & Hill Sphere",
         controlType: "toggle",
         defaultValue: true,
-        description: "Display collinear L1, L2 (JWST), L3 and equilateral Trojan points L4, L5 (±60°).",
+        description:
+          "Display collinear L1, L2 (JWST), L3 and equilateral Trojan points L4, L5 (±60°).",
       },
     ],
     visualBeats: [
@@ -1736,7 +1915,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
     ],
     requiresActivityGate: {
       activityId: "module08-orbital-simulation",
-      gateDescription: "Adjust orbital parameters and verify stable orbital dynamics to complete the laboratory gate.",
+      gateDescription:
+        "Adjust orbital parameters and verify stable orbital dynamics to complete the laboratory gate.",
     },
     rubricScores: STANDARD_5_RUBRIC,
   },
@@ -1759,7 +1939,11 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Schematic Stellar Cutaway Notice: Shell radii are scaled for visual clarity. Remnant outcomes depend on initial ZAMS mass, metallicity, stellar wind mass loss, core compactness, and binary mass transfer.",
     scientificReviewCorrectionNote:
       "Verified: Included electron capture and photodisintegration alongside the endothermic ⁵⁶Fe peak (not a simplistic disappearance of pressure) and noted that remnant boundaries depend on metallicity, mass loss, and binarity.",
-    requiredObjectIds: ["supergiant_onion_core", "hydrostatic_vectors", "remnant_bifurcation_diagram"],
+    requiredObjectIds: [
+      "supergiant_onion_core",
+      "hydrostatic_vectors",
+      "remnant_bifurcation_diagram",
+    ],
     interactiveControls: [
       {
         controlId: "progenitorMassSolar",
@@ -1771,7 +1955,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "M_☉",
         defaultValue: 20,
         scientificFormula: "∇P = -ρ g (Hydrostatic Equilibrium)",
-        description: "Explore how progenitor mass (along with metallicity & mass loss) shapes the final compact remnant.",
+        description:
+          "Explore how progenitor mass (along with metallicity & mass loss) shapes the final compact remnant.",
       },
       {
         controlId: "collapseStage",
@@ -1861,7 +2046,12 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Radius vs Diameter & EOS Uncertainty Notice: White Dwarf R ≈ 6,000 km (D ≈ 12,000 km); Neutron Star R ≈ 10–12 km (D ≈ 20–24 km). The maximum neutron-star mass (TOV limit ~2.0–2.3 M_☉) carries nuclear equation-of-state uncertainty.",
     scientificReviewCorrectionNote:
       "Verified: Explicitly distinguished radius (R ≈ 10–12 km) from diameter (D ≈ 20–24 km) and documented nuclear equation-of-state (EOS) uncertainty in the TOV mass limit (~2.0–2.3 M_☉).",
-    requiredObjectIds: ["white_dwarf_body", "neutron_star_body", "city_scale_grid", "degeneracy_lattice"],
+    requiredObjectIds: [
+      "white_dwarf_body",
+      "neutron_star_body",
+      "city_scale_grid",
+      "degeneracy_lattice",
+    ],
     interactiveControls: [
       {
         controlId: "remnantCoreMassSolar",
@@ -1871,9 +2061,10 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         max: 2.25,
         step: 0.05,
         unit: "M_☉",
-        defaultValue: 1.40,
+        defaultValue: 1.4,
         scientificFormula: "M_Ch ≈ 1.44 M_☉ • M_TOV ≈ 2.0–2.3 M_☉ (EOS dependent)",
-        description: "Increase core mass past the 1.44 M_☉ Chandrasekhar limit to trigger inverse beta decay (p + e⁻ → n + ν_e).",
+        description:
+          "Increase core mass past the 1.44 M_☉ Chandrasekhar limit to trigger inverse beta decay (p + e⁻ → n + ν_e).",
       },
       {
         controlId: "compactViewMode",
@@ -1882,9 +2073,13 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         defaultValue: "side_by_side",
         options: [
           { value: "side_by_side", label: "White Dwarf (R≈6,000 km) vs Neutron Star (R≈11 km)" },
-          { value: "city_grid_zoom", label: "Neutron Star (D≈22 km) Over 25-km City Reference Grid" },
+          {
+            value: "city_grid_zoom",
+            label: "Neutron Star (D≈22 km) Over 25-km City Reference Grid",
+          },
         ],
-        description: "Switch between the side-by-side degeneracy comparator and the 25-km city-scale reference grid.",
+        description:
+          "Switch between the side-by-side degeneracy comparator and the 25-km city-scale reference grid.",
       },
     ],
     visualBeats: [
@@ -1973,7 +2168,12 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Birkhoff's Theorem Demonstration: Exterior Schwarzschild spacetime for any spherical mass M is identical at r > R_star; strong-field lensing occurs only near r ~ r_s.",
     scientificReviewCorrectionNote:
       "Verified: Included interactive 1 M_☉ Sun ↔ 1 M_☉ Black Hole swap proving distant planetary orbits do not fall inward.",
-    requiredObjectIds: ["central_mass_sun_or_bh", "orbiting_earth_1au", "spacetime_funnel_1au", "einstein_lensing_ring"],
+    requiredObjectIds: [
+      "central_mass_sun_or_bh",
+      "orbiting_earth_1au",
+      "spacetime_funnel_1au",
+      "einstein_lensing_ring",
+    ],
     interactiveControls: [
       {
         controlId: "swapSunWithBlackHole",
@@ -1981,7 +2181,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         controlType: "toggle",
         defaultValue: false,
         scientificFormula: "g(1 AU) = G M_☉ / (1 AU)² = 0.00593 m/s² (Identical!)",
-        description: "Test whether swapping the Sun for an equal-mass black hole alters Earth's 1 AU orbit.",
+        description:
+          "Test whether swapping the Sun for an equal-mass black hole alters Earth's 1 AU orbit.",
       },
       {
         controlId: "blackHoleMassSolar",
@@ -2089,7 +2290,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "r_s",
         defaultValue: 2.6,
         scientificFormula: "b_c = (3√3 / 2) r_s ≈ 2.598 r_s (Orbits at r_ph = 1.5 r_s)",
-        description: "Aim a test photon beam: b < 2.60 r_s is captured; b = 2.60 r_s orbits at 1.5 r_s; b > 2.60 r_s is deflected.",
+        description:
+          "Aim a test photon beam: b < 2.60 r_s is captured; b = 2.60 r_s orbits at 1.5 r_s; b > 2.60 r_s is deflected.",
       },
       {
         controlId: "showMetricShells",
@@ -2187,7 +2389,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         unit: "°",
         defaultValue: 76,
         scientificFormula: "δ = [γ (1 - β sin(i) cos(φ))]⁻¹ • I_obs ∝ δ³",
-        description: "Tilt from face-on (i=10°) to edge-on (i=85°) to see Doppler beaming and far-side lensing arches.",
+        description:
+          "Tilt from face-on (i=10°) to edge-on (i=85°) to see Doppler beaming and far-side lensing arches.",
       },
       {
         controlId: "dimensionlessSpinAStar",
@@ -2198,7 +2401,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         step: 0.05,
         defaultValue: 0.65,
         scientificFormula: "η(a*=0) ≈ 5.7% mc² → η(a*→1) ≈ 42% mc²",
-        description: "Increase black hole spin a* to shrink the prograde ISCO and increase radiative efficiency η.",
+        description:
+          "Increase black hole spin a* to shrink the prograde ISCO and increase radiative efficiency η.",
       },
     ],
     visualBeats: [
@@ -2277,7 +2481,12 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Beaming Geometry & Reduced Motion Notice: A neutron star is observed as a pulsar only if its emission cone intersects the observer's sightline. High-frequency screen flashing is suppressed for photosensitive safety.",
     scientificReviewCorrectionNote:
       "Verified: Demonstrated that misaligned sightlines do not observe pulses (not every rotating neutron star is seen as a pulsar) and avoided any high-frequency strobing.",
-    requiredObjectIds: ["pulsar_remnant", "spin_axis_vector", "magnetic_axis_vector", "magnetar_flux_loops"],
+    requiredObjectIds: [
+      "pulsar_remnant",
+      "spin_axis_vector",
+      "magnetic_axis_vector",
+      "magnetar_flux_loops",
+    ],
     interactiveControls: [
       {
         controlId: "magneticTiltDeg",
@@ -2300,7 +2509,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         step: 5,
         unit: "°",
         defaultValue: 35,
-        description: "Change observer latitude ζ to see when the lighthouse beam hits or misses our line of sight.",
+        description:
+          "Change observer latitude ζ to see when the lighthouse beam hits or misses our line of sight.",
       },
       {
         controlId: "neutronStarRegime",
@@ -2309,9 +2519,13 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         defaultValue: "pulsar",
         options: [
           { value: "pulsar", label: "Rotation-Powered Pulsar (B ~ 10⁸ Tesla • Radio/X-Ray Beams)" },
-          { value: "magnetar", label: "Magnetar (B ~ 10¹¹ Tesla • Twisted Flux & Crustal Starquakes)" },
+          {
+            value: "magnetar",
+            label: "Magnetar (B ~ 10¹¹ Tesla • Twisted Flux & Crustal Starquakes)",
+          },
         ],
-        description: "Switch between a standard rotation-powered pulsar and an ultra-magnetized Magnetar.",
+        description:
+          "Switch between a standard rotation-powered pulsar and an ultra-magnetized Magnetar.",
       },
     ],
     visualBeats: [
@@ -2390,7 +2604,12 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
       "Observational Provenance Notice: S2 orbital elements (e = 0.8846, P = 16.05 yr, Schwarzschild precession) are from GRAVITY/Keck astrometry; M87* shadow scale (42 μas) is from Event Horizon Telescope (2019) VLBI constraints combined with 3D jet reconstruction.",
     scientificReviewCorrectionNote:
       "Verified: Clearly distinguished measured GRAVITY S2 astrometry and EHT 1.3 mm VLBI ring constraints from the 3D galactic core and relativistic jet model reconstruction.",
-    requiredObjectIds: ["smbh_horizon", "s2_star_orbit", "solar_system_scale_ring", "m87_relativistic_jet"],
+    requiredObjectIds: [
+      "smbh_horizon",
+      "s2_star_orbit",
+      "solar_system_scale_ring",
+      "m87_relativistic_jet",
+    ],
     interactiveControls: [
       {
         controlId: "smbhSystemTarget",
@@ -2402,14 +2621,16 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
           { value: "m87_star", label: "M87* (6.5 × 10⁹ M_☉) Shadow vs. 30-AU Solar System & Jet" },
         ],
         scientificFormula: "M_SgrA* = 4.154 × 10⁶ M_☉ • M_M87* = 6.5 × 10⁹ M_☉",
-        description: "Switch between Galactic Center S2 astrometry around Sgr A* and EHT scale comparison of M87*.",
+        description:
+          "Switch between Galactic Center S2 astrometry around Sgr A* and EHT scale comparison of M87*.",
       },
       {
         controlId: "showSolarSystemComparison",
         label: "Superimpose 30-AU Neptune Orbit Scale Ring",
         controlType: "toggle",
         defaultValue: true,
-        description: "Compare our Solar System's 30-AU Neptune orbit directly against the SMBH horizon scale.",
+        description:
+          "Compare our Solar System's 30-AU Neptune orbit directly against the SMBH horizon scale.",
       },
     ],
     visualBeats: [
@@ -2501,12 +2722,16 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         defaultValue: "auto_chirp",
         options: [
           { value: "auto_chirp", label: "Full Coalescence Cycle (Inspiral → Merger → Ringdown)" },
-          { value: "inspiral", label: "1. Inspiral (Shrinking Orbit & Rising Frequency f_GW = 2 f_orb)" },
+          {
+            value: "inspiral",
+            label: "1. Inspiral (Shrinking Orbit & Rising Frequency f_GW = 2 f_orb)",
+          },
           { value: "merger", label: "2. Merger Crescendo (v ~ 0.6 c • 3.0 M_☉ c² Radiated)" },
           { value: "ringdown", label: "3. Quasi-Normal Mode Kerr Ringdown (62 M_☉ Remnant)" },
         ],
         scientificFormula: "f_GW = 2 f_orb • h = ΔL / L ≈ 1.0 × 10⁻²¹ (GW150914)",
-        description: "Inspect the three physical stages of binary black hole coalescence and strain h(t).",
+        description:
+          "Inspect the three physical stages of binary black hole coalescence and strain h(t).",
         linkedActivityId: "act_14_black_hole_lab",
         linkedActionType: "inspect_gw_chirp",
       },
@@ -2517,9 +2742,10 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
         min: 0.4,
         max: 1.0,
         step: 0.05,
-        defaultValue: 0.80,
+        defaultValue: 0.8,
         scientificFormula: "M_chirp = (m₁ m₂)^(3/5) / (m₁ + m₂)^(1/5) ≈ 28.3 M_☉",
-        description: "Adjust binary mass ratio (GW150914: 29 M_☉ / 36 M_☉ ≈ 0.81) and observe quadrupole wave symmetry.",
+        description:
+          "Adjust binary mass ratio (GW150914: 29 M_☉ / 36 M_☉ ≈ 0.81) and observe quadrupole wave symmetry.",
         linkedActivityId: "act_14_black_hole_lab",
         linkedActionType: "adjust_compact_mass",
       },
@@ -2584,7 +2810,8 @@ export const PROOF_OF_CONCEPT_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[]
     ],
     requiresActivityGate: {
       activityId: "act_14_black_hole_lab",
-      gateDescription: "Inspect the coalescence stages or adjust the binary mass ratio to verify gravitational-wave strain behavior.",
+      gateDescription:
+        "Inspect the coalescence stages or adjust the binary mass ratio to verify gravitational-wave strain behavior.",
     },
     rubricScores: STANDARD_5_RUBRIC,
   },
@@ -2608,6 +2835,9 @@ export class CosmosProofOfConceptCatalog {
     this.allManifests = [
       ...PROOF_OF_CONCEPT_CHAPTER_MANIFESTS,
       ...STAGE_2_NEW_CHAPTER_MANIFESTS,
+      ...STAGE_4_NEW_CHAPTER_MANIFESTS,
+      ...STAGE_5_NEW_CHAPTER_MANIFESTS,
+      ...STAGE_6_NEW_CHAPTER_MANIFESTS,
     ];
     for (const chapter of this.allManifests) {
       const key = `${chapter.moduleId}:${chapter.chapterId}`;
@@ -2629,13 +2859,39 @@ export class CosmosProofOfConceptCatalog {
       norm === "06" ||
       norm === "07" ||
       norm === "08" ||
-      norm === "14"
+      norm === "13" ||
+      norm === "14" ||
+      norm === "15" ||
+      norm === "16" ||
+      norm === "17" ||
+      norm === "18" ||
+      norm === "19" ||
+      norm === "20" ||
+      norm === "21" ||
+      norm === "22" ||
+      norm === "23" ||
+      norm === "24"
     );
   }
 
   public static isStage2Module(moduleId: string): moduleId is Stage2ModuleId {
     const norm = String(moduleId).padStart(2, "0");
     return norm === "05" || norm === "06" || norm === "07" || norm === "08";
+  }
+
+  public static isStage4Module(moduleId: string): moduleId is Stage4ModuleId {
+    const norm = String(moduleId).padStart(2, "0");
+    return norm === "13" || norm === "14" || norm === "15" || norm === "16";
+  }
+
+  public static isStage5Module(moduleId: string): moduleId is Stage5ModuleId {
+    const norm = String(moduleId).padStart(2, "0");
+    return norm === "17" || norm === "18" || norm === "19" || norm === "20";
+  }
+
+  public static isStage6Module(moduleId: string): moduleId is Stage6ModuleId {
+    const norm = String(moduleId).padStart(2, "0");
+    return norm === "21" || norm === "22" || norm === "23" || norm === "24";
   }
 
   public static getChaptersForModule(moduleId: string): ProofOfConceptChapterManifest[] {
@@ -2658,10 +2914,18 @@ export class CosmosProofOfConceptCatalog {
     if (byStripped) return byStripped;
 
     const moduleChapters = this.getChaptersForModule(norm);
-    const numMatch = chapterId.match(/(?:sub-0?|lesson-|0\d-0?)(\d+)/i);
+    if (/^\d+$/.test(stripped)) {
+      const idx = parseInt(stripped, 10);
+      const byOrder = moduleChapters.find((c) => c.chapterOrder === idx);
+      if (byOrder) return byOrder;
+    }
+
+    const numMatch = chapterId.match(
+      /(?:sublesson-|sub-\d+-|sub-0?|lesson-|1\d-|2\d-|\d\d-0?)(\d+)/i,
+    );
     if (numMatch) {
       const idx = parseInt(numMatch[1], 10);
-      const byIdx = moduleChapters.find((c) => c.chapterIndex === idx);
+      const byIdx = moduleChapters.find((c) => c.chapterOrder === idx);
       if (byIdx) return byIdx;
     }
 
@@ -2672,7 +2936,10 @@ export class CosmosProofOfConceptCatalog {
         queryLower.includes(c.chapterId.toLowerCase()) ||
         c.storyboardId.toLowerCase().includes(queryLower) ||
         c.sceneComponentId.toLowerCase().includes(queryLower) ||
-        c.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").includes(queryLower),
+        c.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .includes(queryLower),
     );
     return matched || moduleChapters[0] || null;
   }
@@ -2710,7 +2977,9 @@ export class CosmosProofOfConceptCatalog {
         segLower.includes("didyouknow") ||
         segLower.includes("mathoranalogy") ||
         segLower.includes("detail-2") ||
-        segLower.includes("detail-3")) &&
+        segLower.includes("detail-3") ||
+        segLower.includes("explanation-2") ||
+        segLower.includes("activityprompt")) &&
       chapter.visualBeats.length > 1
     ) {
       return { chapter, beat: chapter.visualBeats[chapter.visualBeats.length - 1] };
@@ -2727,6 +2996,21 @@ export class CosmosProofOfConceptCatalog {
   public static getStage2ChapterManifests(): ProofOfConceptChapterManifest[] {
     this.ensureInitialized();
     return this.allManifests.filter((c) => this.isStage2Module(c.moduleId));
+  }
+
+  public static getStage4ChapterManifests(): ProofOfConceptChapterManifest[] {
+    this.ensureInitialized();
+    return this.allManifests.filter((c) => this.isStage4Module(c.moduleId));
+  }
+
+  public static getStage5ChapterManifests(): ProofOfConceptChapterManifest[] {
+    this.ensureInitialized();
+    return this.allManifests.filter((c) => this.isStage5Module(c.moduleId));
+  }
+
+  public static getStage6ChapterManifests(): ProofOfConceptChapterManifest[] {
+    this.ensureInitialized();
+    return this.allManifests.filter((c) => this.isStage6Module(c.moduleId));
   }
 
   public static getSummaryStatistics(): {
@@ -2768,12 +3052,13 @@ export class CosmosProofOfConceptCatalog {
     byModule: Record<Stage2ModuleId, { chapters: number; segments: number; beats: number }>;
   } {
     this.ensureInitialized();
-    const byModule: Record<Stage2ModuleId, { chapters: number; segments: number; beats: number }> = {
-      "05": { chapters: 0, segments: 0, beats: 0 },
-      "06": { chapters: 0, segments: 0, beats: 0 },
-      "07": { chapters: 0, segments: 0, beats: 0 },
-      "08": { chapters: 0, segments: 0, beats: 0 },
-    };
+    const byModule: Record<Stage2ModuleId, { chapters: number; segments: number; beats: number }> =
+      {
+        "05": { chapters: 0, segments: 0, beats: 0 },
+        "06": { chapters: 0, segments: 0, beats: 0 },
+        "07": { chapters: 0, segments: 0, beats: 0 },
+        "08": { chapters: 0, segments: 0, beats: 0 },
+      };
     let totalChapters = 0;
     let totalCanonicalSegments = 0;
     let totalVisualBeats = 0;
@@ -2796,6 +3081,136 @@ export class CosmosProofOfConceptCatalog {
       totalCanonicalSegments,
       newCanonicalSegments:
         byModule["05"].segments + byModule["06"].segments + byModule["07"].segments,
+      totalVisualBeats,
+      byModule,
+    };
+  }
+
+  public static getStage4SummaryStatistics(): {
+    totalModules: number;
+    totalChapters: number;
+    newChapters: number;
+    totalCanonicalSegments: number;
+    newCanonicalSegments: number;
+    totalVisualBeats: number;
+    byModule: Record<Stage4ModuleId, { chapters: number; segments: number; beats: number }>;
+  } {
+    this.ensureInitialized();
+    const byModule: Record<Stage4ModuleId, { chapters: number; segments: number; beats: number }> =
+      {
+        "13": { chapters: 0, segments: 0, beats: 0 },
+        "14": { chapters: 0, segments: 0, beats: 0 },
+        "15": { chapters: 0, segments: 0, beats: 0 },
+        "16": { chapters: 0, segments: 0, beats: 0 },
+      };
+    let totalChapters = 0;
+    let totalCanonicalSegments = 0;
+    let totalVisualBeats = 0;
+
+    for (const ch of this.getStage4ChapterManifests()) {
+      const mId = ch.moduleId as Stage4ModuleId;
+      byModule[mId].chapters += 1;
+      byModule[mId].beats += ch.visualBeats.length;
+      const segCount = ch.visualBeats.reduce((acc, b) => acc + b.narrationSegmentIds.length, 0);
+      byModule[mId].segments += segCount;
+      totalChapters += 1;
+      totalCanonicalSegments += segCount;
+      totalVisualBeats += ch.visualBeats.length;
+    }
+
+    return {
+      totalModules: 4,
+      totalChapters,
+      newChapters: byModule["13"].chapters + byModule["15"].chapters + byModule["16"].chapters,
+      totalCanonicalSegments,
+      newCanonicalSegments:
+        byModule["13"].segments + byModule["15"].segments + byModule["16"].segments,
+      totalVisualBeats,
+      byModule,
+    };
+  }
+
+  public static getStage5SummaryStatistics(): {
+    totalModules: number;
+    totalChapters: number;
+    newChapters: number;
+    totalCanonicalSegments: number;
+    newCanonicalSegments: number;
+    totalVisualBeats: number;
+    byModule: Record<Stage5ModuleId, { chapters: number; segments: number; beats: number }>;
+  } {
+    this.ensureInitialized();
+    const byModule: Record<Stage5ModuleId, { chapters: number; segments: number; beats: number }> =
+      {
+        "17": { chapters: 0, segments: 0, beats: 0 },
+        "18": { chapters: 0, segments: 0, beats: 0 },
+        "19": { chapters: 0, segments: 0, beats: 0 },
+        "20": { chapters: 0, segments: 0, beats: 0 },
+      };
+    let totalChapters = 0;
+    let totalCanonicalSegments = 0;
+    let totalVisualBeats = 0;
+
+    for (const ch of this.getStage5ChapterManifests()) {
+      const mId = ch.moduleId as Stage5ModuleId;
+      byModule[mId].chapters += 1;
+      byModule[mId].beats += ch.visualBeats.length;
+      const segCount = ch.visualBeats.reduce((acc, b) => acc + b.narrationSegmentIds.length, 0);
+      byModule[mId].segments += segCount;
+      totalChapters += 1;
+      totalCanonicalSegments += segCount;
+      totalVisualBeats += ch.visualBeats.length;
+    }
+
+    return {
+      totalModules: 4,
+      totalChapters,
+      newChapters: totalChapters,
+      totalCanonicalSegments,
+      newCanonicalSegments: totalCanonicalSegments,
+      totalVisualBeats,
+      byModule,
+    };
+  }
+
+  public static getStage6SummaryStatistics(): {
+    totalModules: number;
+    totalChapters: number;
+    newChapters: number;
+    totalCanonicalSegments: number;
+    newCanonicalSegments: number;
+    totalVisualBeats: number;
+    byModule: Record<Stage6ModuleId, { chapters: number; segments: number; beats: number }>;
+  } {
+    this.ensureInitialized();
+    const byModule: Record<Stage6ModuleId, { chapters: number; segments: number; beats: number }> =
+      {
+        "21": { chapters: 0, segments: 0, beats: 0 },
+        "22": { chapters: 0, segments: 0, beats: 0 },
+        "23": { chapters: 0, segments: 0, beats: 0 },
+        "24": { chapters: 0, segments: 0, beats: 0 },
+      };
+    let totalChapters = 0;
+    let totalCanonicalSegments = 0;
+    let totalVisualBeats = 0;
+
+    for (const ch of this.getStage6ChapterManifests()) {
+      const mId = ch.moduleId as Stage6ModuleId;
+      byModule[mId].chapters += 1;
+      byModule[mId].beats += ch.visualBeats.length;
+      const segCount = ch.visualBeats.reduce((acc, b) => acc + b.narrationSegmentIds.length, 0);
+      byModule[mId].segments += segCount;
+      totalChapters += 1;
+      totalCanonicalSegments += segCount;
+      totalVisualBeats += ch.visualBeats.length;
+    }
+
+    return {
+      totalModules: 4,
+      totalChapters,
+      newChapters: totalChapters,
+      totalCanonicalSegments,
+      newCanonicalSegments: totalCanonicalSegments,
       totalVisualBeats,
       byModule,
     };

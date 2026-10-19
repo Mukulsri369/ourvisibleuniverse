@@ -80,8 +80,7 @@ export class CosmosAssetValidation {
     const jsonChunkLength = view.getUint32(12, true);
     const jsonChunkType = view.getUint32(16, true);
 
-    const validMagicHeader =
-      magic === 0x46546c67 && version === 2 && jsonChunkType === 0x4e4f534a;
+    const validMagicHeader = magic === 0x46546c67 && version === 2 && jsonChunkType === 0x4e4f534a;
     if (!validMagicHeader) {
       return {
         validMagicHeader: false,
@@ -100,8 +99,7 @@ export class CosmosAssetValidation {
     const parsed = JSON.parse(decoder.decode(jsonBytes).trim());
 
     const binOffset = 20 + jsonChunkLength;
-    const binChunkLength =
-      binOffset + 8 <= buffer.byteLength ? view.getUint32(binOffset, true) : 0;
+    const binChunkLength = binOffset + 8 <= buffer.byteLength ? view.getUint32(binOffset, true) : 0;
 
     const declaredNodeNames: string[] = Array.isArray(parsed.nodes)
       ? parsed.nodes.map((n: any) => String(n.name || ""))
@@ -166,7 +164,7 @@ export class CosmosAssetValidation {
   public static validateOptimizedAssetInteractivity(
     record: CosmosVerifiedAssetRecord,
     modelInstance: LoadedScientificModelInstance,
-     artificiallyRemoveNodeId?: string,
+    artificiallyRemoveNodeId?: string,
   ): InteractivePreservationReport {
     const missingNodeIds: string[] = [];
     const verifiedNodeIds: string[] = [];
@@ -177,8 +175,7 @@ export class CosmosAssetValidation {
         continue;
       }
       const found =
-        modelInstance.namedNodeMap.get(reqId) ||
-        modelInstance.rootGroup.getObjectByName(reqId);
+        modelInstance.namedNodeMap.get(reqId) || modelInstance.rootGroup.getObjectByName(reqId);
       if (found) {
         verifiedNodeIds.push(reqId);
       } else {
@@ -211,8 +208,7 @@ export class CosmosAssetValidation {
       }
     });
 
-    const passed =
-      missingNodeIds.length === 0 && normalsValid && uvsValid && materialsAssigned;
+    const passed = missingNodeIds.length === 0 && normalsValid && uvsValid && materialsAssigned;
 
     return {
       assetId: record.assetId,
@@ -267,9 +263,7 @@ export class CosmosAssetValidation {
     return {
       totalAssets: records.length,
       allCompliant:
-        duplicateAssetIds.length === 0 &&
-        unapprovedAssets.length === 0 &&
-        colorSpaceVerified,
+        duplicateAssetIds.length === 0 && unapprovedAssets.length === 0 && colorSpaceVerified,
       duplicateAssetIds,
       unapprovedAssets,
       colorSpaceVerified,

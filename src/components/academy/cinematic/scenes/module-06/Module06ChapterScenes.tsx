@@ -279,7 +279,9 @@ function TerrestrialPlanetsScene({
               starPosition={[-8, 4, 10]}
               qualityTier={qualityProfile.tier}
               isSimulationRunning={isSimulationRunning}
-              simulationTimeScale={p.name === "Venus" ? -simulationTimeScale * 0.2 : simulationTimeScale}
+              simulationTimeScale={
+                p.name === "Venus" ? -simulationTimeScale * 0.2 : simulationTimeScale
+              }
               highlighted={isSelected || activeHighlightedObjects.includes(p.objectId)}
               narrativeProgress={normalizedProgress}
               onSelectObject={onSelectObject}
@@ -389,12 +391,7 @@ function GasGiantsScene({
             }}
           >
             <ringGeometry args={[0.45, 1.65, 48]} />
-            <meshBasicMaterial
-              color="#38bdf8"
-              transparent
-              opacity={0.42}
-              side={THREE.DoubleSide}
-            />
+            <meshBasicMaterial color="#38bdf8" transparent opacity={0.42} side={THREE.DoubleSide} />
           </mesh>
         )}
       </group>
@@ -476,10 +473,7 @@ function IceGiantsScene({
   return (
     <group>
       {/* Left: Uranus (19.2 AU, 97.77° Sideways Axial Tilt & Vertical Narrow Dark Rings) */}
-      <group
-        position={[-2.6, 0, isUranus ? 0.6 : -0.3]}
-        scale={isUranus ? 1.12 : 0.9}
-      >
+      <group position={[-2.6, 0, isUranus ? 0.6 : -0.3]} scale={isUranus ? 1.12 : 0.9}>
         <group rotation={[0, 0, (97.77 * Math.PI) / 180]}>
           <ScientificPlanetMaterial
             objectId="uranus_ice_giant"
@@ -532,21 +526,13 @@ function IceGiantsScene({
             }}
           >
             <ringGeometry args={[0.38, 1.25, 48]} />
-            <meshBasicMaterial
-              color="#06b6d4"
-              transparent
-              opacity={0.48}
-              side={THREE.DoubleSide}
-            />
+            <meshBasicMaterial color="#06b6d4" transparent opacity={0.48} side={THREE.DoubleSide} />
           </mesh>
         )}
       </group>
 
       {/* Right: Neptune (30.1 AU, 28.32° Tilt, 2.6× Internal Heat & 2,100 km/h Winds) */}
-      <group
-        position={[2.6, 0, !isUranus ? 0.6 : -0.3]}
-        scale={!isUranus ? 1.12 : 0.9}
-      >
+      <group position={[2.6, 0, !isUranus ? 0.6 : -0.3]} scale={!isUranus ? 1.12 : 0.9}>
         <group rotation={[0, 0, (28.32 * Math.PI) / 180]}>
           <ScientificPlanetMaterial
             objectId="neptune_ice_giant"
@@ -718,12 +704,7 @@ function DwarfPlanetsScene({
           {/* Haumea's Discovered Ring System */}
           <mesh rotation={[Math.PI / 2, 0.15, 0]}>
             <ringGeometry args={[2.25, 2.45, 64]} />
-            <meshBasicMaterial
-              color="#94a3b8"
-              transparent
-              opacity={0.65}
-              side={THREE.DoubleSide}
-            />
+            <meshBasicMaterial color="#94a3b8" transparent opacity={0.65} side={THREE.DoubleSide} />
           </mesh>
         </group>
       )}
@@ -732,9 +713,7 @@ function DwarfPlanetsScene({
         <group
           onClick={(e) => {
             e.stopPropagation();
-            onSelectObject(
-              selectedDwarf === "Eris" ? "eris_dwarf_planet" : "ceres_occator",
-            );
+            onSelectObject(selectedDwarf === "Eris" ? "eris_dwarf_planet" : "ceres_occator");
           }}
         >
           <ScientificPlanetMaterial
@@ -839,12 +818,7 @@ function AsteroidCometScene({
             </mesh>
             <mesh>
               <sphereGeometry args={[0.92 * tailScale, 28, 28]} />
-              <meshBasicMaterial
-                color="#22d3ee"
-                transparent
-                opacity={0.28}
-                depthWrite={false}
-              />
+              <meshBasicMaterial color="#22d3ee" transparent opacity={0.28} depthWrite={false} />
             </mesh>
           </group>
 
@@ -886,11 +860,7 @@ function AsteroidCometScene({
             />
           </mesh>
 
-          <ScientificFieldRenderer
-            vectors={tailVectors}
-            fieldLines={[]}
-            equipotentialRings={[]}
-          />
+          <ScientificFieldRenderer vectors={tailVectors} fieldLines={[]} equipotentialRings={[]} />
         </group>
       )}
 
@@ -1113,12 +1083,7 @@ function MoonRingSystemsScene({
             />
             <mesh>
               <sphereGeometry args={[1.48, 32, 32]} />
-              <meshBasicMaterial
-                color="#f59e0b"
-                transparent
-                opacity={0.28}
-                depthWrite={false}
-              />
+              <meshBasicMaterial color="#f59e0b" transparent opacity={0.28} depthWrite={false} />
             </mesh>
           </group>
 
@@ -1241,14 +1206,50 @@ function PlanetaryComparisonScene({
       density: number;
     }
   > = {
-    Mercury: { preset: "moon", trueRadius: 0.42, normRadius: 1.35, gravityRatio: 0.38, density: 5.43 },
-    Venus: { preset: "venus", trueRadius: 0.85, normRadius: 1.45, gravityRatio: 0.90, density: 5.24 },
-    Earth: { preset: "earth", trueRadius: 0.90, normRadius: 1.5, gravityRatio: 1.0, density: 5.51 },
+    Mercury: {
+      preset: "moon",
+      trueRadius: 0.42,
+      normRadius: 1.35,
+      gravityRatio: 0.38,
+      density: 5.43,
+    },
+    Venus: {
+      preset: "venus",
+      trueRadius: 0.85,
+      normRadius: 1.45,
+      gravityRatio: 0.9,
+      density: 5.24,
+    },
+    Earth: { preset: "earth", trueRadius: 0.9, normRadius: 1.5, gravityRatio: 1.0, density: 5.51 },
     Mars: { preset: "mars", trueRadius: 0.52, normRadius: 1.35, gravityRatio: 0.38, density: 3.93 },
-    Jupiter: { preset: "jupiter", trueRadius: 2.35, normRadius: 1.65, gravityRatio: 2.53, density: 1.33 },
-    Saturn: { preset: "saturn", trueRadius: 1.98, normRadius: 1.6, gravityRatio: 1.06, density: 0.69 },
-    Uranus: { preset: "neptune", trueRadius: 1.42, normRadius: 1.5, gravityRatio: 0.89, density: 1.27 },
-    Neptune: { preset: "neptune", trueRadius: 1.38, normRadius: 1.5, gravityRatio: 1.14, density: 1.64 },
+    Jupiter: {
+      preset: "jupiter",
+      trueRadius: 2.35,
+      normRadius: 1.65,
+      gravityRatio: 2.53,
+      density: 1.33,
+    },
+    Saturn: {
+      preset: "saturn",
+      trueRadius: 1.98,
+      normRadius: 1.6,
+      gravityRatio: 1.06,
+      density: 0.69,
+    },
+    Uranus: {
+      preset: "neptune",
+      trueRadius: 1.42,
+      normRadius: 1.5,
+      gravityRatio: 0.89,
+      density: 1.27,
+    },
+    Neptune: {
+      preset: "neptune",
+      trueRadius: 1.38,
+      normRadius: 1.5,
+      gravityRatio: 1.14,
+      density: 1.64,
+    },
   };
 
   const specA = planetPresets[planetA] || planetPresets.Earth;
@@ -1324,20 +1325,11 @@ function PlanetaryComparisonScene({
         }}
       >
         <planeGeometry args={[10.5, 4.2]} />
-        <meshBasicMaterial
-          color="#0284c7"
-          transparent
-          opacity={0.18}
-          side={THREE.DoubleSide}
-        />
+        <meshBasicMaterial color="#0284c7" transparent opacity={0.18} side={THREE.DoubleSide} />
       </mesh>
 
       {/* Gravity Comparison Vectors */}
-      <ScientificFieldRenderer
-        vectors={gravityVectors}
-        fieldLines={[]}
-        equipotentialRings={[]}
-      />
+      <ScientificFieldRenderer vectors={gravityVectors} fieldLines={[]} equipotentialRings={[]} />
     </group>
   );
 }

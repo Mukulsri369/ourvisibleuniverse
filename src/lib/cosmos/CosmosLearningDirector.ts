@@ -667,7 +667,8 @@ export class CosmosLearningDirector {
         ? `0${nextModNum}`
         : `${nextModNum}`
       : "exam";
-    const nextMeta = nextModuleId !== "exam" ? ACADEMY_MODULES.find((m) => m.id === nextModuleId) : null;
+    const nextMeta =
+      nextModuleId !== "exam" ? ACADEMY_MODULES.find((m) => m.id === nextModuleId) : null;
     const nextModuleTitle =
       nextModuleId === "exam"
         ? "Cosmic Explorer — Final Knowledge Assessment"
@@ -693,8 +694,7 @@ export class CosmosLearningDirector {
       }
     } catch {
       // Fallback to current guided step statuses when offline or unauthenticated
-      const actDone =
-        this.steps.find((s) => s.stepType === "ACTIVITY")?.stepStatus === "completed";
+      const actDone = this.steps.find((s) => s.stepType === "ACTIVITY")?.stepStatus === "completed";
       const quizDone =
         this.steps.find((s) => s.stepType === "KNOWLEDGE_CHECK")?.stepStatus === "completed";
       satisfiedCount = 1 + (actDone ? 1 : 0) + (quizDone ? 1 : 0);
@@ -704,7 +704,7 @@ export class CosmosLearningDirector {
     }
 
     // Read verified modules from local progress sync to compute Stage Badge & 24-Module Exam status
-    let verifiedSet = new Set<string>();
+    const verifiedSet = new Set<string>();
     if (typeof window !== "undefined" && window.localStorage) {
       try {
         const rawProg = localStorage.getItem("cosmic_academy_progress_v1");

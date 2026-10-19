@@ -86,8 +86,7 @@ export class CosmosActivityGuide {
       }
 
       const controlLabel =
-        interactiveControl.getAttribute("aria-label") ||
-        interactiveControl.tagName.toLowerCase();
+        interactiveControl.getAttribute("aria-label") || interactiveControl.tagName.toLowerCase();
 
       void this.handleStudentActivityInteraction(detectedModuleId, "interact_parameter", {
         interacted: true,

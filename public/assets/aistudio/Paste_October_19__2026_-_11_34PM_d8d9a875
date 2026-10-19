@@ -1,0 +1,4243 @@
+
+# OUR VISIBLE UNIVERSE ACADEMY
+# COSMOS CINEMATIC LEARNING SYSTEM
+# DEVELOPMENT PROMPT 14 OF 18
+
+TITLE:
+COMPLETE STAGE 6 CINEMATIC SPACE SCIENCE ACADEMY
+ADVANCED VIRTUAL TELESCOPE OBSERVATORY
+SCIENTIFIC SPACECRAFT AND MISSION SIMULATOR
+HUMAN SPACE EXPLORATION HISTORY
+INTERPLANETARY TRAJECTORY AND GRAVITY ASSIST LAB
+ASTROBIOLOGY AND HABITABLE WORLDS EXPLORER
+EXTRATERRESTRIAL BIOSIGNATURE ANALYSIS
+UNIFIED INTERACTIVE COSMIC PHYSICS SANDBOX
+FINAL SCIENTIFIC GRADUATION CHALLENGE
+FULL COSMOS GUIDED DIRECTOR SYNCHRONIZATION
+COMPLETE 24-MODULE CINEMATIC CURRICULUM COVERAGE
+
+DEVELOPMENT MODEL:
+GOOGLE AI STUDIO — ARGON 4
+
+REPOSITORY:
+https://github.com/Mukulsri369/ourvisibleuniverse
+
+WEBSITE:
+https://ourvisibleuniverse.in
+
+PRIORITY:
+CRITICAL — FINAL CURRICULUM ANIMATION PRODUCTION
+
+====================================================
+YOUR ROLE
+====================================================
+
+Act as a multidisciplinary team:
+
+1. Principal scientific cinematic director.
+2. Senior Three.js / React Three Fiber engineer.
+3. NASA-style space visualization specialist.
+4. Optical and radio astronomy researcher.
+5. Spacecraft systems and propulsion engineer.
+6. Orbital mechanics and mission design expert.
+7. Scientific telescope instrumentation engineer.
+8. Planetary science researcher.
+9. Astrobiology and biosignature specialist.
+10. Computational astrophysics researcher.
+11. Scientific numerical simulation engineer.
+12. GPU shader and 3D technical artist.
+13. COSMOS AI integration architect.
+14. Real-time animation synchronization engineer.
+15. Advanced scientific interaction designer.
+16. Educational assessment specialist.
+17. Responsive accessibility engineer.
+18. Scientific data validation engineer.
+19. Performance optimization specialist.
+20. Automated testing and QA engineer.
+
+YOUR MISSION:
+
+Complete the final curriculum stage of
+Our Visible Universe Cosmic Learning Academy.
+
+Make students feel like real scientific
+explorers who can operate observatories,
+investigate spacecraft trajectories,
+analyze potential habitable worlds
+and conduct controlled physics experiments.
+
+COSMOS must function as their
+intelligent scientific instructor.
+
+This is a REAL IMPLEMENTATION TASK.
+
+Build working 3D scenes,
+animated scientific explanations,
+functional simulation controls,
+COSMOS narration mappings,
+validated learning interactions
+and automated tests.
+
+Do not provide only documentation
+or conceptual designs.
+
+====================================================
+1. PRIMARY OBJECTIVE
+====================================================
+
+Complete Stage 6:
+
+BECOMING A SPACE SCIENTIST.
+
+The four modules are:
+
+MODULE 21:
+Telescopes & How We Discover Space.
+
+MODULE 22:
+Space Missions & Human Exploration.
+
+MODULE 23:
+Life Beyond Earth & Astrobiology.
+
+MODULE 24:
+Cosmic Physics Laboratory & Challenges.
+
+The existing storyboards identify:
+
+MODULE 21:
+8 chapters.
+36 canonical narration segments.
+
+MODULE 22:
+8 chapters.
+48 canonical narration segments.
+
+MODULE 23:
+10 chapters.
+49 canonical narration segments.
+
+MODULE 24:
+3 chapters.
+9 canonical narration segments.
+
+TOTAL STAGE 6:
+
+29 instructional chapters.
+
+142 canonical Explorer narration segments.
+
+Verify these counts against
+the actual lesson registry.
+
+Use current actual IDs if any
+curriculum definitions have changed.
+
+Every chapter must have an appropriate
+high-quality visual experience.
+
+Every narration segment must have
+a scientifically relevant visual mapping.
+
+====================================================
+2. THIS PHASE COMPLETES THE CURRICULUM
+====================================================
+
+Prompts 08–13 established
+the intended cinematic implementation
+across Modules 01–20.
+
+Prompt 14 extends the system
+through Module 24.
+
+By the end of this phase,
+every actual module should have
+a registered cinematic learning experience.
+
+However:
+
+Do not assume Prompts 08–13 passed
+merely because their development
+prompts were submitted.
+
+Verify implementation evidence.
+
+Do not overwrite previously
+completed modules unnecessarily.
+
+If earlier critical infrastructure
+is missing, document and address
+the minimum dependency required.
+
+Do not silently claim that the entire
+24-module academy has been validated.
+
+System-wide final validation
+will occur in Prompt 18.
+
+====================================================
+3. INSPECT PREVIOUS DEVELOPMENT
+====================================================
+
+Read:
+
+docs/academy/storyboards/module-21.md
+
+docs/academy/storyboards/module-22.md
+
+docs/academy/storyboards/module-23.md
+
+docs/academy/storyboards/module-24.md
+
+Also read:
+
+docs/academy/cinematic-learning-architecture.md
+
+docs/academy/cinematic-design-system.md
+
+docs/academy/cinematic-art-direction.md
+
+docs/academy/cinematic-camera-language.md
+
+docs/academy/cinematic-animation-cue-spec.md
+
+docs/academy/cinematic-performance-budget.md
+
+docs/academy/cinematic-asset-requirements.md
+
+Locate and verify actual reports from
+previous cinematic development prompts.
+
+Inspect real source code for:
+
+CosmosCinematicPlayer
+
+CosmosCinematicSceneHost
+
+CosmosCinematicSceneRegistry
+
+CosmosCinematicSessionBridge
+
+CosmosAnimationCueRegistry
+
+CosmosAnimationCueController
+
+CosmosCinematicQualityManager
+
+CosmosLearningDirector
+
+NarrationController
+
+Cosmos3DAdapter
+
+VisualizationActionController
+
+CosmosActivityGuide
+
+CosmosQuizGuide
+
+UnifiedAssessmentEngine
+
+Existing progress verification.
+
+Existing certificate system.
+
+Do not create duplicate learning,
+narration or grading infrastructure.
+
+====================================================
+4. REUSE EXISTING MODULE COMPONENTS
+====================================================
+
+The repository currently contains:
+
+src/components/academy/
+VirtualObservatoryLab.tsx
+
+src/components/academy/
+SpaceMuseumLab.tsx
+
+src/components/academy/
+HabitableWorldLab.tsx
+
+src/components/academy/
+CosmicPhysicsLab.tsx
+
+These are substantial working foundations.
+
+Inspect their actual functionality.
+
+The storyboards propose possible upgrades:
+
+OpticalAndMultiWavelengthObservatory3D
+
+SpaceMissionExplorer3D
+
+AstrobiologyWorlds3D
+
+CapstoneUniverseSandbox3D
+
+These proposed components may not exist.
+
+Do not treat planned file names
+as completed code.
+
+Reuse the existing scientific models,
+datasets, interactions and controls.
+
+Upgrade visuals and cinematic integration.
+
+Preserve valid current functionality.
+
+Avoid creating separate incompatible
+applications for each module.
+
+====================================================
+5. CRITICAL EDUCATIONAL EXPERIENCE
+====================================================
+
+The student should experience:
+
+COSMOS explains.
+
+The corresponding 3D scene responds.
+
+The correct object or process is highlighted.
+
+Scientific measurements appear.
+
+The camera frames the phenomenon.
+
+The student can pause the explanation.
+
+The student can inspect the scene.
+
+The student can ask COSMOS questions.
+
+COSMOS can provide approved
+contextual visual demonstrations.
+
+The original scene is restored.
+
+Required student activities are performed.
+
+The lesson proceeds only when permitted.
+
+This behavior must be supported
+throughout all 29 new chapters.
+
+Do not confuse visual engagement
+with verified educational completion.
+
+====================================================
+6. CINEMATIC VISUAL QUALITY STANDARD
+====================================================
+
+Stage 6 should look like an advanced
+scientific observatory and mission
+control environment.
+
+Use:
+
+Photorealistic spacecraft assets.
+
+Accurate telescope optical geometry.
+
+Detailed planetary surfaces.
+
+Professional instrument lighting.
+
+Beautiful scientific cutaway animations.
+
+Scientific telemetry interfaces.
+
+Responsive 3D spacecraft movement.
+
+High-quality astronomical imagery.
+
+Data-driven charts.
+
+Premium camera choreography.
+
+Elegant scientific annotations.
+
+Purposeful visual transitions.
+
+Avoid:
+
+Generic space backgrounds.
+
+Nonfunctional telescope controls.
+
+Static mission maps presented
+as complete animated experiences.
+
+Fake scientific readouts.
+
+Overexposed planetary surfaces.
+
+Incorrect spacecraft trajectories.
+
+Generic glowing alien planets.
+
+Fictional biosignature detections
+presented as confirmed discoveries.
+
+Unrelated particle effects.
+
+The scientific concepts must drive
+the visual storytelling.
+
+====================================================
+7. COMPLETE MODULE 21 IMPLEMENTATION
+====================================================
+
+MODULE TITLE:
+
+TELESCOPES & HOW WE DISCOVER SPACE
+
+PRIMARY EXPERIENCE:
+
+A PREMIUM INTERACTIVE
+MULTIWAVELENGTH ASTRONOMICAL OBSERVATORY.
+
+EXISTING COMPONENT:
+
+VirtualObservatoryLab.tsx
+
+SCENE REFERENCE:
+
+m21_optical_multiwavelength_observatory_3d
+
+Verify the actual registry.
+
+The student should be able to:
+
+Operate virtual telescopes.
+
+Compare optical designs.
+
+Investigate light collection.
+
+Change aperture.
+
+Explore angular resolution.
+
+Observe different wavelengths.
+
+Understand space-based observations.
+
+Investigate interferometry.
+
+Analyze astronomical spectra.
+
+The module must feel like
+a functioning scientific observatory.
+
+====================================================
+8. CHAPTER 21.1 — WHY SCIENTISTS
+USE TELESCOPES
+====================================================
+
+LESSON ID:
+sub_why_telescopes
+
+Create an immersive opening experience.
+
+VISUAL BEAT A:
+
+Show an observer beneath
+a realistic night sky.
+
+VISUAL BEAT B:
+
+Select a distant faint object.
+
+VISUAL BEAT C:
+
+Compare unaided visual observation
+with a telescope observation.
+
+VISUAL BEAT D:
+
+Reveal the telescope's
+light-collecting aperture.
+
+VISUAL BEAT E:
+
+Demonstrate improved sensitivity
+or angular detail under
+appropriate observing conditions.
+
+SCIENTIFIC REQUIREMENTS:
+
+Distinguish:
+
+Light-gathering power.
+
+Angular resolution.
+
+Magnification.
+
+Signal-to-noise ratio.
+
+Field of view.
+
+Do not claim magnification alone
+determines telescope performance.
+
+INTERACTION:
+
+Select observing target.
+
+Choose telescope aperture.
+
+Change exposure duration.
+
+Inspect a modeled signal.
+
+====================================================
+9. CHAPTER 21.2 — REFRACTING
+AND REFLECTING TELESCOPES
+====================================================
+
+LESSON ID:
+sub_refractor_reflector
+
+Create a premium optical cutaway laboratory.
+
+SHOW:
+
+Refracting telescope.
+
+Objective lens.
+
+Reflecting telescope.
+
+Primary mirror.
+
+Secondary mirror where applicable.
+
+Focal point.
+
+Light path.
+
+Image formation.
+
+CINEMATIC BEATS:
+
+Move toward a refracting telescope.
+
+Reveal its optical interior.
+
+Trace incoming light rays.
+
+Show lens focusing.
+
+Transition to a reflecting design.
+
+Show mirror reflection geometry.
+
+Compare the designs.
+
+INTERACTION:
+
+Rotate the telescope.
+
+Show or hide optical elements.
+
+Change focal length within
+a validated paraxial model.
+
+Compare optical paths.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not present schematic ray paths
+as exact wave-optics solutions.
+
+Preserve the correct reflection
+and refraction geometry.
+
+Explain chromatic aberration
+where relevant.
+
+====================================================
+10. CHAPTER 21.3 — LIGHT-GATHERING POWER
+AND ANGULAR RESOLUTION
+====================================================
+
+LESSON ID:
+sub_light_gathering_resolution
+
+Create an interactive
+aperture and diffraction laboratory.
+
+SHOW:
+
+Incoming wavefront.
+
+Circular aperture.
+
+Diffraction pattern.
+
+Airy disk.
+
+Image point spread function.
+
+Angular separation of two sources.
+
+Aperture diameter.
+
+Wavelength dependence.
+
+SCIENTIFIC MODEL:
+
+For a diffraction-limited
+unobstructed circular aperture:
+
+theta ≈ 1.22 × lambda / D
+
+where theta is in radians.
+
+Use consistent SI units.
+
+Explain this is the
+Rayleigh diffraction criterion
+under relevant assumptions.
+
+INTERACTION:
+
+Change aperture D.
+
+Change wavelength lambda.
+
+Compare two point sources.
+
+Inspect calculated angular resolution.
+
+Observe simulated diffraction patterns.
+
+Also explain:
+
+Collecting area is proportional
+to aperture area.
+
+Instrument throughput and exposure
+affect signal collection.
+
+Actual observing resolution may
+also be limited by seeing,
+aberrations and instrument design.
+
+Do not apply one ideal formula
+as a universal performance guarantee.
+
+====================================================
+11. CHAPTER 21.4 — SPACE
+VERSUS GROUND OBSERVATORIES
+====================================================
+
+LESSON ID:
+sub_space_vs_ground
+
+Create a cinematic observatory comparison.
+
+SHOW:
+
+Ground-based observatory.
+
+Earth's atmosphere.
+
+Atmospheric turbulence.
+
+Light propagation.
+
+Space observatory.
+
+Atmospheric absorption.
+
+Adaptive optics where appropriate.
+
+CINEMATIC SEQUENCE:
+
+Begin beneath a clear night sky.
+
+Enter a large ground telescope.
+
+Reveal atmospheric turbulence.
+
+Compare with an observatory
+above Earth's atmosphere.
+
+Show relevant wavelength differences.
+
+INTERACTION:
+
+Toggle atmosphere.
+
+Change observing wavelength.
+
+Enable an approved seeing model.
+
+Inspect an adaptive optics demonstration.
+
+SCIENTIFIC REQUIREMENTS:
+
+Ground observatories may achieve
+excellent angular resolution
+using adaptive optics or interferometry.
+
+Space observatories are not automatically
+better at every observational task.
+
+Different instruments cover
+different wavelength ranges.
+
+====================================================
+12. CHAPTER 21.5 — RADIO ASTRONOMY
+AND INTERFEROMETRY
+====================================================
+
+LESSON ID:
+sub_radio_astronomy
+
+Create a beautiful radio
+observatory and array visualization.
+
+SHOW:
+
+Single radio dish.
+
+Incoming radio wavefronts.
+
+Multiple antennas.
+
+Array baselines.
+
+Signal timing.
+
+Correlation concept.
+
+Angular resolution relationship.
+
+Synthetic aperture reconstruction.
+
+CINEMATIC BEATS:
+
+Approach a large radio telescope.
+
+Show the collecting surface.
+
+Transition to an antenna array.
+
+Reveal signal arrival at multiple antennas.
+
+Demonstrate correlated measurements.
+
+Show a reconstructed astronomical image.
+
+SCIENTIFIC REQUIREMENTS:
+
+Interferometric resolution is
+set largely by wavelength
+and maximum baseline.
+
+It is not equivalent to the
+collecting area of one giant dish
+with that baseline diameter.
+
+Use a defensible relationship
+of angular resolution scaling
+approximately as lambda / baseline.
+
+Clarify simplified model assumptions.
+
+INTERACTION:
+
+Change array baseline.
+
+Change observing wavelength.
+
+Compare synthesized beam properties.
+
+Inspect sparse-array artifacts.
+
+Avoid presenting one idealized
+image reconstruction as universal.
+
+====================================================
+13. CHAPTER 21.6 — INFRARED
+AND ULTRAVIOLET ASTRONOMY
+====================================================
+
+LESSON ID:
+sub_infrared_ultraviolet
+
+Create a wavelength comparison laboratory.
+
+SHOW:
+
+Visible-light astronomical scene.
+
+Infrared observation.
+
+Ultraviolet observation.
+
+Dust obscuration.
+
+Thermal emission.
+
+Hot stellar regions.
+
+Different instrument sensitivities.
+
+SCIENTIFIC REQUIREMENTS:
+
+Infrared light can penetrate some
+dust clouds more effectively than
+visible light, depending on wavelength
+and dust properties.
+
+Do not say infrared reveals
+everything behind all dust.
+
+Ultraviolet observations probe
+different physical processes.
+
+Use real observational image sets
+where licensing permits.
+
+Clearly label false-color composites.
+
+INTERACTION:
+
+Wavelength band selector.
+
+Compare observation layers.
+
+Inspect physical emission mechanisms.
+
+====================================================
+14. CHAPTER 21.7 — X-RAY ASTRONOMY
+====================================================
+
+LESSON ID:
+sub_xray_astronomy
+
+Create a high-energy observatory experience.
+
+SHOW:
+
+X-ray emitting astrophysical source.
+
+X-ray telescope geometry.
+
+Grazing-incidence optics.
+
+Detector.
+
+High-energy photon detection.
+
+Observed X-ray image.
+
+Appropriate sources may include:
+
+Hot intracluster gas.
+
+Supernova remnants.
+
+Accreting compact objects.
+
+CINEMATIC FEATURE:
+
+Transition from an optical observation
+to an X-ray observation of
+the same astronomical target
+where sourced imagery exists.
+
+SCIENTIFIC REQUIREMENTS:
+
+X-ray telescopes commonly use
+grazing-incidence mirror designs.
+
+Do not demonstrate ordinary
+visible-light normal-incidence
+mirror focusing as the general
+X-ray telescope mechanism.
+
+X-ray imagery is commonly
+rendered in assigned display colors.
+
+Explain wavelength and energy.
+
+====================================================
+15. CHAPTER 21.8 — SPECTROSCOPY
+AND ASTRONOMICAL DATA
+====================================================
+
+LESSON ID:
+sub_spectroscopy
+
+Create a fully interactive
+astronomical spectroscopy lab.
+
+SHOW:
+
+Light collected by telescope.
+
+Spectrograph entrance.
+
+Dispersive element.
+
+Detector.
+
+Recorded spectrum.
+
+Spectral absorption and emission lines.
+
+Scientific interpretations.
+
+Relevant observations:
+
+Stellar temperature.
+
+Chemical composition.
+
+Radial velocity.
+
+Redshift.
+
+Atmospheric absorption.
+
+INTERACTION:
+
+Choose an approved target.
+
+Inspect the observed spectrum.
+
+Identify a spectral feature.
+
+Change a synthetic radial velocity.
+
+Observe the corresponding wavelength shift.
+
+Do not fabricate real observed spectra.
+
+Separate synthetic examples
+from catalog data.
+
+====================================================
+16. MODULE 21 REQUIRED ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_21_telescope_optics_lab
+
+Verify actual current registry.
+
+Create a real Telescope Optics
+and Aperture Laboratory.
+
+Students should:
+
+Select wavelength.
+
+Select telescope aperture.
+
+Calculate expected angular resolution.
+
+Compare two nearby sources.
+
+Interpret diffraction limits.
+
+Choose an appropriate instrument
+for a scientific observation.
+
+Validate actual student input.
+
+Do not automatically mark completion
+when the telescope animation finishes.
+
+====================================================
+17. COMPLETE MODULE 22 IMPLEMENTATION
+====================================================
+
+MODULE TITLE:
+
+SPACE MISSIONS & HUMAN EXPLORATION
+
+PRIMARY EXPERIENCE:
+
+A CINEMATIC SPACE MISSION MUSEUM
+AND INTERACTIVE ORBITAL TRAJECTORY SIMULATOR.
+
+EXISTING COMPONENT:
+
+SpaceMuseumLab.tsx
+
+SCENE REFERENCE:
+
+m22_space_missions_trajectories_3d
+
+Verify the live scene registry.
+
+This module must combine:
+
+Authentic spacecraft models.
+
+Historical mission events.
+
+Orbital mechanics.
+
+Rocket propulsion principles.
+
+Interplanetary trajectories.
+
+Real mission data.
+
+Scientific instruments.
+
+Mission-planning interactions.
+
+Do not fabricate spacecraft specifications.
+
+====================================================
+18. CHAPTER 22.1 — THE FIRST
+ARTIFICIAL SATELLITES
+====================================================
+
+LESSON ID:
+sublesson-1-satellites
+
+Create a historical orbital
+spaceflight introduction.
+
+SHOW:
+
+Earth.
+
+Early satellite architecture.
+
+Launch sequence.
+
+Orbit insertion.
+
+Satellite trajectory.
+
+Ground communication concept.
+
+Begin with an appropriately sourced
+Sputnik 1 historical reconstruction.
+
+Explain:
+
+1957 launch.
+
+Early artificial satellites.
+
+Orbital speed.
+
+Satellite altitude.
+
+Orbital period.
+
+Scientific and communications significance.
+
+Use an authentic model if available.
+
+Otherwise use a clearly labeled reconstruction.
+
+INTERACTION:
+
+Adjust educational orbital altitude.
+
+Inspect modeled orbital period.
+
+Switch Earth-centered observation angle.
+
+====================================================
+19. CHAPTER 22.2 — FIRST
+HUMAN SPACEFLIGHT
+====================================================
+
+LESSON ID:
+sublesson-2-human-spaceflight
+
+Create a historical human
+spaceflight cinematic experience.
+
+SHOW:
+
+Vostok-era spacecraft.
+
+Earth orbit.
+
+Launch and ascent illustration.
+
+Weightlessness.
+
+Reentry sequence.
+
+Important mission milestones.
+
+Introduce Yuri Gagarin's
+1961 orbital flight.
+
+Distinguish:
+
+Orbital flight.
+
+Suborbital flight.
+
+Reentry.
+
+Landing.
+
+Human survival systems.
+
+SCIENTIFIC REQUIREMENT:
+
+Orbital weightlessness results
+primarily from continuous free fall.
+
+It is not caused by the absence
+of Earth's gravitational field.
+
+Use sourced spacecraft geometry.
+
+====================================================
+20. CHAPTER 22.3 — MOON EXPLORATION:
+APOLLO TO ARTEMIS
+====================================================
+
+LESSON ID:
+sublesson-3-moon-exploration
+
+Create a premium lunar
+exploration mission journey.
+
+SHOW:
+
+Earth launch.
+
+Translunar trajectory.
+
+Lunar orbit.
+
+Apollo lunar module.
+
+Lunar descent.
+
+Surface mission.
+
+Return trajectory.
+
+Modern lunar exploration efforts.
+
+Include appropriately sourced examples:
+
+Apollo missions.
+
+Chandrayaan missions.
+
+Artemis program where relevant.
+
+CINEMATIC REQUIREMENTS:
+
+Use approved historical mission dates.
+
+Distinguish completed flights
+from planned future missions.
+
+Do not present scheduled future events
+as having occurred unless verified.
+
+Do not invent landing sites.
+
+Include the distinction between
+the lunar south-polar region
+and the exact geographic pole.
+
+INTERACTION:
+
+Inspect spacecraft stages.
+
+Explore Earth-Moon geometry.
+
+Select a mission milestone.
+
+View a simplified transfer trajectory.
+
+====================================================
+21. CHAPTER 22.4 — SPACE STATIONS
+AND LIVING IN ORBIT
+====================================================
+
+LESSON ID:
+sublesson-4-space-stations
+
+Create a realistic orbital
+habitat laboratory.
+
+SHOW:
+
+Space station exterior.
+
+Orbital path.
+
+Docking geometry.
+
+Solar arrays.
+
+Pressurized modules.
+
+Life-support systems.
+
+Microgravity.
+
+Earth observation.
+
+Use appropriately licensed
+ISS or other station models.
+
+CINEMATIC EXPERIENCE:
+
+Begin outside the station.
+
+Orbit around its structure.
+
+Reveal scientific modules.
+
+Use cutaways for relevant systems.
+
+Show how orbital free fall
+creates the microgravity environment.
+
+INTERACTION:
+
+Inspect station components.
+
+Rotate external model.
+
+Explore orbit and solar array illumination.
+
+View simplified life-support processes.
+
+Do not portray the ISS as
+outside Earth's gravity.
+
+====================================================
+22. CHAPTER 22.5 — ROBOTIC
+EXPLORATION OF MARS
+====================================================
+
+LESSON ID:
+sublesson-5-mars-rovers
+
+Create a premium Mars
+robotic exploration scene.
+
+SHOW:
+
+Mars approach.
+
+Atmospheric entry.
+
+Descent systems.
+
+Landing.
+
+Rover deployment.
+
+Scientific instruments.
+
+Terrain navigation.
+
+Geological sampling.
+
+Relevant mission examples:
+
+Sojourner.
+
+Spirit and Opportunity.
+
+Curiosity.
+
+Perseverance.
+
+Ingenuity where appropriate.
+
+Use verified mission timelines.
+
+Do not combine different
+entry, descent and landing
+systems into one fictional mission
+while labeling it authentic.
+
+INTERACTION:
+
+Inspect rover instruments.
+
+Select navigation objectives.
+
+Explore a terrain scenario.
+
+Demonstrate science measurements.
+
+====================================================
+23. CHAPTER 22.6 — OUTER SOLAR SYSTEM
+PROBES AND INTERSTELLAR VOYAGERS
+====================================================
+
+LESSON ID:
+sublesson-6-outer-probes
+
+Create a dramatic but accurate
+interplanetary mission visualization.
+
+SHOW:
+
+Voyager 1 and Voyager 2.
+
+Outer planet encounters.
+
+Gravity assists.
+
+Planet-relative velocity.
+
+Sun-relative trajectory.
+
+Heliopause crossing concept.
+
+Relevant planetary imaging.
+
+CINEMATIC EXPERIENCE:
+
+Begin with a spacecraft leaving Earth.
+
+Show a planetary encounter.
+
+Highlight approach velocity vectors.
+
+Reveal trajectory deflection.
+
+Continue to the next destination.
+
+Expand into the outer heliosphere.
+
+SCIENTIFIC REQUIREMENTS:
+
+Crossing the heliopause is not
+equivalent to leaving the Sun's
+entire gravitational influence.
+
+Voyager spacecraft are not
+beyond the Oort Cloud.
+
+Use appropriate reference frames.
+
+Do not claim gravity assists
+create energy from nothing.
+
+====================================================
+24. CHAPTER 22.7 — SPACE TELESCOPES:
+EYES BEYOND THE ATMOSPHERE
+====================================================
+
+LESSON ID:
+sublesson-7-space-telescopes
+
+Create a cinematic
+space observatory comparison.
+
+Potential mission subjects:
+
+Hubble Space Telescope.
+
+James Webb Space Telescope.
+
+Chandra X-ray Observatory.
+
+Relevant solar and planetary observatories.
+
+SHOW:
+
+Orbit or operating location.
+
+Telescope architecture.
+
+Scientific instruments.
+
+Wavelength sensitivity.
+
+Thermal management.
+
+Observation concept.
+
+CINEMATIC CAMERA:
+
+Approach the observatory.
+
+Inspect key structures.
+
+Reveal instrument light paths.
+
+Transition to sourced astronomical results.
+
+SCIENTIFIC REQUIREMENTS:
+
+JWST operates near the Sun-Earth L2 region
+in a large halo-type orbit,
+not stationary directly at the L2 point.
+
+Different missions use different
+instrument architectures.
+
+Do not claim all space telescopes
+observe visible wavelengths.
+
+====================================================
+25. CHAPTER 22.8 — MODERN
+AND FUTURE MISSION PLANNING
+====================================================
+
+LESSON ID:
+sublesson-8-future-planning
+
+Create a professional
+interplanetary mission design laboratory.
+
+SHOW:
+
+Launch location.
+
+Initial parking orbit.
+
+Transfer trajectory.
+
+Planetary positions.
+
+Launch window.
+
+Fuel requirements.
+
+Gravity-assist options.
+
+Destination arrival.
+
+Potential mission constraints.
+
+INTERACTION:
+
+Choose destination.
+
+Choose departure epoch.
+
+Select trajectory model.
+
+Inspect transfer time.
+
+Compare delta-v requirements.
+
+Choose a flyby maneuver.
+
+Review modeled success or failure.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not assume all missions
+use a single Hohmann transfer.
+
+Use a clearly defined
+patched-conic or numerical model
+for interplanetary planning.
+
+A mission planner must show
+its simplifying assumptions.
+
+Do not claim to provide operational
+flight-dynamics precision unless
+the solver is validated accordingly.
+
+====================================================
+26. MODULE 22 GRAVITY ASSIST ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_22_gravity_assist_trajectory
+
+Verify the current activity registry.
+
+Implement a meaningful
+Interplanetary Gravity Assist Simulator.
+
+The student should control:
+
+Encounter geometry.
+
+Flyby distance.
+
+Approach direction.
+
+Planet's orbital motion.
+
+Spacecraft incoming trajectory.
+
+The system should calculate:
+
+Planet-relative incoming velocity.
+
+Planet-relative outgoing velocity.
+
+Turning angle.
+
+Sun-relative trajectory change.
+
+Approximate energy transfer.
+
+Destination feasibility where supported.
+
+SCIENTIFIC REQUIREMENTS:
+
+A gravity assist may increase
+or decrease heliocentric energy.
+
+In an ideal unpowered two-body flyby,
+the asymptotic planet-relative
+speed remains the same.
+
+Direction changes.
+
+When transformed into the
+Sun-centered frame, orbital energy
+may change through interaction
+with the moving planet.
+
+Do not give students an arbitrary
+"Gravity Boost" button that
+simply increases spacecraft speed.
+
+Validate the actual resulting trajectory.
+
+====================================================
+27. COMPLETE MODULE 23 IMPLEMENTATION
+====================================================
+
+MODULE TITLE:
+
+LIFE BEYOND EARTH & ASTROBIOLOGY
+
+PRIMARY EXPERIENCE:
+
+A PREMIUM SCIENTIFIC ASTROBIOLOGY
+AND HABITABLE WORLDS LABORATORY.
+
+EXISTING COMPONENT:
+
+HabitableWorldLab.tsx
+
+SCENE REFERENCE:
+
+m23_astrobiology_ocean_worlds_3d
+
+Verify the actual scene registry.
+
+This module must make students
+understand the distinction between:
+
+Life.
+
+Habitability.
+
+Potential biosignatures.
+
+Actual observations.
+
+Scientific uncertainty.
+
+Confirmed discovery.
+
+The visual design may be imaginative,
+but claims of extraterrestrial life
+must never be fabricated.
+
+====================================================
+28. CHAPTER 23.1 — WHAT IS LIFE?
+====================================================
+
+LESSON ID:
+23-1
+
+Create an interactive scientific
+introduction to life.
+
+SHOW:
+
+Cells.
+
+Biochemical reactions.
+
+Energy use.
+
+Molecular organization.
+
+Environmental interaction.
+
+Replication and evolution concepts.
+
+Different operational definitions.
+
+SCIENTIFIC REQUIREMENTS:
+
+There is no single universally
+agreed complete definition of life.
+
+Do not imply any one checklist
+settles every edge case.
+
+Discuss:
+
+Metabolism.
+
+Reproduction.
+
+Evolution.
+
+Homeostasis.
+
+Information processing.
+
+Relevant exceptions and complexity.
+
+INTERACTION:
+
+Compare living systems with
+nonliving chemical processes.
+
+Classify scenarios with explanation
+of scientific uncertainty.
+
+====================================================
+29. CHAPTER 23.2 — EARTH:
+A HABITABLE PLANET
+====================================================
+
+LESSON ID:
+23-2
+
+Create a detailed Earth habitability
+and environmental history sequence.
+
+SHOW:
+
+Sun-Earth distance.
+
+Surface liquid water.
+
+Atmosphere.
+
+Planetary climate.
+
+Chemical cycling.
+
+Energy availability.
+
+Geological processes.
+
+Relevant biosphere relationships.
+
+CINEMATIC SEQUENCE:
+
+Begin with Earth from orbit.
+
+Reveal atmosphere and oceans.
+
+Transition to a scientific
+environmental cross-section.
+
+Show energy and material flows.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not imply one specific
+planetary property by itself
+guarantees life.
+
+Do not present present-day Earth
+as the only possible template
+for all life in the universe.
+
+====================================================
+30. CHAPTER 23.3 — WATER,
+CHEMISTRY AND ENERGY
+====================================================
+
+LESSON ID:
+23-3
+
+Create a chemistry-centered
+habitability laboratory.
+
+SHOW:
+
+Liquid water.
+
+Chemical gradients.
+
+Organic molecules.
+
+Energy sources.
+
+Redox reactions.
+
+Potential metabolic pathways.
+
+Relevant hydrothermal environment
+where scientifically appropriate.
+
+INTERACTION:
+
+Change environmental parameters.
+
+Inspect modeled chemical energy.
+
+Compare habitable environments.
+
+SCIENTIFIC REQUIREMENTS:
+
+Water, chemical ingredients and
+energy sources are important
+for life as currently understood.
+
+Their presence does not
+demonstrate that life exists.
+
+Do not present abiogenesis
+as a fully solved process.
+
+Label hypothetical origin-of-life
+visualizations appropriately.
+
+====================================================
+31. CHAPTER 23.4 — EXTREMOPHILES
+====================================================
+
+LESSON ID:
+23-4
+
+Create an immersive tour of
+extreme terrestrial environments.
+
+SHOW:
+
+Deep-sea environments.
+
+Hydrothermal systems.
+
+Highly saline environments.
+
+Acidic conditions.
+
+Cold environments.
+
+High-pressure environments.
+
+Relevant Earth extremophile examples.
+
+Explain:
+
+Temperature tolerance.
+
+Pressure tolerance.
+
+Chemical energy use.
+
+Adaptation.
+
+Scientific limits.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not assume organisms can
+survive arbitrarily extreme conditions.
+
+Do not extrapolate Earth's
+extremophile limits as proof
+of life on other planets.
+
+INTERACTION:
+
+Select environment.
+
+Inspect environmental conditions.
+
+Compare relevant known adaptations.
+
+====================================================
+32. CHAPTER 23.5 — MARS
+AS AN ASTROBIOLOGY TARGET
+====================================================
+
+LESSON ID:
+23-5
+
+Create a cinematic geological
+and habitability investigation of Mars.
+
+SHOW:
+
+Modern Martian terrain.
+
+Ancient river valleys.
+
+Lake-bed evidence.
+
+Sedimentary structures.
+
+Atmospheric conditions.
+
+Potential past habitable environments.
+
+Scientific rover investigation.
+
+Present-day water-ice evidence.
+
+Brine hypotheses where scientifically supported.
+
+CINEMATIC EXPERIENCE:
+
+Begin over the modern Martian surface.
+
+Reveal geological formations.
+
+Use a timeline to reconstruct
+possible ancient water environments.
+
+Transition to the present-day
+robotic investigation.
+
+SCIENTIFIC REQUIREMENTS:
+
+Past liquid-water evidence
+does not prove past life.
+
+Present-day surface liquid
+brines are not universally confirmed
+and remain subject to constraints.
+
+Do not invent detected Martian organisms.
+
+====================================================
+33. CHAPTER 23.6 — OCEAN WORLDS:
+EUROPA AND ENCELADUS
+====================================================
+
+LESSON ID:
+23-6
+
+Create an extraordinary
+ocean-world exploration experience.
+
+SHOW:
+
+Europa.
+
+Enceladus.
+
+Icy crust.
+
+Subsurface ocean models.
+
+Internal heating.
+
+Tidal forces.
+
+Enceladus plume observations.
+
+Relevant organic compounds.
+
+Potential chemical energy sources.
+
+CINEMATIC BEATS:
+
+Approach Europa.
+
+Show the icy surface.
+
+Reveal a labeled internal
+ocean model.
+
+Transition toward Enceladus.
+
+Show its south-polar plume activity.
+
+Explain why these worlds
+interest astrobiologists.
+
+SCIENTIFIC REQUIREMENTS:
+
+Subsurface oceans are inferred
+from multiple lines of evidence.
+
+Exact interior structure
+remains model-dependent.
+
+Organics and potential energy sources
+are not evidence of confirmed life.
+
+Do not render alien organisms
+as directly observed inhabitants.
+
+====================================================
+34. CHAPTER 23.7 — EXOPLANET
+HABITABILITY AND HABITABLE ZONES
+====================================================
+
+LESSON ID:
+23-7
+
+Create an interactive
+exoplanet habitability simulator.
+
+SHOW:
+
+Host star.
+
+Planetary orbits.
+
+Stellar luminosity.
+
+Habitable-zone estimate.
+
+Planetary atmosphere.
+
+Climate-relevant factors.
+
+Water stability considerations.
+
+Potential atmospheric effects.
+
+INTERACTION:
+
+Select star type.
+
+Adjust orbital distance.
+
+Change approved atmospheric assumptions.
+
+Inspect equilibrium temperature.
+
+Compare model-dependent
+surface habitability estimates.
+
+SCIENTIFIC REQUIREMENTS:
+
+A circumstellar habitable zone
+does not guarantee life.
+
+Being outside a classical
+surface-water habitable zone
+does not eliminate all possible
+subsurface habitability.
+
+Do not infer atmospheric composition
+from a planet's visual color.
+
+Do not render unknown exoplanet
+surfaces as measured imagery.
+
+====================================================
+35. CHAPTER 23.8 — BIOSIGNATURES
+AND FALSE POSITIVES
+====================================================
+
+LESSON ID:
+23-8
+
+THIS IS A FLAGSHIP SCIENTIFIC ACTIVITY.
+
+Create a realistic-looking
+atmospheric spectroscopy laboratory.
+
+SHOW:
+
+Exoplanet atmosphere.
+
+Incoming or transmitted starlight.
+
+Molecular absorption.
+
+Spectral features.
+
+Oxygen.
+
+Methane.
+
+Other relevant gases.
+
+Potential chemical disequilibrium.
+
+False-positive pathways.
+
+Scientific uncertainty.
+
+INTERACTION:
+
+Select a modeled atmosphere.
+
+Inspect absorption features.
+
+Compare molecular abundance scenarios.
+
+Explore abiotic oxygen production.
+
+Explore methane production scenarios.
+
+Evaluate a modeled biosignature case.
+
+SCIENTIFIC REQUIREMENTS:
+
+O2 and CH4 coexistence may be
+an interesting disequilibrium indicator.
+
+It is not by itself proof of life.
+
+Atmospheric processes can produce
+false positives.
+
+Observability depends on instrument
+sensitivity and planetary conditions.
+
+Do not imply a single spectrum
+can always reveal exact abundances.
+
+Use model-based synthetic spectra
+or clearly sourced real measurements.
+
+====================================================
+36. CHAPTER 23.9 — SETI
+AND TECHNOSIGNATURES
+====================================================
+
+LESSON ID:
+23-9
+
+Create an interactive
+scientific signal-detection observatory.
+
+SHOW:
+
+Radio telescope array.
+
+Receiving system.
+
+Radio frequency spectrum.
+
+Time-frequency waterfall plot.
+
+Background noise.
+
+Radio frequency interference.
+
+Narrowband signal example.
+
+Doppler drift.
+
+Signal verification process.
+
+CINEMATIC EXPERIENCE:
+
+Begin at a radio observatory.
+
+Show a detection candidate.
+
+Reveal the waterfall plot.
+
+Demonstrate how scientists
+investigate terrestrial interference.
+
+Compare candidate signal scenarios.
+
+INTERACTION:
+
+Inspect frequency-time data.
+
+Apply a simple signal filter.
+
+Identify artificial interference.
+
+Review candidate evidence.
+
+SCIENTIFIC REQUIREMENTS:
+
+No confirmed extraterrestrial
+technosignature should be invented.
+
+A narrowband signal is not
+automatically extraterrestrial.
+
+Distinguish candidate detections
+from verified discoveries.
+
+====================================================
+37. CHAPTER 23.10 — WHAT SCIENTISTS
+HAVE AND HAVE NOT DISCOVERED
+====================================================
+
+LESSON ID:
+23-10
+
+Create a compelling evidence-based
+astrobiology conclusion.
+
+SHOW:
+
+Confirmed exoplanets.
+
+Verified water-related measurements.
+
+Evidence for subsurface oceans.
+
+Organic compounds.
+
+Potentially habitable environments.
+
+Biosignature hypotheses.
+
+Life-detection research.
+
+The continuing search for life.
+
+Use a scientific evidence ladder.
+
+Separate:
+
+CONFIRMED OBSERVATION.
+
+SUPPORTED INFERENCE.
+
+POTENTIAL BIOSIGNATURE.
+
+UNRESOLVED CANDIDATE.
+
+SPECULATIVE HYPOTHESIS.
+
+NO CONFIRMED DETECTION.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not claim extraterrestrial life
+has been confirmed without an
+authoritative verified discovery.
+
+Do not invent alien civilization detections.
+
+Do not present a promising target
+as an inhabited world.
+
+End with a scientifically honest
+discussion of what is unknown.
+
+====================================================
+38. MODULE 23 BIOSIGNATURE ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_23_habitable_world_lab
+
+Verify current registry.
+
+Build an interactive
+Habitable World & Biosignature Lab.
+
+Student tasks may include:
+
+Select a planetary environment.
+
+Inspect the host star.
+
+Review planetary energy conditions.
+
+Analyze a modeled atmospheric spectrum.
+
+Identify oxygen and methane features.
+
+Consider possible abiotic mechanisms.
+
+Evaluate confidence in a life-related claim.
+
+Use evidence-based answer validation.
+
+Do not count selecting a
+"Habitable Planet" preset
+as proof of actual habitability.
+
+Do not award success merely
+for finding oxygen.
+
+The correct learning outcome is
+evidence assessment, not
+an automatic announcement of life.
+
+====================================================
+39. COMPLETE MODULE 24 IMPLEMENTATION
+====================================================
+
+MODULE TITLE:
+
+COSMIC PHYSICS LABORATORY & CHALLENGES
+
+PRIMARY EXPERIENCE:
+
+THE ULTIMATE SCIENTIFIC PHYSICS
+SANDBOX AND COSMIC ACADEMY CAPSTONE.
+
+EXISTING COMPONENT:
+
+CosmicPhysicsLab.tsx
+
+SCENE REFERENCE:
+
+m24_capstone_physics_sandbox_3d
+
+Verify actual identifiers.
+
+This module has special requirements.
+
+It must:
+
+Integrate knowledge from previous modules.
+
+Provide meaningful scientific experiments.
+
+Allow independent investigation.
+
+Assess student understanding.
+
+Respect official examination rules.
+
+Preserve secure progress verification.
+
+Maintain certificate eligibility rules.
+
+Do not create a parallel graduation system.
+
+====================================================
+40. CHAPTER 24.1 — UNIVERSAL
+PHYSICS SANDBOX
+====================================================
+
+LESSON ID:
+24-1
+
+Build a unified interactive
+scientific laboratory.
+
+The student should be able
+to select different experiments.
+
+Potential validated experiments:
+
+Orbital mechanics.
+
+N-body gravity.
+
+Planetary comparison.
+
+Stellar temperature and luminosity.
+
+Stellar evolution track exploration.
+
+Exoplanet transit detection.
+
+Radial-velocity measurements.
+
+Telescope diffraction.
+
+Gravitational lensing approximation.
+
+Cosmological redshift.
+
+Scientific distance calculation.
+
+These should reuse approved
+simulators from previous modules.
+
+Do not create superficial
+copies of every experiment.
+
+Create a unified experiment launcher
+that connects to the real
+existing scientific model.
+
+For each experiment:
+
+Explain the objective.
+
+Expose valid parameters.
+
+Show the scientific simulation.
+
+Provide appropriate plots.
+
+Allow student input.
+
+Record the relevant learning evidence.
+
+====================================================
+41. CHAPTER 24.2 — NUMERICAL SIMULATION
+AND SCIENTIFIC LIMITATIONS
+====================================================
+
+LESSON ID:
+24-2
+
+Create an interactive scientific
+methodology laboratory.
+
+Teach:
+
+Mathematical models.
+
+Initial conditions.
+
+Boundary conditions.
+
+Numerical integration.
+
+Time-step selection.
+
+Approximation.
+
+Error analysis.
+
+Conservation laws.
+
+Model uncertainty.
+
+Simulation versus observation.
+
+EXAMPLE EXPERIMENT:
+
+N-body gravitational simulation.
+
+Allow controlled adjustment of:
+
+Initial positions.
+
+Velocities.
+
+Masses.
+
+Simulation time step.
+
+Show:
+
+Numerical trajectories.
+
+Energy drift.
+
+Angular momentum behavior.
+
+Simulation stability.
+
+Where supported, compare
+numerical integration schemes.
+
+SCIENTIFIC REQUIREMENTS:
+
+Do not claim an N-body simulation
+is exact merely because the trajectories
+look visually smooth.
+
+Document collision handling.
+
+Document integrator assumptions.
+
+Do not automatically merge bodies
+without an explicit collision model.
+
+Do not promise full Universe Sandbox
+feature parity in this phase.
+
+The goal is a valid educational lab.
+
+====================================================
+42. CHAPTER 24.3 — COSMIC EXPLORER
+JOURNEY AND GRADUATION CHALLENGE
+====================================================
+
+LESSON ID:
+24-3
+
+Create a premium concluding
+academy experience.
+
+The student should revisit
+the major scientific ideas learned
+throughout the full curriculum.
+
+Create a meaningful
+multi-stage graduation challenge.
+
+Potential tasks:
+
+STAGE A:
+Interpret telescope observations.
+
+STAGE B:
+Analyze orbital or mission dynamics.
+
+STAGE C:
+Evaluate stellar evolution evidence.
+
+STAGE D:
+Analyze exoplanet measurements.
+
+STAGE E:
+Interpret cosmological redshift.
+
+STAGE F:
+Synthesize scientific evidence.
+
+Use actual approved
+capstone challenge definitions.
+
+Do not invent new official
+graduation requirements.
+
+COSMOS may guide the learner
+through permitted practice steps.
+
+During official assessment questions:
+
+COSMOS must be neutral.
+
+Do not reveal correct answers.
+
+Do not select answers automatically.
+
+Do not bypass question submission.
+
+Do not issue a certificate
+merely because the cinematic finale plays.
+
+====================================================
+43. MODULE 24 CAPSTONE ACTIVITY
+====================================================
+
+Storyboard activity:
+
+act_24_cosmic_lab_capstone
+
+Verify its actual current registry.
+
+Implement a meaningful multi-disciplinary
+Cosmic Physics Laboratory challenge.
+
+The activity should connect real
+scientific calculations and observations.
+
+Possible required demonstrations:
+
+Select a scientific dataset.
+
+Choose an appropriate model.
+
+Adjust physical parameters.
+
+Interpret a graph.
+
+Calculate a physical value.
+
+Identify uncertainty.
+
+Explain a scientific conclusion.
+
+A complete attempt must be
+validated through actual
+student interaction.
+
+Do not classify generic mouse clicks
+as verified scientific achievements.
+
+====================================================
+44. PRESERVE THE EXISTING FINAL EXAM
+====================================================
+
+The academy already has
+an official final assessment system.
+
+Earlier requirements specify:
+
+20 questions.
+
+At least 80% passing score.
+
+Server-verified eligibility.
+
+Stage badge prerequisites.
+
+Certificate generation and verification.
+
+Inspect the actual current
+implementation and rules.
+
+Do not silently change them.
+
+The cinematic capstone experience
+and the official final examination
+are separate concerns unless the
+verified current curriculum says otherwise.
+
+A student must not receive
+official examination credit from:
+
+Watching a cinematic animation.
+
+Skipping a narrated chapter.
+
+Opening the graduation screen.
+
+Clicking a congratulations button.
+
+Manipulating a decorative slider.
+
+Client-only progress flags.
+
+Preserve secure scoring and
+authorized certificate issuance.
+
+====================================================
+45. CERTIFICATE AND GRADUATION SAFETY
+====================================================
+
+The current CosmicPhysicsLab
+references certificate-related UI.
+
+Audit its interaction with
+the actual certificate system.
+
+Ensure:
+
+Only eligible students can
+receive official completion status.
+
+No visual overlay fabricates eligibility.
+
+No bypass of server-side examination.
+
+No unauthorized grade changes.
+
+No unauthorized badge issuance.
+
+No direct client-side certificate approval.
+
+Actual certificate identity and
+verification requirements remain intact.
+
+A cinematic congratulations sequence
+is permitted as presentation.
+
+It must not create a verified
+certificate unless the legitimate
+server-side conditions are satisfied.
+
+====================================================
+46. SCIENTIFIC DATA SOURCES
+====================================================
+
+Use authoritative scientific references.
+
+POTENTIAL SOURCES:
+
+NASA mission data.
+
+NASA JPL orbital ephemerides.
+
+NASA Scientific Visualization Studio.
+
+NASA 3D Resources.
+
+NASA Deep Space Network information.
+
+ISRO mission archives.
+
+ESA and ESO telescope documentation.
+
+Hubble and JWST instrument references.
+
+NASA Exoplanet Archive.
+
+NASA Astrobiology research resources.
+
+Gaia star catalog information.
+
+Peer-reviewed life detection frameworks.
+
+Approved academy reference datasets.
+
+Useful URLs:
+
+https://science.nasa.gov/missions/
+
+https://science.nasa.gov/3d-resources/
+
+https://ssd.jpl.nasa.gov/
+
+https://www.isro.gov.in/
+
+https://www.eso.org/
+
+https://science.nasa.gov/astrobiology/
+
+https://exoplanetarchive.ipac.caltech.edu/
+
+For each scientific asset or data source:
+
+Record provenance.
+
+Version.
+
+Observation date.
+
+Model assumptions.
+
+Measurement uncertainty.
+
+Usage license.
+
+Attribution requirements.
+
+Do not fabricate data or asset URLs.
+
+====================================================
+47. SCIENTIFIC MODEL INTEGRITY
+====================================================
+
+This stage combines many different
+branches of physical science.
+
+Preserve the distinction between:
+
+Actual measurement.
+
+Mathematical calculation.
+
+Numerical approximation.
+
+Visualization scale adjustment.
+
+Artistic reconstruction.
+
+Hypothetical scenario.
+
+For telescope models:
+
+Validate aperture and wavelength units.
+
+For trajectories:
+
+Validate coordinate frames and velocities.
+
+For spacecraft:
+
+Validate mission-specific architecture.
+
+For exoplanets:
+
+Validate known parameters.
+
+For habitability:
+
+Disclose model uncertainty.
+
+For N-body physics:
+
+Validate integration behavior.
+
+For capstone calculations:
+
+Use the correct physical units.
+
+Do not exaggerate scientific certainty.
+
+====================================================
+48. FULL COSMOS NARRATION SYNCHRONIZATION
+====================================================
+
+THE CINEMATIC SYSTEM MUST ACCOUNT FOR
+ALL 142 CANONICAL STAGE 6 SEGMENTS.
+
+Module 21:
+36 segments.
+
+Module 22:
+48 segments.
+
+Module 23:
+49 segments.
+
+Module 24:
+9 segments.
+
+For every approved narration segment:
+
+Resolve the active chapter.
+
+Resolve the scientific concept.
+
+Resolve the correct scene.
+
+Resolve the visual beat.
+
+Resolve the camera action.
+
+Resolve the relevant scientific objects.
+
+Resolve the scientific annotation.
+
+Resolve the learning interaction.
+
+Resolve the time policy.
+
+Resolve pause/resume behavior.
+
+Resolve deterministic restoration.
+
+Examples:
+
+COSMOS explains telescope aperture.
+
+Display the corresponding
+diffraction demonstration.
+
+COSMOS explains gravity assist.
+
+Show planet-relative and Sun-relative
+velocity geometry.
+
+COSMOS explains Europa's ocean.
+
+Show a labeled subsurface
+scientific model.
+
+COSMOS explains numerical error.
+
+Show the error developing
+in a supported simulation.
+
+Do not use unrelated animated backgrounds.
+
+====================================================
+49. COSMOS QUESTIONS AND INTERRUPTIONS
+====================================================
+
+Students must be able to
+ask questions naturally.
+
+EXAMPLE 1 — TELESCOPES:
+
+Student:
+"Why does a larger telescope
+show more detail?"
+
+EXPECTED:
+
+Pause current narration.
+
+Preserve the telescope scene.
+
+Show an approved aperture
+and diffraction comparison.
+
+Explain the physical relationship.
+
+Restore the lesson.
+
+EXAMPLE 2 — SPACE MISSIONS:
+
+Student:
+"Where does the extra speed
+come from during a gravity assist?"
+
+EXPECTED:
+
+Pause the trajectory.
+
+Show the moving planet.
+
+Highlight reference-frame velocities.
+
+Explain momentum exchange.
+
+Restore and resume.
+
+EXAMPLE 3 — ASTROBIOLOGY:
+
+Student:
+"Does finding oxygen on
+another planet mean aliens exist?"
+
+EXPECTED:
+
+Preserve the atmospheric spectrum.
+
+Explain possible biological
+and abiotic oxygen sources.
+
+Show an approved false-positive example.
+
+Resume the lesson.
+
+EXAMPLE 4 — PHYSICS LAB:
+
+Student:
+"Why does my simulation change
+when I reduce the time step?"
+
+EXPECTED:
+
+Preserve experiment state.
+
+Explain numerical integration.
+
+Show appropriate comparison data.
+
+Do not manipulate official
+assessment answers.
+
+Resume when ready.
+
+====================================================
+50. ADVANCED CAMERA CHOREOGRAPHY
+====================================================
+
+Reuse Prompt 07's camera architecture.
+
+MODULE 21:
+
+Optical cutaways.
+
+Mirror and lens inspection.
+
+Observatory flythroughs.
+
+Detector focus.
+
+Instrument-to-data transitions.
+
+MODULE 22:
+
+Spacecraft exterior inspection.
+
+Launch views.
+
+Orbital tracking.
+
+Interplanetary travel.
+
+Gravity-assist encounters.
+
+Planetary landing scenes.
+
+MODULE 23:
+
+Planetary flybys.
+
+Subsurface ocean cutaways.
+
+Atmospheric layer views.
+
+Spectroscopy investigation.
+
+Laboratory evidence comparison.
+
+MODULE 24:
+
+Scientific experiment framing.
+
+Planet and star views.
+
+N-body simulation tracking.
+
+Graph-to-3D transitions.
+
+Capstone activity navigation.
+
+Avoid:
+
+Unexpected camera flipping.
+
+Clipping through spacecraft.
+
+Abrupt zoom resets.
+
+Misleading spatial scale.
+
+Conflicting manual controls.
+
+Lost camera position after questions.
+
+====================================================
+51. STUDENT CONTROL AND GUIDED MODE
+====================================================
+
+Support:
+
+COSMOS GUIDED VIEW.
+
+MANUAL EXPLORATION.
+
+INTERACTIVE LAB VIEW.
+
+REDUCED-MOTION VIEW.
+
+The student must be able to:
+
+Orbit.
+
+Zoom.
+
+Inspect model components.
+
+Pause.
+
+Resume.
+
+Seek where allowed.
+
+Recenter.
+
+Return to guided camera.
+
+Change supported scientific parameters.
+
+Use keyboard or touch interaction.
+
+When the student enters manual mode,
+COSMOS camera choreography should
+suspend appropriately.
+
+Do not force the camera away
+from an active scientific experiment.
+
+====================================================
+52. AUTHENTIC SPACECRAFT MODELS
+====================================================
+
+Use the asset pipeline from Prompt 06.
+
+Research suitable verified
+spacecraft and telescope models.
+
+Examples:
+
+Sputnik 1.
+
+Vostok spacecraft.
+
+Apollo spacecraft.
+
+Lunar landers.
+
+ISS.
+
+Voyager spacecraft.
+
+Mars rovers.
+
+Hubble Space Telescope.
+
+James Webb Space Telescope.
+
+Relevant ISRO spacecraft.
+
+Use original mission geometry
+when available.
+
+Preserve:
+
+Solar panels.
+
+Antennas.
+
+Instrument components.
+
+Structural elements.
+
+Correct broad proportions.
+
+Animated mechanisms where needed.
+
+Verify usage rights.
+
+Do not label generic procedural models
+as exact mission engineering models.
+
+====================================================
+53. CINEMATIC VISUAL EFFECTS
+====================================================
+
+Use the shared rendering library
+from Prompt 05.
+
+Apply carefully selected effects:
+
+Planetary atmospheric rendering.
+
+Spacecraft material shading.
+
+Engine plume illustrations.
+
+Orbit trajectory markers.
+
+Instrument light paths.
+
+Diffraction diagrams.
+
+Photometric data overlays.
+
+Subsurface cutaways.
+
+Atmospheric absorption visuals.
+
+Scientific particle effects.
+
+Gravity and velocity vectors.
+
+Controlled scene transitions.
+
+Avoid:
+
+Unnecessary bloom.
+
+Overly bright spacecraft engines.
+
+Unscientific lens flares.
+
+Dense decorative particle clouds.
+
+False-color imagery without labels.
+
+Unsupported alien city visuals.
+
+Expensive effects during
+student-controlled precision experiments.
+
+====================================================
+54. CROSS-MODULE DATA REUSE
+====================================================
+
+Reuse earlier module systems.
+
+MODULE 21 may reuse:
+
+Module 04 spectroscopy.
+
+Module 12 transit observation.
+
+MODULE 22 may reuse:
+
+Module 05 Earth-Moon motion.
+
+Module 06 planetary positions.
+
+Module 08 orbital mechanics.
+
+MODULE 23 may reuse:
+
+Module 12 exoplanet observations.
+
+Module 06 planetary environments.
+
+Module 07 stellar properties.
+
+MODULE 24 may reuse:
+
+All relevant approved science labs.
+
+Do not duplicate scientific constants
+across different versions of the same concept.
+
+Share calculations where feasible.
+
+Different teaching modules
+must not show contradictory data
+for the same verified astronomical object.
+
+====================================================
+55. PERFORMANCE REQUIREMENTS
+====================================================
+
+Stage 6 includes demanding:
+
+Spacecraft meshes.
+
+Complex telescope cutaways.
+
+Scientific optical animations.
+
+Orbital integrations.
+
+Planetary textures.
+
+Atmospheric representations.
+
+Scientific graphs.
+
+Physics laboratories.
+
+Optimize:
+
+Geometry loading.
+
+Texture compression.
+
+GPU memory.
+
+Camera animation.
+
+Shader compilation.
+
+Instance reuse.
+
+Scientific data updates.
+
+Scene caching.
+
+Renderer lifecycle.
+
+Audio synchronization.
+
+Avoid:
+
+Duplicate WebGL canvases.
+
+Multiple unnecessary render loops.
+
+Excessive mesh complexity.
+
+Repeated large model downloads.
+
+Recreating all spacecraft geometry
+during every narration cue.
+
+Frequent React state updates
+for per-frame simulation positions.
+
+Unbounded numerical computation
+on the UI thread.
+
+Use Web Workers where technically
+appropriate and supported
+for expensive numerical tasks.
+
+Maintain bounded computation.
+
+====================================================
+56. ADAPTIVE QUALITY TIERS
+====================================================
+
+Reuse the existing
+CosmosCinematicQualityManager.
+
+Support the actual project tiers.
+
+HIGH CINEMATIC:
+
+Detailed spacecraft assets.
+
+Appropriate advanced lighting.
+
+Higher-quality textures.
+
+Controlled atmospheric effects.
+
+Accurate visible geometry.
+
+BALANCED:
+
+Reduced texture sizes.
+
+Moderate geometry detail.
+
+Simplified postprocessing.
+
+LOW POWER:
+
+Compact assets.
+
+Simplified shaders.
+
+Lower rendering resolution.
+
+2D scientific diagrams where necessary.
+
+Do not alter underlying
+scientific results across tiers.
+
+A low-power learner must still
+be able to complete the course.
+
+====================================================
+57. ACCESSIBILITY AND RESPONSIVENESS
+====================================================
+
+Support:
+
+Desktop.
+
+Laptop.
+
+Tablet.
+
+Mobile.
+
+Portrait screens.
+
+Landscape screens.
+
+Native fullscreen where available.
+
+Full-viewport fallback.
+
+Touch input.
+
+Keyboard navigation.
+
+Screen-reader descriptions.
+
+Captions.
+
+Text transcript.
+
+Reduced-motion presentation.
+
+Accessible plots.
+
+Scientific data tables.
+
+Manual input without microphone access.
+
+Avoid using color alone
+to distinguish scientific results.
+
+Use readable labels.
+
+Do not obscure lab controls
+with cinematic interface elements.
+
+====================================================
+58. THREE LEARNING LEVELS
+====================================================
+
+Support:
+
+JUNIOR EXPLORER.
+
+SPACE EXPLORER.
+
+YOUNG ASTRONOMER.
+
+JUNIOR:
+
+Simple scientific explanations.
+
+Clear visual comparisons.
+
+Limited numerical complexity.
+
+Gentle camera transitions.
+
+SPACE EXPLORER:
+
+Functional physics parameters.
+
+Meaningful scientific graphs.
+
+Guided experiments.
+
+Intermediate equations.
+
+YOUNG ASTRONOMER:
+
+Advanced optical relationships.
+
+Orbital reference frames.
+
+Delta-v calculations.
+
+Spectral interpretation.
+
+Model uncertainty.
+
+Numerical integration error.
+
+Do not change authoritative
+physics simply to simplify
+the explanation.
+
+====================================================
+59. AUTOMATED SCIENTIFIC TESTING
+====================================================
+
+MODULE 21:
+
+Rayleigh diffraction formula.
+
+Aperture scaling.
+
+Wavelength conversion.
+
+Point spread function behavior.
+
+Optical ray geometry.
+
+Interferometer baseline relationships.
+
+Spectral wavelength mapping.
+
+MODULE 22:
+
+Orbital period calculations.
+
+Circular orbit speed.
+
+Transfer orbit relationships.
+
+Delta-v calculations.
+
+Gravity-assist turning angle.
+
+Planet-relative speed conservation
+for ideal unpowered flybys.
+
+Sun-relative energy change.
+
+Trajectory coordinate transforms.
+
+MODULE 23:
+
+Habitability model assumptions.
+
+Stellar insolation.
+
+Energy balance approximation.
+
+Spectral absorption features.
+
+False-positive scenarios.
+
+Evidence classification.
+
+Model uncertainty propagation.
+
+MODULE 24:
+
+N-body gravitational force.
+
+Numerical integrator convergence.
+
+Time-step sensitivity.
+
+Energy conservation where applicable.
+
+Angular momentum conservation
+where applicable.
+
+Controlled collision behavior.
+
+Capstone calculation validation.
+
+Use numerical tests with
+scientifically justified tolerances.
+
+Do not count source keyword searches
+as physics test evidence.
+
+====================================================
+60. COSMOS FUNCTIONAL TESTING
+====================================================
+
+Test:
+
+All narration cue mappings.
+
+Scene registration.
+
+Correct science object selection.
+
+Camera choreography.
+
+Animation start.
+
+Pause.
+
+Resume.
+
+Seek.
+
+Replay.
+
+Voice interruption.
+
+Multiple follow-up questions.
+
+Temporary visual explanation.
+
+State restoration.
+
+Student camera override.
+
+Learning-level changes.
+
+Supported language changes.
+
+Activity validation.
+
+Assessment restrictions.
+
+Fullscreen transitions.
+
+Scene-loading errors.
+
+GPU context recovery.
+
+Resource cleanup.
+
+No duplicate narrator.
+
+No unauthorized learning progress updates.
+
+====================================================
+61. FULL BROWSER END-TO-END TESTING
+====================================================
+
+Use Playwright or equivalent
+where available.
+
+MODULE 21:
+
+Open all eight chapters.
+
+Operate a virtual telescope.
+
+Compare refractor and reflector optics.
+
+Change aperture.
+
+Calculate diffraction resolution.
+
+Explore radio interferometry.
+
+Switch observing wavelengths.
+
+Inspect an X-ray telescope.
+
+Analyze a spectrum.
+
+Complete the optical activity.
+
+MODULE 22:
+
+Open all eight chapters.
+
+Inspect early spacecraft.
+
+Explore human spaceflight.
+
+Visit lunar missions.
+
+Inspect the space station.
+
+Explore Mars rovers.
+
+Observe Voyager trajectories.
+
+Inspect space telescopes.
+
+Plan a gravity-assist mission.
+
+Complete the trajectory activity.
+
+MODULE 23:
+
+Open all ten chapters.
+
+Inspect life-related conditions.
+
+Explore Earth habitability.
+
+Investigate extremophiles.
+
+Explore Mars.
+
+Explore Europa and Enceladus.
+
+Model exoplanet habitability.
+
+Analyze a biosignature spectrum.
+
+Inspect technosignature candidates.
+
+Review evidence classifications.
+
+Complete the astrobiology activity.
+
+MODULE 24:
+
+Open all three chapters.
+
+Launch scientific experiments.
+
+Manipulate simulation parameters.
+
+Inspect numerical error.
+
+Complete the real capstone activity.
+
+Verify graduation eligibility separately.
+
+For all modules:
+
+Test COSMOS narration.
+
+Test question interruptions.
+
+Test resume and replay.
+
+Test fullscreen.
+
+Test mobile.
+
+Test reduced motion.
+
+====================================================
+62. VISUAL REGRESSION TESTING
+====================================================
+
+Capture actual rendered screenshots.
+
+For every chapter:
+
+Opening cinematic scene.
+
+Primary scientific demonstration.
+
+Interactive or concluding state.
+
+Check:
+
+Telescope model clarity.
+
+Correct optical paths.
+
+Spacecraft geometry.
+
+Mission trajectory readability.
+
+Planetary environment fidelity.
+
+Astrobiology cutaway quality.
+
+Spectroscopy plot readability.
+
+Scientific lab controls.
+
+Capstone interface.
+
+COSMOS captions.
+
+Camera stability.
+
+Annotation positioning.
+
+No blank screens.
+
+No unrelated filler effects.
+
+No misleading unsupported visuals.
+
+Do not fabricate screenshots.
+
+====================================================
+63. PERFORMANCE BENCHMARKING
+====================================================
+
+Measure:
+
+Average FPS.
+
+P95 frame time.
+
+Draw calls.
+
+Rendered triangle count.
+
+Texture memory estimate.
+
+Spacecraft asset download size.
+
+Model decode latency.
+
+Scene initialization time.
+
+Physics simulation update cost.
+
+Narration cue activation latency.
+
+Camera transition duration.
+
+WebGL resource growth.
+
+Memory after repeated lesson transitions.
+
+Performance across quality tiers.
+
+Test realistic supported devices
+where tools and hardware are available.
+
+Aim for smooth performance
+on capable desktop hardware.
+
+Provide stable usable fallbacks
+on lower-power devices.
+
+Do not claim universal zero lag.
+
+====================================================
+64. COMPLETE 24-MODULE REGRESSION
+====================================================
+
+This phase completes the
+intended cinematic curriculum coverage.
+
+Run a targeted regression across
+Modules 01–24.
+
+Verify that each module:
+
+Still loads.
+
+Retains its learning content.
+
+Retains its approved narration.
+
+Can enter Cinematic Mode.
+
+Has valid scene registration.
+
+Has valid cue mappings.
+
+Can exit to normal learning.
+
+Preserves existing student progress.
+
+Retains activity access.
+
+Does not create duplicate audio.
+
+Retains accessibility features.
+
+Do not perform exhaustive final
+certification in this phase.
+
+That belongs to Prompt 18.
+
+However, fix any critical regressions
+introduced by Prompt 14.
+
+====================================================
+65. SCIENTIFIC QUALITY ACCEPTANCE
+====================================================
+
+Score every actual Stage 6 chapter
+from 0 to 5 where review evidence exists.
+
+Criteria:
+
+Scientific correctness.
+
+Educational clarity.
+
+Visual fidelity.
+
+Instrument realism.
+
+Mission dynamics validity.
+
+Scientific data accuracy.
+
+Cinematic storytelling.
+
+Camera choreography.
+
+Narration synchronization.
+
+Functional student interaction.
+
+Accessibility.
+
+Performance stability.
+
+Source provenance.
+
+Scientific uncertainty communication.
+
+Scientific correctness is mandatory.
+
+Functional activity validation
+is mandatory where required.
+
+Target 4/5 or higher in major
+visual-quality categories.
+
+Do not fabricate scores.
+
+Do not pass static placeholders
+as cinematic scenes.
+
+====================================================
+66. IMPLEMENTATION SEQUENCE
+====================================================
+
+PHASE A — AUDIT
+
+1. Inspect current repository.
+
+2. Inspect Modules 21–24 storyboards.
+
+3. Reconcile 29 chapters / 142 segments.
+
+4. Inspect existing four simulators.
+
+5. Verify previous cinematic infrastructure.
+
+6. Capture visual baseline.
+
+7. Confirm scientific source data.
+
+PHASE B — MODULE 21
+
+8. Implement telescope introduction.
+
+9. Implement refracting/reflecting optics.
+
+10. Implement light collection and diffraction.
+
+11. Implement ground versus space observatories.
+
+12. Implement radio interferometry.
+
+13. Implement infrared and ultraviolet views.
+
+14. Implement X-ray optics.
+
+15. Implement spectroscopy.
+
+16. Integrate telescope activity.
+
+17. Validate all eight chapters.
+
+PHASE C — MODULE 22
+
+18. Implement first satellite history.
+
+19. Implement first human spaceflight.
+
+20. Implement lunar exploration.
+
+21. Implement space station science.
+
+22. Implement Mars robotics.
+
+23. Implement outer-system probes.
+
+24. Implement space telescope missions.
+
+25. Implement mission planning.
+
+26. Integrate gravity assist activity.
+
+27. Validate all eight chapters.
+
+PHASE D — MODULE 23
+
+28. Implement life concepts.
+
+29. Implement Earth habitability.
+
+30. Implement water/chemistry/energy.
+
+31. Implement extremophiles.
+
+32. Implement Mars astrobiology.
+
+33. Implement Europa and Enceladus.
+
+34. Implement exoplanet habitability.
+
+35. Implement biosignature analysis.
+
+36. Implement SETI and technosignatures.
+
+37. Implement evidence boundaries.
+
+38. Integrate astrobiology activity.
+
+39. Validate all ten chapters.
+
+PHASE E — MODULE 24
+
+40. Implement unified scientific sandbox.
+
+41. Implement numerical methods laboratory.
+
+42. Implement graduation challenge.
+
+43. Integrate verified capstone activity.
+
+44. Audit final exam and certificate integration.
+
+45. Validate all three chapters.
+
+PHASE F — COSMOS INTEGRATION
+
+46. Map all actual narration segments.
+
+47. Integrate scientific camera choreography.
+
+48. Integrate visual annotations.
+
+49. Integrate student input gates.
+
+50. Verify interruption and restoration.
+
+51. Verify fullscreen and normal view.
+
+PHASE G — QUALITY
+
+52. Run scientific calculation tests.
+
+53. Run COSMOS integration tests.
+
+54. Run browser end-to-end tests.
+
+55. Capture visual evidence.
+
+56. Benchmark performance.
+
+57. Fix numerical and visual defects.
+
+58. Fix accessibility issues.
+
+59. Run 24-module smoke regression.
+
+60. Verify certificate security unchanged.
+
+61. Produce final documentation.
+
+62. Prepare for Prompt 15.
+
+Implement in small,
+independently verifiable increments.
+
+====================================================
+67. RECOMMENDED CODE ORGANIZATION
+====================================================
+
+Extend the existing cinematic
+scene architecture.
+
+Potential structure:
+
+src/components/academy/cinematic/scenes/
+
+module-21/
+  TelescopeIntroductionScene
+  OpticalTelescopeCutawayScene
+  DiffractionApertureScene
+  GroundSpaceObservatoryScene
+  RadioInterferometryScene
+  InfraredUltravioletScene
+  XrayObservatoryScene
+  AstronomicalSpectroscopyScene
+
+module-22/
+  EarlySatellitesScene
+  HumanSpaceflightScene
+  LunarExplorationScene
+  SpaceStationScene
+  MarsRoboticsScene
+  VoyagerTrajectoryScene
+  SpaceTelescopeMissionScene
+  InterplanetaryMissionPlannerScene
+
+module-23/
+  LifeDefinitionScene
+  EarthHabitabilityScene
+  WaterChemistryEnergyScene
+  ExtremophileScene
+  MarsAstrobiologyScene
+  OceanWorldsScene
+  ExoplanetHabitabilityScene
+  BiosignatureAnalysisScene
+  SETIObservationScene
+  EvidenceBoundaryScene
+
+module-24/
+  UnifiedCosmicPhysicsScene
+  NumericalMethodsScene
+  CosmicGraduationChallengeScene
+
+These names are recommendations.
+
+Use actual repository conventions.
+
+Do not create duplicate components
+where existing code can be extended.
+
+Reuse shared:
+
+Scientific materials.
+
+Camera controllers.
+
+Optical calculation utilities.
+
+Spacecraft assets.
+
+Orbital physics.
+
+Astronomical data.
+
+Plotting infrastructure.
+
+Cinematic cue controllers.
+
+Student activity validators.
+
+====================================================
+68. FINAL IMPLEMENTATION REPORT
+====================================================
+
+Create:
+
+docs/academy/
+cinematic-stage-6-implementation-report.md
+
+Include:
+
+A. Verified actual curriculum counts.
+
+B. Module 21 implementation results.
+
+C. Module 22 implementation results.
+
+D. Module 23 implementation results.
+
+E. Module 24 implementation results.
+
+F. Complete narration segment coverage.
+
+G. Scientific model provenance.
+
+H. Licensed asset information.
+
+I. Existing components reused.
+
+J. New cinematic components.
+
+K. Telescope physics validation.
+
+L. Mission trajectory validation.
+
+M. Astrobiology scientific review.
+
+N. Capstone activity validation.
+
+O. Final exam integrity verification.
+
+P. Certificate security verification.
+
+Q. COSMOS synchronization.
+
+R. Camera choreography.
+
+S. Fullscreen behavior.
+
+T. Accessibility.
+
+U. Visual screenshots.
+
+V. Browser test results.
+
+W. Performance benchmarks.
+
+X. Remaining defects.
+
+Y. System-wide regression results.
+
+Z. Readiness for Prompt 15.
+
+Statuses:
+
+PASS.
+
+PARTIAL.
+
+FAIL.
+
+NOT IMPLEMENTED.
+
+NOT TESTED.
+
+BLOCKED.
+
+Do not mark missing runtime tests
+as successful.
+
+====================================================
+69. CHAPTER COVERAGE MATRIX
+====================================================
+
+Produce a row for every actual
+Stage 6 instructional chapter.
+
+Required columns:
+
+Module.
+
+Chapter ID.
+
+Chapter title.
+
+Storyboard ID.
+
+Scientific objective.
+
+Implemented scene.
+
+Distinct animation beats.
+
+Narration segment IDs.
+
+Scientific model.
+
+Data source.
+
+Camera choreography.
+
+Student controls.
+
+Activity integration.
+
+Pause/resume validation.
+
+Scientific accuracy.
+
+Visual QA.
+
+Accessibility.
+
+Performance.
+
+Final status.
+
+Also provide segment-level
+cue-mapping verification.
+
+A generic background animation
+does not count as chapter completion.
+
+====================================================
+70. FINAL SUCCESS CONDITIONS
+====================================================
+
+PROMPT 14 IS COMPLETE ONLY WHEN:
+
+1. Module 21 has eight fully functioning
+   cinematic instructional chapters.
+
+2. Module 22 has eight fully functioning
+   cinematic instructional chapters.
+
+3. Module 23 has ten fully functioning
+   cinematic instructional chapters.
+
+4. Module 24 has three fully functioning
+   cinematic instructional chapters.
+
+5. All actual Stage 6 narration segments
+   have appropriate visual mappings.
+
+6. Optical simulations use valid physics.
+
+7. Telescope aperture calculations
+   are scientifically defensible.
+
+8. Radio interferometry demonstrates
+   correct baseline principles.
+
+9. Spacecraft models reflect real
+   mission designs where claimed.
+
+10. Mission dynamics use correct
+    reference frames and equations.
+
+11. Gravity assists do not violate
+    conservation laws.
+
+12. Planetary and ocean-world
+    representations disclose uncertainty.
+
+13. Astrobiology visuals distinguish
+    habitability from confirmed life.
+
+14. Biosignature activities handle
+    false positives responsibly.
+
+15. SETI activities do not invent
+    verified extraterrestrial signals.
+
+16. The cosmic physics sandbox
+    uses real supported simulations.
+
+17. Numerical integration limitations
+    are appropriately explained.
+
+18. Capstone tasks require real
+    student participation.
+
+19. Official assessment grading
+    remains authoritative.
+
+20. Certificate eligibility cannot
+    be bypassed by cinematic playback.
+
+21. COSMOS narration controls
+    the educational visual sequence.
+
+22. Voice interruptions preserve
+    learning and visual context.
+
+23. Fullscreen mode works.
+
+24. Camera controls remain stable.
+
+25. Student activities remain accessible.
+
+26. Reduced-motion alternatives work.
+
+27. Major performance regressions
+    have been corrected.
+
+28. Scientific and integration tests
+    are documented honestly.
+
+29. All actual modules have
+    valid cinematic entry points.
+
+30. The platform is ready for
+    cross-module integration
+    and refinement in Prompt 15.
+
+====================================================
+FINAL INSTRUCTION
+====================================================
+
+COMPLETE THE CINEMATIC PRODUCTION
+OF THE FULL COSMIC LEARNING CURRICULUM.
+
+THE EXPERIENCE MUST DEVELOP
+THE STUDENT'S SCIENTIFIC UNDERSTANDING
+THROUGH REAL INTERACTIVE EXPLORATION.
+
+MODULE 21 MUST FEEL LIKE
+A PROFESSIONAL MULTIWAVELENGTH OBSERVATORY.
+
+MODULE 22 MUST FEEL LIKE
+A REAL SPACE MISSION CONTROL
+AND INTERPLANETARY EXPLORATION EXPERIENCE.
+
+MODULE 23 MUST FEEL LIKE
+AN ADVANCED BUT ACCESSIBLE
+ASTROBIOLOGY RESEARCH LABORATORY.
+
+MODULE 24 MUST FEEL LIKE
+THE ULTIMATE SCIENTIFIC CAPSTONE
+CONNECTING ALL PREVIOUS LEARNING.
+
+EVERY CHAPTER MUST HAVE:
+
+DISTINCT SCIENTIFIC VISUAL STORYTELLING.
+
+HIGH-QUALITY CINEMATIC ANIMATION.
+
+REAL COSMOS NARRATION SYNCHRONIZATION.
+
+PURPOSEFUL CAMERA MOVEMENT.
+
+VALID SCIENTIFIC CALCULATIONS.
+
+WORKING STUDENT INTERACTIONS.
+
+SCIENTIFIC UNCERTAINTY DISCLOSURES.
+
+RESPONSIVE FULLSCREEN PRESENTATION.
+
+ACCESSIBLE ALTERNATIVES.
+
+MEASURED PERFORMANCE.
+
+DO NOT:
+
+Create generic spacecraft flythroughs
+unrelated to the lesson.
+
+Use fake telescope calculations.
+
+Create gravity assists from
+arbitrary velocity multipliers.
+
+Invent historical mission facts.
+
+Portray hypothetical alien organisms
+as confirmed discoveries.
+
+Confuse habitability with evidence of life.
+
+Claim biosignatures prove life
+without appropriate evidence.
+
+Treat a cinematic animation as
+verified student participation.
+
+Bypass official assessment requirements.
+
+Issue certificates through
+unverified client-side actions.
+
+Duplicate the existing learning director.
+
+Create competing physics engines.
+
+Introduce unnecessary heavy WebGL canvases.
+
+Claim completion without testing.
+
+Begin Prompt 15 automatically.
+
+Deploy irreversible production changes
+without required authorization.
+
+IMPLEMENT, SCIENTIFICALLY VALIDATE,
+TEST, OPTIMIZE AND DOCUMENT
+THE COMPLETE STAGE 6 CINEMATIC EXPERIENCE.
+
+BEGIN PROMPT 14.

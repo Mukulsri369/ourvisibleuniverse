@@ -60,10 +60,7 @@ export function ScientificSpacecraftRenderer({
   const { camera, size } = useThree();
   const assetManager = CosmosCinematicAssetManager.getInstance();
 
-  const metadata = useMemo(
-    () => assetManager.getAssetMetadata(assetId),
-    [assetManager, assetId],
-  );
+  const metadata = useMemo(() => assetManager.getAssetMetadata(assetId), [assetManager, assetId]);
 
   const loadedEntry = useMemo(
     () =>

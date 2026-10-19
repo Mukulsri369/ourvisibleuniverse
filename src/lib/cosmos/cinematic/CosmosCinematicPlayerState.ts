@@ -39,11 +39,7 @@ export type CinematicPlayerLifecycleState =
  * Never claims native fullscreen succeeded when only a CSS fallback is active.
  */
 export type CinematicFullscreenState =
-  | "INACTIVE"
-  | "REQUESTING_NATIVE"
-  | "NATIVE_FULLSCREEN"
-  | "VIEWPORT_FALLBACK"
-  | "EXITING";
+  "INACTIVE" | "REQUESTING_NATIVE" | "NATIVE_FULLSCREEN" | "VIEWPORT_FALLBACK" | "EXITING";
 
 /**
  * Dual Time System Policies (Prompt 03 Section 9)

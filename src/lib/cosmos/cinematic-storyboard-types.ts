@@ -84,9 +84,21 @@ export type RelativeScaleTreatment =
 
 export type ScientificRepresentationCategory =
   | "OBSERVATION_BASED" // Direct empirical catalog/mission data (Gaia, Hipparcos, Planck, EHT, JPL DE440)
+  | "OBSERVED_DATA" // Direct empirical cosmology/CMB/redshift data products (Planck 2018, Pantheon+, JWST)
   | "PHYSICS_BASED_SIMULATION" // Numerical/analytical physical laws (Vis-viva, Planck blackbody, Virial, Friedmann)
+  | "NUMERICAL_SCIENTIFIC_MODEL" // Coupled FLRW expansion, BBN nuclear network, or MESA stellar evolution track
   | "SCALE_ADJUSTED_EDUCATIONAL_MODEL" // Radii or time rates explicitly exaggerated for human comprehension with disclosure
-  | "ARTISTIC_SCIENTIFIC_RECONSTRUCTION"; // Unresolved surfaces/epochs reconstructed within physical bounds
+  | "EDUCATIONAL_APPROXIMATION" // Idealized comoving coordinate grid or pedagogical physical schematic
+  | "ARTISTIC_SCIENTIFIC_RECONSTRUCTION" // Unresolved surfaces/epochs reconstructed within physical bounds
+  | "HISTORICAL_RECONSTRUCTION" // Attributed historical astronomical models and instruments (Ptolemy, Aryabhata, Copernicus, Galileo)
+  | "SPECULATIVE_FUTURE_SCENARIO" // Conditional deep-time projections (Heat Death, Big Rip w < -1, Big Crunch, Proton Decay hypothesis)
+  | "RECONSTRUCTED_FROM_INTERNAL_OBSERVATIONS" // Milky Way structure inferred from inside the disk via Gaia/VLBI/HI/CO
+  | "FALSE_COLOR_MULTIWAVELENGTH_OVERLAY" // Composite X-ray + optical + weak-lensing overlays (e.g., Bullet Cluster)
+  | "NUMERICAL_SIMULATION" // Cosmological N-body & hydrodynamic structure formation simulations (IllustrisTNG/Millennium)
+  | "INFERRED_PHYSICAL_MODEL" // Dark matter halo models inferred from kinematics, lensing, and CMB
+  | "OBSERVATION_AND_MODEL_COMPARISON" // Empirical observations compared against competing theoretical models
+  | "MATHEMATICAL_COSMOLOGICAL_MODEL"; // FLRW metric / equation-of-state w(a) parameterization without fluid reification
+
 
 export type SceneInteractivityMode =
   | "PASSIVE_EXPLANATION"
@@ -242,7 +254,12 @@ export interface ChapterStoryboard {
   visualStyle: CinematicVisualStylePreset;
   cameraPreset: CinematicCameraType;
   lightingPreset: {
-    keyLightType: "solar_directional_5772K" | "stellar_point_blackbody" | "nebular_emissive" | "cosmological_ambient" | "instrument_studio";
+    keyLightType:
+      | "solar_directional_5772K"
+      | "stellar_point_blackbody"
+      | "nebular_emissive"
+      | "cosmological_ambient"
+      | "instrument_studio";
     exposure: number;
     toneMapping: "aces_filmic" | "agx" | "neutral";
     bloomThreshold: number;
@@ -280,9 +297,7 @@ export interface ChapterStoryboard {
 // ============================================================================
 
 export type FullscreenViewportMode =
-  | "inline_embedded"
-  | "native_browser_fullscreen"
-  | "css_fixed_viewport_fallback";
+  "inline_embedded" | "native_browser_fullscreen" | "css_fixed_viewport_fallback";
 
 export type CinematicPlaybackPhase =
   | "IDLE"
@@ -383,7 +398,9 @@ export function validateChapterStoryboard(
       errors.push(`Storyboard ${storyboard.storyboardId} contains a beat without beatId.`);
     }
     if (beat.narrationSegmentIds.length === 0) {
-      warnings.push(`Beat ${beat.beatId} in ${storyboard.storyboardId} has no narrationSegmentIds.`);
+      warnings.push(
+        `Beat ${beat.beatId} in ${storyboard.storyboardId} has no narrationSegmentIds.`,
+      );
     }
     for (const segId of beat.narrationSegmentIds) {
       mappedSegments.add(segId);

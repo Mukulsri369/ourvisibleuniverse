@@ -150,8 +150,7 @@ export async function issueOfficialCertificateServer(
       completedModuleCount = Math.max(completedModuleCount, legacyCount ?? 0);
     }
 
-    const hasAllModules =
-      completedModuleCount >= CERTIFICATE_CONSTANTS.TOTAL_MODULES_REQUIRED;
+    const hasAllModules = completedModuleCount >= CERTIFICATE_CONSTANTS.TOTAL_MODULES_REQUIRED;
 
     // Check latest passed final exam attempt (canonical assessment_id: cosmic_explorer_final_exam, with fallback to module_id = exam)
     let latestExam: any = null;

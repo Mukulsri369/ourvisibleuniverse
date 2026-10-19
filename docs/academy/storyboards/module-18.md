@@ -210,3 +210,16 @@ Space was exactly half as big as it is today! | `planetary_orbital_shot` in `com
 - **Performance & Quality Gate**: Max Draw Calls $\le 35$, Max Particles $= 6000$ (High) / $1500$ (Low-Power), Rubric Score: **5.0 / 5.0 (Approved)**.
 
 ---
+
+## Stage 5 Prompt 13 — Authoritative 3D Scene & Epistemic Audit (`CosmosStage5Manifest.ts`)
+
+| Chapter ID | 3D Scene Component ID | Representation Category | Epistemic Classification & Physical Equations |
+| :--- | :--- | :--- | :--- |
+| **`m18-l1`** | `m18_ch1_dark_ages_21cm` | `NUMERICAL_SCIENTIFIC_MODEL` | **Cosmic Dark Ages & 21-cm Spin-Flip**: $z \approx 1090 \to 30$, rest frequency $\nu_0 = 1420.40575\text{ MHz}$ ($\lambda_0 = 21.106\text{ cm}$, $\Delta E = 5.87\ \mu\text{eV}$) redshifted to low-frequency radio $\nu_{\text{obs}} = \nu_0 / (1+z)$. |
+| **`m18-l2`** | `m18_ch2_cosmic_dawn_pop_iii` | `NUMERICAL_SCIENTIFIC_MODEL` | **Population III First Stars**: Zero-metallicity ($Z = 0$) gas cooled by $\text{H}_2$ at $T \approx 200\text{ K}$ yields high Jeans mass ($10\text{–}300\ M_\odot$); $140\text{–}260\ M_\odot$ stars explode as Pair-Instability Supernovae. |
+| **`m18-l3`** | `m18_ch3_reionization_bubbles` | `NUMERICAL_SCIENTIFIC_MODEL` | **Epoch of Reionization**: Expanding UV ($\ge 13.6\text{ eV}$) H II bubbles carve a Swiss-cheese topology through the neutral IGM between $z \approx 15$ and $z \approx 6$ ($t \approx 1\text{ Gyr}$). |
+| **`m18-l4`** | `m18_ch4_first_galaxies_jwst` | `OBSERVED_DATA` | **First Galaxies & JWST Frontier**: Hierarchical dark matter minihalo assembly and Lyman-break galaxies observed by JWST NIRCam/NIRSpec up to $z \approx 14.32$ (JADES-GS-z14-0). |
+| **`m18-l5`** | `m18_ch5_cosmic_noon_starburst` | `OBSERVED_DATA` | **Cosmic Noon ($z \approx 2$)**: Madau–Lilly star formation rate density $\psi(z)$ peaks $\sim 10\text{ Gyr}$ ago at $\sim 10\times$ today's rate, regulated by SMBH AGN feedback. |
+| **`m18-l6`** | `m18_ch6_solar_system_birth_9gyr` | `NUMERICAL_SCIENTIFIC_MODEL` | **Solar System Birth ($t \approx 9.2\text{ Gyr}$)**: Collapse of a Population I presolar nebula ($Z_\odot \approx 0.0142$) $4.567\text{ Gyr}$ ago ($z \approx 0.45$) after $67\%$ of cosmic history had elapsed. |
+| **`m18-l7`** | `m18_ch7_cosmic_calendar_365` | `EDUCATIONAL_APPROXIMATION` | **Carl Sagan's 365-Day Cosmic Calendar**: $13.8\text{ Gyr} \to 365\text{ days}$ ($1\text{ day} \approx 37.8\text{ Myr}$, $1\text{ s} \approx 437.5\text{ yr}$); Solar System forms Sept 2 (Day 245); recorded history occupies the last $14\text{ s}$. |
+| **`m18-l8`** | `m18_ch8_cosmic_history_synthesis` | `OBSERVED_DATA` | **13.8-Gyr Matter Cycle Synthesis**: Unbroken causal chain from BBN protons/helium to stellar nucleosynthesis, planetary accretion, and biological observers. |

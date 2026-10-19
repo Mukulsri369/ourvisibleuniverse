@@ -277,8 +277,7 @@ export class CosmosAssetLoader {
     });
 
     const lodSpec =
-      record.availableLODLevels.find((l) => l.lodId === lodLevel) ||
-      record.availableLODLevels[0];
+      record.availableLODLevels.find((l) => l.lodId === lodLevel) || record.availableLODLevels[0];
     const reportedTriangles = Math.max(triangleCount, lodSpec?.triangleCount ?? triangleCount);
     const decodeTimeMs = Math.max(0.05, performance.now() - t0);
 
@@ -327,11 +326,7 @@ export class CosmosAssetLoader {
       for (let i = 0; i < 12; i++) {
         const a = (i / 12) * Math.PI * 2;
         const seg = new THREE.Mesh(hexGeom, goldMat);
-        seg.position.set(
-          Math.cos(a) * ring2Radius,
-          Math.sin(a) * ring2Radius,
-          -0.04,
-        );
+        seg.position.set(Math.cos(a) * ring2Radius, Math.sin(a) * ring2Radius, -0.04);
         primaryMirrorGroup.add(seg);
       }
     }
@@ -512,7 +507,11 @@ export class CosmosAssetLoader {
     const struts = new THREE.Group();
     struts.name = "landing_struts";
     const strutGeom = new THREE.CylinderGeometry(0.04, 0.04, 0.95, Math.max(8, segDetail / 2));
-    const strutMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.8, roughness: 0.3 });
+    const strutMat = new THREE.MeshStandardMaterial({
+      color: 0x94a3b8,
+      metalness: 0.8,
+      roughness: 0.3,
+    });
     const offsets = [
       [-0.65, -0.5, -0.65],
       [0.65, -0.5, -0.65],
@@ -562,20 +561,14 @@ export class CosmosAssetLoader {
       metalness: 0.98,
       roughness: 0.04,
     });
-    const primary = new THREE.Mesh(
-      new THREE.RingGeometry(0.14, 0.64, segDetail),
-      mirrorMat,
-    );
+    const primary = new THREE.Mesh(new THREE.RingGeometry(0.14, 0.64, segDetail), mirrorMat);
     primary.name = "primary_mirror";
     primary.rotation.y = Math.PI / 2;
     primary.position.set(-0.95, 0, 0);
     root.add(primary);
     nodeMap.set("primary_mirror", primary);
 
-    const secondary = new THREE.Mesh(
-      new THREE.CircleGeometry(0.2, segDetail),
-      mirrorMat,
-    );
+    const secondary = new THREE.Mesh(new THREE.CircleGeometry(0.2, segDetail), mirrorMat);
     secondary.name = "secondary_mirror";
     secondary.rotation.y = -Math.PI / 2;
     secondary.position.set(0.78, 0, 0);
@@ -611,10 +604,7 @@ export class CosmosAssetLoader {
 
       // Spinning-top equatorial bulge + boulder roughness
       const equatorialRidge = 1.0 + 0.22 * Math.pow(Math.cos(lat * 1.6), 4);
-      const boulder =
-        1.0 +
-        0.06 * Math.sin(lon * 5 + lat * 4) +
-        0.04 * Math.cos(lon * 9 - lat * 7);
+      const boulder = 1.0 + 0.06 * Math.sin(lon * 5 + lat * 4) + 0.04 * Math.cos(lon * 9 - lat * 7);
       const scale = equatorialRidge * boulder;
 
       pos.setXYZ(i, x * scale, y * 0.92 * boulder, z * scale);

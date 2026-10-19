@@ -88,7 +88,11 @@ export class CosmosAttentionController {
     }
 
     // 4. Universal text-snippet fallback across all 24 module layouts
-    if (matchedElements.length === 0 && target.displayText && target.displayText.trim().length > 8) {
+    if (
+      matchedElements.length === 0 &&
+      target.displayText &&
+      target.displayText.trim().length > 8
+    ) {
       const snippet = target.displayText.trim().slice(0, 36).toLowerCase();
       const textNodes = document.querySelectorAll(
         "main p, main li, main h2, main h3, main h4, main blockquote, section p, section li, section h2, section h3, section h4",

@@ -112,7 +112,7 @@ export function EarthAtmosphereScene({
       const heightOffset = -Math.log(u) * 0.16; // Smooth exponential tail into exosphere
       const r = 1.66 + Math.min(1.6, heightOffset);
       const theta = ((i * 1.6180339) % 1) * Math.PI * 2;
-      const phi = Math.acos(1 - 2 * (((i * 0.754877) % 1)));
+      const phi = Math.acos(1 - 2 * ((i * 0.754877) % 1));
 
       pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i * 3 + 1] = r * Math.cos(phi);
@@ -274,7 +274,14 @@ export function EarthHomeScene({
   // Generate dipolar magnetic field lines B(r, θ) = B_0 sin²(θ)
   const dipoleLines = useMemo(() => {
     const curves: [number, number, number][][] = [];
-    const azimuths = [0, Math.PI / 3, (2 * Math.PI) / 3, Math.PI, (4 * Math.PI) / 3, (5 * Math.PI) / 3];
+    const azimuths = [
+      0,
+      Math.PI / 3,
+      (2 * Math.PI) / 3,
+      Math.PI,
+      (4 * Math.PI) / 3,
+      (5 * Math.PI) / 3,
+    ];
     for (const phi of azimuths) {
       for (const lShell of [2.6, 3.6]) {
         const pts: [number, number, number][] = [];
@@ -569,12 +576,7 @@ export function EarthMoonScene({
         <group position={[0, 0, 0]} rotation={[0.35, 0, 0.15]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
             <ringGeometry args={[earthRadius * 1.35, earthRadius * 2.25, 64]} />
-            <meshBasicMaterial
-              color="#f97316"
-              side={THREE.DoubleSide}
-              transparent
-              opacity={0.52}
-            />
+            <meshBasicMaterial color="#f97316" side={THREE.DoubleSide} transparent opacity={0.52} />
           </mesh>
         </group>
       )}
@@ -717,7 +719,14 @@ export function SolarSystemScaleScene({
       {/* 1.00 AU Golden Caliper & Locate Earth Beacon */}
       {locateEarthBeacon && (
         <group>
-          <Line points={[[0, 0.1, 0], [earthPos[0], 0.1, earthPos[2]]]} color="#fbbf24" lineWidth={2.2} />
+          <Line
+            points={[
+              [0, 0.1, 0],
+              [earthPos[0], 0.1, earthPos[2]],
+            ]}
+            color="#fbbf24"
+            lineWidth={2.2}
+          />
           <mesh position={[earthPos[0], 0.42, earthPos[2]]} rotation={[Math.PI / 2, 0, 0]}>
             <ringGeometry args={[0.28, 0.38, 32]} />
             <meshBasicMaterial color="#22d3ee" side={THREE.DoubleSide} />
@@ -744,12 +753,7 @@ export function SolarSystemScaleScene({
       {showSunlightWavefront && (
         <mesh rotation={[Math.PI / 2, 0, 0]}>
           <ringGeometry args={[wavefrontRadius, wavefrontRadius + 0.08, 64]} />
-          <meshBasicMaterial
-            color="#fef08a"
-            side={THREE.DoubleSide}
-            transparent
-            opacity={0.48}
-          />
+          <meshBasicMaterial color="#fef08a" side={THREE.DoubleSide} transparent opacity={0.48} />
         </mesh>
       )}
     </group>
@@ -848,7 +852,14 @@ export function MilkyWayJourneyScene({
       )}
 
       {/* Orion–Cygnus Spur Solar System Beacon & R_0 Caliper Line */}
-      <Line points={[[0, 0.05, 0], [sunPos[0], 0.05, sunPos[2]]]} color="#22d3ee" lineWidth={1.8} />
+      <Line
+        points={[
+          [0, 0.05, 0],
+          [sunPos[0], 0.05, sunPos[2]],
+        ]}
+        color="#22d3ee"
+        lineWidth={1.8}
+      />
       <group
         position={sunPos}
         onClick={(e) => {
@@ -913,9 +924,9 @@ export function ObservableUniverseScene({
       const next = nodes[(i + 3) % nodes.length];
       const u = ((i * 4999) % 1000) / 1000;
       const spread = 0.25;
-      inPos[i * 3] = THREE.MathUtils.lerp(node[0], next[0], u) + (Math.sin(i) * spread);
-      inPos[i * 3 + 1] = THREE.MathUtils.lerp(node[1], next[1], u) + (Math.cos(i) * spread);
-      inPos[i * 3 + 2] = THREE.MathUtils.lerp(node[2], next[2], u) + (Math.sin(i * 1.7) * spread);
+      inPos[i * 3] = THREE.MathUtils.lerp(node[0], next[0], u) + Math.sin(i) * spread;
+      inPos[i * 3 + 1] = THREE.MathUtils.lerp(node[1], next[1], u) + Math.cos(i) * spread;
+      inPos[i * 3 + 2] = THREE.MathUtils.lerp(node[2], next[2], u) + Math.sin(i * 1.7) * spread;
     }
 
     // Filaments continuing beyond the 46.5 Gly Particle Horizon (r = 5.6..8.2)

@@ -136,7 +136,9 @@ async function runCinematicPlayerValidation() {
   // --------------------------------------------------------------------------
   // 3. SCENARIO A: Open Module 01, Enter Cinematic Mode, Native Fullscreen vs Fallback, Pause/Resume & Exit
   // --------------------------------------------------------------------------
-  console.log("\n3. Scenario A — Module 01 Enter Cinematic Mode, Native Fullscreen & State Restoration:");
+  console.log(
+    "\n3. Scenario A — Module 01 Enter Cinematic Mode, Native Fullscreen & State Restoration:",
+  );
   const mockFullscreenContainer: any = {
     requestFullscreen: async () => Promise.resolve(),
   };
@@ -156,8 +158,7 @@ async function runCinematicPlayerValidation() {
     "Authorized container element with requestFullscreen() enters NATIVE_FULLSCREEN",
   );
   assert(
-    snap01.currentModuleId === "01" &&
-      snap01.currentSceneId === "m01_cosmic_zoom_hierarchy",
+    snap01.currentModuleId === "01" && snap01.currentSceneId === "m01_cosmic_zoom_hierarchy",
     "Module 01 loads m01_cosmic_zoom_hierarchy scene",
   );
   assert(
@@ -200,7 +201,8 @@ async function runCinematicPlayerValidation() {
   // --------------------------------------------------------------------------
   console.log("\n4. Scenario F — Native Fullscreen Permission Denied & Fallback Mode:");
   const rejectingContainer: any = {
-    requestFullscreen: async () => Promise.reject(new Error("Fullscreen permission denied by user")),
+    requestFullscreen: async () =>
+      Promise.reject(new Error("Fullscreen permission denied by user")),
   };
 
   const fallbackRes = await bridge.enterCinematicMode({
@@ -226,7 +228,9 @@ async function runCinematicPlayerValidation() {
   // --------------------------------------------------------------------------
   // 5. SCENARIO B & D: Module 14 Black Holes, Scientific Annotations & Voice/Text Interruption
   // --------------------------------------------------------------------------
-  console.log("\n5. Scenarios B & D — Module 14 Black Holes, Annotations & Context-Preserving Q&A Interruption:");
+  console.log(
+    "\n5. Scenarios B & D — Module 14 Black Holes, Annotations & Context-Preserving Q&A Interruption:",
+  );
   await bridge.enterCinematicMode({
     moduleId: "14",
     moduleTitle: "Black Holes & Neutron Stars",
@@ -311,15 +315,16 @@ async function runCinematicPlayerValidation() {
 
   const canSkipActivity = await bridge.nextEligibleStep();
   assert(
-    canSkipActivity === false &&
-      director.getSnapshot().currentStepIndex === activityStepIdx,
+    canSkipActivity === false && director.getSnapshot().currentStepIndex === activityStepIdx,
     "nextEligibleStep() refuses to skip an unresolved required activity step",
   );
 
   // --------------------------------------------------------------------------
   // 7. Camera Control Actions, Quality Manager Hysteresis & Error Recovery (Scenario G)
   // --------------------------------------------------------------------------
-  console.log("\n7. Camera Commands, Quality Governor Hysteresis & Scene Error Recovery (Scenario G):");
+  console.log(
+    "\n7. Camera Commands, Quality Governor Hysteresis & Scene Error Recovery (Scenario G):",
+  );
   let receivedCamCmd: string | null = null;
   const unsubCam = bridge.subscribeCameraCommands((cmd) => {
     receivedCamCmd = cmd.action;
@@ -371,11 +376,13 @@ async function runCinematicPlayerValidation() {
   );
 
   // Scenario G: Simulate WebGL context lost / scene error and verify recovery
-  bridge.getStateManager().recordError(
-    "WEBGL_CONTEXT_LOST",
-    "Simulated WebGL context loss during validation",
-    { recoverable: true, fallbackAvailable: true, enterErrorState: true },
-  );
+  bridge
+    .getStateManager()
+    .recordError("WEBGL_CONTEXT_LOST", "Simulated WebGL context loss during validation", {
+      recoverable: true,
+      fallbackAvailable: true,
+      enterErrorState: true,
+    });
   assert(
     bridge.getStateManager().getSnapshot().playerState === "ERROR" &&
       bridge.getStateManager().getSnapshot().currentModuleId === "08",
@@ -411,7 +418,8 @@ async function runCinematicPlayerValidation() {
         id: "m08-q1",
         moduleId: "08",
         questionNumber: 1,
-        questionText: "According to Kepler's Second Law, when does a planet move fastest in an elliptical orbit?",
+        questionText:
+          "According to Kepler's Second Law, when does a planet move fastest in an elliptical orbit?",
         questionType: "multiple_choice",
         difficulty: "medium",
         points: 10,
@@ -496,9 +504,7 @@ async function runCinematicPlayerValidation() {
   director.pauseSession();
 
   console.log("\n======================================================================");
-  console.log(
-    `VALIDATION SUMMARY: ${summary.passed} PASSED, ${summary.failed} FAILED`,
-  );
+  console.log(`VALIDATION SUMMARY: ${summary.passed} PASSED, ${summary.failed} FAILED`);
   console.log("======================================================================");
 
   if (summary.failed > 0) {
