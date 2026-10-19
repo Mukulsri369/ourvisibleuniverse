@@ -24,6 +24,9 @@ import { CosmosConversationManager } from "./CosmosConversationManager";
 import { CosmosLearningSessionManager } from "./CosmosLearningSessionManager";
 import { CosmosStepSequenceGenerator } from "./CosmosStepSequenceGenerator";
 import { LearningPreferenceManager } from "./LearningPreferenceManager";
+import { CosmosActivityGuide } from "./CosmosActivityGuide";
+import { CosmosQuizGuide } from "./CosmosQuizGuide";
+import { VoiceCommandProcessor } from "./VoiceCommandProcessor";
 import type {
   CosmosAnswer,
   CosmosLanguage,
@@ -32,9 +35,11 @@ import type {
   NarrationState,
 } from "./cosmos-types";
 import type {
+  ActivityStateRecord,
   DirectorStateSnapshot,
   DirectorSubscriber,
   GuidedLearningState,
+  GuidedQuizSessionState,
   LearningStep,
 } from "./learning-director-types";
 
@@ -62,6 +67,8 @@ export class CosmosLearningDirector {
   private lessonNavigator: CosmosLessonNavigator;
   private inputCoordinator: CosmosInputCoordinator;
   private conversationManager: CosmosConversationManager;
+  private activityGuide: CosmosActivityGuide;
+  private quizGuide: CosmosQuizGuide;
 
   // Active narration & highlight tracking
   private activeSegmentId: string | null = null;
@@ -70,6 +77,10 @@ export class CosmosLearningDirector {
   private isUserScrolledAway = false;
   private lastQuestionAnswer: CosmosAnswer | null = null;
   private errorMessage?: string;
+
+  // Phase 2 Activity & Quiz tracking
+  private activeActivityState: ActivityStateRecord | null = null;
+  private activeQuizState: GuidedQuizSessionState | null = null;
 
   // Interruption return point
   private preInterruptionState: GuidedLearningState = "EXPLAINING";
@@ -90,6 +101,58 @@ export class CosmosLearningDirector {
     this.lessonNavigator = CosmosLessonNavigator.getInstance();
     this.inputCoordinator = CosmosInputCoordinator.getInstance();
     this.conversationManager = CosmosConversationManager.getInstance();
+    this.activityGuide = CosmosActivityGuide.getInstance();
+    this.quizGuide = CosmosQuizGuide.getInstance();
+
+    // Wire Phase 2 Activity Guide callbacks
+    this.activityGuide.bindDirectorCallbacks({
+      onTransitionDirectorState: (newState) => {
+        this.transitionState(newState);
+        this.notifySubscribers();
+      },
+      onSpeakPrompt: async (spokenText, displayText) => {
+        await this.speakTutorPrompt(spokenText, displayText);
+      },
+      onActivityValidatedAndCompleted: (state) => {
+        this.activeActivityState = state;
+        const currentStep = this.getCurrentStep();
+        if (currentStep && currentStep.stepType === "ACTIVITY") {
+          currentStep.stepStatus = "completed";
+        }
+        this.errorMessage = undefined;
+        this.persistCurrentSession();
+        this.notifySubscribers();
+      },
+      onStateUpdated: (state) => {
+        this.activeActivityState = state;
+        this.notifySubscribers();
+      },
+    });
+
+    // Wire Phase 2 Quiz Guide callbacks
+    this.quizGuide.bindDirectorCallbacks({
+      onTransitionDirectorState: (newState) => {
+        this.transitionState(newState);
+        this.notifySubscribers();
+      },
+      onSpeakPrompt: async (spokenText, displayText) => {
+        await this.speakTutorPrompt(spokenText, displayText);
+      },
+      onQuizPassedAndVerified: () => {
+        const currentStep = this.getCurrentStep();
+        if (currentStep && currentStep.stepType === "KNOWLEDGE_CHECK") {
+          currentStep.stepStatus = "completed";
+        }
+        this.transitionState("VERIFYING_REQUIREMENTS");
+        this.errorMessage = undefined;
+        this.persistCurrentSession();
+        this.notifySubscribers();
+      },
+      onQuizStateUpdated: (state) => {
+        this.activeQuizState = state;
+        this.notifySubscribers();
+      },
+    });
 
     // 2. Wire narration events
     this.subscribeToNarration();
@@ -189,11 +252,20 @@ export class CosmosLearningDirector {
         await this.narrationController.play();
       }
     } else {
-      // Step without narration (e.g. Activity or Quiz awaiting student input)
+      // Phase 2 Interactive Activity or Quiz Step orchestration
       if (currentStep.stepType === "ACTIVITY") {
-        this.transitionState("WAITING_FOR_ACTIVITY");
-      } else if (currentStep.stepType === "KNOWLEDGE_CHECK") {
-        this.transitionState("WAITING_FOR_ANSWER");
+        this.activeActivityState = await this.activityGuide.startGuidedActivity(
+          this.moduleId,
+          `#${currentStep.targetComponentId}`,
+        );
+      } else if (
+        currentStep.stepType === "KNOWLEDGE_CHECK" ||
+        currentStep.stepType === "PRACTICE_QUESTION"
+      ) {
+        this.activeQuizState = await this.quizGuide.startGuidedQuiz(
+          this.moduleId,
+          `#${currentStep.targetComponentId}`,
+        );
       } else {
         this.transitionState("WAITING_FOR_STUDENT");
       }
@@ -278,10 +350,135 @@ export class CosmosLearningDirector {
   }
 
   /**
-   * Handles student voice or typed question during guided learning.
-   * Pauses current narration, captures context, answers, and resumes.
+   * Handles student voice or typed input during guided learning.
+   * First checks for Phase 2 quiz answer / activity commands, then falls back to contextual Q&A.
    */
   public async handleStudentQuestion(question: string): Promise<CosmosAnswer> {
+    const trimmed = (question || "").trim();
+
+    // 0. Check if we are in a Quiz state and the student spoke/typed an option or confirmation
+    const isQuizActive =
+      this.state === "NAVIGATING_TO_QUIZ" ||
+      this.state === "READING_QUESTION" ||
+      this.state === "WAITING_FOR_ANSWER" ||
+      this.state === "CONFIRMING_ANSWER" ||
+      this.getCurrentStep()?.stepType === "KNOWLEDGE_CHECK";
+
+    const cmdMatch = VoiceCommandProcessor.matchCommand(trimmed);
+
+    if (isQuizActive) {
+      if (cmdMatch.isCommand && cmdMatch.commandType === "confirm_answer") {
+        await this.quizGuide.confirmActiveAnswer();
+        const confirmAns: CosmosAnswer = {
+          answerText: "Confirmed your selected answer.",
+          epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
+          learningLevelAdapted: this.learningLevel,
+        };
+        this.lastQuestionAnswer = confirmAns;
+        this.notifySubscribers();
+        return confirmAns;
+      }
+
+      if (cmdMatch.isCommand && cmdMatch.commandType === "request_hint") {
+        const hintText = await this.quizGuide.requestQuestionHint();
+        const hintAns: CosmosAnswer = {
+          answerText: hintText,
+          epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
+          learningLevelAdapted: this.learningLevel,
+        };
+        this.lastQuestionAnswer = hintAns;
+        this.notifySubscribers();
+        return hintAns;
+      }
+
+      const spokenOptionIdx =
+        cmdMatch.optionIndex !== undefined
+          ? cmdMatch.optionIndex
+          : this.quizGuide.parseSpokenOptionChoice(trimmed);
+
+      if (spokenOptionIdx !== null && spokenOptionIdx !== undefined) {
+        await this.quizGuide.selectOptionForActiveQuestion(spokenOptionIdx, "voice");
+        const letter = String.fromCharCode(65 + spokenOptionIdx);
+        const choiceAns: CosmosAnswer = {
+          answerText: `Selected Option ${letter}. Say "Confirm" or click Confirm Selection to lock in your choice.`,
+          epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
+          learningLevelAdapted: this.learningLevel,
+        };
+        this.lastQuestionAnswer = choiceAns;
+        this.notifySubscribers();
+        return choiceAns;
+      }
+    }
+
+    // Check if we are in an Activity state and the student requested a hint, demonstration, or verification
+    const isActivityActive =
+      this.state === "NAVIGATING_TO_ACTIVITY" ||
+      this.state === "EXPLAINING_ACTIVITY" ||
+      this.state === "WAITING_FOR_ACTIVITY" ||
+      this.state === "REVIEWING_ACTIVITY" ||
+      this.getCurrentStep()?.stepType === "ACTIVITY";
+
+    if (isActivityActive && cmdMatch.isCommand) {
+      if (cmdMatch.commandType === "request_hint") {
+        const helpText = await this.activityGuide.provideContextualHelp(this.moduleId);
+        const helpAns: CosmosAnswer = {
+          answerText: helpText,
+          epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
+          learningLevelAdapted: this.learningLevel,
+        };
+        this.lastQuestionAnswer = helpAns;
+        this.notifySubscribers();
+        return helpAns;
+      }
+      if (cmdMatch.commandType === "demonstrate_control") {
+        const demoText = await this.activityGuide.demonstrateActiveControl(this.moduleId);
+        const demoAns: CosmosAnswer = {
+          answerText: demoText,
+          epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
+          learningLevelAdapted: this.learningLevel,
+        };
+        this.lastQuestionAnswer = demoAns;
+        this.notifySubscribers();
+        return demoAns;
+      }
+      if (cmdMatch.commandType === "verify_activity") {
+        const verResult = await this.activityGuide.verifyAndCompleteActivity(this.moduleId);
+        const verAns: CosmosAnswer = {
+          answerText: verResult.reason,
+          epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
+          learningLevelAdapted: this.learningLevel,
+        };
+        this.lastQuestionAnswer = verAns;
+        this.notifySubscribers();
+        return verAns;
+      }
+      if (cmdMatch.commandType === "reset_activity") {
+        this.activityGuide.resetActivity(this.moduleId);
+        const resetAns: CosmosAnswer = {
+          answerText: "Activity restored to initial parameters.",
+          epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
+          learningLevelAdapted: this.learningLevel,
+        };
+        this.lastQuestionAnswer = resetAns;
+        this.notifySubscribers();
+        return resetAns;
+      }
+    }
+
     // 1. Capture pre-interruption state
     this.preInterruptionState = this.state;
     this.preInterruptionStepIndex = this.currentStepIndex;
@@ -309,7 +506,7 @@ export class CosmosLearningDirector {
       currentVisualization: currentSegment?.visualizationReference,
     });
 
-    this.lastAnswer = answer;
+    this.lastQuestionAnswer = answer;
     this.notifySubscribers();
 
     return answer;
@@ -326,9 +523,93 @@ export class CosmosLearningDirector {
     this.currentStepIndex = this.preInterruptionStepIndex;
     this.narrationController.seekSegment(this.preInterruptionSegmentIndex);
 
+    const step = this.getCurrentStep();
+    if (step?.stepType === "ACTIVITY" && step.stepStatus !== "completed") {
+      this.transitionState("WAITING_FOR_ACTIVITY");
+      this.notifySubscribers();
+      return;
+    }
+    if (step?.stepType === "KNOWLEDGE_CHECK" && step.stepStatus !== "completed") {
+      this.transitionState("WAITING_FOR_ANSWER");
+      this.notifySubscribers();
+      return;
+    }
+
     this.transitionState("EXPLAINING");
     await this.narrationController.play();
     this.notifySubscribers();
+  }
+
+  /**
+   * Speaks a Phase 2 Activity or Quiz prompt clearly via Web Speech synthesis (unless muted/text-only).
+   */
+  private async speakTutorPrompt(spokenText: string, displayText?: string): Promise<void> {
+    this.activeHighlightedText = displayText || spokenText;
+    this.notifySubscribers();
+
+    const prefs = LearningPreferenceManager.getPreferences();
+    if (prefs.textOnlyMode) return;
+
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(spokenText);
+        utterance.rate = prefs.preferredVoiceSpeed || 1.0;
+        window.speechSynthesis.speak(utterance);
+      } catch {
+        // Ignore speech synthesis errors in headless environments
+      }
+    }
+  }
+
+  /**
+   * Phase 2 Public Coordination Methods for Activities & Assessments
+   */
+  public getActivityGuide(): CosmosActivityGuide {
+    return this.activityGuide;
+  }
+
+  public getQuizGuide(): CosmosQuizGuide {
+    return this.quizGuide;
+  }
+
+  public async reportActivityInteraction(
+    actionName: string,
+    parameters: Record<string, unknown> = {},
+    moduleIdOverride?: string,
+  ): Promise<void> {
+    const targetModule = moduleIdOverride || this.moduleId;
+    await this.activityGuide.handleStudentActivityInteraction(targetModule, actionName, parameters);
+  }
+
+  public async verifyActiveActivity(
+    overridePayload?: Record<string, unknown>,
+  ): Promise<{ isValid: boolean; reason: string }> {
+    return this.activityGuide.verifyAndCompleteActivity(this.moduleId, overridePayload);
+  }
+
+  public async selectQuizOption(
+    optionIndex: number,
+    source: "voice" | "ui" = "ui",
+  ): Promise<boolean> {
+    return this.quizGuide.selectOptionForActiveQuestion(optionIndex, source);
+  }
+
+  public async confirmQuizAnswer(): Promise<void> {
+    await this.quizGuide.confirmActiveAnswer();
+  }
+
+  public async requestStepHint(): Promise<string> {
+    const step = this.getCurrentStep();
+    if (
+      step?.stepType === "KNOWLEDGE_CHECK" ||
+      this.state === "WAITING_FOR_ANSWER" ||
+      this.state === "CONFIRMING_ANSWER" ||
+      this.state === "READING_QUESTION"
+    ) {
+      return this.quizGuide.requestQuestionHint();
+    }
+    return this.activityGuide.provideContextualHelp(this.moduleId);
   }
 
   /**
@@ -446,8 +727,11 @@ export class CosmosLearningDirector {
       learningLevel: this.learningLevel,
       speechSpeed: narState.speechSpeed,
       language: this.language,
-      lastQuestionAnswer: this.lastAnswer,
+      lastQuestionAnswer: this.lastQuestionAnswer,
       errorMessage: this.errorMessage,
+      activeActivityState:
+        this.activeActivityState || this.activityGuide.getActivityState(this.moduleId),
+      activeQuizState: this.activeQuizState || this.quizGuide.getSessionState(),
     };
   }
 

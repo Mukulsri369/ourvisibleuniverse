@@ -63,10 +63,7 @@ export const LEARNING_STEP_TYPES = [
 export type LearningStepType = (typeof LEARNING_STEP_TYPES)[number];
 
 export type StepRecoveryBehavior =
-  | "resume_current"
-  | "restart_step"
-  | "skip_eligible"
-  | "wait_for_input";
+  "resume_current" | "restart_step" | "skip_eligible" | "wait_for_input";
 
 export type StepStatus = "pending" | "in_progress" | "completed" | "skipped" | "failed";
 
@@ -155,6 +152,99 @@ export interface TabSwitchEvent {
 export type TabSwitchHandler = (event: TabSwitchEvent) => void | Promise<void>;
 
 // ============================================================================
+// PHASE 2: INTERACTIVE ACTIVITY ADAPTER & QUIZ GUIDE CONTRACTS
+// ============================================================================
+
+export const ACTIVITY_STATES = [
+  "NOT_STARTED",
+  "READY",
+  "ACTIVE",
+  "WAITING_FOR_STUDENT",
+  "CHECKING_RESULT",
+  "COMPLETED",
+  "NEEDS_RETRY",
+  "UNAVAILABLE",
+] as const;
+
+export type ActivityStatus = (typeof ACTIVITY_STATES)[number];
+
+export type ActivityType =
+  | "physics_simulation"
+  | "interactive_lab"
+  | "accessible_alternative"
+  | "data_analysis"
+  | "classification_challenge";
+
+export type ActivityValidationMethod =
+  "server_validated_result" | "parameter_threshold" | "step_sequence_completed";
+
+export interface ActivityInstructionStep {
+  stepId: string;
+  stepNumber: number;
+  instructionText: string;
+  spokenPrompt: string;
+  targetControlSelector?: string;
+  targetControlLabel?: string;
+  demonstrationActionId?: string;
+  expectedActionName?: string;
+  completed: boolean;
+  observationFeedback?: string;
+}
+
+export interface ActivityStateRecord {
+  activityId: string;
+  moduleId: string;
+  title: string;
+  objective: string;
+  type: ActivityType;
+  status: ActivityStatus;
+  requiredActions: string[];
+  completedActions: string[];
+  currentStepId: string;
+  instructionSteps: ActivityInstructionStep[];
+  currentParameters: Record<string, unknown>;
+  originalParameters: Record<string, unknown>;
+  availableActions: string[];
+  activeControlSelector?: string;
+  activeControlLabel?: string;
+  validationMethod: ActivityValidationMethod;
+  validationKey: string;
+  lastObservationFeedback?: string;
+  lastValidationResult?: {
+    isValid: boolean;
+    reason: string;
+    timestamp: number;
+  };
+  accessibleAlternativeAvailable: boolean;
+  isAccessibleModeActive: boolean;
+}
+
+export interface GuidedQuizQuestionState {
+  questionId: string;
+  questionIndex: number;
+  totalQuestions: number;
+  questionText: string;
+  options: string[];
+  selectedOptionIndex?: number;
+  isConfirmed: boolean;
+  relevantLessonId?: string;
+}
+
+export interface GuidedQuizSessionState {
+  moduleId: string;
+  mode: "official" | "practice";
+  questions: GuidedQuizQuestionState[];
+  activeQuestionIndex: number;
+  pendingConfirmationOption?: number;
+  isSubmitted: boolean;
+  passed?: boolean;
+  scorePercentage?: number;
+  passingScorePct: number;
+  feedbackSummary?: string;
+  lastHintText?: string;
+}
+
+// ============================================================================
 // DIRECTOR SNAPSHOT & EVENT PAYLOADS
 // ============================================================================
 
@@ -177,6 +267,9 @@ export interface DirectorStateSnapshot {
   language: CosmosLanguage;
   lastQuestionAnswer?: CosmosAnswer | null;
   errorMessage?: string;
+  // Phase 2 extensions
+  activeActivityState?: ActivityStateRecord | null;
+  activeQuizState?: GuidedQuizSessionState | null;
 }
 
 export type DirectorSubscriber = (snapshot: DirectorStateSnapshot) => void;

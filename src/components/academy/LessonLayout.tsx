@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { LearningPreferenceManager } from "@/lib/cosmos/LearningPreferenceManager";
+import { CosmosLessonNavigator } from "@/lib/cosmos/CosmosLessonNavigator";
 import type {
   LearningLevel,
   LessonContract,
@@ -17,7 +18,6 @@ import { KnowledgeCheck } from "./KnowledgeCheck";
 import { SourceInformationPanel } from "./SourceInformationPanel";
 import { ModuleNavigation } from "./ModuleNavigation";
 import { LearningLevelSelector } from "./LearningLevelSelector";
-import { CosmosCompanion } from "./CosmosCompanion";
 import {
   BookOpen,
   CheckCircle2,

@@ -23,7 +23,10 @@ export interface SceneCapabilityHandler {
   getSelectedObject: () => CelestialObjectInfo | null;
   focusObject: (targetName: string, durationMs?: number) => boolean;
   highlightObject: (targetName: string, highlightType?: string, durationMs?: number) => boolean;
-  playDemonstration: (demonstrationId: ApprovedDemonstrationId, params?: Record<string, any>) => boolean;
+  playDemonstration: (
+    demonstrationId: ApprovedDemonstrationId,
+    params?: Record<string, any>,
+  ) => boolean;
   pauseSimulation: () => boolean;
   resumeSimulation: () => boolean;
   getCurrentCameraSnapshot?: () => CameraViewSnapshot | null;

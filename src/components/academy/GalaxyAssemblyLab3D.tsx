@@ -320,7 +320,9 @@ export function GalaxyAssemblyLab3D() {
       getSelectedObject: () => ({
         name: selectedPreset || stage.name,
         type: "galaxy",
-        distanceFromObserver: selectedPreset ? "Observational cosmological dataset" : "Simulated assembly stage",
+        distanceFromObserver: selectedPreset
+          ? "Observational cosmological dataset"
+          : "Simulated assembly stage",
         catalogReference: "IllustrisTNG / FIRE-2 Cosmology",
         isModelAvailable: true,
         physicalProperties: {

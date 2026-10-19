@@ -36,7 +36,10 @@ export class CosmosLearningSessionManager {
           localStorage.setItem(RECENT_MODULE_KEY, record.moduleId);
         }
         if (window.sessionStorage) {
-          sessionStorage.setItem(`${SESSION_STORAGE_KEY}_${record.moduleId}`, JSON.stringify(snapshot));
+          sessionStorage.setItem(
+            `${SESSION_STORAGE_KEY}_${record.moduleId}`,
+            JSON.stringify(snapshot),
+          );
         }
       } catch (err) {
         console.warn("Could not persist COSMOS learning session:", err);

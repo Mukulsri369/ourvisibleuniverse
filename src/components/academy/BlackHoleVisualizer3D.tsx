@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { BLACK_HOLE_PRESETS, BlackHolePreset } from "@/lib/academy/lessons/module-14-black-holes";
 import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import type { ApprovedDemonstrationId } from "@/lib/cosmos/cosmos-types";
 
 // Procedural warped accretion disk with relativistic Doppler beaming
@@ -321,11 +322,30 @@ export function BlackHoleVisualizer3D({ onMassChange }: BlackHoleVisualizer3DPro
     setMassSolar(preset.massSolar);
     setHasAccretionDisk(preset.hasAccretionDisk);
     onMassChange?.(preset.massSolar);
+    void CosmosLearningDirector.getInstance().reportActivityInteraction(
+      "observe_lensing",
+      {
+        presetName: preset.name,
+        massSolar: preset.massSolar,
+        schwarzschildRadiusKm: preset.massSolar * 2.9532,
+        lensingVerified: true,
+      },
+      "14",
+    );
   };
 
   const handleCustomMassChange = (newMass: number) => {
     setMassSolar(newMass);
     onMassChange?.(newMass);
+    void CosmosLearningDirector.getInstance().reportActivityInteraction(
+      "adjust_black_hole_params",
+      {
+        massSolar: newMass,
+        schwarzschildRadiusKm: newMass * 2.9532,
+        lensingVerified: true,
+      },
+      "14",
+    );
   };
 
   // Physical Calculations:
@@ -373,7 +393,9 @@ export function BlackHoleVisualizer3D({ onMassChange }: BlackHoleVisualizer3DPro
       getSelectedObject: () => ({
         name: selectedPreset.name,
         type: "black_hole",
-        distanceFromObserver: selectedPreset.notes.includes("kpc") ? selectedPreset.notes : "Astronomical catalog object",
+        distanceFromObserver: selectedPreset.notes.includes("kpc")
+          ? selectedPreset.notes
+          : "Astronomical catalog object",
         catalogReference: "EHT / NASA High Energy Astrophysics",
         isModelAvailable: true,
         physicalProperties: {

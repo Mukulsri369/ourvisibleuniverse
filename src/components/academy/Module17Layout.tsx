@@ -467,25 +467,9 @@ export function Module17Layout({
               ? () => onSelectNextModule(nextRecommended.module)
               : onBackToMap
           }
-          onNavigateToAssessment={() => {
-            if (typeof document !== "undefined") {
-              const el = document.querySelector(
-                '[role="region"][aria-label="Module Knowledge Assessment"]',
-              );
-              if (el) el.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
-          onNavigateToActivity={() => {
-            if (typeof document !== "undefined") {
-              const el = document.querySelector('section, [role="region"]');
-              if (el) el.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
-          onNavigateToSection={() => {
-            if (typeof window !== "undefined") {
-              window.scrollTo({ top: 300, behavior: "smooth" });
-            }
-          }}
+          onNavigateToAssessment={() => setActiveTab("quiz")}
+          onNavigateToActivity={() => setActiveTab("timemachine")}
+          onNavigateToSection={() => setActiveTab("sublessons")}
         />
       </section>
 

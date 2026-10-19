@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CosmosCompanion } from "./CosmosCompanion";
+import { CosmosGuidedController } from "./CosmosGuidedController";
 
 // Lazy-loaded module layouts to optimize initial bundle size and isolate module evaluation
 const LessonLayout = lazy(() =>
@@ -401,13 +402,15 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             }
           }}
           onNavigateToActivity={() => {
-            if (typeof window !== "undefined") {
-              window.scrollTo({ top: 400, behavior: "smooth" });
+            if (typeof document !== "undefined") {
+              const el = document.querySelector('[data-cosmos-section], section, [role="region"]');
+              if (el) el.scrollIntoView({ behavior: "smooth" });
             }
           }}
           onNavigateToSection={() => {
-            if (typeof window !== "undefined") {
-              window.scrollTo({ top: 0, behavior: "smooth" });
+            if (typeof document !== "undefined") {
+              const el = document.querySelector("[data-cosmos-section], section");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
             }
           }}
           onScrollToChecklist={() => {
@@ -424,6 +427,9 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
               : layoutProps.onBackToMap
           }
         />
+
+        {/* Persistent Compact Guided Teacher Panel (COSMOS 2.0 Director) */}
+        <CosmosGuidedController />
       </div>
     );
   }

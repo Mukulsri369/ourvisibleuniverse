@@ -188,7 +188,7 @@ export class NarrationController {
   /**
    * Clears all hardware and browser audio buffers.
    */
-  private clearAudioBuffers(): void {
+  public clearAudioBuffers(): void {
     if (this.activeSynthesisAbortController) {
       this.activeSynthesisAbortController.abort();
       this.activeSynthesisAbortController = null;
@@ -219,6 +219,14 @@ export class NarrationController {
       clearTimeout(this.textOnlyTimer);
       this.textOnlyTimer = null;
     }
+  }
+
+  public getSegments(): NarrationSegment[] {
+    return [...this.segments];
+  }
+
+  public getCurrentSegment(): NarrationSegment | null {
+    return this.segments[this.currentIndex] || null;
   }
 
   /**

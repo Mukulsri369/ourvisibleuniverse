@@ -50,7 +50,9 @@ export class CosmosInputCoordinator {
     if (!targetStep) return { allowed: false, reason: "Target step not found" };
 
     const targetIdx = allSteps.findIndex((s) => s.stepId === targetStep.stepId);
-    const currentIdx = currentStep ? allSteps.findIndex((s) => s.stepId === currentStep.stepId) : -1;
+    const currentIdx = currentStep
+      ? allSteps.findIndex((s) => s.stepId === currentStep.stepId)
+      : -1;
 
     // Moving backward is always allowed for review
     if (targetIdx <= currentIdx) {

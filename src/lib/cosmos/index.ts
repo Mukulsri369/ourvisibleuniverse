@@ -22,6 +22,19 @@ export * from "./cosmos.functions";
 export * from "./Cosmos3DAdapter";
 export * from "./Cosmos3DTools";
 
+// COSMOS 2.0 Phase 1 & Phase 2 Learning Director, Activity Guide & Quiz Guide
+export * from "./learning-director-types";
+export * from "./CosmosLearningDirector";
+export * from "./CosmosAttentionController";
+export * from "./CosmosLessonNavigator";
+export * from "./CosmosInputCoordinator";
+export * from "./CosmosConversationManager";
+export * from "./CosmosLearningSessionManager";
+export * from "./CosmosStepSequenceGenerator";
+export * from "./CosmosActivityAdapter";
+export * from "./CosmosActivityGuide";
+export * from "./CosmosQuizGuide";
+
 // Module adapters
 export { Module01CosmosAdapter } from "./adapters/module-01-adapter";
 export { Module14CosmosAdapter } from "./adapters/module-14-adapter";

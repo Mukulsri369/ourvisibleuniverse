@@ -181,13 +181,24 @@ export type CosmosVoiceCommandType =
   | "explain_again"
   | "speak_slower"
   | "skip_next"
-  | "show_example";
+  | "show_example"
+  | "select_option_a"
+  | "select_option_b"
+  | "select_option_c"
+  | "select_option_d"
+  | "confirm_answer"
+  | "change_answer"
+  | "request_hint"
+  | "demonstrate_control"
+  | "verify_activity"
+  | "reset_activity";
 
 export interface CosmosVoiceCommandMatch {
   isCommand: boolean;
   commandType?: CosmosVoiceCommandType;
   rawTranscript: string;
   matchedPhrase?: string;
+  optionIndex?: number;
 }
 
 export interface ConversationalTurnContext extends StudentQuestionContext {

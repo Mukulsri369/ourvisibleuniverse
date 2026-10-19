@@ -121,9 +121,7 @@ export class CosmosLessonNavigator {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const behavior: ScrollBehavior = prefersReducedMotion
-      ? "auto"
-      : options.behavior || "smooth";
+    const behavior: ScrollBehavior = prefersReducedMotion ? "auto" : options.behavior || "smooth";
 
     // Header offset to avoid fixed navbar occlusion (80px header baseline)
     const headerOffset = options.offsetY !== undefined ? options.offsetY : 90;

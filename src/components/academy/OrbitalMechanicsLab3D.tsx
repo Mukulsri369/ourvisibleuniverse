@@ -4,6 +4,8 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { Button } from "@/components/ui/button";
 import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
+import { CosmosActivityAdapter } from "@/lib/cosmos/CosmosActivityAdapter";
+import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import type { ApprovedDemonstrationId } from "@/lib/cosmos/cosmos-types";
 import {
   Play,
@@ -966,6 +968,20 @@ export function OrbitalMechanicsLab3D({ onInteract }: OrbitalMechanicsLab3DProps
       setShowBarycenter(true);
     }
     onInteract?.();
+
+    const estimatedEccentricity =
+      presetId === "circular" ? 0.01 : presetId === "eccentric" ? 0.58 : 0.15;
+    void CosmosLearningDirector.getInstance().reportActivityInteraction(
+      presetId === "eccentric" ? "change_eccentricity" : "observe_orbit",
+      {
+        preset: presetId,
+        eccentricity: estimatedEccentricity,
+        semiMajorAxisAU: 1.0,
+        periapsisKm: 1400,
+        isBound: presetId !== "escape",
+      },
+      "08",
+    );
   };
 
   // Reset current preset
@@ -1033,6 +1049,19 @@ export function OrbitalMechanicsLab3D({ onInteract }: OrbitalMechanicsLab3DProps
       }),
     );
     onInteract?.();
+
+    void CosmosLearningDirector.getInstance().reportActivityInteraction(
+      "change_eccentricity",
+      {
+        preset: selectedPresetId,
+        eccentricity: multiplier > 1 ? 0.35 : 0.18,
+        semiMajorAxisAU: orbitalTelemetry?.semiMajorAxis || 1.2,
+        periapsisKm: 1350,
+        conicType: orbitalTelemetry?.conicType || "Elliptical",
+        isBound: orbitalTelemetry?.isBound ?? true,
+      },
+      "08",
+    );
   };
 
   // Live Physics Loop with substepping
@@ -1099,7 +1128,9 @@ export function OrbitalMechanicsLab3D({ onInteract }: OrbitalMechanicsLab3DProps
         return {
           name: selectedBody.name,
           type: selectedBody.isStar ? "star" : "planet",
-          distanceFromObserver: orbitalTelemetry ? `${orbitalTelemetry.distance.toFixed(2)} units` : undefined,
+          distanceFromObserver: orbitalTelemetry
+            ? `${orbitalTelemetry.distance.toFixed(2)} units`
+            : undefined,
           isModelAvailable: true,
           physicalProperties: orbitalTelemetry
             ? {
@@ -1167,6 +1198,31 @@ export function OrbitalMechanicsLab3D({ onInteract }: OrbitalMechanicsLab3DProps
       },
     });
 
+    CosmosActivityAdapter.getInstance().registerActivity(
+      {
+        activityId: "module08-orbital-simulation",
+        moduleId: "08",
+        type: "physics_simulation",
+      },
+      {
+        onRestoreOriginalState: () => {
+          handleLoadPreset("circular");
+        },
+        getLiveParameters: () => ({
+          preset: selectedPresetId,
+          eccentricity:
+            orbitalTelemetry?.conicType === "Circular"
+              ? 0.01
+              : orbitalTelemetry?.conicType === "Elliptical"
+                ? 0.42
+                : 1.1,
+          semiMajorAxisAU: orbitalTelemetry?.semiMajorAxis || 1.0,
+          conicType: orbitalTelemetry?.conicType || "Circular",
+          isBound: orbitalTelemetry?.isBound ?? true,
+        }),
+      },
+    );
+
     return unregister;
   }, [isPlaying, simSpeed, selectedPresetId, selectedBody, bodies, orbitalTelemetry]);
 
@@ -1184,7 +1240,10 @@ export function OrbitalMechanicsLab3D({ onInteract }: OrbitalMechanicsLab3DProps
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        <div
+          data-cosmos-control="eccentricity-control"
+          className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2"
+        >
           {EXPERIMENT_PRESETS.map((p) => {
             const isActive = p.id === selectedPresetId;
             return (

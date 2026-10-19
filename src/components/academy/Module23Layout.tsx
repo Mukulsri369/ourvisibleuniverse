@@ -36,6 +36,7 @@ import {
   Dna,
   Droplets,
   Atom,
+  Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -176,13 +177,18 @@ export function Module23Layout({
           <div className="flex flex-col gap-2.5 shrink-0 w-full sm:w-auto">
             {!isCompleted ? (
               <Button
-                onClick={handleMarkComplete}
+                onClick={() => {
+                  if (typeof document !== "undefined") {
+                    const el = document.getElementById("module-23-checklist");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
                 variant="outline"
                 size="sm"
                 className="border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-xs"
               >
-                <CheckCircle2 className="size-3.5 mr-1.5" />
-                Mark Module Complete
+                <Target className="size-3.5 mr-1.5" />
+                Review Requirements
               </Button>
             ) : (
               <div className="text-center p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30">

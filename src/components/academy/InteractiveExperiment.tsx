@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Play, Pause, RotateCcw, Zap, Compass, Sparkles, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 
 const TARGETS = [
   {
@@ -68,6 +69,13 @@ export function InteractiveExperiment({ onCompleteExperiment }: InteractiveExper
   const handleRunSimulation = () => {
     setSimulating(true);
     setProgress(0);
+    void CosmosLearningDirector.getInstance().reportActivityInteraction("fire_photon_signal", {
+      selectedTarget: target.name,
+      lightTime: target.lightTime,
+      stepCount: 15,
+      minScaleMeters: 1,
+      maxScaleMeters: 1e22,
+    });
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -113,6 +121,14 @@ export function InteractiveExperiment({ onCompleteExperiment }: InteractiveExper
                 setSelectedTargetIndex(idx);
                 setProgress(0);
                 setSimulating(false);
+                void CosmosLearningDirector.getInstance().reportActivityInteraction(
+                  "inspect_planetary_scale",
+                  {
+                    selectedTarget: t.name,
+                    lightTime: t.lightTime,
+                    stepCount: (idx + 1) * 3,
+                  },
+                );
               }}
               className={`p-3 rounded-xl border text-left transition-all ${
                 active

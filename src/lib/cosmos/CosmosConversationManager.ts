@@ -158,6 +158,8 @@ export class CosmosConversationManager {
           answerText:
             "I'm listening and examining our current astronomical lesson. Could you please rephrase your question, or should we resume our exploration?",
           epistemicClassification: "fact",
+          scientificSources: [],
+          suggestedFollowUpQuestions: [],
           learningLevelAdapted: learningLevel,
         };
         this.lastAnswer = safeErrorAnswer;

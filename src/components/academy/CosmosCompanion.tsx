@@ -34,6 +34,7 @@ import { VisualizationActionController } from "@/lib/cosmos/VisualizationActionC
 import { Cosmos3DAdapter } from "@/lib/cosmos/Cosmos3DAdapter";
 import { Cosmos3DTools } from "@/lib/cosmos/Cosmos3DTools";
 import { UniversalCosmosAdapter } from "@/lib/cosmos/adapters/universal-adapter";
+import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import { askCosmosQuestion } from "@/lib/cosmos/cosmos.functions";
 import {
   Bot,
@@ -1109,6 +1110,23 @@ export function CosmosCompanion({
                   >
                     Stop
                   </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      narrationRef.current?.pause();
+                      void CosmosLearningDirector.getInstance().startGuidedSession(
+                        moduleId,
+                        learningLevel,
+                      );
+                    }}
+                    className="border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs"
+                    title="Launch COSMOS 2.0 Step-by-Step Guided Director with Smart Auto-Scroll & Highlighting"
+                  >
+                    <Sparkles className="size-3.5 mr-1.5" />
+                    Guided Director
+                  </Button>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
@@ -1259,7 +1277,8 @@ export function CosmosCompanion({
                       3D Context-Aware AI Teaching
                     </span>
                     <span className="text-[10px] font-mono text-slate-400">
-                      Active Scene: {simState?.activeSceneId || currentVisualization?.sceneId || "universe"}
+                      Active Scene:{" "}
+                      {simState?.activeSceneId || currentVisualization?.sceneId || "universe"}
                     </span>
                   </div>
                 </div>
@@ -1309,7 +1328,8 @@ export function CosmosCompanion({
                 <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-200 text-xs flex items-center gap-2 animate-pulse">
                   <Eye className="size-4 text-purple-400 shrink-0" />
                   <span>
-                    <strong>Student Camera Navigation Active:</strong> COSMOS camera commands yield to prioritize your manual exploration view.
+                    <strong>Student Camera Navigation Active:</strong> COSMOS camera commands yield
+                    to prioritize your manual exploration view.
                   </span>
                 </div>
               )}
@@ -1321,7 +1341,9 @@ export function CosmosCompanion({
                   variant="outline"
                   onClick={() => Cosmos3DTools.restorePreviousView()}
                   className={`text-xs border-white/10 hover:bg-white/10 ${
-                    hasPreviousView ? "text-cyan-300 border-cyan-500/40 bg-cyan-500/10" : "text-slate-400"
+                    hasPreviousView
+                      ? "text-cyan-300 border-cyan-500/40 bg-cyan-500/10"
+                      : "text-slate-400"
                   }`}
                   title="Smoothly restore student's prior camera perspective"
                 >
@@ -1404,16 +1426,21 @@ export function CosmosCompanion({
 
                   {selectedObj.physicalProperties && (
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px]">
-                      {Object.entries(selectedObj.physicalProperties).slice(0, 4).map(([key, val]) => (
-                        <div key={key} className="bg-white/5 p-1.5 rounded-lg border border-white/5">
-                          <span className="text-[10px] uppercase text-slate-400 block truncate">
-                            {key.replace(/([A-Z])/g, " $1")}
-                          </span>
-                          <span className="font-mono font-semibold text-white truncate block">
-                            {String(val)}
-                          </span>
-                        </div>
-                      ))}
+                      {Object.entries(selectedObj.physicalProperties)
+                        .slice(0, 4)
+                        .map(([key, val]) => (
+                          <div
+                            key={key}
+                            className="bg-white/5 p-1.5 rounded-lg border border-white/5"
+                          >
+                            <span className="text-[10px] uppercase text-slate-400 block truncate">
+                              {key.replace(/([A-Z])/g, " $1")}
+                            </span>
+                            <span className="font-mono font-semibold text-white truncate block">
+                              {String(val)}
+                            </span>
+                          </div>
+                        ))}
                     </div>
                   )}
 
@@ -1484,7 +1511,10 @@ export function CosmosCompanion({
                             epistemicClassification: "model",
                             epistemicNote: `Educational Demonstration: ${demo.title}`,
                             scientificSources: [
-                              { title: `${demo.scene} Physics Simulation Engine`, organization: "Our Visible Universe Academy" },
+                              {
+                                title: `${demo.scene} Physics Simulation Engine`,
+                                organization: "Our Visible Universe Academy",
+                              },
                             ],
                             suggestedFollowUpQuestions: [
                               "What are the mathematical equations governing this?",

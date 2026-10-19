@@ -9,6 +9,7 @@ import {
   startAssessmentAttempt,
   submitAssessmentAttempt,
 } from "@/lib/academy/assessment.functions";
+import { CosmosQuizGuide } from "@/lib/cosmos/CosmosQuizGuide";
 import { useStudentAuth } from "@/lib/academy/useStudentAuth";
 import {
   CheckCircle2,
@@ -161,7 +162,7 @@ export function UnifiedAssessmentEngine({
   const allAnswered =
     questions.length > 0 && questions.every((q) => selectedAnswers[q.id] !== undefined);
 
-  // Submit assessment for authoritative server evaluation
+  //Submit assessment for authoritative server evaluation
   const handleSubmit = async () => {
     if (!allAnswered || submitting) return;
     setSubmitting(true);
@@ -182,6 +183,7 @@ export function UnifiedAssessmentEngine({
       });
 
       setAssessmentResult(result);
+      void CosmosQuizGuide.getInstance().handleAssessmentGraded(moduleId, result);
 
       // Trigger legacy callbacks for compatibility
       const legacyScore = result.score;
@@ -235,6 +237,30 @@ export function UnifiedAssessmentEngine({
     }
     setMode(newMode);
   };
+
+  // Register live quiz bridge with COSMOS Quiz Guide for voice answers and guided reading
+  useEffect(() => {
+    const unregister = CosmosQuizGuide.getInstance().registerQuizBridge({
+      moduleId,
+      mode,
+      passingScorePct,
+      getQuestions: () => questions,
+      getSelectedAnswers: () => selectedAnswers,
+      selectOption: (qId, optIdx) => {
+        handleSelectOption(qId, optIdx);
+      },
+      submitAssessment: async () => {
+        await handleSubmit();
+      },
+      retryAssessment: () => {
+        handleRetry();
+      },
+      switchMode: (newMode) => {
+        handleSwitchMode(newMode);
+      },
+    });
+    return () => unregister();
+  }, [moduleId, mode, passingScorePct, questions, selectedAnswers, allAnswered, submitting]);
 
   return (
     <div
@@ -355,6 +381,8 @@ export function UnifiedAssessmentEngine({
             return (
               <div
                 key={q.id}
+                data-cosmos-question-id={q.id}
+                data-cosmos-question-index={qIdx}
                 className="rounded-2xl border border-white/10 bg-slate-950/60 p-5 transition-all focus-within:border-cyan-500/50"
               >
                 <div className="flex items-start gap-3">
@@ -377,6 +405,7 @@ export function UnifiedAssessmentEngine({
                     >
                       {q.options.map((opt, optIdx) => {
                         const isSelected = userAnswer === optIdx;
+                        const optionLetter = String.fromCharCode(65 + optIdx);
 
                         return (
                           <button
@@ -393,7 +422,12 @@ export function UnifiedAssessmentEngine({
                                 : "border-white/10 bg-white/[0.02] text-slate-300 hover:bg-white/5 hover:text-white"
                             }`}
                           >
-                            <span className="leading-snug">{opt}</span>
+                            <span className="leading-snug flex items-center gap-2">
+                              <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-cyan-300 flex-shrink-0">
+                                {optionLetter}
+                              </span>
+                              <span>{opt}</span>
+                            </span>
                             <div
                               className={`size-4 rounded-full border flex items-center justify-center ml-2 flex-shrink-0 ${
                                 isSelected

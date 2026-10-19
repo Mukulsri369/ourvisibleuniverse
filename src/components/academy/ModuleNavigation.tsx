@@ -53,8 +53,9 @@ export function ModuleNavigation({
           }
         }}
         onNavigateToSection={() => {
-          if (typeof window !== "undefined") {
-            window.scrollTo({ top: 300, behavior: "smooth" });
+          if (typeof document !== "undefined") {
+            const el = document.querySelector("[data-cosmos-section], section");
+            if (el) el.scrollIntoView({ behavior: "smooth" });
           }
         }}
       />

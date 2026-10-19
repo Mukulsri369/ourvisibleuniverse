@@ -153,6 +153,162 @@ export class VoiceCommandProcessor {
       };
     }
 
+    // 9. Phase 2 Quiz Option Selections (Option A / B / C / D)
+    if (
+      clean === "a" ||
+      clean === "option a" ||
+      clean === "choice a" ||
+      clean === "answer a" ||
+      clean === "select option a" ||
+      clean === "first option" ||
+      clean === "the first option"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "select_option_a",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+        optionIndex: 0,
+      };
+    }
+
+    if (
+      clean === "b" ||
+      clean === "option b" ||
+      clean === "choice b" ||
+      clean === "answer b" ||
+      clean === "select option b" ||
+      clean === "second option" ||
+      clean === "the second option"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "select_option_b",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+        optionIndex: 1,
+      };
+    }
+
+    if (
+      clean === "c" ||
+      clean === "option c" ||
+      clean === "choice c" ||
+      clean === "answer c" ||
+      clean === "select option c" ||
+      clean === "third option" ||
+      clean === "the third option"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "select_option_c",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+        optionIndex: 2,
+      };
+    }
+
+    if (
+      clean === "d" ||
+      clean === "option d" ||
+      clean === "choice d" ||
+      clean === "answer d" ||
+      clean === "select option d" ||
+      clean === "fourth option" ||
+      clean === "the fourth option"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "select_option_d",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+        optionIndex: 3,
+      };
+    }
+
+    // 10. Confirm / Submit Answer
+    if (
+      clean === "confirm" ||
+      clean === "confirm answer" ||
+      clean === "lock it in" ||
+      clean === "yes confirm" ||
+      clean === "submit answer" ||
+      clean === "submit quiz"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "confirm_answer",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
+    }
+
+    // 11. Change Answer
+    if (clean === "change answer" || clean === "change my answer" || clean === "different option") {
+      return {
+        isCommand: true,
+        commandType: "change_answer",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
+    }
+
+    // 12. Request Hint / Help
+    if (
+      clean === "give me a hint" ||
+      clean === "hint" ||
+      clean === "request help" ||
+      clean === "help me with this activity" ||
+      clean === "what should i do"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "request_hint",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
+    }
+
+    // 13. Demonstrate Control
+    if (
+      clean === "demonstrate" ||
+      clean === "show control" ||
+      clean === "demonstrate control" ||
+      clean === "show me how"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "demonstrate_control",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
+    }
+
+    // 14. Verify Activity
+    if (
+      clean === "verify activity" ||
+      clean === "check activity" ||
+      clean === "check my experiment" ||
+      clean === "verify my orbit"
+    ) {
+      return {
+        isCommand: true,
+        commandType: "verify_activity",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
+    }
+
+    // 15. Reset Activity
+    if (clean === "reset activity" || clean === "reset simulation" || clean === "start over") {
+      return {
+        isCommand: true,
+        commandType: "reset_activity",
+        rawTranscript: transcript,
+        matchedPhrase: clean,
+      };
+    }
+
     return { isCommand: false, rawTranscript: transcript };
   }
 
@@ -195,6 +351,39 @@ export class VoiceCommandProcessor {
           resumedNarration: false,
         };
       }
+
+      case "select_option_a":
+        return {
+          feedback: "Selected Option A. Say confirm to lock it in.",
+          resumedNarration: false,
+        };
+      case "select_option_b":
+        return {
+          feedback: "Selected Option B. Say confirm to lock it in.",
+          resumedNarration: false,
+        };
+      case "select_option_c":
+        return {
+          feedback: "Selected Option C. Say confirm to lock it in.",
+          resumedNarration: false,
+        };
+      case "select_option_d":
+        return {
+          feedback: "Selected Option D. Say confirm to lock it in.",
+          resumedNarration: false,
+        };
+      case "confirm_answer":
+        return { feedback: "Confirming selected answer.", resumedNarration: false };
+      case "change_answer":
+        return { feedback: "Ready for a new option selection.", resumedNarration: false };
+      case "request_hint":
+        return { feedback: "Providing contextual guidance...", resumedNarration: false };
+      case "demonstrate_control":
+        return { feedback: "Highlighting interactive control...", resumedNarration: false };
+      case "verify_activity":
+        return { feedback: "Checking experimental results...", resumedNarration: false };
+      case "reset_activity":
+        return { feedback: "Restoring simulation to initial parameters.", resumedNarration: false };
 
       case "explain_again":
       case "show_example":

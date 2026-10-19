@@ -37,8 +37,7 @@ export const APPROVED_CELESTIAL_CATALOG: Record<string, CelestialObjectInfo> = {
       surfaceTempK: 5778,
       luminosityWatts: "3.828e26",
     },
-    scientificDescription:
-      "G2V yellow dwarf main sequence star at the center of the Solar System.",
+    scientificDescription: "G2V yellow dwarf main sequence star at the center of the Solar System.",
   },
   Mercury: {
     name: "Mercury",
@@ -549,7 +548,10 @@ export class Cosmos3DTools {
   // --------------------------------------------------------------------------
   // SECURITY & CAPABILITY VALIDATION DISPATCHER
   // --------------------------------------------------------------------------
-  public static executeToolCall(toolName: string, args: Record<string, any> = {}): Cosmos3DToolResult {
+  public static executeToolCall(
+    toolName: string,
+    args: Record<string, any> = {},
+  ): Cosmos3DToolResult {
     // 1. Guard against unauthorized administrative actions
     for (const forbidden of COSMOS_FORBIDDEN_ACTIONS) {
       if (toolName.toLowerCase().includes(forbidden)) {

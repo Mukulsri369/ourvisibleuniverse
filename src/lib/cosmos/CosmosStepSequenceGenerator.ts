@@ -20,10 +20,7 @@ export class CosmosStepSequenceGenerator {
   /**
    * Generates the complete ordered LearningStep sequence for a module.
    */
-  public static generateModuleSequence(
-    moduleId: string,
-    level: LearningLevel,
-  ): LearningStep[] {
+  public static generateModuleSequence(moduleId: string, level: LearningLevel): LearningStep[] {
     const meta = LessonContentProvider.getModuleMetadata(moduleId);
     const moduleTitle = meta ? meta.title : `Module ${moduleId}`;
     const segments = LessonContentProvider.getSegmentsForModule(moduleId, level, "en");
@@ -41,9 +38,7 @@ export class CosmosStepSequenceGenerator {
 
     // 1. Initial Module Introduction Step
     const introStepId = `step_${moduleId}_intro`;
-    const introSegments = segments.filter(
-      (s) => s.sectionId === "title" || s.sequenceNumber <= 2,
-    );
+    const introSegments = segments.filter((s) => s.sectionId === "title" || s.sequenceNumber <= 2);
 
     steps.push({
       stepId: introStepId,
@@ -68,7 +63,9 @@ export class CosmosStepSequenceGenerator {
     for (const [lessonId, lessonSegments] of groupedByLesson.entries()) {
       sublessonIndex++;
       const firstSegment = lessonSegments[0];
-      const lessonTitle = firstSegment ? this.formatLessonTitle(firstSegment.displayText) : `Lesson ${sublessonIndex}`;
+      const lessonTitle = firstSegment
+        ? this.formatLessonTitle(firstSegment.displayText)
+        : `Lesson ${sublessonIndex}`;
 
       // Group sublesson segments into logical steps: Overview / Deep Dive / Analogies
       const sectionMap = new Map<string, NarrationSegment[]>();
@@ -129,7 +126,8 @@ export class CosmosStepSequenceGenerator {
           completionCondition: { type: "student_acknowledged", minElapsedSeconds: 3 },
           recoveryBehavior: "resume_current",
           stepStatus: "pending",
-          pedagogicalTransitionText: "Observe how physical principles govern this visual model in real time.",
+          pedagogicalTransitionText:
+            "Observe how physical principles govern this visual model in real time.",
         });
       }
     }
@@ -149,7 +147,8 @@ export class CosmosStepSequenceGenerator {
       completionCondition: { type: "activity_outcome_submitted" },
       recoveryBehavior: "wait_for_input",
       stepStatus: "pending",
-      pedagogicalTransitionText: "Now apply your understanding directly in the interactive laboratory.",
+      pedagogicalTransitionText:
+        "Now apply your understanding directly in the interactive laboratory.",
     });
 
     // 4. Knowledge Check Quiz Step Contract (Prepared for Phase 2)
@@ -167,7 +166,8 @@ export class CosmosStepSequenceGenerator {
       completionCondition: { type: "quiz_passed", requiredScorePercent: 70 },
       recoveryBehavior: "wait_for_input",
       stepStatus: "pending",
-      pedagogicalTransitionText: "Test your cosmic mastery with the scientific knowledge assessment.",
+      pedagogicalTransitionText:
+        "Test your cosmic mastery with the scientific knowledge assessment.",
     });
 
     // 5. Completion Review Step
@@ -185,7 +185,8 @@ export class CosmosStepSequenceGenerator {
       completionCondition: { type: "student_acknowledged" },
       recoveryBehavior: "resume_current",
       stepStatus: "pending",
-      pedagogicalTransitionText: "Congratulations on completing this cosmic milestone. Let us review what we learned and prepare for the next frontier.",
+      pedagogicalTransitionText:
+        "Congratulations on completing this cosmic milestone. Let us review what we learned and prepare for the next frontier.",
     });
 
     // Link nextStepId pointers
@@ -199,7 +200,7 @@ export class CosmosStepSequenceGenerator {
   }
 
   private static formatLessonTitle(text: string): string {
-    const clean = (text || "").replace(/^[0-9]+[\.\-\s]+/, "").trim();
+    const clean = (text || "").replace(/^[0-9]+[.\-\s]+/, "").trim();
     if (clean.length > 40) return clean.slice(0, 37) + "...";
     return clean || "Lesson";
   }
@@ -221,7 +222,11 @@ export class CosmosStepSequenceGenerator {
     }
   }
 
-  private static buildPedagogicalTransition(moduleId: string, lessonId: string, sectionId: string): string {
+  private static buildPedagogicalTransition(
+    moduleId: string,
+    lessonId: string,
+    sectionId: string,
+  ): string {
     if (moduleId === "08") {
       if (sectionId === "mathOrAnalogy") {
         return "Now that we've seen how gravity shapes planetary motion, let's investigate why orbital speed changes with distance.";
