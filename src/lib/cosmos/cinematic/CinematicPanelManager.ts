@@ -18,22 +18,13 @@ import type { CosmosTeacherUIStatus } from "./CinematicDesignTokens";
  * Smart Scientific Panel States (Prompt 16 Section 11)
  */
 export type CinematicPanelState =
-  | "CLOSED"
-  | "COMPACT"
-  | "EXPANDED"
-  | "FULLSCREEN_ACTIVITY"
-  | "TRANSCRIPT"
-  | "SETTINGS";
+  "CLOSED" | "COMPACT" | "EXPANDED" | "FULLSCREEN_ACTIVITY" | "TRANSCRIPT" | "SETTINGS";
 
 /**
  * Responsive Layout Modes (Prompt 16 Sections 6–10)
  */
 export type CinematicResponsiveLayoutMode =
-  | "DESKTOP"
-  | "TABLET_LANDSCAPE"
-  | "TABLET_PORTRAIT"
-  | "MOBILE_PORTRAIT"
-  | "MOBILE_LANDSCAPE";
+  "DESKTOP" | "TABLET_LANDSCAPE" | "TABLET_PORTRAIT" | "MOBILE_PORTRAIT" | "MOBILE_LANDSCAPE";
 
 /**
  * UI Priority Modes mapped to authoritative Director states (Prompt 16 Section 12)
@@ -186,13 +177,7 @@ export function resolveSmartPanelStates(params: {
   hasChapterControls: boolean;
   isListeningVoice?: boolean;
 }): SmartPanelVisibilityResult {
-  const {
-    snapshot,
-    directorSnapshot,
-    allocation,
-    userPanelOverride,
-    hasChapterControls,
-  } = params;
+  const { snapshot, directorSnapshot, allocation, userPanelOverride, hasChapterControls } = params;
 
   const priorityMode = resolveUIPriorityMode(snapshot, directorSnapshot);
 
@@ -284,7 +269,10 @@ export function resolveSmartPanelStates(params: {
     minimizeSecondaryChrome,
     captionBarVisible:
       snapshot.captionsEnabled &&
-      !(allocation.isShortHeight && (priorityMode === "QUIZ_REQUIRED" || priorityMode === "OFFICIAL_ASSESSMENT")),
+      !(
+        allocation.isShortHeight &&
+        (priorityMode === "QUIZ_REQUIRED" || priorityMode === "OFFICIAL_ASSESSMENT")
+      ),
   };
 }
 
@@ -484,7 +472,7 @@ export function resolveCollisionFreeAnnotations(params: {
     const isEmphasized =
       ann.objectId === selectedObjectId || highlightedObjectIds.includes(ann.objectId);
     let verticalOffsetUnits = 0;
-    let [ax, ay, az] = ann.worldPosition;
+    const [ax, ay, az] = ann.worldPosition;
 
     // Check against already-placed higher-priority labels to prevent stacking overlap
     for (const prev of placed) {

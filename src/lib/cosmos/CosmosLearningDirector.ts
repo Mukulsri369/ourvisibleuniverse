@@ -693,14 +693,16 @@ export class CosmosLearningDirector {
         recommendedAction = evaluation.recommendedAction || "complete_section";
       }
     } catch {
-      // Fallback to current guided step statuses when offline or unauthenticated
+      // Offline / unauthenticated fallback: Track local task completion for UI display only.
+      // STRICT SECURITY INVARIANT: A server error or network issue must NEVER convert local state into official verification!
       const actDone = this.steps.find((s) => s.stepType === "ACTIVITY")?.stepStatus === "completed";
       const quizDone =
         this.steps.find((s) => s.stepType === "KNOWLEDGE_CHECK")?.stepStatus === "completed";
-      satisfiedCount = 1 + (actDone ? 1 : 0) + (quizDone ? 1 : 0);
-      isVerifiedComplete = Boolean(actDone && quizDone);
+      satisfiedCount = (actDone ? 1 : 0) + (quizDone ? 1 : 0);
+      isVerifiedComplete = false;
       if (!actDone) missingRequirements.push("Complete the interactive laboratory activity.");
       if (!quizDone) missingRequirements.push("Pass the module knowledge check quiz.");
+      missingRequirements.push("Authoritative server verification required to confirm official completion.");
     }
 
     // Read verified modules from local progress sync to compute Stage Badge & 24-Module Exam status

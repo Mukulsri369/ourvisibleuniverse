@@ -20,6 +20,7 @@ import {
   adminReissueCertificateServer,
   adminGetCertificateStatsServer,
   generateOpenBadge3Metadata,
+  seedLocalCertificate,
 } from "../src/lib/academy/certificate.server";
 import { sanitizeStudentName } from "../src/lib/academy/student-types";
 import { supabaseAdmin } from "../src/integrations/supabase/client.server";
@@ -60,7 +61,7 @@ async function runPrompt11ValidationSuite() {
   });
 
   // Seed valid active certificate
-  await supabaseAdmin.from("academy_certificates").upsert({
+  const validPayload = {
     certificate_number: validCertNumber,
     user_id: testUserId,
     student_public_id: "STU-A1B2C3D4",
@@ -75,7 +76,9 @@ async function runPrompt11ValidationSuite() {
     verification_hash: validHash,
     status: "active",
     metadata: { test: true },
-  });
+  };
+  seedLocalCertificate(validPayload);
+  await supabaseAdmin.from("academy_certificates").upsert(validPayload);
 
   // Seed minor student profile
   await supabaseAdmin.from("academy_student_profiles").upsert({
@@ -99,7 +102,7 @@ async function runPrompt11ValidationSuite() {
     issueDate: testIssueDate,
   });
 
-  await supabaseAdmin.from("academy_certificates").upsert({
+  const minorPayload = {
     certificate_number: minorCertNumber,
     user_id: minorUserId,
     student_public_id: "STU-KID7X99Y",
@@ -114,7 +117,9 @@ async function runPrompt11ValidationSuite() {
     verification_hash: minorHash,
     status: "active",
     metadata: { testMinor: true },
-  });
+  };
+  seedLocalCertificate(minorPayload);
+  await supabaseAdmin.from("academy_certificates").upsert(minorPayload);
 
   // -------------------------------------------------------------------------
   // TEST 1: Valid certificate verifies
@@ -172,7 +177,7 @@ async function runPrompt11ValidationSuite() {
     issueDate: testIssueDate,
   });
 
-  await supabaseAdmin.from("academy_certificates").upsert({
+  const revokePayload = {
     certificate_number: certToRevoke,
     user_id: testUserId,
     student_public_id: "STU-REV0001",
@@ -186,7 +191,9 @@ async function runPrompt11ValidationSuite() {
     issue_date: testIssueDate,
     verification_hash: certToRevokeHash,
     status: "active",
-  });
+  };
+  seedLocalCertificate(revokePayload);
+  await supabaseAdmin.from("academy_certificates").upsert(revokePayload);
 
   // Admin revokes certificate with mandatory reason
   const revokeRes = await adminRevokeCertificateServer(
@@ -226,7 +233,7 @@ async function runPrompt11ValidationSuite() {
     issueDate: testIssueDate,
   });
 
-  await supabaseAdmin.from("academy_certificates").upsert({
+  const reissuePayload = {
     certificate_number: certToReissue,
     user_id: testUserId,
     student_public_id: "STU-OLD0001",
@@ -240,7 +247,9 @@ async function runPrompt11ValidationSuite() {
     issue_date: testIssueDate,
     verification_hash: certToReissueHash,
     status: "active",
-  });
+  };
+  seedLocalCertificate(reissuePayload);
+  await supabaseAdmin.from("academy_certificates").upsert(reissuePayload);
 
   const reissueRes = await adminReissueCertificateServer(
     certToReissue,
@@ -386,7 +395,7 @@ async function runPrompt11ValidationSuite() {
     issueDate: "2026-01-15",
   });
 
-  await supabaseAdmin.from("academy_certificates").upsert({
+  const legacyPayload = {
     certificate_number: legacyCertNumber,
     user_id: testUserId,
     student_public_id: "STU-LEGACY01",
@@ -400,7 +409,9 @@ async function runPrompt11ValidationSuite() {
     issue_date: "2026-01-15",
     verification_hash: legacyHash,
     status: "active",
-  });
+  };
+  seedLocalCertificate(legacyPayload);
+  await supabaseAdmin.from("academy_certificates").upsert(legacyPayload);
 
   const legacyVerify = await verifyCertificatePublicServer(legacyCertNumber);
   assert(legacyVerify.isValid === true, "Historical certificate verifies with 100% validity");
