@@ -24,6 +24,12 @@ import { CosmosConversationManager } from "./CosmosConversationManager";
 import { CosmosLearningSessionManager } from "./CosmosLearningSessionManager";
 import { CosmosStepSequenceGenerator } from "./CosmosStepSequenceGenerator";
 import { LearningPreferenceManager } from "./LearningPreferenceManager";
+import { ACADEMY_MODULES } from "../academy/registry";
+import { STAGE_BADGES } from "../academy/stage-badges";
+import {
+  getModuleCompletionStatus,
+  recheckModuleCompletion,
+} from "../academy/completion.functions";
 import { CosmosActivityGuide } from "./CosmosActivityGuide";
 import { CosmosQuizGuide } from "./CosmosQuizGuide";
 import { VoiceCommandProcessor } from "./VoiceCommandProcessor";
@@ -41,6 +47,7 @@ import type {
   GuidedLearningState,
   GuidedQuizSessionState,
   LearningStep,
+  ModuleJourneyCompletionState,
 } from "./learning-director-types";
 
 export class CosmosLearningDirector {
@@ -81,6 +88,10 @@ export class CosmosLearningDirector {
   // Phase 2 Activity & Quiz tracking
   private activeActivityState: ActivityStateRecord | null = null;
   private activeQuizState: GuidedQuizSessionState | null = null;
+
+  // Phase 3 Autonomous Journey & Completion tracking
+  private activeCompletionState: ModuleJourneyCompletionState | null = null;
+  private moduleNavigationHandler: ((moduleId: string) => void) | null = null;
 
   // Interruption return point
   private preInterruptionState: GuidedLearningState = "EXPLAINING";
@@ -266,6 +277,8 @@ export class CosmosLearningDirector {
           this.moduleId,
           `#${currentStep.targetComponentId}`,
         );
+      } else if (currentStep.stepType === "COMPLETION_CHECK") {
+        await this.evaluateModuleJourneyCompletion(false);
       } else {
         this.transitionState("WAITING_FOR_STUDENT");
       }
@@ -573,6 +586,196 @@ export class CosmosLearningDirector {
     return this.quizGuide;
   }
 
+  public getAssessmentGuide(): CosmosQuizGuide {
+    return this.quizGuide;
+  }
+
+  /**
+   * Registers a callback for navigating between the 24 modules or the Final Assessment.
+   */
+  public registerModuleNavigationHandler(handler: (moduleId: string) => void): () => void {
+    this.moduleNavigationHandler = handler;
+    return () => {
+      if (this.moduleNavigationHandler === handler) {
+        this.moduleNavigationHandler = null;
+      }
+    };
+  }
+
+  /**
+   * Navigates to the next module in the 24-module autonomous journey or to the Final Exam.
+   */
+  public async navigateToModuleInJourney(
+    targetModuleId: string,
+    startGuided = true,
+  ): Promise<void> {
+    if (this.moduleNavigationHandler) {
+      this.moduleNavigationHandler(targetModuleId);
+    } else if (typeof window !== "undefined") {
+      if (targetModuleId === "exam") {
+        window.location.href = "/exam";
+        return;
+      }
+      if (targetModuleId === "13") {
+        window.location.href = "/galaxies";
+        return;
+      }
+      window.location.href = `/learn?module=${encodeURIComponent(targetModuleId)}`;
+    }
+
+    if (startGuided && targetModuleId !== "exam") {
+      await this.startGuidedSession(targetModuleId, this.learningLevel, 0);
+    }
+  }
+
+  /**
+   * Resumes a saved student learning session across modules or page reloads.
+   */
+  public async resumeSavedSession(moduleId?: string): Promise<boolean> {
+    const saved = CosmosLearningSessionManager.getSession(moduleId);
+    if (!saved) return false;
+
+    if (this.moduleNavigationHandler && saved.moduleId !== this.moduleId) {
+      this.moduleNavigationHandler(saved.moduleId);
+    }
+
+    await this.startGuidedSession(saved.moduleId, saved.learningLevel, saved.stepIndex);
+    return true;
+  }
+
+  /**
+   * Evaluates authoritative server-side module completion, stage achievement unlock,
+   * and 24-module Final Certification Assessment eligibility.
+   */
+  public async evaluateModuleJourneyCompletion(
+    forceRecheck = false,
+  ): Promise<ModuleJourneyCompletionState> {
+    this.transitionState("VERIFYING_REQUIREMENTS");
+    this.notifySubscribers();
+
+    const modNum = parseInt(this.moduleId, 10) || 1;
+    const stageId = Math.min(6, Math.max(1, Math.ceil(modNum / 4)));
+    const stageBadge = STAGE_BADGES[stageId] || STAGE_BADGES[1];
+    const nextModNum = modNum < 24 ? modNum + 1 : null;
+    const nextModuleId = nextModNum
+      ? nextModNum < 10
+        ? `0${nextModNum}`
+        : `${nextModNum}`
+      : "exam";
+    const nextMeta = nextModuleId !== "exam" ? ACADEMY_MODULES.find((m) => m.id === nextModuleId) : null;
+    const nextModuleTitle =
+      nextModuleId === "exam"
+        ? "Cosmic Explorer — Final Knowledge Assessment"
+        : nextMeta?.title || `Module ${nextModuleId}`;
+
+    let isVerifiedComplete = false;
+    let satisfiedCount = 0;
+    let totalCount = 3;
+    let missingRequirements: string[] = [];
+    let recommendedAction = "complete_section";
+
+    try {
+      const evaluation = forceRecheck
+        ? await recheckModuleCompletion({ data: { moduleId: this.moduleId } })
+        : await getModuleCompletionStatus({ data: { moduleId: this.moduleId } });
+
+      if (evaluation) {
+        isVerifiedComplete = Boolean(evaluation.isVerifiedComplete);
+        satisfiedCount = evaluation.checklist.filter((c) => c.isSatisfied).length;
+        totalCount = evaluation.checklist.length || 3;
+        missingRequirements = evaluation.missingRequirements || [];
+        recommendedAction = evaluation.recommendedAction || "complete_section";
+      }
+    } catch {
+      // Fallback to current guided step statuses when offline or unauthenticated
+      const actDone =
+        this.steps.find((s) => s.stepType === "ACTIVITY")?.stepStatus === "completed";
+      const quizDone =
+        this.steps.find((s) => s.stepType === "KNOWLEDGE_CHECK")?.stepStatus === "completed";
+      satisfiedCount = 1 + (actDone ? 1 : 0) + (quizDone ? 1 : 0);
+      isVerifiedComplete = Boolean(actDone && quizDone);
+      if (!actDone) missingRequirements.push("Complete the interactive laboratory activity.");
+      if (!quizDone) missingRequirements.push("Pass the module knowledge check quiz.");
+    }
+
+    // Read verified modules from local progress sync to compute Stage Badge & 24-Module Exam status
+    let verifiedSet = new Set<string>();
+    if (typeof window !== "undefined" && window.localStorage) {
+      try {
+        const rawProg = localStorage.getItem("cosmic_academy_progress_v1");
+        if (rawProg) {
+          const parsed = JSON.parse(rawProg);
+          if (Array.isArray(parsed.verifiedModules)) {
+            parsed.verifiedModules.forEach((m: string) => verifiedSet.add(m));
+          }
+        }
+      } catch {
+        // ignore storage read error
+      }
+    }
+    if (isVerifiedComplete) {
+      verifiedSet.add(this.moduleId);
+    }
+
+    const stageVerifiedCount = stageBadge.requiredModuleIds.filter((id) =>
+      verifiedSet.has(id),
+    ).length;
+    const stageUnlocked = stageVerifiedCount >= 4;
+    const totalModulesVerified = verifiedSet.size;
+    const isFinalExamEligible = totalModulesVerified >= 24;
+
+    const completionState: ModuleJourneyCompletionState = {
+      moduleId: this.moduleId,
+      moduleTitle: this.moduleTitle,
+      isVerifiedComplete,
+      satisfiedCount,
+      totalCount,
+      missingRequirements,
+      recommendedAction,
+      stageId,
+      stageBadgeId: stageBadge.badgeId,
+      stageBadgeTitle: stageBadge.title,
+      stageBadgeIcon: stageBadge.icon,
+      stageUnlocked,
+      stageVerifiedCount,
+      totalModulesVerified,
+      isFinalExamEligible,
+      nextModuleId,
+      nextModuleTitle,
+    };
+
+    this.activeCompletionState = completionState;
+
+    const currentStep = this.getCurrentStep();
+    if (isVerifiedComplete) {
+      if (currentStep && currentStep.stepType === "COMPLETION_CHECK") {
+        currentStep.stepStatus = "completed";
+      }
+      this.transitionState("MODULE_COMPLETED");
+      const badgeMsg = stageUnlocked
+        ? `You have also unlocked the Stage ${stageId} ${stageBadge.title} achievement badge!`
+        : `You have verified ${stageVerifiedCount} of 4 modules toward the Stage ${stageId} ${stageBadge.title} badge.`;
+      const nextMsg = isFinalExamEligible
+        ? "All 24 modules are now verified! You are officially eligible for the Final Knowledge Assessment and your Cosmic Explorer Certificate."
+        : `When you are ready, continue to Module ${nextModuleId}: ${nextModuleTitle}.`;
+      await this.speakTutorPrompt(
+        `Congratulations! Module ${this.moduleId}, ${this.moduleTitle}, is authoritatively verified complete. ${badgeMsg} ${nextMsg}`,
+      );
+    } else {
+      this.transitionState("WAITING_FOR_STUDENT");
+      const missingText =
+        missingRequirements[0] ||
+        "Please complete the remaining activity or assessment requirement.";
+      await this.speakTutorPrompt(
+        `We have reached the completion review for Module ${this.moduleId}. Currently ${satisfiedCount} of ${totalCount} requirements are verified. Next step: ${missingText}`,
+      );
+    }
+
+    this.persistCurrentSession();
+    this.notifySubscribers();
+    return completionState;
+  }
+
   public async reportActivityInteraction(
     actionName: string,
     parameters: Record<string, unknown> = {},
@@ -732,6 +935,7 @@ export class CosmosLearningDirector {
       activeActivityState:
         this.activeActivityState || this.activityGuide.getActivityState(this.moduleId),
       activeQuizState: this.activeQuizState || this.quizGuide.getSessionState(),
+      activeCompletionState: this.activeCompletionState,
     };
   }
 

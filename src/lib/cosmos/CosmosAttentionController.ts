@@ -58,11 +58,39 @@ export class CosmosAttentionController {
       }
     }
 
+    // 3. Check normalized section ID and synonyms across all 24 module layouts
     if (matchedElements.length === 0 && target.sectionId) {
-      const bySection = document.querySelectorAll(`[data-cosmos-section="${target.sectionId}"]`);
-      bySection.forEach((el) => {
-        if (el instanceof HTMLElement) matchedElements.push(el);
-      });
+      const baseSection = target.sectionId.replace(/-\d+$/, "");
+      const sectionCandidates = this.getSectionCandidates(target.sectionId, baseSection);
+      for (const candidate of sectionCandidates) {
+        const bySection = document.querySelectorAll(
+          `[data-cosmos-section="${candidate}"], [id$="-sec-${candidate}"]`,
+        );
+        bySection.forEach((el) => {
+          if (el instanceof HTMLElement && !matchedElements.includes(el)) {
+            matchedElements.push(el);
+          }
+        });
+        if (matchedElements.length > 0) break;
+      }
+    }
+
+    // 4. Universal text-snippet fallback across all 24 module layouts
+    if (matchedElements.length === 0 && target.displayText && target.displayText.trim().length > 8) {
+      const snippet = target.displayText.trim().slice(0, 36).toLowerCase();
+      const textNodes = document.querySelectorAll(
+        "main p, main li, main h2, main h3, main h4, main blockquote, section p, section li, section h2, section h3, section h4",
+      );
+      for (let i = 0; i < textNodes.length; i++) {
+        const node = textNodes[i];
+        if (
+          node instanceof HTMLElement &&
+          (node.textContent || "").toLowerCase().includes(snippet)
+        ) {
+          matchedElements.push(node);
+          break;
+        }
+      }
     }
 
     // Apply visual highlight class and accessibility attribute
@@ -73,6 +101,28 @@ export class CosmosAttentionController {
 
     this.currentHighlightedElements = matchedElements;
     this.notifyListeners();
+  }
+
+  private getSectionCandidates(rawSectionId: string, baseSection: string): string[] {
+    const set = new Set<string>([rawSectionId, baseSection]);
+    if (["title", "summary", "lead", "keyIdea", "takeaway"].includes(baseSection)) {
+      set.add("summary");
+      set.add("lead");
+      set.add("keyIdea");
+      set.add("title");
+    }
+    if (["deepDive", "explanation", "paragraph", "detail"].includes(baseSection)) {
+      set.add("deepDive");
+      set.add("explanation");
+    }
+    if (["mathOrAnalogy", "mathematics"].includes(baseSection)) {
+      set.add("mathOrAnalogy");
+      set.add("mathematics");
+    }
+    if (["activityPrompt", "interactivePrompt", "experimentInstructions"].includes(baseSection)) {
+      set.add("activityPrompt");
+    }
+    return Array.from(set);
   }
 
   /**

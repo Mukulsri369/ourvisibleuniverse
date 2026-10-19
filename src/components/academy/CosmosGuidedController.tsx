@@ -36,6 +36,7 @@ import {
   HelpCircle,
   Target,
   ShieldCheck,
+  Award,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -87,8 +88,14 @@ export function CosmosGuidedController({ className = "" }: CosmosGuidedControlle
     snapshot.state === "SUBMITTING_ANSWER" ||
     snapshot.state === "REVIEWING_FEEDBACK";
 
+  const isCompletionStep =
+    currentStep?.stepType === "COMPLETION_CHECK" ||
+    snapshot.state === "MODULE_COMPLETED" ||
+    snapshot.state === "VERIFYING_REQUIREMENTS";
+
   const activityState = snapshot.activeActivityState;
   const quizState = snapshot.activeQuizState;
+  const completionState = snapshot.activeCompletionState;
   const activeQuizQuestion =
     quizState && quizState.questions.length > 0
       ? quizState.questions[quizState.activeQuestionIndex]
@@ -444,6 +451,81 @@ export function CosmosGuidedController({ className = "" }: CosmosGuidedControlle
                     {quizState.feedbackSummary}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* PHASE 3: VERIFIED COMPLETION, STAGE ACHIEVEMENTS & NEXT MODULE CONTINUATION */}
+            {isCompletionStep && completionState && (
+              <div className="p-3 rounded-xl bg-slate-950/90 border border-emerald-500/35 space-y-2.5 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-emerald-300 flex items-center gap-1.5 text-[11px]">
+                    <Award className="size-3.5 text-emerald-400" />
+                    <span>
+                      {completionState.isVerifiedComplete
+                        ? "Module Verified Complete!"
+                        : "Authoritative Completion Check"}
+                    </span>
+                  </span>
+                  <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    {completionState.satisfiedCount}/{completionState.totalCount} Verified
+                  </span>
+                </div>
+
+                {/* Stage Achievement Badge Progress */}
+                <div className="p-2 rounded-lg bg-slate-900/90 border border-white/10 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base">{completionState.stageBadgeIcon}</span>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-semibold text-white truncate">
+                        Stage 0{completionState.stageId}: {completionState.stageBadgeTitle}
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {completionState.stageUnlocked
+                          ? "Stage Achievement Badge Unlocked!"
+                          : `${completionState.stageVerifiedCount} / 4 Stage Modules Verified`}
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-cyan-300 shrink-0">
+                    {completionState.totalModulesVerified}/24 Total
+                  </span>
+                </div>
+
+                {!completionState.isVerifiedComplete &&
+                  completionState.missingRequirements.length > 0 && (
+                    <div className="p-2 rounded-lg bg-amber-950/30 border border-amber-500/30 text-[11px] text-amber-200 leading-snug">
+                      Next Requirement: {completionState.missingRequirements[0]}
+                    </div>
+                  )}
+
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => void director.evaluateModuleJourneyCompletion(true)}
+                    className="px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-200 border border-white/15 text-[10px] font-medium flex items-center gap-1"
+                  >
+                    <RotateCcw className="size-3 text-cyan-400" />
+                    <span>Re-check Server Status</span>
+                  </button>
+
+                  {completionState.nextModuleId && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void director.navigateToModuleInJourney(completionState.nextModuleId!, true)
+                      }
+                      className="ml-auto px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-semibold flex items-center gap-1"
+                    >
+                      <span>
+                        {completionState.nextModuleId === "exam" ||
+                        completionState.isFinalExamEligible
+                          ? "Launch Final Assessment"
+                          : `Continue to Module ${completionState.nextModuleId}`}
+                      </span>
+                      <ChevronRight className="size-3" />
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 

@@ -8,7 +8,29 @@
  * INVARIANT: No automatic transition may skip an unresolved required student-input step.
  */
 
-import type { LearningStep } from "./learning-director-types";
+import type { GuidedLearningState, LearningStep } from "./learning-director-types";
+import { VoiceCommandProcessor } from "./VoiceCommandProcessor";
+
+export type StudentUtteranceIntent =
+  | "OPTION_SELECT"
+  | "CONFIRM_ANSWER"
+  | "CHANGE_ANSWER"
+  | "HINT_REQUEST"
+  | "DEMONSTRATE_CONTROL"
+  | "VERIFY_ACTIVITY"
+  | "RESET_ACTIVITY"
+  | "PAUSE"
+  | "CONTINUE"
+  | "REPEAT"
+  | "GO_BACK"
+  | "NEXT_STEP"
+  | "QUESTION";
+
+export interface ParsedStudentUtterance {
+  intent: StudentUtteranceIntent;
+  optionIndex?: number;
+  rawTranscript: string;
+}
 
 export class CosmosInputCoordinator {
   private static instance: CosmosInputCoordinator | null = null;
@@ -18,6 +40,89 @@ export class CosmosInputCoordinator {
       this.instance = new CosmosInputCoordinator();
     }
     return this.instance;
+  }
+
+  /**
+   * Parses a spoken or typed student utterance into a structured intent.
+   */
+  public parseUtterance(
+    transcript: string,
+    _currentState?: GuidedLearningState,
+    _isAssessmentContext = false,
+  ): ParsedStudentUtterance {
+    const raw = (transcript || "").trim();
+    const match = VoiceCommandProcessor.matchCommand(raw);
+
+    if (match.isCommand && match.commandType) {
+      switch (match.commandType) {
+        case "select_option_a":
+          return { intent: "OPTION_SELECT", optionIndex: 0, rawTranscript: raw };
+        case "select_option_b":
+          return { intent: "OPTION_SELECT", optionIndex: 1, rawTranscript: raw };
+        case "select_option_c":
+          return { intent: "OPTION_SELECT", optionIndex: 2, rawTranscript: raw };
+        case "select_option_d":
+          return { intent: "OPTION_SELECT", optionIndex: 3, rawTranscript: raw };
+        case "confirm_answer":
+          return { intent: "CONFIRM_ANSWER", rawTranscript: raw };
+        case "change_answer":
+          return { intent: "CHANGE_ANSWER", rawTranscript: raw };
+        case "request_hint":
+          return { intent: "HINT_REQUEST", rawTranscript: raw };
+        case "demonstrate_control":
+          return { intent: "DEMONSTRATE_CONTROL", rawTranscript: raw };
+        case "verify_activity":
+          return { intent: "VERIFY_ACTIVITY", rawTranscript: raw };
+        case "reset_activity":
+          return { intent: "RESET_ACTIVITY", rawTranscript: raw };
+        case "pause":
+          return { intent: "PAUSE", rawTranscript: raw };
+        case "continue":
+          return { intent: "CONTINUE", rawTranscript: raw };
+        case "repeat":
+          return { intent: "REPEAT", rawTranscript: raw };
+        case "go_back":
+          return { intent: "GO_BACK", rawTranscript: raw };
+        case "skip_next":
+          return { intent: "NEXT_STEP", rawTranscript: raw };
+      }
+    }
+
+    // Flexible conversational option matching (e.g., "I choose Option B", "My answer is C")
+    const lower = raw.toLowerCase();
+    const optMatch = lower.match(/\b(?:option|choice|answer|select|choose)\s+([abcd])\b/);
+    if (optMatch) {
+      const idx = optMatch[1].charCodeAt(0) - 97;
+      if (idx >= 0 && idx <= 3) {
+        return { intent: "OPTION_SELECT", optionIndex: idx, rawTranscript: raw };
+      }
+    }
+
+    if (/\b(?:confirm|lock\s+in|submit\s+my\s+answer|confirm\s+my\s+answer)\b/.test(lower)) {
+      return { intent: "CONFIRM_ANSWER", rawTranscript: raw };
+    }
+
+    if (/\b(?:hint|help\s+me|give\s+me\s+a\s+clue)\b/.test(lower)) {
+      return { intent: "HINT_REQUEST", rawTranscript: raw };
+    }
+
+    return { intent: "QUESTION", rawTranscript: raw };
+  }
+
+  /**
+   * Matches a student's spoken phrase against the text of multiple-choice options.
+   */
+  public matchVoiceToOptionIndex(transcript: string, options: string[]): number | null {
+    const clean = (transcript || "").trim().toLowerCase();
+    if (!clean || !options.length) return null;
+
+    for (let i = 0; i < options.length; i++) {
+      const optClean = options[i].toLowerCase().trim();
+      if (optClean && (clean.includes(optClean) || optClean.includes(clean))) {
+        return i;
+      }
+    }
+    return null;
   }
 
   /**

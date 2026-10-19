@@ -482,3 +482,6 @@ export class CosmosQuizGuide {
     };
   }
 }
+
+export { CosmosQuizGuide as CosmosAssessmentGuide };
+

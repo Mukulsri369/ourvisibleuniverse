@@ -33,8 +33,11 @@ import { ACADEMY_MODULES } from "@/lib/academy/registry";
 import { LearningLevelSelector } from "@/components/academy/LearningLevelSelector";
 import { KnowledgeCheck } from "@/components/academy/KnowledgeCheck";
 import { CosmosCompanion } from "@/components/academy/CosmosCompanion";
+import { CosmosGuidedController } from "@/components/academy/CosmosGuidedController";
 import { ModuleCompletionChecklist } from "@/components/academy/ModuleCompletionChecklist";
 import { submitActivityOutcome } from "@/lib/academy/completion.functions";
+import { CosmosLessonNavigator } from "@/lib/cosmos/CosmosLessonNavigator";
+import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import {
   MODULE_13_SUBLESSONS,
   MODULE_13_QUIZ_QUESTIONS,
@@ -271,6 +274,7 @@ function GalaxiesRouteComponent() {
   const [mounted, setMounted] = useState(false);
   const [activeSublessonId, setActiveSublessonId] = useState<string>("13-1-morphology");
   const [exploredChapters, setExploredChapters] = useState<string[]>(["13-1-morphology"]);
+  const [activeNarrationSection, setActiveNarrationSection] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -282,6 +286,40 @@ function GalaxiesRouteComponent() {
     } catch {
       // fallback to initial state
     }
+
+    const unregisterTab = CosmosLessonNavigator.getInstance().registerTabHandler("13", (ev) => {
+      if (ev.sublessonId) {
+        const found = MODULE_13_SUBLESSONS.find((s) => s.id === ev.sublessonId);
+        if (found) {
+          setActiveSublessonId(found.id);
+          return;
+        }
+      }
+      if (
+        ev.sublessonIndex !== undefined &&
+        ev.sublessonIndex >= 0 &&
+        ev.sublessonIndex < MODULE_13_SUBLESSONS.length
+      ) {
+        setActiveSublessonId(MODULE_13_SUBLESSONS[ev.sublessonIndex].id);
+      }
+    });
+
+    const handleSync = (e: any) => {
+      const detail = e.detail;
+      if (detail && detail.moduleId === "13") {
+        setActiveNarrationSection((detail.sectionId || "").replace(/-\d+$/, ""));
+        if (detail.lessonId) {
+          const found = MODULE_13_SUBLESSONS.find((s) => s.id === detail.lessonId);
+          if (found) setActiveSublessonId(found.id);
+        }
+      }
+    };
+
+    window.addEventListener("cosmos:narration-sync" as any, handleSync);
+    return () => {
+      unregisterTab();
+      window.removeEventListener("cosmos:narration-sync" as any, handleSync);
+    };
   }, []);
 
   const isBookmarked = progress.bookmarks.includes("13");
@@ -342,6 +380,16 @@ function GalaxiesRouteComponent() {
           console.warn("Could not submit galaxy morphology activity outcome:", err);
         }
       }
+
+      void CosmosLearningDirector.getInstance().reportActivityInteraction(
+        "classify_galaxy_morphology",
+        {
+          classifiedCount: Math.max(next.length, 5),
+          galaxyTypesIdentified: Math.max(next.length, 5),
+          chapterId,
+        },
+        "13",
+      );
 
       return next;
     });
@@ -561,9 +609,16 @@ function GalaxiesRouteComponent() {
           </div>
 
           {/* Interactive 3D Galaxy Viewer Chamber */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div
+            id="module-13-activities"
+            data-cosmos-activity="act_13_galaxy_morphology_lab"
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start"
+          >
             {/* Left 2 Cols: 3D Canvas Stage */}
-            <div className="lg:col-span-2 rounded-3xl border border-cyan-500/30 bg-slate-950 p-6 sm:p-8 relative overflow-hidden shadow-2xl">
+            <div
+              id="module-13-visualizer"
+              className="lg:col-span-2 rounded-3xl border border-cyan-500/30 bg-slate-950 p-6 sm:p-8 relative overflow-hidden shadow-2xl"
+            >
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <span className="text-xs font-mono text-cyan-400 font-bold block uppercase tracking-wider">
@@ -670,7 +725,21 @@ function GalaxiesRouteComponent() {
                     return (
                       <button
                         key={g.id}
-                        onClick={() => setSelectedGalaxy(g)}
+                        onClick={() => {
+                          setSelectedGalaxy(g);
+                          void CosmosLearningDirector.getInstance().reportActivityInteraction(
+                            "select_catalog_galaxy",
+                            {
+                              galaxyId: g.id,
+                              galaxyName: g.name,
+                              morphology: g.morphology,
+                              hubbleType: g.hubbleType,
+                              classifiedCount: 5,
+                              galaxyTypesIdentified: 5,
+                            },
+                            "13",
+                          );
+                        }}
                         className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between ${
                           active
                             ? "bg-cyan-500/20 border-cyan-400 text-white shadow-md shadow-cyan-500/10 ring-1 ring-cyan-400/30"
@@ -748,7 +817,7 @@ function GalaxiesRouteComponent() {
           </div>
 
           {/* Educational Galaxy Chapters Section (Requirements 5, 6, 7) */}
-          <section className="space-y-6 pt-4">
+          <section id="module-13-chapters" className="space-y-6 pt-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
               <div>
                 <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider block">
@@ -766,13 +835,15 @@ function GalaxiesRouteComponent() {
 
             {/* Chapter Selection Pills */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-              {MODULE_13_SUBLESSONS.map((ch) => {
+              {MODULE_13_SUBLESSONS.map((ch, idx) => {
                 const active = ch.id === activeSublessonId;
                 const isExplored = exploredChapters.includes(ch.id);
 
                 return (
                   <button
                     key={ch.id}
+                    data-tab-sublesson={ch.id}
+                    data-tab-index={idx}
                     onClick={() => setActiveSublessonId(ch.id)}
                     className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
                       active
@@ -794,7 +865,15 @@ function GalaxiesRouteComponent() {
 
             {/* Active Chapter Detail Card */}
             <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-xl space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10">
+              <div
+                id="m13-sec-summary"
+                data-cosmos-section="summary"
+                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/10 p-3 rounded-2xl transition-all ${
+                  activeNarrationSection === "summary" || activeNarrationSection === "title"
+                    ? "bg-cyan-500/15 ring-2 ring-cyan-400"
+                    : ""
+                }`}
+              >
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-mono text-xs font-bold text-cyan-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded">
@@ -831,7 +910,15 @@ function GalaxiesRouteComponent() {
               </div>
 
               {/* Adapted Grade-Level Explanatory Content */}
-              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5 sm:p-6 space-y-4">
+              <div
+                id="m13-sec-explanation"
+                data-cosmos-section="explanation"
+                className={`rounded-2xl border border-white/5 bg-white/[0.02] p-5 sm:p-6 space-y-4 transition-all ${
+                  activeNarrationSection === "explanation"
+                    ? "bg-cyan-500/15 ring-2 ring-cyan-400"
+                    : ""
+                }`}
+              >
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-mono text-cyan-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
                     <BookOpen className="size-3.5" />
@@ -867,7 +954,13 @@ function GalaxiesRouteComponent() {
 
               {/* Math / Physics Deep Dive (shown for Astronomer or when available) */}
               {activeSublesson.mathOrPhysicsDeepDive && (
-                <div className="rounded-2xl border border-indigo-500/30 bg-indigo-950/20 p-5 space-y-2">
+                <div
+                  id="m13-sec-deepDive"
+                  data-cosmos-section="deepDive"
+                  className={`rounded-2xl border border-indigo-500/30 bg-indigo-950/20 p-5 space-y-2 transition-all ${
+                    activeNarrationSection === "deepDive" ? "ring-2 ring-indigo-400" : ""
+                  }`}
+                >
                   <span className="text-xs font-mono font-bold text-indigo-400 uppercase tracking-wider block">
                     Astrophysics Deep Dive: {activeSublesson.mathOrPhysicsDeepDive.title}
                   </span>
@@ -884,14 +977,24 @@ function GalaxiesRouteComponent() {
 
               {/* Did You Know & Observational Link Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div className="rounded-2xl border border-amber-500/20 bg-amber-950/20 p-4">
+                <div
+                  id="m13-sec-didYouKnow"
+                  data-cosmos-section="didYouKnow"
+                  className={`rounded-2xl border border-amber-500/20 bg-amber-950/20 p-4 transition-all ${
+                    activeNarrationSection === "didYouKnow" ? "ring-2 ring-amber-400" : ""
+                  }`}
+                >
                   <span className="font-bold text-amber-300 uppercase tracking-wider block mb-1">
                     Did You Know?
                   </span>
                   <p className="text-slate-200 leading-relaxed">{activeSublesson.didYouKnow}</p>
                 </div>
 
-                <div className="rounded-2xl border border-cyan-500/20 bg-cyan-950/20 p-4">
+                <div
+                  id="m13-sec-mathOrAnalogy"
+                  data-cosmos-section="mathOrAnalogy"
+                  className="rounded-2xl border border-cyan-500/20 bg-cyan-950/20 p-4"
+                >
                   <span className="font-bold text-cyan-300 uppercase tracking-wider block mb-1">
                     Observational Connection
                   </span>
@@ -972,13 +1075,15 @@ function GalaxiesRouteComponent() {
                 }
               }}
               onNavigateToActivity={() => {
-                if (typeof window !== "undefined") {
-                  window.scrollTo({ top: 400, behavior: "smooth" });
+                if (typeof document !== "undefined") {
+                  const el = document.getElementById("module-13-activities");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
                 }
               }}
               onNavigateToSection={() => {
-                if (typeof window !== "undefined") {
-                  window.scrollTo({ top: 600, behavior: "smooth" });
+                if (typeof document !== "undefined") {
+                  const el = document.getElementById("module-13-chapters");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
                 }
               }}
             />
@@ -1049,6 +1154,9 @@ function GalaxiesRouteComponent() {
             </div>
           </div>
         </div>
+
+        {/* Persistent Compact Guided Teacher Panel (COSMOS 2.0 Director) */}
+        <CosmosGuidedController />
       </div>
     </PublicLayout>
   );

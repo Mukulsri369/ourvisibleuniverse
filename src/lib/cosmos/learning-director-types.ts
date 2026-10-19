@@ -244,6 +244,26 @@ export interface GuidedQuizSessionState {
   lastHintText?: string;
 }
 
+export interface ModuleJourneyCompletionState {
+  moduleId: string;
+  moduleTitle: string;
+  isVerifiedComplete: boolean;
+  satisfiedCount: number;
+  totalCount: number;
+  missingRequirements: string[];
+  recommendedAction: string;
+  stageId: number;
+  stageBadgeId: string;
+  stageBadgeTitle: string;
+  stageBadgeIcon: string;
+  stageUnlocked: boolean;
+  stageVerifiedCount: number;
+  totalModulesVerified: number;
+  isFinalExamEligible: boolean;
+  nextModuleId: string | null;
+  nextModuleTitle: string | null;
+}
+
 // ============================================================================
 // DIRECTOR SNAPSHOT & EVENT PAYLOADS
 // ============================================================================
@@ -270,6 +290,9 @@ export interface DirectorStateSnapshot {
   // Phase 2 extensions
   activeActivityState?: ActivityStateRecord | null;
   activeQuizState?: GuidedQuizSessionState | null;
+  // Phase 3 extensions
+  activeCompletionState?: ModuleJourneyCompletionState | null;
 }
 
 export type DirectorSubscriber = (snapshot: DirectorStateSnapshot) => void;
+

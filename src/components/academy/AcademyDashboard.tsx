@@ -36,6 +36,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { CosmosCompanion } from "./CosmosCompanion";
 import { CosmosGuidedController } from "./CosmosGuidedController";
+import { CosmicCertificateModal } from "./CosmicCertificateModal";
+import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
+import { CosmosLearningSessionManager } from "@/lib/cosmos/CosmosLearningSessionManager";
+import type { CosmosLearningSessionRecord } from "@/lib/cosmos/learning-director-types";
 
 // Lazy-loaded module layouts to optimize initial bundle size and isolate module evaluation
 const LessonLayout = lazy(() =>
@@ -263,6 +267,13 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
   });
 
   const [previewModule, setPreviewModule] = useState<ModuleContract | null>(null);
+  const [showCertificateModal, setShowCertificateModal] = useState<boolean>(false);
+  const [savedGuidedSession, setSavedGuidedSession] =
+    useState<CosmosLearningSessionRecord | null>(null);
+
+  useEffect(() => {
+    setSavedGuidedSession(CosmosLearningSessionManager.getSession());
+  }, [activeLessonModule]);
 
   const [settings, setSettings] = useState<AcademySettings>({
     reducedMotion: false,
@@ -319,6 +330,15 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
       setPreviewModule(modObj);
     }
   };
+
+  useEffect(() => {
+    const unregister = CosmosLearningDirector.getInstance().registerModuleNavigationHandler(
+      (targetModId) => {
+        handleSelectModule(targetModId);
+      },
+    );
+    return () => unregister();
+  });
 
   // If viewing final exam, render the FinalExamEngine
   if (showFinalExam) {
@@ -494,6 +514,51 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           </div>
         </section>
 
+        {/* PHASE 3: Student Guided Session Resumption Banner */}
+        {savedGuidedSession && savedGuidedSession.sessionStatus !== "completed" && (
+          <section className="rounded-3xl border border-emerald-500/35 bg-gradient-to-r from-emerald-950/40 via-cyan-950/30 to-slate-900/80 p-5 sm:p-6 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-emerald-950/20">
+            <div className="flex items-start gap-3.5">
+              <div className="size-11 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="size-5 text-emerald-400" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-mono font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full uppercase">
+                    COSMOS Saved Session Ready
+                  </span>
+                  <span className="text-xs font-mono text-cyan-300">
+                    Step {savedGuidedSession.stepIndex + 1} of {savedGuidedSession.totalSteps}
+                  </span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-white mt-1">
+                  Resume Module {savedGuidedSession.moduleId}: {savedGuidedSession.moduleTitle}
+                </h3>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Last active step: <strong className="text-white">{savedGuidedSession.lessonTitle}</strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                onClick={() => {
+                  handleSelectModule(savedGuidedSession.moduleId);
+                  setTimeout(() => {
+                    void CosmosLearningDirector.getInstance().resumeSavedSession(
+                      savedGuidedSession.moduleId,
+                    );
+                  }, 150);
+                }}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+              >
+                <span>Resume Guided Journey</span>
+                <ArrowRight className="size-4 ml-1.5" />
+              </Button>
+            </div>
+          </section>
+        )}
+
         {/* Adaptive Next Recommendation Banner */}
         {primaryRecommendation && (
           <section className="rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-slate-900/80 p-6 sm:p-8 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-lg shadow-cyan-950/20">
@@ -649,6 +714,14 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                 Launch Assessment
               </Button>
               <Button
+                onClick={() => setShowCertificateModal(true)}
+                variant="outline"
+                className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10 hover:text-amber-200 w-full sm:w-auto"
+              >
+                <ShieldCheck className="size-4 mr-1.5" />
+                Certificate Portal
+              </Button>
+              <Button
                 asChild
                 variant="outline"
                 className="border-white/10 text-slate-300 hover:text-white w-full sm:w-auto"
@@ -659,6 +732,14 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           </div>
         </section>
       </div>
+
+      {/* Official Certificate Modal */}
+      <CosmicCertificateModal
+        isOpen={showCertificateModal}
+        onClose={() => setShowCertificateModal(false)}
+        level={selectedLevel}
+        completedLabCount={progress.verifiedModules?.length || 0}
+      />
 
       {/* Syllabus Modal for Coming Soon & Preview Modules */}
       {previewModule && (

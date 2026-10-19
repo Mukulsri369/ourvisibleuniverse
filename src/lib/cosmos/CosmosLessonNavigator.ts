@@ -60,30 +60,99 @@ export class CosmosLessonNavigator {
    */
   public async switchTab(event: TabSwitchEvent): Promise<boolean> {
     const handler = this.tabHandlers.get(event.moduleId);
-    if (!handler) {
-      // If no custom handler registered, check for standard tab DOM buttons
-      if (typeof document !== "undefined") {
-        const tabBtn =
-          document.querySelector(`[data-tab-sublesson="${event.sublessonId}"]`) ||
-          document.querySelector(`[data-tab-index="${event.sublessonIndex}"]`);
-        if (tabBtn && typeof (tabBtn as HTMLElement).click === "function") {
-          (tabBtn as HTMLElement).click();
-          await this.waitForNextFrame(2);
-          return true;
-        }
+    if (handler) {
+      try {
+        await handler(event);
+        await this.waitForNextFrame(3);
+        return true;
+      } catch (err) {
+        console.warn(`Could not switch tab for module ${event.moduleId}:`, err);
       }
-      return false;
     }
 
-    try {
-      await handler(event);
-      // Wait for React re-render of new tab content
-      await this.waitForNextFrame(3);
-      return true;
-    } catch (err) {
-      console.warn(`Could not switch tab for module ${event.moduleId}:`, err);
-      return false;
+    if (typeof document !== "undefined") {
+      // 1. Ensure top-level "Curriculum Overview" / "Lessons" / "Sub-Lessons" tab is open if module uses tabbed views
+      await this.ensureModuleSectionVisible("sublessons");
+
+      // 2. Check explicit data attributes first
+      const tabBtn =
+        document.querySelector(`[data-tab-sublesson="${event.sublessonId}"]`) ||
+        document.querySelector(`[data-tab-index="${event.sublessonIndex}"]`);
+      if (tabBtn && typeof (tabBtn as HTMLElement).click === "function") {
+        (tabBtn as HTMLElement).click();
+        await this.waitForNextFrame(2);
+        return true;
+      }
+
+      // 3. Universal fallback across all 24 module layouts: find sublesson button by index or ID
+      const idxOne = (event.sublessonIndex || 0) + 1;
+      const paddedIdx = idxOne < 10 ? `0${idxOne}` : `${idxOne}`;
+      const buttons = Array.from(document.querySelectorAll("button"));
+      const matchBtn = buttons.find((btn) => {
+        const text = (btn.textContent || "").trim();
+        if (event.sublessonId && text.includes(event.sublessonId)) return true;
+        return (
+          text.startsWith(`Lesson ${paddedIdx}`) ||
+          text.startsWith(`Lesson ${idxOne}`) ||
+          text.startsWith(`Ch ${paddedIdx}`) ||
+          text.startsWith(`Chapter ${paddedIdx}`) ||
+          text.startsWith(`${paddedIdx}`) ||
+          new RegExp(`\\b(Lesson|Ch|Chapter|Sub-lesson)\\s*0?${idxOne}\\b`, "i").test(text)
+        );
+      });
+
+      if (matchBtn) {
+        matchBtn.click();
+        await this.waitForNextFrame(2);
+        return true;
+      }
     }
+    return false;
+  }
+
+  /**
+   * Ensures the appropriate top-level tab (lab/visualizer, sublessons/curriculum, or quiz) is active
+   * on modules that organize content into top-level tabs (e.g., Modules 12, 19–24).
+   */
+  public async ensureModuleSectionVisible(
+    sectionType: "sublessons" | "activity" | "quiz",
+  ): Promise<boolean> {
+    if (typeof document === "undefined") return false;
+
+    const buttons = Array.from(document.querySelectorAll("button"));
+    let matcher: (text: string) => boolean;
+
+    if (sectionType === "sublessons") {
+      matcher = (t) =>
+        t.includes("curriculum overview") ||
+        t.includes("core lessons") ||
+        t.includes("sub-lessons") ||
+        t.includes("sublessons") ||
+        t.includes("theory & lessons");
+    } else if (sectionType === "activity") {
+      matcher = (t) =>
+        t.includes("physics laboratory") ||
+        t.includes("interactive lab") ||
+        t.includes("3d visualizer") ||
+        t.includes("observatory lab") ||
+        t.includes("space museum") ||
+        t.includes("historical models") ||
+        t.includes("timeline lab");
+    } else {
+      matcher = (t) =>
+        t.includes("master quiz") ||
+        t.includes("knowledge check") ||
+        t.includes("module quiz") ||
+        t.includes("take quiz");
+    }
+
+    const tabBtn = buttons.find((b) => matcher((b.textContent || "").toLowerCase()));
+    if (tabBtn) {
+      tabBtn.click();
+      await this.waitForNextFrame(2);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -105,6 +174,20 @@ export class CosmosLessonNavigator {
       this.isUserScrolledAway = true;
       this.notifyListeners();
       return false;
+    }
+
+    // Ensure the relevant top-level tab is open before resolving the element
+    const cleanTarget = (selectorOrId || "").toLowerCase();
+    if (cleanTarget.includes("quiz") || cleanTarget.includes("assessment")) {
+      await this.ensureModuleSectionVisible("quiz");
+    } else if (
+      cleanTarget.includes("activities") ||
+      cleanTarget.includes("visualizer") ||
+      cleanTarget.includes("lab")
+    ) {
+      await this.ensureModuleSectionVisible("activity");
+    } else if (cleanTarget.includes("-sec-")) {
+      await this.ensureModuleSectionVisible("sublessons");
     }
 
     // Resolve target element from selector, ID, or cosmos data attributes
@@ -169,10 +252,10 @@ export class CosmosLessonNavigator {
   }
 
   /**
-   * Resolves DOM element using stable selectors and semantic fallback IDs.
+   * Resolves DOM element using stable selectors and semantic fallback IDs across all 24 modules.
    */
   public resolveElement(target: string): HTMLElement | null {
-    if (!target) return null;
+    if (!target || typeof document === "undefined") return null;
 
     // 1. Exact selector query
     try {
@@ -187,15 +270,53 @@ export class CosmosLessonNavigator {
     const byId = document.getElementById(cleanId);
     if (byId) return byId;
 
-    // 3. Cosmos data attribute lookups
+    // 3. Cosmos data attribute lookups (including normalized base section ID)
     const bySegment = document.querySelector(`[data-cosmos-segment="${cleanId}"]`);
     if (bySegment instanceof HTMLElement) return bySegment;
 
-    const bySection = document.querySelector(`[data-cosmos-section="${cleanId}"]`);
+    const secMatch = cleanId.match(/-sec-(.+)$/);
+    const rawSec = secMatch ? secMatch[1] : cleanId;
+    const baseSec = rawSec.replace(/-\d+$/, "");
+
+    const bySection =
+      document.querySelector(`[data-cosmos-section="${rawSec}"]`) ||
+      document.querySelector(`[data-cosmos-section="${baseSec}"]`) ||
+      document.querySelector(`[id$="-sec-${baseSec}"]`);
     if (bySection instanceof HTMLElement) return bySection;
 
     const byStep = document.querySelector(`[data-cosmos-step="${cleanId}"]`);
     if (byStep instanceof HTMLElement) return byStep;
+
+    // 4. Semantic region fallbacks across all 24 modules
+    if (cleanId.endsWith("-quiz")) {
+      const quizEl =
+        document.querySelector('[role="region"][aria-label="Module Knowledge Assessment"]') ||
+        document.querySelector('[id$="-quiz"]');
+      if (quizEl instanceof HTMLElement) return quizEl;
+    }
+
+    if (cleanId.endsWith("-checklist")) {
+      const checklistEl =
+        document.getElementById("module-completion-checklist") ||
+        document.querySelector('[role="region"][aria-label="Module Completion Checklist"]') ||
+        document.querySelector('[id$="-checklist"]');
+      if (checklistEl instanceof HTMLElement) return checklistEl;
+    }
+
+    if (cleanId.endsWith("-activities") || cleanId.endsWith("-visualizer")) {
+      const actEl =
+        document.querySelector("[data-cosmos-activity]") ||
+        document.querySelector('[id$="-activities"]') ||
+        document.querySelector('[id$="-visualizer"]') ||
+        document.querySelector("canvas")?.parentElement ||
+        document.querySelector("section");
+      if (actEl instanceof HTMLElement) return actEl;
+    }
+
+    if (cleanId.endsWith("-hero") || secMatch) {
+      const firstSection = document.querySelector("main h1, main section, h1");
+      if (firstSection instanceof HTMLElement) return firstSection;
+    }
 
     return null;
   }

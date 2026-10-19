@@ -109,8 +109,11 @@ export class CosmosStepSequenceGenerator {
         });
       }
 
-      // Add interactive visual simulation anchor step if supported
-      if (moduleId === "01" || moduleId === "08" || moduleId === "14") {
+      // Add interactive visual simulation anchor step for the primary sublesson across all 24 modules
+      if (sublessonIndex === 1) {
+        const primaryVisRef = lessonSegments.find(
+          (s) => s.visualizationReference,
+        )?.visualizationReference;
         steps.push({
           stepId: `step_${moduleId}_${lessonId}_vis_${stepCounter++}`,
           moduleId,
@@ -118,7 +121,7 @@ export class CosmosStepSequenceGenerator {
           sectionId: "simulation",
           sublessonIndex: sublessonIndex - 1,
           stepType: "VISUALIZATION",
-          title: `${lessonTitle} — Interactive Simulation Observation`,
+          title: `${moduleTitle} — Interactive Simulation Observation`,
           learningLevel: level,
           targetComponentId: `module-${moduleId}-visualizer`,
           narrationSegmentIds: [],
@@ -126,13 +129,13 @@ export class CosmosStepSequenceGenerator {
           completionCondition: { type: "student_acknowledged", minElapsedSeconds: 3 },
           recoveryBehavior: "resume_current",
           stepStatus: "pending",
-          pedagogicalTransitionText:
-            "Observe how physical principles govern this visual model in real time.",
+          pedagogicalTransitionText: this.buildSimulationTransition(moduleId),
+          visualizationRef: primaryVisRef,
         });
       }
     }
 
-    // 3. Activity Step Contract (Prepared for Phase 2)
+    // 3. Activity Step Contract (Phase 2 & 3 Universal Activity Integration)
     steps.push({
       stepId: `step_${moduleId}_activity`,
       moduleId,
@@ -151,7 +154,7 @@ export class CosmosStepSequenceGenerator {
         "Now apply your understanding directly in the interactive laboratory.",
     });
 
-    // 4. Knowledge Check Quiz Step Contract (Prepared for Phase 2)
+    // 4. Knowledge Check Quiz Step Contract (Phase 2 & 3 Official Assessment Integration)
     steps.push({
       stepId: `step_${moduleId}_quiz`,
       moduleId,
@@ -170,7 +173,7 @@ export class CosmosStepSequenceGenerator {
         "Test your cosmic mastery with the scientific knowledge assessment.",
     });
 
-    // 5. Completion Review Step
+    // 5. Completion Review & Autonomous Journey Continuation Step
     steps.push({
       stepId: `step_${moduleId}_completion`,
       moduleId,
@@ -186,7 +189,7 @@ export class CosmosStepSequenceGenerator {
       recoveryBehavior: "resume_current",
       stepStatus: "pending",
       pedagogicalTransitionText:
-        "Congratulations on completing this cosmic milestone. Let us review what we learned and prepare for the next frontier.",
+        "Congratulations on reaching the module milestone. Let us verify your completion, review your stage achievement progress, and prepare for the next frontier.",
     });
 
     // Link nextStepId pointers
@@ -206,20 +209,62 @@ export class CosmosStepSequenceGenerator {
   }
 
   private static formatSectionTitle(sectionId: string): string {
-    switch (sectionId) {
+    const base = sectionId.replace(/-\d+$/, "");
+    switch (base) {
       case "title":
         return "Core Concept";
+      case "summary":
+      case "lead":
+      case "keyIdea":
+        return "Conceptual Overview";
       case "takeaway":
         return "Key Takeaway";
       case "deepDive":
+      case "explanation":
         return "In-Depth Astrophysics";
       case "mathOrAnalogy":
+      case "mathematics":
         return "Mathematical Model & Analogy";
       case "didYouKnow":
         return "Observational Discovery";
+      case "activityPrompt":
+        return "Experimental Inquiry";
       default:
-        return sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+        return base.charAt(0).toUpperCase() + base.slice(1);
     }
+  }
+
+  private static buildSimulationTransition(moduleId: string): string {
+    const simTransitions: Record<string, string> = {
+      "01": "Observe how physical scale expands by powers of ten across the cosmic hierarchy.",
+      "02": "Explore the 360-degree celestial sphere and observe how constellations rotate around the celestial pole.",
+      "03": "Calibrate the astronomical distance ladder from Astronomical Units to megaparsecs.",
+      "04": "Watch electromagnetic pulses travel at finite speed across interplanetary and interstellar space.",
+      "05": "Observe how Earth's 23.5-degree axial tilt and lunar orbital geometry create seasons and eclipses.",
+      "06": "Compare the terrestrial inner worlds and outer gas and ice giants in our 3D Solar System explorer.",
+      "07": "Inspect the solar photosphere, corona, and magnetic sunspot cycles in real time.",
+      "08": "Observe how gravitational forces and velocity vectors shape Keplerian orbital trajectories.",
+      "09": "Analyze stellar blackbody spectra and plot stars across the Hertzsprung-Russell diagram.",
+      "10": "Trace the thermonuclear lifecycle of low-mass and high-mass stars from main sequence to remnant.",
+      "11": "Fly through glowing H-II emission nebulae where Jeans instability triggers protostellar collapse.",
+      "12": "Detect distant exoplanets by measuring transit light-curve dips and Doppler radial velocity shifts.",
+      "13": "Inspect spiral arms, central bulges, and Hubble tuning-fork classifications in 3D.",
+      "14": "Observe relativistic gravitational lensing and photon rings near the Schwarzschild event horizon.",
+      "15": "Navigate the filaments, galaxy clusters, and supervoids of the large-scale Cosmic Web.",
+      "16": "Compare flat galactic rotation curves and cosmological expansion models driven by dark matter and dark energy.",
+      "17": "Examine Cosmic Microwave Background temperature anisotropies from the infant universe.",
+      "18": "Observe how expanding spacetime stretches light wavelengths into cosmological redshift.",
+      "19": "Compare historical geocentric epicycles with heliocentric Keplerian and relativistic models.",
+      "20": "Project cosmic evolution billions of years forward through the Stelliferous and Black Hole eras.",
+      "21": "Calibrate multi-wavelength telescope optics across radio, infrared, optical, and X-ray bands.",
+      "22": "Plot interplanetary Hohmann transfer trajectories and gravity-assist maneuvers.",
+      "23": "Evaluate circumstellar habitable zones and atmospheric biosignature spectra.",
+      "24": "Synthesize multi-domain astrophysical equations inside the capstone Cosmic Physics Laboratory.",
+    };
+    return (
+      simTransitions[moduleId] ||
+      "Observe how physical principles govern this visual model in real time."
+    );
   }
 
   private static buildPedagogicalTransition(
@@ -227,23 +272,50 @@ export class CosmosStepSequenceGenerator {
     lessonId: string,
     sectionId: string,
   ): string {
+    const base = sectionId.replace(/-\d+$/, "");
     if (moduleId === "08") {
-      if (sectionId === "mathOrAnalogy") {
+      if (base === "mathOrAnalogy" || base === "mathematics") {
         return "Now that we've seen how gravity shapes planetary motion, let's investigate why orbital speed changes with distance.";
       }
       return "Next, let us analyze Kepler's mathematical formulation of celestial dynamics.";
     }
     if (moduleId === "14") {
-      if (sectionId === "deepDive") {
+      if (base === "deepDive" || base === "explanation") {
         return "Let us now probe deep into the curvature of spacetime near the event horizon.";
       }
       return "Next, we observe how extreme gravity bends and focuses cosmic light rays.";
     }
     if (moduleId === "01") {
-      if (sectionId === "deepDive") {
+      if (base === "deepDive" || base === "explanation") {
         return "Let's zoom out to understand how Earth fits into the grand cosmic hierarchy.";
       }
     }
-    return "Let us continue to the next scientific insight.";
+
+    const stageTransitions: Record<string, string> = {
+      "02": "Let us connect these star patterns to Earth's rotation and celestial coordinates.",
+      "03": "Let us examine how astronomers measure vast cosmic distances without leaving Earth.",
+      "04": "Because light travels at a finite speed, looking deeper into space means looking further back in time.",
+      "05": "Let us see how the gravitational dance of the Sun, Earth, and Moon governs our calendar and tides.",
+      "06": "Let us compare the geology and atmospheres of our planetary neighbors.",
+      "07": "Let us trace energy transport from the Sun's thermonuclear core to solar weather at Earth.",
+      "09": "Let us decode starlight to reveal a star's surface temperature, composition, and luminosity.",
+      "10": "Let us follow how initial stellar mass dictates a star's ultimate fate.",
+      "11": "Let us explore how interstellar gas and dust recycle stellar ashes into new planetary systems.",
+      "12": "Let us examine the precision techniques astronomers use to discover worlds around other stars.",
+      "13": "Let us explore how billions of stars, gas reservoirs, and dark matter halos assemble into galaxies.",
+      "15": "Let us zoom out to the largest coherent structures in the observable universe.",
+      "16": "Let us investigate the gravitational and cosmological evidence for the invisible 95% of the cosmos.",
+      "17": "Let us trace the thermal history of the universe back to its earliest observable epoch.",
+      "18": "Let us examine how Hubble's law and spacetime metric expansion govern the cosmos.",
+      "19": "Let us trace how observational evidence transformed humanity's model of the universe.",
+      "20": "Let us apply thermodynamics and cosmology to forecast the long-term destiny of the universe.",
+      "21": "Let us see how modern observatories collect photons across the entire electromagnetic spectrum.",
+      "22": "Let us analyze the propulsion physics and orbital mechanics of robotic and crewed spaceflight.",
+      "23": "Let us combine planetary science, chemistry, and biology to search for life beyond Earth.",
+      "24": "Let us integrate all six stages of astrophysics into quantitative laboratory experiments.",
+    };
+
+    return stageTransitions[moduleId] || "Let us continue to the next scientific insight.";
   }
 }
+

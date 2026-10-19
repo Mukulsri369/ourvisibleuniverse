@@ -46,9 +46,12 @@ import {
   HelpCircle,
   FileText,
   Compass,
+  Mic,
+  MicOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { CosmosInputCoordinator } from "@/lib/cosmos/CosmosInputCoordinator";
 
 export interface FinalExamEngineProps {
   initialLevel?: LearningLevel;
@@ -97,9 +100,11 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
   // Review confirmation modal before submission
   const [showSubmitConfirm, setShowSubmitConfirm] = useState<boolean>(false);
 
-  // Non-generative narration state
+  // Non-generative narration & voice answer state
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [speechPaused, setSpeechPaused] = useState<boolean>(false);
+  const [isListeningVoice, setIsListeningVoice] = useState<boolean>(false);
+  const recognitionRef = useRef<any>(null);
 
   // 1. Fetch Eligibility on mount
   const checkEligibility = useCallback(async () => {
@@ -260,6 +265,99 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
     },
     [questions, currentIndex],
   );
+
+  // Voice Answer Selection & Confirmation via CosmosInputCoordinator (Proctor Mode: Zero Answer Leakage)
+  const handleToggleVoiceAnswer = () => {
+    if (isListeningVoice && recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // ignore
+      }
+      setIsListeningVoice(false);
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+    const SpeechRec =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRec) {
+      toast.info("Browser speech recognition is unavailable. Use keyboard keys 1-4 or click an option.");
+      return;
+    }
+
+    try {
+      stopSpeech();
+      const rec = new SpeechRec();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+
+      rec.onstart = () => setIsListeningVoice(true);
+      rec.onend = () => setIsListeningVoice(false);
+      rec.onerror = () => setIsListeningVoice(false);
+
+      rec.onresult = (event: any) => {
+        const transcript = event?.results?.[0]?.[0]?.transcript?.trim() || "";
+        if (!transcript) return;
+
+        const currentQ = questions[currentIndex];
+        if (!currentQ) return;
+
+        const coord = CosmosInputCoordinator.getInstance();
+        const parsed = coord.parseUtterance(transcript, "WAITING_FOR_ANSWER", true);
+
+        if (parsed.intent === "OPTION_SELECT" && parsed.optionIndex !== undefined) {
+          if (parsed.optionIndex < currentQ.options.length) {
+            handleSelectOption(parsed.optionIndex);
+            const letter = String.fromCharCode(65 + parsed.optionIndex);
+            toast.success(
+              `Voice selected Option ${letter}. Say "Confirm" or click Next Question to proceed.`,
+            );
+          }
+        } else if (parsed.intent === "CONFIRM_ANSWER") {
+          if (answers[currentQ.id] !== undefined) {
+            if (currentIndex < questions.length - 1) {
+              setCurrentIndex((prev) => prev + 1);
+              toast.success("Answer confirmed. Moved to next question.");
+            } else {
+              setShowSubmitConfirm(true);
+            }
+          } else {
+            toast.info("Please select an option (A, B, C, or D) before confirming.");
+          }
+        } else if (parsed.intent === "HINT_REQUEST") {
+          if (mode === "official") {
+            toast.warning(
+              "COSMOS Proctor: Hints and explanations are strictly disabled during the Official Certification Examination.",
+            );
+          } else {
+            toast.info(
+              `Focus on ${currentQ.stageTitle || "Stage"} — ${currentQ.learningObjective || "Core Principles"}.`,
+            );
+          }
+        } else {
+          // Try matching option text
+          const matchedIdx = coord.matchVoiceToOptionIndex(transcript, currentQ.options);
+          if (matchedIdx !== null) {
+            handleSelectOption(matchedIdx);
+            const letter = String.fromCharCode(65 + matchedIdx);
+            toast.success(`Voice selected Option ${letter}.`);
+          } else {
+            toast.info(
+              `Heard "${transcript}". Say "Option A", "Option B", "Option C", "Option D", or "Confirm".`,
+            );
+          }
+        }
+      };
+
+      recognitionRef.current = rec;
+      rec.start();
+    } catch {
+      setIsListeningVoice(false);
+    }
+  };
 
   // 4. Submit Examination
   const handleSubmitExam = async () => {
@@ -1041,8 +1139,26 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
               </span>
             </div>
 
-            {/* Accessible Audio Narration System */}
+            {/* Accessible Audio Narration & Voice Answer System */}
             <div className="flex items-center gap-2 self-start sm:self-auto">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleToggleVoiceAnswer}
+                className={`text-xs border-white/10 ${
+                  isListeningVoice
+                    ? "bg-rose-500/20 text-rose-300 border-rose-400/40 animate-pulse"
+                    : "text-slate-300 hover:text-white"
+                }`}
+                title='Speak "Option A", "Option B", "Option C", "Option D", or "Confirm"'
+              >
+                {isListeningVoice ? (
+                  <MicOff className="size-3.5 mr-1.5" />
+                ) : (
+                  <Mic className="size-3.5 mr-1.5 text-cyan-400" />
+                )}
+                {isListeningVoice ? "Listening..." : "Voice Answer"}
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
