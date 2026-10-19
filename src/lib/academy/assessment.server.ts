@@ -7,6 +7,7 @@ import {
   type AssessmentFeedbackItem,
   type StartAssessmentResponse,
   type FinalExamEligibilityResult,
+  type OfficialExamAttemptRecord,
   DEFAULT_ASSESSMENT_POLICY,
   FINAL_EXAM_BLUEPRINT,
 } from "./assessment-types";
@@ -60,9 +61,55 @@ const ACTIVE_EXAM_SESSIONS = new Map<
 >();
 
 /**
+ * Tracks previously assigned question IDs per user/level so retries select fresh questions
+ */
+const USER_SEEN_QUESTIONS = new Map<string, Set<string>>();
+
+/**
  * In-memory fallback and test cache for scored attempts (enables offline / unit test reliability)
  */
 const RECORDED_ATTEMPTS = new Map<string, any>();
+
+/**
+ * Authoritative registry of official exam attempt records storing all 9 required audit fields
+ */
+const OFFICIAL_EXAM_ATTEMPTS = new Map<string, OfficialExamAttemptRecord>();
+
+/**
+ * Certification eligibility service state cache
+ */
+const CERTIFICATE_ELIGIBILITY_CACHE = new Map<
+  string,
+  {
+    userId: string;
+    courseId: string;
+    courseVersion: string;
+    allStagesCompleted: boolean;
+    finalExamPassed: boolean;
+    finalExamScorePct: number;
+    eligibleAt: string | null;
+  }
+>();
+
+export function getOfficialExamAttemptServer(
+  attemptId: string,
+): OfficialExamAttemptRecord | undefined {
+  return OFFICIAL_EXAM_ATTEMPTS.get(attemptId);
+}
+
+export function getCertificateEligibilityStatusServer(userId: string) {
+  return (
+    CERTIFICATE_ELIGIBILITY_CACHE.get(userId) || {
+      userId,
+      courseId: "cosmic_journey",
+      courseVersion: "1.0.0",
+      allStagesCompleted: false,
+      finalExamPassed: false,
+      finalExamScorePct: 0,
+      eligibleAt: null,
+    }
+  );
+}
 
 /**
  * Mock/Test registry for simulating verified completion of modules in automated tests
@@ -203,9 +250,22 @@ export async function startAssessmentServer(
   const attemptId = `att_${formattedModId}_${input.level}_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
 
   if (isFinalExam) {
-    // Generate exactly 20 questions according to the 6-stage blueprint
-    const canonicalQuestions = generateFinalExamAttemptServer(input.level);
+    const userSeenKey = `${input.userId}_${input.level}`;
+    const previouslySeenSet = USER_SEEN_QUESTIONS.get(userSeenKey) || new Set<string>();
+
+    // Generate exactly 20 questions according to the 6-stage blueprint, prioritizing fresh questions on retry
+    const canonicalQuestions = generateFinalExamAttemptServer(
+      input.level,
+      Array.from(previouslySeenSet),
+    );
     const clientQuestions = sanitizeQuestionsForClient(canonicalQuestions);
+
+    // Record assigned questions for future retry freshness
+    const updatedSeen = new Set(previouslySeenSet);
+    for (const q of canonicalQuestions) {
+      updatedSeen.add(q.id);
+    }
+    USER_SEEN_QUESTIONS.set(userSeenKey, updatedSeen);
 
     // Register active session for grading
     ACTIVE_EXAM_SESSIONS.set(attemptId, {
@@ -473,10 +533,15 @@ export async function submitAssessmentAttemptServer(
     console.warn("Database offline during assessment insert:", err?.message || err);
   }
 
+  const completionTimestamp = new Date().toISOString();
+  const resolvedAttemptId = input.attemptId || `attempt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
   if (!attempt) {
     attempt = {
-      id: `attempt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: resolvedAttemptId,
       user_id: input.userId,
+      course_version: input.courseVersion || "1.0.0",
+      learning_level: input.level,
       assessment_id: isFinalExam ? "cosmic_explorer_final_exam" : `quiz_module_${formattedModId}`,
       assessment_version: "1.0.0",
       question_set_version: "1.0.0",
@@ -488,11 +553,27 @@ export async function submitAssessmentAttemptServer(
       passed,
       client_duration_seconds: input.clientDurationSeconds ?? null,
       idempotency_key: uniqueSubmissionKey,
-      created_at: new Date().toISOString(),
+      created_at: completionTimestamp,
+      completed_at: completionTimestamp,
     };
   }
 
   RECORDED_ATTEMPTS.set(uniqueSubmissionKey, attempt);
+
+  const officialRecord: OfficialExamAttemptRecord = {
+    attemptId: attempt.id || resolvedAttemptId,
+    userId: input.userId,
+    courseVersion: input.courseVersion || "1.0.0",
+    learningLevel: input.level,
+    questionIds: canonicalQuestions.map((q) => q.id),
+    submittedAnswers: input.answers,
+    finalScore: score,
+    totalPoints,
+    percentage,
+    passingStatus: passed,
+    completionTimestamp,
+  };
+  OFFICIAL_EXAM_ATTEMPTS.set(officialRecord.attemptId, officialRecord);
 
   let verifiedCompletionAwarded = false;
   let newStageBadgeAwarded: string | null = null;
@@ -504,6 +585,15 @@ export async function submitAssessmentAttemptServer(
       if (passed) {
         // Final examination pass (>= 80%, minimum 16/20) -> Trigger certification eligibility service
         certificateEligible = true;
+        CERTIFICATE_ELIGIBILITY_CACHE.set(input.userId, {
+          userId: input.userId,
+          courseId: "cosmic_journey",
+          courseVersion: input.courseVersion || "1.0.0",
+          allStagesCompleted: true,
+          finalExamPassed: true,
+          finalExamScorePct: percentage,
+          eligibleAt: completionTimestamp,
+        });
         try {
           await supabaseAdmin.from("academy_certificate_eligibility").upsert(
             {
@@ -513,8 +603,8 @@ export async function submitAssessmentAttemptServer(
               all_stages_completed: true,
               final_exam_passed: true,
               final_exam_score_pct: percentage,
-              eligible_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
+              eligible_at: completionTimestamp,
+              updated_at: completionTimestamp,
             },
             { onConflict: "user_id,course_id,course_version" },
           );
@@ -527,6 +617,18 @@ export async function submitAssessmentAttemptServer(
       } else {
         // Failed attempt (< 80%) does NOT grant certificate eligibility
         certificateEligible = false;
+        const existingCert = CERTIFICATE_ELIGIBILITY_CACHE.get(input.userId);
+        if (!existingCert || !existingCert.finalExamPassed) {
+          CERTIFICATE_ELIGIBILITY_CACHE.set(input.userId, {
+            userId: input.userId,
+            courseId: "cosmic_journey",
+            courseVersion: input.courseVersion || "1.0.0",
+            allStagesCompleted: true,
+            finalExamPassed: false,
+            finalExamScorePct: percentage,
+            eligibleAt: null,
+          });
+        }
       }
     } else if (passed) {
       // Standard Module Pass: Evaluate multi-pillar completion criteria
@@ -568,7 +670,11 @@ export async function submitAssessmentAttemptServer(
     : { topicStrengths: undefined, topicsRequiringReview: undefined };
 
   return {
-    attemptId: attempt.id,
+    attemptId: attempt.id || resolvedAttemptId,
+    userId: input.userId,
+    courseVersion: input.courseVersion || "1.0.0",
+    completedAt: completionTimestamp,
+    assignedQuestionIds: canonicalQuestions.map((q) => q.id),
     moduleId: formattedModId,
     level: input.level,
     mode: input.mode,

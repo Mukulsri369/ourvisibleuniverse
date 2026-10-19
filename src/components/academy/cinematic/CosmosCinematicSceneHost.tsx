@@ -828,23 +828,26 @@ function StellarPhysicsScene3D({
 function GalacticAndCosmologyScene3D({
   sceneId,
   qualityProfile,
+  activeCue,
   isSimulationRunning,
   simulationTimeScale,
   onSelectObject,
 }: {
   sceneId: string;
   qualityProfile: CinematicQualityProfile;
+  activeCue: RegisteredAnimationCue | null;
   isSimulationRunning: boolean;
   simulationTimeScale: number;
   onSelectObject: (id: string) => void;
 }) {
+  const beatIdx = activeCue?.beatIndex ?? activeCue?.layerOrPresetIndex ?? 0;
   return (
     <group>
       <GalaxyParticleField
         objectId="primary_galaxy_disk"
         morphology="barred_spiral"
         position={[0, 0, 0]}
-        rotation={[0.42, 0, 0.12]}
+        rotation={[0.42 + beatIdx * 0.08, 0, 0.12]}
         radius={7.2}
         armCount={4}
         seed={1313}
@@ -987,6 +990,37 @@ export function CosmosCinematicSceneHost({
   const qualityProfile: CinematicQualityProfile =
     CINEMATIC_QUALITY_PROFILES[snapshot.qualityPreset] || CINEMATIC_QUALITY_PROFILES.BALANCED;
 
+  // Authoritative narration-driven animation beat resolution (Zero hardcoded beat indices)
+  const resolvedBeatIndex = useMemo(() => {
+    if (typeof activeCue?.beatIndex === "number") {
+      return activeCue.beatIndex;
+    }
+    const pocMatch = CosmosProofOfConceptCatalog.getBeatForNarrationSegment(
+      snapshot.currentModuleId,
+      snapshot.currentSublessonId,
+      snapshot.currentNarrationSegmentId || activeCue?.narrationSegmentId || "",
+    );
+    if (pocMatch && typeof pocMatch.beat.beatIndex === "number") {
+      return pocMatch.beat.beatIndex;
+    }
+    if (activeCue?.segmentSectionType === "deepDive") return 1;
+    if (
+      activeCue?.segmentSectionType === "didYouKnow" ||
+      activeCue?.segmentSectionType === "mathOrAnalogy" ||
+      activeCue?.segmentSectionType === "activity"
+    ) {
+      return 2;
+    }
+    return 0;
+  }, [
+    activeCue?.beatIndex,
+    activeCue?.narrationSegmentId,
+    activeCue?.segmentSectionType,
+    snapshot.currentModuleId,
+    snapshot.currentSublessonId,
+    snapshot.currentNarrationSegmentId,
+  ]);
+
   useEffect(() => {
     const supported = checkWebGLAvailable();
     setWebGLSupported(supported);
@@ -1117,7 +1151,7 @@ export function CosmosCinematicSceneHost({
           onEnableManualCamera={onEnableManualCamera}
         />
 
-        {/* Render Module-Appropriate Scientific 3D Scene (44 Distinct Chapters across Modules 01, 05, 06, 07, 08, 14) */}
+        {/* Render Module-Appropriate Scientific 3D Scene with Authoritative Narration Beat Progression */}
         {snapshot.currentModuleId === "01" ? (
           <Module01CinematicDirectorScene
             sceneId={scene.sceneId}
@@ -1182,11 +1216,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "13" ? (
           <Module13CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("13", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m13_ch1_hubble_tuning_fork"
+                ?.sceneComponentId ||
+              "m13_ch1_hubble_tuning_fork"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1210,11 +1246,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "15" ? (
           <Module15CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("15", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m15_ch1_cosmic_hierarchy_ladder"
+                ?.sceneComponentId ||
+              "m15_ch1_cosmic_hierarchy_ladder"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1226,11 +1264,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "16" ? (
           <Module16CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("16", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m16_ch1_cosmic_energy_pie"
+                ?.sceneComponentId ||
+              "m16_ch1_cosmic_energy_pie"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1242,11 +1282,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "17" ? (
           <Module17CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("17", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m17_ch1_big_bang_metric_intro"
+                ?.sceneComponentId ||
+              "m17_ch1_big_bang_metric_intro"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1258,11 +1300,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "18" ? (
           <Module18CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("18", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m18_ch1_comoving_expansion_grid"
+                ?.sceneComponentId ||
+              "m18_ch1_comoving_expansion_grid"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1274,11 +1318,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "19" ? (
           <Module19CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("19", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m19_ch1_ancient_worldviews_sky"
+                ?.sceneComponentId ||
+              "m19_ch1_ancient_worldviews_sky"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1290,11 +1336,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "20" ? (
           <Module20CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("20", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m20_ch1_solar_red_giant_track"
+                ?.sceneComponentId ||
+              "m20_ch1_solar_red_giant_track"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1306,11 +1354,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "21" ? (
           <Module21CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("21", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m21_ch1_photon_bucket_light_power"
+                ?.sceneComponentId ||
+              "m21_ch1_why_telescopes_photon_bucket"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1322,11 +1372,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "22" ? (
           <Module22CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("22", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m22_ch1_sputnik_leo_mechanics"
+                ?.sceneComponentId ||
+              "m22_ch1_sputnik_early_satellites"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1338,11 +1390,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "23" ? (
           <Module23CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("23", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m23_ch1_chnops_water_chemistry"
+                ?.sceneComponentId ||
+              "m23_ch1_thermodynamic_life_definition"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1354,11 +1408,13 @@ export function CosmosCinematicSceneHost({
         ) : snapshot.currentModuleId === "24" ? (
           <Module24CinematicDirectorScene
             sceneComponentId={
+              activeCue?.sceneComponentId ||
               CosmosProofOfConceptCatalog.getChapterManifest("24", snapshot.currentSublessonId)
-                ?.sceneComponentId || "m24_ch1_citizen_science_zooniverse"
+                ?.sceneComponentId ||
+              "m24_ch1_unified_cosmic_physics_sandbox"
             }
             chapterId={snapshot.currentSublessonId}
-            activeBeatIndex={0}
+            activeBeatIndex={resolvedBeatIndex}
             highlightedObjectIds={snapshot.activeHighlightedObjects}
             timeScale={snapshot.simulationTimeScale}
             isPaused={!snapshot.isSimulationRunning}
@@ -1407,6 +1463,7 @@ export function CosmosCinematicSceneHost({
           <GalacticAndCosmologyScene3D
             sceneId={scene.sceneId}
             qualityProfile={qualityProfile}
+            activeCue={activeCue}
             isSimulationRunning={snapshot.isSimulationRunning}
             simulationTimeScale={snapshot.simulationTimeScale}
             onSelectObject={onSelectObject}

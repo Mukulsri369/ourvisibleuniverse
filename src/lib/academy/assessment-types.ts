@@ -96,11 +96,29 @@ export interface TopicRequiringReview {
   reviewRecommendation: string;
 }
 
+export interface OfficialExamAttemptRecord {
+  attemptId: string;
+  userId: string;
+  courseVersion: string;
+  learningLevel: LearningLevel;
+  questionIds: string[];
+  submittedAnswers: Record<string, number | number[]>;
+  finalScore: number;
+  totalPoints: number;
+  percentage: number;
+  passingStatus: boolean;
+  completionTimestamp: string;
+}
+
 /**
  * Comprehensive server-graded assessment verdict.
  */
 export interface AssessmentResult {
   attemptId: string;
+  userId?: string;
+  courseVersion?: string;
+  completedAt?: string;
+  assignedQuestionIds?: string[];
   moduleId: string;
   level: LearningLevel;
   mode: AssessmentMode;

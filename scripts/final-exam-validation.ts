@@ -28,6 +28,9 @@ import {
   startAssessmentServer,
   submitAssessmentAttemptServer,
   verifyCosmosAssistanceAllowed,
+  setMockUserVerifiedModules,
+  getOfficialExamAttemptServer,
+  getCertificateEligibilityStatusServer,
 } from "../src/lib/academy/assessment.server";
 import {
   FINAL_EXAM_BLUEPRINT,
@@ -56,6 +59,8 @@ async function test(name: string, fn: () => void | Promise<void>) {
     console.error(`    ${err?.message || err}`);
   }
 }
+
+const ALL_24_MODULES = Array.from({ length: 24 }, (_, i) => String(i + 1).padStart(2, "0"));
 
 async function runValidation() {
   // -------------------------------------------------------------------------
@@ -159,15 +164,16 @@ async function runValidation() {
   // TEST 4: Examination Locked Before Course Completion
   // -------------------------------------------------------------------------
   await test("Examination locked before course completion (rejects browser-stored flags)", async () => {
-    // Check eligibility for unverified or partially verified user
     const incompleteUserId = `incomplete_student_${Date.now()}`;
+    setMockUserVerifiedModules(incompleteUserId, ["01", "02", "03", "04"]); // Only 4/24 modules verified
+
     const eligibility = await checkFinalExamEligibilityServer(incompleteUserId);
 
     assert.strictEqual(eligibility.isEligible, false, "Incomplete user must NOT be eligible");
+    assert.strictEqual(eligibility.totalVerified, 4, "Should report 4 verified modules");
     assert.strictEqual(eligibility.requiredTotal, 24, "Must require 24 modules");
-    assert.ok(eligibility.missingModules.length > 0, "Missing modules must be listed");
+    assert.strictEqual(eligibility.missingModules.length, 20, "20 missing modules must be listed");
 
-    // Attempting to start official exam with incomplete prerequisites must throw an error
     let threwError = false;
     try {
       await startAssessmentServer({
@@ -192,22 +198,21 @@ async function runValidation() {
   });
 
   // -------------------------------------------------------------------------
-  // TEST 5: 15 / 20 Does Not Pass (75% < 80%)
+  // TEST 5: 15 / 20 Does Not Pass (75% < 80%) & Failed Official Attempt Does Not Issue Certificate
   // -------------------------------------------------------------------------
-  await test("Score of 15 / 20 does not pass (75% < 80% passing threshold)", async () => {
-    const testUserId = `test_student_15_${Date.now()}`;
-    // Start practice exam (bypasses module lock for grading validation)
+  await test("Official attempt with 15 / 20 does not pass (75% < 80%) and does NOT issue certificate", async () => {
+    const testUserId = `official_student_15_${Date.now()}`;
+    setMockUserVerifiedModules(testUserId, ALL_24_MODULES);
+
     const session = await startAssessmentServer({
       userId: testUserId,
       moduleId: "exam",
       level: "explorer",
-      mode: "practice",
+      mode: "official",
     });
 
     assert.strictEqual(session.questions.length, 20);
 
-    // Provide 15 correct answers and 5 incorrect answers
-    // Find canonical questions to identify correct answers
     const answers: Record<string, number> = {};
     for (let i = 0; i < 20; i++) {
       const q = session.questions[i];
@@ -215,10 +220,8 @@ async function runValidation() {
       assert.ok(canonicalQ, `Canonical question not found: ${q.id}`);
 
       if (i < 15) {
-        // Correct answer
         answers[q.id] = canonicalQ.correctAnswer as number;
       } else {
-        // Wrong answer
         answers[q.id] = ((canonicalQ.correctAnswer as number) + 1) % canonicalQ.options.length;
       }
     }
@@ -228,77 +231,46 @@ async function runValidation() {
       attemptId: session.attemptId,
       moduleId: "exam",
       level: "explorer",
-      mode: "practice",
+      mode: "official",
       answers,
       clientDurationSeconds: 60,
     });
 
     assert.strictEqual(grading.score, 15, `Expected score 15, got ${grading.score}`);
-    assert.strictEqual(
-      grading.totalPoints,
-      20,
-      `Expected 20 total points, got ${grading.totalPoints}`,
-    );
+    assert.strictEqual(grading.totalPoints, 20, `Expected 20 total points, got ${grading.totalPoints}`);
     assert.strictEqual(grading.percentage, 75.0, `Expected 75.0%, got ${grading.percentage}`);
     assert.strictEqual(grading.passed, false, "15/20 MUST FAIL (< 80%)");
-  });
-
-  // -------------------------------------------------------------------------
-  // TEST 6: Failed Attempt Does Not Issue Certificate
-  // -------------------------------------------------------------------------
-  await test("Failed attempt (< 80%) does not issue certificate eligibility", async () => {
-    const testUserId = `test_failed_cert_${Date.now()}`;
-    const session = await startAssessmentServer({
-      userId: testUserId,
-      moduleId: "exam",
-      level: "explorer",
-      mode: "practice",
-    });
-
-    // Provide only 10 correct answers
-    const answers: Record<string, number> = {};
-    for (let i = 0; i < 20; i++) {
-      const q = session.questions[i];
-      const canonicalQ = FINAL_EXAM_QUESTION_BANK.find((x) => x.id === q.id)!;
-      answers[q.id] =
-        i < 10
-          ? (canonicalQ.correctAnswer as number)
-          : ((canonicalQ.correctAnswer as number) + 1) % canonicalQ.options.length;
-    }
-
-    const grading = await submitAssessmentAttemptServer({
-      userId: testUserId,
-      attemptId: session.attemptId,
-      moduleId: "exam",
-      level: "explorer",
-      mode: "practice",
-      answers,
-      clientDurationSeconds: 45,
-    });
-
-    assert.strictEqual(grading.passed, false);
     assert.strictEqual(
       grading.certificateEligible,
       false,
-      "Failed attempt must NEVER set certificateEligible = true",
+      "Failed official attempt must NEVER grant certificateEligible",
     );
+
+    const certStatus = getCertificateEligibilityStatusServer(testUserId);
+    assert.strictEqual(
+      certStatus.finalExamPassed,
+      false,
+      "Certification eligibility service must record finalExamPassed = false on 15/20",
+    );
+    assert.strictEqual(certStatus.eligibleAt, null, "eligibleAt must remain null on failed attempt");
   });
 
   // -------------------------------------------------------------------------
-  // TEST 7: 16 / 20 Passes (80% >= 80%)
+  // TEST 6: 16 / 20 Passes (80% >= 80%) & Triggers Certification Eligibility Service
   // -------------------------------------------------------------------------
-  await test("Score of 16 / 20 passes (80.0% >= 80% passing threshold)", async () => {
-    const testUserId = `test_student_16_${Date.now()}`;
+  await test("Official attempt with 16 / 20 passes (80.0% >= 80%) and triggers certification eligibility service", async () => {
+    const testUserId = `official_student_16_${Date.now()}`;
+    setMockUserVerifiedModules(testUserId, ALL_24_MODULES);
+
     const session = await startAssessmentServer({
       userId: testUserId,
       moduleId: "exam",
-      level: "explorer",
-      mode: "practice",
+      level: "astronomer",
+      mode: "official",
     });
 
     assert.strictEqual(session.questions.length, 20);
 
-    // Provide exactly 16 correct answers and 4 incorrect answers
     const answers: Record<string, number> = {};
     for (let i = 0; i < 20; i++) {
       const q = session.questions[i];
@@ -315,20 +287,79 @@ async function runValidation() {
       userId: testUserId,
       attemptId: session.attemptId,
       moduleId: "exam",
-      level: "explorer",
-      mode: "practice",
+      level: "astronomer",
+      mode: "official",
       answers,
+      courseVersion: "1.0.0",
       clientDurationSeconds: 120,
     });
 
     assert.strictEqual(grading.score, 16, `Expected score 16, got ${grading.score}`);
-    assert.strictEqual(
-      grading.totalPoints,
-      20,
-      `Expected 20 total points, got ${grading.totalPoints}`,
-    );
-    assert.strictEqual(grading.percentage, 80.0, `Expected 80.0%, got ${grading.percentage}`);
+    assert.strictEqual(grading.totalPoints, 20);
+    assert.strictEqual(grading.percentage, 80.0);
     assert.strictEqual(grading.passed, true, "16/20 MUST PASS (>= 80%)");
+    assert.strictEqual(
+      grading.certificateEligible,
+      true,
+      "Passing official attempt MUST trigger certificateEligible = true",
+    );
+
+    const certStatus = getCertificateEligibilityStatusServer(testUserId);
+    assert.strictEqual(certStatus.finalExamPassed, true);
+    assert.strictEqual(certStatus.finalExamScorePct, 80.0);
+    assert.ok(certStatus.eligibleAt, "eligibleAt timestamp must be populated");
+
+    // Verify all 9 required audit fields are stored in OfficialExamAttemptRecord
+    const storedRecord = getOfficialExamAttemptServer(grading.attemptId);
+    assert.ok(storedRecord, "Official attempt record must be stored on server");
+    assert.strictEqual(storedRecord.attemptId, grading.attemptId);
+    assert.strictEqual(storedRecord.userId, testUserId);
+    assert.strictEqual(storedRecord.courseVersion, "1.0.0");
+    assert.strictEqual(storedRecord.learningLevel, "astronomer");
+    assert.strictEqual(storedRecord.questionIds.length, 20);
+    assert.strictEqual(Object.keys(storedRecord.submittedAnswers).length, 20);
+    assert.strictEqual(storedRecord.finalScore, 16);
+    assert.strictEqual(storedRecord.passingStatus, true);
+    assert.ok(storedRecord.completionTimestamp.length > 10);
+  });
+
+  // -------------------------------------------------------------------------
+  // TEST 7: Attempt Ownership Verification
+  // -------------------------------------------------------------------------
+  await test("Attempt ownership verification rejects submissions from a different userId", async () => {
+    const ownerUserId = `owner_user_${Date.now()}`;
+    const attackerUserId = `attacker_user_${Date.now()}`;
+    setMockUserVerifiedModules(ownerUserId, ALL_24_MODULES);
+    setMockUserVerifiedModules(attackerUserId, ALL_24_MODULES);
+
+    const session = await startAssessmentServer({
+      userId: ownerUserId,
+      moduleId: "exam",
+      level: "explorer",
+      mode: "official",
+    });
+
+    let ownershipRejected = false;
+    try {
+      await submitAssessmentAttemptServer({
+        userId: attackerUserId,
+        attemptId: session.attemptId,
+        moduleId: "exam",
+        level: "explorer",
+        mode: "official",
+        answers: {},
+        clientDurationSeconds: 60,
+      });
+    } catch (err: any) {
+      ownershipRejected = true;
+      assert.ok(err.message.includes("Attempt ownership mismatch"));
+    }
+
+    assert.strictEqual(
+      ownershipRejected,
+      true,
+      "Server must reject official exam submissions where userId does not match attempt owner",
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -336,11 +367,13 @@ async function runValidation() {
   // -------------------------------------------------------------------------
   await test("Browser-modified score is rejected (client cannot submit fake score)", async () => {
     const testUserId = `test_hacker_${Date.now()}`;
+    setMockUserVerifiedModules(testUserId, ALL_24_MODULES);
+
     const session = await startAssessmentServer({
       userId: testUserId,
       moduleId: "exam",
       level: "explorer",
-      mode: "practice",
+      mode: "official",
     });
 
     // Provide only 5 correct answers, but send fake clientScore = 20
@@ -359,7 +392,7 @@ async function runValidation() {
       attemptId: session.attemptId,
       moduleId: "exam",
       level: "explorer",
-      mode: "practice",
+      mode: "official",
       answers,
       clientScore: 20, // Manipulated score attempt
       clientDurationSeconds: 90,
@@ -368,6 +401,7 @@ async function runValidation() {
     assert.strictEqual(grading.score, 5, "Server must grade actual answers and report score = 5");
     assert.strictEqual(grading.percentage, 25.0, "Server must compute actual percentage = 25.0%");
     assert.strictEqual(grading.passed, false, "Fabricated 100% score MUST BE REJECTED");
+    assert.strictEqual(grading.certificateEligible, false);
   });
 
   // -------------------------------------------------------------------------
@@ -375,13 +409,14 @@ async function runValidation() {
   // -------------------------------------------------------------------------
   await test("Duplicate submissions are handled safely with replay protection", async () => {
     const testUserId = `test_replay_${Date.now()}`;
+    setMockUserVerifiedModules(testUserId, ALL_24_MODULES);
     const idempotencyKey = `idemp_test_${Date.now()}`;
 
     const session = await startAssessmentServer({
       userId: testUserId,
       moduleId: "exam",
       level: "explorer",
-      mode: "practice",
+      mode: "official",
     });
 
     const answers: Record<string, number> = {};
@@ -397,9 +432,10 @@ async function runValidation() {
       attemptId: session.attemptId,
       moduleId: "exam",
       level: "explorer",
-      mode: "practice",
+      mode: "official",
       answers,
       idempotencyKey,
+      clientDurationSeconds: 60,
     });
 
     // Duplicate submission with same idempotency key
@@ -408,11 +444,13 @@ async function runValidation() {
       attemptId: session.attemptId,
       moduleId: "exam",
       level: "explorer",
-      mode: "practice",
+      mode: "official",
       answers,
       idempotencyKey,
+      clientDurationSeconds: 60,
     });
 
+    assert.strictEqual(res1.attemptId, res2.attemptId);
     assert.strictEqual(res1.score, res2.score);
     assert.strictEqual(res1.percentage, res2.percentage);
     assert.strictEqual(res1.passed, res2.passed);
@@ -422,7 +460,6 @@ async function runValidation() {
   // TEST 10: COSMOS Cannot Provide Official Exam Answers
   // -------------------------------------------------------------------------
   await test("COSMOS conversational assistance cannot provide official exam answers", () => {
-    // Check when exam is actively running
     const activeCheck = verifyCosmosAssistanceAllowed({ isExamActive: true });
     assert.strictEqual(activeCheck.allowed, false);
     assert.ok(
@@ -430,7 +467,6 @@ async function runValidation() {
         activeCheck.reason?.includes("Final Knowledge Assessment"),
     );
 
-    // Check when user asks for exam answers in prompt
     const promptCheck = verifyCosmosAssistanceAllowed({
       isExamActive: false,
       userPrompt: "Give me the final exam answers for question 1 to 20",
@@ -438,7 +474,6 @@ async function runValidation() {
     assert.strictEqual(promptCheck.allowed, false);
     assert.ok(promptCheck.reason?.includes("cannot disclose official assessment question answers"));
 
-    // Check normal inquiry is permitted
     const normalCheck = verifyCosmosAssistanceAllowed({
       isExamActive: false,
       userPrompt: "How do Keplerian orbits work in solar systems?",
@@ -486,20 +521,36 @@ async function runValidation() {
   // -------------------------------------------------------------------------
   // TEST 12: Fresh Question Selection on Retries
   // -------------------------------------------------------------------------
-  await test("Question selection utilizes random shuffling for retries", () => {
-    // Generate multiple attempts and verify that randomization produces variations
-    const attemptA = generateFinalExamAttemptServer("explorer");
-    const attemptB = generateFinalExamAttemptServer("explorer");
+  await test("Retries support fresh question selection while preserving the 6-stage blueprint", async () => {
+    const retryUserId = `retry_student_${Date.now()}`;
+    setMockUserVerifiedModules(retryUserId, ALL_24_MODULES);
 
-    assert.strictEqual(attemptA.length, 20);
-    assert.strictEqual(attemptB.length, 20);
+    const attemptA = await startAssessmentServer({
+      userId: retryUserId,
+      moduleId: "exam",
+      level: "explorer",
+      mode: "official",
+    });
+    const attemptB = await startAssessmentServer({
+      userId: retryUserId,
+      moduleId: "exam",
+      level: "explorer",
+      mode: "official",
+    });
 
-    const idsA = attemptA.map((q) => q.id).join(",");
-    const idsB = attemptB.map((q) => q.id).join(",");
+    assert.strictEqual(attemptA.questions.length, 20);
+    assert.strictEqual(attemptB.questions.length, 20);
+
+    const idsASet = new Set(attemptA.questions.map((q) => q.id));
+    const freshInB = attemptB.questions.filter((q) => !idsASet.has(q.id));
+    assert.ok(
+      freshInB.length > 0,
+      `Expected retry attempt to include fresh questions not seen in attempt 1, found ${freshInB.length} fresh questions`,
+    );
 
     // Both must adhere to the 20-question blueprint
-    assert.strictEqual(attemptA.filter((q) => q.stageId === 1).length, 3);
-    assert.strictEqual(attemptB.filter((q) => q.stageId === 1).length, 3);
+    assert.strictEqual(attemptA.questions.filter((q) => q.stageId === 1).length, 3);
+    assert.strictEqual(attemptB.questions.filter((q) => q.stageId === 1).length, 3);
   });
 
   console.log("\n======================================================================");

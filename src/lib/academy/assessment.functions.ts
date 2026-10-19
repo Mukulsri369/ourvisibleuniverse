@@ -164,6 +164,8 @@ export const claimOfficialCertificate = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getCertificateEligibilityStatusServer } = await import("./assessment.server");
+
     const { data: eligibility, error } = await supabaseAdmin
       .from("academy_certificate_eligibility")
       .select("*")
@@ -171,17 +173,20 @@ export const claimOfficialCertificate = createServerFn({ method: "POST" })
       .eq("final_exam_passed", true)
       .maybeSingle();
 
-    if (error || !eligibility) {
-      throw new Error(
-        "Certificate verification denied: You must complete all 24 modules and pass the Cosmic Explorer Final Knowledge Assessment (>= 80%) before an official certificate can be issued.",
-      );
+    const cachedEligibility = getCertificateEligibilityStatusServer(userId);
+
+    if ((!error && eligibility) || cachedEligibility.finalExamPassed) {
+      return {
+        eligible: true,
+        scorePercentage:
+          eligibility?.final_exam_score_pct ?? cachedEligibility.finalExamScorePct,
+        eligibleAt: eligibility?.eligible_at ?? cachedEligibility.eligibleAt,
+        courseId: eligibility?.course_id ?? cachedEligibility.courseId,
+        courseVersion: eligibility?.course_version ?? cachedEligibility.courseVersion,
+      };
     }
 
-    return {
-      eligible: true,
-      scorePercentage: eligibility.final_exam_score_pct,
-      eligibleAt: eligibility.eligible_at,
-      courseId: eligibility.course_id,
-      courseVersion: eligibility.course_version,
-    };
+    throw new Error(
+      "Certificate verification denied: You must complete all 24 modules and pass the Cosmic Explorer Final Knowledge Assessment (>= 80%) before an official certificate can be issued.",
+    );
   });

@@ -1,0 +1,2238 @@
+
+# OUR VISIBLE UNIVERSE
+# FINAL PRODUCTION READINESS CERTIFICATION
+# POST-IMPLEMENTATION MASTER VALIDATION PROMPT
+
+TITLE:
+ULTIMATE PRODUCTION READINESS TEST
+COMPLETE APPLICATION VERIFICATION
+AUTOMATED ERROR DETECTION AND REMEDIATION
+ALL 18 DEVELOPMENT PHASES VALIDATION
+24-MODULE COSMIC LEARNING ACADEMY AUDIT
+REAL BROWSER AND END-TO-END TESTING
+SCIENTIFIC AND PHYSICS ACCURACY VALIDATION
+COSMOS AI INTEGRATION VERIFICATION
+SECURITY AND CERTIFICATE INTEGRITY AUDIT
+GPU PERFORMANCE AND SOLAR SYSTEM ZOOM TEST
+MOBILE, ACCESSIBILITY AND SEO VALIDATION
+PRODUCTION BUILD AND STAGING RELEASE REHEARSAL
+FINAL GO / NO-GO RELEASE DECISION
+
+DEVELOPMENT ENVIRONMENT:
+GOOGLE AI STUDIO — ARGON 4
+
+PROJECT:
+OUR VISIBLE UNIVERSE
+
+REPOSITORY:
+https://github.com/Mukulsri369/ourvisibleuniverse
+
+WEBSITE:
+https://ourvisibleuniverse.in
+
+PRIORITY:
+P0 — FINAL RELEASE CERTIFICATION
+
+MODE:
+INDEPENDENT QA + AUTOMATED REMEDIATION
+
+THIS IS THE FINAL VERIFICATION PROMPT.
+
+DO NOT CREATE ANOTHER DEVELOPMENT ROADMAP.
+
+====================================================
+0. ABSOLUTE MISSION
+====================================================
+
+You are acting as the independent
+Chief Software Quality, Scientific
+Validation and Release Engineering
+Authority for Our Visible Universe.
+
+Your responsibility is to determine
+whether the COMPLETE application
+is genuinely production-ready.
+
+Do not trust previous AI statements
+that features have been completed.
+
+Do not trust green test reports
+unless the tests actually execute
+the required behavior.
+
+Do not assume source code existence
+proves working functionality.
+
+You must:
+
+INSPECT.
+
+BUILD.
+
+RUN.
+
+TEST.
+
+REPRODUCE.
+
+DIAGNOSE.
+
+FIX.
+
+RETEST.
+
+BENCHMARK.
+
+SECURE.
+
+DOCUMENT.
+
+CERTIFY OR REJECT RELEASE.
+
+The application should only receive
+a GO decision when the required
+release criteria are genuinely satisfied.
+
+IMPORTANT:
+
+No finite test suite can guarantee
+the complete absence of every possible bug.
+
+The acceptable objective is:
+
+ZERO KNOWN UNRESOLVED P0 DEFECTS.
+
+ZERO KNOWN UNRESOLVED
+RELEASE-BLOCKING P1 DEFECTS.
+
+ZERO UNHANDLED ERRORS DURING
+MANDATORY TESTED USER JOURNEYS.
+
+ALL REQUIRED RELEASE GATES PASSED.
+
+ALL TEST LIMITATIONS TRANSPARENTLY REPORTED.
+
+NEVER FABRICATE TEST EVIDENCE.
+
+====================================================
+1. COMPLETE PRODUCT SCOPE
+====================================================
+
+Audit the ENTIRE application.
+
+NOT JUST THE ACADEMY.
+
+Verify all features actually exposed
+in the current repository.
+
+PRIMARY PRODUCT AREAS:
+
+1. Homepage.
+
+2. Main universe explorer.
+
+3. Solar System explorer.
+
+4. Planet and moon visualizations.
+
+5. Star and stellar-system visualizations.
+
+6. Milky Way explorer.
+
+7. External galaxy explorer.
+
+8. Black hole visualizations.
+
+9. Neutron star visualizations.
+
+10. Cosmic-scale navigation.
+
+11. Scientific information panels.
+
+12. Scientific simulation modules.
+
+13. N-body gravity functionality.
+
+14. Mathematical or physics
+    visualization tools, if present.
+
+15. Chladni and other science
+    simulators, if present.
+
+16. Cosmic Learning Academy.
+
+17. COSMOS AI Guided Director.
+
+18. All cinematic lesson scenes.
+
+19. Scientific laboratory activities.
+
+20. Voice and text interactions.
+
+21. Quizzes and assessments.
+
+22. Verified learning progress.
+
+23. Stage badges.
+
+24. Final examination.
+
+25. Certificates.
+
+26. Login and authentication.
+
+27. Admin functions, if present.
+
+28. Store navigation and affiliate
+    integrations, if present.
+
+29. Sitemap and SEO.
+
+30. Mobile and desktop layouts.
+
+31. Error and fallback experiences.
+
+Do not invent a feature merely
+because it appears in this list.
+
+Discover actual production routes
+and exposed capabilities.
+
+For each real feature:
+
+TEST IT.
+
+REPORT ITS STATUS.
+
+FIX CONFIRMED CRITICAL DEFECTS.
+
+====================================================
+2. START WITH A CLEAN BUILD
+====================================================
+
+Inspect:
+
+package.json
+
+Package lockfile.
+
+Node runtime requirements.
+
+TypeScript configuration.
+
+Vite configuration.
+
+Environment variable usage.
+
+CI workflow.
+
+Deployment configuration.
+
+Perform reproducible installation
+using the repository's lockfile
+and supported package manager.
+
+Use npm ci when npm and
+package-lock.json are authoritative.
+
+Do not arbitrarily upgrade
+dependencies during certification.
+
+Run:
+
+npm run build
+
+npm run lint
+
+Run TypeScript checking
+using the repository's
+actual TypeScript configuration.
+
+A suitable command may be:
+
+npx tsc --noEmit
+
+Only where appropriate.
+
+Capture actual:
+
+Exit codes.
+
+Error output.
+
+Warnings.
+
+Build duration.
+
+Bundle sizes.
+
+Generated artifacts.
+
+Dependency resolution failures.
+
+Do not mark compilation PASS
+if required TypeScript checks fail.
+
+====================================================
+3. RUN THE EXISTING TEST SUITES
+====================================================
+
+The current package provides
+the following relevant scripts.
+
+Run the scripts that actually
+exist in the checked-out revision.
+
+npm run test
+
+npm run test:qa
+
+npm run test:catalog
+
+npm run test:gaia
+
+npm run test:jpl
+
+npm run test:extragalactic
+
+npm run test:compact
+
+npm run test:evolution
+
+npm run test:cosmic-web
+
+npm run test:lss
+
+npm run test:consistency
+
+npm run test:visual
+
+npm run test:student
+
+npm run test:assessment
+
+npm run test:completion
+
+npm run test:modules-01-12
+
+npm run test:modules-13-24
+
+npm run test:achievements
+
+npm run test:exam
+
+npm run test:certificate
+
+npm run test:verification
+
+npm run test:cosmos
+
+npm run test:narration
+
+npm run test:realtime
+
+npm run test:3d
+
+npm run test:cinematic
+
+npm run test:rendering
+
+npm run test:assets
+
+npm run test:poc
+
+npm run test:all
+
+IMPORTANT:
+
+The existing test:all script
+does not include every individual suite.
+
+Do not rely on test:all alone.
+
+Build a complete test inventory.
+
+Run every applicable critical suite
+independently or through a verified
+comprehensive test runner.
+
+Classify each test by its actual nature.
+
+STATIC CONTRACT.
+
+UNIT.
+
+INTEGRATION.
+
+NUMERICAL SCIENCE.
+
+SERVER SECURITY.
+
+BROWSER E2E.
+
+VISUAL REGRESSION.
+
+PERFORMANCE.
+
+Distinguish actual executions
+from structural source assertions.
+
+====================================================
+4. FIX BUILD AND TEST FAILURES
+====================================================
+
+For each failed required check:
+
+Identify the exact failure.
+
+Find the responsible file.
+
+Diagnose the root cause.
+
+Create a regression test
+if appropriate.
+
+Apply the smallest safe correction.
+
+Rerun the focused test.
+
+Rerun affected integration tests.
+
+Rebuild the application.
+
+Do not:
+
+Delete failing tests.
+
+Comment out assertions.
+
+Disable TypeScript checks.
+
+Use @ts-nocheck to hide failures.
+
+Return fake PASS results.
+
+Suppress errors in logs.
+
+Replace accurate physics
+with visually attractive shortcuts.
+
+====================================================
+5. VERIFY THE ACTUAL PRODUCTION BUILD
+====================================================
+
+Do not limit testing to
+the Vite development server.
+
+Build using production settings.
+
+Launch the actual built application
+through the supported production
+or preview runtime.
+
+Verify:
+
+Production routes resolve.
+
+JavaScript bundles load.
+
+Assets load successfully.
+
+Dynamic imports work.
+
+Server functions work.
+
+API calls behave correctly.
+
+Authentication works.
+
+Environment variables resolve.
+
+No development-only dependencies
+are required at runtime.
+
+No broken asset paths.
+
+No missing chunk errors.
+
+No client hydration crashes.
+
+No critical browser console errors.
+
+If a production preview cannot
+reproduce the actual deployment setup,
+document the limitations.
+
+====================================================
+6. VERIFY THE REAL ROUTE INVENTORY
+====================================================
+
+Discover all actual routes.
+
+Build a route matrix.
+
+For each route:
+
+Open it in a real browser.
+
+Reload directly.
+
+Use browser back and forward.
+
+Verify internal links.
+
+Verify page rendering.
+
+Verify accessibility basics.
+
+Capture console errors.
+
+Capture failed requests.
+
+Verify loading and error states.
+
+Test dynamic route parameters.
+
+Test missing or invalid IDs.
+
+Test unauthenticated access
+where applicable.
+
+Verify correct redirects.
+
+A route is not production-ready
+just because its code compiles.
+
+====================================================
+7. COMPLETE 24-MODULE ACADEMY TEST
+====================================================
+
+Audit the Cosmic Learning Academy.
+
+Verify:
+
+24 modules.
+
+6 learning stages.
+
+The actual chapter registry.
+
+The actual narration registry.
+
+The actual activity registry.
+
+The actual assessment requirements.
+
+Historical documentation references:
+
+172 instructional chapters.
+
+960 canonical Explorer
+narration segments.
+
+Reconcile these numbers
+against the live application.
+
+For every module:
+
+Open module page.
+
+Verify lesson content.
+
+Open each chapter.
+
+Start cinematic mode.
+
+Verify the correct scientific scene.
+
+Start narration.
+
+Verify the corresponding animation.
+
+Pause narration.
+
+Resume narration.
+
+Seek where permitted.
+
+Open relevant experiment.
+
+Perform a meaningful input.
+
+Inspect the scientific result.
+
+Ask COSMOS a question.
+
+Resume the original lesson.
+
+Exit cinematic mode.
+
+Re-enter without losing context.
+
+Verify no critical runtime error.
+
+DO THIS FOR ALL 24 MODULES.
+
+====================================================
+8. CHAPTER COVERAGE MUST BE REAL
+====================================================
+
+Do not certify chapter coverage
+based only on a scene registry.
+
+For every actual chapter:
+
+Verify chapter identity.
+
+Verify instructional objective.
+
+Verify expected animation beats.
+
+Verify rendered objects.
+
+Verify visual action timing.
+
+Verify camera choreography.
+
+Verify correct annotations.
+
+Verify scientifically accurate content.
+
+Verify real student controls.
+
+Verify accessible fallback.
+
+Verify performance.
+
+A generic starfield does not count
+as an implemented animation about
+stellar nuclear fusion.
+
+A rotating sphere does not count
+as an eclipse simulator.
+
+A colorful galaxy does not count
+as a dark matter experiment.
+
+Reject generic visual placeholders
+that do not teach the subject.
+
+====================================================
+9. CRITICAL COSMOS ANIMATION BEAT TEST
+====================================================
+
+Inspect:
+
+CosmosCinematicSceneHost.tsx
+
+The latest inspected source contains
+multiple occurrences of:
+
+activeBeatIndex={0}
+
+Investigate all instances.
+
+Determine whether the correct
+narration-driven animation beat
+reaches the rendered scene.
+
+A chapter must not remain stuck
+on the opening animation beat
+while COSMOS advances through narration.
+
+Test:
+
+Beat 1.
+
+Beat 2.
+
+Beat 3.
+
+Subsequent beats.
+
+Chapter transitions.
+
+Narration pause.
+
+Narration resume.
+
+Chapter seek.
+
+Student interruption.
+
+Visual context restoration.
+
+If a hardcoded beat prevents
+real animation progression:
+
+Fix its authoritative data mapping.
+
+Use the existing narration cue system.
+
+Do not invent a second controller.
+
+====================================================
+10. VERIFY ALL NARRATION SEGMENTS
+====================================================
+
+Enumerate actual segments
+from LessonContentProvider.
+
+Verify each approved segment has:
+
+A valid module.
+
+A valid chapter.
+
+Approved narration text.
+
+A valid cue.
+
+A scene mapping.
+
+A meaningful visual action.
+
+Appropriate camera behavior.
+
+Correct captions.
+
+Pause and resume behavior.
+
+Question interruption behavior.
+
+No orphaned scene action.
+
+No unrelated generic filler scene.
+
+Document the results.
+
+Do not claim 100% synchronization
+from the existence of cue IDs.
+
+====================================================
+11. VERIFY COSMOS AI GUIDED LEARNING
+====================================================
+
+Test the entire teaching loop.
+
+COSMOS explains.
+
+The correct 3D scene responds.
+
+The correct object is highlighted.
+
+Scientific values are shown.
+
+COSMOS requests an experiment.
+
+Narration pauses.
+
+Student modifies a real parameter.
+
+The scientific model updates.
+
+COSMOS reads the actual result.
+
+COSMOS provides suitable feedback.
+
+Activity verification occurs.
+
+Narration resumes when appropriate.
+
+The student advances correctly.
+
+Run this loop in representative
+chapters from every Academy stage.
+
+====================================================
+12. VOICE AND TEXT INTERACTION
+====================================================
+
+Test:
+
+Microphone permission accepted.
+
+Microphone permission denied.
+
+Voice command detection.
+
+Voice question interruption.
+
+Typed questions.
+
+Typed simulation commands.
+
+Narration speaking.
+
+Narration listening.
+
+Question answer generation.
+
+Multiple follow-up questions.
+
+Return to previous lesson state.
+
+Audio connection failure.
+
+Microphone unavailable.
+
+Slow connection.
+
+Language variants where supported.
+
+No duplicate narrator.
+
+No lost scientific context.
+
+No leaked microphone session.
+
+Typed learning must remain functional
+without microphone permission.
+
+====================================================
+13. SCIENTIFIC SIMULATION VALIDATION
+====================================================
+
+Independently test:
+
+Newtonian gravity.
+
+N-body interactions.
+
+Orbital speed.
+
+Orbital eccentricity.
+
+Kepler's laws.
+
+Barycenter position.
+
+Conservation laws.
+
+Earth rotation.
+
+Seasonal illumination.
+
+Lunar phase geometry.
+
+Eclipse alignments.
+
+Solar physics.
+
+Stellar luminosity.
+
+Stellar evolution.
+
+Black hole characteristic scales.
+
+Exoplanet transit depths.
+
+Radial velocity.
+
+Galaxy rotation curves.
+
+Cosmic redshift.
+
+Scale-factor relationships.
+
+Telescope diffraction.
+
+Spacecraft gravity assists.
+
+Numerical integration error.
+
+Use independent reference calculations.
+
+Declare scientific tolerances.
+
+Document equations and units.
+
+Do not merely verify that
+objects appear to move.
+
+====================================================
+14. VERIFY SCIENTIFIC REPRESENTATION
+====================================================
+
+Check that visualizations correctly
+distinguish:
+
+OBSERVATIONAL DATA.
+
+PHYSICS SIMULATION.
+
+SCIENTIFIC RECONSTRUCTION.
+
+EDUCATIONAL SCALE MODEL.
+
+ARTISTIC INTERPRETATION.
+
+SPECULATIVE FUTURE SCENARIO.
+
+Check:
+
+NASA/ESA data references.
+
+Measurement uncertainty.
+
+Asset attribution.
+
+Simulation assumptions.
+
+Physical scale disclosures.
+
+False-color observational images.
+
+Synthetic versus observed data.
+
+No invented astronomical measurements.
+
+No unverified extraterrestrial life claims.
+
+No misleading cosmology assertions.
+
+Correct science is a mandatory
+production release criterion.
+
+====================================================
+15. STUDENT ACTIVITIES
+====================================================
+
+Audit all 24 official module activities.
+
+Verify:
+
+Each required activity opens.
+
+Its controls function.
+
+The simulation actually changes.
+
+Calculated results are correct.
+
+The student receives real feedback.
+
+Completion criteria are meaningful.
+
+Evidence is correctly validated.
+
+The server decides verified completion.
+
+An unrelated click cannot satisfy
+the scientific objective.
+
+A decorative slider cannot
+create an official activity pass.
+
+Test success and failure scenarios.
+
+====================================================
+16. CRITICAL VERIFIED PROGRESS SECURITY
+====================================================
+
+Inspect:
+
+CosmosLearningDirector.ts
+
+The latest inspected source contains
+a fallback which can infer
+isVerifiedComplete from local
+activity and quiz statuses.
+
+This requires immediate remediation
+if still present.
+
+A server error must NEVER convert
+local progress into official verification.
+
+Also audit locally cached
+verifiedModules usage.
+
+Ensure:
+
+Only authoritative server records
+can grant verified completion.
+
+Stage badges are server-authoritative.
+
+Final exam eligibility is
+server-authoritative.
+
+Certificate issuance is
+server-authoritative.
+
+Tampering with localStorage must
+not grant official achievements.
+
+Test these paths in a real
+production-like session.
+
+====================================================
+17. FINAL EXAM AND CERTIFICATE
+====================================================
+
+Verify actual authoritative rules.
+
+The documented certification path includes:
+
+24 required verified modules.
+
+A 20-question final examination.
+
+At least 80% final exam score.
+
+Authorized certificate issuance.
+
+The ordinary module assessment
+rules currently use a 70% threshold.
+
+Do not mix these thresholds.
+
+Test:
+
+Valid student.
+
+Invalid student.
+
+Incomplete student.
+
+Failed exam.
+
+Passing exam.
+
+Forged score.
+
+Expired attempt.
+
+Duplicate submission.
+
+Manipulated localStorage.
+
+Unauthenticated certificate request.
+
+Certificate verification link.
+
+No unauthorized certificate
+must be issued.
+
+====================================================
+18. FULL BROWSER ERROR DETECTION
+====================================================
+
+Use Playwright or an equivalent
+real browser execution system.
+
+Capture:
+
+console.error.
+
+Uncaught exceptions.
+
+Unhandled promise rejections.
+
+Failed network requests.
+
+React runtime errors.
+
+Hydration errors.
+
+WebGL errors.
+
+Shader compilation errors.
+
+Missing texture errors.
+
+Broken asset URLs.
+
+API failures.
+
+Unexpected redirects.
+
+For each error record:
+
+Page.
+
+Action.
+
+Timestamp.
+
+Error message.
+
+Stack trace.
+
+Likely cause.
+
+Severity.
+
+Fix.
+
+Retest result.
+
+Do not ignore errors
+merely because the page remains visible.
+
+Classify expected negative-test failures
+separately from unexpected defects.
+
+====================================================
+19. PRODUCTION BROWSER MATRIX
+====================================================
+
+Test actual or available emulated
+browser environments.
+
+Desktop:
+
+Chrome.
+
+Edge.
+
+Firefox.
+
+Safari where available.
+
+Mobile:
+
+Chrome Android.
+
+Safari iOS where available.
+
+Tablet:
+
+Landscape.
+
+Portrait.
+
+Representative viewport sizes.
+
+Test:
+
+Touch.
+
+Mouse.
+
+Keyboard.
+
+Fullscreen.
+
+Scientific controls.
+
+Captions.
+
+Transcript.
+
+Microphone fallback.
+
+Camera gestures.
+
+Loading and navigation.
+
+Document browser environments
+that were not available.
+
+Do not certify an untested browser.
+
+====================================================
+20. REAL GPU PERFORMANCE TESTING
+====================================================
+
+Measure actual:
+
+Average FPS.
+
+P95 frame duration.
+
+P99 frame duration.
+
+Long-frame frequency.
+
+Draw calls.
+
+GPU resource counts.
+
+Texture counts.
+
+Geometry counts.
+
+Shader compile stalls.
+
+Scene load times.
+
+Memory growth.
+
+React render overhead.
+
+WebGL context loss.
+
+Adaptive quality behavior.
+
+Compare measurements
+against the documented performance
+budgets for supported device tiers.
+
+No fabricated benchmark values.
+
+No self-reported FPS.
+
+No performance claims based
+only on static source inspection.
+
+====================================================
+21. CRITICAL SOLAR SYSTEM ZOOM TEST
+====================================================
+
+REPRODUCE THE MAIN
+KNOWN PERFORMANCE PROBLEM.
+
+Test:
+
+Earth.
+
+Moon.
+
+Inner Solar System.
+
+Outer Solar System.
+
+Solar System boundary.
+
+Nearby stars.
+
+Milky Way.
+
+Local Group.
+
+Cosmic web.
+
+Reverse the same journey.
+
+Repeat the transition multiple times.
+
+Check:
+
+No unintended camera jitter.
+
+No visible screen oscillation.
+
+No sudden unexplained snapping.
+
+No repeated object flickering.
+
+No uncontrolled LOD switching.
+
+No black transition frames.
+
+No severe avoidable stuttering.
+
+No coordinate precision corruption.
+
+No camera ownership conflict.
+
+No uncontrolled GPU growth.
+
+If any problem remains:
+
+Locate the responsible code.
+
+Fix the root cause.
+
+Retest.
+
+This is a mandatory release gate.
+
+====================================================
+22. MEMORY LEAK AND STABILITY TEST
+====================================================
+
+Repeatedly:
+
+Open a heavy 3D scene.
+
+Enter fullscreen.
+
+Play narration.
+
+Move camera.
+
+Run an experiment.
+
+Exit fullscreen.
+
+Switch module.
+
+Repeat.
+
+Include:
+
+Solar System.
+
+Sun.
+
+Nebulae.
+
+Galaxies.
+
+Black holes.
+
+Cosmic web.
+
+Spacecraft.
+
+N-body physics.
+
+Measure memory and resource usage.
+
+Check for:
+
+Leaked textures.
+
+Leaked geometry.
+
+Duplicate WebGL contexts.
+
+Duplicate event listeners.
+
+Active hidden render loops.
+
+Unreleased render targets.
+
+Duplicated audio sessions.
+
+Memory should stabilize
+rather than grow without bound.
+
+====================================================
+23. MOBILE AND ACCESSIBILITY
+====================================================
+
+Validate:
+
+Responsive layouts.
+
+Touch target sizes.
+
+Portrait and landscape.
+
+Safe-area insets.
+
+Caption readability.
+
+Accessible data graphs.
+
+Keyboard navigation.
+
+Focus restoration.
+
+Screen-reader labels.
+
+Reduced-motion preference.
+
+Alternative scientific interfaces.
+
+Transcript usability.
+
+On-screen keyboard handling.
+
+Error messaging.
+
+Essential student activities
+must remain possible
+without high-end graphics hardware.
+
+Do not declare WCAG conformance
+from automated testing alone.
+
+====================================================
+24. WEBSITE SEO AND PUBLIC READINESS
+====================================================
+
+Audit relevant public pages.
+
+Check:
+
+Title tags.
+
+Meta descriptions.
+
+Canonical URLs.
+
+Sitemap validity.
+
+robots.txt.
+
+Structured data where appropriate.
+
+Broken internal links.
+
+Open Graph metadata.
+
+Social sharing previews.
+
+Correct production domain.
+
+HTTPS.
+
+Redirect consistency.
+
+Search engine indexing constraints.
+
+Lighthouse performance.
+
+Mobile usability.
+
+Avoid accidental noindex on
+public production pages.
+
+Do not expose private student routes
+through inappropriate indexing.
+
+====================================================
+25. PRODUCTION CONFIGURATION AUDIT
+====================================================
+
+Inspect deployment configuration.
+
+Check:
+
+Required environment variables.
+
+Public versus server-only variables.
+
+Supabase configuration.
+
+Authentication redirect URLs.
+
+CORS configuration.
+
+API endpoint correctness.
+
+Build-time and runtime environment.
+
+Database migrations.
+
+Asset/CDN paths.
+
+Caching behavior.
+
+Security headers.
+
+TLS configuration.
+
+Runtime health checks.
+
+Error reporting integration.
+
+Rollback procedure.
+
+Do not expose credentials.
+
+Do not modify production secrets
+without authorization.
+
+====================================================
+26. MULTI-USER AND AUTHORIZATION TEST
+====================================================
+
+Use isolated test accounts.
+
+Verify:
+
+Guest user.
+
+Authenticated student.
+
+Student with partial progress.
+
+Fully eligible test student.
+
+Administrative role where applicable.
+
+Ensure:
+
+One student's progress
+cannot be read or modified
+by another student.
+
+Only authorized roles
+can access restricted functions.
+
+Official assessment data
+is properly isolated.
+
+Certificate verification does not
+expose unnecessary private data.
+
+No role escalation from
+client-controlled state.
+
+====================================================
+27. ERROR RECOVERY TESTS
+====================================================
+
+Simulate:
+
+Lost internet.
+
+Failed scientific data request.
+
+Unavailable narration.
+
+Microphone denial.
+
+WebGL context loss.
+
+Missing texture.
+
+Failed 3D model load.
+
+Server assessment timeout.
+
+Failed activity verification.
+
+Browser reload mid-lesson.
+
+Device orientation change.
+
+Expected:
+
+Clear error message.
+
+Safe fallback.
+
+Appropriate retry.
+
+No false completion.
+
+No data loss where preservation
+is supported.
+
+No duplicate narration.
+
+No unauthorized server action.
+
+====================================================
+28. PRODUCTION LOAD TESTING
+====================================================
+
+Check expected concurrent-user capacity.
+
+Use a controlled staging environment.
+
+Measure:
+
+Page response times.
+
+API response times.
+
+Database request latency.
+
+Assessment submission concurrency.
+
+Progress verification concurrency.
+
+Server error rates.
+
+Request timeout rates.
+
+Resource consumption.
+
+Use bounded load scenarios.
+
+Do not perform aggressive load testing
+against the public production website
+without explicit authorization.
+
+Document the tested user count.
+
+Do not claim capacity for
+untested traffic volumes.
+
+====================================================
+29. DEPENDENCY AND SECURITY AUDIT
+====================================================
+
+Check:
+
+Known vulnerable dependencies.
+
+Exposed credentials.
+
+Committed secret patterns.
+
+Unsafe client/server boundaries.
+
+Broken access controls.
+
+Cross-site scripting risks.
+
+Improper input validation.
+
+Unsafe file uploads where applicable.
+
+Dependency license requirements.
+
+Outdated critical packages.
+
+Potential supply-chain risks.
+
+Use supported auditing tools.
+
+Distinguish:
+
+Confirmed exploitable issue.
+
+Potential issue.
+
+Development-only issue.
+
+False positive.
+
+Do not blindly upgrade
+every dependency.
+
+Apply compatible targeted fixes.
+
+====================================================
+30. AUTOMATED REPAIR INSTRUCTIONS
+====================================================
+
+For EVERY confirmed release-blocking bug:
+
+1. Reproduce the issue.
+
+2. Capture evidence.
+
+3. Identify root cause.
+
+4. Create a failing regression test.
+
+5. Fix the relevant source code.
+
+6. Rerun focused tests.
+
+7. Rerun related integration tests.
+
+8. Rebuild production artifacts.
+
+9. Retest the browser journey.
+
+10. Check for regressions.
+
+11. Document the fix.
+
+12. Update final status.
+
+Do not mark fixed
+until the final verification passes.
+
+Do not use workarounds
+that destroy scientific functionality.
+
+====================================================
+31. DO NOT FAKE SUCCESS
+====================================================
+
+PROHIBITED BEHAVIOR:
+
+Changing test expectations
+to match broken behavior.
+
+Skipping failing tests.
+
+Silencing console errors
+instead of fixing them.
+
+Deleting legitimate requirements.
+
+Hardcoding successful responses.
+
+Creating mocked physics values
+and claiming live accuracy.
+
+Inventing browser screenshots.
+
+Inventing performance measurements.
+
+Reporting tests as run
+when execution was unavailable.
+
+Declaring all 24 modules complete
+because their names appear in a registry.
+
+Issuing verified progress
+from client-side flags.
+
+Marking production ready
+when a mandatory release gate
+has never been exercised.
+
+====================================================
+32. REQUIRED AUTOMATED TEST REPORT
+====================================================
+
+Generate:
+
+docs/production-readiness/
+test-execution-results.md
+
+Include:
+
+Test suite.
+
+Test command.
+
+Environment.
+
+Executed timestamp.
+
+Number of tests.
+
+Passed.
+
+Failed.
+
+Skipped.
+
+Blocked.
+
+Relevant logs.
+
+Linked evidence.
+
+Final status.
+
+Report compilation,
+runtime, integration and scientific
+tests separately.
+
+====================================================
+33. REQUIRED 24-MODULE COVERAGE REPORT
+====================================================
+
+Generate:
+
+docs/production-readiness/
+academy-24-module-audit.md
+
+For each module include:
+
+Total actual chapters.
+
+Chapters functioning.
+
+Chapters with missing visuals.
+
+Narration cues mapped.
+
+Narration cues actually verified.
+
+Student activity status.
+
+Scientific correctness.
+
+Fullscreen behavior.
+
+Mobile behavior.
+
+Error count.
+
+Final status.
+
+A module must not be marked PASS
+if a required chapter is broken.
+
+====================================================
+34. REQUIRED PRODUCTION PERFORMANCE REPORT
+====================================================
+
+Generate:
+
+docs/production-readiness/
+performance-and-gpu-audit.md
+
+Include:
+
+Tested hardware.
+
+Browser.
+
+Quality tier.
+
+Measured FPS.
+
+P95/P99 frame time.
+
+Memory usage.
+
+GPU resource counts.
+
+Heavy scene performance.
+
+Solar System zoom behavior.
+
+Camera stability findings.
+
+Context-loss findings.
+
+Before/after comparisons
+where real baselines exist.
+
+Unresolved hardware limitations.
+
+====================================================
+35. REQUIRED SECURITY REPORT
+====================================================
+
+Generate:
+
+docs/production-readiness/
+security-and-learning-integrity.md
+
+Include:
+
+Authentication.
+
+Authorization.
+
+RLS.
+
+Student progress.
+
+Activity validation.
+
+Module completion.
+
+Badge integrity.
+
+Official assessment.
+
+Final exam.
+
+Certificate issuance.
+
+Certificate verification.
+
+API secrets.
+
+Dependency vulnerabilities.
+
+Adversarial test outcomes.
+
+Outstanding risks.
+
+====================================================
+36. REQUIRED BROWSER EVIDENCE
+====================================================
+
+Generate actual:
+
+Browser screenshots.
+
+Test traces.
+
+Console error logs.
+
+Network error logs.
+
+Video evidence where supported.
+
+Scientific experiment results.
+
+Fullscreen test evidence.
+
+Mobile layout screenshots.
+
+Relevant rendered scene comparisons.
+
+Save the evidence in a stable
+repository or CI artifact location
+appropriate to the project.
+
+Do not invent evidence paths.
+
+If browser automation cannot run:
+
+State the blocker.
+
+Do not report browser certification.
+
+====================================================
+37. MANDATORY RELEASE DECISION MATRIX
+====================================================
+
+Evaluate these gates:
+
+BUILD:
+PASS / FAIL / BLOCKED
+
+TYPE CHECK:
+PASS / FAIL / BLOCKED
+
+LINT:
+PASS / FAIL / BLOCKED
+
+AUTOMATED TESTS:
+PASS / FAIL / BLOCKED
+
+PRODUCTION RUNTIME:
+PASS / FAIL / BLOCKED
+
+MAIN WEBSITE:
+PASS / FAIL / BLOCKED
+
+24-MODULE COVERAGE:
+PASS / FAIL / BLOCKED
+
+CHAPTER ANIMATION COVERAGE:
+PASS / FAIL / BLOCKED
+
+COSMOS SYNCHRONIZATION:
+PASS / FAIL / BLOCKED
+
+INTERACTIVE ACTIVITIES:
+PASS / FAIL / BLOCKED
+
+SCIENTIFIC ACCURACY:
+PASS / FAIL / BLOCKED
+
+ASSESSMENT SECURITY:
+PASS / FAIL / BLOCKED
+
+CERTIFICATE SECURITY:
+PASS / FAIL / BLOCKED
+
+GPU PERFORMANCE:
+PASS / FAIL / BLOCKED
+
+SOLAR SYSTEM ZOOM:
+PASS / FAIL / BLOCKED
+
+MOBILE EXPERIENCE:
+PASS / FAIL / BLOCKED
+
+ACCESSIBILITY:
+PASS / FAIL / BLOCKED
+
+PRODUCTION CONFIG:
+PASS / FAIL / BLOCKED
+
+MONITORING / ROLLBACK:
+PASS / FAIL / BLOCKED
+
+Every gate needs evidence.
+
+====================================================
+38. RELEASE DECISION RULES
+====================================================
+
+Possible final decisions:
+
+GO — PRODUCTION READY.
+
+CONDITIONAL GO — CONTROLLED RELEASE ONLY.
+
+NO-GO — NOT PRODUCTION READY.
+
+BLOCKED — CANNOT VERIFY.
+
+GO IS PERMITTED ONLY WHEN:
+
+All mandatory release gates pass.
+
+No unresolved P0 defects exist.
+
+No unresolved release-blocking
+P1 defects exist.
+
+Critical scientific tests pass.
+
+Official progression is secure.
+
+Core browser journeys work.
+
+No critical GPU or camera defect remains.
+
+Production configuration is valid.
+
+Monitoring and rollback are prepared.
+
+Mandatory test evidence exists.
+
+CONDITIONAL GO:
+
+May be recommended only if
+noncritical limitations are clearly
+documented and a controlled rollout
+is supported.
+
+NO-GO:
+
+Use when known critical defects remain.
+
+BLOCKED:
+
+Use when required tests
+could not be executed.
+
+Never mark BLOCKED as GO.
+
+====================================================
+39. FINAL EXECUTIVE REPORT
+====================================================
+
+Create:
+
+docs/production-readiness/
+FINAL_PRODUCTION_GO_NO_GO_REPORT.md
+
+Include:
+
+A. Repository revision / commit hash.
+
+B. Test environment.
+
+C. Build results.
+
+D. Number of tests executed.
+
+E. Number passed.
+
+F. Number failed.
+
+G. Number skipped or blocked.
+
+H. Website feature coverage.
+
+I. 24-module Academy coverage.
+
+J. Chapter animation coverage.
+
+K. COSMOS narration coverage.
+
+L. Scientific accuracy results.
+
+M. Student activity results.
+
+N. Security findings.
+
+O. GPU performance results.
+
+P. Solar System zoom results.
+
+Q. Mobile and accessibility findings.
+
+R. Production configuration.
+
+S. Confirmed defects fixed.
+
+T. Remaining defects.
+
+U. Evidence links.
+
+V. Final release decision.
+
+W. Explicit blockers, if any.
+
+X. Minimum required next actions.
+
+====================================================
+40. FINAL RESPONSE FORMAT
+====================================================
+
+When all available validation
+and remediation is complete,
+respond with:
+
+====================================
+OUR VISIBLE UNIVERSE
+FINAL PRODUCTION CERTIFICATION
+====================================
+
+REPOSITORY REVISION:
+[actual commit hash]
+
+BUILD:
+[PASS / FAIL / BLOCKED]
+
+TYPE CHECK:
+[PASS / FAIL / BLOCKED]
+
+AUTOMATED TESTS:
+[X passed / Y failed / Z blocked]
+
+BROWSER TESTS:
+[actual results]
+
+ACADEMY:
+[X of 24 modules verified]
+
+CHAPTERS:
+[X of actual Y verified]
+
+NARRATION:
+[X of actual Y verified]
+
+SCIENTIFIC TESTS:
+[actual results]
+
+INTERACTIVE ACTIVITIES:
+[X of 24 verified]
+
+SECURITY:
+[actual results]
+
+COSMOS AI:
+[actual results]
+
+SOLAR SYSTEM ZOOM:
+[actual results]
+
+GPU PERFORMANCE:
+[measured results]
+
+MOBILE:
+[actual results]
+
+ACCESSIBILITY:
+[actual results]
+
+P0 DEFECTS:
+[number]
+
+RELEASE-BLOCKING P1 DEFECTS:
+[number]
+
+UNTESTED MANDATORY GATES:
+[number]
+
+FIXES APPLIED:
+[number and details]
+
+FINAL VERDICT:
+[GO / CONDITIONAL GO / NO-GO / BLOCKED]
+
+Then give:
+
+The top remaining risks.
+
+The exact files and defects involved.
+
+The actual evidence locations.
+
+The necessary release actions.
+
+Do not provide a generic
+"Everything implemented successfully"
+message unless all mandatory evidence
+supports that conclusion.
+
+====================================================
+41. PRODUCTION DEPLOYMENT POLICY
+====================================================
+
+This prompt is for certification
+and safe remediation.
+
+Use a staging or production-like
+environment for release verification.
+
+Do not deploy directly to
+the public production environment
+without explicit authorization.
+
+Do not execute destructive
+production database migrations.
+
+Do not overwrite student records.
+
+Do not delete certificate records.
+
+Do not modify production credentials.
+
+Prepare deployment and rollback
+instructions if release gates pass.
+
+The final GO decision authorizes
+a recommendation, not an unrequested
+production deployment.
+
+====================================================
+42. FINAL NON-NEGOTIABLE INSTRUCTION
+====================================================
+
+THIS IS THE LAST AND FINAL
+OUR VISIBLE UNIVERSE
+PRODUCTION VALIDATION PROMPT.
+
+YOUR GOAL IS NOT TO REPORT
+THAT EVERYTHING IS PERFECT.
+
+YOUR GOAL IS TO DETERMINE
+WHETHER THE APPLICATION
+IS ACTUALLY READY FOR REAL USERS.
+
+TEST ALL REAL FEATURES.
+
+TEST ALL 24 ACADEMY MODULES.
+
+VERIFY ALL CHAPTER ANIMATIONS.
+
+VERIFY ALL NARRATION CUES.
+
+VERIFY COSMOS AI GUIDANCE.
+
+VERIFY SCIENTIFIC CALCULATIONS.
+
+VERIFY STUDENT INTERACTIONS.
+
+VERIFY EXAM AND CERTIFICATE SECURITY.
+
+VERIFY FULLSCREEN LEARNING.
+
+VERIFY MOBILE ACCESSIBILITY.
+
+VERIFY GPU PERFORMANCE.
+
+VERIFY SOLAR SYSTEM ZOOM STABILITY.
+
+VERIFY ACTUAL PRODUCTION BUILD.
+
+VERIFY AUTHENTICATION AND DATABASE ACCESS.
+
+VERIFY ERROR RECOVERY.
+
+VERIFY LOGGING AND MONITORING.
+
+FIND ALL REPRODUCIBLE
+RELEASE-BLOCKING DEFECTS.
+
+FIX THOSE WITHIN YOUR
+AVAILABLE SAFE DEVELOPMENT ENVIRONMENT.
+
+RERUN TESTS AFTER EVERY CRITICAL FIX.
+
+DO NOT CLAIM ZERO ERRORS
+WITHOUT MEANINGFUL TEST EVIDENCE.
+
+DO NOT CLAIM PRODUCTION READINESS
+WITHOUT PASSING THE MANDATORY GATES.
+
+GENERATE THE FINAL REPORT.
+
+ISSUE ONE EVIDENCE-BACKED DECISION:
+
+GO.
+
+CONDITIONAL GO.
+
+NO-GO.
+
+BLOCKED.
+
+IF NOT READY, STATE EXACTLY WHY.
+
+IF READY, PROVIDE THE APPROVED
+RELEASE CHECKLIST AND ROLLBACK PLAN.
+
+BEGIN THE FINAL PRODUCTION
+READINESS CERTIFICATION NOW.
