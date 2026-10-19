@@ -36,6 +36,7 @@
 
 import { ACADEMY_MODULES } from "../src/lib/academy/registry";
 import { CosmosLearningDirector } from "../src/lib/cosmos/CosmosLearningDirector";
+import { CosmosQuizGuide } from "../src/lib/cosmos/CosmosQuizGuide";
 import { LessonContentProvider } from "../src/lib/cosmos/LessonContentProvider";
 import { CosmosCinematicSessionBridge } from "../src/lib/cosmos/cinematic/CosmosCinematicSessionBridge";
 import { CosmosAnimationCueRegistry } from "../src/lib/cosmos/cinematic/CosmosAnimationCueRegistry";
@@ -388,7 +389,111 @@ async function runCinematicPlayerValidation() {
     "clearError() recovers player cleanly to READY state",
   );
 
+  // --------------------------------------------------------------------------
+  // 8. SCENARIO E: Quiz Synchronization & Official Examination Guardrails
+  // --------------------------------------------------------------------------
+  console.log("\n8. Scenario E — Quiz Overlay Synchronization & Official Exam Guardrails:");
+  const quizStepIdx = steps08.findIndex((s) => s.stepType === "KNOWLEDGE_CHECK");
+  assert(quizStepIdx > 0, "Module 08 step sequence contains an authoritative KNOWLEDGE_CHECK step");
+
+  const quizGuide = CosmosQuizGuide.getInstance();
+  const selectedQuizAnswers: Record<string, number> = {};
+  let quizMode: "practice" | "official" = "practice";
+
+  const unregQuizBridge = quizGuide.registerQuizBridge({
+    moduleId: "08",
+    get mode() {
+      return quizMode;
+    },
+    passingScorePct: 70,
+    getQuestions: () => [
+      {
+        id: "m08-q1",
+        moduleId: "08",
+        questionNumber: 1,
+        questionText: "According to Kepler's Second Law, when does a planet move fastest in an elliptical orbit?",
+        questionType: "multiple_choice",
+        difficulty: "medium",
+        points: 10,
+        options: [
+          "At perihelion (closest approach to the star)",
+          "At aphelion (farthest distance from the star)",
+          "At constant speed everywhere",
+          "Only when eccentricity is zero",
+        ],
+        relevantLessonId: "lesson-2",
+      },
+    ],
+    getSelectedAnswers: () => selectedQuizAnswers,
+    selectOption: (qId, optIdx) => {
+      selectedQuizAnswers[qId] = optIdx;
+    },
+    submitAssessment: async () => Promise.resolve(),
+    retryAssessment: () => {},
+  });
+
+  await director.startGuidedSession("08", "explorer", quizStepIdx);
+  const quizSnap = bridge.getStateManager().getSnapshot();
+  assert(
+    quizSnap.interactionState === "QUIZ_REQUIRED",
+    "Reaching Module 08 quiz step transitions interactionState to QUIZ_REQUIRED",
+  );
+
+  const canSkipQuiz = await bridge.nextEligibleStep();
+  assert(
+    canSkipQuiz === false && director.getSnapshot().currentStepIndex === quizStepIdx,
+    "nextEligibleStep() refuses to skip an unsubmitted quiz step",
+  );
+
+  // Test option selection in practice quiz mode
+  const selectAccepted = await director.selectQuizOption(0, "ui");
+  assert(
+    selectAccepted === true && selectedQuizAnswers["m08-q1"] === 0,
+    "Selecting quiz option in Cinematic Mode updates authoritative CosmosQuizGuide state",
+  );
+
+  // Test Official Exam Guardrail
+  quizMode = "official";
+  quizGuide.syncSessionFromBridge("08");
+  const officialHintResponse = await director.requestStepHint();
+  assert(
+    officialHintResponse.includes("Official Certification Assessment") &&
+      officialHintResponse.includes("cannot provide hints"),
+    "Official examination mode blocks answer hints and auto-solutions",
+  );
+  unregQuizBridge();
+
+  // --------------------------------------------------------------------------
+  // 9. Backward Navigation, Unexpected Fullscreen Exit & Race Condition Lock
+  // --------------------------------------------------------------------------
+  console.log("\n9. Backward Navigation, Unexpected Fullscreen Exit & Race Condition Lock:");
+  await director.startGuidedSession("08", "explorer", 2);
+  const prevOk = await bridge.previousEligibleStep();
+  assert(
+    prevOk === true && director.getSnapshot().currentStepIndex === 1,
+    "previousEligibleStep() moves backward to the prior instructional step",
+  );
+
+  // Simulate unexpected Escape key exiting browser fullscreen while player is open
+  bridge.getStateManager().updateState({ fullscreenState: "NATIVE_FULLSCREEN" });
+  bridge.handleBrowserFullscreenChange(false);
+  assert(
+    bridge.getStateManager().getSnapshot().fullscreenState === "VIEWPORT_FALLBACK" &&
+      bridge.getStateManager().getSnapshot().playerState !== "CLOSED",
+    "Unexpected browser fullscreen exit transitions smoothly to VIEWPORT_FALLBACK without losing lesson state",
+  );
+
+  // Rapid Enter/Exit operation token race condition protection
+  const token1 = bridge.getStateManager().beginModeSwitchOperation();
+  const token2 = bridge.getStateManager().beginModeSwitchOperation();
+  assert(
+    bridge.getStateManager().isCurrentModeSwitchOperation(token1) === false &&
+      bridge.getStateManager().isCurrentModeSwitchOperation(token2) === true,
+    "Mode-switch operation token invalidates superseded concurrent Enter/Exit transitions",
+  );
+
   await bridge.exitCinematicMode();
+  director.pauseSession();
 
   console.log("\n======================================================================");
   console.log(
@@ -399,6 +504,7 @@ async function runCinematicPlayerValidation() {
   if (summary.failed > 0) {
     process.exit(1);
   }
+  process.exit(0);
 }
 
 void runCinematicPlayerValidation();

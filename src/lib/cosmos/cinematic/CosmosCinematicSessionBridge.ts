@@ -440,17 +440,22 @@ export class CosmosCinematicSessionBridge {
    * Synchronizes state when the user presses Escape or browser fires `fullscreenchange`.
    * Does NOT lose learning progress or abruptly close the lesson.
    */
-  public handleBrowserFullscreenChange(): void {
-    if (typeof document === "undefined") return;
+  public handleBrowserFullscreenChange(hasFullscreenElementOverride?: boolean): void {
     const snap = this.stateManager.getSnapshot();
     if (snap.playerState === "CLOSED" || snap.playerState === "EXITING_FULLSCREEN") {
       return;
     }
 
     const fsElement =
-      document.fullscreenElement ||
-      (document as any).webkitFullscreenElement ||
-      (document as any).msFullscreenElement;
+      typeof hasFullscreenElementOverride === "boolean"
+        ? hasFullscreenElementOverride
+        : typeof document !== "undefined"
+          ? Boolean(
+              document.fullscreenElement ||
+                (document as any).webkitFullscreenElement ||
+                (document as any).msFullscreenElement,
+            )
+          : false;
 
     if (fsElement) {
       this.stateManager.updateState({ fullscreenState: "NATIVE_FULLSCREEN" });
