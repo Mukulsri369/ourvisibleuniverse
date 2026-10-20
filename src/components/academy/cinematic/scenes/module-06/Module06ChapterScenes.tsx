@@ -606,12 +606,13 @@ function DwarfPlanetsScene({
   return (
     <group>
       {/* Kuiper Belt Icy Planetesimal Torus (30–50 AU) */}
-      <AccretionDiskParticleField
+      <GalaxyParticleField
         objectId="kuiper_belt_torus"
-        innerRadius={4.2}
-        outerRadius={7.2}
-        inclinationRad={0.12}
-        temperatureScale={0.25}
+        morphology="spiral"
+        radius={6.2}
+        armCount={2}
+        rotation={[0.12, 0, 0]}
+        opacity={0.68}
         qualityTier={qualityProfile.tier}
         isSimulationRunning={isSimulationRunning && !reducedMotion}
         simulationTimeScale={simulationTimeScale * 0.35}

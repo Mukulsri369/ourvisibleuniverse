@@ -42,6 +42,7 @@ export class CosmosChapterInteractionStore {
   private static instance: CosmosChapterInteractionStore | null = null;
   private chapterValues = new Map<string, ChapterControlValueMap>();
   private listeners = new Set<StoreListener>();
+  private snapshotVersion = 0;
 
   // Track scale extremes explored in Module 01 for genuine activity telemetry
   private m01VisitedTiers = new Set<number>([6]);
@@ -55,6 +56,10 @@ export class CosmosChapterInteractionStore {
       this.instance = new CosmosChapterInteractionStore();
     }
     return this.instance;
+  }
+
+  public getSnapshotVersion(): number {
+    return this.snapshotVersion;
   }
 
   private initializeAllDefaults(): void {
@@ -76,6 +81,7 @@ export class CosmosChapterInteractionStore {
   }
 
   private notify(): void {
+    this.snapshotVersion += 1;
     for (const listener of this.listeners) {
       try {
         listener();

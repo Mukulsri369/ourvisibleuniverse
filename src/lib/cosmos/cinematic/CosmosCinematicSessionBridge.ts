@@ -232,9 +232,15 @@ export class CosmosCinematicSessionBridge {
     }
 
     const cueExec = this.cueController.getState();
+    const normProgress =
+      typeof narState.progressPercentage === "number" && narState.progressPercentage > 0
+        ? Math.max(0, Math.min(1, narState.progressPercentage / 100))
+        : cueExec.normalizedProgress || 0.5;
 
     this.stateManager.updateState({
       currentNarrationSegmentId: seg?.segmentId || currentSnap.currentNarrationSegmentId,
+      currentSegmentId: seg?.segmentId || currentSnap.currentNarrationSegmentId,
+      normalizedSegmentProgress: normProgress,
       currentNarrationText: seg?.displayText || currentSnap.currentNarrationText,
       currentKeyTerminology: seg?.keyTerminology || [],
       currentPlaybackState: narState.status,
@@ -339,19 +345,6 @@ export class CosmosCinematicSessionBridge {
       if (nativeSuccess) {
         fullscreenMode = "NATIVE_FULLSCREEN";
       }
-    } else if (!options.forceViewportFallback && typeof document !== "undefined") {
-      // Check if browser supports fullscreen at all
-      const docEl = document.documentElement as any;
-      const canRequest = Boolean(
-        docEl?.requestFullscreen || docEl?.webkitRequestFullscreen || docEl?.msRequestFullscreen,
-      );
-      if (!canRequest) {
-        this.stateManager.recordError(
-          "FULLSCREEN_UNSUPPORTED",
-          "Native browser fullscreen is unavailable on this device; using full-viewport immersive mode.",
-          { recoverable: true, fallbackAvailable: true, enterErrorState: false },
-        );
-      }
     }
 
     // Activate initial animation cue for current segment
@@ -383,6 +376,7 @@ export class CosmosCinematicSessionBridge {
       fullscreenState: fullscreenMode,
       playerState: finalLifecycle,
       currentNarrationSegmentId: activeSeg?.segmentId || null,
+      currentSegmentId: activeSeg?.segmentId || null,
       currentNarrationText: activeSeg?.displayText || updatedDirSnap.activeHighlightedText || "",
       currentKeyTerminology: activeSeg?.keyTerminology || [],
     });
@@ -402,11 +396,6 @@ export class CosmosCinematicSessionBridge {
       anyEl.requestFullscreen || anyEl.webkitRequestFullscreen || anyEl.msRequestFullscreen;
 
     if (typeof requestFn !== "function") {
-      this.stateManager.recordError(
-        "FULLSCREEN_UNSUPPORTED",
-        "Native Fullscreen API is not supported by this browser; switched to Full-Viewport Cinematic Fallback.",
-        { recoverable: true, fallbackAvailable: true, enterErrorState: false },
-      );
       this.stateManager.updateState({ fullscreenState: "VIEWPORT_FALLBACK" });
       return false;
     }
@@ -418,13 +407,7 @@ export class CosmosCinematicSessionBridge {
       }
       this.stateManager.updateState({ fullscreenState: "NATIVE_FULLSCREEN" });
       return true;
-    } catch (err: any) {
-      this.stateManager.recordError(
-        "FULLSCREEN_PERMISSION_DENIED",
-        err?.message ||
-          "Browser fullscreen request was declined; using accessible Full-Viewport Cinematic Mode.",
-        { recoverable: true, fallbackAvailable: true, enterErrorState: false },
-      );
+    } catch {
       this.stateManager.updateState({ fullscreenState: "VIEWPORT_FALLBACK" });
       return false;
     }

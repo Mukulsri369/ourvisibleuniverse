@@ -39,11 +39,18 @@ export class ScientificRenderingQualityAdapter {
    * Computes concrete GPU rendering limits for a given quality tier and reduced-motion state.
    */
   public static resolveAdaptedParameters(
-    tier?: CinematicQualityTier,
+    tier?: CinematicQualityTier | string,
     reducedMotion = false,
   ): AdaptedRenderingParameters {
+    const rawTier = tier ?? CosmosCinematicQualityManager.getInstance().getTier();
     const activeTier: CinematicQualityTier =
-      tier ?? CosmosCinematicQualityManager.getInstance().getTier();
+      rawTier === "HIGH_CINEMATIC" || rawTier === "HIGH_QUALITY"
+        ? "HIGH_CINEMATIC"
+        : rawTier === "BALANCED" || rawTier === "BALANCED_QUALITY"
+          ? "BALANCED"
+          : rawTier === "LOW_POWER" || rawTier === "LOW_POWER_QUALITY"
+            ? "LOW_POWER"
+            : "BALANCED";
     const profile = CINEMATIC_QUALITY_PROFILES[activeTier] ?? CINEMATIC_QUALITY_PROFILES.BALANCED;
 
     switch (activeTier) {

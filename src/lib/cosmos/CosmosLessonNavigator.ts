@@ -71,6 +71,11 @@ export class CosmosLessonNavigator {
     }
 
     if (typeof document !== "undefined") {
+      // Do not click DOM tabs in the background while Fullscreen Cinematic Mode is active
+      if (document.querySelector('[data-testid="cosmos-cinematic-viewport"]')) {
+        return true;
+      }
+
       // 1. Ensure top-level "Curriculum Overview" / "Lessons" / "Sub-Lessons" tab is open if module uses tabbed views
       await this.ensureModuleSectionVisible("sublessons");
 
@@ -85,19 +90,30 @@ export class CosmosLessonNavigator {
       }
 
       // 3. Universal fallback across all 24 module layouts: find sublesson button by index or ID
+      // Exclude any buttons inside dialogs, headers, or the cinematic player
       const idxOne = (event.sublessonIndex || 0) + 1;
       const paddedIdx = idxOne < 10 ? `0${idxOne}` : `${idxOne}`;
-      const buttons = Array.from(document.querySelectorAll("button"));
+      const buttons = Array.from(document.querySelectorAll("button")).filter(
+        (btn) =>
+          !btn.closest('[data-testid="cosmos-cinematic-viewport"]') &&
+          !btn.closest('[role="dialog"]') &&
+          !btn.closest("header"),
+      );
       const matchBtn = buttons.find((btn) => {
         const text = (btn.textContent || "").trim();
-        if (event.sublessonId && text.includes(event.sublessonId)) return true;
+        if (
+          event.sublessonId &&
+          event.sublessonId.length > 3 &&
+          btn.getAttribute("data-sublesson-id") === event.sublessonId
+        ) {
+          return true;
+        }
         return (
           text.startsWith(`Lesson ${paddedIdx}`) ||
           text.startsWith(`Lesson ${idxOne}`) ||
           text.startsWith(`Ch ${paddedIdx}`) ||
           text.startsWith(`Chapter ${paddedIdx}`) ||
-          text.startsWith(`${paddedIdx}`) ||
-          new RegExp(`\\b(Lesson|Ch|Chapter|Sub-lesson)\\s*0?${idxOne}\\b`, "i").test(text)
+          new RegExp(`^\\s*(Lesson|Ch|Chapter|Sub-lesson)\\s*0?${idxOne}\\b`, "i").test(text)
         );
       });
 
@@ -118,8 +134,16 @@ export class CosmosLessonNavigator {
     sectionType: "sublessons" | "activity" | "quiz",
   ): Promise<boolean> {
     if (typeof document === "undefined") return false;
+    if (document.querySelector('[data-testid="cosmos-cinematic-viewport"]')) {
+      return false;
+    }
 
-    const buttons = Array.from(document.querySelectorAll("button"));
+    const buttons = Array.from(document.querySelectorAll("button")).filter(
+      (btn) =>
+        !btn.closest('[data-testid="cosmos-cinematic-viewport"]') &&
+        !btn.closest('[role="dialog"]') &&
+        !btn.closest("header"),
+    );
     let matcher: (text: string) => boolean;
 
     if (sectionType === "sublessons") {
@@ -162,6 +186,12 @@ export class CosmosLessonNavigator {
   public async scrollToTarget(selectorOrId: string, options: ScrollOptions = {}): Promise<boolean> {
     if (typeof window === "undefined" || typeof document === "undefined") {
       return false;
+    }
+
+    // Do not scroll the background page while Fullscreen Cinematic Mode is open
+    if (!options.force && document.querySelector('[data-testid="cosmos-cinematic-viewport"]')) {
+      this.lastScrolledTargetSelector = selectorOrId;
+      return true;
     }
 
     const prefs = LearningPreferenceManager.getPreferences();

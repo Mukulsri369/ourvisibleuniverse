@@ -19,7 +19,13 @@ import type { CinematicQualityTier } from "../../cinematic-storyboard-types";
 import { ScientificRenderingQualityAdapter } from "./ScientificRenderingQualityAdapter";
 import { ScientificResourceManager } from "./ScientificResourceManager";
 
-export type GalaxyMorphologyPreset = "spiral" | "barred_spiral" | "elliptical" | "irregular";
+export type GalaxyMorphologyPreset =
+  | "spiral"
+  | "barred_spiral"
+  | "grand_design_spiral"
+  | "lenticular"
+  | "elliptical"
+  | "irregular";
 
 export interface ParticleBufferSet {
   bufferKey: string;
@@ -60,7 +66,7 @@ export class ScientificParticleManager {
     radius?: number;
     armCount?: number;
     seed?: number;
-    tier?: CinematicQualityTier;
+    tier?: CinematicQualityTier | string;
   }): ParticleBufferSet {
     const adapted = ScientificRenderingQualityAdapter.resolveAdaptedParameters(params.tier);
     const count = adapted.galaxyParticleCount;

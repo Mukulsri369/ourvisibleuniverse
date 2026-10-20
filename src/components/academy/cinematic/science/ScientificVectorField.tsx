@@ -10,7 +10,7 @@
  *   Phi(r) = -GM / r (explicitly separated from literal physical space fabric)
  */
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import * as THREE from "three";
 
 export interface VectorArrowDescriptor {
@@ -71,6 +71,36 @@ export function ScientificVectorField({
     return new THREE.BufferGeometry().setFromPoints(pts);
   }, [showPotentialWellGrid, potentialWellDepth, potentialWellRadius]);
 
+  useEffect(() => {
+    return () => {
+      potentialWellGeometry?.dispose();
+    };
+  }, [potentialWellGeometry]);
+
+  const preparedVectors = useMemo(() => {
+    return vectors
+      .map((vec) => {
+        const dir = new THREE.Vector3(...vec.direction);
+        if (dir.lengthSq() < 1e-6 || vec.length <= 1e-4) return null;
+        dir.normalize();
+        const origin = new THREE.Vector3(...vec.origin);
+        const end = origin.clone().addScaledVector(dir, vec.length);
+        const mid = origin.clone().addScaledVector(dir, vec.length * 0.5);
+        const quat = new THREE.Quaternion().setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0),
+          dir,
+        );
+        return {
+          colorHex: vec.colorHex,
+          length: vec.length,
+          mid: [mid.x, mid.y, mid.z] as [number, number, number],
+          end: [end.x, end.y, end.z] as [number, number, number],
+          quaternion: quat,
+        };
+      })
+      .filter((v): v is NonNullable<typeof v> => v !== null);
+  }, [vectors]);
+
   return (
     <group>
       {/* Gravitational Potential Embedding Grid (Pedagogical Analogy) */}
@@ -80,27 +110,19 @@ export function ScientificVectorField({
         </lineSegments>
       )}
 
-      {/* Physical Force & Velocity Vector Arrows */}
-      {vectors.map((vec, idx) => {
-        const dir = new THREE.Vector3(...vec.direction);
-        if (dir.lengthSq() < 1e-6) return null;
-        dir.normalize();
-        const origin = new THREE.Vector3(...vec.origin);
-        const end = origin.clone().addScaledVector(dir, vec.length);
-        const lineGeom = new THREE.BufferGeometry().setFromPoints([origin, end]);
-
-        return (
-          <group key={idx}>
-            <line geometry={lineGeom}>
-              <lineBasicMaterial color={vec.colorHex} />
-            </line>
-            <mesh position={[end.x, end.y, end.z]}>
-              <sphereGeometry args={[0.09, 12, 12]} />
-              <meshBasicMaterial color={vec.colorHex} />
-            </mesh>
-          </group>
-        );
-      })}
+      {/* Physical Force & Velocity Vector Arrows (Zero per-frame BufferGeometry leaks) */}
+      {preparedVectors.map((vec, idx) => (
+        <group key={idx}>
+          <mesh position={vec.mid} quaternion={vec.quaternion}>
+            <cylinderGeometry args={[0.018, 0.018, vec.length, 8]} />
+            <meshBasicMaterial color={vec.colorHex} />
+          </mesh>
+          <mesh position={vec.end} quaternion={vec.quaternion}>
+            <coneGeometry args={[0.075, 0.2, 12]} />
+            <meshBasicMaterial color={vec.colorHex} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
@@ -128,23 +150,41 @@ export function ScientificFieldRenderer({
   fieldLines = [],
   equipotentialRings = [],
 }: ScientificFieldRendererProps) {
-  return (
-    <group>
-      {vectors.length > 0 && <ScientificVectorField vectors={vectors} />}
-      {fieldLines.map((line, idx) => {
+  const preparedFieldLines = useMemo(() => {
+    return fieldLines
+      .map((line) => {
         if (line.points.length < 2) return null;
         const pts = line.points.map((p) => new THREE.Vector3(p[0], p[1], p[2]));
         const geom = new THREE.BufferGeometry().setFromPoints(pts);
-        return (
-          <line key={`fl-${idx}`} geometry={geom}>
-            <lineBasicMaterial
-              color={line.colorHex}
-              transparent={line.opacity !== undefined && line.opacity < 1}
-              opacity={line.opacity ?? 0.85}
-            />
-          </line>
-        );
-      })}
+        return {
+          geom,
+          colorHex: line.colorHex,
+          opacity: line.opacity ?? 0.85,
+        };
+      })
+      .filter((l): l is NonNullable<typeof l> => l !== null);
+  }, [fieldLines]);
+
+  useEffect(() => {
+    return () => {
+      for (const item of preparedFieldLines) {
+        item.geom.dispose();
+      }
+    };
+  }, [preparedFieldLines]);
+
+  return (
+    <group>
+      {vectors.length > 0 && <ScientificVectorField vectors={vectors} />}
+      {preparedFieldLines.map((line, idx) => (
+        <lineSegments key={`fl-${idx}`} geometry={line.geom}>
+          <lineBasicMaterial
+            color={line.colorHex}
+            transparent={line.opacity < 1}
+            opacity={line.opacity}
+          />
+        </lineSegments>
+      ))}
       {equipotentialRings.map((ring, idx) => (
         <mesh key={`eq-${idx}`} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[ring.radius - 0.02, ring.radius + 0.02, 64]} />

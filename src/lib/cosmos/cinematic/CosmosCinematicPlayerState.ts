@@ -127,6 +127,8 @@ export interface CinematicPlayerStateSnapshot {
   currentStepIndex: number;
   totalSteps: number;
   currentNarrationSegmentId: string | null;
+  currentSegmentId: string | null;
+  normalizedSegmentProgress: number;
   currentNarrationText: string;
   currentKeyTerminology: string[];
   currentSceneId: string;
@@ -137,11 +139,13 @@ export interface CinematicPlayerStateSnapshot {
   isSimulationRunning: boolean;
   simulationTimeScale: number;
   currentLearningLevel: LearningLevel;
+  learningLevel: LearningLevel;
   language: CosmosLanguage;
   fullscreenState: CinematicFullscreenState;
   qualityPreset: CinematicQualityTier;
   captionsEnabled: boolean;
   scientificLabelsEnabled: boolean;
+  showLabelsAndFormulae: boolean;
   isManualCameraMode: boolean;
   isMicrophoneActive: boolean;
   interactionState: CinematicInteractionMode;
@@ -321,6 +325,8 @@ export class CosmosCinematicPlayerStateManager {
       currentStepIndex: 0,
       totalSteps: 1,
       currentNarrationSegmentId: null,
+      currentSegmentId: null,
+      normalizedSegmentProgress: 0.5,
       currentNarrationText: "",
       currentKeyTerminology: [],
       currentSceneId: "m01_cosmic_zoom_hierarchy",
@@ -331,11 +337,13 @@ export class CosmosCinematicPlayerStateManager {
       isSimulationRunning: true,
       simulationTimeScale: 1.0,
       currentLearningLevel: "explorer",
+      learningLevel: "explorer",
       language: "en",
       fullscreenState: "INACTIVE",
       qualityPreset: initialQuality,
       captionsEnabled: true,
       scientificLabelsEnabled: true,
+      showLabelsAndFormulae: true,
       isManualCameraMode: false,
       isMicrophoneActive: false,
       interactionState: "GUIDED_OBSERVATION",
@@ -405,9 +413,26 @@ export class CosmosCinematicPlayerStateManager {
     if (this.transitionLock) return;
     this.transitionLock = true;
     try {
+      const normalizedPatch: Partial<CinematicPlayerStateSnapshot> = { ...patch };
+      if ("currentNarrationSegmentId" in normalizedPatch && !("currentSegmentId" in normalizedPatch)) {
+        normalizedPatch.currentSegmentId = normalizedPatch.currentNarrationSegmentId ?? null;
+      } else if ("currentSegmentId" in normalizedPatch && !("currentNarrationSegmentId" in normalizedPatch)) {
+        normalizedPatch.currentNarrationSegmentId = normalizedPatch.currentSegmentId ?? null;
+      }
+      if ("currentLearningLevel" in normalizedPatch && !("learningLevel" in normalizedPatch)) {
+        normalizedPatch.learningLevel = normalizedPatch.currentLearningLevel;
+      } else if ("learningLevel" in normalizedPatch && !("currentLearningLevel" in normalizedPatch)) {
+        normalizedPatch.currentLearningLevel = normalizedPatch.learningLevel;
+      }
+      if ("scientificLabelsEnabled" in normalizedPatch && !("showLabelsAndFormulae" in normalizedPatch)) {
+        normalizedPatch.showLabelsAndFormulae = normalizedPatch.scientificLabelsEnabled;
+      } else if ("showLabelsAndFormulae" in normalizedPatch && !("scientificLabelsEnabled" in normalizedPatch)) {
+        normalizedPatch.scientificLabelsEnabled = normalizedPatch.showLabelsAndFormulae;
+      }
+
       this.state = {
         ...this.state,
-        ...patch,
+        ...normalizedPatch,
         lastTransitionTimestamp: Date.now(),
       };
     } finally {

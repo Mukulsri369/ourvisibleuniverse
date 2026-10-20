@@ -40,6 +40,7 @@ export class NarrationController {
   private currentAudioElement: HTMLAudioElement | null = null;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private textOnlyTimer: any = null;
+  private webSpeechWatchdogTimer: any = null;
   private activeSynthesisAbortController: AbortController | null = null;
 
   constructor(segments: NarrationSegment[] = [], initialIndex = 0) {
@@ -128,6 +129,11 @@ export class NarrationController {
       this.textOnlyTimer = null;
     }
 
+    if (this.webSpeechWatchdogTimer) {
+      clearTimeout(this.webSpeechWatchdogTimer);
+      this.webSpeechWatchdogTimer = null;
+    }
+
     this.updateState({ status: "paused" });
   }
 
@@ -143,12 +149,11 @@ export class NarrationController {
         .then(() => {
           this.updateState({ status: "playing" });
         })
-        .catch((err) => {
-          console.warn("Audio resume error:", err);
-          this.updateState({
-            status: "error",
-            errorMessage: "Click play to enable audio playback in your browser",
-          });
+        .catch(() => {
+          const segment = this.segments[this.currentIndex];
+          if (segment) {
+            this.playTextOnlySegment(segment);
+          }
         });
       return;
     }
@@ -218,6 +223,11 @@ export class NarrationController {
     if (this.textOnlyTimer) {
       clearTimeout(this.textOnlyTimer);
       this.textOnlyTimer = null;
+    }
+
+    if (this.webSpeechWatchdogTimer) {
+      clearTimeout(this.webSpeechWatchdogTimer);
+      this.webSpeechWatchdogTimer = null;
     }
   }
 
@@ -337,6 +347,7 @@ export class NarrationController {
       audioSource: "text-only",
       currentSegment: segment,
       activeSectionId: segment.sectionId,
+      errorMessage: undefined,
     });
 
     // Estimate reading duration: ~180 words per minute / speed factor
@@ -447,11 +458,8 @@ export class NarrationController {
     } catch (err: any) {
       if (this.state.status !== "loading" && this.state.status !== "playing") return;
       if (err.name === "NotAllowedError") {
-        // Browser autoplay restriction
-        this.updateState({
-          status: "paused",
-          errorMessage: "Autoplay blocked by browser. Click Play to start narration.",
-        });
+        // Fall back to synchronized text-only pacing rather than blocking or failing
+        this.playTextOnlySegment(segment);
       } else {
         console.warn("HTML5 audio playback error, falling back:", err);
         this.playWebSpeechFallback(segment);
@@ -461,6 +469,8 @@ export class NarrationController {
 
   /**
    * Fallback to Web Speech API when offline or when server synthesis is unavailable.
+   * Includes automatic fallback to text-only pacing and a watchdog timer so browser
+   * speechSynthesis stalls or errors never interrupt or fail the course.
    */
   private playWebSpeechFallback(segment: NarrationSegment): void {
     if (this.state.status !== "loading" && this.state.status !== "playing") return;
@@ -477,25 +487,63 @@ export class NarrationController {
       utterance.rate = this.state.speechSpeed;
       utterance.lang = segment.language === "hi" ? "hi-IN" : "en-US";
 
+      let completed = false;
+      const markDoneOnce = () => {
+        if (completed) return;
+        completed = true;
+        if (this.webSpeechWatchdogTimer) {
+          clearTimeout(this.webSpeechWatchdogTimer);
+          this.webSpeechWatchdogTimer = null;
+        }
+        this.onSegmentPlaybackActuallyCompleted(segment);
+      };
+
+      const wordCount = (segment.spokenText || segment.displayText || "").split(/\s+/).length || 18;
+      const estimatedMs = Math.max(3000, (wordCount / 2.6) * (1000 / this.state.speechSpeed));
+
+      // Watchdog ensures that if browser speechSynthesis silently drops `onend`,
+      // the lesson still progresses smoothly without getting stuck.
+      this.webSpeechWatchdogTimer = setTimeout(() => {
+        if (!completed && (this.state.status === "playing" || this.state.status === "loading")) {
+          markDoneOnce();
+        }
+      }, estimatedMs + 6000);
+
+      this.updateState({
+        status: "playing",
+        audioSource: "web-speech",
+        errorMessage: undefined,
+      });
+
       utterance.onstart = () => {
-        this.updateState({
-          status: "playing",
-          audioSource: "web-speech",
-        });
+        if (this.state.status === "loading" || this.state.status === "playing") {
+          this.updateState({
+            status: "playing",
+            audioSource: "web-speech",
+            errorMessage: undefined,
+          });
+        }
       };
 
       utterance.onend = () => {
         // CONFIRMED COMPLETION INVARIANT:
-        this.onSegmentPlaybackActuallyCompleted(segment);
+        markDoneOnce();
       };
 
       utterance.onerror = (e) => {
+        if (this.webSpeechWatchdogTimer) {
+          clearTimeout(this.webSpeechWatchdogTimer);
+          this.webSpeechWatchdogTimer = null;
+        }
         if (e.error !== "canceled" && e.error !== "interrupted") {
-          console.warn("Speech synthesis error:", e.error);
-          this.updateState({
-            status: "error",
-            errorMessage: `Speech synthesis error: ${e.error}`,
-          });
+          console.warn("Speech synthesis warning, continuing with text pacing:", e.error);
+          if (
+            !completed &&
+            (this.state.status === "playing" || this.state.status === "loading")
+          ) {
+            completed = true;
+            this.playTextOnlySegment(segment);
+          }
         }
       };
 

@@ -45,13 +45,6 @@ export function CosmosCinematicViewport({
     };
 
     const handleFullscreenError = () => {
-      bridge
-        .getStateManager()
-        .recordError(
-          "FULLSCREEN_PERMISSION_DENIED",
-          "Native browser fullscreen encountered an error; continuing in Full-Viewport Cinematic Mode.",
-          { recoverable: true, fallbackAvailable: true, enterErrorState: false },
-        );
       bridge.getStateManager().updateState({
         fullscreenState: "VIEWPORT_FALLBACK",
       });
