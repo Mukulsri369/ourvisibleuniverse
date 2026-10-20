@@ -4,6 +4,7 @@
 **System:** COSMOS Cinematic Learning System — Development Prompt 16 of 18  
 **Status:** Completed & Validated (`PASS`)  
 **Automated Validation Suites:**
+
 - `npx tsx scripts/cosmos-cinematic-ux-polish-validation.ts` (**78/78 Checks Passed — 100%**)
 - `npx tsx scripts/cosmos-cinematic-player-validation.ts` (**100% Passed**)
 - `npx tsx scripts/cosmos-realtime-voice-validation.ts` (**61/61 Checks Passed — 100%**)
@@ -13,27 +14,28 @@
 ## A. Initial UX Audit
 
 An audit of the pre-existing Fullscreen Cinematic Learning Player (`CosmosCinematicPlayer`, `CosmosCinematicViewport`, `CosmosCinematicOverlay`, `CosmosCinematicControls`, `CosmosCinematicCaptions`, `ScientificAnnotation`) identified the following concrete issues:
+
 1. **Touch Target Sizing (`CosmosCinematicControls.tsx`, `CosmosCinematicOverlay.tsx`):** Several primary transport and utility buttons (`Prev`, `Play/Pause`, `Repeat`, `Next`, `Ask COSMOS`, `Mic`, `CC`, `Labels`, `Exit`) used `h-8` (`32px`) or `h-7` (`28px`), falling below the recommended `44×44 CSS px` mobile touch target guideline.
 2. **Mobile Panel Crowding (`CosmosCinematicOverlay.tsx`):** On narrow mobile portrait (`320px–430px`) and short landscape (`667×375`, `844×390`) screens, the Scene Celestial Objects panel, Object Inspector, Chapter Laboratory panel, and Right Activity/Q&A column could stack simultaneously and obscure the 3D viewport.
 3. **Modal Focus & Escape Handling (`CosmosCinematicViewport.tsx`):** Opening the fullscreen dialog did not automatically move keyboard focus into the player, lacked a `Tab` / `Shift+Tab` focus containment loop, did not restore focus/scroll to the launching trigger button on exit, and allowed pressing `Escape` to exit even when a nested drawer or an active official assessment (`OFFICIAL_EXAM_ACTIVE`) was open.
 4. **Caption Modes & Transcript Search (`CosmosCinematicCaptions.tsx`):** Captions supported only a single default text size, used pill enclosures for key terminology, lacked a text search filter in the transcript drawer, and did not adapt into a mobile bottom-sheet or display a seek lock notice during active learning gates.
 5. **3D Annotation Overlap (`ScientificAnnotation.tsx`):** Proximate 3D object callouts (e.g., Earth, Moon, and Kármán Line in Module 01) could overlap vertically when viewed from shallow camera angles.
-6. **Progress Verification Language:** Needed an explicit authoritative badge in the top HUD distinguishing local chapter exploration (*"Lesson Explored"*, *"Chapter Reviewed"*) from server-verified completion (*"Module Officially Verified"*).
+6. **Progress Verification Language:** Needed an explicit authoritative badge in the top HUD distinguishing local chapter exploration (_"Lesson Explored"_, _"Chapter Reviewed"_) from server-verified completion (_"Module Officially Verified"_).
 
 ---
 
 ## B. Existing Components Reviewed & Upgraded
 
-| File Path | Role | Action Taken | Status |
-| :--- | :--- | :--- | :---: |
-| `src/lib/cosmos/cinematic/CinematicDesignTokens.ts` | Typed design tokens, WCAG AAA vector colors, disclosures, quality UX, teacher status descriptors, 13-viewport matrix | Created & integrated | **PASS** |
-| `src/lib/cosmos/cinematic/CinematicPanelManager.ts` | Responsive viewport allocation, smart panel prioritization, authoritative progress labels, 3D label collision solver | Created & integrated | **PASS** |
-| `src/components/academy/cinematic/CosmosCinematicViewport.tsx` | Fullscreen API + 100dvh fallback + WCAG modal focus loop + `visualViewport` keyboard offset | Upgraded | **PASS** |
-| `src/components/academy/cinematic/CosmosCinematicOverlay.tsx` | Responsive HUD, smart panels, scientific disclosures popover, voice-guided control highlight, 2D data table | Upgraded | **PASS** |
-| `src/components/academy/cinematic/CosmosCinematicControls.tsx` | `>=44px` touch targets, COSMOS Teacher Status indicator, Personalization & Accessibility drawer | Upgraded | **PASS** |
-| `src/components/academy/cinematic/CosmosCinematicCaptions.tsx` | 5 caption presentation modes, zero-pill terminology, searchable transcript drawer, seek guardrails | Upgraded | **PASS** |
-| `src/components/academy/cinematic/science/ScientificAnnotation.tsx` | Priority ranking, spatial vertical collision offset, `tabular-nums` callout formatting | Upgraded | **PASS** |
-| `src/components/academy/cinematic/CosmosCinematicPlayer.tsx` | Root fullscreen player orchestration & preference synchronization | Upgraded | **PASS** |
+| File Path                                                           | Role                                                                                                                 | Action Taken         |  Status  |
+| :------------------------------------------------------------------ | :------------------------------------------------------------------------------------------------------------------- | :------------------- | :------: |
+| `src/lib/cosmos/cinematic/CinematicDesignTokens.ts`                 | Typed design tokens, WCAG AAA vector colors, disclosures, quality UX, teacher status descriptors, 13-viewport matrix | Created & integrated | **PASS** |
+| `src/lib/cosmos/cinematic/CinematicPanelManager.ts`                 | Responsive viewport allocation, smart panel prioritization, authoritative progress labels, 3D label collision solver | Created & integrated | **PASS** |
+| `src/components/academy/cinematic/CosmosCinematicViewport.tsx`      | Fullscreen API + 100dvh fallback + WCAG modal focus loop + `visualViewport` keyboard offset                          | Upgraded             | **PASS** |
+| `src/components/academy/cinematic/CosmosCinematicOverlay.tsx`       | Responsive HUD, smart panels, scientific disclosures popover, voice-guided control highlight, 2D data table          | Upgraded             | **PASS** |
+| `src/components/academy/cinematic/CosmosCinematicControls.tsx`      | `>=44px` touch targets, COSMOS Teacher Status indicator, Personalization & Accessibility drawer                      | Upgraded             | **PASS** |
+| `src/components/academy/cinematic/CosmosCinematicCaptions.tsx`      | 5 caption presentation modes, zero-pill terminology, searchable transcript drawer, seek guardrails                   | Upgraded             | **PASS** |
+| `src/components/academy/cinematic/science/ScientificAnnotation.tsx` | Priority ranking, spatial vertical collision offset, `tabular-nums` callout formatting                               | Upgraded             | **PASS** |
+| `src/components/academy/cinematic/CosmosCinematicPlayer.tsx`        | Root fullscreen player orchestration & preference synchronization                                                    | Upgraded             | **PASS** |
 
 ---
 
@@ -72,7 +74,7 @@ An audit of the pre-existing Fullscreen Cinematic Learning Player (`CosmosCinema
 - Purpose-built mobile mode (`MOBILE_PORTRAIT` and `MOBILE_LANDSCAPE`) via `resolveSmartPanelStates`:
   - Automatically collapses the secondary Scene Celestial Objects list during active narration or activities so five panels never stack vertically.
   - Transcript drawer automatically adapts into a bottom-sheet (`fixed inset-x-0 bottom-0 max-h-[82dvh]`) with safe-area padding (`env(safe-area-inset-bottom)`).
-  - Tracks `window.visualViewport` resize events so on-screen mobile keyboards never cover the *"Ask COSMOS"* question input.
+  - Tracks `window.visualViewport` resize events so on-screen mobile keyboards never cover the _"Ask COSMOS"_ question input.
 
 ---
 
@@ -104,7 +106,7 @@ An audit of the pre-existing Fullscreen Cinematic Learning Player (`CosmosCinema
 ## J. COSMOS Voice UI Improvements
 
 - **9 Explicit Teacher Statuses:** `READY`, `NARRATING`, `LISTENING`, `THINKING`, `ANSWERING`, `PAUSED`, `WAITING_FOR_STUDENT`, `OFFLINE`, `ERROR`.
-- **Strict Waveform Discipline:** Speaking/listening pulse indicator is active *only* during `NARRATING`, `ANSWERING`, or `LISTENING`, and suppressed when `PAUSED`, `READY`, or when `reducedMotion` is enabled.
+- **Strict Waveform Discipline:** Speaking/listening pulse indicator is active _only_ during `NARRATING`, `ANSWERING`, or `LISTENING`, and suppressed when `PAUSED`, `READY`, or when `reducedMotion` is enabled.
 
 ---
 
@@ -119,24 +121,27 @@ An audit of the pre-existing Fullscreen Cinematic Learning Player (`CosmosCinema
 ## O–T. Verification Evidence: Keyboard, Reduced Motion, 13-Viewport Matrix & Acceptance Rubric
 
 ### Viewport & Device Test Matrix (`Prompt 16 Section 50`)
+
 All 13 reference dimensions were validated in `scripts/cosmos-cinematic-ux-polish-validation.ts`:
+
 - **Mobile Portrait:** `320×568`, `360×640`, `375×667`, `390×844`, `430×932` -> `MOBILE_PORTRAIT` (`PASS`)
 - **Mobile Landscape:** `667×375`, `844×390`, `932×430` -> `MOBILE_LANDSCAPE` (`PASS`)
 - **Tablet:** `768×1024` (`TABLET_PORTRAIT`), `1024×768` (`TABLET_LANDSCAPE`) -> (`PASS`)
 - **Desktop:** `1280×720`, `1440×900`, `1920×1080` -> `DESKTOP` (`PASS`)
 
 ### Design Acceptance Criteria Scores (`Prompt 16 Section 55`)
-| Category | Score (0–5) | Evidence |
-| :--- | :---: | :--- |
-| Visual coherence & zero-pill discipline | **5 / 5** | Clean typographic hierarchy, calibrated blackbody & semantic vector palette |
-| Cinematic immersion | **5 / 5** | Dominant 3D viewport, restrained corner HUD, auto-minimized secondary chrome during narration |
-| Scientific readability & label collision | **5 / 5** | `resolveCollisionFreeAnnotations` separates proximate 3D labels by `+1.45` vertical units |
-| Typography & tabular numerals | **5 / 5** | `font-mono tabular-nums` on all live telemetry, steps, and physical readouts |
-| Control discoverability & touch targets | **5 / 5** | `min-h-[44px]` on mobile controls, progressive disclosure for Display/Accessibility settings |
-| Mobile & Tablet usability | **4.8 / 5** | Bottom-sheet transcript, collapsible object selector, `visualViewport` keyboard offset |
-| COSMOS voice interaction clarity | **5 / 5** | 9 explicit teacher states, zero false mic recording indicators, instant text fallback |
-| Accessibility & Reduced Motion | **4.8 / 5** | Modal focus loop, Escape hierarchy, 5 caption modes, Reduced Motion instant keyframes, 2D data table |
-| Consistency across all 24 modules | **5 / 5** | Verified across all 24 modules and 960 narration segments |
+
+| Category                                 | Score (0–5) | Evidence                                                                                             |
+| :--------------------------------------- | :---------: | :--------------------------------------------------------------------------------------------------- |
+| Visual coherence & zero-pill discipline  |  **5 / 5**  | Clean typographic hierarchy, calibrated blackbody & semantic vector palette                          |
+| Cinematic immersion                      |  **5 / 5**  | Dominant 3D viewport, restrained corner HUD, auto-minimized secondary chrome during narration        |
+| Scientific readability & label collision |  **5 / 5**  | `resolveCollisionFreeAnnotations` separates proximate 3D labels by `+1.45` vertical units            |
+| Typography & tabular numerals            |  **5 / 5**  | `font-mono tabular-nums` on all live telemetry, steps, and physical readouts                         |
+| Control discoverability & touch targets  |  **5 / 5**  | `min-h-[44px]` on mobile controls, progressive disclosure for Display/Accessibility settings         |
+| Mobile & Tablet usability                | **4.8 / 5** | Bottom-sheet transcript, collapsible object selector, `visualViewport` keyboard offset               |
+| COSMOS voice interaction clarity         |  **5 / 5**  | 9 explicit teacher states, zero false mic recording indicators, instant text fallback                |
+| Accessibility & Reduced Motion           | **4.8 / 5** | Modal focus loop, Escape hierarchy, 5 caption modes, Reduced Motion instant keyframes, 2D data table |
+| Consistency across all 24 modules        |  **5 / 5**  | Verified across all 24 modules and 960 narration segments                                            |
 
 ---
 
@@ -149,32 +154,32 @@ All 13 reference dimensions were validated in `scripts/cosmos-cinematic-ux-polis
 
 ## Y. Full 24-Module Consistency Matrix
 
-| Module | Title | Scene ID | Segments | Representation Disclosure | Status |
-| :---: | :--- | :--- | :---: | :--- | :---: |
-| **01** | Our Place in the Universe | `m01_cosmic_zoom_hierarchy` | 34 | Illustrative Scale | **PASS** |
-| **02** | The Night Sky & Constellations | `m02_solar_celestial_observatory` | 37 | Illustrative Scale | **PASS** |
-| **03** | Cosmic Distances & Scale | `m03_solar_celestial_observatory` | 36 | Physics Simulation | **PASS** |
-| **04** | Light, Time & Cosmic Observation | `m04_solar_celestial_observatory` | 34 | Physics Simulation | **PASS** |
-| **05** | Earth, Moon & Eclipses | `m05_solar_celestial_observatory` | 40 | Illustrative Scale | **PASS** |
-| **06** | Explore the Solar System | `m06_solar_celestial_observatory` | 34 | Illustrative Scale | **PASS** |
-| **07** | The Sun: Our Star | `m07_solar_celestial_observatory` | 35 | Physics Simulation | **PASS** |
-| **08** | Gravity, Orbits & Motion | `m08_orbital_mechanics_lab` | 40 | Physics Simulation | **PASS** |
-| **09** | Stars: Colors, Sizes & Temperatures | `m09_stellar_evolution_observatory` | 35 | Physics Simulation | **PASS** |
-| **10** | Birth, Life & Death of Stars | `m10_stellar_evolution_observatory` | 40 | Physics Simulation | **PASS** |
-| **11** | Nebulae & Star Clusters | `m11_stellar_evolution_observatory` | 63 | Physics Simulation | **PASS** |
-| **12** | Exoplanets & Alien Worlds | `m12_galactic_dynamics_3d` | 13 | Observational Data | **PASS** |
-| **13** | Learn About Galaxies | `m13_galaxy_assembly_dynamics_3d` | 62 | Observational Data | **PASS** |
-| **14** | Black Holes & Neutron Stars | `m14_black_hole_relativity_3d` | 46 | Physics Simulation | **PASS** |
-| **15** | Galaxy Groups, Clusters & Cosmic Web | `m15_cosmic_web_superclusters_3d` | 42 | Observational Data | **PASS** |
-| **16** | Dark Matter & Dark Energy | `m16_dark_sector_lensing_3d` | 53 | Observation vs. Model | **PASS** |
-| **17** | The Big Bang & Early Universe | `m17_early_universe_epoch_3d` | 39 | Physics Simulation | **PASS** |
-| **18** | Cosmic Expansion & Multiverse | `m18_metric_expansion_lattice_3d` | 40 | Cosmological Metric | **PASS** |
-| **19** | History of Astronomy | `m19_historical_models_3d` | 39 | Historical Model | **PASS** |
-| **20** | Life Cycle of the Universe | `m20_cosmic_chronology_3d` | 41 | Physics Simulation | **PASS** |
-| **21** | Telescopes & Observatories | `m21_telescope_optics_3d` | 41 | Physics Simulation | **PASS** |
-| **22** | Rockets, Spacecraft & Missions | `m22_orbital_transfer_mission_3d` | 39 | Physics Simulation | **PASS** |
-| **23** | Astrobiology & Life in the Universe | `m23_biosignature_spectra_3d` | 39 | Physics Simulation | **PASS** |
-| **24** | Future of the Universe & Capstone | `m24_capstone_observatory_3d` | 38 | Conditional Future Scenario | **PASS** |
+| Module | Title                                | Scene ID                            | Segments | Representation Disclosure   |  Status  |
+| :----: | :----------------------------------- | :---------------------------------- | :------: | :-------------------------- | :------: |
+| **01** | Our Place in the Universe            | `m01_cosmic_zoom_hierarchy`         |    34    | Illustrative Scale          | **PASS** |
+| **02** | The Night Sky & Constellations       | `m02_solar_celestial_observatory`   |    37    | Illustrative Scale          | **PASS** |
+| **03** | Cosmic Distances & Scale             | `m03_solar_celestial_observatory`   |    36    | Physics Simulation          | **PASS** |
+| **04** | Light, Time & Cosmic Observation     | `m04_solar_celestial_observatory`   |    34    | Physics Simulation          | **PASS** |
+| **05** | Earth, Moon & Eclipses               | `m05_solar_celestial_observatory`   |    40    | Illustrative Scale          | **PASS** |
+| **06** | Explore the Solar System             | `m06_solar_celestial_observatory`   |    34    | Illustrative Scale          | **PASS** |
+| **07** | The Sun: Our Star                    | `m07_solar_celestial_observatory`   |    35    | Physics Simulation          | **PASS** |
+| **08** | Gravity, Orbits & Motion             | `m08_orbital_mechanics_lab`         |    40    | Physics Simulation          | **PASS** |
+| **09** | Stars: Colors, Sizes & Temperatures  | `m09_stellar_evolution_observatory` |    35    | Physics Simulation          | **PASS** |
+| **10** | Birth, Life & Death of Stars         | `m10_stellar_evolution_observatory` |    40    | Physics Simulation          | **PASS** |
+| **11** | Nebulae & Star Clusters              | `m11_stellar_evolution_observatory` |    63    | Physics Simulation          | **PASS** |
+| **12** | Exoplanets & Alien Worlds            | `m12_galactic_dynamics_3d`          |    13    | Observational Data          | **PASS** |
+| **13** | Learn About Galaxies                 | `m13_galaxy_assembly_dynamics_3d`   |    62    | Observational Data          | **PASS** |
+| **14** | Black Holes & Neutron Stars          | `m14_black_hole_relativity_3d`      |    46    | Physics Simulation          | **PASS** |
+| **15** | Galaxy Groups, Clusters & Cosmic Web | `m15_cosmic_web_superclusters_3d`   |    42    | Observational Data          | **PASS** |
+| **16** | Dark Matter & Dark Energy            | `m16_dark_sector_lensing_3d`        |    53    | Observation vs. Model       | **PASS** |
+| **17** | The Big Bang & Early Universe        | `m17_early_universe_epoch_3d`       |    39    | Physics Simulation          | **PASS** |
+| **18** | Cosmic Expansion & Multiverse        | `m18_metric_expansion_lattice_3d`   |    40    | Cosmological Metric         | **PASS** |
+| **19** | History of Astronomy                 | `m19_historical_models_3d`          |    39    | Historical Model            | **PASS** |
+| **20** | Life Cycle of the Universe           | `m20_cosmic_chronology_3d`          |    41    | Physics Simulation          | **PASS** |
+| **21** | Telescopes & Observatories           | `m21_telescope_optics_3d`           |    41    | Physics Simulation          | **PASS** |
+| **22** | Rockets, Spacecraft & Missions       | `m22_orbital_transfer_mission_3d`   |    39    | Physics Simulation          | **PASS** |
+| **23** | Astrobiology & Life in the Universe  | `m23_biosignature_spectra_3d`       |    39    | Physics Simulation          | **PASS** |
+| **24** | Future of the Universe & Capstone    | `m24_capstone_observatory_3d`       |    38    | Conditional Future Scenario | **PASS** |
 
 ---
 

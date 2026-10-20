@@ -171,9 +171,18 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "cassegrain_reflector",
         options: [
-          { value: "keplerian_refractor", label: "Keplerian Refractor (Objective Lens + Chromatic Shift)" },
-          { value: "cassegrain_reflector", label: "Cassegrain Reflector (Parabolic Primary + Hyperbolic Secondary)" },
-          { value: "segmented_jwst_reflector", label: "Segmented Reflector (18-Hex Active Actuator Array)" },
+          {
+            value: "keplerian_refractor",
+            label: "Keplerian Refractor (Objective Lens + Chromatic Shift)",
+          },
+          {
+            value: "cassegrain_reflector",
+            label: "Cassegrain Reflector (Parabolic Primary + Hyperbolic Secondary)",
+          },
+          {
+            value: "segmented_jwst_reflector",
+            label: "Segmented Reflector (18-Hex Active Actuator Array)",
+          },
         ],
         scientificFormula: "1/f = (n(λ) - 1)(1/R₁ - 1/R₂) vs θ_i = θ_r (Achromatic Reflection)",
         description:
@@ -386,7 +395,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
     storyboardId: "sb-m21-sub_space_vs_ground",
     sceneComponentId: "m21_ch4_space_vs_ground_adaptive_optics",
     scientificObjective:
-      "Compare ground-based observatories (turbulent atmospheric seeing θ_seeing ≈ 0.8–1.2\", sodium laser guide star Adaptive Optics at 90 km mesosphere, optical/radio atmospheric windows) with space observatories above telluric H₂O/O₃/N₂ absorption.",
+      'Compare ground-based observatories (turbulent atmospheric seeing θ_seeing ≈ 0.8–1.2", sodium laser guide star Adaptive Optics at 90 km mesosphere, optical/radio atmospheric windows) with space observatories above telluric H₂O/O₃/N₂ absorption.',
     scientificRepresentation: "PHYSICS_BASED_SIMULATION",
     representationDisclosure:
       "Atmospheric Transmission & Wavefront Phase Perturbation Model: Contrasts turbulent atmospheric Fried parameter r₀ wavefront distortion and deformable-mirror Adaptive Optics correction against space-based diffraction-limited performance.",
@@ -404,7 +413,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         label: "1 kHz Sodium Laser Guide Star Adaptive Optics (AO)",
         controlType: "toggle",
         defaultValue: true,
-        scientificFormula: "Strehl Ratio S ≈ exp(-σ_φ²) → Real-Time Deformable Mirror Phase Conjugation",
+        scientificFormula:
+          "Strehl Ratio S ≈ exp(-σ_φ²) → Real-Time Deformable Mirror Phase Conjugation",
         description:
           "Toggle the 90 km mesospheric sodium laser guide star and 1,000 Hz deformable mirror loop to cancel atmospheric seeing turbulence.",
         linkedActivityId: "act_21_telescope_optics_lab",
@@ -545,10 +555,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Karl Jansky's Discovery & Parabolic Radio Dish Wavefront Collection",
         scientificMechanismSummary:
           "Illustrates long-wavelength radio wavefronts reflecting off parabolic dishes to subreflector feed horns and low-noise cryogenic receivers.",
-        narrationSegmentIds: [
-          "21-sub_radio_astronomy-title",
-          "21-sub_radio_astronomy-deepDive-1",
-        ],
+        narrationSegmentIds: ["21-sub_radio_astronomy-title", "21-sub_radio_astronomy-deepDive-1"],
         cameraArchetype: "instrument_viewpoint",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.8, 11.8],
@@ -623,10 +630,16 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "near_infrared_2um",
         options: [
-          { value: "ultraviolet_200nm", label: "Ultraviolet (200 nm — Hot Young O/B Stars & IonizedFronts)" },
+          {
+            value: "ultraviolet_200nm",
+            label: "Ultraviolet (200 nm — Hot Young O/B Stars & IonizedFronts)",
+          },
           { value: "visible_550nm", label: "Visible (550 nm — Dust Extinction τ_V Scattering)" },
           { value: "near_infrared_2um", label: "Near-IR (2.0 μm — Lower Dust Optical Depth τ_IR)" },
-          { value: "mid_infrared_10um", label: "Mid-IR (10 μm — Warm PAH Dust Thermal Emission, 7 K MIRI)" },
+          {
+            value: "mid_infrared_10um",
+            label: "Mid-IR (10 μm — Warm PAH Dust Thermal Emission, 7 K MIRI)",
+          },
         ],
         scientificFormula: "τ(λ) ∝ λ⁻β (β ≈ 1.7), λ_peak = 2898 μm·K / T",
         description:
@@ -1064,9 +1077,18 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "orbital_free_fall",
         options: [
-          { value: "orbital_free_fall", label: "Phase 1: Orbital Free Fall (302 km × 169 km, g ≈ 0.91 g₀)" },
-          { value: "retrofire_separation", label: "Phase 2: TDU Retrofire & Umbilical Separation Delay" },
-          { value: "reentry_plasma_shock", label: "Phase 3: Atmospheric Bow-Shock Compression (> 2,500 °C)" },
+          {
+            value: "orbital_free_fall",
+            label: "Phase 1: Orbital Free Fall (302 km × 169 km, g ≈ 0.91 g₀)",
+          },
+          {
+            value: "retrofire_separation",
+            label: "Phase 2: TDU Retrofire & Umbilical Separation Delay",
+          },
+          {
+            value: "reentry_plasma_shock",
+            label: "Phase 3: Atmospheric Bow-Shock Compression (> 2,500 °C)",
+          },
         ],
         scientificFormula: "g(h) = g₀ (R_E / (R_E + h))² ≈ 0.91 g₀ (Free-Fall Microgravity)",
         description:
@@ -1175,9 +1197,18 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "chandrayaan3_south_polar",
         options: [
-          { value: "apollo_lor_equatorial", label: "Apollo 11–17 LOR (1969–1972, Δv_TLI ≈ 3.05 km/s, Completed)" },
-          { value: "chandrayaan3_south_polar", label: "Chandrayaan-3 Vikram & Pragyan (Aug 2023, 69.37° S Region, Completed)" },
-          { value: "artemis_nrho_planned", label: "Artemis NRHO Architecture (Planned Future Cis-Lunar Program)" },
+          {
+            value: "apollo_lor_equatorial",
+            label: "Apollo 11–17 LOR (1969–1972, Δv_TLI ≈ 3.05 km/s, Completed)",
+          },
+          {
+            value: "chandrayaan3_south_polar",
+            label: "Chandrayaan-3 Vikram & Pragyan (Aug 2023, 69.37° S Region, Completed)",
+          },
+          {
+            value: "artemis_nrho_planned",
+            label: "Artemis NRHO Architecture (Planned Future Cis-Lunar Program)",
+          },
         ],
         scientificFormula: "Δv_TLI = √(2μ_E/r_LEO - μ_E/a_trans) - √(μ_E/r_LEO) ≈ 3.05 km/s",
         description:
@@ -1194,7 +1225,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 0.05,
         unit: "km/s",
         defaultValue: 3.05,
-        scientificFormula: "r_apogee = a(1 + e) → Reaches Lunar Orbit (384,400 km) at Δv ≈ 3.05 km/s",
+        scientificFormula:
+          "r_apogee = a(1 + e) → Reaches Lunar Orbit (384,400 km) at Δv ≈ 3.05 km/s",
         description:
           "Adjust the TLI burn Δv from LEO to observe apogee extension toward the Moon's 384,400 km orbit.",
       },
@@ -1392,10 +1424,22 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "perseverance_2021_skycrane",
         options: [
-          { value: "sojourner_1997_airbag", label: "Sojourner (1997, 11.5 kg — Tetrahedral Airbag Landing)" },
-          { value: "spirit_opportunity_2004", label: "Spirit & Opportunity (2004, 185 kg — Airbag + Solar Hematite Discovery)" },
-          { value: "curiosity_2012_skycrane", label: "Curiosity (2012, 899 kg — MMRTG Nuclear + Sky Crane in Gale Crater)" },
-          { value: "perseverance_2021_skycrane", label: "Perseverance & Ingenuity (2021, 1025 kg — Sky Crane, MOXIE & Sample Caching)" },
+          {
+            value: "sojourner_1997_airbag",
+            label: "Sojourner (1997, 11.5 kg — Tetrahedral Airbag Landing)",
+          },
+          {
+            value: "spirit_opportunity_2004",
+            label: "Spirit & Opportunity (2004, 185 kg — Airbag + Solar Hematite Discovery)",
+          },
+          {
+            value: "curiosity_2012_skycrane",
+            label: "Curiosity (2012, 899 kg — MMRTG Nuclear + Sky Crane in Gale Crater)",
+          },
+          {
+            value: "perseverance_2021_skycrane",
+            label: "Perseverance & Ingenuity (2021, 1025 kg — Sky Crane, MOXIE & Sample Caching)",
+          },
         ],
         scientificFormula: "2 CO₂ → 2 CO + O₂ (MOXIE Solid-Oxide Electrolysis at 800 °C)",
         description:
@@ -1522,7 +1566,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
           { value: "trailing_boost", label: "Trailing-Side Flyby (+Δv Heliocentric Energy Boost)" },
           { value: "leading_brake", label: "Leading-Side Flyby (-Δv Heliocentric Gravity Brake)" },
         ],
-        scientificFormula: "v_helio,out = v_planet + v_∞,out (Trailing increases |v_helio|; Leading decreases |v_helio|)",
+        scientificFormula:
+          "v_helio,out = v_planet + v_∞,out (Trailing increases |v_helio|; Leading decreases |v_helio|)",
         description:
           "Switch between trailing-edge flyby (gains heliocentric orbital speed from Jupiter) and leading-edge flyby (sheds heliocentric speed for inner-system capture).",
         linkedActivityId: "act_22_gravity_assist_trajectory",
@@ -1617,10 +1662,22 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "jwst_l2_halo",
         options: [
-          { value: "hst_leo_540km", label: "Hubble Space Telescope (540 km LEO — UV/Visible/Near-IR)" },
-          { value: "jwst_l2_halo", label: "James Webb Space Telescope (Sun-Earth L2 Halo Orbit — 0.6–28 μm IR)" },
-          { value: "chandra_heo_xray", label: "Chandra X-ray Observatory (133,000 km HEO — 0.1–10 keV X-Ray)" },
-          { value: "aditya_l1_solar", label: "ISRO Aditya-L1 (Sun-Earth L1 Halo Orbit — Uninterrupted Solar Corona)" },
+          {
+            value: "hst_leo_540km",
+            label: "Hubble Space Telescope (540 km LEO — UV/Visible/Near-IR)",
+          },
+          {
+            value: "jwst_l2_halo",
+            label: "James Webb Space Telescope (Sun-Earth L2 Halo Orbit — 0.6–28 μm IR)",
+          },
+          {
+            value: "chandra_heo_xray",
+            label: "Chandra X-ray Observatory (133,000 km HEO — 0.1–10 keV X-Ray)",
+          },
+          {
+            value: "aditya_l1_solar",
+            label: "ISRO Aditya-L1 (Sun-Earth L1 Halo Orbit — Uninterrupted Solar Corona)",
+          },
         ],
         scientificFormula: "r_L2 ≈ a_E · (M_E / (3 M_Sun))^(1/3) ≈ 1.5 × 10⁶ km",
         description:
@@ -1638,8 +1695,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         unit: "deg",
         defaultValue: 90,
         scientificFormula: "T_halo ≈ 6 months around Sun-Earth L2 (Avoids Earth Umbra Eclipse)",
-        description:
-          "Advance JWST around its 6-month 3D halo loop about the Sun-Earth L2 point.",
+        description: "Advance JWST around its 6-month 3D halo loop about the Sun-Earth L2 point.",
       },
     ],
     visualBeats: [
@@ -1729,9 +1785,18 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "jupiter_assist_to_saturn",
         options: [
-          { value: "direct_mars_hohmann", label: "Earth → Mars Hohmann Transfer (a = 1.26 AU, t ≈ 259 days)" },
-          { value: "jupiter_assist_to_saturn", label: "Earth → Jupiter Gravity Assist → Saturn (Voyager Patched-Conic)" },
-          { value: "venus_earth_assist_juice", label: "Earth → Venus-Earth Gravity Assist → Outer System (VEEGA)" },
+          {
+            value: "direct_mars_hohmann",
+            label: "Earth → Mars Hohmann Transfer (a = 1.26 AU, t ≈ 259 days)",
+          },
+          {
+            value: "jupiter_assist_to_saturn",
+            label: "Earth → Jupiter Gravity Assist → Saturn (Voyager Patched-Conic)",
+          },
+          {
+            value: "venus_earth_assist_juice",
+            label: "Earth → Venus-Earth Gravity Assist → Outer System (VEEGA)",
+          },
         ],
         scientificFormula: "a_trans = (r₁ + r₂)/2, Δv = I_sp g₀ ln(m₀/m_f)",
         description:
@@ -1846,11 +1911,22 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "cellular_microbe",
         options: [
-          { value: "cellular_microbe", label: "Cellular Organism (Metabolism + Compartment + Darwinian Evolution)" },
-          { value: "viral_capsid", label: "Virus / Viroid (Genetic Replication Only Inside Host Cell — Edge Case)" },
-          { value: "mineral_crystal_growth", label: "Abiotic Mineral Crystal / Flame (Order or Metabolism Without Heritable Evolution)" },
+          {
+            value: "cellular_microbe",
+            label: "Cellular Organism (Metabolism + Compartment + Darwinian Evolution)",
+          },
+          {
+            value: "viral_capsid",
+            label: "Virus / Viroid (Genetic Replication Only Inside Host Cell — Edge Case)",
+          },
+          {
+            value: "mineral_crystal_growth",
+            label:
+              "Abiotic Mineral Crystal / Flame (Order or Metabolism Without Heritable Evolution)",
+          },
         ],
-        scientificFormula: "ΔS_universe = ΔS_system + ΔS_environment > 0 (2nd Law of Thermodynamics)",
+        scientificFormula:
+          "ΔS_universe = ΔS_system + ΔS_environment > 0 (2nd Law of Thermodynamics)",
         description:
           "Compare cellular life against viruses and abiotic chemical processes to examine why operational definitions of life include edge cases.",
         linkedActivityId: "act_23_habitable_world_lab",
@@ -1877,11 +1953,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Open Thermodynamic Systems, Entropy Export & Erwin Schrödinger's Negentropy",
         scientificMechanismSummary:
           "Illustrates a semi-permeable cellular boundary taking in low-entropy chemical/radiative free energy and exporting heat/entropy to satisfy ΔS_total > 0.",
-        narrationSegmentIds: [
-          "23-23-1-title",
-          "23-23-1-explanation-1",
-          "23-23-1-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-1-title", "23-23-1-explanation-1", "23-23-1-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.4, 10.8],
@@ -1968,8 +2040,15 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "modern_phanerozoic",
         options: [
-          { value: "archean_anoxic", label: "Archean Earth (3.5 Ga — Faint Young Sun, Anoxic CO₂/CH₄, Microbial Life)" },
-          { value: "proterozoic_snowball", label: "Cryogenian Snowball Earth (0.7 Ga — High Albedo Glaciation + Volcanic CO₂ Escape)" },
+          {
+            value: "archean_anoxic",
+            label: "Archean Earth (3.5 Ga — Faint Young Sun, Anoxic CO₂/CH₄, Microbial Life)",
+          },
+          {
+            value: "proterozoic_snowball",
+            label:
+              "Cryogenian Snowball Earth (0.7 Ga — High Albedo Glaciation + Volcanic CO₂ Escape)",
+          },
           { value: "modern_phanerozoic", label: "Modern Earth (21% O₂ Biosphere, T_surf ≈ 288 K)" },
         ],
         scientificFormula: "T_surf = T_eq + ΔT_greenhouse (255 K + 33 K = 288 K)",
@@ -1984,11 +2063,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Earth's Coupled Planetary Systems & the Carbonate-Silicate Weathering Loop",
         scientificMechanismSummary:
           "Peels open Earth's atmosphere, ocean, continental crust, and subducting mantle plates to trace CO₂ rainfall weathering and volcanic outgassing.",
-        narrationSegmentIds: [
-          "23-23-2-title",
-          "23-23-2-explanation-1",
-          "23-23-2-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-2-title", "23-23-2-explanation-1", "23-23-2-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.6, 11.4],
@@ -2064,11 +2139,21 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "carbon_water_redox",
         options: [
-          { value: "carbon_water_redox", label: "Carbon Tetravalence (C–C 347 kJ/mol) + Polar H₂O Dipole" },
-          { value: "silicon_sio2_comparison", label: "Silicon Comparison (Si–O 452 kJ/mol Silicate Lattice Lock)" },
-          { value: "hydrothermal_methanogenesis", label: "Chemolithoautotrophy (CO₂ + 4 H₂ → CH₄ + 2 H₂O, ΔG° ≈ -131 kJ/mol)" },
+          {
+            value: "carbon_water_redox",
+            label: "Carbon Tetravalence (C–C 347 kJ/mol) + Polar H₂O Dipole",
+          },
+          {
+            value: "silicon_sio2_comparison",
+            label: "Silicon Comparison (Si–O 452 kJ/mol Silicate Lattice Lock)",
+          },
+          {
+            value: "hydrothermal_methanogenesis",
+            label: "Chemolithoautotrophy (CO₂ + 4 H₂ → CH₄ + 2 H₂O, ΔG° ≈ -131 kJ/mol)",
+          },
         ],
-        scientificFormula: "E(C–C) ≈ 347 kJ/mol ≈ E(C–O) vs E(Si–O) ≈ 452 kJ/mol >> E(Si–Si) ≈ 226 kJ/mol",
+        scientificFormula:
+          "E(C–C) ≈ 347 kJ/mol ≈ E(C–O) vs E(Si–O) ≈ 452 kJ/mol >> E(Si–Si) ≈ 226 kJ/mol",
         description:
           "Compare carbon-water-redox biochemistry against silicon-oxygen silicate locking and deep-sea hydrothermal chemosynthesis.",
         linkedActivityId: "act_23_habitable_world_lab",
@@ -2095,11 +2180,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Carbon Tetravalence (C–C vs C–O) vs Silicon Dioxide (SiO₂) Lattice Locking",
         scientificMechanismSummary:
           "Compares flexible tetravalent carbon chains and soluble CO₂ gas against rigid quartz SiO₂ networks.",
-        narrationSegmentIds: [
-          "23-23-3-title",
-          "23-23-3-explanation-1",
-          "23-23-3-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-3-title", "23-23-3-explanation-1", "23-23-3-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.4, 10.8],
@@ -2171,10 +2252,22 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "hyperthermophile_vent",
         options: [
-          { value: "hyperthermophile_vent", label: "Hyperthermophile (*Methanopyrus kandleri*, 122 °C, 200–400 atm)" },
-          { value: "mariana_piezophile", label: "Abyssal Piezophile (Mariana Trench, 2 °C, 1,100 atm)" },
-          { value: "antarctic_psychrophile", label: "Cryo-Halophile (Subglacial Brine, -15 °C, High Salinity)" },
-          { value: "deinococcus_radiation", label: "Polyextremophile (*Deinococcus radiodurans* Multi-Copy DNA Repair)" },
+          {
+            value: "hyperthermophile_vent",
+            label: "Hyperthermophile (*Methanopyrus kandleri*, 122 °C, 200–400 atm)",
+          },
+          {
+            value: "mariana_piezophile",
+            label: "Abyssal Piezophile (Mariana Trench, 2 °C, 1,100 atm)",
+          },
+          {
+            value: "antarctic_psychrophile",
+            label: "Cryo-Halophile (Subglacial Brine, -15 °C, High Salinity)",
+          },
+          {
+            value: "deinococcus_radiation",
+            label: "Polyextremophile (*Deinococcus radiodurans* Multi-Copy DNA Repair)",
+          },
         ],
         scientificFormula: "T_max(verified) = 122 °C (395 K) at High Hydrostatic Pressure",
         description:
@@ -2191,7 +2284,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 5,
         unit: "°C",
         defaultValue: 105,
-        scientificFormula: "Viable Envelope: -20 °C ≤ T ≤ 122 °C (Protein/ATP Thermal Denaturation > 122 °C)",
+        scientificFormula:
+          "Viable Envelope: -20 °C ≤ T ≤ 122 °C (Protein/ATP Thermal Denaturation > 122 °C)",
         description:
           "Adjust temperature T across the -20 °C to +150 °C range to observe when thermal hydrolysis exceeds known biological repair.",
       },
@@ -2278,7 +2372,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 0.5,
         unit: "Ga ago",
         defaultValue: 3.8,
-        scientificFormula: "M_Mars = 0.107 M_Earth → Rapid Core Cooling (~3.9 Ga) → P_surf: ~1 bar → 6.1 mbar",
+        scientificFormula:
+          "M_Mars = 0.107 M_Earth → Rapid Core Cooling (~3.9 Ga) → P_surf: ~1 bar → 6.1 mbar",
         description:
           "Scrub from 4.0 Ga ago (Noachian dipole magnetosphere and liquid Jezero lake) to 0.0 Ga (modern 6.1 mbar arid surface stripped by solar wind).",
         linkedActivityId: "act_23_habitable_world_lab",
@@ -2289,7 +2384,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         label: "Subsurface Permafrost & Perchlorate Brine Hypothesis Layer",
         controlType: "toggle",
         defaultValue: true,
-        scientificFormula: "Mg(ClO₄)₂ / Ca(ClO₄)₂ Eutectic Freezing Point Depression (Model-Dependent)",
+        scientificFormula:
+          "Mg(ClO₄)₂ / Ca(ClO₄)₂ Eutectic Freezing Point Depression (Model-Dependent)",
         description:
           "Toggle the subsurface cryosphere cutaway showing water-ice permafrost and radiation shielding below the UV-sterilized regolith.",
       },
@@ -2373,8 +2469,15 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "enceladus_plumes",
         options: [
-          { value: "europa_induced_field", label: "Europa (Jupiter 4:2:1 Resonance — ~100 km Ocean + Induced B-Field)" },
-          { value: "enceladus_plumes", label: "Enceladus (Saturn 2:1 Resonance — South-Polar Tiger Stripe Plumes: H₂, CH₄, PO₄³⁻)" },
+          {
+            value: "europa_induced_field",
+            label: "Europa (Jupiter 4:2:1 Resonance — ~100 km Ocean + Induced B-Field)",
+          },
+          {
+            value: "enceladus_plumes",
+            label:
+              "Enceladus (Saturn 2:1 Resonance — South-Polar Tiger Stripe Plumes: H₂, CH₄, PO₄³⁻)",
+          },
         ],
         scientificFormula: "Ė_tidal = -(21/2) (k₂/Q) (G M_p² R_m⁵ n e²) / a⁶",
         description:
@@ -2402,11 +2505,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Laplace Orbital Resonance (4:2:1) & Tidal Flexing Heating Inside Europa",
         scientificMechanismSummary:
           "Shows Europa's eccentric orbit around Jupiter flexing its icy shell and rocky mantle, generating internal tidal heat and a salty global ocean detected via Galileo's induced magnetic field measurements.",
-        narrationSegmentIds: [
-          "23-23-6-title",
-          "23-23-6-explanation-1",
-          "23-23-6-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-6-title", "23-23-6-explanation-1", "23-23-6-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.6, 11.2],
@@ -2478,10 +2577,22 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "G2V_solar",
         options: [
-          { value: "M8V_trappist", label: "M-Dwarf (T_* = 3,000 K, L = 0.008 L_☉ — Close HZ 0.03–0.15 AU, Tidal Locking)" },
-          { value: "K2V_orange", label: "K-Dwarf (T_* = 4,600 K, L = 0.25 L_☉ — Stable HZ 0.45–0.85 AU)" },
-          { value: "G2V_solar", label: "G-Type Sun-like (T_* = 5,778 K, L = 1.0 L_☉ — HZ 0.95–1.67 AU)" },
-          { value: "F5V_bright", label: "F-Type Star (T_* = 6,600 K, L = 3.2 L_☉ — Wide HZ 1.70–3.00 AU)" },
+          {
+            value: "M8V_trappist",
+            label: "M-Dwarf (T_* = 3,000 K, L = 0.008 L_☉ — Close HZ 0.03–0.15 AU, Tidal Locking)",
+          },
+          {
+            value: "K2V_orange",
+            label: "K-Dwarf (T_* = 4,600 K, L = 0.25 L_☉ — Stable HZ 0.45–0.85 AU)",
+          },
+          {
+            value: "G2V_solar",
+            label: "G-Type Sun-like (T_* = 5,778 K, L = 1.0 L_☉ — HZ 0.95–1.67 AU)",
+          },
+          {
+            value: "F5V_bright",
+            label: "F-Type Star (T_* = 6,600 K, L = 3.2 L_☉ — Wide HZ 1.70–3.00 AU)",
+          },
         ],
         scientificFormula: "d_HZ ≈ d_☉ · √(L_* / L_☉), S_eff = (L_*/L_☉) / (a / 1 AU)²",
         description:
@@ -2512,11 +2623,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Kopparapu Habitable Zone Limits: Runaway H₂O Greenhouse vs Maximum CO₂ Greenhouse",
         scientificMechanismSummary:
           "Displays the emerald circumstellar Habitable Zone annulus bounded inside by runaway water-vapor feedback (~0.95 AU for 1 L_☉) and outside by Rayleigh scattering of dense CO₂ (~1.67 AU).",
-        narrationSegmentIds: [
-          "23-23-7-title",
-          "23-23-7-explanation-1",
-          "23-23-7-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-7-title", "23-23-7-explanation-1", "23-23-7-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 4.4, 12.6],
@@ -2531,7 +2638,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
       {
         beatId: "sb-m23-23-7-beat-2",
         beatIndex: 1,
-        title: "Planetary Mass Retention, M-Dwarf Tidal Locking & Subsurface Habitability Beyond the HZ",
+        title:
+          "Planetary Mass Retention, M-Dwarf Tidal Locking & Subsurface Habitability Beyond the HZ",
         scientificMechanismSummary:
           "Compares G-star and M-dwarf habitable zones, highlighting synchronous rotation terminator dynamics and atmospheric stripping around active M-dwarfs.",
         narrationSegmentIds: ["23-23-7-explanation-3", "23-23-7-explanation-4"],
@@ -2588,11 +2696,23 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "biotic_o2_ch4_disequilibrium",
         options: [
-          { value: "biotic_o2_ch4_disequilibrium", label: "Scenario A: Coexisting O₂ + CH₄ + H₂O (Thermodynamic Disequilibrium Candidate)" },
-          { value: "abiotic_o2_photolysis_false_positive", label: "Scenario B: Abiotic O₂ + Strong O₄/CO (Desiccated M-Dwarf Water-Loss False Positive)" },
-          { value: "abiotic_ch4_serpentinization", label: "Scenario C: Abiotic CH₄ + CO₂ Without O₂ (Water-Rock Serpentinization / Volcanism)" },
+          {
+            value: "biotic_o2_ch4_disequilibrium",
+            label: "Scenario A: Coexisting O₂ + CH₄ + H₂O (Thermodynamic Disequilibrium Candidate)",
+          },
+          {
+            value: "abiotic_o2_photolysis_false_positive",
+            label:
+              "Scenario B: Abiotic O₂ + Strong O₄/CO (Desiccated M-Dwarf Water-Loss False Positive)",
+          },
+          {
+            value: "abiotic_ch4_serpentinization",
+            label:
+              "Scenario C: Abiotic CH₄ + CO₂ Without O₂ (Water-Rock Serpentinization / Volcanism)",
+          },
         ],
-        scientificFormula: "CH₄ + 2 O₂ → CO₂ + 2 H₂O (τ_CH4 ≈ 12 yr Requires Continuous Replenishment Flux)",
+        scientificFormula:
+          "CH₄ + 2 O₂ → CO₂ + 2 H₂O (τ_CH4 ≈ 12 yr Requires Continuous Replenishment Flux)",
         description:
           "Compare modeled transmission spectra for biotic O₂+CH₄ disequilibrium against abiotic UV water-photolysis O₂ and geological serpentinization CH₄.",
         linkedActivityId: "act_23_habitable_world_lab",
@@ -2607,7 +2727,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 1,
         unit: "gases",
         defaultValue: 4,
-        scientificFormula: "Bands: O₂ (0.76 μm), H₂O (1.4 μm), CO (2.35 μm), CH₄ (3.3 μm), O₃ (9.6 μm)",
+        scientificFormula:
+          "Bands: O₂ (0.76 μm), H₂O (1.4 μm), CO (2.35 μm), CH₄ (3.3 μm), O₃ (9.6 μm)",
         description:
           "Sample at least 2–5 diagnostic absorption bands (including false-positive discriminators O₄ and CO) to complete the Module 23 Biosignature Lab.",
         linkedActivityId: "act_23_habitable_world_lab",
@@ -2621,11 +2742,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Starlight Transmission Through an Exoplanet Limb & O₂ + CH₄ Disequilibrium",
         scientificMechanismSummary:
           "Shows starlight filtering through an exoplanet's atmospheric annulus during transit, imprinting vibrational-rotational absorption bands of O₂, O₃, CH₄, CO₂, and H₂O.",
-        narrationSegmentIds: [
-          "23-23-8-title",
-          "23-23-8-explanation-1",
-          "23-23-8-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-8-title", "23-23-8-explanation-1", "23-23-8-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.6, 11.4],
@@ -2634,13 +2751,17 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         timePolicy: "SIMULATION_CONTINUOUS",
         simulationTimeScale: 1.0,
         animationAction: "m23_ch8_transmission_limb_spectrum",
-        highlightedObjects: ["transiting_exoplanet_atmosphere_limb", "transmission_spectrum_plot_3d"],
+        highlightedObjects: [
+          "transiting_exoplanet_atmosphere_limb",
+          "transmission_spectrum_plot_3d",
+        ],
         transitionType: "scientific_cross_section_peel",
       },
       {
         beatId: "sb-m23-23-8-beat-2",
         beatIndex: 1,
-        title: "Abiotic False Positives: UV Water Photolysis (O₂ + O₄) & Olivine Serpentinization (CH₄)",
+        title:
+          "Abiotic False Positives: UV Water Photolysis (O₂ + O₄) & Olivine Serpentinization (CH₄)",
         scientificMechanismSummary:
           "Contrasts biotic disequilibrium against abiotic oxygen accumulation from hydrodynamic H escape and abiotic methane from water-rock serpentinization.",
         narrationSegmentIds: ["23-23-8-explanation-3", "23-23-8-explanation-4"],
@@ -2652,7 +2773,10 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         timePolicy: "SIMULATION_CONTINUOUS",
         simulationTimeScale: 1.0,
         animationAction: "m23_ch8_false_positive_diagnostics",
-        highlightedObjects: ["photochemical_reaction_network_nodes", "transmission_spectrum_plot_3d"],
+        highlightedObjects: [
+          "photochemical_reaction_network_nodes",
+          "transmission_spectrum_plot_3d",
+        ],
         transitionType: "smooth_orbital_travel",
       },
     ],
@@ -2697,9 +2821,21 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "rfi_terrestrial_blc1",
         options: [
-          { value: "rfi_terrestrial_blc1", label: "Candidate 1: BLC1-like Signal (Present in OFF-Target Beam → Terrestrial RFI Rejected)" },
-          { value: "leo_satellite_transponder", label: "Candidate 2: GPS/Satellite Transponder (Rapid Orbital Drift → Anthropogenic RFI)" },
-          { value: "natural_oh_maser", label: "Candidate 3: Astrophysical OH Maser (1662 MHz Broadband kHz Line → Natural Astrophysics)" },
+          {
+            value: "rfi_terrestrial_blc1",
+            label:
+              "Candidate 1: BLC1-like Signal (Present in OFF-Target Beam → Terrestrial RFI Rejected)",
+          },
+          {
+            value: "leo_satellite_transponder",
+            label:
+              "Candidate 2: GPS/Satellite Transponder (Rapid Orbital Drift → Anthropogenic RFI)",
+          },
+          {
+            value: "natural_oh_maser",
+            label:
+              "Candidate 3: Astrophysical OH Maser (1662 MHz Broadband kHz Line → Natural Astrophysics)",
+          },
         ],
         scientificFormula: "ON-Target vs OFF-Target Spatial Nod Filter + Doppler Drift df/dt",
         description:
@@ -2716,7 +2852,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 100,
         unit: "yr",
         defaultValue: 1000,
-        scientificFormula: "N = R_* · f_p · n_e · f_l · f_i · f_c · L (Heuristic Framework, Not a Measurement)",
+        scientificFormula:
+          "N = R_* · f_p · n_e · f_l · f_i · f_c · L (Heuristic Framework, Not a Measurement)",
         description:
           "Vary the unconstrained longevity parameter L in the Drake Equation to see why N remains an order-of-magnitude uncertainty estimate.",
       },
@@ -2728,11 +2865,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "The 1961 Drake Equation Framework: Constrained Astrophysics vs Unknown Biology",
         scientificMechanismSummary:
           "Separates the seven Drake factors into empirically measured astrophysical rates (R_* ≈ 1.5–3 yr⁻¹, f_p ≈ 1.0, n_e ≈ 0.2) and unknown biological/technological terms (f_l, f_i, f_c, L).",
-        narrationSegmentIds: [
-          "23-23-9-title",
-          "23-23-9-explanation-1",
-          "23-23-9-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-9-title", "23-23-9-explanation-1", "23-23-9-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.6, 11.4],
@@ -2804,12 +2937,26 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "alh84001_magnetite",
         options: [
-          { value: "viking_1976_perchlorate", label: "Viking Labeled Release (1976 — Explained by Reactive Perchlorate Soil Chemistry)" },
-          { value: "alh84001_magnetite", label: "ALH84001 Martian Meteorite (1996 — Abiotic Carbonate Thermal Decomposition)" },
-          { value: "venus_2020_ph3_so2", label: "Venus Cloud 267 GHz Line (2020 — SO₂ Line Overlap & Calibration Reanalysis)" },
-          { value: "k2_18b_jwst_co2_ch4", label: "K2-18b JWST Spectrum (2023 — Confirmed CH₄ + CO₂, DMS Unconfirmed Level 1–2)" },
+          {
+            value: "viking_1976_perchlorate",
+            label:
+              "Viking Labeled Release (1976 — Explained by Reactive Perchlorate Soil Chemistry)",
+          },
+          {
+            value: "alh84001_magnetite",
+            label: "ALH84001 Martian Meteorite (1996 — Abiotic Carbonate Thermal Decomposition)",
+          },
+          {
+            value: "venus_2020_ph3_so2",
+            label: "Venus Cloud 267 GHz Line (2020 — SO₂ Line Overlap & Calibration Reanalysis)",
+          },
+          {
+            value: "k2_18b_jwst_co2_ch4",
+            label: "K2-18b JWST Spectrum (2023 — Confirmed CH₄ + CO₂, DMS Unconfirmed Level 1–2)",
+          },
         ],
-        scientificFormula: "CoLD Scale Levels 1–7: Require Ruling Out All Abiotic Hypotheses Before Level 7",
+        scientificFormula:
+          "CoLD Scale Levels 1–7: Require Ruling Out All Abiotic Hypotheses Before Level 7",
         description:
           "Inspect historical astrobiological claims to see how scientific reanalysis tested abiotic explanations.",
         linkedActivityId: "act_23_habitable_world_lab",
@@ -2838,11 +2985,7 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Historical Lessons: Martian Canals, Viking Perchlorates & ALH84001 Magnetite",
         scientificMechanismSummary:
           "Reviews famous historical life claims that were resolved by abiotic physics and chemistry: optical illusions, reactive Martian perchlorates, and shock-heated carbonate magnetite.",
-        narrationSegmentIds: [
-          "23-23-10-title",
-          "23-23-10-explanation-1",
-          "23-23-10-explanation-2",
-        ],
+        narrationSegmentIds: ["23-23-10-title", "23-23-10-explanation-1", "23-23-10-explanation-2"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 3.8, 11.8],
@@ -2918,13 +3061,29 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "kepler_vis_viva_orbit",
         options: [
-          { value: "kepler_vis_viva_orbit", label: "Domain 1: Orbital Mechanics & Vis-Viva (v² = GM(2/r - 1/a))" },
-          { value: "stellar_mass_luminosity", label: "Domain 2: Stellar Blackbody & Mass-Luminosity (L ∝ M^3.5, L = 4πR²σT⁴)" },
-          { value: "exoplanet_transit_rv", label: "Domain 3: Exoplanet Transit Depth & Doppler RV (ΔF/F = (R_p/R_*)²)" },
-          { value: "schwarzschild_isco_horizon", label: "Domain 4: Relativistic Event Horizon & ISCO (r_s = 2GM/c², r_ISCO = 3 r_s)" },
-          { value: "nfw_halo_flrw_redshift", label: "Domain 5: Galactic NFW Rotation & Cosmological Redshift (1+z = 1/a)" },
+          {
+            value: "kepler_vis_viva_orbit",
+            label: "Domain 1: Orbital Mechanics & Vis-Viva (v² = GM(2/r - 1/a))",
+          },
+          {
+            value: "stellar_mass_luminosity",
+            label: "Domain 2: Stellar Blackbody & Mass-Luminosity (L ∝ M^3.5, L = 4πR²σT⁴)",
+          },
+          {
+            value: "exoplanet_transit_rv",
+            label: "Domain 3: Exoplanet Transit Depth & Doppler RV (ΔF/F = (R_p/R_*)²)",
+          },
+          {
+            value: "schwarzschild_isco_horizon",
+            label: "Domain 4: Relativistic Event Horizon & ISCO (r_s = 2GM/c², r_ISCO = 3 r_s)",
+          },
+          {
+            value: "nfw_halo_flrw_redshift",
+            label: "Domain 5: Galactic NFW Rotation & Cosmological Redshift (1+z = 1/a)",
+          },
         ],
-        scientificFormula: "Conservation of Energy (E = T + U), Momentum (p), and Angular Momentum (L = r × p)",
+        scientificFormula:
+          "Conservation of Energy (E = T + U), Momentum (p), and Angular Momentum (L = r × p)",
         description:
           "Switch the active 3D sandbox apparatus across the five core astrophysical domains to run controlled experiments.",
         linkedActivityId: "act_24_cosmic_lab_capstone",
@@ -2966,7 +3125,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
       {
         beatId: "sb-m24-24-1-beat-2",
         beatIndex: 1,
-        title: "Integrated Multi-Domain Research Laboratories (Orbits, Stars, Horizons & Cosmology)",
+        title:
+          "Integrated Multi-Domain Research Laboratories (Orbits, Stars, Horizons & Cosmology)",
         scientificMechanismSummary:
           "Transitions across the coupled orbital, stellar evolution, relativistic horizon, and exoplanet transit apparatus inside the unified 3D sandbox.",
         narrationSegmentIds: ["24-24-1-explanation-2"],
@@ -3027,7 +3187,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 0.5,
         unit: "days",
         defaultValue: 5.0,
-        scientificFormula: "Local Truncation Error: Euler O(Δt²) vs RK4 O(Δt⁵) | Global: O(Δt) vs O(Δt⁴)",
+        scientificFormula:
+          "Local Truncation Error: Euler O(Δt²) vs RK4 O(Δt⁵) | Global: O(Δt) vs O(Δt⁴)",
         description:
           "Increase integration time step Δt to observe how Forward Euler spirals outward with positive energy drift ΔE/E₀ while RK4 and Symplectic Verlet preserve orbital geometry.",
         linkedActivityId: "act_24_cosmic_lab_capstone",
@@ -3039,9 +3200,18 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "rk4_symplectic_vs_euler",
         options: [
-          { value: "rk4_symplectic_vs_euler", label: "Overlay All: Analytical Kepler vs RK4/Verlet vs Forward Euler Drift" },
-          { value: "symplectic_verlet_only", label: "Symplectic Velocity Verlet (Bounded Hamiltonian Energy Oscillation)" },
-          { value: "restricted_nbody_softened", label: "Softened N-Body Force Law: F = -G m₁ m₂ r / (r² + ε²)^(3/2)" },
+          {
+            value: "rk4_symplectic_vs_euler",
+            label: "Overlay All: Analytical Kepler vs RK4/Verlet vs Forward Euler Drift",
+          },
+          {
+            value: "symplectic_verlet_only",
+            label: "Symplectic Velocity Verlet (Bounded Hamiltonian Energy Oscillation)",
+          },
+          {
+            value: "restricted_nbody_softened",
+            label: "Softened N-Body Force Law: F = -G m₁ m₂ r / (r² + ε²)^(3/2)",
+          },
         ],
         scientificFormula: "ΔE / |E₀| = |(T + U) - E₀| / |E₀|",
         description:
@@ -3131,13 +3301,30 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "stage_1_transit_photometry",
         options: [
-          { value: "stage_1_transit_photometry", label: "Stage 1: Transit Photometry (ΔF/F = 1.0% → R_p ≈ 10.9 R_⊕)" },
-          { value: "stage_2_orbital_resonance", label: "Stage 2: 2:1 Laplace Resonance (a₁ = 1.0 AU → a₂ = 2^(2/3) ≈ 1.587 AU)" },
-          { value: "stage_3_dark_matter_halo", label: "Stage 3: Flat Galactic Rotation Curve (r = 20 kpc, v = 220 km/s → M_total ≈ 2.25×10¹¹ M_☉)" },
-          { value: "stage_4_sgr_a_horizon", label: "Stage 4: Sgr A* Schwarzschild Radius (4.15×10⁶ M_☉ → r_s ≈ 1.225×10⁷ km)" },
-          { value: "stage_5_mars_hohmann", label: "Stage 5: Earth–Mars Hohmann Transfer (a_t = 1.262 AU → Δv₁ ≈ 2.94 km/s)" },
+          {
+            value: "stage_1_transit_photometry",
+            label: "Stage 1: Transit Photometry (ΔF/F = 1.0% → R_p ≈ 10.9 R_⊕)",
+          },
+          {
+            value: "stage_2_orbital_resonance",
+            label: "Stage 2: 2:1 Laplace Resonance (a₁ = 1.0 AU → a₂ = 2^(2/3) ≈ 1.587 AU)",
+          },
+          {
+            value: "stage_3_dark_matter_halo",
+            label:
+              "Stage 3: Flat Galactic Rotation Curve (r = 20 kpc, v = 220 km/s → M_total ≈ 2.25×10¹¹ M_☉)",
+          },
+          {
+            value: "stage_4_sgr_a_horizon",
+            label: "Stage 4: Sgr A* Schwarzschild Radius (4.15×10⁶ M_☉ → r_s ≈ 1.225×10⁷ km)",
+          },
+          {
+            value: "stage_5_mars_hohmann",
+            label: "Stage 5: Earth–Mars Hohmann Transfer (a_t = 1.262 AU → Δv₁ ≈ 2.94 km/s)",
+          },
         ],
-        scientificFormula: "R_p = R_*√(ΔF/F) | a₂ = a₁(P₂/P₁)^(2/3) | r_s = 2GM/c² | Δv₁ = √(μ/r₁)(√(2r₂/(r₁+r₂)) - 1)",
+        scientificFormula:
+          "R_p = R_*√(ΔF/F) | a₂ = a₁(P₂/P₁)^(2/3) | r_s = 2GM/c² | Δv₁ = √(μ/r₁)(√(2r₂/(r₁+r₂)) - 1)",
         description:
           "Inspect each of the 5 quantitative synthesis stages of the Cosmic Explorer Capstone Challenge.",
         linkedActivityId: "act_24_cosmic_lab_capstone",
@@ -3163,7 +3350,8 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
       {
         beatId: "sb-m24-24-3-beat-1",
         beatIndex: 0,
-        title: "Quantitative Synthesis Stages 1–3: Transit Photometry, Orbital Resonance & NFW Halos",
+        title:
+          "Quantitative Synthesis Stages 1–3: Transit Photometry, Orbital Resonance & NFW Halos",
         scientificMechanismSummary:
           "Links exoplanet transit depth (ΔF/F = 0.01 → R_p ≈ 10.9 R_⊕), Kepler's 3rd Law 2:1 resonance (a₂ ≈ 1.587 AU), and virial dark matter halo mass at r = 20 kpc.",
         narrationSegmentIds: ["24-24-3-title", "24-24-3-explanation-1"],
@@ -3193,7 +3381,10 @@ export const STAGE_6_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         timePolicy: "WAIT_FOR_GATE",
         simulationTimeScale: 1.0,
         animationAction: "m24_ch3_capstone_pillars_4_to_5",
-        highlightedObjects: ["hohmann_mars_transfer_calibrator", "capstone_five_pillar_observatory"],
+        highlightedObjects: [
+          "hohmann_mars_transfer_calibrator",
+          "capstone_five_pillar_observatory",
+        ],
         transitionType: "observational_data_reveal",
       },
     ],

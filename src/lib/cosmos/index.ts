@@ -43,4 +43,3 @@ export { UniversalCosmosAdapter } from "./adapters/universal-adapter";
 // Prompt 16 Cinematic Design System & Responsive Panel Manager
 export * from "./cinematic/CinematicDesignTokens";
 export * from "./cinematic/CinematicPanelManager";
-

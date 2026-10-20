@@ -397,6 +397,11 @@ export class CosmosCinematicSessionBridge {
 
     if (typeof requestFn !== "function") {
       this.stateManager.updateState({ fullscreenState: "VIEWPORT_FALLBACK" });
+      this.stateManager.recordError(
+        "FULLSCREEN_UNSUPPORTED",
+        "Native fullscreen API is unsupported on this device. Full-viewport mode active.",
+        { recoverable: true, fallbackAvailable: true, enterErrorState: false },
+      );
       return false;
     }
 
@@ -409,6 +414,11 @@ export class CosmosCinematicSessionBridge {
       return true;
     } catch {
       this.stateManager.updateState({ fullscreenState: "VIEWPORT_FALLBACK" });
+      this.stateManager.recordError(
+        "FULLSCREEN_PERMISSION_DENIED",
+        "Browser fullscreen request was rejected or denied. Full-viewport mode active.",
+        { recoverable: true, fallbackAvailable: true, enterErrorState: false },
+      );
       return false;
     }
   }

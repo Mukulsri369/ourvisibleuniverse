@@ -10,12 +10,12 @@
 
 This deliverable transforms **Module 01 (Our Place in the Universe)**, **Module 08 (Gravity, Orbits & Motion)**, and **Module 14 (Black Holes & Neutron Stars)** into complete, chapter-by-chapter 3D cinematic documentary experiences. Every single chapter has a dedicated, distinct 3D scene component (`Module01ChapterScenes.tsx`, `Module08ChapterScenes.tsx`, `Module14ChapterScenes.tsx`), authored multi-beat camera choreography (`CosmosProofOfConceptManifest.ts`), live student-adjustable scientific parameters (`CosmosChapterInteractionStore.ts`), real-time physics telemetry across all three learning tiers (`junior`, `explorer`, `astronomer`), and automatic bridging to `CosmosActivityAdapter`.
 
-| Module ID | Module Title | Chapters | Canonical Segments (Explorer) | Junior Segments | Astronomer Segments | Authored Visual Beats | Distinct 3D Scene Components |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **01** | **Our Place in the Universe** | **6** (`01.1`–`01.6`) | 34 | 30 | 36 | 14 | 6 (`EarthAtmosphereScene` … `ObservableUniverseScene`) |
-| **08** | **Gravity, Orbits & Motion** | **8** (`08.1`–`08.8`) | 40 | 40 | 40 | 17 | 8 (`GravityConceptScene` … `BarycenterScene`) |
-| **14** | **Black Holes & Neutron Stars** | **8** (`14.1`–`14.8`) | 46 | 45 | 54 | 17 | 8 (`StellarCollapseScene` … `GravitationalWaveScene`) |
-| **TOTAL** | **3 Proof-of-Concept Modules** | **22 Chapters** | **120** | **115** | **130** | **48 Beats** | **22 Distinct 3D Chapter Scenes** |
+| Module ID | Module Title                    |       Chapters        | Canonical Segments (Explorer) | Junior Segments | Astronomer Segments | Authored Visual Beats |              Distinct 3D Scene Components              |
+| :-------- | :------------------------------ | :-------------------: | :---------------------------: | :-------------: | :-----------------: | :-------------------: | :----------------------------------------------------: |
+| **01**    | **Our Place in the Universe**   | **6** (`01.1`–`01.6`) |              34               |       30        |         36          |          14           | 6 (`EarthAtmosphereScene` … `ObservableUniverseScene`) |
+| **08**    | **Gravity, Orbits & Motion**    | **8** (`08.1`–`08.8`) |              40               |       40        |         40          |          17           |     8 (`GravityConceptScene` … `BarycenterScene`)      |
+| **14**    | **Black Holes & Neutron Stars** | **8** (`14.1`–`14.8`) |              46               |       45        |         54          |          17           | 8 (`StellarCollapseScene` … `GravitationalWaveScene`)  |
+| **TOTAL** | **3 Proof-of-Concept Modules**  |    **22 Chapters**    |            **120**            |     **115**     |       **130**       |     **48 Beats**      |           **22 Distinct 3D Chapter Scenes**            |
 
 ---
 
@@ -116,7 +116,7 @@ Implemented in `src/components/academy/cinematic/scenes/module-14/Module14Chapte
    - **Scientific Visualization:** Oblique rotator lighthouse model showing rotation axis $\vec{\Omega}$ vs tilted magnetic dipole axis $\vec{\mu}$ (angle $\alpha$), synchrotron emission cones, live radio/X-ray pulse profile that registers pulses **only** when $|\alpha - \zeta| \le \theta_{\text{beam}}$, and a Magnetar mode ($B \sim 10^{11}\text{ T} = 10^{15}\text{ G}$) with twisted magnetospheric flux loops.
    - **Interactive Controls:** Magnetic Dipole Tilt $\alpha$ ($5^\circ\text{–}80^\circ$), Observer Viewing Angle $\zeta$ ($5^\circ\text{–}80^\circ$), Regime Selector (`pulsar` vs `magnetar`).
 
-7. **Chapter 14.7 — Supermassive Black Holes: Sgr A* vs. M87* (`m14_ch7_supermassive_black_holes` / `SupermassiveBlackHoleScene`)**:
+7. _*Chapter 14.7 — Supermassive Black Holes: Sgr A* vs. M87_ (`m14_ch7_supermassive_black_holes` / `SupermassiveBlackHoleScene`)**:
    - **Scientific Visualization:** Dual observational comparison: (1) **Sagittarius A\*** ($4.15 \times 10^6\,M_\odot, r_s \approx 0.08\text{ AU}$) surrounded by the 3D stellar cluster including **Star S2** ($P = 16.05\text{ yr}, e = 0.8846, r_p = 120\text{ AU}, v_{\max} = 7,650\text{ km/s} = 2.55\%\,c$) with Schwarzschild apsidal precession; (2) **M87\*** ($6.5 \times 10^9\,M_\odot, r_s \approx 128\text{ AU}$, shadow diameter $\approx 330\text{ AU}$) with Neptune's $30.07\text{ AU}$ Solar System orbit plotted inside the shadow for scale and a $5,000\text{-light-year}$ relativistic jet.
    - **Interactive Controls:** SMBH System Target (`sgr_a_star` vs `m87_star`), Solar System Scale Overlay Toggle.
 
@@ -129,6 +129,7 @@ Implemented in `src/components/academy/cinematic/scenes/module-14/Module14Chapte
 ## 5. Automated Verification Results (`npm run test:poc`)
 
 Executed via `npx tsx scripts/cosmos-poc-modules-validation.ts`:
+
 - **35 / 35 Checks Passed (0 Failed)**:
   - Verified 22 chapters, 48 visual beats, and 100% narration segment mapping across Junior, Explorer, and Astronomer tiers (`115 + 120 + 130 = 365` multi-tier segments).
   - Verified 22 distinct 3D scene components and `CosmosAnimationCueRegistry` beat enrichment.

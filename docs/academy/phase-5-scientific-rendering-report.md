@@ -48,23 +48,23 @@
 
 ## D. Mandatory Requirements Classification
 
-| Requirement | Status | Verification Evidence |
-| :--- | :---: | :--- |
-| 1. Reusable scientific 3D material & effects library | **PASS** | `src/lib/cosmos/cinematic/rendering/` & `src/components/academy/cinematic/science/` |
-| 2. Existing scientific renderers preserved/improved | **PASS** | `CosmosCinematicSceneHost.tsx` & inline module visualizers verified |
+| Requirement                                                  |  Status  | Verification Evidence                                                                                         |
+| :----------------------------------------------------------- | :------: | :------------------------------------------------------------------------------------------------------------ |
+| 1. Reusable scientific 3D material & effects library         | **PASS** | `src/lib/cosmos/cinematic/rendering/` & `src/components/academy/cinematic/science/`                           |
+| 2. Existing scientific renderers preserved/improved          | **PASS** | `CosmosCinematicSceneHost.tsx` & inline module visualizers verified                                           |
 | 3. Celestial materials visually & scientifically appropriate | **PASS** | Earth continents/clouds/city lights, airless Moon (`hasAtmosphere: false`), Jupiter GRS, Saturn Cassini rings |
-| 4. Lighting & HDR color management consistent | **PASS** | `SRGBColorSpace`, `ACESFilmicToneMapping`, low ambient `0.11`, Planckian blackbody locus |
-| 5. Planetary atmosphere Rayleigh/Mie rendering | **PASS** | `ScientificAtmosphere.tsx` with sun-angle terminator & limb optical depth |
-| 6. Stellar shader & interior cutaway components | **PASS** | `ScientificStarMaterial.tsx` & `StellarStructureCutaway.tsx` (Core, Radiative, Convective zones) |
-| 7. Nebula emission, reflection & dark dust primitives | **PASS** | `NebulaVolume.tsx` ($\text{H}\alpha / [\text{O III}]$, Rayleigh reflection, Beer-Lambert extinction) |
-| 8. Deterministic single-draw-call galaxy & cluster particles | **PASS** | `GalaxyParticleField.tsx` & `StarClusterRenderer.tsx` via `ScientificParticleManager` |
-| 9. Black hole & pulsar visualization with honest disclosure | **PASS** | Schwarzschild ($r_{\text{ISCO}}=3r_s$) vs Kerr ISCO, Doppler beaming, Pulsar tilted dipole sweep |
-| 10. Particle & shader scaling with quality presets | **PASS** | `HIGH_CINEMATIC` (4,200 pts), `BALANCED` (2,600 pts), `LOW_POWER` (1,100 pts, 0 raymarch steps) |
-| 11. Controlled postprocessing without double composer | **PASS** | `CinematicPostprocessingPipeline.tsx` (`threshold >= 0.82`, disabled in `LOW_POWER`) |
-| 12. COSMOS animation cues drive visual parameters | **PASS** | `evaluateCueAcrossScene` updates `narrativeProgress`, `highlightStrength`, and cutaway mode |
-| 13. Pause, resume, and seek determinism | **PASS** | Verified in `npm run test:rendering` & `npm run test:cinematic` |
-| 14. Reference Modules 01, 08, and 14 upgraded | **PASS** | Upgraded in `CosmosCinematicSceneHost.tsx` |
-| 15. Reduced-motion & Low-Power fallbacks functional | **PASS** | Non-flashing pulsar beams, instant camera keyframes, 2D fallback schematic |
-| 16. Assessment & completion security unchanged | **PASS** | Server-side grading & completion verification untouched |
-| 17. Zero GPU memory leak across repeated mounts | **PASS** | Verified across 5 mount/unmount cycles via `ScientificResourceManager` |
-| 18. Ready for Prompt 06 chapter-level animations | **PASS** | Full 24-module visual library map registered |
+| 4. Lighting & HDR color management consistent                | **PASS** | `SRGBColorSpace`, `ACESFilmicToneMapping`, low ambient `0.11`, Planckian blackbody locus                      |
+| 5. Planetary atmosphere Rayleigh/Mie rendering               | **PASS** | `ScientificAtmosphere.tsx` with sun-angle terminator & limb optical depth                                     |
+| 6. Stellar shader & interior cutaway components              | **PASS** | `ScientificStarMaterial.tsx` & `StellarStructureCutaway.tsx` (Core, Radiative, Convective zones)              |
+| 7. Nebula emission, reflection & dark dust primitives        | **PASS** | `NebulaVolume.tsx` ($\text{H}\alpha / [\text{O III}]$, Rayleigh reflection, Beer-Lambert extinction)          |
+| 8. Deterministic single-draw-call galaxy & cluster particles | **PASS** | `GalaxyParticleField.tsx` & `StarClusterRenderer.tsx` via `ScientificParticleManager`                         |
+| 9. Black hole & pulsar visualization with honest disclosure  | **PASS** | Schwarzschild ($r_{\text{ISCO}}=3r_s$) vs Kerr ISCO, Doppler beaming, Pulsar tilted dipole sweep              |
+| 10. Particle & shader scaling with quality presets           | **PASS** | `HIGH_CINEMATIC` (4,200 pts), `BALANCED` (2,600 pts), `LOW_POWER` (1,100 pts, 0 raymarch steps)               |
+| 11. Controlled postprocessing without double composer        | **PASS** | `CinematicPostprocessingPipeline.tsx` (`threshold >= 0.82`, disabled in `LOW_POWER`)                          |
+| 12. COSMOS animation cues drive visual parameters            | **PASS** | `evaluateCueAcrossScene` updates `narrativeProgress`, `highlightStrength`, and cutaway mode                   |
+| 13. Pause, resume, and seek determinism                      | **PASS** | Verified in `npm run test:rendering` & `npm run test:cinematic`                                               |
+| 14. Reference Modules 01, 08, and 14 upgraded                | **PASS** | Upgraded in `CosmosCinematicSceneHost.tsx`                                                                    |
+| 15. Reduced-motion & Low-Power fallbacks functional          | **PASS** | Non-flashing pulsar beams, instant camera keyframes, 2D fallback schematic                                    |
+| 16. Assessment & completion security unchanged               | **PASS** | Server-side grading & completion verification untouched                                                       |
+| 17. Zero GPU memory leak across repeated mounts              | **PASS** | Verified across 5 mount/unmount cycles via `ScientificResourceManager`                                        |
+| 18. Ready for Prompt 06 chapter-level animations             | **PASS** | Full 24-module visual library map registered                                                                  |

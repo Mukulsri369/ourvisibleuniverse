@@ -1,0 +1,1042 @@
+# OUR VISIBLE UNIVERSE
+## PART 1 — PROMPT 03 OF 12
+### APPLICATION ERROR ROOT-CAUSE INVESTIGATION, RUNTIME STABILITY & FAILURE CLASSIFICATION
+
+**Project:** Our Visible Universe  
+**Repository:** https://github.com/Mukulsri369/ourvisibleuniverse  
+**Production Website:** https://ourvisibleuniverse.in  
+**Platform:** Google AI Studio — Available Coding Model
+
+**Execution Mode:** Deep Diagnostics, Reproduction, Root-Cause Verification, Safe Test Instrumentation, Documentation
+
+**Engineering Principles:** Performance First | Zero Regression | Production Data Protection | GitHub Continuity
+
+---
+
+# SECTION 1 — YOUR ROLE
+
+Act as a coordinated engineering team consisting of:
+
+1. Principal Software Reliability Architect
+2. Senior React and TypeScript Engineer
+3. TanStack Start and Router Specialist
+4. JavaScript Runtime Debugging Specialist
+5. Frontend Error Boundary Specialist
+6. Three.js and React Three Fiber Engineer
+7. WebGL and GPU Diagnostics Engineer
+8. Supabase Integration Engineer
+9. Authentication and Session Reliability Engineer
+10. Performance Profiling Engineer
+11. Playwright and Automated QA Engineer
+12. Production Incident Investigation Engineer
+13. GitHub Documentation and Continuity Engineer
+
+You are investigating an existing production application with real users.
+
+Do not rebuild the application.
+
+Do not replace the existing framework.
+
+Do not introduce unnecessary dependencies.
+
+Do not alter production student records, subscriptions, certificates, or payment functionality.
+
+Your responsibility is to identify why the application fails, reproduce failures where possible, and provide technically verified remediation plans.
+
+---
+
+# SECTION 2 — MANDATORY GITHUB CONTINUITY
+
+Before investigating errors, inspect the current repository.
+
+Read:
+
+- `AGENTS.md`
+- `AI_STUDIO_HANDOFF.md`
+- `IMPLEMENTATION_PROGRESS.md`
+- `ARCHITECTURE_AUDIT.md`
+- `PERFORMANCE_BASELINE.md`
+- `BUG_INVENTORY.md`
+- `SECURITY_REVIEW.md`
+- `NAVIGATION_AUDIT.md`
+- `INTERACTION_AUDIT.md`
+
+Discover additional relevant documentation automatically.
+
+Verify:
+
+1. Current Git branch.
+2. Current commit SHA.
+3. Prompt 01 completion status.
+4. Prompt 02 completion status.
+5. Previously discovered bugs.
+6. Existing automated tests.
+7. Existing error capture systems.
+8. Existing performance optimizations.
+9. Outstanding critical security concerns.
+
+Do not assume that documentation claims are correct.
+
+Cross-check important findings against the actual code.
+
+If Prompt 01 or Prompt 02 is incomplete, identify the missing work and determine whether Prompt 03 can safely proceed.
+
+Do not repeat completed audits unnecessarily.
+
+If repository access is unavailable, stop and report the limitation rather than guessing.
+
+## Multi-Account Continuity
+
+The project owner frequently switches between Google AI Studio accounts.
+
+Every finding must be documented in GitHub so another AI Studio session can resume without relying on previous conversation history.
+
+---
+
+# SECTION 3 — PRIMARY OBJECTIVE
+
+Investigate all reported and discoverable application runtime failures.
+
+The application owner has reported:
+
+**Problem A:** Some interactions produce "Application Error" screens.
+
+**Problem B:** Some pages intermittently fail to open.
+
+**Problem C:** Some interactive components appear unstable or unexpectedly disappear.
+
+**Problem D:** Certain navigation actions produce blank screens or failed rendering.
+
+**Problem E:** Complex astronomical simulations occasionally behave unpredictably.
+
+**Problem F:** The Cosmic Learning Academy experiences loading delays and potentially unstable transitions.
+
+**Problem G:** Existing error reporting may not provide enough information to identify the real cause.
+
+These are user-reported symptoms, not confirmed technical diagnoses.
+
+Your job is to establish the actual failure mechanisms using evidence.
+
+---
+
+# SECTION 4 — STRICT EXECUTION BOUNDARIES
+
+THIS IS PROMPT 03.
+
+Allowed:
+
+- Inspect application code.
+- Inspect error handling architecture.
+- Analyze React rendering failures.
+- Analyze server-side and client-side errors.
+- Run safe local tests.
+- Run existing validation suites.
+- Reproduce failures in isolated environments.
+- Analyze browser console errors.
+- Inspect sanitized network failures.
+- Inspect WebGL context handling.
+- Inspect authentication and session behavior.
+- Add minimal test-only diagnostic instrumentation when necessary.
+- Create regression test cases.
+- Produce root-cause reports.
+- Update GitHub continuity documentation.
+
+Not allowed:
+
+- Rebuild the application.
+- Replace the routing architecture.
+- Replace the rendering engine.
+- Rewrite the Academy.
+- Remove existing scientific simulations.
+- Disable important features to eliminate errors.
+- Suppress exceptions merely to pass tests.
+- Modify production database records.
+- Apply unapproved database migrations.
+- Change payment processing.
+- Change subscription entitlements.
+- Modify certificate eligibility.
+- Introduce the cinematic video system.
+- Separate Academy hosting.
+- Deploy unreviewed changes.
+- Automatically execute Prompt 04.
+
+This phase is primarily investigative.
+
+Small, non-destructive improvements to test infrastructure are permitted when required for reliable diagnostics.
+
+Do not implement broad functional repairs assigned to subsequent prompts.
+
+If a confirmed P0 issue presents an immediate security or data-integrity risk, clearly report it and recommend an urgent remediation process.
+
+Do not silently postpone critical incidents.
+
+---
+
+# SECTION 5 — ERROR TAXONOMY
+
+Create a structured classification system for all discovered failures.
+
+## CATEGORY A — JavaScript Runtime Errors
+
+Investigate:
+
+- Undefined or null property access.
+- Invalid function calls.
+- Incorrect type assumptions.
+- Unhandled Promise rejections.
+- Failed dynamic imports.
+- Module initialization errors.
+- Circular dependency failures.
+- Invalid state transitions.
+- Unexpected event handler exceptions.
+
+## CATEGORY B — React Rendering Errors
+
+Investigate:
+
+- Component render exceptions.
+- Invalid hook usage.
+- Conditional hook execution.
+- State updates during rendering.
+- Infinite render loops.
+- Effect dependency loops.
+- Stale closures.
+- Incorrect component keys.
+- Context provider failures.
+- Suspense boundary failures.
+- Error boundary failures.
+- Component cleanup failures.
+
+## CATEGORY C — Routing & Navigation Errors
+
+Investigate:
+
+- Failed route loaders.
+- Invalid dynamic route parameters.
+- Missing route data.
+- Lazy route import failures.
+- Incorrect redirect behavior.
+- Protected route failures.
+- Navigation-triggered crashes.
+- Server/client route mismatches.
+
+## CATEGORY D — Network & API Errors
+
+Investigate:
+
+- Failed API requests.
+- Unexpected HTTP status codes.
+- Network timeouts.
+- CORS failures.
+- Invalid response payloads.
+- Request cancellation errors.
+- Incorrect retry logic.
+- Excessive repeated requests.
+- Rate-limiting failures.
+- Missing backend configuration.
+
+## CATEGORY E — Authentication & Session Errors
+
+Investigate:
+
+- Session restoration failures.
+- Expired session handling.
+- Authentication race conditions.
+- Incorrect authorization assumptions.
+- Invalid user state.
+- Session-dependent rendering failures.
+- Protected data loading failures.
+
+## CATEGORY F — Three.js & WebGL Errors
+
+Investigate:
+
+- WebGL context loss.
+- Shader compilation failures.
+- Invalid geometry references.
+- Disposed resource access.
+- Texture loading failures.
+- Renderer initialization failures.
+- Camera state errors.
+- Animation loop exceptions.
+- GPU resource lifecycle problems.
+- Scene transition failures.
+
+## CATEGORY G — Data & Content Errors
+
+Investigate:
+
+- Missing lesson content.
+- Invalid module references.
+- Undefined simulation objects.
+- Incorrect data mappings.
+- Unexpected empty database responses.
+- Invalid certificate references.
+- Missing required content fields.
+
+## CATEGORY H — Environment & Deployment Errors
+
+Investigate:
+
+- Missing environment variables.
+- Incorrect client/server configuration.
+- Production-only import failures.
+- Build-time/runtime configuration mismatch.
+- Hydration differences.
+- Static asset path failures.
+- Server-side rendering failures.
+- Deployment-specific route failures.
+
+Classify each confirmed error accurately.
+
+A single incident may have multiple contributing causes.
+
+---
+
+# SECTION 6 — EXISTING ERROR CAPTURE SYSTEM AUDIT
+
+Inspect the current error reporting architecture.
+
+Start with:
+
+- `src/routes/__root.tsx`
+- `src/lib/error-capture.ts`
+- `src/lib/lovable-error-reporting.ts`
+
+Discover additional error handling utilities.
+
+Determine:
+
+1. Where errors are captured.
+2. Whether error boundaries exist.
+3. Whether route errors are handled.
+4. Whether asynchronous errors are captured.
+5. Whether server-side errors are logged.
+6. Whether WebGL errors are handled.
+7. Whether user-visible recovery options exist.
+8. Whether logs include useful contextual information.
+9. Whether errors are duplicated.
+10. Whether error handling itself can crash.
+
+Inspect how the application responds when a component fails.
+
+Distinguish:
+
+- Error captured and recovered.
+- Error captured but application unusable.
+- Error not captured.
+- Error silently suppressed.
+- Error boundary itself failing.
+
+Do not replace the error reporting system unless its existing design is demonstrably inadequate and a replacement is explicitly authorized.
+
+---
+
+# SECTION 7 — ERROR REPRODUCTION ENGINE
+
+Build a systematic reproduction matrix using the existing test infrastructure.
+
+For every known failure:
+
+1. Identify the affected route.
+2. Identify the triggering action.
+3. Identify required application state.
+4. Identify authentication requirements.
+5. Reproduce the action.
+6. Capture the error.
+7. Record relevant stack traces.
+8. Identify the failing component.
+9. Determine whether the error is deterministic.
+10. Test whether the error depends on timing.
+
+Test relevant scenarios:
+
+- Fresh page load.
+- Internal navigation.
+- Direct URL access.
+- Browser refresh.
+- Back/forward navigation.
+- Rapid repeated clicks.
+- Slow network.
+- Failed network requests.
+- Expired sessions.
+- Delayed asset loading.
+- Component unmount during loading.
+- Switching between complex scenes.
+- Browser tab visibility changes.
+
+Use deterministic testing wherever possible.
+
+Do not generate uncontrolled production traffic.
+
+Do not perform destructive tests against live user data.
+
+---
+
+# SECTION 8 — REACT LIFECYCLE & STATE STABILITY
+
+Inspect components associated with crashes.
+
+Investigate:
+
+- Effects without proper cleanup.
+- Duplicate event listeners.
+- Timers continuing after unmount.
+- State updates after navigation.
+- Repeated asynchronous initialization.
+- Invalid dependency arrays.
+- Suspense and lazy-loading interactions.
+- Stale references.
+- Context provider initialization order.
+- Inconsistent server/client state.
+
+For every suspected issue:
+
+Identify the source file and code path.
+
+Explain the mechanism that could produce the observed error.
+
+Create a reproduction test where feasible.
+
+Do not classify a theoretical risk as a confirmed production failure without supporting evidence.
+
+---
+
+# SECTION 9 — COSMIC LEARNING ACADEMY FAILURE INVESTIGATION
+
+Inspect Academy runtime behavior.
+
+Discover the current module and lesson structure.
+
+Investigate:
+
+- Academy dashboard initialization.
+- Module loading.
+- Lesson opening.
+- Chapter switching.
+- Learning-point navigation.
+- Quiz initialization.
+- Activity transitions.
+- Fullscreen mode.
+- Cinematic visualization initialization.
+- Student progress restoration.
+- Certificate navigation.
+- COSMOS Guided Director initialization.
+
+Look for:
+
+- Invalid lesson references.
+- Missing data.
+- Asynchronous loading races.
+- Failed dynamic imports.
+- Excessive simultaneous initialization.
+- Incorrect component lifecycle behavior.
+- State synchronization failures.
+- Missing error boundaries.
+- Unhandled asset loading failures.
+
+Pay particular attention to the first Academy load.
+
+Separate loading-performance problems from actual runtime failures.
+
+Document all findings for Prompt 06, Prompt 07, and Prompt 10.
+
+Do not alter student progress or grading logic.
+
+---
+
+# SECTION 10 — COSMOS GUIDED DIRECTOR ERROR INVESTIGATION
+
+Inspect the COSMOS Guided Director and related narration systems.
+
+Investigate:
+
+- Speech service initialization failures.
+- Microphone permission rejection.
+- Audio playback errors.
+- Narration state races.
+- Lesson navigation synchronization.
+- Animation controller synchronization.
+- Speech cancellation behavior.
+- Duplicate callbacks.
+- Missing cleanup.
+- Fullscreen transition errors.
+- Browser API availability checks.
+
+Test supported and unsupported browser capabilities.
+
+A denied microphone permission must not crash the Academy.
+
+A failed speech request must not destroy student progress.
+
+A narration failure should be classified independently from lesson-content loading.
+
+Document confirmed failures and required fixes for Prompt 07.
+
+---
+
+# SECTION 11 — ASTRONOMICAL SIMULATION FAILURE INVESTIGATION
+
+Inspect major 3D systems:
+
+- Solar System.
+- Planet and moon exploration.
+- Galaxy visualization.
+- Cosmic Evolution.
+- Black hole simulations.
+- Astrophysics Lab.
+- Other existing interactive scientific simulations.
+
+Investigate:
+
+- Scene initialization failures.
+- Camera state corruption.
+- Object reference errors.
+- Shader compilation errors.
+- Invalid geometry data.
+- Texture loading failures.
+- GPU resource disposal errors.
+- WebGL context loss.
+- Animation loop exceptions.
+- Repeated renderer initialization.
+- Scene switching failures.
+- Incorrect cleanup after navigation.
+
+Specifically investigate whether rapid navigation or zoom transitions can trigger runtime errors.
+
+Distinguish:
+
+1. Rendering performance degradation.
+2. Camera instability.
+3. Recoverable scene errors.
+4. Fatal application crashes.
+
+Do not remove objects or reduce scientific functionality as a workaround.
+
+Document specialized repair requirements for Prompt 08 and performance concerns for Prompt 11.
+
+---
+
+# SECTION 12 — SERVER-SIDE RENDERING & HYDRATION
+
+Inspect the current TanStack Start rendering architecture.
+
+Investigate:
+
+- Browser-only APIs accessed during server rendering.
+- `window` or `document` usage without environment guards.
+- Non-deterministic initial rendering.
+- Client/server markup mismatches.
+- Incorrect loader data serialization.
+- Route loader exceptions.
+- Dynamic import behavior.
+- Suspense hydration failures.
+- Server-side authentication state assumptions.
+
+Test development and production builds separately where possible.
+
+Identify whether a failure occurs:
+
+- Only during SSR.
+- Only during hydration.
+- Only after client navigation.
+- Only in production builds.
+- Only in specific browsers.
+
+Record evidence before assigning root causes.
+
+---
+
+# SECTION 13 — API & BACKEND FAILURE INVESTIGATION
+
+Inspect the actual backend integrations.
+
+Determine the verified database and authentication architecture.
+
+Investigate:
+
+- Supabase client initialization.
+- API request construction.
+- Database response handling.
+- Authentication-dependent requests.
+- Missing data handling.
+- Unauthorized response handling.
+- Request timeout behavior.
+- Retry behavior.
+- Error propagation to UI.
+- Backend configuration errors.
+
+Use mocked responses or isolated test environments for failure scenarios.
+
+Do not change production database records.
+
+Do not assume that a database migration has been applied merely because its file exists.
+
+If backend access is unavailable, clearly identify the unverified areas.
+
+Never expose connection strings, service-role keys, access tokens, or private user data.
+
+---
+
+# SECTION 14 — MEMORY LEAK & RESOURCE LIFECYCLE INVESTIGATION
+
+Investigate whether resource lifecycle problems contribute to instability.
+
+Inspect:
+
+- Event listeners.
+- Timers.
+- Animation frames.
+- WebGL renderers.
+- Textures.
+- Geometries.
+- Materials.
+- Audio objects.
+- Media streams.
+- Observers.
+- Web workers.
+- Cached scene resources.
+- Pending asynchronous operations.
+
+Test repeated mount/unmount cycles where feasible.
+
+Investigate:
+
+- Resources retained after navigation.
+- Duplicate render loops.
+- Repeated initialization.
+- Unreleased GPU allocations.
+- Excessive memory growth.
+- Long-running background operations.
+
+Distinguish a genuine leak from expected cache retention.
+
+Do not declare a memory leak solely because memory usage increases temporarily.
+
+Document reproducible evidence.
+
+---
+
+# SECTION 15 — PRODUCTION VS DEVELOPMENT COMPARISON
+
+Investigate why errors might appear only on the published website.
+
+Compare available evidence from:
+
+- Local development environment.
+- Local production build.
+- Authorized staging environment.
+- Public production website.
+
+Check:
+
+- Build configuration.
+- Environment variables.
+- Routing behavior.
+- Static asset resolution.
+- Dynamic imports.
+- SSR behavior.
+- Browser caching.
+- API endpoint configuration.
+- Authentication configuration.
+- Runtime feature availability.
+
+Do not assume all environments are identical.
+
+Never deploy diagnostic changes directly to production without authorization.
+
+Do not claim live production logs were inspected unless they were actually accessible.
+
+---
+
+# SECTION 16 — AUTOMATED FAILURE TESTING
+
+Reuse the existing test framework.
+
+Where available, use Playwright or equivalent browser automation.
+
+Create safe regression tests for:
+
+- Component initialization failures.
+- Failed route loaders.
+- Missing content.
+- Invalid route parameters.
+- Rejected API requests.
+- Delayed asynchronous operations.
+- Rapid navigation.
+- Component unmount during requests.
+- WebGL context loss where safely simulatable.
+- Speech API unavailability.
+- Authentication expiration.
+- Lazy-loading failures.
+
+Tests must verify both the error and the expected recovery behavior.
+
+Prefer mocked or isolated failure conditions.
+
+Avoid arbitrary timing assumptions.
+
+Do not execute real destructive operations.
+
+Do not install additional testing frameworks unnecessarily.
+
+Record whether tests were:
+
+- Executed and passed.
+- Executed and failed.
+- Blocked.
+- Not executed.
+- Not applicable.
+
+---
+
+# SECTION 17 — ERROR ROOT-CAUSE CONFIDENCE
+
+For every discovered error, assign one of these statuses:
+
+**CONFIRMED ROOT CAUSE**
+
+A reproducible failure with sufficient supporting code and runtime evidence.
+
+**HIGH-CONFIDENCE HYPOTHESIS**
+
+Strong evidence exists, but complete reproduction or verification is unavailable.
+
+**POSSIBLE CONTRIBUTING FACTOR**
+
+A plausible issue requiring additional investigation.
+
+**UNVERIFIED**
+
+Insufficient evidence to establish a cause.
+
+Do not convert hypotheses into confirmed findings.
+
+Do not invent console logs, stack traces, or performance measurements.
+
+---
+
+# SECTION 18 — FAILURE PRIORITIZATION
+
+Use the existing severity classification.
+
+## P0 — CRITICAL
+
+Examples:
+
+- Production data corruption.
+- Authentication compromise.
+- Widespread application outage.
+- Critical security exposure.
+- Severe subscription or payment integrity failure.
+
+## P1 — HIGH
+
+Examples:
+
+- Frequent application crashes.
+- Major Academy functionality unusable.
+- Important simulations failing.
+- Significant navigation failures.
+- Student progress restoration failure.
+
+## P2 — MEDIUM
+
+Examples:
+
+- Intermittent component failures.
+- Recoverable runtime exceptions.
+- Secondary functionality crashes.
+- Significant but noncritical instability.
+
+## P3 — LOW
+
+Examples:
+
+- Minor recoverable UI errors.
+- Noncritical warnings.
+- Cosmetic error states.
+
+For each issue, document:
+
+- Error ID.
+- Severity.
+- Affected route.
+- Affected feature.
+- Triggering action.
+- User-visible symptom.
+- Reproduction steps.
+- Relevant source files.
+- Sanitized stack trace.
+- Confirmed or suspected cause.
+- Confidence level.
+- Recommended fix.
+- Regression risk.
+- Suggested repair prompt.
+
+---
+
+# SECTION 19 — REQUIRED DIAGNOSTIC REPORTS
+
+Create or safely update:
+
+## 1. `APPLICATION_ERROR_AUDIT.md`
+
+Include:
+
+- Error architecture.
+- Error categories.
+- Confirmed failures.
+- Suspected failures.
+- Reproduction steps.
+- Root-cause analysis.
+- Environment differences.
+- Error handling gaps.
+
+## 2. `RUNTIME_STABILITY_REPORT.md`
+
+Include:
+
+- React lifecycle findings.
+- Async state failures.
+- Memory lifecycle findings.
+- WebGL stability findings.
+- Academy runtime findings.
+- COSMOS Director findings.
+- SSR and hydration findings.
+
+## 3. `BUG_INVENTORY.md`
+
+Reconcile Prompt 03 findings with previous Prompt 01 and Prompt 02 discoveries.
+
+Avoid duplicate bug IDs.
+
+Preserve previously unresolved issues.
+
+## 4. `IMPLEMENTATION_PROGRESS.md`
+
+Update:
+
+- Current phase.
+- Prompt 03 status.
+- Completed diagnostics.
+- Tests executed.
+- Confirmed failures.
+- Unverified issues.
+- Git branch and commit.
+- Next required prompt.
+
+## 5. `AI_STUDIO_HANDOFF.md`
+
+Record:
+
+- Verified technical findings.
+- Important affected files.
+- Outstanding critical problems.
+- Relevant test commands.
+- Pending repair tasks.
+- Instructions for continuing from another AI Studio account.
+
+Do not overwrite useful existing documentation.
+
+---
+
+# SECTION 20 — ERROR RECOVERY ASSESSMENT
+
+For each important failure, assess whether the application provides safe recovery.
+
+Examples:
+
+- A failed lesson should not crash the entire Academy.
+- A failed astronomy scene should not destroy the main application shell.
+- A rejected API request should not create an infinite loading screen.
+- A failed speech request should not invalidate student progress.
+- A missing route parameter should not trigger an uncontrolled exception.
+- A WebGL initialization failure should not produce an unexplained blank page.
+
+Identify where recovery boundaries are missing.
+
+Document the smallest safe repair required.
+
+Do not implement broad error-boundary replacements during this prompt.
+
+---
+
+# SECTION 21 — PERFORMANCE & ZERO-REGRESSION REQUIREMENTS
+
+Do not introduce permanent heavy diagnostic instrumentation.
+
+Avoid:
+
+- Global polling loops.
+- Excessive console logging.
+- Continuous DOM scans.
+- Repeated stack-trace generation.
+- New animation-frame observers.
+- Duplicate event listeners.
+- Unnecessary network requests.
+- Large new monitoring dependencies.
+
+Prefer isolated test instrumentation.
+
+Preserve existing rendering optimizations.
+
+Do not modify camera movement, scientific simulations, lesson content, or cinematic animations merely to simplify testing.
+
+Maintain existing user-facing behavior.
+
+---
+
+# SECTION 22 — REQUIRED EXECUTION SUMMARY
+
+Provide a table containing:
+
+| Category | Discovered | Reproduced | Confirmed Root Cause | Unverified |
+|---|---:|---:|---:|---:|
+| JavaScript Runtime | | | | |
+| React Rendering | | | | |
+| Routing | | | | |
+| API & Network | | | | |
+| Authentication | | | | |
+| Academy | | | | |
+| COSMOS Director | | | | |
+| WebGL & Simulations | | | | |
+| SSR & Hydration | | | | |
+| Deployment | | | | |
+
+Populate all counts from actual evidence.
+
+Do not fabricate numbers.
+
+Also report:
+
+- P0 issues.
+- P1 issues.
+- Reproducible crashes.
+- Intermittent failures.
+- Unverified hypotheses.
+- Tests executed.
+- Tests blocked.
+- Missing environment access.
+- Recommended repair order.
+
+---
+
+# SECTION 23 — GITHUB CONTINUITY & SYNCHRONIZATION
+
+After diagnostics:
+
+1. Review all documentation changes.
+2. Verify that no credentials or private data are included.
+3. Run relevant validation checks.
+4. Update the handoff documentation.
+5. Record the current branch.
+6. Record the verified commit SHA.
+7. Commit and push only when authorized and supported by the environment.
+8. Report whether GitHub synchronization actually succeeded.
+
+Suggested commit message:
+
+`docs(reliability): complete runtime error investigation - part1 prompt03`
+
+If GitHub synchronization fails, explain exactly what remains local.
+
+Do not falsely claim a successful push.
+
+Do not force-push or rewrite history.
+
+---
+
+# SECTION 24 — FINAL ACCEPTANCE CRITERIA
+
+Before marking Prompt 03 complete, verify:
+
+- [ ] GitHub continuity documentation read.
+- [ ] Previous audit findings reviewed.
+- [ ] Existing error capture architecture inspected.
+- [ ] Known failures investigated.
+- [ ] Runtime error categories classified.
+- [ ] React lifecycle risks assessed.
+- [ ] Academy runtime investigated.
+- [ ] COSMOS Director runtime investigated.
+- [ ] WebGL failure mechanisms investigated.
+- [ ] SSR and hydration risks assessed.
+- [ ] API and authentication failures assessed.
+- [ ] Production/development differences documented.
+- [ ] Safe reproduction tests executed where possible.
+- [ ] Root-cause confidence recorded.
+- [ ] Critical issues prioritized.
+- [ ] Diagnostic documentation updated.
+- [ ] GitHub synchronization status reported.
+- [ ] Prompt 04 repair readiness assessed.
+
+If a mandatory task is incomplete, explain the limitation.
+
+Do not mark unexecuted tests as passed.
+
+---
+
+# SECTION 25 — FINAL COMPLETION REPORT
+
+Produce a comprehensive but structured technical report containing:
+
+1. Current repository branch and commit SHA.
+2. Prompt 01 and Prompt 02 verification status.
+3. Total application errors identified.
+4. Total reproducible errors.
+5. Total confirmed root causes.
+6. Total unverified hypotheses.
+7. Critical and high-priority failures.
+8. Academy runtime findings.
+9. COSMOS Director findings.
+10. Astronomy simulation findings.
+11. SSR and hydration findings.
+12. API and authentication findings.
+13. Memory and resource lifecycle findings.
+14. Error handling architecture weaknesses.
+15. Tests executed and their results.
+16. Documentation updated.
+17. GitHub commit and push status.
+18. Remaining blockers.
+19. Recommended repair order.
+20. Readiness for Prompt 04.
+
+Use:
+
+**PART 1 — PROMPT 03 VERIFIED COMPLETE**
+
+only if the mandatory diagnostic deliverables have been completed with sufficient evidence.
+
+Otherwise state:
+
+**PART 1 — PROMPT 03 PARTIALLY COMPLETE**
+
+Clearly explain what remains unverified.
+
+Do not claim that application errors have been fixed merely because they have been identified.
+
+**DO NOT AUTOMATICALLY EXECUTE PROMPT 04.**
+
+---
+
+# FINAL ENGINEERING DIRECTIVE
+
+The application already contains significant engineering work, scientific visualizations, animations, learning systems, authentication, and production data.
+
+Preserve these investments.
+
+Investigate failures systematically.
+
+Find the actual causes rather than masking symptoms.
+
+Create reproducible evidence.
+
+Avoid unnecessary rewrites.
+
+Maintain performance-first engineering.
+
+Protect production users and their data.
+
+Preserve GitHub continuity across Google AI Studio accounts.
+
+**SUCCESS MEANS: We know which application errors occur, where they originate, how to reproduce them, how severe they are, and exactly what should be repaired next.**

@@ -23,14 +23,15 @@ Implemented in `scripts/assets/cosmos-asset-pipeline-cli.ts` and `src/lib/cosmos
 
 ## 2. Meshopt vs. Draco vs. Uncompressed GLB Evaluation (Section 11 & 34)
 
-| Candidate Model | Uncompressed GLB | Meshopt (`EXT_meshopt_compression`) | Draco (`KHR_draco_mesh_compression`) | Decode Time (Meshopt vs. Draco) | Interactive Node Survival | Selected Production Codec |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`asset_spacecraft_jwst_v2`** (9,420 tris) | $678.2\text{ KB}$ | **$230.6\text{ KB}$** ($-66\%$) | $183.1\text{ KB}$ ($-73\%$) | **$2.26\text{ ms}$** vs. $10.83\text{ ms}$ ($4.8\times$ faster) | **7/7 Nodes Preserved** | **`MESHOPT`** |
-| **`asset_spacecraft_hst_v2`** (6,840 tris) | $492.5\text{ KB}$ | **$167.4\text{ KB}$** ($-66\%$) | $133.0\text{ KB}$ ($-73\%$) | **$1.64\text{ ms}$** vs. $7.87\text{ ms}$ ($4.8\times$ faster) | **6/6 Nodes Preserved** | **`MESHOPT`** |
-| **`asset_spacecraft_voyager_v2`** (5,620 tris) | $404.6\text{ KB}$ | **$137.6\text{ KB}$** ($-66\%$) | $109.3\text{ KB}$ ($-73\%$) | **$1.35\text{ ms}$** vs. $6.46\text{ ms}$ ($4.8\times$ faster) | **6/6 Nodes Preserved** | **`MESHOPT`** |
-| **`asset_spacecraft_chandrayaan3_vikram_v2`** (5,120 tris) | $368.6\text{ KB}$ | **$125.3\text{ KB}$** ($-66\%$) | $99.5\text{ KB}$ ($-73\%$) | **$1.23\text{ ms}$** vs. $5.89\text{ ms}$ ($4.8\times$ faster) | **6/6 Nodes Preserved** | **`MESHOPT`** |
-| **`asset_instrument_cassegrain_reflector_v1`** (4,860 tris) | $349.9\text{ KB}$ | **$119.0\text{ KB}$** ($-66\%$) | $94.5\text{ KB}$ ($-73\%$) | **$1.17\text{ ms}$** vs. $5.59\text{ ms}$ ($4.8\times$ faster) | **6/6 Nodes Preserved** | **`MESHOPT`** |
-| **`asset_smallbody_asteroid_bennu_v1`** (3,840 tris) | $276.5\text{ KB}$ | **$94.0\text{ KB}$** ($-66\%$) | $74.7\text{ KB}$ ($-73\%$) | **$0.92\text{ ms}$** vs. $4.42\text{ ms}$ ($4.8\times$ faster) | **3/3 Nodes Preserved** | **`MESHOPT`** |
+| Candidate Model                                             | Uncompressed GLB  | Meshopt (`EXT_meshopt_compression`) | Draco (`KHR_draco_mesh_compression`) |                 Decode Time (Meshopt vs. Draco)                 | Interactive Node Survival | Selected Production Codec |
+| :---------------------------------------------------------- | :---------------: | :---------------------------------: | :----------------------------------: | :-------------------------------------------------------------: | :-----------------------: | :-----------------------: |
+| **`asset_spacecraft_jwst_v2`** (9,420 tris)                 | $678.2\text{ KB}$ |   **$230.6\text{ KB}$** ($-66\%$)   |     $183.1\text{ KB}$ ($-73\%$)      | **$2.26\text{ ms}$** vs. $10.83\text{ ms}$ ($4.8\times$ faster) |  **7/7 Nodes Preserved**  |       **`MESHOPT`**       |
+| **`asset_spacecraft_hst_v2`** (6,840 tris)                  | $492.5\text{ KB}$ |   **$167.4\text{ KB}$** ($-66\%$)   |     $133.0\text{ KB}$ ($-73\%$)      | **$1.64\text{ ms}$** vs. $7.87\text{ ms}$ ($4.8\times$ faster)  |  **6/6 Nodes Preserved**  |       **`MESHOPT`**       |
+| **`asset_spacecraft_voyager_v2`** (5,620 tris)              | $404.6\text{ KB}$ |   **$137.6\text{ KB}$** ($-66\%$)   |     $109.3\text{ KB}$ ($-73\%$)      | **$1.35\text{ ms}$** vs. $6.46\text{ ms}$ ($4.8\times$ faster)  |  **6/6 Nodes Preserved**  |       **`MESHOPT`**       |
+| **`asset_spacecraft_chandrayaan3_vikram_v2`** (5,120 tris)  | $368.6\text{ KB}$ |   **$125.3\text{ KB}$** ($-66\%$)   |      $99.5\text{ KB}$ ($-73\%$)      | **$1.23\text{ ms}$** vs. $5.89\text{ ms}$ ($4.8\times$ faster)  |  **6/6 Nodes Preserved**  |       **`MESHOPT`**       |
+| **`asset_instrument_cassegrain_reflector_v1`** (4,860 tris) | $349.9\text{ KB}$ |   **$119.0\text{ KB}$** ($-66\%$)   |      $94.5\text{ KB}$ ($-73\%$)      | **$1.17\text{ ms}$** vs. $5.59\text{ ms}$ ($4.8\times$ faster)  |  **6/6 Nodes Preserved**  |       **`MESHOPT`**       |
+| **`asset_smallbody_asteroid_bennu_v1`** (3,840 tris)        | $276.5\text{ KB}$ |   **$94.0\text{ KB}$** ($-66\%$)    |      $74.7\text{ KB}$ ($-73\%$)      | **$0.92\text{ ms}$** vs. $4.42\text{ ms}$ ($4.8\times$ faster)  |  **3/3 Nodes Preserved**  |       **`MESHOPT`**       |
 
 ### Engineering Selection Rationale:
+
 - **Meshopt (`EXT_meshopt_compression` + `KHR_mesh_quantization`)** is selected as the primary mesh codec for hierarchical spacecraft and scientific instruments because it achieves ~66% size reduction while decoding **4.8x faster** than Draco on the main/worker thread and never merges or re-indexes named sub-assembly hierarchy nodes (`primary_mirror`, `secondary_mirror`, `sunshield`, `detector_focal_plane`).

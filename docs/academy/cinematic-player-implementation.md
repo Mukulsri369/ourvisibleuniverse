@@ -11,6 +11,7 @@
 The **COSMOS Fullscreen Cinematic Learning Player** transforms all 24 Cosmic Journey modules into an immersive fullscreen or full-viewport interactive astronomy documentary synchronized with the single authoritative `CosmosLearningDirector` and `NarrationController`.
 
 ### Core Services (`src/lib/cosmos/cinematic/`)
+
 1. **`CosmosCinematicPlayerState.ts`**
    - Implements the deterministic 13-state lifecycle machine (`CLOSED`, `INITIALIZING`, `LOADING_SCENE`, `READY`, `ENTERING_FULLSCREEN`, `PLAYING`, `PAUSED`, `WAITING_FOR_STUDENT`, `ANSWERING_QUESTION`, `TRANSITIONING_SCENE`, `EXITING_FULLSCREEN`, `FALLBACK_MODE`, `ERROR`).
    - Enforces sequence-token locks (`beginModeSwitchOperation` / `isCurrentModeSwitchOperation`) to prevent race conditions during rapid Enter/Exit transitions.
@@ -27,6 +28,7 @@ The **COSMOS Fullscreen Cinematic Learning Player** transforms all 24 Cosmic Jou
    - Manages `HIGH_CINEMATIC` (DPR `[1, 2]`, 100% particles), `BALANCED` (DPR `[1, 1.5]`, 65% particles), and `LOW_POWER` (DPR `[1, 1]`, 30% particles) with 3-window low-FPS hysteresis and `localStorage` persistence.
 
 ### UI & 3D Components (`src/components/academy/cinematic/`)
+
 - **`CosmosCinematicPlayer.tsx`** & **`EnterCinematicModeButton`**: Reusable player modal and launcher button integrated into `AcademyDashboard.tsx`, `CosmosCompanion.tsx`, and `CosmosGuidedController.tsx`.
 - **`CosmosCinematicViewport.tsx`**: Manages native Browser Fullscreen (`requestFullscreen()`, `fullscreenchange`, `fullscreenerror`) and the `100dvw × 100dvh` safe-area CSS fallback container.
 - **`CosmosCinematicSceneHost.tsx`**: Single React Three Fiber `<Canvas>` host with `CinematicCameraRig` (exponential damping, aspect sync, manual `OrbitControls` override), WebGL context-loss recovery, world-anchored `<Html>` scientific annotations, and representative 3D scenes for **Module 01**, **Module 08**, **Module 14**, and all 24 modules.

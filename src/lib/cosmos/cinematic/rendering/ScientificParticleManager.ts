@@ -20,12 +20,7 @@ import { ScientificRenderingQualityAdapter } from "./ScientificRenderingQualityA
 import { ScientificResourceManager } from "./ScientificResourceManager";
 
 export type GalaxyMorphologyPreset =
-  | "spiral"
-  | "barred_spiral"
-  | "grand_design_spiral"
-  | "lenticular"
-  | "elliptical"
-  | "irregular";
+  "spiral" | "barred_spiral" | "grand_design_spiral" | "lenticular" | "elliptical" | "irregular";
 
 export interface ParticleBufferSet {
   bufferKey: string;

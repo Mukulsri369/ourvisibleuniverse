@@ -209,11 +209,7 @@ export interface ConversationalTurnContext extends StudentQuestionContext {
 }
 
 export type CinematicCaptionPresentationMode =
-  | "COMPACT"
-  | "LARGE"
-  | "HIGH_CONTRAST"
-  | "OFF"
-  | "TRANSCRIPT";
+  "COMPACT" | "LARGE" | "HIGH_CONTRAST" | "OFF" | "TRANSCRIPT";
 
 /**
  * Student Learning & AI Preferences.

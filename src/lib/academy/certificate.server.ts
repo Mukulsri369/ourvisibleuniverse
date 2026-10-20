@@ -768,7 +768,9 @@ export async function adminRevokeCertificateServer(
     if (!fetchErr && dbCert) {
       cert = dbCert;
     }
-  } catch {}
+  } catch (_err) {
+    // Fallback to local registry if remote query fails
+  }
 
   if (!cert) {
     cert = localCertificateRegistry.get(certificateNumber.trim().toUpperCase());
@@ -809,7 +811,9 @@ export async function adminRevokeCertificateServer(
     if (!updateErr && updated) {
       updatedRow = updated;
     }
-  } catch {}
+  } catch (_err) {
+    // Ignore remote update failure and rely on local certificate registry
+  }
 
   localCertificateRegistry.set(cert.certificate_number.toUpperCase(), updatedRow);
 
@@ -861,7 +865,9 @@ export async function adminCorrectCertificateServer(
     if (!fetchErr && dbCert) {
       cert = dbCert;
     }
-  } catch {}
+  } catch (_err) {
+    // Fallback to local registry if remote query fails
+  }
 
   if (!cert) {
     cert = localCertificateRegistry.get(certificateNumber.trim().toUpperCase());
@@ -910,7 +916,9 @@ export async function adminCorrectCertificateServer(
     if (!updateErr && updated) {
       updatedRow = updated;
     }
-  } catch {}
+  } catch (_err) {
+    // Ignore remote update failure and rely on local certificate registry
+  }
 
   localCertificateRegistry.set(cert.certificate_number.toUpperCase(), updatedRow);
 
@@ -947,7 +955,9 @@ export async function adminReissueCertificateServer(
     if (!fetchErr && dbCert) {
       oldCert = dbCert;
     }
-  } catch {}
+  } catch (_err) {
+    // Fallback to local registry if remote query fails
+  }
 
   if (!oldCert) {
     oldCert = localCertificateRegistry.get(certificateNumber.trim().toUpperCase());
@@ -1001,7 +1011,9 @@ export async function adminReissueCertificateServer(
         updated_at: new Date().toISOString(),
       })
       .eq("certificate_number", oldCert.certificate_number);
-  } catch {}
+  } catch (_err) {
+    // Ignore remote update failure and rely on local certificate registry
+  }
 
   // 2. Insert new active certificate
   let newCertRow = {
@@ -1033,10 +1045,11 @@ export async function adminReissueCertificateServer(
     if (!insertErr && newCert) {
       newCertRow = newCert;
     }
-  } catch {}
+  } catch (_err) {
+    // Ignore remote insert failure and rely on local certificate registry
+  }
 
   localCertificateRegistry.set(newCertificateNumber.toUpperCase(), newCertRow);
-
 
   // 3. Log Audit Trail
   try {

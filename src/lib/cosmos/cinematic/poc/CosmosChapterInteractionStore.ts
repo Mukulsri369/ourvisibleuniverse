@@ -391,10 +391,7 @@ export class CosmosChapterInteractionStore {
           interacted: true,
         });
       } else if (chapter.moduleId === "24") {
-        const experimentsCompleted = Math.max(
-          3,
-          Number(allValues.experimentsCompleted ?? 5),
-        );
+        const experimentsCompleted = Math.max(3, Number(allValues.experimentsCompleted ?? 5));
         const dtDays = Number(allValues.numericalTimeStepDays ?? 5.0);
         adapter.reportStudentInteraction("24", `adjust_${controlId}`, {
           ...allValues,
@@ -2364,8 +2361,7 @@ export class CosmosChapterInteractionStore {
 
       case "m17_ch7_cosmic_noon_galaxy_evolution": {
         const z = Number(vals.galaxyEvolutionRedshiftZ ?? 1.9);
-        const sfrd =
-          (0.015 * Math.pow(1 + z, 2.7)) / (1 + Math.pow((1 + z) / 2.9, 5.6));
+        const sfrd = (0.015 * Math.pow(1 + z, 2.7)) / (1 + Math.pow((1 + z) / 2.9, 5.6));
         metrics.push(
           {
             metricId: "m17-7-sfrd",
@@ -2452,7 +2448,13 @@ export class CosmosChapterInteractionStore {
         const h0 = Number(vals.hubbleConstantH0 ?? 67.4);
         const gal = String(vals.selectedSampleGalaxyIndex ?? "ngc_4258");
         const dMpc =
-          gal === "ngc_4258" ? 7.58 : gal === "virgo_m87" ? 16.5 : gal === "coma_ngc4889" ? 99.0 : 460.0;
+          gal === "ngc_4258"
+            ? 7.58
+            : gal === "virgo_m87"
+              ? 16.5
+              : gal === "coma_ngc4889"
+                ? 99.0
+                : 460.0;
         const vHubble = h0 * dMpc;
         metrics.push(
           {
@@ -2595,7 +2597,12 @@ export class CosmosChapterInteractionStore {
               regime === "intercluster_50mpc"
                 ? "Unbound Supercluster Regime (ρ ≈ ρ_crit): Recedes with Hubble Flow D_proper(t) = a(t)D_c"
                 : "Gravitationally Bound Virialized Regime (ρ ≫ 200 ρ_crit): Decoupled from Cosmic Expansion (0% Metric Stretching)",
-            formula: "z_lab = λ_obs/λ_emit - 1 = " + zLab.toFixed(2) + " (a_emit = " + (1 / ratio).toFixed(3) + ")",
+            formula:
+              "z_lab = λ_obs/λ_emit - 1 = " +
+              zLab.toFixed(2) +
+              " (a_emit = " +
+              (1 / ratio).toFixed(3) +
+              ")",
           },
           {
             metricId: "m18-8-note",
@@ -2823,7 +2830,8 @@ export class CosmosChapterInteractionStore {
             metricId: "m20-1-sun",
             label: `1.0 M☉ Stellar Evolution Track at +${tPlusGyr.toFixed(1)} Gyr (Total Solar Age ${(4.6 + tPlusGyr).toFixed(1)} Gyr)`,
             value: phase,
-            formula: "1 M☉ < 8 M☉ Supernova Threshold ⇒ Ends as ~0.54 M☉ White Dwarf (Never a Black Hole)",
+            formula:
+              "1 M☉ < 8 M☉ Supernova Threshold ⇒ Ends as ~0.54 M☉ White Dwarf (Never a Black Hole)",
           },
           {
             metricId: "m20-1-model",
@@ -2876,7 +2884,8 @@ export class CosmosChapterInteractionStore {
                 : scen === "low_vtan_merger"
                   ? "Classical Low-v_tan Merger Trajectory: Close pericenter at ~4.3 Gyr followed by tidal coalescence into 'Milkomeda' elliptical by ~6 Gyr"
                   : "Monte Carlo Probability Ensemble: Displays both merger (~50%) and wide-flyby (~50%) orbital bundles within Gaia DR3 + HST proper-motion uncertainties",
-            formula: "Stars Are Collisionless (λ_mfp ≫ 10¹² pc); Interstellar Gas Clouds Shock & Form Stars",
+            formula:
+              "Stars Are Collisionless (λ_mfp ≫ 10¹² pc); Interstellar Gas Clouds Shock & Form Stars",
           },
           {
             metricId: "m20-3-unc",
@@ -3591,9 +3600,7 @@ export class CosmosChapterInteractionStore {
       }
 
       case "m23_ch8_biosignature_disequilibrium_lab": {
-        const scenario = String(
-          vals.atmosphericScenarioModel ?? "biotic_o2_ch4_disequilibrium",
-        );
+        const scenario = String(vals.atmosphericScenarioModel ?? "biotic_o2_ch4_disequilibrium");
         const gasesCount = Number(vals.sampledTraceGasesCount ?? 4);
         metrics.push(
           {
@@ -3715,7 +3722,8 @@ export class CosmosChapterInteractionStore {
             metricId: "m24-2-error",
             label: `Time Step Δt = ${dtDays.toFixed(1)} days (${scheme.replace(/_/g, " ")})`,
             value: `1-Orbit Energy Drift |ΔE/E₀|: Forward Euler ≈ +${eulerDriftPct}% (Outward Spiral) vs Symplectic Verlet / RK4 ≈ ${rk4DriftPct}%`,
-            formula: "Euler Global Error O(Δt) vs RK4 O(Δt⁴) • Symplectic Verlet Bounds Hamiltonian Error",
+            formula:
+              "Euler Global Error O(Δt) vs RK4 O(Δt⁴) • Symplectic Verlet Bounds Hamiltonian Error",
           },
           {
             metricId: "m24-2-softening",

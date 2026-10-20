@@ -191,7 +191,10 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         defaultValue: "thermal_standard",
         options: [
           { value: "thermal_standard", label: "Well-Constrained Thermal Big Bang (T ≲ 10 MeV)" },
-          { value: "inflation_framework", label: "Inflationary Framework (Theoretical Hypothesis)" },
+          {
+            value: "inflation_framework",
+            label: "Inflationary Framework (Theoretical Hypothesis)",
+          },
         ],
         scientificFormula: "Ω_total - 1 ∝ 1/(aH)² (Flatness & Horizon Problem Motivation)",
         description:
@@ -227,10 +230,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Adiabatic Cooling & Radiation-to-Matter Scaling",
         scientificMechanismSummary:
           "Demonstrates why radiation energy density ρ_r ∝ a⁻⁴ dilutes faster than matter ρ_m ∝ a⁻³ due to photon wavelength stretching.",
-        narrationSegmentIds: [
-          "17-m17-l2-explanation-3",
-          "17-m17-l2-explanation-4",
-        ],
+        narrationSegmentIds: ["17-m17-l2-explanation-3", "17-m17-l2-explanation-4"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [4.2, 2.8, 10.5],
@@ -559,10 +559,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Gravitational Amplification of Dark Matter Seeds & 21-cm Physics",
         scientificMechanismSummary:
           "Shows baryonic gas falling into deepening dark matter minihalos (M ~ 10⁵–10⁶ M☉) while highlighting the 21-cm hyperfine transition.",
-        narrationSegmentIds: [
-          "17-m17-l5-explanation-3",
-          "17-m17-l5-explanation-4",
-        ],
+        narrationSegmentIds: ["17-m17-l5-explanation-3", "17-m17-l5-explanation-4"],
         cameraArchetype: "planetary_orbital_shot",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [4.6, 3.2, 11.2],
@@ -776,10 +773,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Cosmic Noon (z ≈ 2) & The Madau-Dickinson Star Formation Curve",
         scientificMechanismSummary:
           "Displays the empirical Madau-Dickinson cosmic star formation rate density curve ψ(z), highlighting the 10× higher star formation rate at z ≈ 1.9 compared to today.",
-        narrationSegmentIds: [
-          "17-m17-l7-explanation-3",
-          "17-m17-l7-explanation-4",
-        ],
+        narrationSegmentIds: ["17-m17-l7-explanation-3", "17-m17-l7-explanation-4"],
         cameraArchetype: "planetary_orbital_shot",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [5.2, 3.4, 11.6],
@@ -1443,10 +1437,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Radiation, Matter & Dark Energy Eras in a(t)",
         scientificMechanismSummary:
           "Compares radiation-dominated deceleration (a ∝ t¹/²), matter-dominated deceleration (a ∝ t²/³), and late-time acceleration after z_acc ≈ 0.63.",
-        narrationSegmentIds: [
-          "18-m18-l5-explanation-3",
-          "18-m18-l5-explanation-4",
-        ],
+        narrationSegmentIds: ["18-m18-l5-explanation-3", "18-m18-l5-explanation-4"],
         cameraArchetype: "planetary_orbital_shot",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [5.0, 3.4, 11.4],
@@ -1514,8 +1505,14 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "proper_distance_teardrop",
         options: [
-          { value: "proper_distance_teardrop", label: "Proper Distance D_proper(t) (Teardrop Light Cone)" },
-          { value: "comoving_distance_cone", label: "Comoving Distance χ (45° Conformal Light Cone)" },
+          {
+            value: "proper_distance_teardrop",
+            label: "Proper Distance D_proper(t) (Teardrop Light Cone)",
+          },
+          {
+            value: "comoving_distance_cone",
+            label: "Comoving Distance χ (45° Conformal Light Cone)",
+          },
         ],
         scientificFormula: "dD_proper/dt = c - H(t)D_proper (Sub-Hubble vs Super-Hubble)",
         description:
@@ -1551,10 +1548,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Distinguishing D_emit (D_A), Light-Travel Time (c·t_L), D_now (D_C) & D_L",
         scientificMechanismSummary:
           "Displays the four distinct cosmological distance measures side by side for any redshift z, proving why D_now > c·t_L > D_emit.",
-        narrationSegmentIds: [
-          "18-m18-l6-explanation-3",
-          "18-m18-l6-explanation-4",
-        ],
+        narrationSegmentIds: ["18-m18-l6-explanation-3", "18-m18-l6-explanation-4"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [5.0, 3.4, 11.4],
@@ -1609,10 +1603,22 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "all_three_horizons",
         options: [
-          { value: "all_three_horizons", label: "Compare All Three: Particle (46.2), Event (16.5) & Hubble (14.4 Gly)" },
-          { value: "particle_horizon", label: "Particle Horizon R_p ≈ 46.2 Gly (Observable Universe Limit)" },
-          { value: "event_horizon", label: "Cosmological Event Horizon R_e ≈ 16.5 Gly (Future Causal Limit)" },
-          { value: "hubble_sphere", label: "Hubble Sphere R_H = c/H₀ ≈ 14.4 Gly (v_rec = c Surface, Not a Horizon)" },
+          {
+            value: "all_three_horizons",
+            label: "Compare All Three: Particle (46.2), Event (16.5) & Hubble (14.4 Gly)",
+          },
+          {
+            value: "particle_horizon",
+            label: "Particle Horizon R_p ≈ 46.2 Gly (Observable Universe Limit)",
+          },
+          {
+            value: "event_horizon",
+            label: "Cosmological Event Horizon R_e ≈ 16.5 Gly (Future Causal Limit)",
+          },
+          {
+            value: "hubble_sphere",
+            label: "Hubble Sphere R_H = c/H₀ ≈ 14.4 Gly (v_rec = c Surface, Not a Horizon)",
+          },
         ],
         scientificFormula: "R_p(t₀) = a(t₀) ∫₀^{t₀} c dt/a(t) ≈ 46.2 Gly",
         description:
@@ -1726,10 +1732,22 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "local_group_1mpc",
         options: [
-          { value: "solar_system_au", label: "Solar System (~1–30 AU • Gravitationally Bound, 0% Expansion)" },
-          { value: "milky_way_30kpc", label: "Milky Way Disk (~30 kpc • Virialized Halo, 0% Expansion)" },
-          { value: "local_group_1mpc", label: "Local Group (~1 Mpc • Bound MW–M31 Infall v_rad ≈ -110 km/s)" },
-          { value: "intercluster_50mpc", label: "Inter-Cluster Filaments (~50 Mpc • Unbound Hubble Flow v = H₀d)" },
+          {
+            value: "solar_system_au",
+            label: "Solar System (~1–30 AU • Gravitationally Bound, 0% Expansion)",
+          },
+          {
+            value: "milky_way_30kpc",
+            label: "Milky Way Disk (~30 kpc • Virialized Halo, 0% Expansion)",
+          },
+          {
+            value: "local_group_1mpc",
+            label: "Local Group (~1 Mpc • Bound MW–M31 Infall v_rad ≈ -110 km/s)",
+          },
+          {
+            value: "intercluster_50mpc",
+            label: "Inter-Cluster Filaments (~50 Mpc • Unbound Hubble Flow v = H₀d)",
+          },
         ],
         scientificFormula: "ρ_system / ρ_crit > Δ_vir ≈ 200 ⇒ Decoupled from Hubble Flow",
         description:
@@ -1781,10 +1799,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Turnaround Scale & Redshift Expansion Laboratory Synthesis",
         scientificMechanismSummary:
           "Contrasts bound galaxy groups (where peculiar gravity overcomes expansion) with widely separated clusters in the Hubble flow.",
-        narrationSegmentIds: [
-          "18-m18-l8-explanation-3",
-          "18-m18-l8-explanation-4",
-        ],
+        narrationSegmentIds: ["18-m18-l8-explanation-3", "18-m18-l8-explanation-4"],
         cameraArchetype: "data_visualization_view",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [5.2, 3.6, 11.8],
@@ -1804,7 +1819,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Virialized Bound Regime",
         type: "SCIENTIFIC_FACT",
         label: "Local Gravity vs Cosmic Expansion",
-        value: "Solar System & Local Group: Bound (0% Metric Expansion) • Clusters > 15 Mpc: Hubble Flow",
+        value:
+          "Solar System & Local Group: Bound (0% Metric Expansion) • Clusters > 15 Mpc: Hubble Flow",
         position: [0, 3.2, 0],
         priority: 1,
       },
@@ -1843,10 +1859,22 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "babylonian_mul_apin",
         options: [
-          { value: "babylonian_mul_apin", label: "Mesopotamia (MUL.APIN & Saros Eclipse Diaries, c. 1000–600 BCE)" },
-          { value: "egyptian_decan_clock", label: "Ancient Egypt (36-Decan Star Clocks & Sirius/Sopdet Heliacal Rising)" },
-          { value: "vedic_nakshatra_ring", label: "Ancient India (Vedanga Jyotisha • 27 Lunar Nakshatras & Solstices)" },
-          { value: "chinese_hun_tian", label: "Ancient China (Gai Tian Canopy vs Hun Tian Celestial Sphere)" },
+          {
+            value: "babylonian_mul_apin",
+            label: "Mesopotamia (MUL.APIN & Saros Eclipse Diaries, c. 1000–600 BCE)",
+          },
+          {
+            value: "egyptian_decan_clock",
+            label: "Ancient Egypt (36-Decan Star Clocks & Sirius/Sopdet Heliacal Rising)",
+          },
+          {
+            value: "vedic_nakshatra_ring",
+            label: "Ancient India (Vedanga Jyotisha • 27 Lunar Nakshatras & Solstices)",
+          },
+          {
+            value: "chinese_hun_tian",
+            label: "Ancient China (Gai Tian Canopy vs Hun Tian Celestial Sphere)",
+          },
         ],
         scientificFormula: "Saros Cycle = 223 Synodic Months ≈ 6585.32 Days (18 yr 11 d 8 hr)",
         description:
@@ -1922,7 +1950,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Pluralistic Ancient Cosmologies",
         type: "SCIENTIFIC_FACT",
         label: "Historical Source Attribution",
-        value: "MUL.APIN (c. 1000 BCE) • Vedanga Jyotisha • Hun Tian Sphere (No Universal Flat-Earth Myth)",
+        value:
+          "MUL.APIN (c. 1000 BCE) • Vedanga Jyotisha • Hun Tian Sphere (No Universal Flat-Earth Myth)",
         position: [0, 3.2, 0],
         priority: 1,
       },
@@ -1971,9 +2000,18 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "eratosthenes_gnomon",
         options: [
-          { value: "eratosthenes_gnomon", label: "Eratosthenes (c. 240 BCE): Syene & Alexandria Gnomon Angle Δθ = 7.2°" },
-          { value: "lunar_eclipse_shadow", label: "Aristotle (c. 350 BCE): Circular Umbral Shadow on Moon at All Elevations" },
-          { value: "latitude_star_altitude", label: "North–South Travel: Polaris & Canopus Altitude Shift Δh = Δφ" },
+          {
+            value: "eratosthenes_gnomon",
+            label: "Eratosthenes (c. 240 BCE): Syene & Alexandria Gnomon Angle Δθ = 7.2°",
+          },
+          {
+            value: "lunar_eclipse_shadow",
+            label: "Aristotle (c. 350 BCE): Circular Umbral Shadow on Moon at All Elevations",
+          },
+          {
+            value: "latitude_star_altitude",
+            label: "North–South Travel: Polaris & Canopus Altitude Shift Δh = Δφ",
+          },
         ],
         scientificFormula: "R_Earth = C / (2π) ≈ 6,371 km",
         description:
@@ -2001,7 +2039,10 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         timePolicy: "SIMULATION_CONTINUOUS",
         simulationTimeScale: 1.0,
         animationAction: "m19_ch2_spherical_proofs_overview",
-        highlightedObjects: ["lunar_eclipse_umbral_shadow_cone", "eratosthenes_earth_meridian_globe"],
+        highlightedObjects: [
+          "lunar_eclipse_umbral_shadow_cone",
+          "eratosthenes_earth_meridian_globe",
+        ],
         transitionType: "comparison_split_transition",
       },
       {
@@ -2179,10 +2220,22 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "india_aryabhata",
         options: [
-          { value: "india_aryabhata", label: "India: Aryabhata (499 CE Axial Rotation) & Kerala School (1500 CE)" },
-          { value: "islamic_maragheh", label: "Islamic World: Al-Biruni, Al-Tusi & Ibn al-Shatir (Maragheh / Samarkand)" },
-          { value: "china_sn1054", label: "China: Su Song Armillary & 1054 CE Crab Supernova ('Guest Star') Record" },
-          { value: "maya_dresden_venus", label: "Mesoamerica: Maya Dresden Codex 584-Day Venus Synodic Calendar" },
+          {
+            value: "india_aryabhata",
+            label: "India: Aryabhata (499 CE Axial Rotation) & Kerala School (1500 CE)",
+          },
+          {
+            value: "islamic_maragheh",
+            label: "Islamic World: Al-Biruni, Al-Tusi & Ibn al-Shatir (Maragheh / Samarkand)",
+          },
+          {
+            value: "china_sn1054",
+            label: "China: Su Song Armillary & 1054 CE Crab Supernova ('Guest Star') Record",
+          },
+          {
+            value: "maya_dresden_venus",
+            label: "Mesoamerica: Maya Dresden Codex 584-Day Venus Synodic Calendar",
+          },
         ],
         scientificFormula: "Sidereal Day = 23h 56m 4.1s (Aryabhata: 23h 56m 4.1s)",
         description:
@@ -2298,9 +2351,18 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "copernican_1543",
         options: [
-          { value: "copernican_1543", label: "Copernican Heliocentric (1543 CE • Overtaking Sightline)" },
-          { value: "ptolemaic_150", label: "Ptolemaic Geocentric (c. 150 CE • Deferent + Epicycle)" },
-          { value: "side_by_side_both", label: "Dual Comparison: Ptolemaic vs Copernican Retrograde Loop" },
+          {
+            value: "copernican_1543",
+            label: "Copernican Heliocentric (1543 CE • Overtaking Sightline)",
+          },
+          {
+            value: "ptolemaic_150",
+            label: "Ptolemaic Geocentric (c. 150 CE • Deferent + Epicycle)",
+          },
+          {
+            value: "side_by_side_both",
+            label: "Dual Comparison: Ptolemaic vs Copernican Retrograde Loop",
+          },
         ],
         scientificFormula: "1 / T_synodic = |1 / T_Earth - 1 / T_Mars| (T_syn ≈ 780 days)",
         description:
@@ -2377,7 +2439,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Copernican Retrograde Geometry (1543)",
         type: "ORBITAL_PATH",
         label: "Perspective Overtaking Effect",
-        value: "Earth (v=29.8 km/s) Overtakes Mars (v=24.1 km/s) • Circular Orbits Still Required Small Epicycles",
+        value:
+          "Earth (v=29.8 km/s) Overtakes Mars (v=24.1 km/s) • Circular Orbits Still Required Small Epicycles",
         position: [0, 3.3, 0],
         priority: 1,
       },
@@ -2539,8 +2602,14 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         defaultValue: "hubble_1924_m31",
         options: [
           { value: "herschel_1785", label: "William & Caroline Herschel (1785 Star-Gauging Disk)" },
-          { value: "shapley_curtis_1920", label: "1920 Great Debate: Shapley (Big Milky Way) vs Curtis (Island Universes)" },
-          { value: "hubble_1924_m31", label: "Leavitt Law + Hubble M31 Cepheid V1 (1924: Extragalactic Proof)" },
+          {
+            value: "shapley_curtis_1920",
+            label: "1920 Great Debate: Shapley (Big Milky Way) vs Curtis (Island Universes)",
+          },
+          {
+            value: "hubble_1924_m31",
+            label: "Leavitt Law + Hubble M31 Cepheid V1 (1924: Extragalactic Proof)",
+          },
         ],
         scientificFormula: "d_M31(1924) ≈ 285 kpc vs d_M31(Modern) = 778 ± 17 kpc (2.54 Mly)",
         description:
@@ -2551,7 +2620,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
       {
         beatId: "sb-m19-m19-l7-beat-1",
         beatIndex: 0,
-        title: "Herschel's Star Gauges (1785), Bessel's Parallax (1838) & Shapley's Galactic Center",
+        title:
+          "Herschel's Star Gauges (1785), Bessel's Parallax (1838) & Shapley's Galactic Center",
         scientificMechanismSummary:
           "Transitions from William and Caroline Herschel's 1785 star-count cross-section and Bessel's 61 Cygni parallax to Harlow Shapley's globular cluster mapping off-center from the Sun.",
         narrationSegmentIds: [
@@ -2636,10 +2706,22 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         defaultValue: "jwst_desi_2022",
         options: [
           { value: "lem_hubble_1927", label: "1927–1929: Lemaître & Hubble Expanding Universe" },
-          { value: "penzias_wilson_1965", label: "1965: Penzias & Wilson 2.7 K CMB Horn Antenna Discovery" },
-          { value: "rubin_rotation_1970", label: "1970: Vera Rubin & Kent Ford Flat Galactic Rotation Curves" },
-          { value: "sn_acceleration_1998", label: "1998: Riess, Perlmutter & Schmidt SN Ia Cosmic Acceleration" },
-          { value: "jwst_desi_2022", label: "2018–2026: Planck, JWST, Euclid & DESI Precision Cosmology" },
+          {
+            value: "penzias_wilson_1965",
+            label: "1965: Penzias & Wilson 2.7 K CMB Horn Antenna Discovery",
+          },
+          {
+            value: "rubin_rotation_1970",
+            label: "1970: Vera Rubin & Kent Ford Flat Galactic Rotation Curves",
+          },
+          {
+            value: "sn_acceleration_1998",
+            label: "1998: Riess, Perlmutter & Schmidt SN Ia Cosmic Acceleration",
+          },
+          {
+            value: "jwst_desi_2022",
+            label: "2018–2026: Planck, JWST, Euclid & DESI Precision Cosmology",
+          },
         ],
         scientificFormula: "G_μν + Λg_μν = (8πG/c⁴) T_μν (Tested Across 13.8 Gyr)",
         description:
@@ -2694,10 +2776,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "1998 Dark Energy, Multi-Messenger Space Observatories & Open Questions",
         scientificMechanismSummary:
           "Highlights the 1998 Type Ia supernova acceleration discovery and modern multi-probe observatories (Planck, JWST, DESI, Euclid) testing the frontiers of cosmology.",
-        narrationSegmentIds: [
-          "19-m19-l8-explanation-3",
-          "19-m19-l8-explanation-4",
-        ],
+        narrationSegmentIds: ["19-m19-l8-explanation-3", "19-m19-l8-explanation-4"],
         cameraArchetype: "data_visualization_view",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [5.0, 3.4, 11.4],
@@ -2759,7 +2838,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 0.1,
         unit: "+Gyr",
         defaultValue: 5.4,
-        scientificFormula: "1 M☉ Track: MS (0–5.4 Gyr) → RGB Tip (~7.6 Gyr) →PN → 0.54 M☉ White Dwarf",
+        scientificFormula:
+          "1 M☉ Track: MS (0–5.4 Gyr) → RGB Tip (~7.6 Gyr) →PN → 0.54 M☉ White Dwarf",
         description:
           "Advance the Sun from today (+0.0 Gyr, age 4.6 Gyr) through the Subgiant and Red Giant phases (+5.4 to +7.6 Gyr) to the Planetary Nebula and White Dwarf remnant (+8.0 Gyr).",
         linkedActivityId: "act_20_future_timeline_lab",
@@ -2786,10 +2866,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Core Hydrogen Exhaustion & The Red Giant Expansion (+5 to +7.6 Gyr)",
         scientificMechanismSummary:
           "Shows the Sun's helium core contracting and heating while hydrogen shell burning inflates the outer envelope toward Mercury, Venus, and ~1 AU.",
-        narrationSegmentIds: [
-          "20-sub_sun_future-title",
-          "20-sub_sun_future-deepDive-1",
-        ],
+        narrationSegmentIds: ["20-sub_sun_future-title", "20-sub_sun_future-deepDive-1"],
         cameraArchetype: "timeline_camera",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 4.2, 12.8],
@@ -2807,10 +2884,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Planetary Nebula Ejection & The Electron-Degenerate White Dwarf Core",
         scientificMechanismSummary:
           "Animates the gentle expulsion of the Sun's outer layers as a glowing planetary nebula, exposing the Earth-sized ~0.54 M☉ carbon-oxygen white dwarf core.",
-        narrationSegmentIds: [
-          "20-sub_sun_future-deepDive-2",
-          "20-sub_sun_future-didYouKnow-1",
-        ],
+        narrationSegmentIds: ["20-sub_sun_future-deepDive-2", "20-sub_sun_future-didYouKnow-1"],
         cameraArchetype: "planetary_orbital_shot",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [4.8, 3.2, 11.2],
@@ -2879,8 +2953,15 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "strong_tidal_engulfment",
         options: [
-          { value: "strong_tidal_engulfment", label: "Standard Tidal Drag Model (Schröder & Smith 2008: Likely Engulfment at ~7.59 Gyr)" },
-          { value: "mass_loss_dominant", label: "Enhanced Mass-Loss / Low-Tide Model (Outward Drift to ~1.5 AU Scorched Rock)" },
+          {
+            value: "strong_tidal_engulfment",
+            label:
+              "Standard Tidal Drag Model (Schröder & Smith 2008: Likely Engulfment at ~7.59 Gyr)",
+          },
+          {
+            value: "mass_loss_dominant",
+            label: "Enhanced Mass-Loss / Low-Tide Model (Outward Drift to ~1.5 AU Scorched Rock)",
+          },
         ],
         scientificFormula: "da/dt = -a (Ṁ_☉/M_☉) - (a / τ_tidal)",
         description:
@@ -2894,10 +2975,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Gradual Solar Brightening, Habitable Zone Migration & Ocean Loss (+1–2 Gyr)",
         scientificMechanismSummary:
           "Shows the circumstellar Habitable Zone migrating outward as solar luminosity rises ~10% per Gyr, driving a moist greenhouse transition on Earth over billion-year timescales.",
-        narrationSegmentIds: [
-          "20-sub_earth_future-title",
-          "20-sub_earth_future-deepDive-1",
-        ],
+        narrationSegmentIds: ["20-sub_earth_future-title", "20-sub_earth_future-deepDive-1"],
         cameraArchetype: "timeline_camera",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 4.0, 12.4],
@@ -2915,10 +2993,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Solar Mass-Loss Orbital Expansion vs Red Giant Tidal Drag (+7.5 Gyr)",
         scientificMechanismSummary:
           "Illustrates the close tug-of-war between outward orbital drift from solar mass loss (M_☉ dropping toward 0.6 M☉) and inward orbital decay from Red Giant convective tides.",
-        narrationSegmentIds: [
-          "20-sub_earth_future-deepDive-2",
-          "20-sub_earth_future-didYouKnow-1",
-        ],
+        narrationSegmentIds: ["20-sub_earth_future-deepDive-2", "20-sub_earth_future-didYouKnow-1"],
         cameraArchetype: "scientific_cross_section",
         cameraAction: "ORBIT_TARGET",
         cameraPosition: [4.8, 3.2, 11.2],
@@ -2938,7 +3013,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Conditional Orbital Fate",
         type: "SCIENTIFIC_FACT",
         label: "Solar Mass Loss vs Tidal Drag",
-        value: "da/dt = -a(Ṁ/M) - a/τ_tide • Model-Dependent Outcome (Distinct from Modern Climate Change)",
+        value:
+          "da/dt = -a(Ṁ/M) - a/τ_tide • Model-Dependent Outcome (Distinct from Modern Climate Change)",
         position: [0, 3.2, 0],
         priority: 1,
       },
@@ -2973,9 +3049,20 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "low_vtan_merger",
         options: [
-          { value: "low_vtan_merger", label: "Scenario A: Low Transverse Velocity (Pericenter ~4.3 Gyr → Elliptical Merger ~6 Gyr)" },
-          { value: "lmc_perturbed_flyby", label: "Scenario B: Gaia+HST 4-Body Perturbed Flyby (~50% Probability: Wide Passage Without 10 Gyr Merger)" },
-          { value: "ensemble_uncertainty_fan", label: "Monte Carlo Probability Fan (Display Both Conditional Trajectories)" },
+          {
+            value: "low_vtan_merger",
+            label:
+              "Scenario A: Low Transverse Velocity (Pericenter ~4.3 Gyr → Elliptical Merger ~6 Gyr)",
+          },
+          {
+            value: "lmc_perturbed_flyby",
+            label:
+              "Scenario B: Gaia+HST 4-Body Perturbed Flyby (~50% Probability: Wide Passage Without 10 Gyr Merger)",
+          },
+          {
+            value: "ensemble_uncertainty_fan",
+            label: "Monte Carlo Probability Fan (Display Both Conditional Trajectories)",
+          },
         ],
         scientificFormula: "v_rad ≈ -109 km/s; Outcome Sensitive to v_tan & M_LMC",
         description:
@@ -2992,7 +3079,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         step: 0.2,
         unit: "+Gyr",
         defaultValue: 4.5,
-        scientificFormula: "Mean Free Path λ_star = 1 / (n_star σ_grav) ≫ 10¹² pc (Collisionless Stars)",
+        scientificFormula:
+          "Mean Free Path λ_star = 1 / (n_star σ_grav) ≫ 10¹² pc (Collisionless Stars)",
         description:
           "Advance time from +0 to +8 Gyr to observe tidal tails, gas-cloud starbursts, and collisionless stellar dynamics.",
       },
@@ -3004,10 +3092,7 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         title: "Collisionless Stellar Swarms vs Compressing Interstellar Gas Clouds",
         scientificMechanismSummary:
           "Demonstrates why individual stars (separated by ~4 light-years) pass straight through one another without colliding while giant molecular gas clouds shock and trigger star clusters.",
-        narrationSegmentIds: [
-          "20-sub_galaxy_motions-title",
-          "20-sub_galaxy_motions-deepDive-1",
-        ],
+        narrationSegmentIds: ["20-sub_galaxy_motions-title", "20-sub_galaxy_motions-deepDive-1"],
         cameraArchetype: "timeline_camera",
         cameraAction: "APPLY_CAMERA_PRESET",
         cameraPosition: [0, 4.8, 13.6],
@@ -3048,7 +3133,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Conditional MW–M31 Orbit",
         type: "SCIENTIFIC_FACT",
         label: "Probabilistic 4-Body Dynamics (MW + M31 + M33 + LMC)",
-        value: "~50% Merger Probability Within 10 Gyr (Sawala et al. 2025) • Stars Are Collisionless",
+        value:
+          "~50% Merger Probability Within 10 Gyr (Sawala et al. 2025) • Stars Are Collisionless",
         position: [0, 3.3, 0],
         priority: 1,
       },
@@ -3097,9 +3183,18 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "m_dwarf_01",
         options: [
-          { value: "ob_star_20", label: "O/B Massive Star (20 M☉ • τ ≈ 8×10⁶ yr → Core-Collapse SN)" },
-          { value: "g_dwarf_1", label: "G2V Solar-Type Star (1.0 M☉ • Radiative Core, τ ≈ 10¹⁰ yr → White Dwarf)" },
-          { value: "m_dwarf_01", label: "M6V Red Dwarf (0.1 M☉ • Fully Convective, τ ≈ 6–10×10¹² yr → He White Dwarf)" },
+          {
+            value: "ob_star_20",
+            label: "O/B Massive Star (20 M☉ • τ ≈ 8×10⁶ yr → Core-Collapse SN)",
+          },
+          {
+            value: "g_dwarf_1",
+            label: "G2V Solar-Type Star (1.0 M☉ • Radiative Core, τ ≈ 10¹⁰ yr → White Dwarf)",
+          },
+          {
+            value: "m_dwarf_01",
+            label: "M6V Red Dwarf (0.1 M☉ • Fully Convective, τ ≈ 6–10×10¹² yr → He White Dwarf)",
+          },
         ],
         scientificFormula: "f_burned(0.1 M☉) ≈ 0.99 vs f_burned(1.0 M☉) ≈ 0.10",
         description:
@@ -3157,7 +3252,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Fully Convective M-Dwarf",
         type: "SCIENTIFIC_FACT",
         label: "Why Red Dwarfs Live ~1–10 Trillion Years",
-        value: "0.08–0.35 M☉: Full Convection Burns ~100% H • Zero Red Dwarfs Have Died Yet (t₀ = 13.8 Gyr)",
+        value:
+          "0.08–0.35 M☉: Full Convection Burns ~100% H • Zero Red Dwarfs Have Died Yet (t₀ = 13.8 Gyr)",
         position: [0, 3.2, 0],
         priority: 1,
       },
@@ -3206,8 +3302,14 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "standard_depletion",
         options: [
-          { value: "standard_depletion", label: "Standard Gas Lock-Up + AGN Feedback (~95% Stars Already Born)" },
-          { value: "extended_accretion", label: "Slow Residual Halo Cooling (Extended Low-Level Star Formation to 10¹⁴ yr)" },
+          {
+            value: "standard_depletion",
+            label: "Standard Gas Lock-Up + AGN Feedback (~95% Stars Already Born)",
+          },
+          {
+            value: "extended_accretion",
+            label: "Slow Residual Halo Cooling (Extended Low-Level Star Formation to 10¹⁴ yr)",
+          },
         ],
         scientificFormula: "dM_gas/dt = -(1 - R) · SFR + Ṁ_infall - Ṁ_outflow",
         description:
@@ -3318,8 +3420,14 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "proton_decay_hypothesis",
         options: [
-          { value: "proton_decay_hypothesis", label: "GUT Proton Decay Hypothesis (Unconfirmed: τ_p ~ 10³⁶ yr)" },
-          { value: "stable_protons", label: "Standard Model Stable Protons (Cold Iron White Dwarfs Persist)" },
+          {
+            value: "proton_decay_hypothesis",
+            label: "GUT Proton Decay Hypothesis (Unconfirmed: τ_p ~ 10³⁶ yr)",
+          },
+          {
+            value: "stable_protons",
+            label: "Standard Model Stable Protons (Cold Iron White Dwarfs Persist)",
+          },
         ],
         scientificFormula: "Experimental Bound: τ(p → e⁺ π⁰) > 1.6 × 10³⁴ yr (Super-Kamiokande)",
         description:
@@ -3345,7 +3453,10 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         timePolicy: "SIMULATION_CONTINUOUS",
         simulationTimeScale: 1.0,
         animationAction: "m20_ch6_horizon_isolation_local_island",
-        highlightedObjects: ["isolated_local_group_island", "receding_extragalactic_clusters_horizon"],
+        highlightedObjects: [
+          "isolated_local_group_island",
+          "receding_extragalactic_clusters_horizon",
+        ],
         transitionType: "chronological_transformation",
       },
       {
@@ -3377,7 +3488,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Degenerate Era Projection",
         type: "SCIENTIFIC_FACT",
         label: "Conditional Deep-Time Physics (10¹⁴–10⁴⁰ yr)",
-        value: "Bound Galaxies Stay Intact • 2-Body Relaxation ~10¹⁹ yr • Proton Decay Unconfirmed (τ_p > 1.6×10³⁴ yr)",
+        value:
+          "Bound Galaxies Stay Intact • 2-Body Relaxation ~10¹⁹ yr • Proton Decay Unconfirmed (τ_p > 1.6×10³⁴ yr)",
         position: [0, 3.2, 0],
         priority: 1,
       },
@@ -3426,13 +3538,21 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         controlType: "select",
         defaultValue: "black_hole_era",
         options: [
-          { value: "low_entropy_stelliferous", label: "Stelliferous Era (10⁶–10¹⁴ yr • High Free-Energy Gradients ΔT)" },
-          { value: "black_hole_era", label: "Black Hole Era (10⁴⁰–10¹⁰⁰ yr • Hawking Radiation T_H ∝ 1/M)" },
-          { value: "asymptotic_dark_era", label: "Asymptotic Heat Death / Dark Era (>10¹⁰⁰ yr • Uniform Maximum Entropy)" },
+          {
+            value: "low_entropy_stelliferous",
+            label: "Stelliferous Era (10⁶–10¹⁴ yr • High Free-Energy Gradients ΔT)",
+          },
+          {
+            value: "black_hole_era",
+            label: "Black Hole Era (10⁴⁰–10¹⁰⁰ yr • Hawking Radiation T_H ∝ 1/M)",
+          },
+          {
+            value: "asymptotic_dark_era",
+            label: "Asymptotic Heat Death / Dark Era (>10¹⁰⁰ yr • Uniform Maximum Entropy)",
+          },
         ],
         scientificFormula: "T_Hawking = ℏc³ / (8π G M k_B) ≈ 6.17×10⁻⁸ K · (M☉ / M)",
-        description:
-          "Compare free-energy availability and entropy S across cosmic eras.",
+        description: "Compare free-energy availability and entropy S across cosmic eras.",
       },
     ],
     visualBeats: [
@@ -3547,7 +3667,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
       {
         beatId: "sb-m20-sub_cosmic_possibilities-beat-1",
         beatIndex: 0,
-        title: "Diverging Future Scale-Factor Trajectories: Big Freeze, Quintessence, Big Crunch & Big Rip",
+        title:
+          "Diverging Future Scale-Factor Trajectories: Big Freeze, Quintessence, Big Crunch & Big Rip",
         scientificMechanismSummary:
           "Plots conditional scale-factor trajectories a(t) for w = -1 (Big Freeze), w(a) evolving dark energy, recollapsing Big Crunch, and w < -1 Phantom Big Rip.",
         narrationSegmentIds: [
@@ -3568,7 +3689,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
       {
         beatId: "sb-m20-sub_cosmic_possibilities-beat-2",
         beatIndex: 1,
-        title: "Observational Constraints (Planck, JWST, DESI, Euclid, Roman) & Epistemic Integrity",
+        title:
+          "Observational Constraints (Planck, JWST, DESI, Euclid, Roman) & Epistemic Integrity",
         scientificMechanismSummary:
           "Highlights how current and upcoming surveys constrain w₀ and w_a, and guides the student through classifying measured data vs conditional projections.",
         narrationSegmentIds: [
@@ -3594,7 +3716,8 @@ export const STAGE_5_NEW_CHAPTER_MANIFESTS: ProofOfConceptChapterManifest[] = [
         objectName: "Conditional Cosmic Futures",
         type: "SCIENTIFIC_FACT",
         label: "Evidence vs Conditional Extrapolation vs Speculation",
-        value: "w = -1 (ΛCDM Baseline) • DESI w₀w_a Under Study • w < -1 Big Rip Is Conditional Speculation",
+        value:
+          "w = -1 (ΛCDM Baseline) • DESI w₀w_a Under Study • w < -1 Big Rip Is Conditional Speculation",
         position: [0, 3.3, 0],
         priority: 1,
       },
