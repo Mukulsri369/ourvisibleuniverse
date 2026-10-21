@@ -35,7 +35,6 @@ import { UniversalObjectModal } from "./UniversalObjectModal";
 import { CameraBookmarksModal } from "./CameraBookmarksModal";
 import { KeyboardShortcutsModal } from "./KeyboardShortcutsModal";
 import { MajorDiscoveriesModal } from "./MajorDiscoveriesModal";
-import { PerformanceProfilerHUD } from "./PerformanceProfilerHUD";
 
 import { useStore } from "./store";
 
