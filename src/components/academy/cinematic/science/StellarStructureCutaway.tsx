@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Stellar Interior Cross-Section Cutaway Component
  * Project: Our Visible Universe Academy

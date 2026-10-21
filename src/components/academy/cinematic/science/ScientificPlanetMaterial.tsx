@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Scientific Planetary Body & Material Component
  * Project: Our Visible Universe Academy

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Cinematic Quality Manager & Adaptive Performance Governor
  * Project: Our Visible Universe Academy

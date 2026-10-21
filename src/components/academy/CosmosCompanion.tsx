@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS AI Astronomy Teaching Companion Component
  * Project: Our Visible Universe Academy

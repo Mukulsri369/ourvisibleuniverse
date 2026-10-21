@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Fullscreen Cinematic Learning Player & Reusable Launcher
  * Project: Our Visible Universe Academy

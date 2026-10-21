@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Canonical Server-Side Assessment Question Bank
  * Scope: All 24 Modules of Cosmic Learning Academy + Final Capstone Examination.

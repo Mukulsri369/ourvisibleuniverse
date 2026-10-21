@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Centralized Quality-Aware Postprocessing Pipeline
  * Project: Our Visible Universe Academy

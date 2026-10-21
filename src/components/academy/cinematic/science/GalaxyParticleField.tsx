@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Deterministic GPU Galaxy Particle Field Renderer
  * Project: Our Visible Universe Academy

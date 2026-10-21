@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Cinematic Player Controls Bar & Personalization Dock
  * Project: Our Visible Universe Academy

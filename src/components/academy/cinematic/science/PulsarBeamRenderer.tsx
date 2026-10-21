@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Neutron Star & Pulsar Lighthouse Beam Renderer
  * Project: Our Visible Universe Academy

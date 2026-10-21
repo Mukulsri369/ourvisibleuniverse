@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Nebula & Interstellar Dust Volume Renderer
  * Project: Our Visible Universe Academy

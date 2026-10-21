@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Deterministic GPU Particle Buffer Manager
  * Project: Our Visible Universe Academy

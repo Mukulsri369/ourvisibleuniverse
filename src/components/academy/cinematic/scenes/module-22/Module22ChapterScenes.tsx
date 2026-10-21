@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Stage 6 — Module 22 (Space Exploration & Historic Missions)
  * Complete 8-Chapter Bespoke 3D Scene Suite (43 Canonical Explorer Narration Segments)

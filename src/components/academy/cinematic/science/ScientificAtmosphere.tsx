@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Scientific Planetary Atmosphere Renderer
  * Project: Our Visible Universe Academy

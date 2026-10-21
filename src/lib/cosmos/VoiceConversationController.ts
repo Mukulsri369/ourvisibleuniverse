@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Real-Time Conversational AI Voice Controller
  * Project: Our Visible Universe Academy

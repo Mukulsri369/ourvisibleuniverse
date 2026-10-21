@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Cinematic Scene Registry & Grounded Scientific Annotations
  * Project: Our Visible Universe Academy

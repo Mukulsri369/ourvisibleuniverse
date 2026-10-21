@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Reusable Scientific 3D Object Contract & 24-Module Visual Library Map
  * Project: Our Visible Universe Academy

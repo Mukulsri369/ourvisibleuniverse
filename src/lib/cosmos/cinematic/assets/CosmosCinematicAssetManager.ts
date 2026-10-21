@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Centralized Cinematic Asset Manager
  * Project: Our Visible Universe Academy

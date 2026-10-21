@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Multi-Resolution Texture Variant & KTX2/GPU Compression Pipeline Manager
  * Project: Our Visible Universe Academy

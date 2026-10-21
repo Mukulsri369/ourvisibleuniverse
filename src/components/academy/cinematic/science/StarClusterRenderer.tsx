@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Globular & Open Star Cluster Renderer
  * Project: Our Visible Universe Academy

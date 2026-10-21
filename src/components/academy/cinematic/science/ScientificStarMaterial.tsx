@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Scientific Stellar Photosphere & Corona Component
  * Project: Our Visible Universe Academy

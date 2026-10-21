@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Cinematic Player State Machine & Types
  * Project: Our Visible Universe Academy

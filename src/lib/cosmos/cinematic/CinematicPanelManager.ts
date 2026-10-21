@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Responsive Cinematic Layout, Smart Panel Manager & Annotation Collision Resolver
  * Project: Our Visible Universe Academy

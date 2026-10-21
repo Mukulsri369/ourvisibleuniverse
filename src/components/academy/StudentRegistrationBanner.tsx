@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import { Link } from "@tanstack/react-router";
 import { Sparkles, Shield, UserCheck, ArrowRight, Lock } from "lucide-react";

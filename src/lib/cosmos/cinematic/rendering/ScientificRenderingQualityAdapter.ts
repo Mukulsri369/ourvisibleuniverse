@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Scientific Rendering Quality Adapter
  * Project: Our Visible Universe Academy

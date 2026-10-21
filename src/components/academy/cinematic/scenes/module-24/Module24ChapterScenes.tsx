@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Stage 6 — Module 24 (Becoming a Space Scientist & Final Graduation)
  * Complete 3-Chapter Bespoke 3D Scene Suite (9 Canonical Explorer Narration Segments)

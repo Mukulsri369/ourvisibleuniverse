@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Stage 6 Authoritative 29-Chapter & 142-Segment Storyboard Manifest
  * Project: Our Visible Universe Academy

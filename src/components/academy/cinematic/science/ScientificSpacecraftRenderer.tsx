@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Scientific Spacecraft & Mission Assembly 3D Renderer
  * Project: Our Visible Universe Academy

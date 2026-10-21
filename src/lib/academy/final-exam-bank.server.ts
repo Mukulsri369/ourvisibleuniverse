@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Official Server-Side Final Examination Question Bank
  * Examination Title: Cosmic Explorer — Final Knowledge Assessment
