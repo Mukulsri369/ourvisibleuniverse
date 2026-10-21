@@ -35,7 +35,6 @@ import { UniversalObjectModal } from "./UniversalObjectModal";
 import { CameraBookmarksModal } from "./CameraBookmarksModal";
 import { KeyboardShortcutsModal } from "./KeyboardShortcutsModal";
 import { MajorDiscoveriesModal } from "./MajorDiscoveriesModal";
-import { PerformanceProfilerHUD } from "./PerformanceProfilerHUD";
 
 import { useStore } from "./store";
 
@@ -94,8 +93,8 @@ export function StarsApp() {
         </Suspense>
       </Canvas>
 
-      {/* Real-Time Precision Graphics Performance Profiler HUD Overlay */}
-      <PerformanceProfilerHUD />
+      {/* Performance profiler HUD is not shown on screen */}
+
 
       {/* Hide toggle stays visible so users can bring the UI back */}
       <UIHideToggle />
