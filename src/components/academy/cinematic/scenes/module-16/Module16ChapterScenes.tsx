@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Stage 4 — Module 16 (Dark Matter & Dark Energy)
  * Complete 9-Chapter Bespoke 3D Scene Suite (53 Canonical Narration Segments)

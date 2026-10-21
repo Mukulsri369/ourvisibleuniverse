@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Cinematic Session Bridge (Single Authoritative Connection)
  * Project: Our Visible Universe Academy

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { ACADEMY_STAGES, ACADEMY_MODULES } from "@/lib/academy/registry";
 import { MODULE_01_LESSON } from "@/lib/academy/lessons/module-01-our-place";

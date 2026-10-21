@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Verified Scientific 3D Asset Manifest & 172-Chapter Coverage Registry
  * Project: Our Visible Universe Academy

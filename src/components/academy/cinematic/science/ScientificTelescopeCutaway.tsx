@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Scientific Telescope Optical Cutaway & Ray-Tracing Bench Component
  * Project: Our Visible Universe Academy

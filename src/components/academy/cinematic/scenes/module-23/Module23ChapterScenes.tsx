@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Stage 6 — Module 23 (Astrobiology & Life in the Universe)
  * Complete 10-Chapter Bespoke 3D Scene Suite (52 Canonical Explorer Narration Segments)

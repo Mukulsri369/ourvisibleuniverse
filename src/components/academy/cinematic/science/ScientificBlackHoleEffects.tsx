@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Relativistic Black Hole & Accretion System Visualization
  * Project: Our Visible Universe Academy

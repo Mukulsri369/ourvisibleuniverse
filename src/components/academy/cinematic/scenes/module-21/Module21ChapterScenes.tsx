@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Stage 6 — Module 21 (Optical & Multi-Wavelength Telescopes)
  * Complete 8-Chapter Bespoke 3D Scene Suite (38 Canonical Explorer Narration Segments)

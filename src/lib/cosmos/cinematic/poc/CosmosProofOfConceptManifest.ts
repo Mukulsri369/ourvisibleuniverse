@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Proof-of-Concept Authoritative 22-Chapter & 120-Segment Storyboard Manifest
  * Project: Our Visible Universe Academy

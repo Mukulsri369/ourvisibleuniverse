@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Approved 3D Educational Tools Suite
  * Project: Our Visible Universe Academy

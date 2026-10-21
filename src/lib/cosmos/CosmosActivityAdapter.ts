@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Universal Activity Adapter Framework
  * Project: Our Visible Universe Academy

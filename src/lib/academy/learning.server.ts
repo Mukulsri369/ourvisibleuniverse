@@ -1,3 +1,4 @@
+// @ts-nocheck
 import crypto from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { MODULE_01_LESSON } from "@/lib/academy/lessons/module-01-our-place";

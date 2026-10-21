@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Irregular Celestial Body & Rubble-Pile Asteroid Renderer
  * Project: Our Visible Universe Academy

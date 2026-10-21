@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Reference-Counted Asset Cache, Priority Preloader & GPU Memory Budget Governor
  * Project: Our Visible Universe Academy

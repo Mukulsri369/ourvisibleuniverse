@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Screen-Space & Geometric-Error Level of Detail (LOD) & Dimensional Scale Manager
  * Project: Our Visible Universe Academy

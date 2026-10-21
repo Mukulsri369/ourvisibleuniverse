@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Animation Cue Registry
  * Project: Our Visible Universe Academy

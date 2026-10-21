@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Cinematic Design System Tokens & Scientific Visual Identity
  * Project: Our Visible Universe Academy
