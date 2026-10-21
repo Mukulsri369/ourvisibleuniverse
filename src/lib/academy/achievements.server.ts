@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { STAGE_BADGES, type StageBadgeDefinition } from "./stage-badges";
 

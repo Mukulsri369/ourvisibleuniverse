@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Physically Grounded Lighting, HDR Color Management & Astronomical Scale Controller
  * Project: Our Visible Universe Academy

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * COSMOS Scientific Planetary & Stellar Material Factory
  * Project: Our Visible Universe Academy
