@@ -9,32 +9,34 @@ interface AccessibilityControlsProps {
 
 export function AccessibilityControls({ settings, onUpdateSettings }: AccessibilityControlsProps) {
   return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/60 p-3.5 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 text-xs text-slate-300">
-      <div className="flex items-center gap-2 text-cyan-400 font-semibold">
-        <Sliders className="size-3.5" />
-        <span>Accessibility & Learning Comfort</span>
+    <div className="flex flex-wrap items-center justify-between gap-4 border border-white/[0.08] bg-[#05060a] px-6 py-4">
+      <div className="flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.26em] text-white/60">
+        <Sliders className="size-3.5 text-[#f5d08a]" />
+        <span>OBSERVATORY TELEMETRY & ACCESSIBILITY</span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.18em]">
         {/* Font size toggle */}
-        <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg p-0.5">
-          <Type className="size-3 ml-1.5 text-slate-400" />
+        <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-[#090d16] p-0.5">
+          <Type className="ml-2 size-3 text-white/40" />
           <button
+            type="button"
             onClick={() => onUpdateSettings((s) => ({ ...s, fontSize: "normal" }))}
-            className={`px-2 py-0.5 rounded text-[11px] font-medium transition-colors ${
+            className={`rounded-full px-2.5 py-1 transition-colors ${
               settings.fontSize === "normal"
-                ? "bg-cyan-500/20 text-cyan-300"
-                : "text-slate-400 hover:text-white"
+                ? "bg-[#f5d08a] font-semibold text-[#05060a]"
+                : "text-white/50 hover:text-white"
             }`}
           >
             A
           </button>
           <button
+            type="button"
             onClick={() => onUpdateSettings((s) => ({ ...s, fontSize: "large" }))}
-            className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
+            className={`rounded-full px-2.5 py-1 transition-colors ${
               settings.fontSize === "large"
-                ? "bg-cyan-500/20 text-cyan-300"
-                : "text-slate-400 hover:text-white"
+                ? "bg-[#f5d08a] font-semibold text-[#05060a]"
+                : "text-white/50 hover:text-white"
             }`}
           >
             A+
@@ -43,13 +45,13 @@ export function AccessibilityControls({ settings, onUpdateSettings }: Accessibil
 
         {/* Reduced motion toggle */}
         <button
+          type="button"
           onClick={() => onUpdateSettings((s) => ({ ...s, reducedMotion: !s.reducedMotion }))}
-          className={`px-2.5 py-1 rounded-lg border text-[11px] transition-colors flex items-center gap-1.5 ${
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 transition-colors ${
             settings.reducedMotion
-              ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
-              : "border-white/10 text-slate-400 hover:text-white hover:bg-white/5"
+              ? "border-[#f5d08a]/50 bg-[#f5d08a]/15 text-[#f5d08a]"
+              : "border-white/10 text-white/55 hover:border-white/30 hover:text-white"
           }`}
-          title="Toggle smooth animation motion"
         >
           <Sparkles className="size-3" />
           <span>{settings.reducedMotion ? "Motion: Paused" : "Motion: Fluid"}</span>
@@ -57,27 +59,27 @@ export function AccessibilityControls({ settings, onUpdateSettings }: Accessibil
 
         {/* High contrast toggle */}
         <button
+          type="button"
           onClick={() => onUpdateSettings((s) => ({ ...s, highContrast: !s.highContrast }))}
-          className={`px-2.5 py-1 rounded-lg border text-[11px] transition-colors flex items-center gap-1.5 ${
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 transition-colors ${
             settings.highContrast
-              ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300"
-              : "border-white/10 text-slate-400 hover:text-white hover:bg-white/5"
+              ? "border-[#38bdf8]/50 bg-[#38bdf8]/15 text-[#38bdf8]"
+              : "border-white/10 text-white/55 hover:border-white/30 hover:text-white"
           }`}
-          title="Toggle high contrast reading mode"
         >
           <Eye className="size-3" />
-          <span>{settings.highContrast ? "High Contrast: On" : "High Contrast"}</span>
+          <span>{settings.highContrast ? "Contrast: High" : "Contrast"}</span>
         </button>
 
         {/* Ambient Sound Effects */}
         <button
+          type="button"
           onClick={() => onUpdateSettings((s) => ({ ...s, soundEffects: !s.soundEffects }))}
-          className={`px-2.5 py-1 rounded-lg border text-[11px] transition-colors flex items-center gap-1.5 ${
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 transition-colors ${
             settings.soundEffects
-              ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300"
-              : "border-white/10 text-slate-400 hover:text-white hover:bg-white/5"
+              ? "border-[#f5d08a]/50 bg-[#f5d08a]/15 text-[#f5d08a]"
+              : "border-white/10 text-white/55 hover:border-white/30 hover:text-white"
           }`}
-          title="Toggle cosmic sound effects"
         >
           {settings.soundEffects ? <Volume2 className="size-3" /> : <VolumeX className="size-3" />}
           <span>{settings.soundEffects ? "Audio: On" : "Audio: Mute"}</span>

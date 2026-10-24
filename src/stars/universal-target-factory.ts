@@ -90,26 +90,28 @@ export function createTargetFromPlanet(
 }
 
 export function createTargetFromStar(star: NamedStar): UniversalTarget {
-  const gaiaStar = (star as any).gaiaSourceId ? (star as any) : null;
   const exoplanets = REAL_SYSTEMS[star.name] || [];
+  const dist = star.distance ?? 0;
+  const temp = star.temperature ?? 5778;
 
   return {
     id: `star_${star.name}`,
     name: star.name,
     type: "star",
-    subtitle: `${star.spectral} Spectral Class · ${star.constellation || "Milky Way"}`,
-    category: `Stellar System (${star.spectral})`,
-    distanceLy: star.distance,
-    apparentMagnitude: (star as any).apparentMagnitude ?? 1.5,
-    absoluteMagnitude: (star as any).absoluteMagnitude ?? 4.0,
-    radiusSolar: star.radius,
-    temperatureK: star.temperature,
-    spectralType: star.spectral,
-    constellation: star.constellation,
-    ra: star.ra,
-    dec: star.dec,
-    galacticL: star.galacticL,
-    galacticB: star.galacticB,
+    subtitle: `${star.spectral || "G2V"} Spectral Class · ${star.constellation || "Milky Way"}`,
+    category: `Stellar System (${star.spectral || "G2V"})`,
+    distanceLy: dist,
+    apparentMagnitude: star.magnitude ?? (star as any).apparentMagnitude ?? 1.5,
+    absoluteMagnitude: star.absMagnitude ?? (star as any).absoluteMagnitude ?? 4.0,
+    radiusSolar: star.radius ?? 1,
+    massSolar: star.mass ?? 1,
+    temperatureK: temp,
+    spectralType: star.spectral || "G2V",
+    constellation: star.constellation || "Milky Way",
+    ra: star.ra || "00h 00m",
+    dec: star.dec || "+00° 00'",
+    galacticL: star.galacticL ?? 0,
+    galacticB: star.galacticB ?? 0,
     parentName: "Milky Way",
     parentType: "galaxy",
     children: [
@@ -123,13 +125,13 @@ export function createTargetFromStar(star: NamedStar): UniversalTarget {
         id: `exo_${e.name}`,
         name: e.name,
         type: "exoplanet" as const,
-        distance: `a = ${e.aAU.toFixed(3)} AU`,
+        distance: `a = ${(e.aAU ?? 1).toFixed(3)} AU`,
       })),
     ],
     description: {
-      explorer: `${star.name} is a shining star located ${star.distance.toFixed(1)} light-years away from Earth. Its surface temperature is ${star.temperature.toLocaleString()} degrees Kelvin.`,
-      standard: `${star.name} is a ${star.spectral}-type star in the constellation ${star.constellation || "Milky Way"} with a luminosity of ${star.luminosity} times that of our Sun and a radius of ${star.radius} solar radii.`,
-      advanced: `Main-sequence/evolved stellar object with effective temperature Teff = ${star.temperature} K, Planckian color coordinates, and astrometry confirmed by ESA Gaia DR3 parallax of ${(1000 / (star.distance / 3.26156)).toFixed(2)} mas.`,
+      explorer: `${star.name} is a shining star located ${dist.toFixed(1)} light-years away from Earth. Its surface temperature is ${temp.toLocaleString()} degrees Kelvin.`,
+      standard: `${star.name} is a ${star.spectral || "G2V"}-type star in the constellation ${star.constellation || "Milky Way"} with a luminosity of ${star.luminosity ?? 1} times that of our Sun and a radius of ${star.radius ?? 1} solar radii.`,
+      advanced: `Main-sequence/evolved stellar object with effective temperature Teff = ${temp} K, Planckian color coordinates, and astrometry confirmed by ESA Gaia DR3 parallax of ${dist > 0 ? (1000 / (dist / 3.26156)).toFixed(2) : "—"} mas.`,
     },
     formationAndEvolution: `Formed within a molecular gas cloud collapse in the galactic thin disk through gravitational fragmentation and Jeans instability, producing thermonuclear hydrogen fusion in its stellar core.`,
     telescopeObservations: `Astrometrically cataloged by ESA Gaia DR3, Hipparcos, and monitored across optical, infrared, and ultraviolet wavelengths by ground-based and orbital observatories.`,
@@ -144,22 +146,27 @@ export function createTargetFromStar(star: NamedStar): UniversalTarget {
 }
 
 export function createTargetFromGalaxy(galaxy: ObservationalGalaxy): UniversalTarget {
+  const dist = galaxy.distance ?? 0;
+  const size = galaxy.size ?? 50000;
+  const z = galaxy.redshift ?? 0;
   return {
     id: `galaxy_${galaxy.name}`,
     name: galaxy.name,
     type: "galaxy",
     subtitle: `${galaxy.morphologyClass || galaxy.type} · ${galaxy.hostGroup || "Local Group"}`,
     category: `Galaxy (${galaxy.morphologyClass || galaxy.type})`,
-    distanceLy: galaxy.distance,
-    radiusKm: (galaxy.size * 9.461e12) / 2,
-    redshift: galaxy.redshift,
+    distanceLy: dist,
+    radiusKm: (size * 9.461e12) / 2,
+    redshift: z,
+    galacticL: galaxy.l,
+    galacticB: galaxy.b,
     morphology: galaxy.morphologyClass || galaxy.type,
     parentName: galaxy.hostGroup || "Universe",
     parentType: "cluster",
     description: {
-      explorer: `${galaxy.name} is a gigantic island of hundreds of billions of stars, gas, and dust traveling through the universe ${formatDistance(galaxy.distance)} from us.`,
-      standard: `${galaxy.name} is an extragalactic ${galaxy.morphologyClass || galaxy.type} system spanning roughly ${formatDistance(galaxy.size)} across, cataloged by the NASA/IPAC Extragalactic Database.`,
-      advanced: `Extragalactic system at cosmological redshift z = ${galaxy.redshift.toFixed(5)} with angular diameter and inclination angles derived from NED isophotal surface photometry.`,
+      explorer: `${galaxy.name} is a gigantic island of hundreds of billions of stars, gas, and dust traveling through the universe ${formatDistance(dist)} from us.`,
+      standard: `${galaxy.name} is an extragalactic ${galaxy.morphologyClass || galaxy.type} system spanning roughly ${formatDistance(size)} across, cataloged by the NASA/IPAC Extragalactic Database.`,
+      advanced: `Extragalactic system at cosmological redshift z = ${z.toFixed(5)} with angular diameter and inclination angles derived from NED isophotal surface photometry.`,
     },
     formationAndEvolution: `Assembled hierarchically through cold dark matter halo mergers, gas cooling, and primordial accretion shocks since the cosmic dawn epoch (z > 6).`,
     telescopeObservations: `Observed by NASA Hubble Space Telescope, James Webb Space Telescope (JWST), Spitzer, and ground-based multi-wavelength survey arrays.`,
@@ -175,14 +182,20 @@ export function createTargetFromGalaxy(galaxy: ObservationalGalaxy): UniversalTa
 }
 
 export function createTargetFromObservedObject(obj: ObservedObject): UniversalTarget {
+  const catLower = (obj.category || "").toLowerCase();
   const type: any =
-    obj.category === "Black Hole"
+    catLower.includes("black hole") || catLower.includes("gravitational")
       ? "black_hole"
-      : obj.category === "Nebula"
+      : catLower.includes("nebula") || catLower.includes("remnant")
         ? "nebula"
-        : obj.category === "Quasar"
+        : catLower.includes("quasar")
           ? "quasar"
-          : "pulsar";
+          : catLower.includes("cluster")
+            ? "cluster"
+            : "pulsar";
+
+  const sizeLy = obj.diameterLy ?? (obj as any).size ?? 1;
+  const distLy = obj.distance ?? 0;
 
   return {
     id: `observed_${obj.id}`,
@@ -190,21 +203,27 @@ export function createTargetFromObservedObject(obj: ObservedObject): UniversalTa
     type,
     subtitle: `${obj.category} · ${obj.subtype}`,
     category: `${obj.category} (${obj.subtype})`,
-    distanceLy: obj.distance,
-    parentName: "Milky Way",
+    distanceLy: distLy,
+    radiusKm: (sizeLy * 9.4607e12) / 2,
+    massSolar: obj.compactPhysics?.massSolar,
+    galacticL: obj.l,
+    galacticB: obj.b,
+    parentName: distLy > 200000 ? "Extragalactic Space" : "Milky Way",
     parentType: "galaxy",
     description: {
-      explorer: `${obj.name} is an extraordinary deep-space landmark located ${formatDistance(obj.distance)} away. ${obj.description}`,
-      standard: `${obj.name} (${obj.aliases.join(", ")}) is a ${obj.subtype.toLowerCase()} in the ${obj.category.toLowerCase()} category spanning ${formatDistance(obj.size)} across.`,
-      advanced: `Astrophysical high-energy compact or volumetric structure with emission profiles characterized by multi-wavelength space observatory datasets.`,
+      explorer: `${obj.name} is an extraordinary deep-space landmark located ${formatDistance(distLy)} away. ${obj.description}`,
+      standard: `${obj.name}${obj.aliases?.length ? ` (${obj.aliases.join(", ")})` : ""} is a ${obj.subtype.toLowerCase()} in the ${obj.category.toLowerCase()} category spanning ${formatDistance(sizeLy)} across.`,
+      advanced: `Astrophysical high-energy compact or volumetric structure with emission profiles characterized by multi-wavelength space observatory datasets (${obj.observed}).`,
     },
     formationAndEvolution: `Formed through core-collapse supernova explosion, stellar death mass ejection, or supermassive black hole accretion in galactic nucleosynthesis.`,
-    telescopeObservations: `Observed extensively across radio, optical, X-ray, and gamma-ray spectra by Chandra, Hubble, JWST, VLA, and Event Horizon Telescope.`,
+    telescopeObservations: `Observed extensively across ${obj.observed || "multi-wavelength spectra"} (${obj.source || "NASA / ESA"}).`,
     isSimulatedOrModelled: true,
-    modelledDetailsNote: `Volumetric ray-marched shaders simulate gas emission lines (H-alpha, [O III]), dust extinction, and synchrotron relativistic geometries.`,
+    modelledDetailsNote:
+      obj.visualNote ||
+      `Volumetric ray-marched shaders simulate gas emission lines (H-alpha, [O III]), dust extinction, and synchrotron relativistic geometries.`,
     citations: [
-      "NASA Astrophysics Data System (ADS)",
-      "Chandra X-Ray Observatory Science Archive",
+      obj.compactPhysics?.publishedCitation || obj.source || "NASA Astrophysics Data System (ADS)",
+      "Chandra X-Ray Observatory & Hubble Space Telescope Archive",
       "Messier / New General Catalogue (NGC) Database",
     ],
     rawEntity: obj,
@@ -212,9 +231,59 @@ export function createTargetFromObservedObject(obj: ObservedObject): UniversalTa
 }
 
 function formatDistance(ly: number): string {
-  if (ly < 0.0001) return `${(ly * 63241).toFixed(2)} AU`;
+  if (typeof ly !== "number" || !Number.isFinite(ly)) return "Unknown";
+  if (ly < 1e-8) return `${Math.max(1, Math.round(ly * 9.4607e12)).toLocaleString()} km`;
+  if (ly < 0.01) return `${(ly * 63241).toFixed(2)} AU`;
   if (ly >= 1e9) return `${(ly / 1e9).toFixed(2)} billion light-years`;
   if (ly >= 1e6) return `${(ly / 1e6).toFixed(2)} million light-years`;
   if (ly >= 1e3) return `${(ly / 1e3).toFixed(1)}k light-years`;
   return `${ly.toFixed(1)} light-years`;
 }
+
+export function createTargetFromExoplanet(star: NamedStar, planet: any): UniversalTarget {
+  const rEarth = planet.radiusEarth ?? 1;
+  const mEarth = planet.massEarth ?? 1;
+  const aAU = planet.aAU ?? 1;
+  const pYears = planet.periodYears ?? 0.1;
+  const teqK = planet.teqK ?? 288;
+  const ecc = planet.e ?? 0;
+  const dist = star.distance ?? 0;
+  const radiusKm = rEarth * 6371;
+  const periodDays = pYears * 365.25;
+  return {
+    id: `exo_${planet.name}`,
+    name: planet.name,
+    type: "exoplanet",
+    subtitle: `${planet.kind || "Exoplanet"} · Host: ${star.name} (${star.spectral || "G2V"})`,
+    category: `${planet.observed ? "Confirmed" : "Modelled"} ${planet.kind || "Exoplanet"}`,
+    distanceLy: dist,
+    radiusKm,
+    radiusEarth: rEarth,
+    massEarth: mEarth,
+    temperatureK: teqK,
+    ra: star.ra,
+    dec: star.dec,
+    galacticL: star.galacticL,
+    galacticB: star.galacticB,
+    parentName: star.name,
+    parentType: "star",
+    description: {
+      explorer: `${planet.name} is a ${planet.kind?.toLowerCase() || "planet"} orbiting the star ${star.name}, located ${dist.toFixed(1)} light-years from Earth.`,
+      standard: `${planet.name} orbits ${star.name} (${star.spectral || "G2V"}) at a semi-major axis of ${aAU.toFixed(4)} AU with an orbital period of ${periodDays < 365 ? `${periodDays.toFixed(2)} days` : `${pYears.toFixed(2)} years`} and an equilibrium temperature of ${Math.round(teqK)} K (ESI ${planet.esi?.toFixed(2) ?? "—"}).`,
+      advanced: `${planet.observed ? "Confirmed NASA Exoplanet Archive" : "Keplerian synthetic"} planetary body with radius R = ${rEarth.toFixed(2)} R⊕, mass M = ${mEarth.toFixed(2)} M⊕, eccentricity e = ${ecc.toFixed(3)}, and ${planet.tidallyLocked ? "synchronous 1:1 spin-orbit tidal lock" : "free prograde rotation"}.`,
+    },
+    formationAndEvolution: `Accreted within the circumstellar protoplanetary disk of ${star.name} (${star.spectral || "G2V"}, T_eff = ${star.temperature ?? 5778} K) via core accretion and pebble drift${aAU < 0.1 ? ", followed by inward Type I/II disk migration into a close-in orbit" : ""}.`,
+    telescopeObservations: planet.observed
+      ? `Confirmed in the NASA Exoplanet Archive via precision radial-velocity spectroscopy, transit photometry (Kepler / TESS / JWST), direct coronagraphic imaging, or pulsar timing astrometry.`
+      : `Modelled planetary companion synthesized from Kepler's Third Law and empirical mass-radius relations (Chen & Kipping 2017) around ${star.name}.`,
+    isSimulatedOrModelled: !planet.observed,
+    modelledDetailsNote: `Surface terrain, cloud decks, and Rayleigh/Mie atmospheric limb scattering are procedurally synthesized from equilibrium temperature (${Math.round(teqK)} K), stellar insolation, and bulk density.`,
+    citations: [
+      "NASA Exoplanet Science Institute (NExScI) Confirmed Planets Archive",
+      "Chen & Kipping (2017) ApJ 834, 17 — Probabilistic Mass-Radius Forecasting",
+      "Kopparapu et al. (2013) ApJ 765, 131 — Habitable Zones Around Main-Sequence Stars",
+    ],
+    rawEntity: { star, planet },
+  };
+}
+

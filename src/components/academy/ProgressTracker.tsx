@@ -5,22 +5,12 @@ import { LEARNING_LEVELS, ACADEMY_STAGES, ACADEMY_MODULES } from "@/lib/academy/
 import { STAGE_BADGES } from "@/lib/academy/stage-badges";
 import { CosmicBadgeGraphic } from "./CosmicBadgeGraphics";
 import {
-  Award,
+  ArrowUpRight,
   Download,
   RotateCcw,
-  CheckCircle2,
-  BookOpen,
-  Sparkles,
-  Bookmark,
   ShieldCheck,
   User,
-  GraduationCap,
-  ArrowRight,
-  Lock,
-  Compass,
-  Trophy,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface ProgressTrackerProps {
   progress: UserProgress;
@@ -46,13 +36,11 @@ export function ProgressTracker({
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   const currentLevelInfo = LEARNING_LEVELS[progress.selectedLevel];
 
-  // 1. Authoritative Verified Completions
   const verifiedList = progress.verifiedModules || [];
   const verifiedSet = new Set(verifiedList);
   const totalVerified = verifiedList.length;
   const completionPercentage = Math.round((totalVerified / 24) * 100);
 
-  // 2. Stage Badges Calculation
   const stageBadgesMap = progress.stageBadges || {};
   const unlockedBadges = Object.values(STAGE_BADGES).filter((b) => {
     if (stageBadgesMap[b.stageId]) return true;
@@ -62,10 +50,7 @@ export function ProgressTracker({
     return count === 4;
   });
   const earnedBadgeCount = unlockedBadges.length;
-  const lockedBadgeCount = 6 - earnedBadgeCount;
 
-  // 3. Current Learning Stage Identification
-  // Current stage is determined by the lowest stage that has incomplete modules, or Stage 6 if all complete
   let currentStageId = 1;
   for (let s = 1; s <= 6; s++) {
     const stageBadge = STAGE_BADGES[s];
@@ -82,7 +67,6 @@ export function ProgressTracker({
   const currentStage = ACADEMY_STAGES.find((s) => s.id === currentStageId) || ACADEMY_STAGES[0];
   const currentBadgeDef = STAGE_BADGES[currentStageId];
 
-  // 4. Requirements for Next Achievement
   const nextStageBadge =
     Object.values(STAGE_BADGES).find((b) => {
       const isDone = b.requiredModuleIds.every((id) => verifiedSet.has(id));
@@ -99,257 +83,203 @@ export function ProgressTracker({
     : null;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 sm:p-6 backdrop-blur-xl relative overflow-hidden flex flex-col justify-between">
-      {/* Background Accent */}
-      <div className="absolute top-0 left-0 size-48 bg-cyan-500/5 blur-3xl pointer-events-none" />
-
-      {/* Top Header & Identity */}
+    <div className="flex flex-col justify-between border border-white/[0.08] bg-[#05060a] p-7 sm:p-9">
       <div>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="size-11 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-              <GraduationCap className="size-5" />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-extrabold text-white">
-                  {profile ? profile.display_name : "Cosmic Progress Profile"}
-                </h3>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-mono">
-                  {currentLevelInfo?.name}
+        {/* Header */}
+        <div className="flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-6 sm:flex-row sm:items-start">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#f5d08a]">
+              OBSERVATORY DOSSIER · {currentLevelInfo?.name}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2.5">
+              <h3
+                className="text-xl font-medium uppercase tracking-tight text-white sm:text-2xl"
+                style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+              >
+                {profile ? profile.display_name : "Scholar Telemetry"}
+              </h3>
+              {isLoggedIn && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-300">
+                  <ShieldCheck className="size-3" />
+                  Verified
                 </span>
-                {isLoggedIn && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono flex items-center gap-1">
-                    <ShieldCheck className="size-3" />
-                    Verified Student
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {isLoggedIn && profile ? (
-                  <span>
-                    Public ID:{" "}
-                    <span className="font-mono text-cyan-300 font-bold">
-                      {profile.student_public_id}
-                    </span>{" "}
-                    • Cloud Synchronized
-                  </span>
-                ) : (
-                  <span>Local Guest Session • Progress preserved in browser</span>
-                )}
-              </p>
+              )}
             </div>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">
+              {isLoggedIn && profile
+                ? `ID: ${profile.student_public_id} · CLOUD SYNC`
+                : "LOCAL GUEST SESSION"}
+            </p>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <div className="flex flex-wrap items-center gap-2">
             {onOpenProfile && (
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                type="button"
                 onClick={onOpenProfile}
-                className="text-xs border-cyan-500/30 text-cyan-300 hover:text-white hover:bg-cyan-500/10"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/80 transition-colors hover:border-[#f5d08a] hover:text-[#f5d08a]"
               >
-                <User className="size-3.5 mr-1 text-cyan-400" />
-                <span>{isLoggedIn ? "My Profile" : "Guest ID"}</span>
-              </Button>
+                <User className="size-3" />
+                <span>{isLoggedIn ? "Profile" : "Guest ID"}</span>
+              </button>
             )}
-            <Button
-              variant="outline"
-              size="sm"
+            <button
+              type="button"
               onClick={onExport}
-              className="text-xs border-white/10 text-slate-300 hover:text-white hover:bg-white/5"
-              title="Download your progress as JSON"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/70 transition-colors hover:border-white/40 hover:text-white"
+              title="Export progress JSON"
             >
-              <Download className="size-3.5 mr-1 text-cyan-400" />
-              <span className="hidden sm:inline">Export</span>
-            </Button>
-
+              <Download className="size-3" />
+              <span>Export</span>
+            </button>
             {showConfirmReset ? (
-              <div className="flex items-center gap-1.5">
-                <Button
-                  variant="destructive"
-                  size="sm"
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
                   onClick={() => {
                     onReset();
                     setShowConfirmReset(false);
                   }}
-                  className="text-xs px-2.5 py-1"
+                  className="rounded-full bg-rose-500 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white"
                 >
-                  Confirm Reset
-                </Button>
+                  Confirm
+                </button>
                 <button
+                  type="button"
                   onClick={() => setShowConfirmReset(false)}
-                  className="text-xs text-slate-400 hover:text-white px-2"
+                  className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50 hover:text-white"
                 >
                   Cancel
                 </button>
               </div>
             ) : (
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => setShowConfirmReset(true)}
-                className="text-xs text-slate-400 hover:text-rose-400"
-                title="Reset progress to default"
+                className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-white/40 transition-colors hover:border-rose-500/40 hover:text-rose-400"
+                title="Reset progress"
               >
-                <RotateCcw className="size-3.5 mr-1" />
-                <span className="hidden sm:inline">Reset</span>
-              </Button>
+                <RotateCcw className="size-3" />
+              </button>
             )}
           </div>
         </div>
 
-        {/* Current Learning Stage & Overall Completion */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Current Stage Card */}
-          <div className="rounded-xl border border-white/10 bg-slate-950/50 p-3.5">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 block mb-0.5">
-              Current Learning Stage
+        {/* 1px Hairline Telemetry Strip */}
+        <div className="mt-6 grid grid-cols-3 gap-[1px] border border-white/[0.08] bg-white/[0.08]">
+          <div className="bg-[#05060a] p-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/40">
+              CERTIFIED
             </span>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-bold text-white">
-                  Stage {currentStageId}: {currentStage.title}
-                </h4>
-                <p className="text-xs text-slate-400 mt-0.5">{currentBadgeDef.theme}</p>
-              </div>
-              <div className="size-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                <CosmicBadgeGraphic
-                  stageId={currentStageId}
-                  isUnlocked={totalVerified >= currentStageId * 4}
-                  reducedMotion={reducedMotion}
-                  size={32}
-                />
-              </div>
+            <p
+              className="mt-1 text-2xl font-normal text-white"
+              style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+            >
+              {totalVerified} <span className="font-mono text-xs text-white/40">/ 24</span>
+            </p>
+          </div>
+          <div className="bg-[#05060a] p-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/40">
+              BADGES
+            </span>
+            <p
+              className="mt-1 text-2xl font-normal text-[#f5d08a]"
+              style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+            >
+              0{earnedBadgeCount} <span className="font-mono text-xs text-white/40">/ 06</span>
+            </p>
+          </div>
+          <div className="bg-[#05060a] p-4">
+            <span className="font-mono text-[9px] uppercase tracking-[0.22em] text-white/40">
+              BOOKMARKS
+            </span>
+            <p
+              className="mt-1 text-2xl font-normal text-[#38bdf8]"
+              style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+            >
+              {progress.bookmarks.length}
+            </p>
+          </div>
+        </div>
+
+        {/* Active Stage & Overall Progress Bar */}
+        <div className="mt-6 border border-white/[0.08] bg-[#070a12] p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#38bdf8]">
+                ACTIVE SECTOR · STAGE 0{currentStageId}
+              </span>
+              <h4
+                className="mt-1 text-lg font-medium uppercase text-white"
+                style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+              >
+                {currentStage.title}
+              </h4>
+              <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">
+                {currentBadgeDef.theme}
+              </p>
+            </div>
+            <div className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-[#05060a]">
+              <CosmicBadgeGraphic
+                stageId={currentStageId}
+                isUnlocked={totalVerified >= currentStageId * 4}
+                reducedMotion={reducedMotion}
+                size={32}
+              />
             </div>
           </div>
 
-          {/* Module Completion Summary */}
-          <div className="rounded-xl border border-white/10 bg-slate-950/50 p-3.5">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
-                Verified Curriculum Progress
-              </span>
-              <span className="text-xs font-mono font-bold text-cyan-400">
-                {completionPercentage}%
-              </span>
+          <div className="mt-4">
+            <div className="mb-1.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em]">
+              <span className="text-white/45">CURRICULUM COMPLETION</span>
+              <span className="text-[#f5d08a]">{completionPercentage}%</span>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-extrabold text-white">{totalVerified}</span>
-              <span className="text-xs text-slate-400">of 24 modules certified</span>
-            </div>
-            <div className="mt-2 h-2 w-full bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-[2px] w-full overflow-hidden bg-white/10">
               <div
-                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                className="h-full bg-[#f5d08a] transition-all duration-500"
                 style={{ width: `${completionPercentage}%` }}
               />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Badges Overview Grid */}
-        <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-slate-400 text-xs mb-1">
-              <Trophy className="size-3 text-amber-400" />
-              <span>Earned Badges</span>
-            </div>
-            <div className="text-lg font-extrabold text-white">{earnedBadgeCount} / 6</div>
-          </div>
-
-          <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-slate-400 text-xs mb-1">
-              <Lock className="size-3 text-slate-400" />
-              <span>Locked Badges</span>
-            </div>
-            <div className="text-lg font-extrabold text-slate-300">{lockedBadgeCount}</div>
-          </div>
-
-          <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-slate-400 text-xs mb-1">
-              <BookOpen className="size-3 text-cyan-400" />
-              <span>Completed Modules</span>
-            </div>
-            <div className="text-lg font-extrabold text-cyan-300">{totalVerified} / 24</div>
-          </div>
-
-          <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-slate-400 text-xs mb-1">
-              <Bookmark className="size-3 text-purple-400" />
-              <span>Saved Lessons</span>
-            </div>
-            <div className="text-lg font-extrabold text-purple-300">
-              {progress.bookmarks.length}
-            </div>
-          </div>
+      {/* Next Milestone CTA */}
+      <div className="mt-6 flex flex-col justify-between gap-4 border-t border-white/[0.08] pt-5 sm:flex-row sm:items-center">
+        <div>
+          <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-white/45">
+            {nextStageBadge
+              ? `NEXT MILESTONE · ${nextStageBadge.title}`
+              : "CAPSTONE READY · ALL 24 MODULES COMPLETE"}
+          </span>
+          <p className="mt-1 font-mono text-xs text-white/75">
+            {nextStageBadge
+              ? `Remaining modules: ${nextStageMissingModules.map((id) => `#${id}`).join(", ")}`
+              : "Eligible for official Cosmic Explorer Certification"}
+          </p>
         </div>
 
-        {/* Requirements for Next Achievement Card */}
-        {nextStageBadge && (
-          <div className="mt-3.5 rounded-xl border border-cyan-500/20 bg-gradient-to-r from-cyan-950/30 to-blue-950/20 p-3.5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                  <Compass className="size-3" />
-                  Next Milestone Target: {nextStageBadge.title} (Stage 0{nextStageBadge.stageId})
-                </span>
-                <p className="text-xs text-slate-300 mt-1">
-                  Complete all 4 stage modules to earn this badge. Remaining:{" "}
-                  <span className="font-mono text-cyan-300 font-bold">
-                    {nextStageMissingModules.map((id) => `#${id}`).join(", ")}
-                  </span>
-                </p>
-              </div>
-
-              {nextModuleObj && onSelectModule && (
-                <Button
-                  size="sm"
-                  onClick={() => onSelectModule(nextModuleObj.id)}
-                  className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold flex-shrink-0"
-                >
-                  <span>Continue #{nextModuleObj.id}</span>
-                  <ArrowRight className="size-3 ml-1" />
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Final Cosmic Explorer Continuum & Certificates Section */}
-        <div className="mt-3.5 rounded-xl border border-white/10 bg-slate-950/40 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="size-9 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 flex-shrink-0">
-              <Award className="size-4" />
-            </div>
-            <div>
-              <h5 className="text-xs font-bold text-white uppercase tracking-wider">
-                Official Digital Certification
-              </h5>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                {totalVerified >= 24
-                  ? "✓ All 24 modules certified! Eligible for the Capstone Final Examination."
-                  : `Complete all 24 modules across 6 stages to unlock the Capstone Exam & Certificate (${24 - totalVerified} modules remaining).`}
-              </p>
-            </div>
-          </div>
-
-          <div className="self-end sm:self-auto flex-shrink-0">
-            {totalVerified >= 24 && onSelectModule ? (
-              <Button
-                size="sm"
-                onClick={() => onSelectModule("exam")}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-xs"
-              >
-                Launch Final Exam
-              </Button>
-            ) : (
-              <span className="text-[10px] font-mono text-slate-400 px-2.5 py-1 rounded-full border border-white/10 bg-white/5">
-                Locked: {totalVerified}/24
-              </span>
-            )}
-          </div>
-        </div>
+        {nextModuleObj && onSelectModule ? (
+          <button
+            type="button"
+            onClick={() => onSelectModule(nextModuleObj.id)}
+            className="group inline-flex h-10 shrink-0 items-center gap-2.5 self-start rounded-full bg-[#f5d08a] pl-5 pr-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#05060a] transition-all hover:bg-white sm:self-auto"
+          >
+            <span>Continue #{nextModuleObj.id}</span>
+            <span className="flex size-7 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a]">
+              <ArrowUpRight className="size-3.5" />
+            </span>
+          </button>
+        ) : totalVerified >= 24 && onSelectModule ? (
+          <button
+            type="button"
+            onClick={() => onSelectModule("exam")}
+            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-[#f5d08a] px-5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#05060a]"
+          >
+            <span>Launch Final Exam</span>
+            <ArrowUpRight className="size-3.5" />
+          </button>
+        ) : null}
       </div>
     </div>
   );

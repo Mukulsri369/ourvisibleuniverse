@@ -2,6 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "./store";
+import { NAMED_STARS } from "./data";
+import { ANDROMEDA_NAME, M31_CENTER } from "./andromeda-data";
 import {
   ChevronLeft,
   ChevronRight,
@@ -95,27 +97,7 @@ export function CosmicJourneyNavigator() {
       keyTarget: "Sun",
       category: "solar_system",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
-        useStore.getState().flyToStar({
-          name: "Sun",
-          x: 0,
-          y: 0,
-          z: 0,
-          radius: 1,
-          temperature: 5778,
-          luminosity: 1,
-          ra: "00h 00m",
-          dec: "+00° 00'",
-          galacticL: 0,
-          galacticB: 0,
-          distance: 0,
-          spectral: "G2V",
-          planets: 8,
-          description: "Center of the Solar System.",
-        });
+        useStore.getState().flyToStar(NAMED_STARS[0]);
       },
     },
     {
@@ -132,12 +114,14 @@ export function CosmicJourneyNavigator() {
       keyTarget: "Local Bubble",
       category: "stars",
       action: () => {
-        setVisitPlanet(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
-          flyTo: { x: 0, y: 0, z: 0, distance: 48 },
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
           selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
+          flyTo: { x: 0, y: 0, z: 0, distance: 48 },
         });
       },
     },
@@ -155,9 +139,6 @@ export function CosmicJourneyNavigator() {
       keyTarget: "Sagittarius A*",
       category: "galaxy",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setSelectedObject(null);
         setVisitGalaxy({
           name: "Milky Way",
           x: -26000,
@@ -184,17 +165,14 @@ export function CosmicJourneyNavigator() {
       keyTarget: "M31 Andromeda",
       category: "extragalactic",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setSelectedObject(null);
         setVisitGalaxy({
-          name: "Andromeda",
-          x: -2537000,
-          y: 0,
-          z: 0,
+          name: ANDROMEDA_NAME,
+          x: M31_CENTER.x,
+          y: M31_CENTER.y,
+          z: M31_CENTER.z,
           size: 220000,
           distance: 2537000,
-          type: "Spiral (SA(s)b)",
+          type: "Barred Spiral (SA(s)b)",
           view: "overview",
         });
       },
@@ -213,11 +191,13 @@ export function CosmicJourneyNavigator() {
       keyTarget: "Virgo Cluster / M87",
       category: "extragalactic",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
+          selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
           flyTo: { x: -1.2e7, y: 5.2e7, z: -5e6, distance: 6.5e7 },
         });
       },
@@ -236,11 +216,13 @@ export function CosmicJourneyNavigator() {
       keyTarget: "Filament Nodes & Voids",
       category: "cosmology",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
+          selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
           flyTo: { x: 0, y: 0, z: 0, distance: 1.5e9 },
           showCosmicWebDensity: true,
         });
@@ -260,11 +242,13 @@ export function CosmicJourneyNavigator() {
       keyTarget: "CMB Surface of Last Scattering",
       category: "cosmology",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
+          selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
           flyTo: { x: 0, y: 0, z: 0, distance: 4.65e10 },
           showCosmicWebDensity: true,
         });

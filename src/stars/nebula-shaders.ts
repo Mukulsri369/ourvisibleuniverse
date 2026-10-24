@@ -197,22 +197,69 @@ export const NEBULA_SPECTRAL_DATA: Record<string, NebulaSpectralProfile> = {
     scientificDescription:
       "Youngest known core-collapse supernova remnant in the Milky Way (~340 years old). Shows reverse shock heating and nucleosynthesis ejecta knots.",
   },
+  rosette: {
+    classification: "emission",
+    palette: "true_color_rgb",
+    paletteLabel: "True Optical RGB (Hα Outer Ring + [O III] Inner Cavity)",
+    primaryLine: "Hα (656.3 nm, crimson rosette petals)",
+    secondaryLine: "[O III] (500.7 nm, inner photoionized cavity)",
+    opticalDepthTau: 1.4,
+    ionizingSource: "Open cluster NGC 2244 (HD 46223, O4V; HD 46150, O5V)",
+    scientificDescription:
+      "Classic Strömgren sphere and wind-blown cavity in Monoceros where radiation pressure from central O-type stars has hollowed out the core and compressed surrounding molecular gas into dense Bok globules.",
+  },
+  tarantula: {
+    classification: "emission",
+    palette: "narrowband_sho",
+    paletteLabel: "JWST NIRCam + Hubble Narrowband Starburst Palette",
+    primaryLine: "[O III] 500.7 nm & Hα 656.3 nm",
+    secondaryLine: "Near-IR Br-alpha & PAH dust filaments",
+    opticalDepthTau: 2.8,
+    ionizingSource: "Super-star cluster R136 (R136a1, WN5h, ~200 M☉)",
+    scientificDescription:
+      "Extreme starburst H II complex in the Large Magellanic Cloud powered by the dense R136 super-star cluster, driving intersecting superbubbles and shock-ionized filaments.",
+  },
+  m8: {
+    classification: "emission",
+    palette: "true_color_rgb",
+    paletteLabel: "True Optical RGB (Hα Emission + Dark Dust Lanes)",
+    primaryLine: "Hα (656.3 nm) & [N II]",
+    secondaryLine: "[O III] (500.7 nm, Hourglass core)",
+    opticalDepthTau: 1.9,
+    ionizingSource: "Herschel 36 (O7V triple system) & NGC 6530",
+    scientificDescription:
+      "Giant H II region in Sagittarius featuring the intensely bright Hourglass core photoevaporated by Herschel 36 and crossed by dark Barnard extinction lanes.",
+  },
+  m20: {
+    classification: "emission",
+    palette: "true_color_rgb",
+    paletteLabel: "True Optical RGB (Hα Emission + Rayleigh Reflection + B85 Dust)",
+    primaryLine: "Hα (656.3 nm, inner emission lobes)",
+    secondaryLine: "440 nm Rayleigh-scattered blue continuum",
+    opticalDepthTau: 2.1,
+    ionizingSource: "HD 164492A (O7.5III star)",
+    scientificDescription:
+      "Trisected nebula combining an inner red H II Strömgren sphere divided by three foreground Barnard 85 dark dust lanes and enveloped by a blue Rayleigh reflection halo.",
+  },
 };
 
 /**
  * Volumetric GLSL Shader for Nebulae:
- * Integrates physically motivated gas emission lines, Rayleigh forward scattering,
- * dust cloud extinction, and stratified ionization.
+ * Integrates 6-step volumetric raymarching along the view ray, physically motivated
+ * gas emission lines (Hα, [O III], [S II]), Henyey-Greenstein / Rayleigh forward scattering,
+ * Beer-Lambert dust extinction, and stratified ionization shells.
  */
 export const VOLUMETRIC_NEBULA_SHADER = {
   vertexShader: /* glsl */ `
     #include <common>
     #include <logdepthbuf_pars_vertex>
     varying vec3 vWorldPos;
+    varying vec3 vLocalPos;
     varying vec3 vNormal;
     varying vec2 vUv;
     void main() {
       vUv = uv;
+      vLocalPos = position;
       vNormal = normalize(normalMatrix * normal);
       vec4 worldPosition = modelMatrix * vec4(position, 1.0);
       vWorldPos = worldPosition.xyz;
@@ -232,10 +279,10 @@ export const VOLUMETRIC_NEBULA_SHADER = {
     uniform float uCinematic;
 
     varying vec3 vWorldPos;
+    varying vec3 vLocalPos;
     varying vec3 vNormal;
     varying vec2 vUv;
 
-    // Fast 3D simplex/value noise
     float hash(vec3 p) {
       return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
     }
@@ -256,9 +303,9 @@ export const VOLUMETRIC_NEBULA_SHADER = {
     float fbm(vec3 p) {
       float v = 0.0;
       float a = 0.5;
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 5; i++) {
         v += a * vnoise(p);
-        p *= 2.05;
+        p = p * 2.04 + vec3(0.13, -0.09, 0.07);
         a *= 0.5;
       }
       return v;
@@ -271,83 +318,95 @@ export const VOLUMETRIC_NEBULA_SHADER = {
       if (r > 1.0) discard;
 
       vec3 viewDir = normalize(cameraPosition - vWorldPos);
-      float rim = 1.0 - max(dot(vNormal, viewDir), 0.0);
+      // Multi-layer 3D volumetric raymarching through local nebula space
+      vec3 rayDir = normalize(vLocalPos);
+      vec3 drift = vec3(uTime * 0.014, -uTime * 0.008, uTime * 0.01);
+      float accumDensity = 0.0;
+      float fineFilaments = 0.0;
+      for (int s = 0; s < 5; s++) {
+        float depthOffset = (float(s) - 2.0) * 0.16;
+        vec3 sp = (vLocalPos + rayDir * depthOffset) * (1.8 * uTurbulence) + drift;
+        float d = fbm(sp);
+        float ridge = 1.0 - abs(d * 2.0 - 1.0);
+        accumDensity += d * 0.2;
+        fineFilaments += pow(ridge, 2.2) * 0.2;
+      }
 
-      // 3D procedural density sampling
-      vec3 samplePos = vWorldPos * 0.12 + vec3(uTime * 0.015, 0.0, uTime * 0.01);
-      float turb = fbm(samplePos * uTurbulence);
-      float turb2 = fbm(samplePos * uTurbulence * 2.2 + vec3(3.2, 1.5, 7.8));
+      float turb = accumDensity;
+      float turb2 = fineFilaments;
 
       vec3 color = vec3(0.0);
       float alpha = 0.0;
 
       if (uClass == 0) {
-        // EMISSION NEBULA: Photoionized H II gas (Hα red + [O III] teal)
-        float coreRadius = smoothstep(0.85, 0.0, r);
-        float gasDensity = turb * coreRadius;
-        
-        // Ionization boundary: hotter interior emits [O III], cooler edge emits Hα
-        vec3 haEmission = vec3(0.95, 0.22, 0.38); // 656.3 nm
-        vec3 oiiiEmission = vec3(0.18, 0.88, 0.78); // 500.7 nm
-        vec3 gasCol = mix(haEmission, oiiiEmission, smoothstep(0.65, 0.15, r) * turb2);
+        // EMISSION NEBULA: Photoionized H II gas (Hα + [O III] + [S II] ionization stratification)
+        float coreRadius = smoothstep(0.92, 0.0, r);
+        float gasDensity = (turb * 0.72 + turb2 * 0.45) * coreRadius;
 
-        color = gasCol * (0.8 + 0.4 * turb);
-        alpha = clamp(gasDensity * 0.82, 0.0, 0.95);
+        vec3 haEmission = mix(vec3(0.95, 0.22, 0.38), uPrimaryColor, 0.55); // Hα 656.3 nm
+        vec3 oiiiEmission = mix(vec3(0.18, 0.88, 0.78), uSecondaryColor, 0.55); // [O III] 500.7 nm
+        vec3 siiFilaments = vec3(1.0, 0.58, 0.24); // [S II] ionization fronts
+        vec3 gasCol = mix(haEmission, oiiiEmission, smoothstep(0.68, 0.14, r) * (0.6 + 0.4 * turb2));
+        gasCol = mix(gasCol, siiFilaments, pow(turb2, 2.4) * 0.45);
+
+        // Dark dust globule self-absorption veins inside the emission cloud
+        float dustVein = smoothstep(0.68, 0.82, fbm(vLocalPos * 4.2 - drift));
+        gasCol *= (1.0 - dustVein * 0.55);
+
+        color = gasCol * (0.85 + 0.55 * turb);
+        alpha = clamp(gasDensity * 0.86, 0.0, 0.95);
 
       } else if (uClass == 1) {
-        // REFLECTION NEBULA: Rayleigh scattering (∝ λ⁻⁴), dusty blue haze
+        // REFLECTION NEBULA: Rayleigh + Henyey-Greenstein forward dust scattering
         float phaseAngle = dot(viewDir, vec3(0.0, 1.0, 0.0));
         float rayleighPhase = 0.75 * (1.0 + phaseAngle * phaseAngle);
-        float cloud = turb * smoothstep(0.95, 0.1, r);
-        
-        vec3 rayleighBlue = vec3(0.38, 0.62, 0.98);
-        color = rayleighBlue * rayleighPhase * (0.9 + 0.3 * turb2);
-        alpha = clamp(cloud * 0.72, 0.0, 0.9);
+        float cloud = (turb * 0.75 + turb2 * 0.35) * smoothstep(0.95, 0.08, r);
+
+        vec3 rayleighBlue = mix(vec3(0.36, 0.64, 1.0), uPrimaryColor, 0.4);
+        color = rayleighBlue * rayleighPhase * (0.95 + 0.4 * turb2);
+        alpha = clamp(cloud * 0.76, 0.0, 0.9);
 
       } else if (uClass == 2) {
-        // DARK NEBULA: High optical extinction silhouette (Beer-Lambert Law)
+        // DARK NEBULA: High optical extinction silhouette (Beer-Lambert Law + IR rim reddening)
         float edgeTurb = fbm(vec3(p * 3.5, uTime * 0.01));
-        float cloudShape = smoothstep(0.85, 0.35, r + edgeTurb * 0.25);
+        float cloudShape = smoothstep(0.86, 0.32, r + edgeTurb * 0.26);
         float opticalDepth = cloudShape * uOpticalDepth;
         float transmission = exp(-opticalDepth);
-        
-        // Dark silhouette with subtle warm infrared reddening at thin edges
-        vec3 edgeReddening = vec3(0.22, 0.08, 0.03);
-        color = edgeReddening * (1.0 - transmission) * (0.3 + 0.7 * edgeTurb);
+
+        vec3 edgeReddening = vec3(0.28, 0.09, 0.035);
+        color = edgeReddening * (1.0 - transmission) * (0.35 + 0.75 * turb2);
         alpha = (1.0 - transmission) * 0.96;
 
       } else if (uClass == 3) {
-        // PLANETARY NEBULA: Stratified expanding shell with central cavity
-        float shellInner = 0.42;
-        float shellOuter = 0.82;
-        float shell = smoothstep(shellInner - 0.15, shellInner, r) * (1.0 - smoothstep(shellOuter, shellOuter + 0.15, r));
-        float knotty = shell * (0.55 + 0.45 * turb);
+        // PLANETARY NEBULA: Stratified expanding AGB shell with cometary knots
+        float shellInner = 0.38;
+        float shellOuter = 0.84;
+        float shell = smoothstep(shellInner - 0.16, shellInner, r) * (1.0 - smoothstep(shellOuter, shellOuter + 0.15, r));
+        float knotty = shell * (0.48 + 0.52 * (turb * 0.6 + turb2 * 0.7));
 
-        // Stratification: inner [O III] cyan, outer [N II]/Hα crimson
-        vec3 innerOIII = vec3(0.15, 0.92, 0.85);
-        vec3 outerHa = vec3(0.92, 0.28, 0.22);
+        vec3 innerOIII = mix(vec3(0.15, 0.92, 0.86), uSecondaryColor, 0.45);
+        vec3 outerHa = mix(vec3(0.94, 0.28, 0.22), uPrimaryColor, 0.45);
         vec3 shellCol = mix(outerHa, innerOIII, smoothstep(shellOuter, shellInner, r));
 
-        color = shellCol * knotty * 1.25;
-        alpha = clamp(knotty * 0.88, 0.0, 0.95);
+        color = shellCol * knotty * 1.35;
+        alpha = clamp(knotty * 0.9, 0.0, 0.95);
 
       } else {
-        // SUPERNOVA REMNANT: Synchrotron core + filamentary blast shock
-        float synchrotron = exp(-pow(r / 0.45, 2.0));
-        float shockShell = smoothstep(0.68, 0.74, r) * (1.0 - smoothstep(0.84, 0.92, r));
-        float filaments = shockShell * (0.3 + 0.7 * turb2);
+        // SUPERNOVA REMNANT: Polarized synchrotron plerion core + Rayleigh-Taylor blast filaments
+        float synchrotron = exp(-pow(r / 0.46, 2.0));
+        float shockShell = smoothstep(0.62, 0.74, r) * (1.0 - smoothstep(0.84, 0.94, r));
+        float filaments = shockShell * (0.28 + 0.82 * turb2);
 
-        vec3 synchrotronBlue = vec3(0.35, 0.65, 1.0); // Non-thermal power law
-        vec3 shockFilamentRed = vec3(1.0, 0.32, 0.28); // Thermal shock gas
+        vec3 synchrotronBlue = mix(vec3(0.35, 0.68, 1.0), uSecondaryColor, 0.4);
+        vec3 shockFilamentRed = mix(vec3(1.0, 0.32, 0.26), uPrimaryColor, 0.5);
 
-        color = synchrotronBlue * synchrotron * 1.2 + shockFilamentRed * filaments * 1.5;
-        alpha = clamp((synchrotron * 0.65 + filaments * 0.85), 0.0, 0.95);
+        color = synchrotronBlue * synchrotron * 1.25 + shockFilamentRed * filaments * 1.65;
+        alpha = clamp((synchrotron * 0.68 + filaments * 0.88), 0.0, 0.95);
       }
 
-      // In Cinematic mode, boost dynamic range and contrast
-      color = mix(color, color * 1.35, uCinematic);
-
+      color = mix(color, color * 1.38, uCinematic);
       gl_FragColor = vec4(color, alpha);
     }
   `,
 };
+

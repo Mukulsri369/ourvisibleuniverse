@@ -267,12 +267,15 @@ export function CameraRig() {
     };
   }, []);
 
-  // Fly-to handling — smoothly transition to the target star's system.
+  const freeFlyTarget = useRef<THREE.Vector3 | null>(null);
+
+  // Fly-to handling — smoothly transition to the target star's system or cosmic coordinate.
   // We set desired radius/orientation and a close FOV, but let useFrame
   // ease the target position for a cinematic sweep instead of snapping.
   useEffect(() => {
     if (!flyTo) return;
-    const r = flyTo.distance;
+    freeFlyTarget.current = new THREE.Vector3(flyTo.x, flyTo.y, flyTo.z);
+    const r = Math.max(minR, Math.min(maxR, flyTo.distance));
     desired.current.radius = r;
     // Orbit angle chosen for a pleasant 3/4 view of the star system.
     const offset = new THREE.Vector3(r * 0.6, r * 0.4, r * 0.6);
@@ -280,7 +283,7 @@ export function CameraRig() {
     desired.current.theta = sph.theta;
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));
     fovTarget.current = 36;
-    // Clear the flyTo flag quickly; the selectedStar keeps the camera anchored.
+    // Clear the flyTo flag quickly; selectedStar or freeFlyTarget keeps the camera anchored.
     const id = setTimeout(() => clearFly(), 60);
     return () => clearTimeout(id);
   }, [flyTo, clearFly]);
@@ -289,6 +292,7 @@ export function CameraRig() {
   const tourStartTime = useRef(0);
   useEffect(() => {
     if (!tourActive) return;
+    freeFlyTarget.current = null;
     target.current.set(0, 0, 0);
     const stop = TOUR_STOPS[tourStop];
     if (!stop) {
@@ -413,6 +417,7 @@ export function CameraRig() {
 
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
+      freeFlyTarget.current = null;
       const p = reg?.get(visitPlanet);
       if (p) {
         // Carry the camera along with the moving world, then ease away the
@@ -429,6 +434,7 @@ export function CameraRig() {
         expDampVector3(target.current, p, lambda, clampedDt);
       }
     } else if (visitGalaxy) {
+      freeFlyTarget.current = null;
       const f = visitGalaxy.focus;
       // Prefer the live position of the focused star system: it orbits its
       // galaxy's centre, so a static point would drift out of frame.
@@ -444,6 +450,7 @@ export function CameraRig() {
       const reach = f ? f.distance : visitGalaxy.size;
       expDampVector3(target.current, scratchTarget.current, dist > reach ? 1.8 : 4.5, clampedDt);
     } else if (selectedObjectId) {
+      freeFlyTarget.current = null;
       const item = OBJECT_BY_ID.get(selectedObjectId);
       if (item) {
         const [x, y, z] = objectPosition(item);
@@ -452,11 +459,21 @@ export function CameraRig() {
         expDampVector3(target.current, scratchTarget.current, dist > 5 ? 1.8 : 4.5, clampedDt);
       }
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
+      freeFlyTarget.current = null;
       // Smoothly sweep the target from wherever we are toward the selected
       // star's system, then keep it anchored there.
       scratchTarget.current.set(selectedStar.x, selectedStar.y, selectedStar.z);
       const dist = target.current.distanceTo(scratchTarget.current);
       expDampVector3(target.current, scratchTarget.current, dist > 5 ? 1.8 : 4.5, clampedDt);
+    } else if (!tourActive && freeFlyTarget.current) {
+      if (freeFlyTarget.current.lengthSq() < 1e-6 && desired.current.radius < 100) {
+        const sun = reg?.get("Sun");
+        if (sun) expDampVector3(target.current, sun, 3.5, clampedDt);
+        else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
+      } else {
+        const dist = target.current.distanceTo(freeFlyTarget.current);
+        expDampVector3(target.current, freeFlyTarget.current, dist > 5 ? 2.2 : 4.5, clampedDt);
+      }
     } else if (!tourActive && !flyTo) {
       // Follow the drifting Sun so the user stays with the Solar System
       const sun = reg?.get("Sun");

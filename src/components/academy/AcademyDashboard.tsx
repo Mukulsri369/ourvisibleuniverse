@@ -1,10 +1,10 @@
 // @ts-nocheck
 import React, { useState, useRef, useEffect, lazy, Suspense } from "react";
-import { ACADEMY_STAGES, ACADEMY_MODULES } from "@/lib/academy/registry";
+import { ACADEMY_STAGES, ACADEMY_MODULES, LEARNING_LEVELS } from "@/lib/academy/registry";
 import { MODULE_01_LESSON } from "@/lib/academy/lessons/module-01-our-place";
 import { useAcademyProgress } from "@/lib/academy/progress";
 import { getAdaptiveRecommendations } from "@/lib/academy/recommendations";
-import type { AcademySettings, ModuleContract } from "@/lib/academy/types";
+import type { AcademySettings, LearningLevel, ModuleContract } from "@/lib/academy/types";
 import { AcademyHero } from "./AcademyHero";
 import { LearningLevelSelector } from "./LearningLevelSelector";
 import { CosmicLearningMap } from "./CosmicLearningMap";
@@ -16,35 +16,157 @@ import { StudentRegistrationBanner } from "./StudentRegistrationBanner";
 import { StudentProfileModal } from "./StudentProfileModal";
 import { ModuleStickyCompletionDrawer } from "./ModuleCompletionChecklist";
 import { useStudentAuth } from "@/lib/academy/useStudentAuth";
-import { LEARNING_LEVELS } from "@/lib/academy/registry";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Sparkles,
-  Compass,
-  ArrowRight,
+  ArrowUpRight,
   X,
   ExternalLink,
-  BookOpen,
   Clock,
   ShieldCheck,
   CheckCircle2,
   Orbit,
   User,
-  GraduationCap,
   Shield,
   Award,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { CosmosCompanion } from "./CosmosCompanion";
 import { CosmosGuidedController } from "./CosmosGuidedController";
 import { CosmicCertificateModal } from "./CosmicCertificateModal";
 import { CosmosLearningDirector } from "@/lib/cosmos/CosmosLearningDirector";
 import { CosmosLearningSessionManager } from "@/lib/cosmos/CosmosLearningSessionManager";
 import type { CosmosLearningSessionRecord } from "@/lib/cosmos/learning-director-types";
-import { CosmosCinematicPlayer, EnterCinematicModeButton } from "./cinematic/CosmosCinematicPlayer";
-import { CosmosCinematicSessionBridge } from "@/lib/cosmos/cinematic/CosmosCinematicSessionBridge";
+import {
+  CosmosCinematicPlayer,
+  EnterCinematicModeButton,
+} from "./cinematic/CosmosCinematicPlayer";
+import { CosmicBackgroundCanvas } from "@/components/site/CosmicBackgroundCanvas";
+import { ScrollScrubVideoCanvas } from "@/components/site/ScrollScrubVideoCanvas";
 
-// Lazy-loaded module layouts to optimize initial bundle size and isolate module evaluation
+const KERR_ACCRETION_VIDEO_2 =
+  "/assets/aistudio/Rotating_Kerr_black_hole_visuali__1080p_20261024024506_51d485ff.mp4";
+const KERR_ACCRETION_MOBILE_2 = "/assets/aistudio/kerr2_mobile.mp4";
+const KERR_ACCRETION_POSTER_2 = "/assets/aistudio/kerr2_poster.jpg";
+
+const clamp = (x: number, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = (x: number) => {
+  const c = clamp(x, 0, 1);
+  return c * c * (3 - 2 * c);
+};
+
+function AcademyAccretionChapter({
+  registerListener,
+  onStartStages,
+  onOpenExam,
+  onOpenCertificates,
+}: {
+  registerListener: (fn: (smoothedProgress: number, rawProgress: number) => void) => () => void;
+  onStartStages: () => void;
+  onOpenExam: () => void;
+  onOpenCertificates: () => void;
+}) {
+  const beat1Ref = useRef<HTMLDivElement | null>(null);
+  const beat2Ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return registerListener((pr) => {
+      const cop1 = pr > 0.52 ? 0 : smooth(1 - pr / 0.48);
+      const cop2 = pr < 0.44 ? 0 : smooth((pr - 0.44) / 0.25);
+
+      if (beat1Ref.current) {
+        beat1Ref.current.style.opacity = String(cop1);
+        beat1Ref.current.style.transform = reduce
+          ? "none"
+          : `translate3d(0, ${((0.2 - pr) * 7).toFixed(2)}vh, 0)`;
+        beat1Ref.current.style.pointerEvents = cop1 > 0.45 ? "auto" : "none";
+      }
+
+      if (beat2Ref.current) {
+        beat2Ref.current.style.opacity = String(cop2);
+        beat2Ref.current.style.transform = reduce
+          ? "none"
+          : `translate3d(0, ${((0.78 - pr) * 7).toFixed(2)}vh, 0)`;
+        beat2Ref.current.style.pointerEvents = cop2 > 0.45 ? "auto" : "none";
+      }
+    });
+  }, [registerListener]);
+
+  return (
+    <div className="mx-auto flex h-full max-w-7xl flex-col justify-center px-6 lg:px-10">
+      <div className="relative flex min-h-[300px] w-full items-center">
+        {/* Beat 1: Interactive 3D Physics Laboratories */}
+        <div
+          ref={beat1Ref}
+          className="max-w-lg rounded-3xl border border-white/[0.12] bg-[#05060a]/75 p-9 backdrop-blur-2xl will-change-[opacity,transform]"
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#f5d08a]">
+            01 / 02 · RELATIVISTIC LABORATORIES
+          </p>
+          <h2
+            className="mt-3 text-3xl font-medium uppercase leading-tight text-white sm:text-4xl"
+            style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+          >
+            Experiment With Spacetime.
+          </h2>
+          <p className="mt-3 text-sm font-light leading-relaxed text-white/75">
+            Manipulate orbital mechanics, blackbody spectra, gravitational wave chirps, and
+            relativistic accretion disks directly inside your browser.
+          </p>
+        </div>
+
+        {/* Beat 2: Capstone Assessment & Certification */}
+        <div
+          ref={beat2Ref}
+          style={{ opacity: 0, pointerEvents: "none" }}
+          className="absolute right-0 max-w-xl rounded-3xl border border-white/[0.14] bg-[#05060a]/80 p-9 backdrop-blur-2xl will-change-[opacity,transform] sm:p-11"
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#38bdf8]">
+            02 / 02 · AUTHORITATIVE CREDENTIALING
+          </p>
+          <h3
+            className="mt-3 text-3xl font-medium uppercase text-white sm:text-4xl"
+            style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+          >
+            Earn Your Cosmic Explorer Credential.
+          </h3>
+          <p className="mt-3 text-sm font-light leading-relaxed text-white/75">
+            Complete all 24 modules across 6 celestial stages and pass the 20-question Capstone
+            Evaluation to unlock your verifiable certificate.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={onStartStages}
+              className="group inline-flex h-11 items-center gap-3 rounded-full bg-[#f5d08a] pl-5 pr-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#05060a] transition-all hover:bg-white"
+            >
+              <span>Browse 24 Modules</span>
+              <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a] transition-transform duration-300 group-hover:rotate-45">
+                <ArrowUpRight className="size-4" />
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={onOpenExam}
+              className="inline-flex h-11 items-center rounded-full border border-white/15 bg-white/[0.04] px-5 text-xs font-medium uppercase tracking-[0.16em] text-white/85 hover:border-[#f5d08a]/50 hover:text-white"
+            >
+              Capstone Exam
+            </button>
+            <button
+              type="button"
+              onClick={onOpenCertificates}
+              className="inline-flex h-11 items-center rounded-full border border-white/15 bg-white/[0.04] px-5 text-xs font-medium uppercase tracking-[0.16em] text-white/80 hover:border-white/35 hover:text-white"
+            >
+              Certificate Portal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Lazy-loaded module layouts
 const LessonLayout = lazy(() =>
   import("./LessonLayout").then((m) => ({ default: m.LessonLayout })),
 );
@@ -146,25 +268,25 @@ const ACTIVE_MODULE_IDS = [
 
 function ModuleLoadingFallback({ title }: { title: string }) {
   return (
-    <div className="min-h-[50vh] flex flex-col items-center justify-center p-8 text-center">
+    <div className="flex min-h-[50vh] flex-col items-center justify-center p-8 text-center">
       <div className="relative mb-4">
-        <div className="size-12 rounded-full border-2 border-cyan-500/20 border-t-cyan-400 animate-spin" />
-        <Orbit className="size-5 text-cyan-400 absolute inset-0 m-auto" />
+        <div className="size-12 animate-spin rounded-full border-2 border-[#f5d08a]/20 border-t-[#f5d08a]" />
+        <Orbit className="absolute inset-0 m-auto size-5 text-[#f5d08a]" />
       </div>
-      <p className="text-sm font-bold text-white tracking-wide">{title}</p>
-      <p className="text-xs text-slate-400 mt-1">
-        Calibrating physical parameters and celestial coordinates...
+      <p
+        className="text-lg font-normal uppercase tracking-wide text-white"
+        style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+      >
+        {title}
+      </p>
+      <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.24em] text-white/45">
+        Calibrating physical parameters & celestial coordinates...
       </p>
     </div>
   );
 }
 
-// Unified renderer for active module layouts
-function renderActiveModule(
-  moduleId: string,
-
-  props: any,
-) {
+function renderActiveModule(moduleId: string, props: any) {
   switch (moduleId) {
     case "01":
       return <LessonLayout {...props} lesson={MODULE_01_LESSON} />;
@@ -233,12 +355,10 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     resetProgress,
   } = useAcademyProgress();
 
-  const { user, profile, isLoggedIn, updateProfile, changeLearningLevel, signOut } =
-    useStudentAuth();
+  const { profile, isLoggedIn, updateProfile, changeLearningLevel, signOut } = useStudentAuth();
 
   const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // Synchronize authenticated student's selected level with local progress
   useEffect(() => {
     if (profile.selected_level && profile.selected_level !== selectedLevel) {
       setLearningLevel(profile.selected_level);
@@ -344,25 +464,28 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     return () => unregister();
   });
 
-  // If viewing final exam, render the FinalExamEngine
+  // Final Exam View
   if (showFinalExam) {
     return (
-      <div className="space-y-6">
-        <Suspense fallback={<ModuleLoadingFallback title="Final Knowledge Assessment" />}>
-          <FinalExamEngine
-            initialLevel={selectedLevel}
-            onBackToAcademy={() => setShowFinalExam(false)}
-            onSelectModule={(modId) => {
-              setShowFinalExam(false);
-              handleSelectModule(modId);
-            }}
-          />
-        </Suspense>
+      <div className="relative min-h-screen bg-[#05060a] text-white">
+        <CosmicBackgroundCanvas />
+        <div className="relative z-10 space-y-6">
+          <Suspense fallback={<ModuleLoadingFallback title="Final Knowledge Assessment" />}>
+            <FinalExamEngine
+              initialLevel={selectedLevel}
+              onBackToAcademy={() => setShowFinalExam(false)}
+              onSelectModule={(modId) => {
+                setShowFinalExam(false);
+                handleSelectModule(modId);
+              }}
+            />
+          </Suspense>
+        </div>
       </div>
     );
   }
 
-  // If viewing an active module, render with isolated Suspense boundary and sleek fallback
+  // Active Module View
   if (activeLessonModule) {
     const layoutProps = {
       module: activeLessonModule,
@@ -393,28 +516,30 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
 
     return (
       <div
-        className={`min-h-screen bg-slate-950 text-slate-100 ${
+        className={`relative min-h-screen bg-[#05060a] text-white ${
           settings.fontSize === "large" ? "text-base" : "text-sm"
         }`}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-24 pb-28 space-y-8">
-          {/* Immersive Fullscreen Cinematic Learning Mode Banner (Available for all 24 Modules) */}
+        <CosmicBackgroundCanvas />
+        <div className="relative z-10 mx-auto max-w-6xl space-y-8 px-4 pt-24 pb-28 sm:px-6">
+          {/* Dark Observatory Cinematic Learning Banner */}
           <div
             data-testid="module-cinematic-mode-banner"
-            className="rounded-2xl border border-cyan-500/35 bg-gradient-to-r from-slate-900/95 via-cyan-950/35 to-indigo-950/40 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-cyan-950/20"
+            className="flex flex-col justify-between gap-4 border border-white/[0.12] bg-[#05060a]/85 p-6 backdrop-blur-2xl sm:flex-row sm:items-center sm:p-8"
           >
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-wider text-cyan-400">
-                <Sparkles className="size-3.5 text-cyan-400" />
-                <span>COSMOS Cinematic Learning System</span>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-[#f5d08a]">
+                <Sparkles className="size-3.5 text-[#f5d08a]" />
+                <span>COSMOS CINEMATIC LEARNING SYSTEM</span>
               </div>
-              <h2 className="text-sm sm:text-base font-bold text-white">
-                Experience Module {activeLessonModule.id}: {activeLessonModule.title} in Fullscreen
-                3D
+              <h2
+                className="text-lg font-normal uppercase text-white sm:text-2xl"
+                style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+              >
+                Module {activeLessonModule.id}: {activeLessonModule.title}
               </h2>
-              <p className="text-xs text-slate-300">
-                Synchronized COSMOS AI narration, interactive 3D scientific animations, camera
-                choreography, and live Q&A.
+              <p className="text-xs font-light text-white/65">
+                Synchronized AI narration, interactive 3D scientific simulations, and live Q&amp;A.
               </p>
             </div>
 
@@ -427,7 +552,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
             </div>
           </div>
 
-          {/* Centralized COSMOS AI Astronomy Voice Teacher for all 24 Modules */}
+          {/* Centralized COSMOS AI Astronomy Voice Teacher */}
           <CosmosCompanion
             key={activeLessonModule.id}
             moduleId={activeLessonModule.id}
@@ -481,10 +606,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
           }
         />
 
-        {/* Persistent Compact Guided Teacher Panel (COSMOS 2.0 Director) */}
         <CosmosGuidedController />
-
-        {/* Fullscreen Cinematic Learning Player (Prompt 03) */}
         <CosmosCinematicPlayer reducedMotion={settings.reducedMotion} />
       </div>
     );
@@ -492,93 +614,123 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
 
   return (
     <div
-      className={`min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200 ${
+      className={`relative min-h-screen bg-[#05060a] text-white selection:bg-[#f5d08a]/30 selection:text-[#f5d08a] ${
         settings.fontSize === "large" ? "text-base" : "text-sm"
       }`}
     >
-      {/* 1. Cinematic Opening 3D Hero */}
-      <AcademyHero onStartExploring={handleScrollToStages} onViewMap={handleScrollToMap} />
+      {/* Fixed 3D Scroll-Driven WebGL Cosmos Background */}
+      <CosmicBackgroundCanvas />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 py-10">
-        {/* Student Account Status / Registration Header */}
-        {!isLoggedIn ? (
-          <StudentRegistrationBanner onOpenGuestSettings={() => setShowProfileModal(true)} />
-        ) : (
-          <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-slate-900/90 via-cyan-950/20 to-slate-900/90 p-4 sm:p-5 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-cyan-950/20">
-            <div className="flex items-center gap-3.5">
-              <div className="size-11 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300 flex-shrink-0">
-                <GraduationCap className="size-5" />
-              </div>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-bold text-white">{profile.display_name}</span>
-                  <span className="text-[11px] font-mono font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
-                    {profile.student_public_id}
-                  </span>
-                  <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Shield className="size-3" />
-                    Verified Student
-                  </span>
+      <div className="relative z-10">
+        {/* 01. KERR SINGULARITY SCROLL-SCRUB HERO (VIDEO 1) */}
+        <AcademyHero
+          onStartExploring={handleScrollToStages}
+          onViewMap={handleScrollToMap}
+          onOpenExam={() => setShowFinalExam(true)}
+        />
+
+        {/* MINIMALIST METRICS HAIRLINE STRIP */}
+        <section className="border-y border-white/[0.08] bg-[#05060a]/85 backdrop-blur-2xl">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <div className="grid grid-cols-2 divide-y divide-white/[0.08] sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+              {[
+                { value: "24", label: "Interactive Modules" },
+                { value: "06", label: "Celestial Stages" },
+                { value: "03", label: "Cognitive Tiers" },
+                { value: "100%", label: "Free Sanctuary" },
+              ].map((stat, idx) => (
+                <div
+                  key={stat.label}
+                  className={`py-8 ${idx === 0 ? "sm:pr-8" : "sm:px-8"}`}
+                >
+                  <p
+                    className="text-3xl font-normal tracking-tight text-white sm:text-4xl"
+                    style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                  >
+                    {stat.value}
+                  </p>
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.26em] text-white/45">
+                    {stat.label}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Curriculum depth:{" "}
-                  <strong className="text-slate-200">{LEARNING_LEVELS[selectedLevel]?.name}</strong>{" "}
-                  • Privacy: <span className="capitalize">{profile.profile_visibility}</span>
-                </p>
-              </div>
+              ))}
             </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowProfileModal(true)}
-                className="border-white/20 text-slate-200 hover:text-white hover:bg-white/10"
-              >
-                <User className="size-3.5 mr-1.5 text-cyan-400" />
-                <span>Student Settings & Privacy</span>
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Accessibility & Learning Level Selector Section */}
-        <section className="space-y-4">
-          <AccessibilityControls settings={settings} onUpdateSettings={setSettings} />
-          <div className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-xl">
-            <LearningLevelSelector currentLevel={selectedLevel} onSelectLevel={handleLevelSelect} />
           </div>
         </section>
 
-        {/* PHASE 3: Student Guided Session Resumption Banner */}
-        {savedGuidedSession && savedGuidedSession.sessionStatus !== "completed" && (
-          <section className="rounded-3xl border border-emerald-500/35 bg-gradient-to-r from-emerald-950/40 via-cyan-950/30 to-slate-900/80 p-5 sm:p-6 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-emerald-950/20">
-            <div className="flex items-start gap-3.5">
-              <div className="size-11 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="size-5 text-emerald-400" />
+        {/* MAIN OBSERVATORY CONSOLE */}
+        <div className="mx-auto max-w-7xl space-y-16 px-6 py-20 lg:px-10">
+          {/* Student Status & Telemetry Controls */}
+          <section className="space-y-4">
+            {!isLoggedIn ? (
+              <StudentRegistrationBanner onOpenGuestSettings={() => setShowProfileModal(true)} />
+            ) : (
+              <div className="flex flex-col justify-between gap-4 border border-white/[0.08] bg-[#05060a] p-7 sm:flex-row sm:items-center sm:p-8">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.26em] text-[#f5d08a]">
+                      SCHOLAR ACCOUNT · {profile.student_public_id}
+                    </span>
+                    <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-400">
+                      <Shield className="size-3" />
+                      VERIFIED
+                    </span>
+                  </div>
+                  <h3
+                    className="mt-2 text-xl font-normal uppercase text-white sm:text-2xl"
+                    style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                  >
+                    {profile.display_name}
+                  </h3>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">
+                    ACTIVE TIER: {LEARNING_LEVELS[selectedLevel]?.name} · PRIVACY:{" "}
+                    {profile.profile_visibility}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(true)}
+                  className="inline-flex h-10 items-center gap-2 self-start rounded-full border border-white/15 px-5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/85 transition-colors hover:border-[#f5d08a] hover:text-[#f5d08a] sm:self-auto"
+                >
+                  <User className="size-3.5 text-[#f5d08a]" />
+                  <span>Scholar Settings</span>
+                </button>
               </div>
+            )}
+
+            <AccessibilityControls settings={settings} onUpdateSettings={setSettings} />
+          </section>
+
+          {/* Cognitive Tier Selector */}
+          <section>
+            <LearningLevelSelector currentLevel={selectedLevel} onSelectLevel={handleLevelSelect} />
+          </section>
+
+          {/* Saved Guided Session Resumption */}
+          {savedGuidedSession && savedGuidedSession.sessionStatus !== "completed" && (
+            <section className="flex flex-col justify-between gap-6 border border-[#f5d08a]/30 bg-[#05060a] p-7 sm:p-9 md:flex-row md:items-center">
               <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[11px] font-mono font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full uppercase">
-                    COSMOS Saved Session Ready
-                  </span>
-                  <span className="text-xs font-mono text-cyan-300">
-                    Step {savedGuidedSession.stepIndex + 1} of {savedGuidedSession.totalSteps}
+                <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.26em] text-[#f5d08a]">
+                  <span>SAVED SESSION READY</span>
+                  <span>•</span>
+                  <span className="text-[#38bdf8]">
+                    STEP {savedGuidedSession.stepIndex + 1} OF {savedGuidedSession.totalSteps}
                   </span>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-white mt-1">
+                <h3
+                  className="mt-2 text-2xl font-normal uppercase text-white"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
                   Resume Module {savedGuidedSession.moduleId}: {savedGuidedSession.moduleTitle}
                 </h3>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  Last active step:{" "}
-                  <strong className="text-white">{savedGuidedSession.lessonTitle}</strong>
+                <p className="mt-1 font-mono text-xs text-white/60">
+                  Last active: {savedGuidedSession.lessonTitle}
                 </p>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                size="sm"
+              <button
+                type="button"
                 onClick={() => {
                   handleSelectModule(savedGuidedSession.moduleId);
                   setTimeout(() => {
@@ -587,187 +739,203 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                     );
                   }, 150);
                 }}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
+                className="group inline-flex h-11 shrink-0 items-center gap-3 self-start rounded-full bg-[#f5d08a] pl-5 pr-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#05060a] transition-all hover:bg-white md:self-auto"
               >
-                <span>Resume Guided Journey</span>
-                <ArrowRight className="size-4 ml-1.5" />
-              </Button>
-            </div>
-          </section>
-        )}
+                <span>Resume Journey</span>
+                <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a]">
+                  <ArrowUpRight className="size-4" />
+                </span>
+              </button>
+            </section>
+          )}
 
-        {/* Adaptive Next Recommendation Banner */}
-        {primaryRecommendation && (
-          <section className="rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-indigo-950/30 to-slate-900/80 p-6 sm:p-8 backdrop-blur-xl flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-lg shadow-cyan-950/20">
-            <div className="flex items-start gap-4">
-              <div className="size-12 rounded-2xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center justify-center flex-shrink-0">
-                <Compass className="size-6 text-cyan-400" />
-              </div>
+          {/* Adaptive Next Recommendation */}
+          {primaryRecommendation && (
+            <section className="flex flex-col justify-between gap-6 border border-white/[0.08] bg-[#05060a] p-8 sm:p-10 md:flex-row md:items-center">
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 rounded-full uppercase">
-                    Up Next on Your Cosmic Journey
-                  </span>
-                  <span className="text-xs text-amber-300 font-semibold">
-                    {primaryRecommendation.badge}
-                  </span>
+                <div className="flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.28em]">
+                  <span className="text-[#38bdf8]">RECOMMENDED TRAJECTORY</span>
+                  <span className="text-white/20">•</span>
+                  <span className="text-[#f5d08a]">{primaryRecommendation.badge}</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
+                <h3
+                  className="mt-3 text-2xl font-normal uppercase tracking-tight text-white sm:text-3xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
                   Module {primaryRecommendation.module.id}: {primaryRecommendation.module.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                <p className="mt-2 max-w-2xl text-xs font-light leading-relaxed text-white/65 sm:text-sm">
                   {primaryRecommendation.reason}
                 </p>
               </div>
-            </div>
 
-            <div className="flex-shrink-0">
-              {primaryRecommendation.module.id === "13" ? (
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold shadow-md"
-                >
-                  <Link to="/galaxies">
+              <div className="shrink-0">
+                {primaryRecommendation.module.id === "13" ? (
+                  <Link
+                    to="/galaxies"
+                    className="group inline-flex h-12 items-center gap-3 rounded-full bg-[#f5d08a] pl-6 pr-2 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#05060a] transition-all hover:bg-white"
+                  >
                     <span>Explore Galaxies 3D</span>
-                    <ExternalLink className="size-4 ml-2" />
+                    <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a]">
+                      <ArrowUpRight className="size-4" />
+                    </span>
                   </Link>
-                </Button>
-              ) : ACTIVE_MODULE_IDS.includes(primaryRecommendation.module.id) ? (
-                <Button
-                  size="lg"
-                  onClick={() => handleSelectModule(primaryRecommendation.module)}
-                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-md shadow-cyan-500/25 border-none"
-                >
-                  <span>Start Module {primaryRecommendation.module.id}</span>
-                  <ArrowRight className="size-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  onClick={() => setPreviewModule(primaryRecommendation.module)}
-                  className="border-white/20 text-white hover:bg-white/10"
-                >
-                  <span>Preview Syllabus</span>
-                </Button>
-              )}
-            </div>
-          </section>
-        )}
+                ) : ACTIVE_MODULE_IDS.includes(primaryRecommendation.module.id) ? (
+                  <button
+                    type="button"
+                    onClick={() => handleSelectModule(primaryRecommendation.module)}
+                    className="group inline-flex h-12 items-center gap-3 rounded-full bg-[#f5d08a] pl-6 pr-2 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#05060a] transition-all hover:bg-white"
+                  >
+                    <span>Start Module {primaryRecommendation.module.id}</span>
+                    <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a] transition-transform duration-300 group-hover:rotate-45">
+                      <ArrowUpRight className="size-4" />
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setPreviewModule(primaryRecommendation.module)}
+                    className="inline-flex h-12 items-center rounded-full border border-white/20 px-6 font-mono text-xs uppercase tracking-[0.2em] text-white hover:border-[#f5d08a]"
+                  >
+                    Preview Syllabus
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
 
-        {/* 2. Interactive Cosmic Flightpath Map */}
-        <section ref={mapSectionRef} className="pt-4">
-          <CosmicLearningMap
-            stages={ACADEMY_STAGES}
-            progress={progress}
-            onSelectStage={handleSelectStage}
-          />
-        </section>
-
-        {/* 3. Progress Tracking & Achievements Hub */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ProgressTracker
-            progress={progress}
-            onExport={exportProgressJSON}
-            onReset={resetProgress}
-            profile={profile}
-            isLoggedIn={isLoggedIn}
-            onOpenProfile={() => setShowProfileModal(true)}
-            reducedMotion={settings.reducedMotion}
-            onSelectModule={handleSelectModule}
-          />
-          <AchievementDisplay
-            unlockedIds={progress.achievements}
-            stageBadges={progress.stageBadges}
-            verifiedModules={progress.verifiedModules}
-            profile={profile}
-            reducedMotion={settings.reducedMotion}
-            onSelectModule={handleSelectModule}
-          />
-        </section>
-
-        {/* 4. Complete Six Progressive Learning Stages */}
-        <section ref={stagesSectionRef} className="space-y-10 pt-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-white/10">
-            <div>
-              <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-wider">
-                Full 24-Module Astronomy Curriculum
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
-                Cosmic Learning Journey
-              </h2>
-            </div>
-            <p className="text-xs text-slate-400">
-              Arranged progressively across 6 distinct celestial stages
-            </p>
-          </div>
-
-          {ACADEMY_STAGES.map((stage) => (
-            <LearningStageCard
-              key={stage.id}
-              stage={stage}
+          {/* Interactive Cosmic Flightpath Map */}
+          <section ref={mapSectionRef}>
+            <CosmicLearningMap
+              stages={ACADEMY_STAGES}
               progress={progress}
-              onToggleBookmark={toggleBookmark}
+              onSelectStage={handleSelectStage}
+            />
+          </section>
+
+          {/* Progress Tracking & Achievements Hub */}
+          <section className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <ProgressTracker
+              progress={progress}
+              onExport={exportProgressJSON}
+              onReset={resetProgress}
+              profile={profile}
+              isLoggedIn={isLoggedIn}
+              onOpenProfile={() => setShowProfileModal(true)}
+              reducedMotion={settings.reducedMotion}
               onSelectModule={handleSelectModule}
             />
-          ))}
+            <AchievementDisplay
+              unlockedIds={progress.achievements}
+              stageBadges={progress.stageBadges}
+              verifiedModules={progress.verifiedModules}
+              profile={profile}
+              reducedMotion={settings.reducedMotion}
+              onSelectModule={handleSelectModule}
+            />
+          </section>
+        </div>
 
-          {/* 5. Stage 6 Capstone: Cosmic Explorer Final Knowledge Assessment */}
-          <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-950/20 via-slate-900 to-slate-950 p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
-            <div className="space-y-2 max-w-2xl">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs font-mono font-bold">
-                  CURRICULUM CAPSTONE EVALUATION
-                </span>
-                <span className="text-xs font-mono text-slate-400">20 Questions • 6 Stages</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-white">
-                Cosmic Explorer — Final Knowledge Assessment
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Evaluates comprehensive scientific reasoning across all 24 modules and 6 celestial
-                stages. Features age-adaptive tiers, server-side grading, and unlocks the official
-                verifiable credential upon achieving 80% (16/20).
-              </p>
-              <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-slate-400">
-                <span className="flex items-center gap-1 text-emerald-400">
-                  <ShieldCheck className="size-3.5" />
-                  Authoritative Verification
-                </span>
-                <span>•</span>
-                <span>Minimum passing score: 80% (16 / 20)</span>
-                <span>•</span>
-                <span>Non-generative accessible narration</span>
-              </div>
-            </div>
-
-            <div className="shrink-0 flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-              <Button
-                onClick={() => setShowFinalExam(true)}
-                className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-6 shadow-lg shadow-amber-500/20 w-full sm:w-auto"
-              >
-                <Award className="size-4 mr-2" />
-                Launch Assessment
-              </Button>
-              <Button
-                onClick={() => setShowCertificateModal(true)}
-                variant="outline"
-                className="border-amber-500/30 text-amber-300 hover:bg-amber-500/10 hover:text-amber-200 w-full sm:w-auto"
-              >
-                <ShieldCheck className="size-4 mr-1.5" />
-                Certificate Portal
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="border-white/10 text-slate-300 hover:text-white w-full sm:w-auto"
-              >
-                <Link to="/exam">Dedicated Exam Page</Link>
-              </Button>
-            </div>
-          </div>
+        {/* 02. SECOND KERR ACCRETION VIDEO SCROLL CHAPTER (VIDEO 2) */}
+        <section className="relative border-y border-white/[0.08]">
+          <ScrollScrubVideoCanvas
+            videoSrc={KERR_ACCRETION_VIDEO_2}
+            mobileVideoSrc={KERR_ACCRETION_MOBILE_2}
+            posterSrc={KERR_ACCRETION_POSTER_2}
+            scrollHeightVh={280}
+            ariaLabel="Relativistic Kerr Black Hole Accretion Torus — Academy Laboratories"
+          >
+            {({ registerListener }) => (
+              <AcademyAccretionChapter
+                registerListener={registerListener}
+                onStartStages={handleScrollToStages}
+                onOpenExam={() => setShowFinalExam(true)}
+                onOpenCertificates={() => setShowCertificateModal(true)}
+              />
+            )}
+          </ScrollScrubVideoCanvas>
         </section>
+
+        {/* COMPLETE SIX PROGRESSIVE LEARNING STAGES */}
+        <div className="mx-auto max-w-7xl space-y-12 px-6 py-24 lg:px-10">
+          <section ref={stagesSectionRef} className="space-y-10">
+            <div className="flex flex-col justify-between gap-4 border-b border-white/[0.08] pb-8 md:flex-row md:items-end">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#f5d08a]">
+                  COMPLETE SYLLABUS · 24 INTERACTIVE MODULES
+                </p>
+                <h2
+                  className="mt-3 text-3xl font-normal uppercase tracking-tight text-white sm:text-5xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  Cosmic Learning Registry
+                </h2>
+              </div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
+                06 PROGRESSIVE CELESTIAL STAGES · 3 AGE TIERS
+              </p>
+            </div>
+
+            <div className="space-y-10">
+              {ACADEMY_STAGES.map((stage) => (
+                <LearningStageCard
+                  key={stage.id}
+                  stage={stage}
+                  progress={progress}
+                  onToggleBookmark={toggleBookmark}
+                  onSelectModule={handleSelectModule}
+                />
+              ))}
+            </div>
+
+            {/* Stage 6 Capstone: Final Knowledge Assessment */}
+            <div className="flex flex-col justify-between gap-8 border border-[#f5d08a]/30 bg-[#05060a] p-8 sm:p-11 md:flex-row md:items-center">
+              <div className="max-w-2xl space-y-3">
+                <div className="flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-[0.26em]">
+                  <span className="text-[#f5d08a]">CURRICULUM CAPSTONE EVALUATION</span>
+                  <span className="text-white/25">•</span>
+                  <span className="text-[#38bdf8]">20 QUESTIONS · 80% PASS THRESHOLD</span>
+                </div>
+
+                <h3
+                  className="text-2xl font-normal uppercase tracking-tight text-white sm:text-4xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  Cosmic Explorer — Final Knowledge Assessment
+                </h3>
+
+                <p className="text-xs font-light leading-relaxed text-white/65 sm:text-sm">
+                  Evaluates scientific reasoning across all 24 modules and 6 celestial stages.
+                  Features age-adaptive tiers, server-side grading, and unlocks the official
+                  cryptographically verifiable credential.
+                </p>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => setShowFinalExam(true)}
+                  className="group inline-flex h-12 items-center justify-center gap-3 rounded-full bg-[#f5d08a] pl-6 pr-2 font-mono text-xs font-semibold uppercase tracking-[0.2em] text-[#05060a] transition-all hover:bg-white"
+                >
+                  <Award className="size-4" />
+                  <span>Launch Exam</span>
+                  <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a]">
+                    <ArrowUpRight className="size-4" />
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowCertificateModal(true)}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-6 font-mono text-xs uppercase tracking-[0.18em] text-white/85 transition-colors hover:border-[#f5d08a] hover:text-[#f5d08a]"
+                >
+                  <ShieldCheck className="size-4 text-[#f5d08a]" />
+                  <span>Certificate Portal</span>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
 
       {/* Official Certificate Modal */}
@@ -778,80 +946,78 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
         completedLabCount={progress.verifiedModules?.length || 0}
       />
 
-      {/* Syllabus Modal for Coming Soon & Preview Modules */}
+      {/* Syllabus Modal */}
       {previewModule && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-slate-900 p-6 sm:p-8 shadow-2xl overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/10">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl">
+          <div className="relative w-full max-w-2xl border border-white/15 bg-[#05060a] p-7 sm:p-9 shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-white/[0.08] pb-5">
               <div>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="font-mono text-xs font-bold text-cyan-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded">
-                    Module #{previewModule.id}
-                  </span>
-                  <span className="text-xs text-amber-300 font-semibold bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                    Stage 0{previewModule.stageId}
-                  </span>
+                <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.24em]">
+                  <span className="text-[#f5d08a]">MODULE #{previewModule.id}</span>
+                  <span className="text-white/25">•</span>
+                  <span className="text-[#38bdf8]">STAGE 0{previewModule.stageId}</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white">{previewModule.title}</h3>
-                <p className="text-xs text-slate-400 mt-0.5">{previewModule.subtitle}</p>
+                <h3
+                  className="mt-2 text-2xl font-normal uppercase text-white"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  {previewModule.title}
+                </h3>
+                <p className="mt-1 font-mono text-xs text-white/50">{previewModule.subtitle}</p>
               </div>
 
               <button
+                type="button"
                 onClick={() => setPreviewModule(null)}
-                className="p-1.5 rounded-lg border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                className="p-1.5 text-white/40 transition-colors hover:text-white"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            {/* Modal Content */}
-            <div className="mt-5 space-y-4 max-h-[60vh] overflow-y-auto pr-1">
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-                  Module Summary
-                </h4>
-                <p className="text-sm text-slate-200 leading-relaxed">
-                  {previewModule.description}
-                </p>
-              </div>
+            <div className="mt-6 max-h-[60vh] space-y-5 overflow-y-auto pr-1">
+              <p className="text-sm font-light leading-relaxed text-white/75">
+                {previewModule.description}
+              </p>
 
-              <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">
-                  Learning Objectives:
+              <div className="border border-white/[0.08] bg-[#070a12] p-5">
+                <h4 className="mb-3 font-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d08a]">
+                  LEARNING OBJECTIVES
                 </h4>
-                <ul className="space-y-1.5 text-xs text-slate-300">
+                <ul className="space-y-2 text-xs text-white/75">
                   {previewModule.learningObjectives.map((obj, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="size-3.5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                    <li key={i} className="flex items-start gap-2.5">
+                      <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-[#38bdf8]" />
                       <span>{obj}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
-                  <span className="text-[10px] text-slate-400 block mb-0.5">
-                    Estimated Duration
+              <div className="grid grid-cols-2 gap-[1px] border border-white/[0.08] bg-white/[0.08]">
+                <div className="bg-[#05060a] p-4">
+                  <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-white/40">
+                    ESTIMATED DURATION
                   </span>
-                  <span className="font-bold text-white flex items-center gap-1.5">
-                    <Clock className="size-3.5 text-cyan-400" />
-                    {previewModule.estimatedMinutes} Minutes
+                  <span className="mt-1 flex items-center gap-1.5 font-mono text-xs text-white">
+                    <Clock className="size-3.5 text-[#f5d08a]" />
+                    {previewModule.estimatedMinutes} MINUTES
                   </span>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-white/[0.02] p-3">
-                  <span className="text-[10px] text-slate-400 block mb-0.5">Difficulty Levels</span>
-                  <span className="font-bold text-white">
-                    {previewModule.difficultyLevels.join(" • ")}
+                <div className="bg-[#05060a] p-4">
+                  <span className="block font-mono text-[9px] uppercase tracking-[0.22em] text-white/40">
+                    COGNITIVE TIERS
+                  </span>
+                  <span className="mt-1 block font-mono text-xs text-white">
+                    {previewModule.difficultyLevels.join(" · ")}
                   </span>
                 </div>
               </div>
 
               {previewModule.scientificSources.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                    Primary Grounding Archives
+                  <h4 className="mb-2.5 font-mono text-[10px] uppercase tracking-[0.24em] text-white/45">
+                    PRIMARY GROUNDING ARCHIVES
                   </h4>
                   <div className="space-y-2">
                     {previewModule.scientificSources.map((src, i) => (
@@ -860,10 +1026,10 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                         href={src.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between p-2.5 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/5 text-xs text-cyan-300 hover:text-cyan-200 transition-colors"
+                        className="flex items-center justify-between border border-white/[0.08] bg-[#070a12] p-3 font-mono text-xs text-[#38bdf8] transition-colors hover:border-[#f5d08a] hover:text-[#f5d08a]"
                       >
                         <span className="truncate">{src.title}</span>
-                        <ExternalLink className="size-3 text-slate-400 ml-2 flex-shrink-0" />
+                        <ExternalLink className="ml-2 size-3.5 shrink-0" />
                       </a>
                     ))}
                   </div>
@@ -871,26 +1037,24 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
               )}
             </div>
 
-            {/* Modal Footer */}
-            <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
-              <span className="text-xs text-slate-400 flex items-center gap-1.5">
+            <div className="mt-6 flex items-center justify-between border-t border-white/[0.08] pt-5">
+              <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">
                 <ShieldCheck className="size-3.5 text-emerald-400" />
-                Registered in Cosmic Academy Module Registry v{previewModule.version}
+                REGISTRY V{previewModule.version}
               </span>
-              <Button
-                variant="outline"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => setPreviewModule(null)}
-                className="border-white/10 text-white"
+                className="rounded-full border border-white/15 px-5 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white hover:border-white/40"
               >
-                Close Preview
-              </Button>
+                Close
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Student Account & Profile Management Modal */}
+      {/* Student Profile Modal */}
       <StudentProfileModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}

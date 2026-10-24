@@ -27,6 +27,7 @@ import { galaxyOrder, isDetailedGalaxy } from "./GalaxyInfoPanel";
 import { OBSERVED_OBJECTS, OBJECT_CATEGORIES, type ObservedObject } from "./observed-objects";
 import { OBSERVATIONAL_GALAXY_CATALOG } from "./galaxy-catalog";
 import { exoSystemFor } from "./exosystems";
+import { REAL_SYSTEMS } from "./real-exoplanets";
 import { scaleManager } from "@/lib/astronomy/scale-manager";
 import { GaiaAtlasPanel } from "./GaiaAtlasPanel";
 import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
@@ -40,6 +41,7 @@ import {
   createTargetFromPlanet,
   createTargetFromGalaxy,
   createTargetFromObservedObject,
+  createTargetFromExoplanet,
 } from "./universal-target-factory";
 import { GuidedJourneyHUD } from "./GuidedJourneyHUD";
 
@@ -94,26 +96,28 @@ export function InfoPanel() {
                 <span>Open 7-Tab Science Dossier</span>
               </button>
               <div className="mt-6 grid grid-cols-2 gap-y-4 text-sm">
-                <Stat label="Distance" value={`${star.distance.toFixed(2)} ly`} />
-                <Stat label="Spectral type" value={star.spectral} />
-                <Stat label="App. magnitude" value={star.magnitude.toFixed(2)} />
-                <Stat label="Abs. magnitude" value={star.absMagnitude.toFixed(2)} />
-                <Stat label="Mass" value={`${star.mass} M☉`} />
-                <Stat label="Radius" value={`${star.radius} R☉`} />
-                <Stat label="Temperature" value={`${star.temperature.toLocaleString()} K`} />
-                <Stat label="Luminosity" value={`${star.luminosity} L☉`} />
-                <Stat label="Right ascension" value={star.ra} />
-                <Stat label="Declination" value={star.dec} />
+                <Stat label="Distance" value={`${(star.distance ?? 0).toFixed(2)} ly`} />
+                <Stat label="Spectral type" value={star.spectral ?? "G2V"} />
+                <Stat label="App. magnitude" value={(star.magnitude ?? 0).toFixed(2)} />
+                <Stat label="Abs. magnitude" value={(star.absMagnitude ?? 4.83).toFixed(2)} />
+                <Stat label="Mass" value={`${star.mass ?? 1} M☉`} />
+                <Stat label="Radius" value={`${star.radius ?? 1} R☉`} />
+                <Stat label="Temperature" value={`${(star.temperature ?? 5778).toLocaleString()} K`} />
+                <Stat label="Luminosity" value={`${star.luminosity ?? 1} L☉`} />
+                <Stat label="Right ascension" value={star.ra ?? "00h 00m"} />
+                <Stat label="Declination" value={star.dec ?? "+00° 00'"} />
                 <Stat
                   label="Galactic l, b"
-                  value={`${star.galacticL.toFixed(1)}°, ${star.galacticB.toFixed(1)}°`}
+                  value={`${(star.galacticL ?? 0).toFixed(1)}°, ${(star.galacticB ?? 0).toFixed(1)}°`}
                 />
-                <Stat label="Known planets" value={String(star.planets)} />
+                <Stat label="Known planets" value={String(star.planets ?? 0)} />
               </div>
               <div className="my-6 h-px bg-white/10" />
               <p className="text-sm leading-relaxed text-white/75">{star.description}</p>
 
               <StarDerived star={star} />
+
+              <ExoSystemSection star={star} />
 
               <GaiaScientificSection star={star} />
 
@@ -311,32 +315,37 @@ function ExoSystemSection({ star }: { star: NamedStar }) {
 }
 
 function StarDerived({ star }: { star: NamedStar }) {
-  const pc = star.distance / 3.26156;
-  const peakNm = star.temperature > 0 ? 2.8977719e6 / star.temperature : 0;
-  const hzInner = Math.sqrt(star.luminosity / 1.1);
-  const hzOuter = Math.sqrt(star.luminosity / 0.53);
-  const lifeGyr = star.luminosity > 0 ? 10 * (star.mass / star.luminosity) : 0;
-  const gravity = star.radius > 0 ? star.mass / (star.radius * star.radius) : 0;
+  const dist = star.distance ?? 0;
+  const temp = star.temperature ?? 5778;
+  const lum = star.luminosity ?? 1;
+  const mass = star.mass ?? 1;
+  const rad = star.radius ?? 1;
+  const pc = dist / 3.26156;
+  const peakNm = temp > 0 ? 2.8977719e6 / temp : 0;
+  const hzInner = Math.sqrt(lum / 1.1);
+  const hzOuter = Math.sqrt(lum / 0.53);
+  const lifeGyr = lum > 0 ? 10 * (mass / lum) : 0;
+  const gravity = rad > 0 ? mass / (rad * rad) : 0;
   const colorName =
-    star.temperature > 25000
+    temp > 25000
       ? "blue"
-      : star.temperature > 10000
+      : temp > 10000
         ? "blue-white"
-        : star.temperature > 7300
+        : temp > 7300
           ? "white"
-          : star.temperature > 5900
+          : temp > 5900
             ? "yellow-white"
-            : star.temperature > 4700
+            : temp > 4700
               ? "yellow"
-              : star.temperature > 3500
+              : temp > 3500
                 ? "orange"
                 : "red";
   const rows: Array<[string, string]> = [
     [
       "Light travel time",
-      star.distance < 0.01 ? "8.3 minutes" : `${star.distance.toFixed(2)} years`,
+      dist < 0.01 ? "8.3 minutes" : `${dist.toFixed(2)} years`,
     ],
-    ["Distance", `${pc.toFixed(2)} parsecs · ${(star.distance * 63241).toExponential(2)} AU`],
+    ["Distance", `${pc.toFixed(2)} parsecs · ${(dist * 63241).toExponential(2)} AU`],
     ["Peak colour", `${colorName}, peaking near ${Math.round(peakNm)} nm`],
     ["Habitable zone", `${hzInner.toFixed(2)} – ${hzOuter.toFixed(2)} AU`],
     ["Surface gravity", `${gravity.toFixed(2)} × the Sun's`],
@@ -824,6 +833,7 @@ function SearchIcon() {
 
 type SearchHit =
   | { kind: "star"; name: string; sub: string; star: NamedStar }
+  | { kind: "exoplanet"; name: string; sub: string; star: NamedStar; planetName: string }
   | { kind: "planet"; name: string; sub: string }
   | { kind: "galaxy"; name: string; sub: string; galaxy: (typeof NAMED_GALAXIES)[number] }
   | { kind: "object"; name: string; sub: string; object: ObservedObject };
@@ -831,6 +841,7 @@ type SearchHit =
 function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState("");
   const flyTo = useStore((s) => s.flyToStar);
+  const visitExoPlanet = useStore((s) => s.visitExoPlanet);
   const setVisitPlanet = useStore((s) => s.setVisitPlanet);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const setSelectedObject = useStore((s) => s.setSelectedObject);
@@ -856,6 +867,23 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
       sub: `Star · ${s.distance.toFixed(1)} ly`,
       star: s,
     }));
+    const exoHits: SearchHit[] = [];
+    for (const s of NAMED_STARS) {
+      if (s.name === "Sun") continue;
+      const real = REAL_SYSTEMS[s.name];
+      if (!real) continue;
+      for (const p of real) {
+        if (p.name.toLowerCase().includes(lower)) {
+          exoHits.push({
+            kind: "exoplanet",
+            name: p.name,
+            sub: `Exoplanet · ${s.name} · ${p.aAU.toFixed(3)} AU`,
+            star: s,
+            planetName: p.name,
+          });
+        }
+      }
+    }
     const planets: SearchHit[] = PLANETS.filter((p) => p.name.toLowerCase().includes(lower)).map(
       (p) => ({ kind: "planet", name: p.name, sub: `Planet · ${(p.a / AU).toFixed(2)} AU` }),
     );
@@ -889,10 +917,11 @@ function SearchBar({ open, onClose }: { open: boolean; onClose: () => void }) {
       sub: `${o.category} · ${o.subtype}`,
       object: o,
     }));
-    return [...planets, ...gaiaHits, ...stars, ...objects, ...galaxies].slice(0, 10);
+    return [...planets, ...exoHits, ...gaiaHits, ...stars, ...objects, ...galaxies].slice(0, 10);
   }, [q]);
   const activate = (m: SearchHit) => {
     if (m.kind === "star") flyTo(m.star);
+    else if (m.kind === "exoplanet") visitExoPlanet(m.star, m.planetName);
     else if (m.kind === "planet") setVisitPlanet(m.name);
     else if (m.kind === "object") setSelectedObject(m.object.id);
     else {
@@ -1651,13 +1680,17 @@ export function LoadingScreen({ done }: { done: boolean }) {
 export function SiteMap() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(!isMobile);
-  const [section, setSection] = useState<"journey" | "planets" | "stars" | "galaxies" | "objects">(
-    "journey",
-  );
+  const [section, setSection] = useState<
+    "journey" | "planets" | "stars" | "exoplanets" | "galaxies" | "objects"
+  >("journey");
   const [q, setQ] = useState("");
+  const [expandedStars, setExpandedStars] = useState<Record<string, boolean>>({});
+  const [exoFilter, setExoFilter] = useState<"confirmed" | "all">("confirmed");
 
   const visitPlanet = useStore((s) => s.visitPlanet);
   const setVisitPlanet = useStore((s) => s.setVisitPlanet);
+  const exoVisit = useStore((s) => s.exoVisit);
+  const visitExoPlanet = useStore((s) => s.visitExoPlanet);
   const selected = useStore((s) => s.selectedStar);
   const flyTo = useStore((s) => s.flyToStar);
   const setSelected = useStore((s) => s.setSelected);
@@ -1679,6 +1712,13 @@ export function SiteMap() {
         .sort((a, b) => a.distance - b.distance),
     [],
   );
+  const starExoSystems = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof exoSystemFor>>();
+    for (const s of stars) {
+      map.set(s.name, exoSystemFor(s));
+    }
+    return map;
+  }, [stars]);
   const galaxies = useMemo(() => NAMED_GALAXIES.slice().sort(galaxyOrder), []);
 
   const goGalaxy = (g: (typeof NAMED_GALAXIES)[number]) =>
@@ -1714,27 +1754,7 @@ export function SiteMap() {
       badge: "100 AU",
       desc: "Sun & planetary orbits",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
-        flyTo({
-          name: "Sun",
-          x: 0,
-          y: 0,
-          z: 0,
-          radius: 1,
-          temperature: 5778,
-          luminosity: 1,
-          ra: "00h 00m",
-          dec: "+00° 00'",
-          galacticL: 0,
-          galacticB: 0,
-          distance: 0,
-          spectral: "G2V",
-          planets: 8,
-          description: "Center of the Solar System.",
-        });
+        flyTo(NAMED_STARS[0]);
       },
     },
     {
@@ -1743,12 +1763,14 @@ export function SiteMap() {
       badge: "40 ly",
       desc: "Solar interstellar bubble",
       action: () => {
-        setVisitPlanet(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
-          flyTo: { x: 0, y: 0, z: 0, distance: 48 },
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
           selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
+          flyTo: { x: 0, y: 0, z: 0, distance: 48 },
         });
       },
     },
@@ -1758,9 +1780,6 @@ export function SiteMap() {
       badge: "100k ly",
       desc: "Barred spiral galaxy",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setSelectedObject(null);
         setVisitGalaxy({
           name: "Milky Way",
           x: -26000,
@@ -1768,7 +1787,7 @@ export function SiteMap() {
           z: 0,
           size: 100000,
           distance: 26000,
-          type: "Barred Spiral",
+          type: "Barred Spiral (SBbc)",
           view: "overview",
         });
       },
@@ -1779,17 +1798,14 @@ export function SiteMap() {
       badge: "2.54 Mly",
       desc: "Sister spiral galaxy",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setSelectedObject(null);
         setVisitGalaxy({
-          name: "Andromeda",
-          x: -2537000,
-          y: 0,
-          z: 0,
+          name: "Andromeda (M31)",
+          x: -1191000,
+          y: -929000,
+          z: 2029000,
           size: 220000,
           distance: 2537000,
-          type: "Spiral",
+          type: "Barred Spiral (SA(s)b)",
           view: "overview",
         });
       },
@@ -1800,11 +1816,13 @@ export function SiteMap() {
       badge: "54 Mly",
       desc: "Virgo supercluster core",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
+          selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
           flyTo: { x: -1.2e7, y: 5.2e7, z: -5e6, distance: 6.5e7 },
         });
       },
@@ -1815,11 +1833,13 @@ export function SiteMap() {
       badge: "1.2 Gly",
       desc: "Filamentary cosmic scaffolding",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
+          selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
           flyTo: { x: 0, y: 0, z: 0, distance: 1.5e9 },
           showCosmicWebDensity: true,
         });
@@ -1831,11 +1851,13 @@ export function SiteMap() {
       badge: "46.5 Gly",
       desc: "Cosmic horizon & CMB",
       action: () => {
-        setVisitPlanet(null);
-        setSelected(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
+          selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
           flyTo: { x: 0, y: 0, z: 0, distance: 4.65e10 },
           showCosmicWebDensity: true,
         });
@@ -1871,7 +1893,7 @@ export function SiteMap() {
     >
       <motion.div
         initial={isMobile ? { y: "100%" } : false}
-        animate={isMobile ? { y: 0 } : { width: open ? 284 : 44 }}
+        animate={isMobile ? { y: 0 } : { width: open ? 312 : 44 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
         className={`overflow-hidden rounded-xl border border-white/10 bg-black/65 backdrop-blur-xl shadow-2xl ${
           isMobile ? "w-full max-w-full rounded-b-none border-b-0" : "ml-4"
@@ -1912,7 +1934,7 @@ export function SiteMap() {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Filter indexed destinations..."
+              placeholder="Filter stars, exoplanets, galaxies..."
               className="mb-2 h-8 w-full rounded-full border border-white/15 bg-white/5 px-3 text-[11px] text-white outline-none placeholder:text-white/35 focus:border-cyan-400/60 transition"
             />
 
@@ -1946,19 +1968,21 @@ export function SiteMap() {
 
             {/* Category Navigation Tabs */}
             <div className="mb-2 flex gap-1 overflow-x-auto no-scrollbar">
-              {(["journey", "planets", "stars", "galaxies", "objects"] as const).map((k) => (
-                <button
-                  key={k}
-                  onClick={() => setSection(k)}
-                  className={`flex-1 rounded-full px-2 py-1 text-[9px] uppercase tracking-[0.1em] font-medium whitespace-nowrap transition ${
-                    section === k
-                      ? "bg-cyan-500/20 text-cyan-200 border border-cyan-500/30 font-semibold"
-                      : "text-white/45 hover:bg-white/5 hover:text-white/80"
-                  }`}
-                >
-                  {k === "journey" ? "Scale" : k}
-                </button>
-              ))}
+              {(["journey", "planets", "stars", "exoplanets", "galaxies", "objects"] as const).map(
+                (k) => (
+                  <button
+                    key={k}
+                    onClick={() => setSection(k)}
+                    className={`shrink-0 rounded-full px-2 py-1 text-[8.5px] uppercase tracking-[0.08em] font-medium whitespace-nowrap transition ${
+                      section === k
+                        ? "bg-cyan-500/20 text-cyan-200 border border-cyan-500/30 font-semibold"
+                        : "text-white/45 hover:bg-white/5 hover:text-white/80"
+                    }`}
+                  >
+                    {k === "journey" ? "Scale" : k === "exoplanets" ? "Exoplanets" : k}
+                  </button>
+                ),
+              )}
             </div>
 
             {/* Section Item Lists */}
@@ -1991,9 +2015,7 @@ export function SiteMap() {
                         <div className="text-[11px] font-medium text-white flex items-center gap-1.5">
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${
-                              cosmicJourneyIndex === st.idx
-                                ? "bg-cyan-400 animate-pulse"
-                                : "bg-white/25"
+                              cosmicJourneyIndex === st.idx ? "bg-cyan-400" : "bg-white/25"
                             }`}
                           />
                           <span>{st.name}</span>
@@ -2055,7 +2077,7 @@ export function SiteMap() {
                 </>
               )}
 
-              {/* Section 2: Stars */}
+              {/* Section 2: Stars (Hierarchical Tree with Exoplanets) */}
               {section === "stars" && (
                 <>
                   <Row
@@ -2065,24 +2087,156 @@ export function SiteMap() {
                     onClick={() => setSelected(null)}
                   />
                   {stars
-                    .filter(
-                      (s) => match(s.name) || match(s.spectral) || match(s.constellation || ""),
-                    )
-                    .map((s) => (
-                      <Row
-                        key={s.name}
-                        label={s.name}
-                        sub={`${s.distance.toFixed(1)} ly`}
-                        color="#cfe0ff"
-                        active={selected?.name === s.name}
-                        onClick={() => flyTo(s)}
-                        onDossier={() => setActiveUniversalTarget(createTargetFromStar(s))}
-                      />
-                    ))}
+                    .filter((s) => {
+                      const sys = starExoSystems.get(s.name);
+                      const planetMatch = sys?.planets.some(
+                        (p) => match(p.name) || match(p.kind),
+                      );
+                      return (
+                        match(s.name) ||
+                        match(s.spectral) ||
+                        match(s.constellation || "") ||
+                        planetMatch
+                      );
+                    })
+                    .map((s) => {
+                      const sys = starExoSystems.get(s.name);
+                      const hasConfirmed = Boolean(REAL_SYSTEMS[s.name]);
+                      const isExpanded =
+                        expandedStars[s.name] ??
+                        (selected?.name === s.name ||
+                          exoVisit?.star.name === s.name ||
+                          (Boolean(lower) &&
+                            sys?.planets.some((p) => match(p.name) || match(p.kind))));
+                      return (
+                        <div key={s.name}>
+                          <div className="flex items-center gap-0.5">
+                            {sys && sys.planets.length > 0 && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedStars((prev) => ({
+                                    ...prev,
+                                    [s.name]: !isExpanded,
+                                  }));
+                                }}
+                                title={
+                                  isExpanded
+                                    ? `Hide ${sys.planets.length} planets`
+                                    : `Show ${sys.planets.length} planets (${hasConfirmed ? "Confirmed" : "Modelled"})`
+                                }
+                                className="grid h-6 w-5 shrink-0 place-items-center rounded text-[10px] text-white/45 hover:bg-white/10 hover:text-white"
+                              >
+                                {isExpanded ? "▾" : "▸"}
+                              </button>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <Row
+                                label={hasConfirmed ? `${s.name} ★` : s.name}
+                                sub={`${s.distance.toFixed(1)} ly · ${sys?.planets.length ?? 0}p`}
+                                color={hasConfirmed ? "#6ee7b7" : "#cfe0ff"}
+                                active={selected?.name === s.name && !exoVisit}
+                                onClick={() => flyTo(s)}
+                                onDossier={() => setActiveUniversalTarget(createTargetFromStar(s))}
+                              />
+                            </div>
+                          </div>
+                          {isExpanded &&
+                            sys?.planets.map((p) => (
+                              <Row
+                                key={p.name}
+                                label={`↳ ${p.name}${p.inHZ ? " · HZ" : ""}`}
+                                sub={`${p.aAU.toFixed(3)} AU`}
+                                color={p.color}
+                                indent
+                                active={exoVisit?.planet === p.name}
+                                onClick={() => visitExoPlanet(s, p.name)}
+                                onDossier={() =>
+                                  setActiveUniversalTarget(createTargetFromExoplanet(s, p))
+                                }
+                              />
+                            ))}
+                        </div>
+                      );
+                    })}
                 </>
               )}
 
-              {/* Section 3: Galaxies */}
+              {/* Section 3: Dedicated Exoplanets & Host Systems */}
+              {section === "exoplanets" && (
+                <>
+                  <div className="mb-1.5 flex items-center justify-between px-1.5 py-1">
+                    <span className="text-[9px] uppercase tracking-[0.14em] text-emerald-300/80 font-semibold">
+                      {exoFilter === "confirmed"
+                        ? "Confirmed Archive Systems"
+                        : "All Star Systems"}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setExoFilter((f) => (f === "confirmed" ? "all" : "confirmed"))
+                      }
+                      className="rounded border border-white/15 bg-white/5 px-1.5 py-0.5 font-mono text-[8.5px] text-white/70 transition hover:bg-white/10 hover:text-white"
+                    >
+                      {exoFilter === "confirmed" ? "Show +Modelled" : "Confirmed Only"}
+                    </button>
+                  </div>
+                  {stars
+                    .filter((s) => exoFilter === "all" || Boolean(REAL_SYSTEMS[s.name]))
+                    .filter((s) => {
+                      const sys = starExoSystems.get(s.name);
+                      if (!sys) return false;
+                      return (
+                        match(s.name) ||
+                        match(s.spectral) ||
+                        match(s.constellation || "") ||
+                        sys.planets.some((p) => match(p.name) || match(p.kind))
+                      );
+                    })
+                    .map((s) => {
+                      const sys = starExoSystems.get(s.name)!;
+                      const isConfirmed = Boolean(REAL_SYSTEMS[s.name]);
+                      return (
+                        <div
+                          key={s.name}
+                          className="mb-2 rounded-lg border border-white/5 bg-white/[0.02] p-1"
+                        >
+                          <Row
+                            label={`★ ${s.name}`}
+                            sub={`${s.spectral} · ${s.distance.toFixed(1)} ly`}
+                            color={isConfirmed ? "#6ee7b7" : "#cfe0ff"}
+                            active={selected?.name === s.name && !exoVisit}
+                            onClick={() => flyTo(s)}
+                            onDossier={() => setActiveUniversalTarget(createTargetFromStar(s))}
+                          />
+                          {sys.planets
+                            .filter(
+                              (p) =>
+                                !lower ||
+                                match(s.name) ||
+                                match(p.name) ||
+                                match(p.kind),
+                            )
+                            .map((p) => (
+                              <Row
+                                key={p.name}
+                                label={`↳ ${p.name}${p.inHZ ? " · HZ" : ""}`}
+                                sub={`${p.kind} · ${p.aAU.toFixed(3)} AU`}
+                                color={p.color}
+                                indent
+                                active={exoVisit?.planet === p.name}
+                                onClick={() => visitExoPlanet(s, p.name)}
+                                onDossier={() =>
+                                  setActiveUniversalTarget(createTargetFromExoplanet(s, p))
+                                }
+                              />
+                            ))}
+                        </div>
+                      );
+                    })}
+                </>
+              )}
+
+              {/* Section 4: Galaxies */}
               {section === "galaxies" && (
                 <>
                   <Row
@@ -2125,7 +2279,7 @@ export function SiteMap() {
                 </>
               )}
 
-              {/* Section 4: Deep-Space Observed Objects */}
+              {/* Section 5: Deep-Space Observed Objects */}
               {section === "objects" &&
                 OBJECT_CATEGORIES.map((category) => {
                   const items = OBSERVED_OBJECTS.filter(

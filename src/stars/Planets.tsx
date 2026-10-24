@@ -135,10 +135,11 @@ export const PLANETS: PlanetDef[] = [
     size: 0.617 * P,
     color: "#c8a878",
     emissive: "#3a2410",
+    atmosphere: "#d8c3a0",
     period: 96,
     spinPeriod: 0.6,
     tilt: deg(3.13),
-    ring: { inner: 1.18 * P, outer: 1.35 * P, color: "#7a6a55" },
+    ring: { inner: 0.72 * P, outer: 0.96 * P, color: "#8c7860" },
     moons: [
       { name: "Io", distance: 1.2 * P, size: 0.017 * P, color: "#e6cf6a", period: 2.2 },
       { name: "Europa", distance: 1.5 * P, size: 0.015 * P, color: "#e3d9c2", period: 3.6 },
@@ -209,10 +210,11 @@ export const PLANETS: PlanetDef[] = [
     size: 0.52 * P,
     color: "#e6c98a",
     emissive: "#3a2c0e",
+    atmosphere: "#e6d3a3",
     period: 150,
     spinPeriod: 0.7,
     tilt: deg(26.73),
-    ring: { inner: 1.15 * P, outer: 2.2 * P, color: "#e0d2a8", tilt: deg(26.73) },
+    ring: { inner: 0.66 * P, outer: 1.38 * P, color: "#e6d8b4", tilt: deg(26.73) },
     moons: [
       {
         name: "Mimas",
@@ -266,10 +268,11 @@ export const PLANETS: PlanetDef[] = [
     size: 0.22 * P,
     color: "#9fd8e0",
     emissive: "#102830",
+    atmosphere: "#9fe3ea",
     period: 240,
     spinPeriod: -1.0,
     tilt: deg(97.77),
-    ring: { inner: 0.6 * P, outer: 0.75 * P, color: "#6a8a92", tilt: deg(97.77) },
+    ring: { inner: 0.36 * P, outer: 0.52 * P, color: "#82a8b4", tilt: deg(97.77) },
     moons: [
       {
         name: "Puck",
@@ -298,9 +301,11 @@ export const PLANETS: PlanetDef[] = [
     size: 0.213 * P,
     color: "#3b6df0",
     emissive: "#08163a",
+    atmosphere: "#4d7cff",
     period: 330,
     spinPeriod: 1.1,
     tilt: deg(28.32),
+    ring: { inner: 0.34 * P, outer: 0.48 * P, color: "#5c7da8", tilt: deg(28.32) },
     moons: [
       {
         name: "Naiad",
@@ -344,6 +349,7 @@ export const PLANETS: PlanetDef[] = [
     omega: deg(113.76),
     size: 0.01 * P,
     color: "#c9b39a",
+    atmosphere: "#78b4eb",
     period: 420,
     spinPeriod: 2.1,
     tilt: deg(122.5),
@@ -561,13 +567,15 @@ function getRegistry(): PlanetRegistry {
 // when looking toward the Sun. Mars is famously inverted: dusty butterscotch
 // days and blue sunsets.
 const ATMO_PRESETS: Record<string, { ray: string; sunset: string; mie: number }> = {
-  Earth: { ray: "#4f8dff", sunset: "#ff7a3c", mie: 0.55 },
-  Venus: { ray: "#f2d38c", sunset: "#ffb066", mie: 0.8 },
-  Mars: { ray: "#d9a070", sunset: "#6fa0ff", mie: 0.9 },
-  Jupiter: { ray: "#d8c3a0", sunset: "#c98a5a", mie: 0.3 },
-  Saturn: { ray: "#e6d3a3", sunset: "#c99a60", mie: 0.3 },
-  Uranus: { ray: "#9fe3ea", sunset: "#6fc0c8", mie: 0.25 },
-  Neptune: { ray: "#4d7cff", sunset: "#3355cc", mie: 0.25 },
+  Mercury: { ray: "#b8a68e", sunset: "#d69e66", mie: 0.15 },
+  Earth: { ray: "#4287ff", sunset: "#ff6e30", mie: 0.62 },
+  Venus: { ray: "#f5d78e", sunset: "#ffa854", mie: 0.85 },
+  Mars: { ray: "#de9b68", sunset: "#6fa6ff", mie: 0.92 },
+  Jupiter: { ray: "#dec7a2", sunset: "#c98552", mie: 0.36 },
+  Saturn: { ray: "#ebd8a8", sunset: "#cf9b5e", mie: 0.36 },
+  Uranus: { ray: "#9ae6ef", sunset: "#68c2cc", mie: 0.28 },
+  Neptune: { ray: "#4578ff", sunset: "#2c4fd6", mie: 0.32 },
+  Pluto: { ray: "#6cb4f5", sunset: "#4284cc", mie: 0.45 },
 };
 const ATMO_VERT = /* glsl */ `
 #include <common>
@@ -601,42 +609,64 @@ void main(){
   float pMie = (1.5 * (1.0 - g * g) / (2.0 + g * g)) * (1.0 + cosGamma * cosGamma) / pow(1.0 + g * g - 2.0 * g * cosGamma, 1.5);
 
   // Optical airmass path length along grazing limb
-  float rim = pow(1.0 - nv, 2.8);
-  float day = smoothstep(-0.15, 0.4, nl);
+  float rim = pow(1.0 - nv, 2.75);
+  float day = smoothstep(-0.18, 0.42, nl);
   
   // Sunset terminator optical reddening (Chappuis ozone + atmospheric extinction)
-  float term = exp(-pow((nl - 0.015) / 0.18, 2.0));
+  float term = exp(-pow((nl - 0.015) / 0.19, 2.0));
 
-  vec3 rayleighCol = uRay * pRay * rim * day * 1.45;
-  vec3 sunsetCol = uSunset * term * rim * 1.3;
+  vec3 rayleighCol = uRay * pRay * rim * day * 1.5;
+  vec3 sunsetCol = uSunset * term * rim * 1.35;
   vec3 forwardMieCol = mix(uSunset, vec3(1.0), 0.6) * pMie * uMie * rim * max(nl + 0.35, 0.0);
 
   vec3 col = rayleighCol + sunsetCol + forwardMieCol;
-  float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 1.0);
+  float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 0.95);
   gl_FragColor = vec4(col, a);
 }`;
 
-// --- Close-up surface detail -----------------------------------------------
-// Gas giants: multi-octave turbulent bands with differential rotation and
-// churning vortices. Rocky worlds: fbm relief and crater shading. The layer
-// fades in only when the camera is close (cheap at a distance).
+// --- Planet-Specific 3D Physical Surface, Ocean Glint & Night City Lights ---
+const PLANET_ID_MAP: Record<string, number> = {
+  Mercury: 1,
+  Venus: 2,
+  Earth: 3,
+  Mars: 4,
+  Jupiter: 5,
+  Saturn: 6,
+  Uranus: 7,
+  Neptune: 8,
+  Pluto: 9,
+};
+
 const DETAIL_VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-varying vec3 vP; varying vec3 vN; varying vec3 vW;
+varying vec3 vP; varying vec3 vN; varying vec3 vW; varying vec2 vUv;
 void main(){
   vP = normalize(position);
+  vUv = uv;
   vec4 w = modelMatrix * vec4(position,1.0);
   vW = w.xyz;
   vN = normalize(mat3(modelMatrix) * normal);
   gl_Position = projectionMatrix * viewMatrix * w;
   #include <logdepthbuf_vertex>
 }`;
+
 const DETAIL_FRAG = /* glsl */ `
 #include <logdepthbuf_pars_fragment>
-uniform vec3 uSun; uniform float uTime; uniform float uNear; uniform float uGas; uniform float uSeed;
-uniform vec3 uTint; uniform vec3 uStorm;
-varying vec3 vP; varying vec3 vN; varying vec3 vW;
+uniform sampler2D uMap;
+uniform vec3 uSun;
+uniform float uTime;
+uniform float uNear;
+uniform float uGas;
+uniform float uSeed;
+uniform float uPlanetId;
+uniform vec3 uTint;
+uniform vec3 uStorm;
+varying vec3 vP;
+varying vec3 vN;
+varying vec3 vW;
+varying vec2 vUv;
+
 float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
 float n3(vec3 p){
   vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
@@ -644,47 +674,261 @@ float n3(vec3 p){
              mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
 }
 float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
+
 void main(){
   #include <logdepthbuf_fragment>
-  if (uNear < 0.01) discard;
+  vec3 N = normalize(vN);
+  vec3 V = normalize(cameraPosition - vW);
   vec3 L = normalize(uSun - vW);
-  float lit = clamp(dot(normalize(vN), L) * 0.9 + 0.15, 0.0, 1.0);
-  vec3 col; float alpha;
-  if (uGas > 0.5) {
-    float lat = vP.y;
-    float lon = atan(vP.z, vP.x);
-    // differential rotation: equator laps the poles
-    float shift = uTime * 0.02 * (1.0 - 0.6 * lat * lat);
-    vec3 q = vec3(cos(lon + shift), lat * 6.0, sin(lon + shift));
-    float warp = fbm(q * 2.5 + uSeed + vec3(0.0, uTime * 0.01, 0.0));
-    float bands = sin(lat * 38.0 + warp * 5.0) * 0.5 + 0.5;
-    float fine = fbm(q * 9.0 + warp * 2.0);
-    col = uTint * (0.75 + 0.5 * bands) * (0.85 + 0.3 * fine);
-    // Vortex storm at fixed latitude, churning
-    vec2 c = vec2(lon + shift * 0.6 - 1.2, (lat + 0.37) * 3.0);
-    float d = length(c * vec2(1.0, 2.2));
-    float sw = fbm(vec3(c * 6.0 + vec2(cos(uTime*0.3), sin(uTime*0.3)) * (1.0 - d), uSeed));
-    float storm = smoothstep(0.35, 0.0, d) * (0.6 + 0.4 * sw);
-    col = mix(col, uStorm * 1.1, storm);
-    alpha = 0.42 * uNear;
-  } else {
-    float rel = fbm(vP * 14.0 + uSeed);
-    float micro = fbm(vP * 60.0 + uSeed * 2.0);
-    float crater = smoothstep(0.62, 0.7, n3(vP * 40.0 + uSeed)) - smoothstep(0.7, 0.78, n3(vP * 40.0 + uSeed));
-    float shade = 0.7 + 0.5 * rel + 0.25 * micro + crater * 0.35;
-    col = uTint * shade;
-    alpha = 0.32 * uNear;
+  vec3 H = normalize(L + V);
+  float nl = dot(N, L);
+  float nv = max(dot(N, V), 0.0);
+  float dayLit = smoothstep(-0.08, 0.14, nl);
+  float diffuse = clamp(nl * 0.88 + 0.12, 0.0, 1.0) * dayLit + 0.025;
+
+  vec3 texCol = texture2D(uMap, vUv).rgb;
+  float lat = vP.y;
+  float lon = atan(vP.z, vP.x);
+
+  // Perturbed micro-normal for rocky/icy worlds
+  float eps = 0.015;
+  float h0 = fbm(vP * 18.0 + uSeed);
+  float hx = fbm((vP + vec3(eps, 0.0, 0.0)) * 18.0 + uSeed);
+  float hy = fbm((vP + vec3(0.0, eps, 0.0)) * 18.0 + uSeed);
+  vec3 bumpN = normalize(N + (vec3(h0 - hx, h0 - hy, 0.0)) * (uGas > 0.5 ? 0.08 : 0.45) * (0.35 + 0.65 * uNear));
+  float bumpLit = clamp(dot(bumpN, L) * 0.92 + 0.10, 0.0, 1.0) * dayLit + 0.025;
+
+  vec3 col = texCol;
+  vec3 additiveEmission = vec3(0.0);
+
+  if (abs(uPlanetId - 3.0) < 0.1) {
+    // EARTH: Ocean vs Land separation from texture chromaticity, ocean specular sunglint, & night city lights
+    float blueDominance = texCol.b - max(texCol.r, texCol.g * 0.92);
+    float polarCap = smoothstep(0.76, 0.90, abs(lat));
+    float oceanMask = clamp(smoothstep(0.01, 0.14, blueDominance) * (1.0 - polarCap), 0.0, 1.0);
+    float landMask = clamp((1.0 - oceanMask) * (1.0 - polarCap), 0.0, 1.0);
+
+    // Fine continental mountain relief on land
+    float relief = 0.82 + 0.36 * fbm(vP * 32.0 + uSeed);
+    col = mix(texCol, texCol * relief, landMask * (0.4 + 0.6 * uNear));
+
+    // Specular solar sunglint on oceans (warmer orange near terminator)
+    float spec = pow(max(dot(N, H), 0.0), 54.0) * oceanMask * max(nl, 0.0);
+    float fresnelWater = pow(1.0 - nv, 3.5) * oceanMask * dayLit * 0.25;
+    vec3 glintColor = mix(vec3(1.0, 0.62, 0.32), vec3(1.0, 0.97, 0.90), smoothstep(0.0, 0.38, nl));
+    col = col * mix(diffuse, bumpLit, landMask) + glintColor * spec * 0.85 + vec3(0.18, 0.42, 0.78) * fresnelWater;
+
+    // Night-side city lights along populated mid-latitude continents & coastlines
+    float nightMask = smoothstep(0.06, -0.18, nl);
+    if (nightMask > 0.005 && landMask > 0.15) {
+      float latBand = smoothstep(0.05, 0.22, abs(lat)) * (1.0 - smoothstep(0.55, 0.74, abs(lat)));
+      float urbanCluster = fbm(vP * 24.0 + vec3(3.1, 7.4, -2.2));
+      float citySparkle = smoothstep(0.58, 0.76, n3(vP * 115.0 + vec3(1.7))) * smoothstep(0.46, 0.66, urbanCluster);
+      float highway = smoothstep(0.48, 0.51, abs(n3(vP * 48.0) - 0.5)) * smoothstep(0.52, 0.68, urbanCluster) * 0.35;
+      vec3 cityCol = vec3(1.0, 0.76, 0.36) * (citySparkle * 1.45 + highway) * (0.35 + 0.65 * latBand);
+      additiveEmission += cityCol * nightMask * landMask;
+    }
+    gl_FragColor = vec4(col + additiveEmission, 1.0);
+    return;
   }
-  gl_FragColor = vec4(col * lit, alpha);
+
+  if (uGas > 0.5) {
+    // GAS & ICE GIANTS: Differential zonal rotation, Kelvin-Helmholtz wave festoons, & signature vortices
+    float shift = uTime * 0.018 * (1.0 - 0.65 * lat * lat);
+    vec3 q = vec3(cos(lon + shift), lat * 5.5, sin(lon + shift));
+    float warp = fbm(q * 2.6 + uSeed + vec3(0.0, uTime * 0.008, 0.0));
+    float bandFreq = (abs(uPlanetId - 5.0) < 0.1) ? 36.0 : (abs(uPlanetId - 6.0) < 0.1) ? 28.0 : 16.0;
+    float bands = sin(lat * bandFreq + warp * 4.5) * 0.5 + 0.5;
+    float fine = fbm(q * 11.0 + warp * 2.2);
+    vec3 procGas = mix(texCol * 0.85, texCol * (0.82 + 0.36 * bands) * (0.88 + 0.24 * fine), 0.45 + 0.45 * uNear);
+
+    if (abs(uPlanetId - 5.0) < 0.1) {
+      // JUPITER: Great Red Spot anticyclonic vortex at ~22°S (lat ≈ -0.37)
+      vec2 grsPos = vec2(mod(lon + shift * 0.45 + 3.14159, 6.28318) - 3.14159, (lat + 0.37) * 3.2);
+      float dGrs = length(grsPos * vec2(1.0, 1.85));
+      float swirlAngle = atan(grsPos.y, grsPos.x) + (1.0 - clamp(dGrs, 0.0, 1.0)) * 5.0 - uTime * 0.15;
+      float swirlNoise = fbm(vec3(cos(swirlAngle) * dGrs * 4.0, sin(swirlAngle) * dGrs * 4.0, uSeed));
+      float grsMask = smoothstep(0.36, 0.04, dGrs);
+      float grsRing = smoothstep(0.32, 0.18, dGrs) * smoothstep(0.05, 0.18, dGrs);
+      vec3 grsCol = mix(vec3(0.82, 0.28, 0.14), vec3(0.95, 0.56, 0.34), swirlNoise * 0.7 + grsRing * 0.4);
+      procGas = mix(procGas, grsCol, grsMask * 0.85);
+    } else if (abs(uPlanetId - 6.0) < 0.1) {
+      // SATURN: North Polar Hexagonal Jet Stream at ~78°N (lat > 0.78)
+      if (lat > 0.72) {
+        float rPolar = sqrt(max(0.0, 1.0 - lat * lat));
+        float hexRadius = 0.34 + 0.022 * cos(6.0 * (lon + uTime * 0.03));
+        float hexWall = exp(-pow((rPolar - hexRadius) / 0.035, 2.0));
+        float polarEye = smoothstep(0.08, 0.0, rPolar);
+        procGas = mix(procGas, vec3(0.62, 0.48, 0.28), hexWall * 0.65);
+        procGas = mix(procGas, vec3(0.32, 0.22, 0.12), polarEye * 0.75);
+      }
+    } else if (abs(uPlanetId - 8.0) < 0.1) {
+      // NEPTUNE: Great Dark Spot & high-altitude bright white methane-ice cirrus streaks
+      vec2 gdsPos = vec2(mod(lon + shift * 0.5 + 2.2, 6.28318) - 3.14159, (lat + 0.34) * 3.0);
+      float dGds = length(gdsPos * vec2(0.9, 1.9));
+      float gdsMask = smoothstep(0.32, 0.05, dGds);
+      float companionCloud = smoothstep(0.36, 0.22, dGds) * smoothstep(0.14, 0.26, dGds) * smoothstep(0.45, 0.75, fbm(q * 14.0));
+      procGas = mix(procGas, vec3(0.05, 0.12, 0.38), gdsMask * 0.78);
+      procGas = mix(procGas, vec3(0.92, 0.97, 1.0), companionCloud * 0.85);
+    }
+
+    // Minnaert / limb darkening for deep gas atmospheres
+    float limbDark = pow(max(nv, 0.05), 0.28);
+    gl_FragColor = vec4(procGas * diffuse * (0.72 + 0.28 * limbDark), 1.0);
+    return;
+  }
+
+  // ROCKY & ICY WORLDS (Mercury, Venus, Mars, Pluto)
+  if (abs(uPlanetId - 2.0) < 0.1) {
+    // VENUS: Super-rotating sulfuric acid clouds with Rossby-Kelvin Y-wave
+    float vShift = -uTime * 0.035;
+    float yWave = sin(lon + vShift + cos(lat * 3.2) * 1.6) * (1.0 - abs(lat));
+    float streaks = fbm(vec3(cos(lon + vShift), lat * 4.5, sin(lon + vShift)) * 5.0);
+    vec3 venusCol = mix(texCol, texCol * (0.86 + 0.18 * yWave + 0.16 * streaks), 0.65);
+    gl_FragColor = vec4(venusCol * diffuse, 1.0);
+    return;
+  }
+
+  // Cratered / tectonic relief shading for Mercury, Mars, Pluto
+  float micro = fbm(vP * 58.0 + uSeed * 2.0);
+  float cField = n3(vP * 38.0 + uSeed);
+  float craterRim = smoothstep(0.62, 0.69, cField) - smoothstep(0.69, 0.77, cField);
+  float shade = 0.84 + 0.22 * (h0 - 0.5) + 0.16 * (micro - 0.5) + craterRim * 0.28 * uNear;
+  gl_FragColor = vec4(texCol * shade * bumpLit, 1.0);
+}`;
+
+// --- Earth 3D Animated Cloud & Cyclone Sphere Shader -----------------------
+const EARTH_CLOUDS_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
+varying vec3 vP; varying vec3 vN; varying vec3 vW;
+void main(){
+  vP = normalize(position);
+  vec4 w = modelMatrix * vec4(position, 1.0);
+  vW = w.xyz;
+  vN = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
+}`;
+
+const EARTH_CLOUDS_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform vec3 uSun;
+uniform float uTime;
+varying vec3 vP;
+varying vec3 vN;
+varying vec3 vW;
+
+float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
+float n3(vec3 p){
+  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.04; a*=0.5; } return s; }
+
+void main(){
+  #include <logdepthbuf_fragment>
+  vec3 N = normalize(vN);
+  vec3 L = normalize(uSun - vW);
+  float nl = dot(N, L);
+
+  float lat = vP.y;
+  float lon = atan(vP.z, vP.x) + uTime * 0.012;
+  vec3 q = vec3(cos(lon) * (1.0 - 0.25 * lat * lat), lat * 2.2, sin(lon) * (1.0 - 0.25 * lat * lat));
+  vec3 warp = vec3(
+    fbm(q * 3.2 + vec3(uTime * 0.015, 0.0, 0.0)),
+    fbm(q * 3.2 + vec3(0.0, uTime * 0.015, 4.1)),
+    fbm(q * 3.2 + vec3(2.7, -uTime * 0.015, 0.0))
+  );
+  float cloud = fbm(q * 5.2 + warp * 1.65);
+  // Intertropical Convergence Zone (ITCZ) & mid-latitude storm tracks
+  float stormTrack = 0.12 * exp(-pow(lat / 0.14, 2.0)) + 0.10 * exp(-pow((abs(lat) - 0.52) / 0.18, 2.0));
+  float alpha = smoothstep(0.47 - stormTrack, 0.76, cloud) * 0.78;
+  if (alpha < 0.01) discard;
+
+  float day = smoothstep(-0.14, 0.25, nl);
+  float sunsetTerm = exp(-pow((nl - 0.02) / 0.14, 2.0));
+  vec3 cloudCol = mix(vec3(0.04, 0.06, 0.12), vec3(0.98, 0.99, 1.0), day);
+  cloudCol = mix(cloudCol, vec3(1.0, 0.58, 0.32), sunsetTerm * 0.65);
+  gl_FragColor = vec4(cloudCol, alpha);
+}`;
+
+// --- Physically Shaded 3D Planetary Rings with Live Planet Shadow Casting ---
+const RING_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
+varying vec2 vUv;
+varying vec3 vW;
+varying vec3 vN;
+void main(){
+  vUv = uv;
+  vec4 w = modelMatrix * vec4(position, 1.0);
+  vW = w.xyz;
+  vN = normalize(mat3(modelMatrix) * normal);
+  gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
+}`;
+
+const RING_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform sampler2D uRingTex;
+uniform vec3 uColor;
+uniform vec3 uSun;
+uniform vec3 uPlanetCenter;
+uniform float uPlanetRadius;
+varying vec2 vUv;
+varying vec3 vW;
+varying vec3 vN;
+
+void main(){
+  #include <logdepthbuf_fragment>
+  vec4 tex = texture2D(uRingTex, vUv);
+  if (tex.a < 0.01) discard;
+
+  vec3 L = normalize(uSun - vW);
+  vec3 V = normalize(cameraPosition - vW);
+
+  // Analytical ray-sphere intersection: cast shadow of planet onto its ring plane
+  vec3 oc = vW - uPlanetCenter;
+  float b = dot(oc, L);
+  float c = dot(oc, oc) - uPlanetRadius * uPlanetRadius;
+  float disc = b * b - c;
+  // Soft penumbra across the planet shadow boundary
+  float inShadow = (b < 0.0 && disc > 0.0)
+    ? smoothstep(0.0, uPlanetRadius * uPlanetRadius * 0.08, disc)
+    : 0.0;
+  float shadowFactor = 1.0 - 0.88 * inShadow;
+
+  // Phase-angle scattering: Seeliger opposition surge + forward dust diffraction
+  float cosPhase = dot(-V, L);
+  float backScatter = smoothstep(0.2, 1.0, -cosPhase) * 0.32;
+  float forwardScatter = pow(max(0.0, cosPhase), 4.0) * 0.45;
+  // Fine radial micro-ringlets
+  float microRinglet = 0.88 + 0.12 * sin(vUv.x * 420.0) * cos(vUv.x * 135.0);
+
+  vec3 col = tex.rgb * uColor * microRinglet * (0.78 + backScatter + forwardScatter) * shadowFactor;
+  gl_FragColor = vec4(col, tex.a * 0.96);
 }`;
 
 function Planet({ def }: { def: PlanetDef }) {
   const groupRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Mesh>(null!);
+  const cloudRef = useRef<THREE.Mesh>(null!);
   const haloRef = useRef<THREE.Sprite>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const sunTmp = useMemo(() => new THREE.Vector3(), []);
+  const surface = useMemo(() => makeSurfaceTexture(def), [def]);
+  const ringTex = useMemo(
+    () => (def.ring ? makeRingTexture(def.name, def.ring.color) : null),
+    [def],
+  );
+  const ringGeo = useMemo(
+    () => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 256) : null),
+    [def],
+  );
+
   const atmoUniforms = useMemo(() => {
     const a = ATMO_PRESETS[def.name] ?? {
       ray: def.atmosphere ?? "#88aaff",
@@ -698,21 +942,46 @@ function Planet({ def }: { def: PlanetDef }) {
       uMie: { value: a.mie },
     };
   }, [def]);
+
   const detailUniforms = useMemo(
     () => ({
+      uMap: { value: surface },
       uSun: { value: new THREE.Vector3() },
       uTime: { value: 0 },
       uNear: { value: 0 },
       uGas: { value: GAS_GIANTS.has(def.name) ? 1 : 0 },
       uSeed: { value: (hashSeed(def.name) % 1000) / 37 },
+      uPlanetId: { value: PLANET_ID_MAP[def.name] ?? 0 },
       uTint: { value: new THREE.Color(def.color) },
       uStorm: {
         value: new THREE.Color(
-          def.name === "Jupiter" ? "#b5502a" : def.name === "Neptune" ? "#0d1f5c" : def.color,
+          def.name === "Jupiter" ? "#c2441c" : def.name === "Neptune" ? "#0d1f5c" : def.color,
         ),
       },
     }),
-    [def],
+    [def, surface],
+  );
+
+  const earthCloudUniforms = useMemo(
+    () => ({
+      uSun: { value: new THREE.Vector3() },
+      uTime: { value: 0 },
+    }),
+    [],
+  );
+
+  const ringUniforms = useMemo(
+    () =>
+      def.ring && ringTex
+        ? {
+            uRingTex: { value: ringTex },
+            uColor: { value: new THREE.Color("#ffffff") },
+            uSun: { value: new THREE.Vector3() },
+            uPlanetCenter: { value: new THREE.Vector3() },
+            uPlanetRadius: { value: def.size },
+          }
+        : null,
+    [def, ringTex],
   );
 
   const scaleMode = useStore((s) => s.scaleMode);
@@ -748,15 +1017,28 @@ function Planet({ def }: { def: PlanetDef }) {
         ? ((simTimeDays() * 24) / rot.rotH) * Math.PI * 2
         : (t / def.spinPeriod) * Math.PI * 2;
     }
+    if (cloudRef.current) {
+      cloudRef.current.rotation.y =
+        (bodyRef.current?.rotation.y ?? 0) * 1.06 + t * 0.018;
+    }
+
     groupRef.current.getWorldPosition(tmp);
     // The Sun sits at the SolarSystem group's origin.
     if (groupRef.current.parent) groupRef.current.parent.getWorldPosition(sunTmp);
     atmoUniforms.uSun.value.copy(sunTmp);
     detailUniforms.uSun.value.copy(sunTmp);
     detailUniforms.uTime.value = t;
+    earthCloudUniforms.uSun.value.copy(sunTmp);
+    earthCloudUniforms.uTime.value = t;
+    if (ringUniforms) {
+      ringUniforms.uSun.value.copy(sunTmp);
+      ringUniforms.uPlanetCenter.value.copy(tmp);
+      ringUniforms.uPlanetRadius.value = effectiveSize;
+    }
+
     const camD = camera.position.distanceTo(tmp);
-    // Detail fades in as the planet fills more of the view (LOD).
-    detailUniforms.uNear.value = 1 - Math.min(1, Math.max(0, (camD / effectiveSize - 6) / 60));
+    // Detail fades in smoothly as the camera approaches the planet.
+    detailUniforms.uNear.value = 1 - Math.min(1, Math.max(0, (camD / effectiveSize - 8) / 80));
     // The distant marker sprite must not wash the planet out up close:
     // it only fades in once the disk itself is too small to resolve.
     if (haloRef.current) {
@@ -777,15 +1059,6 @@ function Planet({ def }: { def: PlanetDef }) {
 
   const setVisit = useStore((s) => s.setVisitPlanet);
   const haloTex = useMemo(() => makeHaloTexture(def.color), [def.color]);
-  const surface = useMemo(() => makeSurfaceTexture(def), [def]);
-  const ringTex = useMemo(
-    () => (def.ring ? makeRingTexture(def.name, def.ring.color) : null),
-    [def],
-  );
-  const ringGeo = useMemo(
-    () => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 192) : null),
-    [def],
-  );
 
   return (
     <group ref={groupRef}>
@@ -823,33 +1096,35 @@ function Planet({ def }: { def: PlanetDef }) {
             setVisit(def.name);
           }}
         >
-          <sphereGeometry args={[def.size, 40, 28]} />
-          <meshStandardMaterial
-            map={surface}
-            bumpMap={def.atmosphere || def.emissive ? undefined : surface}
-            bumpScale={def.size * 0.06}
-            roughness={def.emissive ? 0.55 : 0.9}
-            metalness={0.02}
-            emissive={new THREE.Color(def.emissive ?? def.color)}
-            emissiveIntensity={def.emissive ? 0.12 : 0.05}
+          <sphereGeometry args={[def.size, 72, 54]} />
+          <shaderMaterial
+            vertexShader={DETAIL_VERT}
+            fragmentShader={DETAIL_FRAG}
+            uniforms={detailUniforms}
+            depthWrite
+            depthTest
           />
-          {/* Close-up procedural detail layer (storm bands / relief) */}
-          <mesh scale={1.003}>
+        </mesh>
+
+        {/* Earth's independent 3D animated cloud & cyclone deck */}
+        {def.name === "Earth" && (
+          <mesh ref={cloudRef} scale={1.012} renderOrder={1}>
             <sphereGeometry args={[def.size, 64, 48]} />
             <shaderMaterial
-              vertexShader={DETAIL_VERT}
-              fragmentShader={DETAIL_FRAG}
-              uniforms={detailUniforms}
+              vertexShader={EARTH_CLOUDS_VERT}
+              fragmentShader={EARTH_CLOUDS_FRAG}
+              uniforms={earthCloudUniforms}
               transparent
               depthWrite={false}
             />
           </mesh>
-        </mesh>
+        )}
+
         {/* Physically-motivated atmosphere: Rayleigh-blue day limb, warm
             terminator, Mie forward scattering — all driven by the live Sun direction. */}
         {def.atmosphere && (
-          <mesh scale={1.045} renderOrder={1}>
-            <sphereGeometry args={[def.size, 48, 32]} />
+          <mesh scale={1.042} renderOrder={2}>
+            <sphereGeometry args={[def.size, 56, 40]} />
             <shaderMaterial
               vertexShader={ATMO_VERT}
               fragmentShader={ATMO_FRAG}
@@ -861,14 +1136,16 @@ function Planet({ def }: { def: PlanetDef }) {
             />
           </mesh>
         )}
-        {def.ring && ringGeo && (
-          <mesh geometry={ringGeo} rotation={[Math.PI / 2, 0, 0]} receiveShadow>
-            <meshBasicMaterial
-              map={ringTex ?? undefined}
-              color={def.ring.color}
+
+        {/* Physically shaded 3D ring system with real-time planet shadow casting */}
+        {def.ring && ringGeo && ringUniforms && (
+          <mesh geometry={ringGeo} rotation={[Math.PI / 2, 0, 0]} receiveShadow renderOrder={2}>
+            <shaderMaterial
+              vertexShader={RING_VERT}
+              fragmentShader={RING_FRAG}
+              uniforms={ringUniforms}
               side={THREE.DoubleSide}
               transparent
-              opacity={0.95}
               depthWrite={false}
             />
           </mesh>
@@ -905,8 +1182,8 @@ function rng(seed: number) {
 const GAS_GIANTS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune"]);
 
 function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
-  const W = 1024,
-    H = 512;
+  const W = 2048,
+    H = 1024;
   const c = document.createElement("canvas");
   c.width = W;
   c.height = H;
@@ -921,22 +1198,79 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
     const col = base.clone();
     const hsl = { h: 0, s: 0, l: 0 };
     col.getHSL(hsl);
-    col.setHSL(hsl.h, hsl.s, Math.min(0.95, Math.max(0.03, hsl.l * l)));
+    col.setHSL(hsl.h, hsl.s, Math.min(0.96, Math.max(0.03, hsl.l * l)));
     return `#${col.getHexString()}`;
   };
 
   if (GAS_GIANTS.has(def.name)) {
-    // Latitudinal cloud bands with turbulent edges
+    if (def.name === "Jupiter") {
+      // Authentic Jovian zones (creamy ammonia ice) and belts (reddish-brown ammonium hydrosulfide)
+      const bandPalette = [
+        { y: 0.0, h: 0.12, col: "#9e886c" }, // North Polar Region
+        { y: 0.12, h: 0.07, col: "#dfd1b8" }, // N. Temperate Zone
+        { y: 0.19, h: 0.05, col: "#b5744a" }, // N. Temperate Belt
+        { y: 0.24, h: 0.08, col: "#eee3ce" }, // N. Tropical Zone
+        { y: 0.32, h: 0.11, col: "#9c5230" }, // North Equatorial Belt (NEB)
+        { y: 0.43, h: 0.14, col: "#f2e7d3" }, // Equatorial Zone (EZ) with ochre festoons
+        { y: 0.57, h: 0.12, col: "#a85834" }, // South Equatorial Belt (SEB)
+        { y: 0.69, h: 0.09, col: "#efe4d0" }, // South Tropical Zone (hosts GRS)
+        { y: 0.78, h: 0.07, col: "#a17858" }, // South Temperate Belt
+        { y: 0.85, h: 0.15, col: "#8f7d65" }, // South Polar Region
+      ];
+      for (const b of bandPalette) {
+        const g = ctx.createLinearGradient(0, b.y * H, 0, (b.y + b.h) * H);
+        g.addColorStop(0, b.col);
+        g.addColorStop(0.5, b.col);
+        g.addColorStop(1, shade(0.9));
+        ctx.fillStyle = g;
+        ctx.fillRect(0, b.y * H, W, b.h * H + 4);
+      }
+    } else if (def.name === "Saturn") {
+      // Butterscotch-gold zonal bands with north polar darkenings
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0.0, "#7a6e54");
+      grad.addColorStop(0.12, "#b89f72");
+      grad.addColorStop(0.28, "#dec28b");
+      grad.addColorStop(0.45, "#f4dfb2");
+      grad.addColorStop(0.55, "#f5e2b8");
+      grad.addColorStop(0.72, "#d8bc84");
+      grad.addColorStop(0.88, "#b59a6b");
+      grad.addColorStop(1.0, "#7d6f52");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    } else if (def.name === "Uranus") {
+      // Smooth cyan-aquamarine methane bands with bright polar collar
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0.0, "#b8edf2");
+      grad.addColorStop(0.2, "#9de0e8");
+      grad.addColorStop(0.5, "#88d0dc");
+      grad.addColorStop(0.8, "#a6e6ee");
+      grad.addColorStop(1.0, "#c8f4f8");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    } else if (def.name === "Neptune") {
+      // Deep cobalt-azure methane bands
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0.0, "#1c3b94");
+      grad.addColorStop(0.25, "#2b56c8");
+      grad.addColorStop(0.5, "#3e73f6");
+      grad.addColorStop(0.72, "#244bb8");
+      grad.addColorStop(1.0, "#162f7a");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // Latitudinal cloud bands with turbulent Kelvin-Helmholtz wave edges
     let y = 0;
     while (y < H) {
-      const h = 8 + rand() * 38;
-      const l = 0.7 + rand() * 0.7;
+      const h = 10 + rand() * 36;
+      const l = 0.78 + rand() * 0.48;
       ctx.fillStyle = shade(l);
-      ctx.globalAlpha = 0.55 + rand() * 0.35;
+      ctx.globalAlpha = def.name === "Uranus" ? 0.14 : 0.35 + rand() * 0.28;
       ctx.beginPath();
       ctx.moveTo(0, y);
       for (let x = 0; x <= W; x += 32) {
-        ctx.lineTo(x, y + Math.sin(x * 0.012 + rand() * 0.4) * 3);
+        ctx.lineTo(x, y + Math.sin(x * 0.008 + rand() * 0.5) * (def.name === "Jupiter" ? 6 : 3));
       }
       ctx.lineTo(W, y + h);
       ctx.lineTo(0, y + h);
@@ -945,149 +1279,323 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
       y += h;
     }
     ctx.globalAlpha = 1;
-    // Fine turbulent streaks inside each band (chevron wave patterns)
-    ctx.globalAlpha = 0.18;
-    for (let i = 0; i < 260; i++) {
-      const y = rand() * H;
-      const w = 40 + rand() * 160;
-      const x = rand() * W;
-      ctx.strokeStyle = shade(rand() > 0.5 ? 1.3 : 0.75);
-      ctx.lineWidth = 1 + rand() * 2;
+
+    // Fine turbulent chevron wave streaks inside bands
+    ctx.globalAlpha = def.name === "Uranus" ? 0.08 : 0.24;
+    for (let i = 0; i < 480; i++) {
+      const sy = rand() * H;
+      const w = 60 + rand() * 260;
+      const sx = rand() * W;
+      ctx.strokeStyle = shade(rand() > 0.5 ? 1.32 : 0.72);
+      ctx.lineWidth = 1.2 + rand() * 3.0;
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      for (let s = 0; s <= 8; s++) {
-        ctx.lineTo(x + (w * s) / 8, y + Math.sin(s * 1.7 + rand()) * (2 + rand() * 4));
+      ctx.moveTo(sx, sy);
+      for (let s = 0; s <= 10; s++) {
+        ctx.lineTo(sx + (w * s) / 10, sy + Math.sin(s * 1.6 + rand()) * (3 + rand() * 6));
       }
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
-    // Storm ovals (e.g. Jupiter's Great Red Spot)
-    const storms = def.name === "Jupiter" ? 6 : 3;
-    for (let i = 0; i < storms; i++) {
-      const sx = rand() * W,
-        sy = H * (0.25 + rand() * 0.5);
-      const rx = 20 + rand() * 60,
-        ry = rx * (0.35 + rand() * 0.3);
-      const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rx);
-      const stormCol = def.name === "Jupiter" && i === 0 ? "#c1440e" : shade(1.25);
-      g.addColorStop(0, stormCol);
-      g.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = g;
+
+    if (def.name === "Jupiter") {
+      // Great Red Spot + White Ovals (Oval BA) + NEB blue-gray festoons
+      const grsX = W * 0.62,
+        grsY = H * 0.68;
+      const g = ctx.createRadialGradient(grsX, grsY, 4, grsX, grsY, 95);
+      g.addColorStop(0.0, "#d94e28");
+      g.addColorStop(0.45, "#b83818");
+      g.addColorStop(0.75, "#e89c72");
+      g.addColorStop(1.0, "rgba(0,0,0,0)");
       ctx.save();
-      ctx.translate(sx, sy);
-      ctx.scale(1, ry / rx);
-      ctx.translate(-sx, -sy);
+      ctx.translate(grsX, grsY);
+      ctx.scale(1.65, 0.9);
+      ctx.translate(-grsX, -grsY);
+      ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(sx, sy, rx, 0, Math.PI * 2);
+      ctx.arc(grsX, grsY, 95, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
-    }
-  } else {
-    // Rocky/icy worlds: continents, maria and craters
-    for (let i = 0; i < 220; i++) {
-      const x = rand() * W,
-        y = rand() * H;
-      const r = 12 + rand() * 90;
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, shade(0.65 + rand() * 0.8));
-      g.addColorStop(1, "rgba(0,0,0,0)");
-      ctx.fillStyle = g;
-      ctx.globalAlpha = 0.5;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    if (def.name === "Earth") {
-      ctx.globalAlpha = 0.85;
-      for (let i = 0; i < 40; i++) {
-        const x = rand() * W,
-          y = H * (0.15 + rand() * 0.7);
-        ctx.fillStyle = rand() > 0.5 ? "#2f7d32" : "#8a6b3a";
+
+      // White anticyclonic ovals in South Temperate Belt
+      for (let i = 0; i < 8; i++) {
+        const ox = (i / 8) * W + rand() * 90;
+        const oy = H * (0.76 + (rand() - 0.5) * 0.06);
+        const rx = 18 + rand() * 24;
+        const og = ctx.createRadialGradient(ox, oy, 2, ox, oy, rx);
+        og.addColorStop(0, "#fbf5ea");
+        og.addColorStop(0.7, "#dccbb2");
+        og.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = og;
         ctx.beginPath();
-        ctx.ellipse(x, y, 20 + rand() * 70, 12 + rand() * 40, rand() * Math.PI, 0, Math.PI * 2);
+        ctx.ellipse(ox, oy, rx * 1.4, rx * 0.8, 0, 0, Math.PI * 2);
         ctx.fill();
       }
-      // polar ice
-      ctx.fillStyle = "rgba(255,255,255,0.85)";
-      ctx.fillRect(0, 0, W, 22);
-      ctx.fillRect(0, H - 22, W, 22);
-      // drifting white cloud decks
-      ctx.globalAlpha = 0.5;
-      for (let i = 0; i < 90; i++) {
-        const x = rand() * W,
-          y = rand() * H;
-        const w = 30 + rand() * 120,
-          h = 4 + rand() * 10;
-        const g = ctx.createRadialGradient(x, y, 0, x, y, w / 2);
-        g.addColorStop(0, "rgba(255,255,255,0.9)");
-        g.addColorStop(1, "rgba(255,255,255,0)");
-        ctx.fillStyle = g;
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(1, h / w);
-        ctx.translate(-x, -y);
+    } else if (def.name === "Neptune") {
+      // High-altitude white methane-ice cirrus streaks
+      ctx.globalAlpha = 0.75;
+      for (let i = 0; i < 28; i++) {
+        const cx = rand() * W;
+        const cy = H * (0.2 + rand() * 0.6);
+        const cw = 50 + rand() * 160;
+        ctx.strokeStyle = "rgba(235, 248, 255, 0.85)";
+        ctx.lineWidth = 2 + rand() * 3.5;
         ctx.beginPath();
-        ctx.arc(x, y, w / 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-      ctx.globalAlpha = 1;
-    }
-    if (def.name === "Venus") {
-      // thick sulphuric-acid cloud deck with horizontal chevron streaks
-      ctx.globalAlpha = 0.35;
-      for (let i = 0; i < 120; i++) {
-        const y = rand() * H;
-        ctx.strokeStyle = shade(0.85 + rand() * 0.4);
-        ctx.lineWidth = 2 + rand() * 6;
-        const x = rand() * W;
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.bezierCurveTo(x + 60, y - 8 + rand() * 16, x + 140, y - 8 + rand() * 16, x + 220, y);
+        ctx.moveTo(cx, cy);
+        ctx.quadraticCurveTo(cx + cw * 0.5, cy - 6 + rand() * 12, cx + cw, cy);
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
     }
-    if (def.name === "Mars") {
-      ctx.fillStyle = "rgba(255,255,255,0.75)";
+  } else if (def.name === "Earth") {
+    // Deep ocean bathymetry base
+    const oceanGrad = ctx.createLinearGradient(0, 0, 0, H);
+    oceanGrad.addColorStop(0.0, "#102e5e");
+    oceanGrad.addColorStop(0.25, "#0d3b7a");
+    oceanGrad.addColorStop(0.5, "#124c96");
+    oceanGrad.addColorStop(0.75, "#0d3b7a");
+    oceanGrad.addColorStop(1.0, "#102e5e");
+    ctx.fillStyle = oceanGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Continental landmasses with realistic macro-geography (Americas, Eurasia, Africa, Australia)
+    const continents = [
+      // North America
+      { x: 0.21, y: 0.28, rx: 0.09, ry: 0.13, rot: -0.35, biome: "#2d6a36" },
+      { x: 0.18, y: 0.34, rx: 0.05, ry: 0.08, rot: 0.2, biome: "#8c6d42" },
+      // South America
+      { x: 0.31, y: 0.64, rx: 0.055, ry: 0.15, rot: -0.18, biome: "#23632b" },
+      { x: 0.29, y: 0.66, rx: 0.02, ry: 0.14, rot: -0.15, biome: "#6e5536" }, // Andes
+      // Africa & Sahara
+      { x: 0.54, y: 0.44, rx: 0.075, ry: 0.08, rot: 0.05, biome: "#c79e58" }, // Sahara
+      { x: 0.56, y: 0.60, rx: 0.06, ry: 0.13, rot: 0.1, biome: "#326e34" }, // Central/South Africa
+      // Eurasia + Arabian + Tibetan Plateau
+      { x: 0.53, y: 0.25, rx: 0.07, ry: 0.07, rot: -0.1, biome: "#3b753c" }, // Europe
+      { x: 0.63, y: 0.39, rx: 0.045, ry: 0.05, rot: 0.3, biome: "#c29650" }, // Arabia
+      { x: 0.72, y: 0.24, rx: 0.16, ry: 0.11, rot: 0.05, biome: "#366938" }, // Siberia/Asia
+      { x: 0.74, y: 0.36, rx: 0.08, ry: 0.06, rot: -0.1, biome: "#8f7246" }, // Central Asia/Tibet
+      { x: 0.78, y: 0.42, rx: 0.06, ry: 0.07, rot: 0.2, biome: "#2c6b32" }, // SE Asia
+      // Australia
+      { x: 0.84, y: 0.71, rx: 0.055, ry: 0.05, rot: -0.1, biome: "#b56938" },
+      // Greenland
+      { x: 0.36, y: 0.12, rx: 0.04, ry: 0.045, rot: -0.2, biome: "#e8eff5" },
+    ];
+
+    for (const cDef of continents) {
+      const cx = cDef.x * W;
+      const cy = cDef.y * H;
+      const rx = cDef.rx * W;
+      const ry = cDef.ry * H;
+      // Turquoise continental shelf
+      ctx.fillStyle = "rgba(28, 126, 172, 0.38)";
       ctx.beginPath();
-      ctx.ellipse(W * 0.5, 6, W * 0.22, 20, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, cy, rx * 1.18, ry * 1.18, cDef.rot, 0, Math.PI * 2);
       ctx.fill();
+
+      // Irregular multi-lobe landmass
+      for (let k = 0; k < 28; k++) {
+        const ang = (k / 28) * Math.PI * 2;
+        const jitter = 0.45 + rand() * 0.65;
+        const lx = cx + Math.cos(ang) * rx * jitter * 0.7;
+        const ly = cy + Math.sin(ang) * ry * jitter * 0.7;
+        ctx.fillStyle = cDef.biome;
+        ctx.beginPath();
+        ctx.ellipse(
+          lx,
+          ly,
+          rx * (0.28 + rand() * 0.38),
+          ry * (0.28 + rand() * 0.38),
+          rand() * Math.PI,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      }
+    }
+
+    // Polar ice caps (Arctic & Antarctica)
+    ctx.fillStyle = "#f2f7fc";
+    ctx.fillRect(0, 0, W, 38);
+    ctx.fillRect(0, H - 56, W, 56);
+    for (let x = 0; x < W; x += 28) {
       ctx.beginPath();
-      ctx.ellipse(W * 0.5, H - 6, W * 0.18, 16, 0, 0, Math.PI * 2);
+      ctx.arc(x, 38, 18 + rand() * 18, 0, Math.PI * 2);
+      ctx.arc(x, H - 56, 22 + rand() * 24, 0, Math.PI * 2);
       ctx.fill();
     }
-    // craters
-    ctx.globalAlpha = 0.35;
-    const craters = def.name === "Mercury" ? 500 : 180;
+  } else if (def.name === "Mars") {
+    // Rusty iron-oxide southern highlands + darker northern lowlands (Vastitas Borealis)
+    const mGrad = ctx.createLinearGradient(0, 0, 0, H);
+    mGrad.addColorStop(0.0, "#a85228");
+    mGrad.addColorStop(0.32, "#b55624");
+    mGrad.addColorStop(0.55, "#c9531c");
+    mGrad.addColorStop(0.85, "#a33f14");
+    mGrad.addColorStop(1.0, "#8c3814");
+    ctx.fillStyle = mGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Dark basaltic albedo features (Syrtis Major, Acidalia Planitia, Mare Erythraeum)
+    for (let i = 0; i < 65; i++) {
+      const x = rand() * W;
+      const y = H * (0.2 + rand() * 0.65);
+      const r = 40 + rand() * 160;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, "rgba(72, 32, 18, 0.55)");
+      g.addColorStop(1, "rgba(72, 32, 18, 0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(x, y, r * 1.4, r * 0.75, rand() * Math.PI, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Valles Marineris giant equatorial canyon system
+    ctx.strokeStyle = "#4d1a08";
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(W * 0.36, H * 0.53);
+    ctx.bezierCurveTo(W * 0.43, H * 0.55, W * 0.51, H * 0.52, W * 0.58, H * 0.54);
+    ctx.stroke();
+
+    // Olympus Mons & Tharsis Montes volcanic shield edifices
+    const volcanoes = [
+      { x: 0.24, y: 0.40, r: 42 }, // Olympus Mons
+      { x: 0.30, y: 0.46, r: 26 }, // Ascraeus Mons
+      { x: 0.29, y: 0.51, r: 25 }, // Pavonis Mons
+      { x: 0.28, y: 0.56, r: 27 }, // Arsia Mons
+    ];
+    for (const v of volcanoes) {
+      const vx = v.x * W,
+        vy = v.y * H;
+      const vg = ctx.createRadialGradient(vx, vy, 2, vx, vy, v.r);
+      vg.addColorStop(0, "#59220e");
+      vg.addColorStop(0.25, "#e08452");
+      vg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = vg;
+      ctx.beginPath();
+      ctx.arc(vx, vy, v.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // North & South CO2/H2O Polar Ice Caps
+    ctx.fillStyle = "rgba(248, 250, 255, 0.88)";
+    ctx.fillRect(0, 0, W, 24);
+    ctx.fillRect(0, H - 20, W, 20);
+  } else if (def.name === "Pluto") {
+    // Pluto: Bright nitrogen-ice heart (Tombaugh Regio / Sputnik Planitia) + dark crimson Cthulhu Macula
+    for (let i = 0; i < 160; i++) {
+      const x = rand() * W,
+        y = rand() * H,
+        r = 25 + rand() * 120;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, shade(0.65 + rand() * 0.7));
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Dark crimson-brown equatorial tholin band (Cthulhu Macula)
+    const cthulhu = ctx.createRadialGradient(W * 0.32, H * 0.56, 20, W * 0.32, H * 0.56, W * 0.24);
+    cthulhu.addColorStop(0, "#4a1e14");
+    cthulhu.addColorStop(0.6, "#663020");
+    cthulhu.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = cthulhu;
+    ctx.fillRect(0, 0, W, H);
+
+    // Bright creamy-white Heart (Tombaugh Regio / Sputnik Planitia)
+    const heart = ctx.createRadialGradient(W * 0.58, H * 0.48, 10, W * 0.58, H * 0.48, W * 0.16);
+    heart.addColorStop(0, "#faf3e8");
+    heart.addColorStop(0.65, "#eadbc6");
+    heart.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = heart;
+    ctx.beginPath();
+    ctx.ellipse(W * 0.58, H * 0.48, W * 0.14, H * 0.22, -0.2, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    // Mercury & Venus base
+    for (let i = 0; i < 280; i++) {
+      const x = rand() * W,
+        y = rand() * H;
+      const r = 16 + rand() * 120;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, shade(0.62 + rand() * 0.78));
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (def.name === "Venus") {
+      // Thick sulfuric-acid cloud deck with dark UV-absorber planetary Y/V chevron waves
+      ctx.globalAlpha = 0.42;
+      for (let i = 0; i < 200; i++) {
+        const y = rand() * H;
+        ctx.strokeStyle = shade(0.78 + rand() * 0.45);
+        ctx.lineWidth = 3 + rand() * 10;
+        const x = rand() * W;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(
+          x + 120,
+          y - 18 + rand() * 36,
+          x + 260,
+          y - 18 + rand() * 36,
+          x + 420,
+          y,
+        );
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // Impact craters for Mercury, Mars, Pluto
+  if (!GAS_GIANTS.has(def.name) && def.name !== "Earth" && def.name !== "Venus") {
+    ctx.globalAlpha = def.name === "Mercury" ? 0.48 : 0.28;
+    const craters = def.name === "Mercury" ? 900 : 280;
     for (let i = 0; i < craters; i++) {
       const x = rand() * W,
         y = rand() * H,
-        r = 1.5 + rand() * 9;
-      ctx.strokeStyle = shade(1.4);
-      ctx.lineWidth = 1;
+        r = 2 + rand() * (def.name === "Mercury" ? 22 : 14);
+      ctx.strokeStyle = shade(1.42);
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.fillStyle = shade(0.7);
+      ctx.fillStyle = shade(0.68);
       ctx.beginPath();
-      ctx.arc(x, y, r * 0.85, 0, Math.PI * 2);
+      ctx.arc(x, y, r * 0.86, 0, Math.PI * 2);
       ctx.fill();
+      // Bright ejecta rays on largest craters (Mercury)
+      if (def.name === "Mercury" && r > 15) {
+        ctx.strokeStyle = "rgba(240, 232, 218, 0.22)";
+        for (let k = 0; k < 12; k++) {
+          const ang = (k / 12) * Math.PI * 2 + rand() * 0.3;
+          ctx.beginPath();
+          ctx.moveTo(x + Math.cos(ang) * r, y + Math.sin(ang) * r);
+          ctx.lineTo(x + Math.cos(ang) * r * 3.4, y + Math.sin(ang) * r * 3.4);
+          ctx.stroke();
+        }
+      }
     }
   }
+
   ctx.globalAlpha = 1;
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
+  t.anisotropy = 16;
   t.needsUpdate = true;
   return t;
 }
 
 // Ring texture: radial bands of varying brightness/opacity with real gaps
-// (Cassini division for Saturn). u = radial position across the ring.
+// (D, C, B, Cassini Division, A, Encke Gap, Keeler Gap, F ring for Saturn;
+//  13 narrow dark rings for Uranus; Adams/Le Verrier arcs for Neptune).
 function makeRingTexture(name: string, color: string): THREE.Texture {
-  const W = 1024,
-    H = 8;
+  const W = 2048,
+    H = 16;
   const c = document.createElement("canvas");
   c.width = W;
   c.height = H;
@@ -1097,23 +1605,71 @@ function makeRingTexture(name: string, color: string): THREE.Texture {
   ctx.clearRect(0, 0, W, H);
   for (let x = 0; x < W; x++) {
     const u = x / W;
-    let a = 0.55 + 0.35 * Math.sin(u * 90 + rand() * 0.1) * 0.5 + rand() * 0.12;
+    let a =
+      0.52 +
+      0.28 * Math.sin(u * 120 + rand() * 0.08) +
+      0.14 * Math.cos(u * 340) +
+      rand() * 0.08;
     // soft inner/outer falloff
-    a *= Math.min(1, u * 8) * Math.min(1, (1 - u) * 6);
+    a *= Math.min(1, u * 12) * Math.min(1, (1 - u) * 10);
+    let col = base.clone();
+
     if (name === "Saturn") {
-      if (u > 0.46 && u < 0.53) a *= 0.08; // Cassini division
-      if (u > 0.72 && u < 0.735) a *= 0.25; // Encke gap
-      if (u < 0.18) a *= 0.45; // faint C ring
-      if (u > 0.55 && u < 0.72) a *= 1.25; // bright A ring
+      if (u < 0.08) {
+        a *= 0.14; // faint D ring
+      } else if (u < 0.24) {
+        a *= 0.38; // translucent C (Crepe) ring
+        col.multiplyScalar(0.78);
+      } else if (u < 0.56) {
+        a = Math.min(0.98, a * 1.38); // dense, brilliant B ring
+        col.lerp(new THREE.Color("#fff3d6"), 0.35);
+      } else if (u >= 0.56 && u < 0.625) {
+        a *= 0.04; // Cassini Division (4,800 km gap)
+      } else if (u >= 0.625 && u < 0.91) {
+        a *= 0.92; // A ring
+        if (u > 0.82 && u < 0.84) a *= 0.08; // Encke Gap
+        if (u > 0.895 && u < 0.903) a *= 0.12; // Keeler Gap
+      } else if (u >= 0.91 && u < 0.945) {
+        a *= 0.02; // Roche Division
+      } else if (u >= 0.945 && u < 0.965) {
+        a = 0.78; // narrow braided F ring
+      } else {
+        a *= 0.05;
+      }
+    } else if (name === "Uranus") {
+      // 9+ narrow, sharp rings separated by wide transparent gaps
+      const ringPositions = [0.12, 0.21, 0.28, 0.36, 0.44, 0.52, 0.63, 0.74, 0.88];
+      let ringSignal = 0.03;
+      for (let r = 0; r < ringPositions.length; r++) {
+        const width = r === 8 ? 0.028 : 0.012; // bright outer Epsilon ring is widest
+        const d = Math.abs(u - ringPositions[r]);
+        if (d < width) {
+          ringSignal = Math.max(ringSignal, (1 - d / width) * (r === 8 ? 0.85 : 0.48));
+        }
+      }
+      a = ringSignal;
+    } else if (name === "Neptune") {
+      // Galle, Le Verrier, Lassell, Arago, and Adams ring arcs
+      const arcs = [0.18, 0.44, 0.62, 0.86];
+      let sig = 0.04;
+      for (const p of arcs) {
+        const d = Math.abs(u - p);
+        if (d < 0.025) sig = Math.max(sig, (1 - d / 0.025) * 0.52);
+      }
+      a = sig;
+    } else if (name === "Jupiter") {
+      // Gossamer & main dusty ring
+      a *= 0.32 * Math.sin(u * Math.PI);
     }
-    const l = 0.75 + 0.5 * rand();
-    const col = base.clone().multiplyScalar(l);
-    ctx.fillStyle = `rgba(${Math.round(col.r * 255)},${Math.round(col.g * 255)},${Math.round(col.b * 255)},${Math.min(1, a)})`;
+
+    const l = 0.82 + 0.34 * rand();
+    col.multiplyScalar(l);
+    ctx.fillStyle = `rgba(${Math.round(Math.min(1, col.r) * 255)},${Math.round(Math.min(1, col.g) * 255)},${Math.round(Math.min(1, col.b) * 255)},${Math.min(1, Math.max(0, a))})`;
     ctx.fillRect(x, 0, 1, H);
   }
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 8;
+  t.anisotropy = 16;
   t.needsUpdate = true;
   return t;
 }
@@ -1166,6 +1722,327 @@ function makeHaloTexture(_color: string): THREE.Texture {
 
 export const moonKey = (parent: string, moon: string) => `${parent}:${moon}`;
 
+// --- Photorealistic 3D Moon Textures, Irregular Asteroid Geometry & Shaders ---
+const MAJOR_ROUND_MOONS = new Set([
+  "Moon",
+  "Io",
+  "Europa",
+  "Ganymede",
+  "Callisto",
+  "Mimas",
+  "Enceladus",
+  "Tethys",
+  "Dione",
+  "Rhea",
+  "Titan",
+  "Iapetus",
+  "Miranda",
+  "Ariel",
+  "Umbriel",
+  "Titania",
+  "Oberon",
+  "Triton",
+  "Charon",
+]);
+
+const MOON_STYLE_MAP: Record<string, number> = {
+  Moon: 1, // Lunar maria + ray craters
+  Io: 2, // Sulfur plains + glowing volcanic calderas on night side
+  Europa: 3, // Specular ice + reddish-brown linea tectonic cracks
+  Ganymede: 4, // Bifurcated dark Galileo Regio + bright grooved sulci
+  Callisto: 5, // Dark carbonaceous ice + bright Valhalla concentric impact rings
+  Titan: 6, // Dense orange nitrogen/methane haze + dark polar lakes
+  Enceladus: 7, // Brilliant white ice + South Polar blue Tiger Stripes
+  Iapetus: 8, // Yin-yang dark Cassini Regio leading hemisphere + white trailing side
+  Triton: 9, // Cantaloupe terrain + pinkish nitrogen cap + dark geyser streaks
+  Charon: 10, // Gray water-ice + reddish-brown Mordor Macula north polar hood
+  Mimas: 11, // Giant Herschel impact basin
+  Miranda: 12, // Extreme tectonic coronae & Verona Rupes cliffs
+};
+
+const MOON_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
+uniform float uIrregular;
+uniform float uSeed;
+varying vec3 vP;
+varying vec3 vN;
+varying vec3 vW;
+varying vec2 vUv;
+
+float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
+float n3(vec3 p){
+  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+
+void main(){
+  vUv = uv;
+  vec3 dir = normalize(position);
+  vP = dir;
+  vec3 pos = position;
+  vec3 norm = normal;
+
+  // Small captured / non-hydrostatic moons (Phobos, Deimos, Amalthea, Hyperion, etc.)
+  // are sculpted into realistic triaxial potato/asteroid silhouettes with giant crater cavities.
+  if (uIrregular > 0.5) {
+    vec3 stretch = vec3(1.26, 0.82, 0.94);
+    float lobe = n3(dir * 2.2 + uSeed) * 0.24 + n3(dir * 5.4 - uSeed) * 0.10;
+    // Stickney / giant impact concavity on one side
+    float stickney = smoothstep(0.55, 0.92, dot(dir, normalize(vec3(0.75, 0.25, 0.6)))) * 0.22;
+    float disp = 0.86 + lobe - stickney;
+    pos = pos * stretch * disp;
+    norm = normalize(normal / stretch + dir * (lobe - stickney));
+  }
+
+  vec4 w = modelMatrix * vec4(pos, 1.0);
+  vW = w.xyz;
+  vN = normalize(mat3(modelMatrix) * norm);
+  gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
+}`;
+
+const MOON_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform sampler2D uMap;
+uniform vec3 uSun;
+uniform float uTime;
+uniform float uSeed;
+uniform float uStyle;
+uniform float uIrregular;
+varying vec3 vP;
+varying vec3 vN;
+varying vec3 vW;
+varying vec2 vUv;
+
+float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
+float n3(vec3 p){
+  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<4;i++){ s+=a*n3(p); p*=2.05; a*=0.5; } return s; }
+
+void main(){
+  #include <logdepthbuf_fragment>
+  vec3 N = normalize(vN);
+  vec3 V = normalize(cameraPosition - vW);
+  vec3 L = normalize(uSun - vW);
+  vec3 H = normalize(L + V);
+  float nl = dot(N, L);
+  float day = smoothstep(-0.10, 0.14, nl);
+
+  // Micro-relief normal perturbation
+  float eps = 0.02;
+  float h0 = fbm(vP * 22.0 + uSeed);
+  float hx = fbm((vP + vec3(eps, 0.0, 0.0)) * 22.0 + uSeed);
+  float hy = fbm((vP + vec3(0.0, eps, 0.0)) * 22.0 + uSeed);
+  vec3 bumpN = normalize(N + vec3(h0 - hx, h0 - hy, 0.0) * (uStyle == 6.0 ? 0.05 : 0.55));
+  float lit = clamp(dot(bumpN, L) * 0.90 + 0.12, 0.0, 1.0) * day + 0.035;
+
+  vec3 col = texture2D(uMap, vUv).rgb;
+  vec3 glow = vec3(0.0);
+
+  if (abs(uStyle - 2.0) < 0.1) {
+    // IO: Glowing incandescent molten silicate lava calderas (Loki Patera, Pele) on night side
+    float caldera = smoothstep(0.73, 0.83, fbm(vP * 9.5 + uSeed));
+    float nightGlow = smoothstep(0.15, -0.25, nl);
+    glow = vec3(1.0, 0.32, 0.04) * caldera * (0.35 + 1.15 * nightGlow) * (0.85 + 0.15 * sin(uTime * 2.4 + uSeed));
+  } else if (abs(uStyle - 3.0) < 0.1 || abs(uStyle - 7.0) < 0.1) {
+    // EUROPA & ENCELADUS: Specular icy Fresnel reflection + subsurface scattering feel
+    float iceSpec = pow(max(dot(bumpN, H), 0.0), 42.0) * day * 0.38;
+    col += vec3(0.85, 0.95, 1.0) * iceSpec;
+    if (abs(uStyle - 7.0) < 0.1 && vP.y < -0.62) {
+      // Enceladus South Polar Tiger Stripes warm cryovolcanic fissures
+      float stripe = smoothstep(0.46, 0.52, abs(sin((vP.x + vP.z) * 28.0)));
+      col = mix(col, vec3(0.38, 0.76, 0.98), stripe * 0.65);
+    }
+  } else if (abs(uStyle - 8.0) < 0.1) {
+    // IAPETUS: Yin-yang dark leading hemisphere (Cassini Regio) vs bright trailing ice
+    float cassiniMask = smoothstep(-0.25, 0.35, vP.x + 0.18 * (h0 - 0.5));
+    col = mix(vec3(0.12, 0.09, 0.07), vec3(0.90, 0.88, 0.84), cassiniMask);
+  } else if (abs(uStyle - 10.0) < 0.1) {
+    // CHARON: Reddish-brown tholin north polar hood (Mordor Macula)
+    float mordor = smoothstep(0.58, 0.78, vP.y + 0.12 * (h0 - 0.5));
+    col = mix(col, vec3(0.48, 0.22, 0.15), mordor * 0.78);
+  }
+
+  if (uIrregular > 0.5) {
+    // Parallel grooves (Phobos) & sponge-like deep pits (Hyperion)
+    float grooves = 0.90 + 0.10 * sin((vP.x + vP.y) * 65.0 + h0 * 6.0);
+    col *= grooves;
+  }
+
+  gl_FragColor = vec4(col * lit + glow, 1.0);
+}`;
+
+const MOON_TEX_CACHE = new Map<string, THREE.Texture>();
+
+function makeMoonSurfaceTexture(name: string, parent: string, color: string): THREE.Texture {
+  const key = `${parent}:${name}`;
+  const cached = MOON_TEX_CACHE.get(key);
+  if (cached) return cached;
+
+  const W = 512,
+    H = 256;
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const ctx = c.getContext("2d")!;
+  const rand = rng(hashSeed(key));
+  const base = new THREE.Color(color);
+
+  ctx.fillStyle = `#${base.getHexString()}`;
+  ctx.fillRect(0, 0, W, H);
+
+  const shade = (l: number) => {
+    const col = base.clone().multiplyScalar(l);
+    return `rgb(${Math.min(255, Math.round(col.r * 255))},${Math.min(255, Math.round(col.g * 255))},${Math.min(255, Math.round(col.b * 255))})`;
+  };
+
+  // Base mottled geology
+  for (let i = 0; i < 95; i++) {
+    const x = rand() * W,
+      y = rand() * H,
+      r = 12 + rand() * 55;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, shade(0.68 + rand() * 0.65));
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+
+  if (name === "Moon") {
+    // Dark basaltic lunar Maria (Imbrium, Serenitatis, Tranquillitatis, Procellarum)
+    for (let i = 0; i < 16; i++) {
+      const mx = W * (0.18 + rand() * 0.64);
+      const my = H * (0.22 + rand() * 0.52);
+      const mr = 24 + rand() * 52;
+      const mg = ctx.createRadialGradient(mx, my, 4, mx, my, mr);
+      mg.addColorStop(0, "rgba(72, 74, 80, 0.78)");
+      mg.addColorStop(0.7, "rgba(88, 90, 96, 0.45)");
+      mg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = mg;
+      ctx.beginPath();
+      ctx.arc(mx, my, mr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (name === "Io") {
+    // Volcanic sulfur patches (yellow, orange, red, white frost) + dark calderas
+    const ioColors = ["#f5df4d", "#e87a24", "#b83214", "#faf6e8", "#2b1d14"];
+    for (let i = 0; i < 70; i++) {
+      const x = rand() * W,
+        y = rand() * H,
+        r = 6 + rand() * 36;
+      const colChoice = ioColors[Math.floor(rand() * ioColors.length)];
+      const g = ctx.createRadialGradient(x, y, 1, x, y, r);
+      g.addColorStop(0, colChoice);
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (name === "Europa") {
+    // Intersecting reddish-brown tectonic linea cracks across bright water-ice
+    ctx.strokeStyle = "rgba(156, 86, 52, 0.58)";
+    for (let i = 0; i < 55; i++) {
+      ctx.lineWidth = 0.8 + rand() * 2.2;
+      ctx.beginPath();
+      const x0 = rand() * W,
+        y0 = rand() * H;
+      ctx.moveTo(x0, y0);
+      ctx.bezierCurveTo(
+        x0 + (rand() - 0.5) * 180,
+        y0 + (rand() - 0.5) * 90,
+        x0 + (rand() - 0.5) * 260,
+        y0 + (rand() - 0.5) * 120,
+        x0 + (rand() - 0.5) * 340,
+        y0 + (rand() - 0.5) * 140,
+      );
+      ctx.stroke();
+    }
+  } else if (name === "Ganymede") {
+    // Dark ancient Galileo Regio vs bright grooved Uruk Sulcus bands
+    for (let i = 0; i < 12; i++) {
+      ctx.fillStyle = i % 2 === 0 ? "rgba(75, 65, 54, 0.55)" : "rgba(215, 206, 192, 0.55)";
+      ctx.beginPath();
+      ctx.ellipse(rand() * W, rand() * H, 45 + rand() * 75, 25 + rand() * 40, rand() * Math.PI, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (name === "Callisto") {
+    // Bright white multi-ring impact scars (Valhalla & Asgard)
+    for (let i = 0; i < 120; i++) {
+      ctx.fillStyle = "rgba(235, 232, 225, 0.65)";
+      ctx.beginPath();
+      ctx.arc(rand() * W, rand() * H, 1 + rand() * 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    const vx = W * 0.42,
+      vy = H * 0.46;
+    ctx.strokeStyle = "rgba(225, 220, 210, 0.42)";
+    for (let r = 8; r <= 48; r += 7) {
+      ctx.beginPath();
+      ctx.arc(vx, vy, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  } else if (name === "Titan") {
+    // Golden photochemical haze bands + dark polar hydrocarbon mare (Kraken Mare)
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#9c7032");
+    g.addColorStop(0.5, "#e0ac58");
+    g.addColorStop(1, "#b8863c");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "rgba(42, 32, 20, 0.48)";
+    ctx.fillRect(0, H * 0.45, W, H * 0.12);
+  } else if (name === "Mimas") {
+    // Giant Herschel Crater
+    const hx = W * 0.55,
+      hy = H * 0.48,
+      hr = 36;
+    ctx.fillStyle = shade(0.62);
+    ctx.beginPath();
+    ctx.arc(hx, hy, hr, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = shade(1.35);
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    ctx.fillStyle = shade(1.4);
+    ctx.beginPath();
+    ctx.arc(hx, hy, 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Craters for airless moons
+  if (name !== "Titan" && name !== "Io" && name !== "Europa") {
+    ctx.globalAlpha = 0.38;
+    for (let i = 0; i < 140; i++) {
+      const x = rand() * W,
+        y = rand() * H,
+        r = 1.5 + rand() * 10;
+      ctx.strokeStyle = shade(1.35);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = shade(0.68);
+      ctx.beginPath();
+      ctx.arc(x, y, r * 0.82, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  tex.needsUpdate = true;
+  MOON_TEX_CACHE.set(key, tex);
+  return tex;
+}
+
 const TRAIL_SAMPLES = new Map<string, number[]>();
 const trailSamples = () => TRAIL_SAMPLES;
 function getTrailSamples(key: string) {
@@ -1179,14 +2056,49 @@ function getTrailSamples(key: string) {
 
 function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const ref = useRef<THREE.Group>(null!);
+  const bodyRef = useRef<THREE.Mesh>(null!);
   const phase = useMemo(() => seedAngle(parent + moon.name), [parent, moon.name]);
   const tmp = useMemo(() => new THREE.Vector3(), []);
+  const sunTmp = useMemo(() => new THREE.Vector3(), []);
   const mag = useStore((s) => s.planetVisibilityMagnification);
+  const setVisit = useStore((s) => s.setVisitPlanet);
+  const mKey = moonKey(parent, moon.name);
+
+  const surface = useMemo(
+    () => makeMoonSurfaceTexture(moon.name, parent, moon.color),
+    [moon.name, parent, moon.color],
+  );
+  const isIrregular = !MAJOR_ROUND_MOONS.has(moon.name);
+
+  const moonUniforms = useMemo(
+    () => ({
+      uMap: { value: surface },
+      uSun: { value: new THREE.Vector3() },
+      uTime: { value: 0 },
+      uSeed: { value: (hashSeed(mKey) % 1000) / 29 },
+      uStyle: { value: MOON_STYLE_MAP[moon.name] ?? 0 },
+      uIrregular: { value: isIrregular ? 1.0 : 0.0 },
+    }),
+    [surface, mKey, moon.name, isIrregular],
+  );
+
+  const titanAtmoUniforms = useMemo(
+    () =>
+      moon.name === "Titan"
+        ? {
+            uSun: { value: new THREE.Vector3() },
+            uRay: { value: new THREE.Color("#5da8ff") },
+            uSunset: { value: new THREE.Color("#f0943a") },
+            uMie: { value: 0.75 },
+          }
+        : null,
+    [moon.name],
+  );
 
   useEffect(() => {
     if (!window.__exoSizes) window.__exoSizes = new Map();
-    window.__exoSizes.set(moonKey(parent, moon.name), moon.size * mag);
-  }, [parent, moon.name, moon.size, mag]);
+    window.__exoSizes.set(mKey, moon.size * mag);
+  }, [mKey, moon.size, mag]);
 
   const prev = useRef<{ days: number; parent: THREE.Vector3 } | null>(null);
   const local = useMemo(() => new THREE.Vector3(), []);
@@ -1194,6 +2106,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
 
   useFrame(({ clock }) => {
     if (!ref.current) return;
+    const t = clock.elapsedTime;
     const phys = JPL_PLANETS_PHYSICAL[parent]?.moons.find((m) => m.name === moon.name);
     const inc = phys ? (phys.inclinationDeg * Math.PI) / 180 : (moon.inclination ?? 0);
     const days = phys ? phys.orbitalPeriodDays : MOON_DAYS[moon.name];
@@ -1206,7 +2119,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       return days
         ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) +
             (simD / days) * Math.PI * 2
-        : phase + (clock.elapsedTime / moon.period) * Math.PI * 2;
+        : phase + (t / moon.period) * Math.PI * 2;
     };
 
     const setLocal = (out: THREE.Vector3, a: number) =>
@@ -1217,14 +2130,27 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       );
 
     const nowD = simTimeDays();
-    setLocal(ref.current.position, angleAt(nowD));
+    const angNow = angleAt(nowD);
+    setLocal(ref.current.position, angNow);
+
+    // Tidally locked synchronous rotation (faces parent planet) or chaotic spin for Hyperion
+    if (bodyRef.current) {
+      bodyRef.current.rotation.y =
+        moon.name === "Hyperion" ? t * 0.9 : -angNow + Math.PI * 0.5;
+    }
+
     ref.current.getWorldPosition(tmp);
-    const key = moonKey(parent, moon.name);
+    const solarSys = ref.current.parent?.parent?.parent;
+    if (solarSys) solarSys.getWorldPosition(sunTmp);
+    moonUniforms.uSun.value.copy(sunTmp);
+    moonUniforms.uTime.value = t;
+    if (titanAtmoUniforms) titanAtmoUniforms.uSun.value.copy(sunTmp);
+
     const reg = getRegistry();
-    let v = reg.get(key);
+    let v = reg.get(mKey);
     if (!v) {
       v = new THREE.Vector3();
-      reg.set(key, v);
+      reg.set(mKey, v);
     }
     v.copy(tmp);
 
@@ -1234,10 +2160,10 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     if (!par) return;
     par.getWorldPosition(parentPos);
     const p0 = prev.current;
-    const samples = getTrailSamples(key);
+    const samples = getTrailSamples(mKey);
     if (p0 && days) {
       const dA = Math.abs(((nowD - p0.days) / days) * Math.PI * 2);
-      const n = Math.min(64, Math.max(1, Math.ceil(dA / deg(2.5))));
+      const n = Math.min(64, Math.max(1, Math.ceil(dA / deg(3.5))));
       for (let k = 1; k <= n; k++) {
         const f = k / n;
         setLocal(local, angleAt(p0.days + (nowD - p0.days) * f));
@@ -1247,7 +2173,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
         local.z += (p0.parent.z - parentPos.z) * (1 - f);
         samples.push(local.x, local.y, local.z);
       }
-      if (samples.length > 3 * 4096) samples.splice(0, samples.length - 3 * 4096);
+      if (samples.length > 3 * 8192) samples.splice(0, samples.length - 3 * 8192);
     } else {
       samples.push(tmp.x, tmp.y, tmp.z);
     }
@@ -1260,15 +2186,59 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
 
   return (
     <group ref={ref} scale={[mag, mag, mag]}>
-      <mesh>
-        <sphereGeometry args={[moon.size, 16, 12]} />
-        <meshStandardMaterial
-          color={moon.color}
-          roughness={0.95}
-          emissive={moon.color}
-          emissiveIntensity={0.04}
+      <mesh
+        ref={bodyRef}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = "";
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setVisit(mKey);
+        }}
+      >
+        <sphereGeometry args={[moon.size, 48, 36]} />
+        <shaderMaterial
+          vertexShader={MOON_VERT}
+          fragmentShader={MOON_FRAG}
+          uniforms={moonUniforms}
+          depthWrite
+          depthTest
         />
       </mesh>
+      {/* Titan's detached blue-violet UV upper atmospheric haze layer */}
+      {titanAtmoUniforms && (
+        <mesh scale={1.065} renderOrder={1}>
+          <sphereGeometry args={[moon.size, 36, 28]} />
+          <shaderMaterial
+            vertexShader={ATMO_VERT}
+            fragmentShader={ATMO_FRAG}
+            uniforms={titanAtmoUniforms}
+            transparent
+            depthWrite={false}
+            side={THREE.FrontSide}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      )}
+      {/* Enceladus South Polar Cryovolcanic Geyser Plume */}
+      {moon.name === "Enceladus" && (
+        <mesh position={[0, -moon.size * 1.45, 0]} rotation={[Math.PI, 0, 0]} renderOrder={1}>
+          <coneGeometry args={[moon.size * 0.42, moon.size * 1.2, 24, 1, true]} />
+          <meshBasicMaterial
+            color="#bce6ff"
+            transparent
+            opacity={0.32}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
+      )}
     </group>
   );
 }
@@ -1458,10 +2428,10 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
 // so the actual path (helix relative to the galaxy) is visible.
 // ---------------------------------------------------------------
 
-const TRAIL_LEN = 2400;
-// Moons move fast around their planet, so their trails are much shorter —
-// just enough to sketch the little helix they trace around the planet's path.
-const MOON_TRAIL_LEN = 1500;
+const TRAIL_LEN = 3000;
+// Longer moon trails so their fast orbital loops around each moving planet
+// trace extended, graceful 3D helices along the planet's trajectory.
+const MOON_TRAIL_LEN = 3600;
 
 type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: number };
 
@@ -1512,8 +2482,8 @@ function useTrail(body: TrailBody) {
         varying float vAge;
         void main(){
           #include <logdepthbuf_fragment>
-          float a = pow(1.0 - vAge, 1.6) * uOpacity;
-          if (a < 0.015) discard;
+          float a = pow(1.0 - vAge, 1.25) * uOpacity;
+          if (a < 0.008) discard;
           gl_FragColor = vec4(uColor, a);
         }
       `,
@@ -1637,14 +2607,14 @@ export function MotionTrails() {
         color: new THREE.Color(p.color),
         length: Math.max(2, Math.round(TRAIL_LEN * scale)),
       })),
-      // Moons: short, dimmer trails so their fast loops around each planet
-      // read as fine helices without cluttering the planetary paths.
+      // Moons: extended helical trails so their fast orbital loops around each
+      // moving planet remain clearly visible for a longer span.
       ...PLANETS.flatMap((p) =>
         (p.moons ?? []).map((m) => ({
           name: moonKey(p.name, m.name),
           color: new THREE.Color(m.color),
           length: Math.max(2, Math.round(MOON_TRAIL_LEN * scale)),
-          opacity: 0.55,
+          opacity: 0.72,
         })),
       ),
     ],

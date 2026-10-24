@@ -16,6 +16,7 @@ import {
 import {
   COSMOLOGICAL_MODELS,
   calculateCosmologicalDistances,
+  dimensionlessHubble,
   type CosmologicalParameters,
 } from "@/lib/astronomy/cosmology";
 import {

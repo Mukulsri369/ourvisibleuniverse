@@ -197,6 +197,90 @@ function buildGalaxy(m: GalaxyModel): Geos {
       }
     }
     out.push(pack(p, c, s));
+
+    // Curved tidal tail streams for interacting galaxies (Antennae, Tadpole, Stephan's Quintet)
+    if (isInteracting) {
+      const tailCount = B(55_000);
+      const tp = new Float32Array(tailCount * 3);
+      const tc = new Float32Array(tailCount * 3);
+      const ts = new Float32Array(tailCount);
+      const isSingleTail = m.key.includes("tadpole");
+      for (let i = 0; i < tailCount; i++) {
+        const branch = isSingleTail ? 1 : i % 2 === 0 ? 1 : -1;
+        const u = Math.pow(rand(), 0.72);
+        const arc = u * Math.PI * (isSingleTail ? 1.35 : 1.05);
+        const rad = m.diskRadius * (0.35 + u * (isSingleTail ? 1.85 : 1.35));
+        const width = m.diskRadius * (0.04 + u * 0.08);
+        const angle = branch > 0 ? arc : Math.PI + arc * 0.92;
+        tp[i * 3] = Math.cos(angle) * rad + (rand() - 0.5) * width;
+        tp[i * 3 + 1] =
+          branch * Math.sin(u * Math.PI) * m.diskRadius * 0.14 + (rand() - 0.5) * width * 0.45;
+        tp[i * 3 + 2] = Math.sin(angle) * rad + (rand() - 0.5) * width;
+        const knot = rand() < 0.42;
+        tc[i * 3] = knot ? young[0] : old[0] * 0.85;
+        tc[i * 3 + 1] = knot ? young[1] : old[1] * 0.85;
+        tc[i * 3 + 2] = knot ? young[2] : old[2] * 0.85;
+        ts[i] = knot ? 14 + rand() * 18 : 6 + rand() * 8;
+      }
+      out.push(pack(tp, tc, ts));
+    }
+  }
+
+  // ---------- collisional / non-collisional ring galaxy (Cartwheel, Hoag's Object, Mayall's) ----------
+  if (m.morphology === "ring") {
+    const ringR = m.ringRadius ?? m.diskRadius * 0.86;
+    const innerR = m.bulgeRadius * 1.45;
+    const count = B(210_000);
+    const p = new Float32Array(count * 3);
+    const c = new Float32Array(count * 3);
+    const s = new Float32Array(count);
+    const hasSpokes = m.arms > 0;
+    const spokeCount = Math.max(4, m.arms);
+    for (let i = 0; i < count; i++) {
+      const u = rand();
+      let r: number;
+      let theta: number;
+      let isOuterRing = false;
+      if (u < (hasSpokes ? 0.62 : 0.78)) {
+        // Outer starburst ring
+        isOuterRing = true;
+        const gauss = (rand() + rand() + rand() - 1.5) * 0.66;
+        r = ringR + gauss * m.diskRadius * 0.085;
+        theta = rand() * Math.PI * 2;
+      } else if (hasSpokes && u < 0.86) {
+        // Radial Cartwheel spokes connecting inner ring to outer ring
+        const spokeIdx = Math.floor(rand() * spokeCount);
+        const tSpoke = rand();
+        r = innerR + tSpoke * (ringR - innerR);
+        const spiralTwist = tSpoke * 0.58;
+        theta =
+          (spokeIdx / spokeCount) * Math.PI * 2 +
+          spiralTwist +
+          (rand() - 0.5) * 0.14 * (1 - tSpoke * 0.3);
+      } else {
+        // Inner circum-nuclear ring
+        const gauss = (rand() + rand() + rand() - 1.5) * 0.6;
+        r = innerR + gauss * m.diskRadius * 0.04;
+        theta = rand() * Math.PI * 2;
+      }
+      p[i * 3] = Math.cos(theta) * r;
+      p[i * 3 + 1] = (rand() - 0.5) * m.diskRadius * (isOuterRing ? 0.018 : 0.025);
+      p[i * 3 + 2] = Math.sin(theta) * r;
+
+      if (isOuterRing && rand() < 0.78) {
+        c[i * 3] = young[0];
+        c[i * 3 + 1] = young[1];
+        c[i * 3 + 2] = young[2];
+        s[i] = 15 + rand() * 22;
+      } else {
+        const b = 0.7 + rand() * 0.3;
+        c[i * 3] = old[0] * b;
+        c[i * 3 + 1] = old[1] * b;
+        c[i * 3 + 2] = old[2] * b;
+        s[i] = 7 + rand() * 11;
+      }
+    }
+    out.push(pack(p, c, s));
   }
 
   // ---------- edge-on / lenticular / starburst smooth disk ----------
@@ -907,9 +991,17 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
         uniform float uOpacity;
         varying vec3 vColor;
         void main(){
+          vec2 uv = gl_PointCoord * 2.0 - 1.0;
+          float r2 = dot(uv, uv);
+          if (r2 > 1.0) discard;
           vec4 t = texture2D(uTex, gl_PointCoord);
-          if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a * uOpacity);
+          // Analytical Gaussian core + soft Airy halo for HDR stellar cluster fidelity
+          float core = exp(-r2 * 7.5);
+          float halo = exp(-r2 * 2.1) * 0.45;
+          float intensity = max(t.a, core + halo);
+          if (intensity < 0.03) discard;
+          vec3 hdrCol = mix(vColor, vec3(1.0, 0.98, 0.95), core * 0.35);
+          gl_FragColor = vec4(hdrCol, intensity * uOpacity);
         }
       `,
       vertexColors: true,

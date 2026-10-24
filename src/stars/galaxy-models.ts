@@ -82,7 +82,8 @@ export type Morphology =
   | "dwarf"
   | "edge-on"
   | "starburst"
-  | "interacting";
+  | "interacting"
+  | "ring";
 
 export type GalaxyModel = {
   key: string;
@@ -1049,6 +1050,339 @@ const CURATED_GALAXY_MODELS: GalaxyModel[] = [
       ),
     };
   })(),
+
+  // ---------------- Cartwheel Galaxy ----------------
+  (() => {
+    const diskRadius = 75_000;
+    const au = AU_OF(diskRadius);
+    return {
+      key: "cartwheel",
+      name: "Cartwheel Galaxy",
+      type: "Ring Galaxy",
+      morphology: "ring" as Morphology,
+      l: 316.0,
+      b: -70.0,
+      distance: 500_000_000,
+      inclination: 30,
+      posAngle: 145,
+      diskRadius,
+      bulgeRadius: 11_000,
+      haloRadius: 95_000,
+      ringRadius: 68_000,
+      arms: 6,
+      pitchDeg: 28,
+      barLength: 0,
+      density: 1.25,
+      youngColor: [0.55, 0.78, 1.0] as [number, number, number],
+      oldColor: [1.0, 0.84, 0.62] as [number, number, number],
+      coreColor: "rgba(255,228,185,1)",
+      rotPeriod: 920,
+      dustLanes: true,
+      description:
+        "A 150,000-light-year collisional ring galaxy sculpted when a smaller intruder punched straight through its core 300 million years ago, launching an expanding outer starburst ring and gossamer radial spokes.",
+      system: sys(
+        au,
+        {
+          name: "Cartwheel ULX-N10",
+          radiusSolar: 18,
+          color: "#cce2ff",
+          spectral: "O-type hypergiant + ULX black hole",
+          mass: "≈ 24 M☉ donor",
+          description:
+            "One of the hyperluminous X-ray sources lining the Cartwheel's expanding outer starburst ring, born in the shockwave collision.",
+        },
+        [
+          {
+            name: "Cartwheel N10 I",
+            aAU: 14,
+            sizeAU: 0.042,
+            color: "#8f7e70",
+            period: 12,
+            spin: 18,
+            description: "Modelled irradiated core baked by the outer ring's starburst UV flux.",
+          },
+          {
+            name: "Cartwheel N10 II",
+            aAU: 32,
+            sizeAU: 0.092,
+            color: "#7da8d6",
+            emissive: "#162a42",
+            period: 42,
+            spin: 1.4,
+            ring: [0.15, 0.25, "#9bb6d4"],
+            description: "Modelled young gas giant condensed from shock-compressed ring gas.",
+          },
+        ],
+        { radius: diskRadius * 0.88, phase: 1.2, height: 220 },
+        [50, 85],
+      ),
+    };
+  })(),
+
+  // ---------------- Hoag's Object ----------------
+  (() => {
+    const diskRadius = 60_000;
+    const au = AU_OF(diskRadius);
+    return {
+      key: "hoags-object",
+      name: "Hoag's Object",
+      type: "Ring Galaxy",
+      morphology: "ring" as Morphology,
+      l: 31.71,
+      b: 56.25,
+      distance: 612_800_000,
+      inclination: 18,
+      posAngle: 25,
+      diskRadius,
+      bulgeRadius: 12_000,
+      haloRadius: 80_000,
+      ringRadius: 52_000,
+      arms: 0,
+      pitchDeg: 0,
+      barLength: 0,
+      density: 1.2,
+      youngColor: [0.58, 0.8, 1.0] as [number, number, number],
+      oldColor: [1.0, 0.85, 0.58] as [number, number, number],
+      coreColor: "rgba(255,232,175,1)",
+      rotPeriod: 1100,
+      dustLanes: false,
+      description:
+        "The most famous ring galaxy in the universe: a nearly flawless circle of young blue supergiants surrounding an ancient golden spheroidal core across an almost completely empty 30,000-ly gap.",
+      system: sys(
+        au,
+        {
+          name: "Hoag Ring OB-1",
+          radiusSolar: 11,
+          color: "#d4e6ff",
+          spectral: "B1 V Blue Giant",
+          mass: "≈ 12 M☉",
+          description:
+            "A luminous blue star in Hoag's detached outer ring, looking inward across 35,000 light-years of near-vacuum toward the golden central spheroid.",
+        },
+        [
+          {
+            name: "Hoag OB-1 b",
+            aAU: 11,
+            sizeAU: 0.048,
+            color: "#9db4cc",
+            atmosphere: "#bfd8ff",
+            period: 16,
+            spin: 5,
+            description: "Modelled temperate world bathed in blue ring starlight.",
+          },
+          {
+            name: "Hoag OB-1 c",
+            aAU: 28,
+            sizeAU: 0.088,
+            color: "#c8a478",
+            emissive: "#2c1e0e",
+            period: 54,
+            spin: 1.3,
+            ring: [0.14, 0.24, "#b59d7e"],
+            description: "Modelled ringed gas giant orbiting in the outer starburst ring.",
+          },
+        ],
+        { radius: diskRadius * 0.86, phase: 2.8, height: 140 },
+        [45, 75],
+      ),
+    };
+  })(),
+
+  // ---------------- Antennae Galaxies ----------------
+  (() => {
+    const diskRadius = 45_000;
+    const au = AU_OF(diskRadius);
+    return {
+      key: "antennae",
+      name: "NGC 4038/4039 (Antennae)",
+      type: "Interacting",
+      morphology: "interacting" as Morphology,
+      l: 286.21,
+      b: 42.48,
+      distance: 45_000_000,
+      inclination: 46,
+      posAngle: 68,
+      diskRadius,
+      bulgeRadius: 8_500,
+      haloRadius: 95_000,
+      arms: 2,
+      pitchDeg: 26,
+      barLength: 0,
+      density: 1.3,
+      youngColor: [0.68, 0.84, 1.0] as [number, number, number],
+      oldColor: [1.0, 0.8, 0.62] as [number, number, number],
+      coreColor: "rgba(255,215,180,1)",
+      rotPeriod: 780,
+      dustLanes: true,
+      description:
+        "The nearest major spiral-spiral collision: two galaxies locked in a gravitational embrace, flinging twin 150,000-light-year tidal tails of stars and igniting thousands of super-star clusters.",
+      system: sys(
+        au,
+        {
+          name: "Antennae SSC-B1",
+          radiusSolar: 25,
+          color: "#cfe4ff",
+          spectral: "O9 Ia Supergiant",
+          mass: "≈ 30 M☉",
+          description:
+            "A newborn massive star inside one of the Antennae's super-star clusters (proto-globular clusters born in the collision shock).",
+        },
+        [
+          {
+            name: "SSC-B1 I",
+            aAU: 15,
+            sizeAU: 0.04,
+            color: "#b87a58",
+            period: 14,
+            spin: 12,
+            description: "Modelled molten proto-planet in the colliding overlap zone.",
+          },
+          {
+            name: "SSC-B1 II",
+            aAU: 36,
+            sizeAU: 0.095,
+            color: "#d49a6a",
+            emissive: "#3b2210",
+            period: 52,
+            spin: 1.2,
+            description: "Modelled young gas giant.",
+          },
+        ],
+        { radius: diskRadius * 0.42, phase: 0.7, height: 350 },
+        [55, 90],
+      ),
+    };
+  })(),
+
+  // ---------------- Stephan's Quintet ----------------
+  (() => {
+    const diskRadius = 85_000;
+    const au = AU_OF(diskRadius);
+    return {
+      key: "stephans-quintet",
+      name: "Stephan's Quintet (HCG 92)",
+      type: "Interacting",
+      morphology: "interacting" as Morphology,
+      l: 93.27,
+      b: -21.01,
+      distance: 290_000_000,
+      inclination: 42,
+      posAngle: 112,
+      diskRadius,
+      bulgeRadius: 15_000,
+      haloRadius: 130_000,
+      arms: 3,
+      pitchDeg: 22,
+      barLength: 18_000,
+      density: 1.3,
+      youngColor: [0.65, 0.83, 1.0] as [number, number, number],
+      oldColor: [1.0, 0.82, 0.6] as [number, number, number],
+      coreColor: "rgba(255,222,175,1)",
+      rotPeriod: 960,
+      dustLanes: true,
+      description:
+        "A compact group of colliding galaxies in Pegasus where NGC 7318B is crashing through the group core at 800 km/s, creating a Milky-Way-sized intergalactic shock wave imaged by JWST.",
+      system: sys(
+        au,
+        {
+          name: "NGC 7319 AGN-Rim",
+          radiusSolar: 1.3,
+          color: "#ffe8be",
+          spectral: "F8 V Disk Star",
+          mass: "≈ 1.2 M☉",
+          description:
+            "A star on the tidal rim of Seyfert galaxy NGC 7319, overlooking the giant intergalactic shock ridge of Stephan's Quintet.",
+        },
+        [
+          {
+            name: "HCG 92-Rim I",
+            aAU: 8,
+            sizeAU: 0.035,
+            color: "#9e8872",
+            period: 11,
+            spin: 16,
+            description: "Modelled rocky planet with a view of four neighbouring galaxies.",
+          },
+          {
+            name: "HCG 92-Rim II",
+            aAU: 22,
+            sizeAU: 0.082,
+            color: "#c8a47c",
+            emissive: "#2f1f10",
+            period: 44,
+            spin: 1.5,
+            ring: [0.14, 0.23, "#b2997a"],
+            description: "Modelled ringed gas giant.",
+          },
+        ],
+        { radius: diskRadius * 0.58, phase: 3.9, height: 420 },
+        [40, 70],
+      ),
+    };
+  })(),
+
+  // ---------------- Tadpole Galaxy ----------------
+  (() => {
+    const diskRadius = 90_000;
+    const au = AU_OF(diskRadius);
+    return {
+      key: "tadpole",
+      name: "Tadpole Galaxy (UGC 10214)",
+      type: "Interacting",
+      morphology: "interacting" as Morphology,
+      l: 85.62,
+      b: 44.51,
+      distance: 420_000_000,
+      inclination: 58,
+      posAngle: 72,
+      diskRadius,
+      bulgeRadius: 11_000,
+      haloRadius: 150_000,
+      arms: 2,
+      pitchDeg: 25,
+      barLength: 16_000,
+      density: 1.2,
+      youngColor: [0.62, 0.81, 1.0] as [number, number, number],
+      oldColor: [1.0, 0.85, 0.65] as [number, number, number],
+      coreColor: "rgba(255,230,190,1)",
+      rotPeriod: 980,
+      dustLanes: true,
+      description:
+        "A barred spiral galaxy in Draco whose close encounter with a compact intruder drew out a spectacular 280,000-light-year tidal tail studded with bright blue star clusters.",
+    };
+  })(),
+
+  // ---------------- Mayall's Object ----------------
+  (() => {
+    const diskRadius = 62_000;
+    const au = AU_OF(diskRadius);
+    return {
+      key: "mayalls-object",
+      name: "Mayall's Object (Arp 148)",
+      type: "Ring Galaxy",
+      morphology: "ring" as Morphology,
+      l: 177.26,
+      b: 63.61,
+      distance: 450_000_000,
+      inclination: 48,
+      posAngle: 95,
+      diskRadius,
+      bulgeRadius: 10_000,
+      haloRadius: 85_000,
+      ringRadius: 52_000,
+      arms: 4,
+      pitchDeg: 24,
+      barLength: 22_000,
+      density: 1.15,
+      youngColor: [0.72, 0.84, 1.0] as [number, number, number],
+      oldColor: [1.0, 0.78, 0.62] as [number, number, number],
+      coreColor: "rgba(255,218,185,1)",
+      rotPeriod: 890,
+      dustLanes: true,
+      description:
+        "Arp 148 in Ursa Major: the aftermath of a head-on galactic collision that produced a luminous expanding shock-ring paired with an elongated, cigar-like companion core.",
+    };
+  })(),
 ];
 
 const CURATED_BY_NAME = new Map(CURATED_GALAXY_MODELS.map((m) => [m.name, m]));
@@ -1092,6 +1426,8 @@ const MORPHOLOGY_OVERRIDES: Record<string, Partial<GalaxyModel>> = {
 function morphologyFor(type: string, name?: string): Morphology {
   const n = (name || "").toLowerCase();
   const t = (type || "").toLowerCase();
+  if (t.includes("ring") || n.includes("cartwheel") || n.includes("hoag") || n.includes("mayall"))
+    return "ring";
   if (
     n.includes("whirlpool") ||
     n.includes("pinwheel") ||
@@ -1102,7 +1438,13 @@ function morphologyFor(type: string, name?: string): Morphology {
   if (n.includes("sunflower") || n.includes("2841") || t.includes("flocculent"))
     return "flocculent";
   if (t.includes("dwarf") || t.includes("dsph") || n.includes("dwarf")) return "dwarf";
-  if (/interacting|merging|colliding/i.test(type) || n.includes("antennae") || n.includes("mice"))
+  if (
+    /interacting|merging|colliding/i.test(type) ||
+    n.includes("antennae") ||
+    n.includes("mice") ||
+    n.includes("quintet") ||
+    n.includes("tadpole")
+  )
     return "interacting";
   if (/starburst/i.test(type)) return "starburst";
   if (/edge-on/i.test(type)) return "edge-on";

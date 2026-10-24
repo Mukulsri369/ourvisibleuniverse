@@ -1,81 +1,66 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight, Orbit } from "lucide-react";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/10 bg-slate-950/80 backdrop-blur-xl py-14 text-slate-300">
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        {/* Top Strip with Brand & Prominent Store CTA */}
-        <div className="flex flex-col gap-6 border-b border-white/10 pb-10 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xl font-bold text-white">Our Visible Universe</p>
-            <p className="mt-1 text-sm text-slate-400">
-              A cinematic, interactive journey through our scientifically observed cosmos.
-            </p>
+    <footer className="relative z-10 border-t border-white/[0.08] bg-[#05060a] py-16 text-white/60">
+      <div className="mx-auto max-w-7xl px-6 lg:px-10">
+        <div className="flex flex-col justify-between gap-10 border-b border-white/[0.08] pb-12 md:flex-row md:items-center">
+          <div className="flex items-center gap-3.5">
+            <span className="flex size-9 items-center justify-center rounded-full border border-[#f5d08a]/35 bg-[#f5d08a]/10">
+              <Orbit className="size-4 text-[#f5d08a]" />
+            </span>
+            <div>
+              <p
+                className="text-sm font-semibold uppercase tracking-[0.24em] text-white"
+                style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+              >
+                Our Visible Universe
+              </p>
+              <p className="mt-0.5 text-xs font-light text-white/45">
+                Interactive 3D Astrophysics Observatory & Academy
+              </p>
+            </div>
           </div>
-          <Button
-            asChild
-            className="border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 hover:text-white"
-          >
+
+          <div className="flex flex-wrap items-center gap-3">
             <a
               href="https://ourvisibleuniverse.store"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
+              className="group inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-xs font-medium text-white transition-all hover:border-[#f5d08a]/50 hover:text-[#f5d08a]"
             >
-              <ShoppingBag className="size-4" />
-              <span>Visit Official Store</span>
-              <ArrowUpRight className="size-3.5 opacity-70" />
+              <span>Official Store</span>
+              <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
-          </Button>
+            <a
+              href="https://www.instagram.com/our_visibleuniverse"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-xs font-medium text-white transition-all hover:border-white/35"
+            >
+              <span>@our_visibleuniverse</span>
+              <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
+          </div>
         </div>
 
-        {/* Links and Contact Details */}
-        <div className="mt-8 grid gap-8 md:grid-cols-3">
-          <div className="text-sm text-slate-400">
-            <p className="font-semibold text-white">Authentic Stargazing</p>
-            <p className="mt-2 text-xs leading-relaxed">
-              Real catalog stars, physically scaled planetary systems, and verified optical gear
-              curated for curious minds worldwide.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-sm text-slate-400">
-            <Link
-              to="/learn"
-              className="text-cyan-400 hover:text-cyan-300 transition-colors font-bold flex items-center gap-1"
-            >
-              <span>Cosmic Academy</span>
-              <span className="text-[10px] bg-cyan-500/20 px-1.5 py-0.2 rounded border border-cyan-500/30">
-                New
-              </span>
-            </Link>
-            <Link
-              to="/visible-universe-history"
-              className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
-            >
-              Cosmic History
+        <div className="mt-10 flex flex-col justify-between gap-6 text-xs text-white/45 sm:flex-row sm:items-center">
+          <div className="flex flex-wrap gap-x-6 gap-y-2">
+            <Link to="/learn" className="hover:text-white transition-colors">
+              Academy
             </Link>
             <Link to="/galaxies" className="hover:text-white transition-colors">
-              Galaxies (3D)
+              Galaxies
             </Link>
-            <Link
-              to="/catalog-status"
-              className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
-            >
-              Catalog Status
+            <Link to="/visible-universe-history" className="hover:text-white transition-colors">
+              History
             </Link>
-            <Link
-              to="/verify-certificate"
-              className="text-amber-400 hover:text-amber-300 transition-colors font-medium"
-            >
+            <Link to="/verify-certificate" className="hover:text-white transition-colors">
               Verify Certificate
             </Link>
             <Link to="/about" className="hover:text-white transition-colors">
               About
-            </Link>
-            <Link to="/contact" className="hover:text-white transition-colors">
-              Contact
             </Link>
             <Link to="/privacy" className="hover:text-white transition-colors">
               Privacy
@@ -84,43 +69,16 @@ export function SiteFooter() {
               Terms
             </Link>
             <Link to="/refund-policy" className="hover:text-white transition-colors">
-              Refund policy
+              Refunds
             </Link>
-            <Link to="/faq" className="hover:text-white transition-colors">
-              FAQ
+            <Link to="/contact" className="hover:text-white transition-colors">
+              Contact
             </Link>
-            <a
-              href="https://ourvisibleuniverse.store"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-cyan-400 hover:text-cyan-300 hover:underline transition-colors"
-            >
-              Physical Store ↗
-            </a>
-            <a
-              href="https://www.instagram.com/our_visibleuniverse"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-pink-400 hover:text-pink-300 hover:underline transition-colors flex items-center gap-1"
-            >
-              Instagram @our_visibleuniverse ↗
-            </a>
           </div>
-          <div className="text-sm text-slate-400 md:text-right">
-            <p>Support: ourvisibleuniverse@gmail.com</p>
-            <p className="mt-1 text-slate-300">
-              Instagram:{" "}
-              <a
-                href="https://www.instagram.com/our_visibleuniverse"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-pink-400 hover:text-pink-300 underline"
-              >
-                @our_visibleuniverse
-              </a>
-            </p>
-            <p className="mt-1">Chandigarh, India</p>
-          </div>
+
+          <p className="font-mono text-[11px] text-white/35">
+            ourvisibleuniverse@gmail.com
+          </p>
         </div>
       </div>
     </footer>

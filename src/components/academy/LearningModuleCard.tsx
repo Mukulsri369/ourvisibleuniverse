@@ -5,10 +5,9 @@ import {
   Clock,
   CheckCircle2,
   Bookmark,
-  ExternalLink,
+  ArrowUpRight,
   Lock,
   Sparkles,
-  ArrowRight,
   Globe,
   Orbit,
   Disc,
@@ -33,7 +32,6 @@ import {
   Sun,
   Ruler,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Globe,
@@ -90,64 +88,40 @@ export function LearningModuleCard({
   const isReady = module.status === "ready";
 
   return (
-    <div
-      className={`group relative rounded-2xl border p-5 flex flex-col justify-between transition-all duration-300 ${
-        isVerified
-          ? "border-emerald-500/50 bg-gradient-to-b from-emerald-950/30 to-slate-900/80 shadow-lg shadow-emerald-950/30 ring-1 ring-emerald-500/20"
-          : isCompleted
-            ? "border-cyan-500/40 bg-gradient-to-b from-cyan-950/20 to-slate-900/60"
-            : isReady
-              ? "border-cyan-500/20 bg-gradient-to-b from-slate-900/90 to-slate-950/90 hover:border-cyan-400/50 hover:shadow-xl hover:shadow-cyan-950/20"
-              : "border-white/10 bg-slate-950/60 opacity-85 hover:opacity-100 hover:border-white/20"
-      }`}
-    >
+    <div className="group relative flex flex-col justify-between bg-[#05060a] p-6 transition-colors duration-300 hover:bg-[#090d16]">
       <div>
-        {/* Header row: Module number + Status Pill + Bookmark */}
+        {/* Top Row: Module ID + Status + Bookmark */}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="font-mono text-xs font-bold text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md">
-              #{module.id}
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d08a]">
+              MOD {module.id}
             </span>
 
-            {/* Authoritative State C: Official Verified Completion */}
             {isVerified ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 rounded-full">
-                <CheckCircle2 className="size-3 text-emerald-400" />
-                Verified Complete
+              <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-400">
+                <CheckCircle2 className="size-3" />
+                Verified
               </span>
             ) : evidenceCount > 0 ? (
-              /* Authoritative State B: Validated Activity Evidence */
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full">
-                <Activity className="size-3 text-amber-400" />
-                Evidence Logged ({evidenceCount})
+              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#f5d08a]">
+                {evidenceCount} Lab Evidence
               </span>
             ) : isCompleted ? (
-              /* Authoritative State A: Reading Completed (Unverified) */
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-cyan-300 bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5 rounded-full">
-                Read Complete
+              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#38bdf8]">
+                Completed
               </span>
             ) : isInProgress ? (
-              /* Authoritative State A: Reading In Progress */
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
-                In Progress ({percent}%)
+              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#38bdf8]">
+                {percent}% Active
               </span>
-            ) : isReady ? (
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-sky-300 bg-sky-500/10 border border-sky-500/30 px-2 py-0.5 rounded-full">
-                Available
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                Coming Soon
-              </span>
-            )}
+            ) : null}
           </div>
 
           <button
+            type="button"
             onClick={() => onToggleBookmark(module.id)}
-            className={`p-1.5 rounded-lg border transition-colors ${
-              isBookmarked
-                ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
-                : "border-transparent text-slate-400 hover:text-white hover:bg-white/5"
+            className={`p-1 transition-colors ${
+              isBookmarked ? "text-[#f5d08a]" : "text-white/30 hover:text-white"
             }`}
             title={isBookmarked ? "Remove bookmark" : "Bookmark module"}
           >
@@ -155,109 +129,90 @@ export function LearningModuleCard({
           </button>
         </div>
 
-        {/* Title and Icon preview */}
-        <div className="mt-4 flex items-start gap-3">
-          <div
-            className={`p-3 rounded-xl border flex-shrink-0 transition-transform group-hover:scale-105 ${
-              module.visualAssets.badgeColor
-            }`}
+        {/* Icon & Title */}
+        <div className="mt-5">
+          <div className="mb-3 inline-flex size-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-[#f5d08a] transition-colors group-hover:border-[#f5d08a]/40">
+            <IconComponent className="size-4" />
+          </div>
+
+          <h4
+            className="line-clamp-1 text-lg font-medium uppercase tracking-tight text-white transition-colors group-hover:text-[#f5d08a]"
+            style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
           >
-            <IconComponent className="size-5" />
-          </div>
-          <div>
-            <h4 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-1">
-              {module.title}
-            </h4>
-            <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">{module.subtitle}</p>
-          </div>
+            {module.title}
+          </h4>
+          <p className="mt-1 line-clamp-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">
+            {module.subtitle}
+          </p>
         </div>
 
-        {/* Description */}
-        <p className="mt-3 text-xs text-slate-300/90 leading-relaxed line-clamp-2">
+        {/* Concise Description */}
+        <p className="mt-3 line-clamp-2 text-xs font-light leading-relaxed text-white/60">
           {module.description}
         </p>
-
-        {/* Learning Outcomes snippet */}
-        <div className="mt-3 bg-white/[0.02] border border-white/5 rounded-lg p-2.5">
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-slate-400 block mb-1">
-            Learning Outcomes:
-          </span>
-          <ul className="text-[11px] text-slate-300 space-y-1">
-            {module.learningObjectives.slice(0, 2).map((obj, i) => (
-              <li key={i} className="flex items-start gap-1.5 line-clamp-1">
-                <span className="text-cyan-400">•</span>
-                <span className="truncate">{obj}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
 
-      {/* Footer Details: Difficulty + Estimated Time + Progress Bar + CTA */}
-      <div className="mt-5 pt-3 border-t border-white/10">
-        <div className="flex items-center justify-between text-[11px] text-slate-400 mb-2.5">
-          <span className="flex items-center gap-1">
-            <span className="size-1.5 rounded-full bg-cyan-400" />
-            {module.difficultyLevels.join(" / ")}
-          </span>
-          <span className="flex items-center gap-1">
+      {/* Footer: Telemetry + Minimalist Action */}
+      <div className="mt-6 border-t border-white/[0.08] pt-4">
+        <div className="mb-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+          <span>3 TIERS</span>
+          <span className="inline-flex items-center gap-1">
             <Clock className="size-3" />
-            {module.estimatedMinutes} mins
+            {module.estimatedMinutes} MIN
           </span>
         </div>
 
-        {/* Progress bar */}
-        {isReady && (
-          <div className="w-full bg-slate-800 rounded-full h-1.5 mb-3 overflow-hidden">
+        {isReady && percent > 0 && (
+          <div className="mb-3 h-[2px] w-full overflow-hidden bg-white/10">
             <div
-              className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full transition-all duration-500"
+              className="h-full bg-[#f5d08a] transition-all duration-500"
               style={{ width: `${percent}%` }}
             />
           </div>
         )}
 
-        {/* Action Button */}
         {isReady && module.id !== "13" && module.id !== "19" ? (
-          <Button
-            size="sm"
+          <button
+            type="button"
             onClick={() => onSelectModule && onSelectModule(module)}
-            className="w-full font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-sm"
+            className="group/btn flex w-full items-center justify-between rounded-full border border-white/15 bg-white/[0.03] py-2 pl-4 pr-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white transition-all hover:border-[#f5d08a] hover:bg-[#f5d08a] hover:text-[#05060a]"
           >
-            {isCompleted ? "Review Lesson" : isInProgress ? "Continue Lesson" : "Start Lesson"}
-            <ArrowRight className="size-3.5 ml-1.5" />
-          </Button>
+            <span>
+              {isCompleted ? "Review Module" : isInProgress ? "Continue Module" : "Launch Module"}
+            </span>
+            <span className="flex size-6 items-center justify-center rounded-full bg-white/10 transition-colors group-hover/btn:bg-[#05060a] group-hover/btn:text-[#f5d08a]">
+              <ArrowUpRight className="size-3" />
+            </span>
+          </button>
         ) : module.id === "13" ? (
-          <Button
-            asChild
-            size="sm"
-            className="w-full font-semibold bg-cyan-600 hover:bg-cyan-500 text-white shadow-sm"
+          <Link
+            to="/galaxies"
+            className="group/btn flex w-full items-center justify-between rounded-full border border-[#38bdf8]/30 bg-[#38bdf8]/10 py-2 pl-4 pr-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#38bdf8] transition-all hover:bg-[#38bdf8] hover:text-[#05060a]"
           >
-            <Link to="/galaxies">
-              <span>Explore Galaxies (3D)</span>
-              <ExternalLink className="size-3.5 ml-1.5" />
-            </Link>
-          </Button>
+            <span>Explore Galaxies 3D</span>
+            <span className="flex size-6 items-center justify-center rounded-full bg-[#05060a]/40">
+              <ArrowUpRight className="size-3" />
+            </span>
+          </Link>
         ) : module.id === "19" ? (
-          <Button
-            asChild
-            size="sm"
-            className="w-full font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm"
+          <Link
+            to="/visible-universe-history"
+            className="group/btn flex w-full items-center justify-between rounded-full border border-white/15 bg-white/[0.03] py-2 pl-4 pr-2 font-mono text-[10px] uppercase tracking-[0.2em] text-white transition-all hover:border-[#f5d08a] hover:text-[#f5d08a]"
           >
-            <Link to="/visible-universe-history">
-              <span>View Timeline</span>
-              <ExternalLink className="size-3.5 ml-1.5" />
-            </Link>
-          </Button>
+            <span>Universe Timeline</span>
+            <span className="flex size-6 items-center justify-center rounded-full bg-white/10">
+              <ArrowUpRight className="size-3" />
+            </span>
+          </Link>
         ) : (
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            type="button"
             onClick={() => onSelectModule && onSelectModule(module)}
-            className="w-full text-xs border-white/10 text-slate-300 hover:text-white hover:border-white/20 hover:bg-white/5"
+            className="flex w-full items-center justify-between rounded-full border border-white/10 py-2 px-4 font-mono text-[10px] uppercase tracking-[0.2em] text-white/50 transition-colors hover:border-white/25 hover:text-white"
           >
-            <Lock className="size-3 mr-1.5 text-slate-400" />
-            Preview Syllabus
-          </Button>
+            <span>Preview Syllabus</span>
+            <Lock className="size-3" />
+          </button>
         )}
       </div>
     </div>

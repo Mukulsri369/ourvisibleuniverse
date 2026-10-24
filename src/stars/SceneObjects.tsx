@@ -1,19 +1,77 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { backgroundFocus } from "./sim-clock";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
+import { NAMED_STARS } from "./data";
+
+const SUN_RADIUS = 0.015;
+
+function makeSolarCoronaTexture(): THREE.Texture {
+  const size = 512;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  const cx = size / 2;
+  const cy = size / 2;
+
+  // Base radial K/F-corona glow
+  const g = ctx.createRadialGradient(cx, cy, size * 0.04, cx, cy, size * 0.5);
+  g.addColorStop(0.0, "rgba(255, 250, 225, 1.0)");
+  g.addColorStop(0.12, "rgba(255, 215, 130, 0.85)");
+  g.addColorStop(0.28, "rgba(255, 145, 50, 0.38)");
+  g.addColorStop(0.55, "rgba(220, 75, 18, 0.10)");
+  g.addColorStop(1.0, "rgba(180, 40, 5, 0.0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, size, size);
+
+  // Subtle coronal streamer rays
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.globalCompositeOperation = "lighter";
+  for (let i = 0; i < 24; i++) {
+    const angle = (i / 24) * Math.PI * 2 + Math.sin(i * 3.7) * 0.08;
+    const isEquatorial = Math.abs(Math.sin(angle)) < 0.45;
+    const len = size * (isEquatorial ? 0.48 : 0.34) * (0.82 + 0.18 * Math.cos(i * 5.1));
+    const width = size * (isEquatorial ? 0.032 : 0.018);
+    ctx.save();
+    ctx.rotate(angle);
+    const rg = ctx.createLinearGradient(0, 0, len, 0);
+    rg.addColorStop(0, "rgba(255, 220, 150, 0.22)");
+    rg.addColorStop(0.4, "rgba(255, 150, 60, 0.09)");
+    rg.addColorStop(1, "rgba(255, 90, 20, 0)");
+    ctx.fillStyle = rg;
+    ctx.beginPath();
+    ctx.moveTo(size * 0.05, -width);
+    ctx.lineTo(len, 0);
+    ctx.lineTo(size * 0.05, width);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
 
 export function Sun() {
   const meshRef = useRef<THREE.Mesh>(null!);
+  const chromoRef = useRef<THREE.Mesh>(null!);
+  const kCoronaRef = useRef<THREE.Mesh>(null!);
   const coronaRef = useRef<THREE.Sprite>(null!);
+  const worldPos = useMemo(() => new THREE.Vector3(), []);
 
-  const coronaTex = useMemo(
-    () => makeRadialTexture("rgba(255,180,80,1)", "rgba(255,100,30,0)"),
-    [],
-  );
+  useEffect(() => {
+    if (!window.__exoSizes) window.__exoSizes = new Map();
+    window.__exoSizes.set("Sun", SUN_RADIUS);
+  }, []);
 
-  const shader = useMemo(
+  const coronaTex = useMemo(() => makeSolarCoronaTexture(), []);
+
+  const photosphereShader = useMemo(
     () => ({
       uniforms: { uTime: { value: 0 } },
       vertexShader: /* glsl */ `
@@ -21,10 +79,13 @@ export function Sun() {
         #include <logdepthbuf_pars_vertex>
         varying vec3 vPos;
         varying vec3 vNormal;
+        varying vec3 vViewPosition;
         void main() {
-          vPos = position;
+          vPos = normalize(position);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -mvPosition.xyz;
           vNormal = normalize(normalMatrix * normal);
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+          gl_Position = projectionMatrix * mvPosition;
           #include <logdepthbuf_vertex>
         }
       `,
@@ -33,37 +94,106 @@ export function Sun() {
         uniform float uTime;
         varying vec3 vPos;
         varying vec3 vNormal;
-        // hash + simplex-ish noise
-        float hash(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
-        float noise(vec3 p){
-          vec3 i = floor(p), f = fract(p);
-          float n = mix(mix(mix(hash(i), hash(i+vec3(1,0,0)), f.x),
-                            mix(hash(i+vec3(0,1,0)), hash(i+vec3(1,1,0)), f.x), f.y),
-                        mix(mix(hash(i+vec3(0,0,1)), hash(i+vec3(1,0,1)), f.x),
-                            mix(hash(i+vec3(0,1,1)), hash(i+vec3(1,1,1)), f.x), f.y), f.z);
-          return n;
+        varying vec3 vViewPosition;
+
+        float hash(vec3 p) {
+          p = fract(p * vec3(443.8975, 397.2973, 491.1871));
+          p += dot(p.zxy, p.yxz + 19.19);
+          return fract(p.x * p.y * p.z);
         }
-        float fbm(vec3 p){
-          // 3 octaves instead of 5: visually near-identical granulation for
-          // roughly half the per-pixel cost when the Sun fills the screen.
-          float v=0., a=0.5;
-          for(int i=0;i<3;i++){ v += a*noise(p); p*=2.03; a*=0.5; }
+
+        float noise(vec3 p) {
+          vec3 i = floor(p);
+          vec3 f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          return mix(
+            mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x),
+                mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+            mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y),
+            f.z
+          );
+        }
+
+        float fbm(vec3 p) {
+          float v = 0.0, a = 0.5;
+          for (int i = 0; i < 5; i++) {
+            v += a * noise(p);
+            p = p * 2.07 + vec3(13.1, 7.7, 19.3);
+            a *= 0.5;
+          }
           return v;
         }
 
-        void main(){
+        // Voronoi-like cellular granulation pattern for convective plasma cells
+        float granuleCells(vec3 p) {
+          float n1 = noise(p);
+          float n2 = noise(p * 2.15 + vec3(4.2, -3.1, 8.7));
+          float ridge = 1.0 - abs(n1 * 2.0 - 1.0);
+          float fineRidge = 1.0 - abs(n2 * 2.0 - 1.0);
+          return clamp(ridge * 0.68 + fineRidge * 0.32, 0.0, 1.0);
+        }
+
+        void main() {
           #include <logdepthbuf_fragment>
-          vec3 p = normalize(vPos) * 2.0;
-          float n = fbm(p + vec3(uTime*0.15));
-          float hot = fbm(p*2.0 - vec3(uTime*0.25));
-          vec3 deep = vec3(0.7, 0.15, 0.0);
-          vec3 mid  = vec3(1.0, 0.45, 0.1);
-          vec3 hi   = vec3(1.0, 0.95, 0.6);
-          vec3 col = mix(deep, mid, smoothstep(0.2, 0.6, n));
-          col = mix(col, hi, smoothstep(0.55, 0.95, hot));
-          // physical limb darkening instead of an artificial glowing rim
-          float mu = max(dot(vNormal, vec3(0,0,1)), 0.0);
-          col *= 0.55 + 0.45 * mu;
+          vec3 N = normalize(vNormal);
+          vec3 V = normalize(vViewPosition);
+          float mu = clamp(dot(N, V), 0.0, 1.0);
+
+          // Differential solar rotation (equator rotates faster than poles)
+          float lat = vPos.y;
+          float diffRot = uTime * 0.035 * (1.0 - 0.28 * lat * lat);
+          float ca = cos(diffRot), sa = sin(diffRot);
+          vec3 sp = vec3(vPos.x * ca - vPos.z * sa, vPos.y, vPos.x * sa + vPos.z * ca);
+
+          // Domain-warped convective granulation + supergranulation network
+          vec3 warp = vec3(
+            fbm(sp * 4.5 + vec3(uTime * 0.08, 0.0, 0.0)),
+            fbm(sp * 4.5 + vec3(0.0, uTime * 0.08, 5.2)),
+            fbm(sp * 4.5 + vec3(0.0, 5.2, -uTime * 0.08))
+          );
+          float superGran = fbm(sp * 6.0 + warp * 1.35);
+          float granules = granuleCells(sp * 26.0 + warp * 3.8 + vec3(uTime * 0.22));
+          float microGran = noise(sp * 64.0 - vec3(uTime * 0.45));
+
+          // Active magnetic belt latitudes (~10° to 30° N/S) for sunspots & faculae
+          float activeBelt = exp(-pow((abs(lat) - 0.28) / 0.16, 2.0));
+          float spotField = fbm(sp * 7.5 + warp * 0.55 + vec3(2.4, -1.7, 6.1));
+          float penumbraMask = smoothstep(0.66, 0.75, spotField) * activeBelt;
+          float umbraMask = smoothstep(0.75, 0.82, spotField) * activeBelt;
+          // Radial penumbral filaments
+          float penumbraStriation = 0.65 + 0.35 * noise(sp * 52.0 + warp * 4.0);
+
+          // Bright magnetic faculae / plage network around active regions (more visible near limb)
+          float faculaeMask = smoothstep(0.56, 0.66, spotField) * (1.0 - penumbraMask) * activeBelt;
+          float faculaeBoost = faculaeMask * (0.35 + 0.85 * pow(1.0 - mu, 0.75));
+
+          // Blackbody-inspired solar photosphere palette (5778 K center -> 4200 K limb)
+          vec3 intergranuleCol = vec3(0.78, 0.24, 0.03);
+          vec3 midPhotosphere  = vec3(1.00, 0.58, 0.14);
+          vec3 brightGranule   = vec3(1.00, 0.93, 0.68);
+          vec3 hotFaculae      = vec3(1.00, 0.98, 0.88);
+          vec3 penumbraCol     = vec3(0.42, 0.14, 0.02) * penumbraStriation;
+          vec3 umbraCol        = vec3(0.11, 0.02, 0.004);
+
+          float plasmaMix = clamp(granules * 0.65 + superGran * 0.35 + (microGran - 0.5) * 0.14, 0.0, 1.0);
+          vec3 col = mix(intergranuleCol, midPhotosphere, smoothstep(0.18, 0.58, plasmaMix));
+          col = mix(col, brightGranule, smoothstep(0.54, 0.90, plasmaMix));
+          col = mix(col, hotFaculae, clamp(faculaeBoost, 0.0, 0.85));
+
+          // Apply sunspot penumbra and dark umbra
+          col = mix(col, penumbraCol, penumbraMask * 0.88);
+          col = mix(col, umbraCol, umbraMask * 0.95);
+
+          // Eddington-Barbier wavelength-dependent limb darkening
+          vec3 limbPower = vec3(0.38, 0.54, 0.76);
+          vec3 limbDarkening = pow(vec3(max(mu, 0.04)), limbPower);
+          col *= (0.28 + 0.72 * limbDarkening);
+
+          // Subtle H-alpha chromospheric warmth right at the extreme grazing edge
+          float grazing = pow(1.0 - mu, 4.5);
+          col += vec3(1.0, 0.28, 0.06) * grazing * 0.42;
+
           gl_FragColor = vec4(col, 1.0);
         }
       `,
@@ -71,26 +201,221 @@ export function Sun() {
     [],
   );
 
-  useFrame(({ clock }) => {
+  const chromosphereShader = useMemo(
+    () => ({
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: /* glsl */ `
+        #include <common>
+        #include <logdepthbuf_pars_vertex>
+        varying vec3 vPos;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        void main() {
+          vPos = normalize(position);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -mvPosition.xyz;
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * mvPosition;
+          #include <logdepthbuf_vertex>
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
+        uniform float uTime;
+        varying vec3 vPos;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+
+        float hash(vec3 p) {
+          p = fract(p * vec3(443.8975, 397.2973, 491.1871));
+          p += dot(p.zxy, p.yxz + 19.19);
+          return fract(p.x * p.y * p.z);
+        }
+        float noise(vec3 p) {
+          vec3 i = floor(p), f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          return mix(
+            mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x),
+                mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+            mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y),
+            f.z
+          );
+        }
+        float fbm(vec3 p) {
+          float v = 0.0, a = 0.5;
+          for (int i = 0; i < 4; i++) {
+            v += a * noise(p);
+            p = p * 2.1 + vec3(5.3, -9.1, 3.7);
+            a *= 0.5;
+          }
+          return v;
+        }
+
+        void main() {
+          #include <logdepthbuf_fragment>
+          vec3 N = normalize(vNormal);
+          vec3 V = normalize(vViewPosition);
+          float nv = abs(dot(N, V));
+
+          // Limb-concentrated spicule & solar prominence emission
+          float rim = pow(1.0 - nv, 2.8);
+          float loopNoise = fbm(vPos * 9.0 + vec3(0.0, uTime * 0.18, -uTime * 0.14));
+          float spicule = fbm(vPos * 28.0 - vec3(uTime * 0.35, 0.0, uTime * 0.25));
+          float prominence = smoothstep(0.54, 0.86, loopNoise) * (0.6 + 0.8 * spicule);
+
+          vec3 chromoRed = vec3(1.0, 0.26, 0.06);
+          vec3 flareGold = vec3(1.0, 0.78, 0.28);
+          vec3 col = mix(chromoRed, flareGold, prominence) * rim * (0.75 + 1.35 * prominence);
+          float alpha = clamp(rim * (0.42 + 0.58 * prominence), 0.0, 0.92);
+          gl_FragColor = vec4(col, alpha);
+        }
+      `,
+    }),
+    [],
+  );
+
+  const kCoronaShader = useMemo(
+    () => ({
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: /* glsl */ `
+        #include <common>
+        #include <logdepthbuf_pars_vertex>
+        varying vec3 vPos;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+        void main() {
+          vPos = normalize(position);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -mvPosition.xyz;
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * mvPosition;
+          #include <logdepthbuf_vertex>
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        #include <logdepthbuf_pars_fragment>
+        uniform float uTime;
+        varying vec3 vPos;
+        varying vec3 vNormal;
+        varying vec3 vViewPosition;
+
+        float hash(vec3 p) {
+          return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
+        }
+        float noise(vec3 p) {
+          vec3 i = floor(p), f = fract(p);
+          f = f * f * (3.0 - 2.0 * f);
+          return mix(
+            mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x),
+                mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+            mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y),
+            f.z
+          );
+        }
+
+        void main() {
+          #include <logdepthbuf_fragment>
+          vec3 N = normalize(vNormal);
+          vec3 V = normalize(vViewPosition);
+          float nv = abs(dot(N, V));
+          float streamer = 0.7 + 0.3 * noise(vPos * 14.0 + vec3(uTime * 0.08));
+          // Helmet streamers concentrated toward solar equator
+          float eqBoost = 1.0 - 0.35 * vPos.y * vPos.y;
+          float glow = pow(1.0 - nv, 2.2) * streamer * eqBoost;
+          vec3 col = mix(vec3(1.0, 0.42, 0.12), vec3(1.0, 0.86, 0.52), glow);
+          gl_FragColor = vec4(col * glow * 0.85, clamp(glow * 0.65, 0.0, 0.75));
+        }
+      `,
+    }),
+    [],
+  );
+
+  useFrame(({ clock, camera }) => {
     const t = clock.elapsedTime;
     if (meshRef.current) {
       (meshRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
-      meshRef.current.rotation.y = t * 0.05;
+      meshRef.current.rotation.y = t * 0.025;
+      meshRef.current.getWorldPosition(worldPos);
+    }
+    if (chromoRef.current) {
+      (chromoRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
+      chromoRef.current.rotation.y = -t * 0.018;
+    }
+    if (kCoronaRef.current) {
+      (kCoronaRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
     }
     if (coronaRef.current) {
-      // corona stays a visible fraction of the now much smaller Solar System
-      const s = 0.16 + Math.sin(t * 0.8) * 0.006;
+      const camD = camera.position.distanceTo(worldPos);
+      // Scale smoothly so close-up views reveal the photosphere & chromosphere without glare washout
+      const closeFade = Math.min(1, Math.max(0.22, (camD - SUN_RADIUS * 2.5) / (SUN_RADIUS * 14)));
+      const s = (0.13 + Math.sin(t * 0.9) * 0.005) * (0.55 + 0.45 * closeFade);
       coronaRef.current.scale.set(s, s, 1);
+      (coronaRef.current.material as THREE.SpriteMaterial).opacity = 0.78 * closeFade;
     }
   });
 
   return (
     <group>
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[0.015, 48, 32]} />
-        <shaderMaterial args={[shader]} depthWrite depthTest transparent={false} />
+      {/* Solar Photosphere with 3D convective granulation, sunspots (umbra/penumbra) & faculae */}
+      <mesh
+        ref={meshRef}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation();
+          document.body.style.cursor = "";
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          const st = useStore.getState();
+          st.setSelected(NAMED_STARS[0]);
+          st.setVisitPlanet("Sun");
+        }}
+      >
+        <sphereGeometry args={[SUN_RADIUS, 96, 64]} />
+        <shaderMaterial args={[photosphereShader]} depthWrite depthTest transparent={false} />
       </mesh>
-      <pointLight color="#ffb060" intensity={4} distance={5} decay={1.2} />
+
+      {/* Dynamic H-alpha Chromosphere & Solar Prominence Rim Shell */}
+      <mesh ref={chromoRef} scale={1.036} renderOrder={1}>
+        <sphereGeometry args={[SUN_RADIUS, 64, 48]} />
+        <shaderMaterial
+          args={[chromosphereShader]}
+          transparent
+          depthWrite={false}
+          side={THREE.FrontSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+
+      {/* Volumetric Inner K-Corona Helmet Streamer Shell */}
+      <mesh ref={kCoronaRef} scale={1.26} renderOrder={2}>
+        <sphereGeometry args={[SUN_RADIUS, 48, 32]} />
+        <shaderMaterial
+          args={[kCoronaShader]}
+          transparent
+          depthWrite={false}
+          side={THREE.BackSide}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+
+      {/* Outer F-Corona & Streamer Halo Sprite */}
+      <sprite ref={coronaRef} scale={[0.13, 0.13, 1]} renderOrder={3}>
+        <spriteMaterial
+          map={coronaTex}
+          transparent
+          opacity={0.78}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </sprite>
+
+      <pointLight color="#fff2d6" intensity={4.8} distance={8} decay={1.1} />
     </group>
   );
 }

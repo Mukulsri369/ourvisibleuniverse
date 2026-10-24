@@ -1,25 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowRight,
-  ShieldCheck,
-  GraduationCap,
-  Sparkles,
-  Telescope,
-  Atom,
-  Lock,
-  CheckCircle2,
-  HeartHandshake,
-  Compass,
-  ShoppingBag,
   ArrowUpRight,
+  ShoppingBag,
   Shuffle,
   Instagram,
-  RefreshCw,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Plans } from "@/components/site/Plans";
-import { Button } from "@/components/ui/button";
 import {
   AUTHENTIC_STORE_SEED,
   fetchLiveStoreProducts,
@@ -27,26 +15,137 @@ import {
 } from "@/lib/store-products";
 
 import parentKidImg from "@/assets/images/parent_kid_stargazing_1791934612266.jpg";
-import saturnRingsImg from "@/assets/images/saturn_rings_cosmic_1791934612062.jpg";
-import deepSpaceGalaxyImg from "@/assets/images/deep_space_galaxy_1791934612897.jpg";
 
 import { SpaceEduHero } from "@/components/site/SpaceEduHero";
 import { CosmicBackgroundCanvas } from "@/components/site/CosmicBackgroundCanvas";
+import { ScrollScrubVideoCanvas } from "@/components/site/ScrollScrubVideoCanvas";
+
+const KERR_ACCRETION_VIDEO_2 =
+  "/assets/aistudio/Rotating_Kerr_black_hole_visuali__1080p_20261024024506_51d485ff.mp4";
+const KERR_ACCRETION_MOBILE_2 = "/assets/aistudio/kerr2_mobile.mp4";
+const KERR_ACCRETION_POSTER_2 = "/assets/aistudio/kerr2_poster.jpg";
+
+const clamp = (x: number, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = (x: number) => {
+  const c = clamp(x, 0, 1);
+  return c * c * (3 - 2 * c);
+};
+
+function AccretionChapterChoreography({
+  registerListener,
+}: {
+  registerListener: (fn: (smoothedProgress: number, rawProgress: number) => void) => () => void;
+}) {
+  const beat1Ref = useRef<HTMLDivElement | null>(null);
+  const beat2Ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return registerListener((pr) => {
+      const cop1 = pr > 0.52 ? 0 : smooth(1 - pr / 0.48);
+      const cop2 = pr < 0.44 ? 0 : smooth((pr - 0.44) / 0.25);
+
+      if (beat1Ref.current) {
+        beat1Ref.current.style.opacity = String(cop1);
+        beat1Ref.current.style.transform = reduce
+          ? "none"
+          : `translate3d(0, ${((0.2 - pr) * 7).toFixed(2)}vh, 0)`;
+        beat1Ref.current.style.pointerEvents = cop1 > 0.45 ? "auto" : "none";
+      }
+
+      if (beat2Ref.current) {
+        beat2Ref.current.style.opacity = String(cop2);
+        beat2Ref.current.style.transform = reduce
+          ? "none"
+          : `translate3d(0, ${((0.78 - pr) * 7).toFixed(2)}vh, 0)`;
+        beat2Ref.current.style.pointerEvents = cop2 > 0.45 ? "auto" : "none";
+      }
+    });
+  }, [registerListener]);
+
+  return (
+    <div className="mx-auto flex h-full max-w-7xl flex-col justify-center px-6 lg:px-10">
+      <div className="relative flex min-h-[300px] w-full items-center">
+        {/* Beat 1: Accretion Physics */}
+        <div
+          ref={beat1Ref}
+          className="max-w-lg rounded-3xl border border-white/[0.12] bg-[#05060a]/75 p-9 backdrop-blur-2xl will-change-[opacity,transform]"
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#f5d08a]">
+            01 / 02 · RELATIVISTIC TORUS
+          </p>
+          <h2
+            className="mt-3 text-3xl font-medium uppercase leading-tight text-white sm:text-4xl"
+            style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+          >
+            Matter Spiraling At Light Speed.
+          </h2>
+          <p className="mt-3 text-sm font-light leading-relaxed text-white/75">
+            Scroll smoothly to scrub orbital shear across the event horizon.
+          </p>
+        </div>
+
+        {/* Beat 2: 24-Module Academy CTA */}
+        <div
+          ref={beat2Ref}
+          style={{ opacity: 0, pointerEvents: "none" }}
+          className="absolute right-0 max-w-xl rounded-3xl border border-white/[0.14] bg-[#05060a]/80 p-9 backdrop-blur-2xl will-change-[opacity,transform] sm:p-11"
+        >
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#38bdf8]">
+            02 / 02 · 24 INTERACTIVE MODULES
+          </p>
+          <h3
+            className="mt-3 text-3xl font-medium uppercase text-white sm:text-4xl"
+            style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+          >
+            Cosmic Learning Academy.
+          </h3>
+          <p className="mt-3 text-sm font-light leading-relaxed text-white/75">
+            Six progressive stages, age-adaptive physics, AI Observatory Tutor, and verifiable
+            completion certificates.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <Link
+              to="/learn"
+              className="group inline-flex h-11 items-center gap-3 rounded-full bg-[#f5d08a] pl-5 pr-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#05060a] transition-all hover:bg-white"
+            >
+              <span>Enter Academy</span>
+              <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a] transition-transform duration-300 group-hover:rotate-45">
+                <ArrowUpRight className="size-4" />
+              </span>
+            </Link>
+            <Link
+              to="/verify-certificate"
+              className="inline-flex h-11 items-center rounded-full border border-white/15 bg-white/[0.04] px-5 text-xs font-medium uppercase tracking-[0.16em] text-white/80 hover:border-white/35 hover:text-white"
+            >
+              Verify Certificate
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SpaceEdu — Our Visible Universe for Curious Kids & Parents" },
+      {
+        title: "Our Visible Universe — 3D Relativistic Space Observatory",
+      },
       {
         name: "description",
         content:
-          "Cinematic planet exploration and 3D universe for curious kids. Learn about Earth, Venus, Mars, and 100,000 real stars with zero ads.",
+          "Interactive 3D relativistic universe simulator and 24-module astronomy academy. Explore rotating Kerr black holes, 100,000+ Gaia DR3 stars, and exoplanets.",
       },
-      { property: "og:title", content: "SpaceEdu — Our Visible Universe" },
+      {
+        property: "og:title",
+        content: "Our Visible Universe — 3D Relativistic Observatory",
+      },
       {
         property: "og:description",
         content:
-          "Turn screen time into lifelong curiosity. Explore planets, stars, galaxies, and black holes in a scientifically accurate, kid-safe 3D cosmos.",
+          "Command a scientifically accurate 3D cosmos spanning planets, exoplanets, raymarched nebulae, galaxies, and relativistic Kerr black holes.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -55,127 +154,32 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const scaleFacts = [
-  {
-    order: "01",
-    name: "Earth & The Moon",
-    distance: "384,400 km",
-    kidFact: "If Earth were a basketball, the Moon would be a tennis ball 24 feet away!",
-    scienceDetail: "Light travels from the Moon to your child's eyes in just 1.3 seconds.",
-  },
-  {
-    order: "02",
-    name: "The Solar Playground",
-    distance: "150 Million km (1 AU)",
-    kidFact: "Sunlight takes 8 minutes to reach Earth, but over 5 hours to reach distant Pluto!",
-    scienceDetail:
-      "Real elliptical orbits computed from orbital eccentricity, gravity, and Keplerian mechanics.",
-  },
-  {
-    order: "03",
-    name: "Saturn & Its Icy Rings",
-    distance: "1.4 Billion km",
-    kidFact:
-      "Saturn's rings are wider than 20 Earths placed side-by-side, but thinner than a two-story house!",
-    scienceDetail:
-      "Millions of water-ice particles orbiting a gas giant with 146 known natural satellites.",
-  },
-  {
-    order: "04",
-    name: "Our Stellar Neighbors",
-    distance: "4.3 Light Years",
-    kidFact:
-      "Even traveling on the fastest rocket ever built, reaching Alpha Centauri takes over 70,000 years!",
-    scienceDetail:
-      "100,000 catalog stars rendered with physical spectral classes from O, B, A to red M dwarfs.",
-  },
-  {
-    order: "05",
-    name: "The Grand Milky Way",
-    distance: "100,000 Light Years",
-    kidFact:
-      "Our solar system has orbited the galaxy only about 20 times since dinosaurs walked Earth!",
-    scienceDetail:
-      "A spiral galaxy containing more than 100 billion stars and at least 100 billion planets.",
-  },
-];
-
-const celestialHighlights = [
-  {
-    type: "Gas Giant",
-    name: "Saturn & Rings",
-    distance: "9.5 AU",
-    highlight: "Real ring shadows & orbital moons",
-  },
-  {
-    type: "Supermassive Black Hole",
-    name: "Sagittarius A*",
-    distance: "26,700 ly",
-    highlight: "The 4-million solar mass heart of our galaxy",
-  },
-  {
-    type: "Spinning Neutron Star",
-    name: "Crab Pulsar",
-    distance: "6,500 ly",
-    highlight: "Rotates 30 times every second",
-  },
-  {
-    type: "Grand Spiral Galaxy",
-    name: "Andromeda (M31)",
-    distance: "2.5M ly",
-    highlight: "One trillion stars traveling toward our Milky Way",
-  },
-  {
-    type: "Red Supergiant",
-    name: "Betelgeuse",
-    distance: "548 ly",
-    highlight: "So huge it would engulf the orbit of Mars",
-  },
-  {
-    type: "Exoplanet System",
-    name: "TRAPPIST-1 System",
-    distance: "40 ly",
-    highlight: "Seven Earth-sized worlds orbiting an ultra-cool dwarf",
-  },
-];
-
-const testimonials = [
-  {
-    quote:
-      "My 9-year-old daughter used to spend hours on mindless video feeds. Within two days of getting Our Visible Universe, she was explaining orbital velocity and Saturn's rings to her grandparents. It's the best educational purchase I've made.",
-    author: "Priya Sharma",
-    role: "Mother of two & Middle School Educator",
-    location: "Bangalore",
-  },
-  {
-    quote:
-      "As a STEM teacher and dad, finding software that doesn't talk down to kids while keeping things visual and tactile is rare. The physical scaling and real catalog data turn abstract physics formulas into living wonder.",
-    author: "Dr. Marcus Vance",
-    role: "Astrophysics Parent & Science Department Head",
-    location: "Vancouver",
-  },
-  {
-    quote:
-      "No ads, no sneaky monthly subscriptions, no toxic algorithms. Just a single transparent pass that gave my 11-year-old son a genuine passion for astronomy. He's now asking for his first telescope!",
-    author: "Ananya Mehta",
-    role: "Parent of 5th grader",
-    location: "Mumbai",
-  },
-];
+/**
+ * Minimalist Static Architectural Cell (Zero Cursor-Move Tilt or Parallax)
+ */
+function SpotlightCard({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`relative overflow-hidden transition-colors duration-300 hover:bg-[#090d16] ${className}`}>
+      <div className="relative z-10 h-full">{children}</div>
+    </div>
+  );
+}
 
 function Index() {
-  const [activeScaleIndex, setActiveScaleIndex] = useState(0);
   const [storeProducts, setStoreProducts] = useState<StoreProduct[]>(() =>
     AUTHENTIC_STORE_SEED.slice(0, 6),
   );
   const [allProducts, setAllProducts] = useState<StoreProduct[]>(AUTHENTIC_STORE_SEED);
-  const [isLoadingStore, setIsLoadingStore] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  // Automatically load authentic live products and prices from ourvisibleuniverse.store
   useEffect(() => {
     let isMounted = true;
-    setIsLoadingStore(true);
     fetchLiveStoreProducts()
       .then((products) => {
         if (!isMounted) return;
@@ -183,12 +187,8 @@ function Index() {
           setAllProducts(products);
           setStoreProducts(products.slice(0, 6));
         }
-        setIsLoadingStore(false);
       })
-      .catch((err) => {
-        console.warn("Could not fetch live store products, preserving authentic seed:", err);
-        if (isMounted) setIsLoadingStore(false);
-      });
+      .catch(() => {});
 
     return () => {
       isMounted = false;
@@ -235,518 +235,261 @@ function Index() {
   };
 
   return (
-    <PublicLayout className="bg-[#04060d] text-slate-100">
-      {/* ================= FIXED 3D COSMIC BACKGROUND (EARTH, VENUS, MARS) ================= */}
+    <PublicLayout className="bg-[#05060a] text-white">
+      {/* ================= 3D SCROLL-DRIVEN WEBGL COSMOS BACKGROUND ================= */}
       <CosmicBackgroundCanvas />
 
-      <main className="relative z-10 bg-transparent text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
-        {/* ================= SPACEEDU FULL-VIEWPORT HERO ================= */}
+      <main className="relative z-10 bg-transparent text-white selection:bg-[#f5d08a]/30 selection:text-[#f5d08a]">
+        {/* ================= 01. KERR SINGULARITY SCROLL-SCRUB HERO (VIDEO 1) ================= */}
         <SpaceEduHero />
 
-        {/* ================= PARENT TRUST BAR ================= */}
-        <section className="border-y border-white/10 bg-slate-950/70 backdrop-blur-md py-8">
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-              <div className="flex items-start gap-3">
-                <ShieldCheck className="size-5 shrink-0 text-emerald-400" />
-                <div>
-                  <h4 className="text-sm font-semibold text-white">100% Ad-Free & Safe</h4>
-                  <p className="text-xs text-slate-400">Zero tracking, zero pop-ups</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <GraduationCap className="size-5 shrink-0 text-cyan-400" />
-                <div>
-                  <h4 className="text-sm font-semibold text-white">Real NASA Catalogs</h4>
-                  <p className="text-xs text-slate-400">True scientific orbits & data</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Atom className="size-5 shrink-0 text-amber-400" />
-                <div>
-                  <h4 className="text-sm font-semibold text-white">100,000+ Real Stars</h4>
-                  <p className="text-xs text-slate-400">From our Sun to deep quasars</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Lock className="size-5 shrink-0 text-purple-400" />
-                <div>
-                  <h4 className="text-sm font-semibold text-white">Single One-Time Pass</h4>
-                  <p className="text-xs text-slate-400">No sneaky monthly auto-billing</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= COSMIC LEARNING ACADEMY SHOWCASE ================= */}
-        <section className="relative overflow-hidden border-t border-cyan-500/30 bg-gradient-to-b from-cyan-950/40 via-slate-950/80 to-slate-950/40 backdrop-blur-xl py-20">
-          <div className="absolute top-0 right-1/4 size-96 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
-          <div className="mx-auto max-w-7xl px-5 lg:px-8 relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 rounded-3xl border border-cyan-500/40 bg-slate-900/70 p-8 sm:p-12 shadow-2xl shadow-cyan-950/30 backdrop-blur-xl">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3.5 py-1 text-xs font-semibold text-cyan-300 mb-4">
-                  <Sparkles className="size-3.5 text-cyan-400" />
-                  <span>Now Open • 24 Progressive Astronomy Modules</span>
-                </div>
-                <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-                  Cosmic Learning Academy
-                </h2>
-                <p className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
-                  Transform astronomy learning with our interactive curriculum: 6 celestial stages,
-                  3 age-adaptive learning levels (Classes 1–3, 4–6, 7–10), hands-on cosmic physics
-                  experiments, and 3D planetary explorations.
-                </p>
-
-                <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-slate-300">
-                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                    <CheckCircle2 className="size-3.5 text-cyan-400" />
-                    <span>Age-Adaptive Physics</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                    <CheckCircle2 className="size-3.5 text-cyan-400" />
-                    <span>Local-First Progress</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                    <CheckCircle2 className="size-3.5 text-cyan-400" />
-                    <span>Verified NASA Grounding</span>
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row lg:flex-col gap-3 flex-shrink-0">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold px-8 py-6 text-base shadow-lg shadow-cyan-500/25 border-none transition-transform hover:scale-105"
+        {/* ================= MINIMALIST METRICS HAIRLINE STRIP ================= */}
+        <section className="border-y border-white/[0.08] bg-[#05060a]/85 backdrop-blur-2xl">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <div className="grid grid-cols-2 divide-y divide-white/[0.08] sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+              {[
+                { value: "100K+", label: "Gaia DR3 Stars" },
+                { value: "60 FPS", label: "GLSL Raymarching" },
+                { value: "24", label: "Academy Modules" },
+                { value: "100%", label: "Ad-Free Sanctuary" },
+              ].map((stat, idx) => (
+                <div
+                  key={stat.label}
+                  className={`py-8 ${idx === 0 ? "sm:pr-8" : "sm:px-8"}`}
                 >
-                  <Link to="/learn">
-                    <Compass className="size-5 mr-2" />
-                    <span>Enter Cosmic Academy</span>
-                  </Link>
-                </Button>
-
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-cyan-400 font-semibold px-6 py-6 text-sm"
-                >
-                  <Link to="/galaxies">
-                    <span>Explore Galaxies (3D)</span>
-                    <ArrowRight className="size-4 ml-2 text-cyan-400" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= WHY PARENTS FEEL PROUD SECTION ================= */}
-        <section
-          id="parents"
-          className="border-t border-white/10 bg-slate-950/40 backdrop-blur-md py-24"
-        >
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="max-w-2xl">
-              <span className="text-xs font-semibold tracking-wider uppercase text-cyan-400">
-                The Parent Advantage
-              </span>
-              <h2 className="mt-3 text-3xl font-black text-white sm:text-5xl">
-                Screen Time You Actually Feel Proud Of.
-              </h2>
-              <p className="mt-4 text-base text-slate-300 sm:text-lg">
-                Most digital entertainment is engineered to keep children hooked on instant
-                dopamine. Our Visible Universe is engineered for active inquiry — turning curiosity
-                into lifelong confidence in STEM.
-              </p>
-            </div>
-
-            {/* Asymmetric Bento Grid with Translucent Dark Glass */}
-            <div className="mt-14 grid gap-6 md:grid-cols-12">
-              {/* Feature 1: Large Visual Card */}
-              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md p-8 md:col-span-7 flex flex-col justify-between hover:border-white/20 transition-all">
-                <div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
-                    Active Scientific Discovery
-                  </span>
-                  <h3 className="mt-3 text-2xl font-bold text-white sm:text-3xl">
-                    From Passive Consumers to Cosmic Explorers
-                  </h3>
-                  <p className="mt-3 leading-relaxed text-slate-300">
-                    Children don't sit back and watch scripted videos. In the 3D universe, they
-                    pilot the camera, alter simulation speeds, inspect planetary ring structures,
-                    and test scientific questions:{" "}
-                    <em>"How fast does Mercury whip around the Sun compared to Neptune?"</em>
+                  <p
+                    className="text-3xl font-medium tracking-tight text-white sm:text-4xl"
+                    style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                  >
+                    {stat.value}
+                  </p>
+                  <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">
+                    {stat.label}
                   </p>
                 </div>
-                <div className="mt-6 overflow-hidden rounded-2xl border border-white/10">
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 02. ARCHITECTURAL BENTO GRID ================= */}
+        <section className="py-32">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#f5d08a]">
+                  02 // ARCHITECTURE
+                </p>
+                <h2
+                  className="mt-3 text-4xl font-medium uppercase tracking-tight text-white sm:text-5xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  Built For Discovery.
+                </h2>
+              </div>
+
+              <Link
+                to="/universe"
+                className="group inline-flex h-11 items-center gap-3 self-start rounded-full border border-white/15 bg-white/[0.04] pl-5 pr-1.5 text-xs font-medium uppercase tracking-[0.18em] text-white backdrop-blur-xl transition-all hover:border-[#f5d08a]/50 hover:bg-white/[0.08]"
+              >
+                <span>Open 3D Atlas</span>
+                <span className="flex size-8 items-center justify-center rounded-full bg-[#f5d08a] text-[#05060a] transition-transform duration-300 group-hover:rotate-45">
+                  <ArrowUpRight className="size-4" />
+                </span>
+              </Link>
+            </div>
+
+            {/* 1px Hairline Bento Grid */}
+            <div className="mt-14 grid gap-px overflow-hidden rounded-3xl border border-white/[0.12] bg-white/[0.12] md:grid-cols-12">
+              <SpotlightCard className="bg-[#06080e]/95 p-9 sm:p-12 md:col-span-7 flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d08a]">
+                    REAL-TIME FLIGHT
+                  </span>
+                  <h3
+                    className="mt-3 text-2xl font-medium uppercase text-white sm:text-3xl"
+                    style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                  >
+                    True-Scale Planetary & Lunar Orbits
+                  </h3>
+                  <p className="mt-3 max-w-md text-sm font-light leading-relaxed text-white/65">
+                    Pilot freely from solar granulation and Saturn's rings to distant exoplanet
+                    chains with live orbital trails.
+                  </p>
+                </div>
+
+                <div className="mt-8 overflow-hidden rounded-2xl border border-white/[0.08]">
                   <img
                     src={parentKidImg}
-                    alt="Parent and child exploring astronomy together with telescope and tablet under starry sky"
-                    className="h-64 w-full object-cover transition-transform duration-500 hover:scale-105"
+                    alt="Exploring the 3D universe"
+                    className="h-60 w-full object-cover opacity-90 transition-transform duration-700 hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
                 </div>
-              </div>
+              </SpotlightCard>
 
-              {/* Feature 2: School & STEM Curriculum Advantage */}
-              <div className="flex flex-col justify-between rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md p-8 md:col-span-5 hover:border-white/20 transition-all">
+              <SpotlightCard className="bg-[#06080e]/95 p-9 sm:p-12 md:col-span-5 flex flex-col justify-between">
                 <div>
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400">
-                    <GraduationCap className="size-6" />
-                  </div>
-                  <h3 className="mt-6 text-xl font-bold text-white sm:text-2xl">
-                    Direct School Science Advantage
+                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#38bdf8]">
+                    PHYSICAL SHADERS
+                  </span>
+                  <h3
+                    className="mt-3 text-2xl font-medium uppercase text-white sm:text-3xl"
+                    style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                  >
+                    Relativistic CGI Precision
                   </h3>
-                  <p className="mt-3 leading-relaxed text-slate-300">
-                    Astronomical scales and orbital mechanics are difficult to grasp from flat
-                    textbook diagrams. By interacting with physical 3D models, gravity curves, and
-                    light-year distances, middle and high-school concepts become effortless second
-                    nature.
+                  <p className="mt-3 text-sm font-light leading-relaxed text-white/65">
+                    Custom GLSL gravitational lensing, volumetric raymarched nebulae, and pulsar
+                    magnetospheres grounded in real astronomical catalogs.
                   </p>
                 </div>
-                <div className="mt-6 space-y-2 border-t border-white/10 pt-6 text-sm text-slate-300">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="size-4 text-emerald-400" />
-                    <span>Kepler's laws & elliptical orbital mechanics</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="size-4 text-emerald-400" />
-                    <span>Stellar temperatures & spectral classifications</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="size-4 text-emerald-400" />
-                    <span>Galactic structure and deep-space landmark coordinates</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Feature 3: Safe Sanctuary */}
-              <div className="rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md p-8 md:col-span-6 hover:border-white/20 transition-all">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400">
-                  <ShieldCheck className="size-6" />
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-white sm:text-2xl">
-                  A Safe, Distraction-Free Sanctuary
-                </h3>
-                <p className="mt-3 leading-relaxed text-slate-300">
-                  No social media comments. No predatory micro-transactions or loot boxes. No
-                  behavioral tracking cookies. Just an inspiring, quiet, museum-grade space
-                  sanctuary where your child can immerse their mind peacefully.
-                </p>
-              </div>
-
-              {/* Feature 4: Transparent Fixed-Term Access */}
-              <div className="rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md p-8 md:col-span-6 hover:border-white/20 transition-all">
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-400">
-                  <HeartHandshake className="size-6" />
-                </div>
-                <h3 className="mt-6 text-xl font-bold text-white sm:text-2xl">
-                  Transparent, Honest Family Passes
-                </h3>
-                <p className="mt-3 leading-relaxed text-slate-300">
-                  We despise unexpected monthly charges on credit cards. You pay once for 180 or 365
-                  days of uninterrupted family access via Razorpay (UPI, card, net banking). When
-                  the pass concludes, it simply stops — you only renew if your family loves it.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= INTERACTIVE COSMIC SCALE LAB ================= */}
-        <section
-          id="scales"
-          className="border-t border-white/10 bg-slate-950/30 backdrop-blur-md py-24"
-        >
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="text-center">
-              <span className="text-xs font-semibold tracking-wider uppercase text-cyan-400">
-                Mind-Expanding Perspective
-              </span>
-              <h2 className="mt-3 text-3xl font-black text-white sm:text-5xl">
-                The Scale Lab: Space You Can Grasp
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base text-slate-300 sm:text-lg">
-                Textbooks isolate planets from galaxies. Click through each cosmic order of
-                magnitude below to see how reality actually fits together.
-              </p>
-            </div>
-
-            {/* Scale Selector Tabs */}
-            <div className="mt-12 flex flex-wrap justify-center gap-2">
-              {scaleFacts.map((s, i) => (
-                <button
-                  key={s.order}
-                  type="button"
-                  onClick={() => setActiveScaleIndex(i)}
-                  className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold transition-all whitespace-nowrap ${
-                    activeScaleIndex === i
-                      ? "bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/30 font-bold"
-                      : "border border-white/10 bg-slate-900/60 text-slate-300 hover:bg-slate-800 hover:text-white"
-                  }`}
-                >
-                  <span className="font-mono">{s.order}.</span>
-                  <span>{s.name}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Active Scale Showcase Card */}
-            <div className="mt-8 rounded-3xl border border-white/10 bg-slate-900/70 backdrop-blur-md p-8 sm:p-10 shadow-2xl">
-              <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
-                <div className="lg:col-span-7 space-y-4">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-medium text-cyan-300">
-                    <span>Order {scaleFacts[activeScaleIndex].order}</span>
-                    <span>·</span>
-                    <span className="font-mono">{scaleFacts[activeScaleIndex].distance}</span>
+                <div className="mt-8 space-y-3 border-t border-white/[0.08] pt-6 font-mono text-xs text-white/75">
+                  <div className="flex items-center justify-between">
+                    <span>Kerr Black Hole Lensing</span>
+                    <span className="text-[#f5d08a]">GLSL</span>
                   </div>
-                  <h3 className="text-3xl font-black text-white">
-                    {scaleFacts[activeScaleIndex].name}
-                  </h3>
-                  <div className="rounded-2xl border border-cyan-500/20 bg-cyan-950/30 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-cyan-400">
-                      Fun Fact to Share With Your Child
-                    </p>
-                    <p className="mt-1 text-base font-medium text-slate-100">
-                      "{scaleFacts[activeScaleIndex].kidFact}"
-                    </p>
+                  <div className="flex items-center justify-between">
+                    <span>Exoplanet Host Systems</span>
+                    <span className="text-[#38bdf8]">NASA Archive</span>
                   </div>
-                  <p className="text-sm leading-relaxed text-slate-300">
-                    {scaleFacts[activeScaleIndex].scienceDetail}
-                  </p>
-                  <div className="pt-2">
-                    <Button
-                      asChild
-                      size="sm"
-                      variant="outline"
-                      className="border-white/20 bg-white/5 hover:bg-white/10 text-white"
-                    >
-                      <Link to="/universe">
-                        Inspect in 3D Universe <ArrowRight className="ml-1 size-3.5" />
-                      </Link>
-                    </Button>
+                  <div className="flex items-center justify-between">
+                    <span>3D Volumetric Nebulae</span>
+                    <span className="text-emerald-400">Raymarched</span>
                   </div>
                 </div>
+              </SpotlightCard>
 
-                <div className="lg:col-span-5 overflow-hidden rounded-2xl border border-white/10">
-                  <img
-                    src={activeScaleIndex === 2 ? saturnRingsImg : deepSpaceGalaxyImg}
-                    alt={scaleFacts[activeScaleIndex].name}
-                    className="h-72 w-full object-cover transition-all duration-700 hover:scale-105"
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= CELESTIAL HIGHLIGHTS GRID ================= */}
-        <section
-          id="objects"
-          className="border-t border-white/10 bg-slate-950/40 backdrop-blur-md py-24"
-        >
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <span className="text-xs font-semibold tracking-wider uppercase text-cyan-400">
-                  Real Cosmic Landmarks
+              <SpotlightCard className="bg-[#06080e]/95 p-9 sm:p-11 md:col-span-6">
+                <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-emerald-400">
+                  PURE FOCUS
                 </span>
-                <h2 className="mt-3 text-3xl font-black text-white sm:text-5xl">
-                  Objects Waiting Inside for Your Young Explorer.
-                </h2>
-              </div>
-              <Button
-                asChild
-                variant="outline"
-                className="shrink-0 border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                <h3
+                  className="mt-3 text-xl font-medium uppercase text-white sm:text-2xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  Zero Ads. Zero Algorithms.
+                </h3>
+                <p className="mt-2 text-sm font-light leading-relaxed text-white/60">
+                  A calm, museum-grade sanctuary designed for uninterrupted scientific curiosity.
+                </p>
+              </SpotlightCard>
+
+              <SpotlightCard className="bg-[#06080e]/95 p-9 sm:p-11 md:col-span-6">
+                <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d08a]">
+                  TRANSPARENT ACCESS
+                </span>
+                <h3
+                  className="mt-3 text-xl font-medium uppercase text-white sm:text-2xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  One-Time Exploration Passes.
+                </h3>
+                <p className="mt-2 text-sm font-light leading-relaxed text-white/60">
+                  Fixed-term access via Razorpay with zero recurring monthly charges.
+                </p>
+              </SpotlightCard>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 03. SECOND PINNED KERR BLACK HOLE SCROLL-SCRUB (VIDEO 2) ================= */}
+        <ScrollScrubVideoCanvas
+          videoSrc={KERR_ACCRETION_VIDEO_2}
+          mobileVideoSrc={KERR_ACCRETION_MOBILE_2}
+          posterSrc={KERR_ACCRETION_POSTER_2}
+          scrollHeightVh={300}
+          linger={0.22}
+          chapterCode="03 // ACCRETION DYNAMICS"
+          chapterTitle="COSMIC LEARNING ACADEMY"
+        >
+          {({ registerListener }) => (
+            <AccretionChapterChoreography registerListener={registerListener} />
+          )}
+        </ScrollScrubVideoCanvas>
+
+        {/* ================= 04. EXPLORATION PASSES ================= */}
+        <section id="plans" className="border-t border-white/[0.08] py-32">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <div className="max-w-xl">
+              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#f5d08a]">
+                04 // ACCESS PASSES
+              </p>
+              <h2
+                className="mt-3 text-4xl font-medium uppercase tracking-tight text-white sm:text-5xl"
+                style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
               >
-                <Link to="/universe">
-                  Explore full catalog <ArrowRight className="ml-1 size-4" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {celestialHighlights.map((obj) => (
-                <Link
-                  key={obj.name}
-                  to="/universe"
-                  className="group rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-md p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-cyan-500/10"
-                >
-                  <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span className="font-semibold uppercase tracking-wider text-cyan-400">
-                      {obj.type}
-                    </span>
-                    <span className="font-mono">{obj.distance}</span>
-                  </div>
-                  <h3 className="mt-3 text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">
-                    {obj.name}
-                  </h3>
-                  <p className="mt-2 text-sm text-slate-300">{obj.highlight}</p>
-                  <div className="mt-6 flex items-center justify-between text-xs font-medium text-slate-400">
-                    <span>Jump to coordinates</span>
-                    <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1 group-hover:text-cyan-400" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ================= TESTIMONIALS & PARENT PROOF ================= */}
-        <section
-          id="reviews"
-          className="border-t border-white/10 bg-slate-950/30 backdrop-blur-md py-24"
-        >
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="text-center">
-              <span className="text-xs font-semibold tracking-wider uppercase text-cyan-400">
-                Parent & Educator Feedback
-              </span>
-              <h2 className="mt-3 text-3xl font-black text-white sm:text-5xl">
-                Loved by Curious Families Everywhere.
+                Unlock The Universe.
               </h2>
-            </div>
-
-            <div className="mt-14 grid gap-8 md:grid-cols-3">
-              {testimonials.map((t) => (
-                <div
-                  key={t.author}
-                  className="flex flex-col justify-between rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md p-8 shadow-md hover:border-white/20 transition-all"
-                >
-                  <p className="text-sm leading-relaxed text-slate-200">"{t.quote}"</p>
-                  <div className="mt-8 border-t border-white/10 pt-4">
-                    <p className="font-semibold text-white">{t.author}</p>
-                    <p className="text-xs text-slate-400">
-                      {t.role} · {t.location}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ================= TRANSPARENT PRICING SECTION ================= */}
-        <section
-          id="plans"
-          className="border-t border-white/10 bg-slate-950/40 backdrop-blur-md py-24"
-        >
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="text-center">
-              <span className="text-xs font-semibold tracking-wider uppercase text-cyan-400">
-                Transparent Family Access
-              </span>
-              <h2 className="mt-3 text-3xl font-black text-white sm:text-5xl">
-                Choose Your Child's Exploration Pass.
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-base text-slate-300">
-                One-time payment through Razorpay (UPI, Google Pay, Credit/Debit Cards, Net
-                Banking). Full interactive universe access on your desktop, laptop, or tablet. No
-                auto-renewal trap.
+              <p className="mt-3 text-sm font-light leading-relaxed text-white/65">
+                Single one-time payment via Razorpay. Full access to the 3D simulator and 24-module
+                Academy with zero recurring subscriptions.
               </p>
             </div>
 
-            {/* Plans Component */}
-            <div className="mt-14">
+            <div className="mt-12">
               <Plans />
             </div>
-
-            {/* Peace of mind statement */}
-            <div className="mx-auto mt-12 max-w-xl text-center text-xs text-slate-400">
-              <p>
-                Have questions or need school group pricing? Contact our educational support team at{" "}
-                <a
-                  href="mailto:ourvisibleuniverse@gmail.com"
-                  className="text-cyan-400 underline hover:text-cyan-300"
-                >
-                  ourvisibleuniverse@gmail.com
-                </a>
-              </p>
-            </div>
           </div>
         </section>
 
-        {/* ================= DEDICATED AUTHENTIC STORE SECTION ================= */}
-        <section
-          id="store"
-          className="border-t border-white/10 bg-slate-950/60 backdrop-blur-md py-24"
-        >
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-300">
-                  <ShoppingBag className="size-3.5" />
-                  <span>The Official Stargazer's Store</span>
-                </div>
-                <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl">
-                  Authentic Space Gear & Cosmic Lighting.
-                </h2>
-                <p className="mt-4 text-base leading-relaxed text-slate-300 sm:text-lg">
-                  Direct from{" "}
-                  <span className="font-semibold text-cyan-400">ourvisibleuniverse.store</span>.
-                  Every item and live price below is verified authentic — from high-definition
-                  galaxy projectors and 3-in-1 aurora northern lights lamps, to textured lunar
-                  surface wall clocks and curated celestial literature. Click{" "}
-                  <strong>Buy Now</strong> on any item to open its dedicated page in our official
-                  store.
+        {/* ================= 05. OFFICIAL STORE ARCHIVE ================= */}
+        <section id="store" className="border-t border-white/[0.08] py-32">
+          <div className="mx-auto max-w-7xl px-6 lg:px-10">
+            <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#f5d08a]">
+                  05 // OFFICIAL STORE
                 </p>
-                <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">
-                  <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Auto-synced with live catalog & prices from ourvisibleuniverse.store</span>
-                </div>
+                <h2
+                  className="mt-3 text-4xl font-medium uppercase tracking-tight text-white sm:text-5xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  Space Gear & Optics.
+                </h2>
               </div>
 
-              {/* Actions: Visit Store & Shuffle */}
-              <div className="flex flex-wrap items-center gap-3 shrink-0">
-                <Button
+              <div className="flex flex-wrap items-center gap-3">
+                <button
                   type="button"
-                  variant="outline"
                   onClick={shuffleProducts}
-                  className="border-white/20 bg-white/5 hover:bg-white/10 text-white"
+                  className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-4 text-xs font-medium text-white/80 transition-all hover:border-white/35 hover:text-white"
                 >
-                  <Shuffle className="mr-1.5 size-4 text-cyan-400" />
-                  <span>Shuffle Showcase</span>
-                </Button>
-                <Button
-                  asChild
-                  className="bg-cyan-500 text-slate-950 hover:bg-cyan-400 font-semibold shadow-lg shadow-cyan-500/20"
+                  <Shuffle className="size-3.5 text-[#f5d08a]" />
+                  <span>Shuffle</span>
+                </button>
+
+                <a
+                  href="https://ourvisibleuniverse.store"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex h-10 items-center gap-2.5 rounded-full bg-[#f5d08a] pl-5 pr-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#05060a] transition-all hover:bg-white"
                 >
-                  <a
-                    href="https://ourvisibleuniverse.store"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
-                    <span>Visit ourvisibleuniverse.store</span>
-                    <ArrowUpRight className="size-4" />
-                  </a>
-                </Button>
+                  <span>ourvisibleuniverse.store</span>
+                  <span className="flex size-7 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a] transition-transform duration-300 group-hover:rotate-45">
+                    <ArrowUpRight className="size-3.5" />
+                  </span>
+                </a>
               </div>
             </div>
 
-            {/* Category Filter Pills */}
-            <div className="mt-8 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-2">
-                Filter:
-              </span>
+            {/* Minimalist Filter Pills */}
+            <div className="mt-8 flex flex-wrap gap-1.5">
               {[
-                { key: "all", label: "All Authentic Products" },
-                { key: "projectors", label: "Galaxy Projectors" },
-                { key: "aurora", label: "Aurora Lamps & Lights" },
-                { key: "decor", label: "Space Décor & Clocks" },
+                { key: "all", label: "All" },
+                { key: "projectors", label: "Projectors" },
+                { key: "aurora", label: "Aurora Lamps" },
+                { key: "decor", label: "Décor & Clocks" },
               ].map((cat) => (
                 <button
                   key={cat.key}
                   type="button"
                   onClick={() => handleCategoryFilter(cat.key)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+                  className={`cursor-pointer rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
                     activeCategory === cat.key
-                      ? "bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/25"
-                      : "border border-white/15 bg-white/5 text-slate-300 hover:border-white/30 hover:bg-white/10 hover:text-white"
+                      ? "bg-white text-[#05060a]"
+                      : "border border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25 hover:text-white"
                   }`}
                 >
                   {cat.label}
@@ -754,222 +497,98 @@ function Index() {
               ))}
             </div>
 
-            {/* Product Grid */}
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {isLoadingStore && storeProducts.length === 0
-                ? Array.from({ length: 6 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="aspect-[4/5] animate-pulse rounded-3xl border border-white/10 bg-slate-900/40 p-6"
-                    />
-                  ))
-                : storeProducts.map((p) => (
-                    <div
-                      key={p.id}
-                      className="group flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-slate-900/60 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/50 hover:bg-slate-900/80 hover:shadow-2xl hover:shadow-cyan-500/10"
-                    >
-                      <div>
-                        {/* Product Image Link */}
-                        <a
-                          href={p.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="relative block aspect-[4/3] w-full overflow-hidden bg-slate-950 cursor-pointer"
-                          title={`View ${p.name} on ourvisibleuniverse.store`}
-                        >
-                          <img
-                            src={p.image}
-                            alt={p.name}
-                            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            referrerPolicy="no-referrer"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-50" />
-                          <span className="absolute top-3 left-3 rounded-full border border-cyan-400/30 bg-slate-950/90 px-3 py-1 text-[11px] font-semibold text-cyan-300 backdrop-blur-md flex items-center gap-1.5 shadow-sm">
-                            <ShieldCheck className="size-3 text-cyan-400" />
-                            {p.badge}
-                          </span>
-                          <span className="absolute top-3 right-3 rounded-full border border-emerald-500/30 bg-slate-950/90 px-2.5 py-0.5 text-[10px] font-mono text-emerald-400 backdrop-blur-md">
-                            Verified Authentic
-                          </span>
-                        </a>
-
-                        {/* Content */}
-                        <div className="p-6">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-semibold uppercase tracking-wider text-cyan-400">
-                              {p.category}
-                            </span>
-                            <span className="text-[11px] font-mono text-slate-400">
-                              ourvisibleuniverse.store
-                            </span>
-                          </div>
-                          <a
-                            href={p.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-2 block"
-                          >
-                            <h3 className="text-base font-bold text-white transition-colors group-hover:text-cyan-300 line-clamp-2">
-                              {p.name}
-                            </h3>
-                          </a>
-                          <p className="mt-2 text-xs leading-relaxed text-slate-300 line-clamp-2">
-                            {p.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Pricing and Action Footer with Buy Now */}
-                      <div className="flex items-center justify-between border-t border-white/10 px-6 py-4 bg-slate-950/50">
-                        <div className="flex flex-col">
-                          <span className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
-                            Store Price
-                          </span>
-                          <div className="flex items-baseline gap-2">
-                            <span className="font-mono text-lg font-bold text-white">
-                              {p.price}
-                            </span>
-                            {p.originalPrice && (
-                              <span className="font-mono text-xs text-slate-400 line-through">
-                                {p.originalPrice}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Button
-                            asChild
-                            size="sm"
-                            className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-3.5 py-2 rounded-xl shadow-md shadow-cyan-500/20 transition-all hover:scale-105 active:scale-95"
-                          >
-                            <a
-                              href={p.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5"
-                            >
-                              <ShoppingBag className="size-3.5" />
-                              <span>Buy Now</span>
-                              <ArrowUpRight className="size-3" />
-                            </a>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-            </div>
-
-            {/* Bottom Store Highlight Banner */}
-            <div className="mt-12 rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-slate-900/70 to-cyan-950/40 backdrop-blur-md p-8 sm:p-10 text-center">
-              <h3 className="text-2xl font-bold text-white sm:text-3xl">
-                Explore the Complete Space Decor & Lighting Catalog
-              </h3>
-              <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
-                Browse our full collection of astronomical decor, galaxy projectors, meteorite
-                specimens, and cosmic gifts on our official store with secure Indian & international
-                checkout.
-              </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-4">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-cyan-500 text-slate-950 hover:bg-cyan-400 font-semibold shadow-lg shadow-cyan-500/20"
+            {/* 1px Hairline Store Grid */}
+            <div className="mt-10 grid gap-px overflow-hidden rounded-3xl border border-white/[0.12] bg-white/[0.12] sm:grid-cols-2 lg:grid-cols-3">
+              {storeProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className="group flex flex-col justify-between bg-[#06080e]/95 transition-colors hover:bg-[#0a0e18]"
                 >
-                  <a
-                    href="https://ourvisibleuniverse.store"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
-                    <ShoppingBag className="size-4" />
-                    <span>Go to ourvisibleuniverse.store</span>
-                    <ArrowUpRight className="size-4" />
-                  </a>
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  variant="outline"
-                  className="border-white/20 bg-white/5 hover:bg-white/10 text-white"
-                >
-                  <a
-                    href="https://visualizemaths.ai.studio"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Explore VisualizeMaths Engine <ArrowRight className="ml-1.5 size-4" />
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= DEDICATED INSTAGRAM COMMUNITY CARD ================= */}
-        <section
-          id="instagram"
-          className="border-t border-white/10 bg-slate-950/80 backdrop-blur-md py-20"
-        >
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="relative overflow-hidden rounded-3xl border border-pink-500/30 bg-gradient-to-br from-purple-950/50 via-slate-950/90 to-pink-950/40 p-8 sm:p-12 backdrop-blur-xl shadow-2xl shadow-pink-950/20">
-              {/* Cosmic gradient orbs */}
-              <div className="pointer-events-none absolute -top-24 -right-24 size-80 rounded-full bg-pink-500/15 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-24 -left-24 size-80 rounded-full bg-purple-500/15 blur-3xl" />
-
-              <div className="relative z-10 flex flex-col items-center justify-between gap-8 md:flex-row text-center md:text-left">
-                <div className="max-w-2xl">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/15 px-3.5 py-1 text-xs font-semibold text-pink-300">
-                    <Instagram className="size-3.5 text-pink-400" />
-                    <span>Join Our Astronomy Community</span>
-                  </div>
-                  <h2 className="mt-4 text-3xl font-black text-white sm:text-4xl">
-                    Follow{" "}
-                    <span className="bg-gradient-to-r from-pink-400 via-rose-300 to-amber-300 bg-clip-text text-transparent">
-                      @our_visibleuniverse
-                    </span>{" "}
-                    on Instagram
-                  </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
-                    Get daily high-resolution deep space imagery from the James Webb & Hubble
-                    telescopes, celestial event calendars, backyard stargazing tips, and early drops
-                    from our authentic space store.
-                  </p>
-                  <div className="mt-4 flex flex-wrap justify-center md:justify-start items-center gap-4 text-xs text-slate-400">
-                    <span className="flex items-center gap-1.5 text-slate-300">
-                      <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                      Daily Space Discoveries
-                    </span>
-                    <span>•</span>
-                    <span>Astrophotography Guides</span>
-                    <span>•</span>
-                    <span>Authentic Store Highlights</span>
-                  </div>
-                </div>
-
-                <div className="shrink-0 flex flex-col items-center gap-2">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-600 hover:from-pink-400 hover:via-rose-400 hover:to-purple-500 text-white font-bold px-8 py-6 rounded-2xl shadow-xl shadow-pink-500/25 transition-all hover:scale-105 active:scale-95 text-base"
-                  >
+                  <div>
                     <a
-                      href="https://www.instagram.com/our_visibleuniverse"
+                      href={p.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2.5"
+                      className="relative block aspect-[4/3] w-full overflow-hidden bg-[#05060a]"
                     >
-                      <Instagram className="size-5" />
-                      <span>Follow @our_visibleuniverse</span>
-                      <ArrowUpRight className="size-4" />
+                      <img
+                        src={p.image}
+                        alt={p.name}
+                        className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
+                      />
                     </a>
-                  </Button>
-                  <p className="text-[11px] text-slate-400">
-                    Opens instagram.com/our_visibleuniverse
-                  </p>
+
+                    <div className="p-7">
+                      <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#f5d08a]">
+                        {p.category}
+                      </span>
+                      <a
+                        href={p.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 block"
+                      >
+                        <h3 className="text-base font-medium text-white transition-colors group-hover:text-[#f5d08a] line-clamp-1">
+                          {p.name}
+                        </h3>
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-white/[0.06] px-7 py-5">
+                    <div className="flex items-baseline gap-2 tabular-nums">
+                      <span className="font-mono text-base font-semibold text-white">
+                        {p.price}
+                      </span>
+                      {p.originalPrice && (
+                        <span className="font-mono text-xs text-white/35 line-through">
+                          {p.originalPrice}
+                        </span>
+                      )}
+                    </div>
+
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] px-4 text-xs font-medium text-white transition-all hover:border-[#f5d08a] hover:bg-[#f5d08a] hover:text-[#05060a]"
+                    >
+                      <ShoppingBag className="size-3.5" />
+                      <span>View</span>
+                    </a>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Minimalist Community Banner */}
+            <div className="mt-16 flex flex-col items-center justify-between gap-6 rounded-3xl border border-white/[0.12] bg-[#06080e]/90 p-9 sm:flex-row sm:p-12">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#f5d08a]">
+                  COMMUNITY DISPATCH
+                </p>
+                <h3
+                  className="mt-2 text-2xl font-medium uppercase text-white sm:text-3xl"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
+                  Follow @our_visibleuniverse
+                </h3>
               </div>
+
+              <a
+                href="https://www.instagram.com/our_visibleuniverse"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex h-11 shrink-0 items-center gap-3 rounded-full bg-[#f5d08a] pl-5 pr-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#05060a] transition-all hover:bg-white"
+              >
+                <Instagram className="size-4" />
+                <span>Instagram</span>
+                <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a] transition-transform duration-300 group-hover:rotate-45">
+                  <ArrowUpRight className="size-4" />
+                </span>
+              </a>
             </div>
           </div>
         </section>

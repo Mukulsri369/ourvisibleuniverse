@@ -1,17 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, Orbit, ShoppingBag, X } from "lucide-react";
+import { ArrowUpRight, Menu, Orbit, ShoppingBag, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 
 const links = [
-  ["/learn", "Cosmic Learning Academy"],
-  ["/cosmic-evolution", "Cosmic Evolution"],
-  ["/features", "Features"],
+  ["/learn", "Academy"],
+  ["/galaxies", "Galaxies"],
   ["/science", "Science"],
-  ["/visible-universe-history", "History"],
-  ["/pricing", "Pricing"],
+  ["/pricing", "Passes"],
   ["/about", "About"],
-  ["/faq", "FAQ"],
 ] as const;
 
 export function SiteHeader() {
@@ -21,7 +17,7 @@ export function SiteHeader() {
   const overHero = pathname === "/" && !scrolled && !open;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
+    const onScroll = () => setScrolled(window.scrollY > 32);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -29,126 +25,121 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         overHero
-          ? "border-transparent bg-transparent"
-          : "border-white/10 bg-slate-950/80 backdrop-blur-xl text-slate-100"
+          ? "bg-transparent py-4"
+          : "border-b border-white/[0.08] bg-[#05060a]/85 py-3 backdrop-blur-2xl"
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 lg:px-10">
         <Link
           to="/"
-          className={`flex items-center gap-2 font-semibold transition-transform hover:scale-105 ${
-            overHero ? "text-hero-foreground" : "text-white"
-          }`}
+          className="group flex items-center gap-3 text-white transition-opacity hover:opacity-90"
         >
-          <Orbit className="size-6 text-cyan-400" />
-          Our Visible Universe
+          <span className="flex size-8 items-center justify-center rounded-full border border-[#f5d08a]/35 bg-[#f5d08a]/10">
+            <Orbit className="size-4 text-[#f5d08a] transition-transform duration-500 group-hover:rotate-180" />
+          </span>
+          <span
+            className="text-xs font-semibold uppercase tracking-[0.24em] text-white"
+            style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+          >
+            Our Visible Universe
+          </span>
         </Link>
-        <nav className="hidden items-center gap-6 md:flex">
-          {links.map(([to, label]) => {
-            const isAcademy = to === "/learn";
-            return (
-              <Link
-                key={to}
-                to={to}
-                className={`text-sm transition hover:scale-105 ${
-                  isAcademy
-                    ? "font-bold text-cyan-300 hover:text-cyan-200 bg-cyan-500/15 border border-cyan-500/40 px-3 py-1 rounded-full shadow-sm shadow-cyan-500/20"
-                    : overHero
-                      ? "text-hero-muted hover:text-hero-foreground"
-                      : "text-slate-300 hover:text-white"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="hidden items-center gap-2 md:flex">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="border-border hover:border-cyan-400 hover:text-cyan-300"
-          >
-            <a
-              href="https://ourvisibleuniverse.store"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5"
+
+        {/* Minimalist Floating Center Pill Nav */}
+        <nav className="hidden items-center gap-1 rounded-full border border-white/[0.1] bg-white/[0.03] px-2 py-1 backdrop-blur-xl md:flex">
+          {links.map(([to, label]) => (
+            <Link
+              key={to}
+              to={to}
+              className="rounded-full px-4 py-1.5 text-xs font-medium tracking-wide text-white/70 transition-colors hover:bg-white/[0.07] hover:text-white"
             >
-              <ShoppingBag className="size-3.5 text-cyan-400" />
-              <span>Store</span>
-            </a>
-          </Button>
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className={overHero ? "text-hero-foreground" : ""}
+              {label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Right Actions */}
+        <div className="hidden items-center gap-2.5 md:flex">
+          <a
+            href="https://ourvisibleuniverse.store"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.04] px-4 text-xs font-medium text-white/80 backdrop-blur-xl transition-all hover:border-white/30 hover:text-white"
           >
-            <Link to="/account">Account</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link to="/universe">Explore universe</Link>
-          </Button>
+            <ShoppingBag className="size-3.5 text-[#f5d08a]" />
+            <span>Store</span>
+          </a>
+
+          <Link
+            to="/account"
+            className="px-3 py-1.5 text-xs font-medium text-white/65 transition-colors hover:text-white"
+          >
+            Account
+          </Link>
+
+          <Link
+            to="/universe"
+            className="group inline-flex h-9 items-center gap-2 rounded-full bg-[#f5d08a] pl-4 pr-1.5 text-xs font-semibold text-[#05060a] transition-all hover:bg-white"
+          >
+            <span>3D Atlas</span>
+            <span className="flex size-6 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a] transition-transform duration-300 group-hover:rotate-45 group-hover:text-white">
+              <ArrowUpRight className="size-3.5" />
+            </span>
+          </Link>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`md:hidden ${overHero ? "text-hero-foreground" : ""}`}
+
+        <button
+          type="button"
+          className="flex size-9 items-center justify-center rounded-full border border-white/15 text-white md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Menu"
         >
-          {open ? <X /> : <Menu />}
-        </Button>
+          {open ? <X className="size-4" /> : <Menu className="size-4" />}
+        </button>
       </div>
+
       {open && (
-        <nav className="border-t border-white/10 bg-slate-950/95 backdrop-blur-2xl p-5 md:hidden">
-          {links.map(([to, label]) => {
-            const isAcademy = to === "/learn";
-            return (
+        <nav className="mt-3 border-t border-white/10 bg-[#05060a]/95 px-6 py-6 backdrop-blur-2xl md:hidden">
+          <div className="flex flex-col space-y-2">
+            {links.map(([to, label]) => (
               <Link
                 key={to}
                 to={to}
                 onClick={() => setOpen(false)}
-                className={`block py-3 transition-colors ${
-                  isAcademy
-                    ? "text-cyan-300 font-bold bg-cyan-500/15 border border-cyan-500/30 px-3.5 rounded-xl my-1.5 shadow-sm shadow-cyan-500/10"
-                    : "border-b border-white/10 text-slate-200 hover:text-white"
-                }`}
+                className="border-b border-white/[0.06] py-2.5 text-sm text-white/80 hover:text-white"
               >
                 {label}
               </Link>
-            );
-          })}
-          <Button
-            asChild
-            variant="outline"
-            className="mt-5 w-full border-cyan-500/30 text-cyan-300"
-          >
+            ))}
+            <Link
+              to="/account"
+              onClick={() => setOpen(false)}
+              className="border-b border-white/[0.06] py-2.5 text-sm text-white/80 hover:text-white"
+            >
+              Account
+            </Link>
+          </div>
+          <div className="mt-5 flex flex-col gap-2.5">
             <a
               href="https://ourvisibleuniverse.store"
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => setOpen(false)}
-              className="flex items-center justify-center gap-2"
+              className="flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 text-xs font-medium uppercase tracking-widest text-white"
             >
-              <ShoppingBag className="size-4 text-cyan-400" />
-              <span>Visit Official Store</span>
+              <ShoppingBag className="size-3.5 text-[#f5d08a]" />
+              <span>Official Store</span>
             </a>
-          </Button>
-          <Button asChild variant="ghost" className="mt-2 w-full">
-            <Link to="/account" onClick={() => setOpen(false)}>
-              Account
+            <Link
+              to="/universe"
+              onClick={() => setOpen(false)}
+              className="flex h-11 items-center justify-center rounded-full bg-[#f5d08a] text-xs font-semibold uppercase tracking-widest text-[#05060a]"
+            >
+              Enter 3D Universe
             </Link>
-          </Button>
-          <Button asChild className="mt-2 w-full">
-            <Link to="/universe" onClick={() => setOpen(false)}>
-              Explore universe
-            </Link>
-          </Button>
+          </div>
         </nav>
       )}
     </header>

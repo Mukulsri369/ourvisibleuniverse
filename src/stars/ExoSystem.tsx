@@ -103,34 +103,88 @@ void main(){
     float cl = smoothstep(0.52, 0.72, fbm(P*2.1 + vec3(uTime*0.02,0.0,0.0)));
     col = mix(col, vec3(0.95), cl*0.8);
     spec *= 1.0 - cl;
-  } else if (uMode < 2.5) { // lava world
+  } else if (uMode < 2.5) { // lava world (e.g. 55 Cancri e)
     float t = fbm(P*2.0);
-    float cracks = 1.0 - smoothstep(0.02, 0.09, abs(fbm(P*3.5) - 0.5));
-    col = mix(vec3(0.07,0.05,0.05), vec3(0.22,0.17,0.15), t);
-    emit = vec3(1.0,0.38,0.08) * (cracks*1.4 + 0.25*smoothstep(0.3,1.0,ndl));
+    float cracks = 1.0 - smoothstep(0.018, 0.085, abs(fbm(P*3.8 + vec3(uTime*0.015, 0.0, 0.0)) - 0.5));
+    float magmaLake = smoothstep(0.35, 0.88, ndl) * smoothstep(0.46, 0.68, t);
+    col = mix(vec3(0.06,0.04,0.04), vec3(0.22,0.16,0.14), t);
+    vec3 lavaGlow = mix(vec3(1.0, 0.28, 0.04), vec3(1.0, 0.82, 0.32), cracks * 0.65 + magmaLake * 0.5);
+    emit = lavaGlow * (cracks * 1.55 + magmaLake * 1.2 + 0.25 * smoothstep(0.2, 1.0, ndl));
   } else { // banded gas / ice giant
-    float warp = fbm(vec3(vObj.x*3.0, lat*8.0, vObj.z*3.0) + uSeed + uTime*0.01);
-    float bands = sin(lat*(uMode<3.5?22.0:10.0) + warp*3.5);
+    float warp = fbm(vec3(vObj.x*3.0, lat*8.0, vObj.z*3.0) + uSeed + uTime*0.012);
+    float bands = sin(lat*(uMode<3.5?24.0:11.0) + warp*3.8);
     float b = 0.5 + 0.5*bands;
-    vec3 c2 = uMode<3.5 ? uColor*vec3(1.25,1.12,0.92) : uColor*vec3(0.85,1.05,1.15);
-    col = mix(uColor*0.7, c2, b);
-    // storm vortex
+    vec3 c2 = uMode<3.5 ? uColor*vec3(1.28,1.14,0.92) : uColor*vec3(0.84,1.06,1.18);
+    col = mix(uColor*0.68, c2, b);
+    // anticyclonic storm vortex
     vec3 sc = normalize(vec3(0.6, -0.25, 0.75));
     float sd = distance(vObj, sc);
-    col = mix(col, uColor*vec3(1.4,0.8,0.6), smoothstep(0.22,0.0,sd)*0.6*(uMode<3.5?1.0:0.4));
-    // hot jupiter: glowing dayside hot spot / thermal emission on nightside
-    emit = vec3(1.0,0.35,0.1) * uHot * (0.15 + 0.5*smoothstep(0.6,1.0,ndl));
+    col = mix(col, uColor*vec3(1.45,0.82,0.62), smoothstep(0.22,0.0,sd)*0.65*(uMode<3.5?1.0:0.4));
+    // hot jupiter: glowing dayside thermal hotspot shifted eastward by super-rotating jets
+    float hotspot = smoothstep(0.2, 0.95, ndl) * (0.65 + 0.35 * fbm(P * 2.6 + uTime * 0.02));
+    emit = vec3(1.0,0.36,0.1) * uHot * (0.14 + 0.68 * hotspot);
   }
-  vec3 lit = col * (0.03 + day * max(ndl, 0.0) * 1.15);
+  vec3 lit = col * (0.03 + day * max(ndl, 0.0) * 1.18);
   vec3 Hh = normalize(L + V);
-  lit += vec3(1.0,0.95,0.85) * spec * pow(max(dot(N,Hh),0.0), 60.0) * day * 0.9;
+  lit += vec3(1.0,0.96,0.88) * spec * pow(max(dot(N,Hh),0.0), 64.0) * day * 0.95;
   // Rayleigh limb for habitable / gas worlds
   float rim = pow(1.0 - max(dot(N,V),0.0), 3.0);
-  vec3 atm = uMode>0.5 && uMode<1.5 ? vec3(0.35,0.6,1.0) : uMode>2.5 ? uColor : vec3(0.0);
-  lit += atm * rim * smoothstep(-0.2, 0.4, ndl) * 0.6;
-  // terminator sunset band
-  lit += vec3(1.0,0.45,0.2) * rim * smoothstep(0.15,0.0,abs(ndl)) * (uMode>0.5&&uMode<1.5?0.4:0.0);
+  vec3 atm = uMode>0.5 && uMode<1.5 ? vec3(0.32,0.62,1.0) : uMode>2.5 ? uColor * 1.15 : vec3(0.0);
+  lit += atm * rim * smoothstep(-0.22, 0.45, ndl) * 0.68;
+  // terminator sunset Mie band
+  lit += vec3(1.0,0.42,0.18) * rim * smoothstep(0.18,0.0,abs(ndl)) * (uMode>0.5&&uMode<1.5?0.48:0.15);
   gl_FragColor = vec4(lit + emit, 1.0);
+}`;
+
+const HOST_STAR_VERT = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
+varying vec3 vObj;
+varying vec3 vN;
+varying vec3 vView;
+void main(){
+  vObj = normalize(position);
+  vN = normalize(normalMatrix * normal);
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  vView = normalize(-mv.xyz);
+  gl_Position = projectionMatrix * mv;
+  #include <logdepthbuf_vertex>
+}`;
+
+const HOST_STAR_FRAG = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform vec3 uBaseColor;
+uniform vec3 uHotColor;
+uniform float uTime;
+uniform float uGranScale;
+varying vec3 vObj;
+varying vec3 vN;
+varying vec3 vView;
+float h(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
+float n3(vec3 p){
+  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z);
+}
+float fbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.04; a*=0.5; } return s; }
+void main(){
+  #include <logdepthbuf_fragment>
+  vec3 q = normalize(vObj);
+  float coarse = fbm(q * uGranScale + vec3(0.0, uTime * 0.04, uTime * 0.02));
+  float fine = fbm(q * uGranScale * 2.8 - vec3(uTime * 0.07, 0.0, uTime * 0.05));
+  float gran = clamp(coarse * 0.68 + fine * 0.42, 0.0, 1.0);
+  // Magnetic starspots
+  float spots = smoothstep(0.66, 0.84, fbm(q * 2.6 + vec3(7.1, uTime * 0.015, 2.3)));
+  float mu = max(dot(normalize(vN), normalize(vView)), 0.0);
+  // Eddington-Barbier limb darkening
+  float limb = pow(mu, 0.48);
+  vec3 photosphere = mix(uBaseColor * 0.78, uHotColor * 1.25, gran);
+  photosphere = mix(photosphere, uBaseColor * 0.35, spots * 0.55);
+  photosphere *= (0.45 + 0.75 * limb);
+  // Chromospheric spicules at the limb
+  float rim = pow(1.0 - mu, 3.2);
+  photosphere += uBaseColor * rim * 0.65;
+  gl_FragColor = vec4(photosphere, 1.0);
 }`;
 
 function ExoBody({
@@ -163,6 +217,10 @@ function ExoBody({
   }, [p]);
   const size = p.radiusEarth * EARTH_R;
   const mode = surfaceMode(p);
+  const hasRings =
+    (mode === 3 || mode === 4) &&
+    p.aAU > 0.35 &&
+    Math.floor(seedOf(starName + p.name) * 10) % 3 === 0;
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -215,6 +273,33 @@ function ExoBody({
         <mesh ref={meshRef} material={material} onClick={pick}>
           <sphereGeometry args={[size, 48, 32]} />
         </mesh>
+        {/* Outer Rayleigh / photochemical atmospheric scattering shell */}
+        {mode >= 1 && (
+          <mesh scale={1.045}>
+            <sphereGeometry args={[size, 32, 24]} />
+            <meshBasicMaterial
+              color={mode === 1 ? "#5ca4ff" : mode === 2 ? "#ff6828" : p.color}
+              transparent
+              opacity={mode === 2 ? 0.16 : 0.14}
+              side={THREE.BackSide}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        )}
+        {/* Procedural ring system for cool gas/ice giants */}
+        {hasRings && (
+          <mesh rotation={[Math.PI / 2.3, 0.18, 0]}>
+            <ringGeometry args={[size * 1.45, size * 2.35, 96]} />
+            <meshBasicMaterial
+              color={p.color}
+              transparent
+              opacity={0.42}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+            />
+          </mesh>
+        )}
         {/* larger invisible hit target so small worlds are clickable */}
         <mesh onClick={pick} visible={false}>
           <sphereGeometry
@@ -226,31 +311,91 @@ function ExoBody({
   );
 }
 
-/** Host star at its true radius, coloured by its effective temperature. */
+/** Host star at its true radius, rendered with animated 3D FBM convective granulation and coronal glow. */
 function HostStar({ radius, temperature }: { radius: number; temperature: number }) {
-  const color = useMemo(() => {
+  const { baseColor, hotColor, granScale } = useMemo(() => {
     const t = THREE.MathUtils.clamp(temperature, 2000, 30000);
-    // Rough blackbody tint: red dwarfs orange-red, Sun-like white-yellow, hot stars blue-white.
-    if (t < 3500) return new THREE.Color("#ff8a4a");
-    if (t < 5000) return new THREE.Color("#ffb46b");
-    if (t < 6200) return new THREE.Color("#fff1d8");
-    if (t < 9000) return new THREE.Color("#f2f4ff");
-    return new THREE.Color("#b9ccff");
+    if (t < 3500)
+      return {
+        baseColor: new THREE.Color("#ff6a2b"),
+        hotColor: new THREE.Color("#ffca80"),
+        granScale: 4.5,
+      };
+    if (t < 5000)
+      return {
+        baseColor: new THREE.Color("#ffa24a"),
+        hotColor: new THREE.Color("#ffe6b0"),
+        granScale: 6.5,
+      };
+    if (t < 6200)
+      return {
+        baseColor: new THREE.Color("#ffdfa0"),
+        hotColor: new THREE.Color("#ffffff"),
+        granScale: 9.0,
+      };
+    if (t < 9000)
+      return {
+        baseColor: new THREE.Color("#dce8ff"),
+        hotColor: new THREE.Color("#ffffff"),
+        granScale: 11.0,
+      };
+    return {
+      baseColor: new THREE.Color("#9ec0ff"),
+      hotColor: new THREE.Color("#f0f6ff"),
+      granScale: 13.0,
+    };
   }, [temperature]);
+
+  const starMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: HOST_STAR_VERT,
+        fragmentShader: HOST_STAR_FRAG,
+        uniforms: {
+          uBaseColor: { value: baseColor },
+          uHotColor: { value: hotColor },
+          uTime: { value: 0 },
+          uGranScale: { value: granScale },
+        },
+        toneMapped: false,
+      }),
+    [baseColor, hotColor, granScale],
+  );
+
+  useEffect(() => () => starMaterial.dispose(), [starMaterial]);
+
+  useFrame(({ clock }) => {
+    starMaterial.uniforms.uTime.value = clock.elapsedTime;
+  });
+
+  const displayRadius = Math.max(radius, 0.00018 * SOLAR_R);
+
   return (
     <group>
-      <mesh>
-        <sphereGeometry args={[radius, 48, 32]} />
-        <meshBasicMaterial color={color} toneMapped={false} />
+      <mesh material={starMaterial}>
+        <sphereGeometry args={[displayRadius, 48, 32]} />
       </mesh>
-      <mesh scale={1.25}>
-        <sphereGeometry args={[radius, 32, 20]} />
+      <mesh scale={1.22}>
+        <sphereGeometry args={[displayRadius, 32, 20]} />
         <meshBasicMaterial
-          color={color}
+          color={baseColor}
           transparent
-          opacity={0.18}
+          opacity={0.22}
           side={THREE.BackSide}
           depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </mesh>
+      <mesh scale={1.65}>
+        <sphereGeometry args={[displayRadius, 28, 18]} />
+        <meshBasicMaterial
+          color={baseColor}
+          transparent
+          opacity={0.08}
+          side={THREE.BackSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
           toneMapped={false}
         />
       </mesh>

@@ -1,7 +1,7 @@
 import React from "react";
 import { LEARNING_LEVELS } from "@/lib/academy/registry";
 import type { LearningLevel } from "@/lib/academy/types";
-import { Sparkles, Check, GraduationCap } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface LearningLevelSelectorProps {
   currentLevel: LearningLevel;
@@ -18,23 +18,21 @@ export function LearningLevelSelector({
 
   if (compact) {
     return (
-      <div className="flex items-center gap-1.5 p-1 bg-slate-900/80 border border-white/10 rounded-xl backdrop-blur-md">
+      <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-[#05060a]/80 p-1 backdrop-blur-xl">
         {levels.map((lvl) => {
           const active = currentLevel === lvl.id;
           return (
             <button
               key={lvl.id}
               onClick={() => onSelectLevel(lvl.id as LearningLevel)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+              className={`rounded-full px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] transition-all flex items-center gap-1.5 ${
                 active
-                  ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm shadow-cyan-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  ? "bg-[#f5d08a] font-semibold text-[#05060a]"
+                  : "text-white/55 hover:text-white"
               }`}
             >
               <span>{lvl.name}</span>
-              <span className="text-[10px] text-slate-400 hidden sm:inline">
-                ({lvl.gradeRange})
-              </span>
+              <span className="hidden opacity-75 sm:inline">({lvl.gradeRange})</span>
             </button>
           );
         })}
@@ -44,52 +42,68 @@ export function LearningLevelSelector({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <GraduationCap className="size-4 text-cyan-400" />
-          <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
-            Choose Your Learning Level
+      <div className="mb-6 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#f5d08a]">
+            COGNITIVE CALIBRATION · 03 DEPTH TIERS
+          </p>
+          <h3
+            className="mt-2 text-2xl font-normal uppercase tracking-tight text-white sm:text-3xl"
+            style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+          >
+            Select Curriculum Depth
           </h3>
         </div>
-        <span className="text-xs text-slate-400">Switch anytime without losing progress</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">
+          Switch tiers anytime · Progress preserved
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {levels.map((lvl) => {
+      {/* 1px Hairline Architectural Grid */}
+      <div className="grid grid-cols-1 gap-[1px] border border-white/[0.08] bg-white/[0.08] md:grid-cols-3">
+        {levels.map((lvl, idx) => {
           const active = currentLevel === lvl.id;
           return (
             <button
               key={lvl.id}
+              type="button"
               onClick={() => onSelectLevel(lvl.id as LearningLevel)}
-              className={`relative text-left p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between ${
-                active
-                  ? "border-cyan-500/60 bg-gradient-to-b from-cyan-950/40 to-slate-900/90 shadow-md shadow-cyan-500/10 ring-1 ring-cyan-500/30"
-                  : "border-white/10 bg-slate-900/40 hover:bg-slate-900/70 hover:border-white/20"
+              className={`group relative flex flex-col justify-between p-7 text-left transition-colors duration-300 ${
+                active ? "bg-[#0b0f1a]" : "bg-[#05060a] hover:bg-[#080b12]"
               }`}
             >
-              {active && (
-                <div className="absolute top-3 right-3 size-5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center">
-                  <Check className="size-3" />
-                </div>
-              )}
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-cyan-300">
-                    {lvl.gradeRange}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#f5d08a]">
+                    0{idx + 1} · {lvl.gradeRange}
                   </span>
-                  <span className="text-xs text-slate-400">{lvl.targetAudience}</span>
+                  {active ? (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[#f5d08a]/40 bg-[#f5d08a]/15 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.2em] text-[#f5d08a]">
+                      <Check className="size-2.5" />
+                      Active
+                    </span>
+                  ) : (
+                    <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35 group-hover:text-white/70">
+                      Select Tier
+                    </span>
+                  )}
                 </div>
-                <h4 className="mt-2 text-base font-bold text-white flex items-center gap-1.5">
+
+                <h4
+                  className="mt-4 text-xl font-medium uppercase tracking-tight text-white"
+                  style={{ fontFamily: "'Cinzel', 'Prata', Georgia, serif" }}
+                >
                   {lvl.name}
                 </h4>
-                <p className="mt-1 text-xs text-slate-300 leading-relaxed">{lvl.description}</p>
+
+                <p className="mt-2 text-xs font-light leading-relaxed text-white/60">
+                  {lvl.description}
+                </p>
               </div>
 
-              <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
-                <span className="font-mono text-cyan-400/90">{lvl.badge}</span>
-                <span className={active ? "text-cyan-300 font-medium" : "text-slate-500"}>
-                  {active ? "Active Level" : "Click to Select"}
-                </span>
+              <div className="mt-6 flex items-center justify-between border-t border-white/[0.08] pt-4 font-mono text-[10px] uppercase tracking-[0.18em]">
+                <span className="text-[#38bdf8]">{lvl.targetAudience}</span>
+                <span className="text-white/45">{lvl.badge}</span>
               </div>
             </button>
           );

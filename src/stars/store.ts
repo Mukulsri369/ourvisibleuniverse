@@ -1,10 +1,61 @@
 // @ts-nocheck
 import { create } from "zustand";
-import type { NamedStar } from "./data";
+import { NAMED_STARS, type NamedStar } from "./data";
 import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
 import { GALAXY_BY_NAME, systemViewDistance, systemWorldPosition } from "./galaxy-models";
-import { OBJECT_BY_ID, objectPosition, objectVisitDistance } from "./observed-objects";
+import { OBJECT_BY_ID, OBSERVED_OBJECTS, objectPosition, objectVisitDistance } from "./observed-objects";
 import { COSMIC_BENCHMARKS } from "@/lib/astronomy/cosmic-web/survey-catalogs";
+
+function normalizeStar(s: NamedStar | null): NamedStar | null {
+  if (!s) return null;
+  const canonical = NAMED_STARS.find(
+    (n) => n.name.toLowerCase() === s.name?.toLowerCase(),
+  );
+  if (canonical) {
+    return {
+      ...canonical,
+      ...s,
+      magnitude: s.magnitude ?? canonical.magnitude ?? 0,
+      absMagnitude: s.absMagnitude ?? canonical.absMagnitude ?? 4.83,
+      mass: s.mass ?? canonical.mass ?? 1,
+      radius: s.radius ?? canonical.radius ?? 1,
+      temperature: s.temperature ?? canonical.temperature ?? 5778,
+      luminosity: s.luminosity ?? canonical.luminosity ?? 1,
+      distance: s.distance ?? canonical.distance ?? 0,
+      galacticL: s.galacticL ?? canonical.galacticL ?? 0,
+      galacticB: s.galacticB ?? canonical.galacticB ?? 0,
+      constellation: s.constellation ?? canonical.constellation ?? "Solar System",
+      spectralType: s.spectralType ?? canonical.spectralType ?? "G",
+      color: s.color ?? canonical.color ?? "#fff4ea",
+      description: s.description ?? canonical.description ?? "",
+    };
+  }
+  return {
+    ...s,
+    magnitude: s.magnitude ?? 0,
+    absMagnitude: s.absMagnitude ?? 4.83,
+    mass: s.mass ?? 1,
+    radius: s.radius ?? 1,
+    temperature: s.temperature ?? 5778,
+    luminosity: s.luminosity ?? 1,
+    distance: s.distance ?? 0,
+    galacticL: s.galacticL ?? 0,
+    galacticB: s.galacticB ?? 0,
+    constellation: s.constellation ?? "Deep Sky",
+    spectralType: s.spectralType ?? "G",
+    color: s.color ?? "#fff4ea",
+    description: s.description ?? "",
+  };
+}
+
+const OBJECT_ID_ALIASES: Record<string, string> = {
+  sgra: "sgr-a",
+  "sgr a*": "sgr-a",
+  "m87*": "m87star",
+  "cygnus-x-1": "cygx1",
+  "orion-nebula": "m42",
+  "crab-nebula": "m1",
+};
 
 export type TourStop = {
   name: string;
@@ -413,6 +464,7 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     target: { x: -3.8, y: -24.6, z: 32.1 },
     fov: 36,
     category: "stars",
+    selectedStar: NAMED_STARS.find((s) => s.name === "TRAPPIST-1") ?? null,
   },
   {
     id: "bm_orion_nebula",
@@ -439,7 +491,7 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     target: { x: -26000, y: 0, z: 0 },
     fov: 38,
     category: "deep_space",
-    selectedObjectId: "sgra",
+    selectedObjectId: "sgr-a",
   },
   {
     id: "bm_local_group",
@@ -678,17 +730,19 @@ export const useStore = create<State>((set, get) => ({
   flyTo: null,
   visitPlanet: null,
   exoVisit: null,
-  visitExoPlanet: (star, planet) =>
+  visitExoPlanet: (star, planet) => {
+    const normStar = normalizeStar(star)!;
     set({
       visitPlanet: planet,
-      exoVisit: { star, planet },
+      exoVisit: { star: normStar, planet },
       selectedStar: null,
       tourActive: false,
       visitGalaxy: null,
       selectedObjectId: null,
       flyTo: null,
       cameraFree: false,
-    }),
+    });
+  },
   visitGalaxy: null,
   selectedObjectId: null,
   uiHidden: false,
@@ -720,7 +774,12 @@ export const useStore = create<State>((set, get) => ({
     set((st) => ({ showSkyDirectionLayer: !st.showSkyDirectionLayer })),
   toggleProceduralStars: () => set((st) => ({ showProceduralStars: !st.showProceduralStars })),
   setSelected: (s) =>
-    set({ exoVisit: null, selectedStar: s, visitGalaxy: null, selectedObjectId: null }),
+    set({
+      exoVisit: null,
+      selectedStar: normalizeStar(s),
+      visitGalaxy: null,
+      selectedObjectId: null,
+    }),
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
   startTour: () =>
     set({
@@ -742,15 +801,18 @@ export const useStore = create<State>((set, get) => ({
     if (prev > 0 && Math.abs(d - prev) / prev < 0.02) return;
     set({ cameraDistance: d });
   },
-  flyToStar: (s) =>
+  flyToStar: (s) => {
+    const normStar = normalizeStar(s);
+    if (!normStar) return;
     set({
-      flyTo: { x: s.x, y: s.y, z: s.z, distance: 3.5 },
+      flyTo: { x: normStar.x, y: normStar.y, z: normStar.z, distance: 3.5 },
       exoVisit: null,
-      selectedStar: s,
+      selectedStar: normStar,
       visitPlanet: null,
       visitGalaxy: null,
       selectedObjectId: null,
-    }),
+    });
+  },
   clearFly: () => set({ flyTo: null }),
   setVisitPlanet: (name) =>
     set({
@@ -782,14 +844,26 @@ export const useStore = create<State>((set, get) => ({
           : null,
     }),
   setSelectedObject: (id) => {
-    const item = id ? OBJECT_BY_ID.get(id) : undefined;
+    if (!id) {
+      set({ selectedObjectId: null });
+      return;
+    }
+    const cleanId = OBJECT_ID_ALIASES[id.toLowerCase()] ?? id;
+    const item =
+      OBJECT_BY_ID.get(cleanId) ??
+      OBSERVED_OBJECTS.find(
+        (o) =>
+          o.id.toLowerCase() === cleanId.toLowerCase() ||
+          o.name.toLowerCase() === cleanId.toLowerCase() ||
+          o.aliases.some((a) => a.toLowerCase() === cleanId.toLowerCase()),
+      );
     if (!item) {
       set({ selectedObjectId: null });
       return;
     }
     const [x, y, z] = objectPosition(item);
     set({
-      selectedObjectId: id,
+      selectedObjectId: item.id,
       exoVisit: null,
       selectedStar: null,
       visitPlanet: null,
@@ -869,6 +943,12 @@ export const useStore = create<State>((set, get) => ({
     if (bench) {
       const pos = toGalacticXYZ(bench.l, bench.b, bench.distanceGlyPlanck * 1e9);
       set({
+        visitPlanet: null,
+        visitGalaxy: null,
+        selectedObjectId: null,
+        selectedStar: null,
+        exoVisit: null,
+        tourActive: false,
         flyTo: {
           x: pos.x,
           y: pos.y,
@@ -895,6 +975,12 @@ export const useStore = create<State>((set, get) => ({
       guidedJourneyActive: true,
       guidedJourneyStep: 0,
       cosmicWebMode: "observational",
+      visitPlanet: null,
+      visitGalaxy: null,
+      selectedObjectId: null,
+      selectedStar: null,
+      exoVisit: null,
+      tourActive: false,
       flyTo: {
         x: step.targetPos.x,
         y: step.targetPos.y,
@@ -909,6 +995,12 @@ export const useStore = create<State>((set, get) => ({
     set({
       guidedJourneyStep: idx,
       guidedJourneyActive: true,
+      visitPlanet: null,
+      visitGalaxy: null,
+      selectedObjectId: null,
+      selectedStar: null,
+      exoVisit: null,
+      tourActive: false,
       flyTo: {
         x: step.targetPos.x,
         y: step.targetPos.y,
@@ -1076,6 +1168,11 @@ export const useStore = create<State>((set, get) => ({
       get().setSelectedObject(bm.selectedObjectId);
     } else if (bm.selectedStar) {
       get().flyToStar(bm.selectedStar);
+    } else if (bm.id === "bm_trappist_1") {
+      const trappist = NAMED_STARS.find((s) => s.name === "TRAPPIST-1");
+      if (trappist) {
+        get().flyToStar(trappist);
+      }
     } else {
       set({
         flyTo: { x: bm.target.x, y: bm.target.y, z: bm.target.z, distance: bm.radius },
@@ -1083,6 +1180,8 @@ export const useStore = create<State>((set, get) => ({
         visitGalaxy: null,
         selectedObjectId: null,
         selectedStar: null,
+        exoVisit: null,
+        tourActive: false,
       });
     }
   },
@@ -1110,4 +1209,6 @@ export const useStore = create<State>((set, get) => ({
     set((st) => ({ cosmicJourneyIndex: Math.min(8, st.cosmicJourneyIndex + 1) })),
   prevCosmicJourneyStep: () =>
     set((st) => ({ cosmicJourneyIndex: Math.max(0, st.cosmicJourneyIndex - 1) })),
+  catalogDashboardOpen: false,
+  setCatalogDashboardOpen: (open) => set({ catalogDashboardOpen: open }),
 }));

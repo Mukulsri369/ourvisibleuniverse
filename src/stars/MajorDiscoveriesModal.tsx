@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "./store";
+import { NAMED_STARS } from "./data";
+import { ANDROMEDA_NAME, M31_CENTER } from "./andromeda-data";
 import {
   Sparkles,
   X,
@@ -33,6 +35,7 @@ export function MajorDiscoveriesModal() {
   const open = useStore((s) => s.discoveriesModalOpen);
   const setOpen = useStore((s) => s.setDiscoveriesModalOpen);
   const flyToStar = useStore((s) => s.flyToStar);
+  const visitExoPlanet = useStore((s) => s.visitExoPlanet);
   const setVisitPlanet = useStore((s) => s.setVisitPlanet);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const setSelectedObject = useStore((s) => s.setSelectedObject);
@@ -56,16 +59,14 @@ export function MajorDiscoveriesModal() {
         "Hubble, E. (1929). 'A relation between distance and radial velocity among extra-galactic nebulae'. PNAS 15 (3): 168–173.",
       targetScale: "Andromeda Galaxy (M31 · 2.537 Mly)",
       flyToAction: () => {
-        setVisitPlanet(null);
-        setSelectedObject(null);
         setVisitGalaxy({
-          name: "Andromeda",
-          x: -2537000,
-          y: 0,
-          z: 0,
+          name: ANDROMEDA_NAME,
+          x: M31_CENTER.x,
+          y: M31_CENTER.y,
+          z: M31_CENTER.z,
           size: 220000,
           distance: 2537000,
-          type: "Spiral (SA(s)b)",
+          type: "Barred Spiral (SA(s)b)",
           view: "overview",
         });
         setOpen(false);
@@ -88,26 +89,10 @@ export function MajorDiscoveriesModal() {
         "Mayor, M., & Queloz, D. (1995). 'A Jupiter-mass companion to a solar-type star'. Nature 378: 355–359.",
       targetScale: "51 Pegasi b Exoplanetary System (50.5 ly)",
       flyToAction: () => {
-        setVisitPlanet(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
-        flyToStar({
-          name: "51 Pegasi",
-          x: 28.5,
-          y: 36.2,
-          z: 19.8,
-          radius: 1.24,
-          temperature: 5768,
-          luminosity: 1.34,
-          ra: "22h 57m 28s",
-          dec: "+20° 46′ 08″",
-          galacticL: 90.1,
-          galacticB: -30.7,
-          distance: 50.45,
-          spectral: "G2IV",
-          planets: 1,
-          description: "Host star of the first discovered hot Jupiter exoplanet (51 Pegasi b).",
-        });
+        const star51Peg = NAMED_STARS.find((s) => s.name === "51 Pegasi");
+        if (star51Peg) {
+          visitExoPlanet(star51Peg, "51 Pegasi b");
+        }
         setOpen(false);
       },
     },
@@ -128,11 +113,14 @@ export function MajorDiscoveriesModal() {
         "Penzias, A. A., & Wilson, R. W. (1965). 'A Measurement of Excess Antenna Temperature at 4080 Mc/s'. ApJ 142: 419–421.",
       targetScale: "Observable Universe Recombination Horizon (46.5 Gly)",
       flyToAction: () => {
-        setVisitPlanet(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
         useStore.setState({
-          flyTo: { x: 0, y: 0, z: 0, distance: 4.65e10 },
+          visitPlanet: null,
+          visitGalaxy: null,
+          selectedObjectId: null,
+          selectedStar: null,
+          exoVisit: null,
+          tourActive: false,
+          flyTo: { x: 0, y: 0, z: 0, distance: 4.2e10 },
           showCosmicWebDensity: true,
         });
         setOpen(false);
@@ -152,14 +140,9 @@ export function MajorDiscoveriesModal() {
         "Verified general relativity under extreme gravitational field limits and confirmed Kerr metric predictions for rotating supermassive black holes.",
       citation:
         "The Event Horizon Telescope Collaboration (2019). 'First M87 Event Horizon Telescope Results. I. The Shadow of the Supermassive Black Hole'. ApJL 875: L1.",
-      targetScale: "Virgo Cluster / M87* Core (53.5 Mly)",
+      targetScale: "Virgo Cluster / M87* Core (55 Mly)",
       flyToAction: () => {
-        setVisitPlanet(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
-        useStore.setState({
-          flyTo: { x: -1.2e7, y: 5.2e7, z: -5e6, distance: 100 },
-        });
+        setSelectedObject("m87star");
         setOpen(false);
       },
     },
@@ -177,14 +160,9 @@ export function MajorDiscoveriesModal() {
       nobelPrize: "Nobel Prize in Physics (2017)",
       citation:
         "Abbott, B. P. et al. (2016). 'Observation of Gravitational Waves from a Binary Black Hole Merger'. Phys. Rev. Lett. 116: 061102.",
-      targetScale: "Cosmic Deep Space (1.3 Gly)",
+      targetScale: "GW150914 Localization Arc (1.3 Gly)",
       flyToAction: () => {
-        setVisitPlanet(null);
-        setVisitGalaxy(null);
-        setSelectedObject(null);
-        useStore.setState({
-          flyTo: { x: 5e8, y: -2e8, z: 8e8, distance: 1.3e9 },
-        });
+        setSelectedObject("gw150914");
         setOpen(false);
       },
     },
