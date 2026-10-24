@@ -17,6 +17,7 @@ interface ScrollScrubVideoCanvasProps {
   chapterCode?: string;
   chapterTitle?: string;
   showScrollHint?: boolean;
+  ariaLabel?: string;
   onMountController?: (controller: {
     registerListener: (fn: (smoothedProgress: number, rawProgress: number) => void) => () => void;
     scrubToProgress: (targetProgress: number) => void;
@@ -75,6 +76,7 @@ export function ScrollScrubVideoCanvas({
   chapterCode,
   chapterTitle,
   showScrollHint = false,
+  ariaLabel,
   children,
 }: ScrollScrubVideoCanvasProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -398,6 +400,7 @@ export function ScrollScrubVideoCanvas({
   return (
     <section
       ref={sectionRef}
+      aria-label={ariaLabel}
       style={{ height: `${scrollHeightVh}vh` }}
       className="relative w-full select-none bg-[#05060a]"
     >
