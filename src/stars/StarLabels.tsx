@@ -49,43 +49,45 @@ function StarLabel({
   return (
     <group ref={groupRef} position={[star.x, star.y, star.z]}>
       {/* invisible hover/click target */}
-      <mesh onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
+      <mesh visible={false} onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
         <sphereGeometry args={[pickRadius, 8, 8]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
-      <Billboard>
-        <Html
-          center
-          distanceFactor={undefined}
-          zIndexRange={[10, 0]}
-          style={{ pointerEvents: "none" }}
-        >
-          <div
-            ref={ref}
-            style={{
-              transform: "translate(8px, -8px)",
-              color: "#ffffff",
-              fontSize: isHover ? 13 : 12,
-              fontFamily: "Inter, system-ui, sans-serif",
-              letterSpacing: 0.5,
-              whiteSpace: "nowrap",
-              textShadow: isHover ? "0 0 8px #fff, 0 0 16px #88f" : "0 0 4px rgba(0,0,0,0.8)",
-              padding: "2px 6px",
-              borderLeft: `1px solid rgba(255,255,255,${isHover ? 0.9 : 0.4})`,
-              background: isHover ? "rgba(0,0,0,0.55)" : "transparent",
-              opacity: 0,
-              transition: "text-shadow 200ms, background 150ms, font-size 150ms",
-            }}
+      {isHover && (
+        <Billboard>
+          <Html
+            center
+            distanceFactor={undefined}
+            zIndexRange={[10, 0]}
+            style={{ pointerEvents: "none" }}
           >
-            {star.name}
-            {isHover && (
-              <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2, letterSpacing: 0.3 }}>
-                {star.spectral} · {star.distance.toFixed(2)} ly
-              </div>
-            )}
-          </div>
-        </Html>
-      </Billboard>
+            <div
+              ref={ref}
+              style={{
+                transform: "translate(8px, -8px)",
+                color: "#ffffff",
+                fontSize: isHover ? 13 : 12,
+                fontFamily: "Inter, system-ui, sans-serif",
+                letterSpacing: 0.5,
+                whiteSpace: "nowrap",
+                textShadow: isHover ? "0 0 8px #fff, 0 0 16px #88f" : "0 0 4px rgba(0,0,0,0.8)",
+                padding: "2px 6px",
+                borderLeft: `1px solid rgba(255,255,255,${isHover ? 0.9 : 0.4})`,
+                background: isHover ? "rgba(0,0,0,0.55)" : "transparent",
+                opacity: 0,
+                transition: "text-shadow 200ms, background 150ms, font-size 150ms",
+              }}
+            >
+              {star.name}
+              {isHover && (
+                <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2, letterSpacing: 0.3 }}>
+                  {star.spectral} · {star.distance.toFixed(2)} ly
+                </div>
+              )}
+            </div>
+          </Html>
+        </Billboard>
+      )}
     </group>
   );
 }

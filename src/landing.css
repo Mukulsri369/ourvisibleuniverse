@@ -1,0 +1,1142 @@
+.ovu-landing {
+  --ovu-ground: #080b0d;
+  --ovu-ink: #f3f4f0;
+  --ovu-accent: #d5e7a5;
+  --ovu-paper: #e8e9e3;
+  --ovu-dark: #171d1e;
+  --ovu-gutter: clamp(20px, 3.3vw, 64px);
+  background: var(--ovu-ground);
+  color: var(--ovu-ink);
+  font-family: "Albert Sans", Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+.ovu-landing * {
+  box-sizing: border-box;
+}
+.ovu-landing h1,
+.ovu-landing h2,
+.ovu-landing h3,
+.ovu-landing p {
+  margin: 0;
+}
+.ovu-landing h1,
+.ovu-landing h2,
+.ovu-landing h3 {
+  font-family: inherit;
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.ovu-landing h2 {
+  font-size: clamp(38px, 5.7vw, 88px);
+  line-height: 1.03;
+}
+.ovu-landing h3 {
+  font-size: clamp(30px, 3.2vw, 48px);
+  line-height: 1.08;
+}
+.ovu-landing p {
+  text-wrap: pretty;
+}
+.ovu-landing a,
+.ovu-landing button {
+  touch-action: manipulation;
+}
+.ovu-landing button {
+  cursor: pointer;
+  font: inherit;
+}
+.ovu-landing a:focus-visible,
+.ovu-landing button:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 5px;
+}
+.ovu-frame {
+  padding-inline: var(--ovu-gutter);
+}
+.ovu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  min-height: 52px;
+  padding: 14px 24px;
+  background: var(--ovu-accent);
+  color: var(--ovu-dark);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    transform 0.25s,
+    background-color 0.25s;
+}
+.ovu-button:hover {
+  background: var(--ovu-ink);
+  transform: translateY(-2px);
+}
+.ovu-button:active {
+  transform: translateY(0);
+}
+.ovu-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.ovu-text-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.ovu-skip {
+  position: fixed;
+  top: 10px;
+  left: 20px;
+  z-index: 100;
+  transform: translateY(-160%);
+  background: var(--ovu-paper);
+  color: var(--ovu-dark);
+  padding: 12px;
+}
+.ovu-skip:focus {
+  transform: none;
+}
+.ovu-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: max(850px, 100svh);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+.ovu-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ovu-ground);
+}
+.ovu-hero-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 62% center;
+  opacity: 0.75;
+  transform: scale(1.08);
+}
+.ovu-hero-media:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(/* taste-skill-ignore: neutral contrast scrim over existing media */90deg, rgba(8, 11, 13, 0.85), rgba(8, 11, 13, 0.28) 62%, transparent);
+}
+.ovu-hero-copy {
+  padding-top: 104px;
+  position: relative;
+  max-width: 1050px;
+}
+.ovu-hero h1 {
+  font-size: clamp(66px, 10.5vw, 168px);
+  line-height: 0.94;
+  font-weight: 500;
+  letter-spacing: -0.06em;
+}
+.ovu-title-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.ovu-title-line > span {
+  display: block;
+}
+.ovu-hero-copy > p {
+  max-width: 390px;
+  font-size: 20px;
+  margin-top: 36px;
+}
+.ovu-hero-copy > .ovu-button {
+  margin-top: 32px;
+}
+.ovu-hero-bottom {
+  position: absolute;
+  bottom: 35px;
+  left: var(--ovu-gutter);
+  right: var(--ovu-gutter);
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  font-size: 16px;
+}
+.ovu-hero-bottom a {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+}
+.ovu-hero-bottom a:hover {
+  text-decoration: underline;
+}
+.ovu-film-toggle {
+  position: absolute;
+  right: var(--ovu-gutter);
+  bottom: 115px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 0;
+  background: var(--ovu-ground);
+  color: var(--ovu-ink);
+  font-size: 14px !important;
+} /* taste-skill-ignore: neutral scrim over existing astronomy media for text contrast, explicitly allowed by the house rules. */
+.ovu-section-heading {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 8vw;
+  align-items: end;
+  margin-bottom: 64px;
+}
+.ovu-section-heading h2 {
+  max-width: 850px;
+}
+.ovu-section-heading p {
+  max-width: 440px;
+  font-size: 19px;
+}
+.ovu-observatory {
+  background: #151e20;
+  padding-block: 130px 70px;
+  scroll-margin-top: 90px;
+}
+.ovu-destination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.ovu-destination-controls button,
+.ovu-store-filters button {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  min-height: 48px;
+  padding: 10px 20px;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+  font-size: 16px;
+}
+.ovu-destination-controls button[aria-pressed="true"] {
+  background: var(--ovu-ink);
+  color: var(--ovu-dark);
+}
+.ovu-destination-controls button:hover {
+  background: #314144;
+}
+.ovu-destination-controls button[aria-pressed="true"]:hover {
+  background: var(--ovu-ink);
+}
+.ovu-destination {
+  position: relative;
+  min-height: 650px;
+  display: flex;
+  align-items: end;
+  overflow: hidden;
+  background: #050707;
+}
+.ovu-destination > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.76;
+}
+.ovu-destination-copy {
+  position: relative;
+  width: 100%;
+  padding: 180px clamp(24px, 4vw, 60px) clamp(24px, 4vw, 60px);
+  background: linear-gradient(/* taste-skill-ignore: neutral contrast scrim over existing media */0deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0));
+}
+.ovu-destination-copy p {
+  max-width: 500px;
+  margin-top: 22px;
+  font-size: 18px;
+}
+.ovu-destination-copy .ovu-text-link {
+  margin-top: 22px;
+}
+.ovu-observatory-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 32px;
+}
+.ovu-observatory-links a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  text-decoration: none;
+}
+.ovu-observatory-links a:hover {
+  text-decoration: underline;
+} /* taste-skill-ignore: neutral scrim over existing astronomy media for text contrast, explicitly allowed by the house rules. */
+.ovu-academy {
+  background: #cdd8ca;
+  color: var(--ovu-dark);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7vw;
+  align-items: center;
+  padding-block: 110px;
+}
+.ovu-academy-image {
+  height: 700px;
+}
+.ovu-academy-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ovu-academy-copy h2 {
+  font-size: clamp(38px, 5vw, 76px);
+}
+.ovu-academy-copy > p {
+  margin-top: 32px;
+  max-width: 520px;
+  font-size: 19px;
+}
+.ovu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  margin-top: 32px;
+}
+.ovu-academy .ovu-button {
+  background: var(--ovu-dark);
+  color: var(--ovu-ink);
+}
+.ovu-passes {
+  padding-block: 130px;
+  background: var(--ovu-ground);
+  scroll-margin-top: 80px;
+}
+.ovu-landing [data-ui="access-plans"] {
+  color: var(--ovu-ink);
+}
+.ovu-landing [data-ui="access-plans"] > div > div:first-child {
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--ovu-ink);
+}
+.ovu-landing [data-ui="access-plans"] button {
+  min-height: 44px;
+}
+.ovu-landing [data-ui="access-plans"] > div > div:nth-child(2) {
+  gap: 16px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.ovu-landing [data-ui="access-plans"] article {
+  border: 0;
+  border-radius: 0;
+  background: #151d20;
+  padding: 36px;
+  color: var(--ovu-ink);
+}
+.ovu-landing [data-ui="access-plans"] article:nth-child(2) {
+  background: #202b2e;
+}
+.ovu-landing [data-ui="access-plans"] article:nth-child(3) {
+  background: #324340;
+}
+.ovu-landing [data-ui="access-plans"] article * {
+  font-family: inherit !important;
+  letter-spacing: normal;
+  text-transform: none;
+
+}
+.ovu-landing [data-ui="access-plans"] article h3 {
+  font-size: 32px;
+}
+.ovu-landing [data-ui="access-plans"] article p {
+  color: var(--ovu-ink);
+}
+.ovu-landing [data-ui="access-plans"] article > div > div {
+  font-size: 14px;
+  color: var(--ovu-ink);
+}
+.ovu-landing [data-ui="access-plans"] article > div > div > span {
+  color: var(--ovu-ink);
+  border: 0;
+  background: none;
+  font-size: 14px;
+}
+.ovu-landing [data-ui="access-plans"] article > div > p:nth-of-type(2) {
+  font-size: 14px;
+}
+.ovu-landing [data-ui="access-plans"] article ul {
+  border: 0;
+  padding-top: 15px;
+  color: var(--ovu-ink);
+  font-size: 16px;
+}
+.ovu-landing [data-ui="access-plans"] article svg {
+  color: var(--ovu-accent);
+}
+.ovu-landing [data-ui="access-plans"] article > a {
+  border: 0;
+  border-radius: 0;
+  background: var(--ovu-accent);
+  color: var(--ovu-dark);
+  font-size: 15px;
+}
+.ovu-landing [data-ui="access-plans"] article > a > span:last-child {
+  background: none;
+}
+.ovu-landing [data-ui="access-plans"] article > a svg {
+  color: var(--ovu-dark);
+}
+.ovu-store {
+  background: var(--ovu-paper);
+  color: var(--ovu-dark);
+  padding-block: 120px;
+  scroll-margin-top: 80px;
+}
+.ovu-store .ovu-section-heading .ovu-text-link {
+  margin-top: 24px;
+}
+.ovu-store-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+}
+.ovu-store-filters {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.ovu-store-filters button[aria-pressed="true"] {
+  background: var(--ovu-dark);
+  color: var(--ovu-ink);
+}
+.ovu-store-filters button:hover {
+  background: #d2d5cc;
+}
+.ovu-store-filters button[aria-pressed="true"]:hover {
+  background: var(--ovu-dark);
+}
+.ovu-shuffle {
+  border: 0;
+  background: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 15px;
+  font-size: 16px !important;
+}
+.ovu-shuffle:hover {
+  text-decoration: underline;
+}
+.ovu-shuffle:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.ovu-product-count {
+  font-size: 14px;
+  margin-top: 16px !important;
+}
+.ovu-product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 60px 24px;
+  margin-top: 35px;
+}
+.ovu-product-featured {
+  grid-column: span 2;
+}
+.ovu-product-image {
+  display: block;
+  aspect-ratio: 1/1;
+  background: #daddd3;
+  overflow: hidden;
+}
+.ovu-product-featured .ovu-product-image {
+  aspect-ratio: 2/1;
+}
+.ovu-product-image img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  transition: transform 0.55s cubic-bezier(0.2, 0.6, 0.3, 1);
+}
+.ovu-product-image:hover img {
+  transform: scale(1.035);
+}
+.ovu-product-details {
+  padding-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.ovu-product-details > div > p {
+  font-size: 14px;
+}
+.ovu-product-name {
+  display: block;
+  margin-top: 9px;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-decoration: none;
+  max-width: 630px;
+}
+.ovu-product-name:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.ovu-product-purchase {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ovu-product-purchase > p {
+  font-size: 18px !important;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.ovu-product-purchase del {
+  font-size: 14px;
+  margin-left: 6px;
+  color: #58615c;
+}
+.ovu-product-purchase a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 15px;
+  text-decoration: none;
+}
+.ovu-product-purchase a:hover {
+  text-decoration: underline;
+}
+.ovu-empty {
+  padding-block: 60px;
+}
+.ovu-empty button {
+  background: none;
+  border: 0;
+  text-decoration: underline;
+}
+.ovu-community {
+  background: var(--ovu-accent);
+  color: var(--ovu-dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+  padding-block: 100px;
+}
+.ovu-community h2 {
+  max-width: 800px;
+  font-size: clamp(38px, 5vw, 72px);
+}
+.ovu-community p {
+  margin-top: 24px;
+}
+.ovu-community .ovu-button {
+  flex-shrink: 0;
+  background: var(--ovu-dark);
+  color: var(--ovu-ink);
+}
+/* Shared chrome is restyled only inside the landing route. */
+.ovu-landing > header {
+  background: var(--ovu-ground) !important;
+  border: 0 !important;
+  backdrop-filter: none !important; /* taste-skill-ignore: removes inherited glass */
+  padding-block: 18px !important;
+  transition: background-color 0.2s;
+}
+.ovu-landing > header > div {
+  max-width: none;
+  padding-inline: var(--ovu-gutter);
+}
+.ovu-landing > header a {
+  font-family: inherit !important;
+  text-transform: none;
+  letter-spacing: 0;
+  min-height: 44px;
+  font-size: 15px;
+
+}
+.ovu-landing > header > div > a {
+  gap: 10px;
+}
+.ovu-landing > header > div > a > span:first-child {
+  border: 0;
+  background: none;
+  color: var(--ovu-ink);
+}
+.ovu-landing > header > div > a > span:last-child {
+  font-family: inherit !important;
+  letter-spacing: -0.025em;
+  text-transform: none;
+  font-size: 18px;
+}
+.ovu-landing > header nav {
+  border: 0;
+  border-radius: 0;
+  background: var(--ovu-ground);
+  backdrop-filter: none; /* taste-skill-ignore: removes inherited glass */
+  padding: 0;
+}
+.ovu-landing > header nav a {
+  border: 0;
+  border-radius: 0;
+  padding-inline: 12px;
+  color: var(--ovu-ink);
+}
+.ovu-landing > header nav a:hover {
+  background: #202b2e;
+}
+.ovu-landing > header > div > div > a {
+  border: 0;
+  border-radius: 0;
+  backdrop-filter: none; /* taste-skill-ignore: removes inherited glass */
+  background: none;
+  color: var(--ovu-ink);
+  padding-inline: 10px;
+}
+.ovu-landing > header > div > div > a:last-child {
+  background: var(--ovu-accent);
+  color: var(--ovu-dark);
+  padding-inline: 18px;
+}
+.ovu-landing > header > div > div > a:last-child > span:last-child {
+  display: none;
+}
+.ovu-landing > header > div > button {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 0;
+  background: #202b2e;
+}
+.ovu-landing > footer {
+  background: var(--ovu-ground);
+  color: var(--ovu-ink);
+  padding: 80px var(--ovu-gutter);
+  border: 0;
+}
+.ovu-landing > footer > div {
+  max-width: none;
+  padding: 0;
+}
+.ovu-landing > footer > div > div {
+  border: 0;
+}
+.ovu-landing > footer p,
+.ovu-landing > footer a {
+  font-family: inherit !important;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ovu-ink);
+  font-size: 15px;
+}
+.ovu-landing > footer > div > div:first-child {
+  align-items: flex-start;
+  gap: 40px;
+}
+.ovu-landing > footer > div > div:first-child > div:first-child > span {
+  display: none;
+}
+.ovu-landing > footer > div > div:first-child > div:first-child p:first-child {
+  font-family: inherit !important;
+  font-size: clamp(34px, 5vw, 72px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  max-width: 650px;
+  line-height: 1.05;
+}
+.ovu-landing > footer > div > div:first-child > div:first-child p:last-child {
+  margin-top: 24px;
+}
+.ovu-landing > footer a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  padding-inline: 0;
+}
+.ovu-landing > footer a:hover {
+  text-decoration: underline;
+}
+.ovu-landing > footer > div > div:last-child {
+  align-items: flex-start;
+}
+.ovu-landing > footer > div > div:last-child > div {
+  max-width: 850px;
+}
+.ovu-landing > footer > div > div:first-child > div:last-child {
+  gap: 24px;
+}
+@media (min-width: 1100px) {
+  .ovu-landing > header nav {
+    gap: 8px;
+  }
+  .ovu-landing > header > div > div {
+    gap: 12px;
+  }
+}
+@media (max-width: 1100px) {
+  .ovu-landing > header nav a {
+    padding-inline: 7px;
+    font-size: 14px;
+  }
+  .ovu-landing > header > div > a > span:last-child {
+    max-width: 140px;
+    font-size: 16px;
+    line-height: 1.1;
+  }
+  .ovu-hero {
+    min-height: 900px;
+  }
+  .ovu-academy {
+    gap: 40px;
+  }
+  .ovu-academy-image {
+    height: 580px;
+  }
+  .ovu-section-heading {
+    gap: 40px;
+  }
+  .ovu-product-purchase {
+    align-items: start;
+    flex-direction: column;
+  }
+  .ovu-landing [data-ui="access-plans"] article {
+    padding: 28px;
+  }
+}
+@media (max-width: 767px) {
+  .ovu-hero {
+    min-height: max(800px, 100svh);
+    justify-content: flex-start;
+  }
+  .ovu-hero-copy {
+    padding-top: 180px;
+  }
+  .ovu-hero h1 {
+    font-size: clamp(58px, 12vw, 92px);
+  }
+  .ovu-hero-copy > p {
+    font-size: 18px;
+    max-width: 310px;
+    margin-top: 32px;
+  }
+  .ovu-hero-media video {
+    object-position: 64% center;
+    opacity: 0.65;
+  }
+  .ovu-hero-media:after {
+    background: linear-gradient(/* taste-skill-ignore: neutral contrast scrim over existing media */90deg, rgba(8, 11, 13, 0.6), rgba(8, 11, 13, 0.1));
+  }
+  .ovu-hero-bottom {
+    font-size: 14px;
+    gap: 20px;
+    bottom: 30px;
+  }
+  .ovu-hero-bottom p {
+    max-width: 160px;
+  }
+  .ovu-hero-bottom a {
+    max-width: 150px;
+    gap: 12px;
+  }
+  .ovu-film-toggle {
+    bottom: 105px;
+  }
+  .ovu-section-heading {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-bottom: 36px;
+  }
+  .ovu-section-heading p {
+    font-size: 18px;
+  }
+  .ovu-observatory {
+    padding-block: 80px 45px;
+  }
+  .ovu-destination {
+    min-height: 540px;
+  }
+  .ovu-destination-controls {
+    gap: 0;
+  }
+  .ovu-destination-controls button {
+    padding-inline: 13px;
+    font-size: 15px;
+  }
+  .ovu-destination-copy p {
+    font-size: 17px;
+  }
+  .ovu-observatory-links {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .ovu-academy {
+    grid-template-columns: 1fr;
+    padding-block: 65px;
+    gap: 40px;
+  }
+  .ovu-academy-image {
+    height: 440px;
+  }
+  .ovu-academy-copy h2 {
+    font-size: 46px;
+  }
+  .ovu-academy-copy > p {
+    font-size: 18px;
+    margin-top: 24px;
+  }
+  .ovu-passes {
+    padding-block: 80px;
+  }
+  .ovu-store {
+    padding-block: 80px;
+  }
+  .ovu-store-toolbar {
+    align-items: start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .ovu-store-filters {
+    gap: 0;
+  }
+  .ovu-store-filters button {
+    padding-inline: 12px;
+    font-size: 14px;
+  }
+  .ovu-shuffle {
+    padding-left: 0;
+  }
+  .ovu-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 38px 16px;
+  }
+  .ovu-product-featured {
+    grid-column: span 2;
+  }
+  .ovu-product-name {
+    font-size: 17px;
+  }
+  .ovu-product-details > div > p {
+    font-size: 13px;
+  }
+  .ovu-product-purchase > p {
+    font-size: 17px !important;
+  }
+  .ovu-product-purchase del {
+    font-size: 13px;
+    display: block;
+    margin-left: 0;
+  }
+  .ovu-product-purchase a {
+    font-size: 14px;
+  }
+  .ovu-product-featured .ovu-product-purchase {
+    flex-direction: row;
+  }
+  .ovu-community {
+    flex-direction: column;
+    align-items: start;
+    padding-block: 70px;
+    gap: 32px;
+  }
+  .ovu-community h2 {
+    font-size: 42px;
+  }
+  .ovu-landing > footer {
+    padding-block: 60px;
+  }
+  .ovu-landing > footer > div > div:first-child > div:last-child {
+    align-items: start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ovu-landing > footer > div > div:last-child {
+    flex-direction: column;
+    gap: 25px;
+  }
+  .ovu-landing > header > nav {
+    padding: 20px var(--ovu-gutter);
+  }
+  .ovu-landing > header > nav a {
+    padding-block: 10px;
+  }
+  .ovu-landing > header > nav > div:last-child > a:last-child {
+    background: var(--ovu-accent);
+    color: var(--ovu-dark);
+  }
+} /* taste-skill-ignore: neutral scrim over existing astronomy media for text contrast, explicitly allowed by the house rules. */
+@media (prefers-reduced-motion: reduce) {
+  .ovu-landing *,
+  .ovu-landing *:before,
+  .ovu-landing *:after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .ovu-hero-media video {
+    transform: none !important;
+  }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  .ovu-landing > header > div > nav,
+  .ovu-landing > header > div > div {
+    display: none;
+  }
+  .ovu-landing > header > div > button {
+    display: flex;
+  }
+  .ovu-landing > header > nav {
+    display: block !important;
+    padding: 24px var(--ovu-gutter);
+  }
+  .ovu-landing > header > div > a > span:last-child {
+    max-width: none;
+  }
+}
+/* Access choices share their inclusions once, then compare duration and price. */
+.ovu-pass-included {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+  align-items: start;
+  margin-bottom: 40px;
+}
+.ovu-pass-included > p {
+  max-width: 680px;
+  font-size: 18px;
+}
+.ovu-currency {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+}
+.ovu-currency button {
+  min-height: 44px;
+  color: var(--ovu-ink) !important;
+  background: #202b2e !important;
+}
+.ovu-currency button[aria-pressed="true"] {
+  background: var(--ovu-accent) !important;
+  color: var(--ovu-dark) !important;
+}
+.ovu-pass-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 32px;
+  align-items: center;
+  padding: 34px;
+  margin-top: 12px;
+  background: #151e20;
+}
+.ovu-pass-row:nth-child(3) {
+  background: #202b2e;
+}
+.ovu-pass-row:nth-child(4) {
+  background: #324340;
+}
+.ovu-pass-row h3,
+.ovu-pass-price {
+  font-size: 38px !important;
+}
+.ovu-pass-row > p:not(.ovu-pass-price) {
+  font-size: 16px;
+}
+.ovu-pass-row > p > span {
+  font-size: 16px;
+}
+.ovu-community {
+  justify-content: flex-start;
+  gap: 8vw;
+}
+.ovu-community > div {
+  max-width: 800px;
+}
+.ovu-community .ovu-button {
+  margin-left: auto;
+}
+.ovu-product-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  height: 100%;
+  padding: 30px;
+  background: #cdd8ca;
+  color: var(--ovu-dark);
+}
+.ovu-product-story > span:first-child {
+  font-size: clamp(24px, 3vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+.ovu-product-story > span:nth-child(2) {
+  font-size: 16px;
+  max-width: 600px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ovu-product-story > span:last-child {
+  font-size: 16px;
+}
+.ovu-landing [data-reveal] {
+  animation: ovu-arrive 1s both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 60%;
+}
+@keyframes ovu-arrive {
+  from {
+    transform: translateY(26px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@media (max-width: 900px) {
+  .ovu-pass-included {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .ovu-pass-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .ovu-pass-row .ovu-button {
+    justify-content: center;
+  }
+  .ovu-community {
+    align-items: start;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .ovu-community .ovu-button {
+    margin-left: 0;
+  }
+}
+@media (max-width: 767px) {
+  .ovu-pass-row {
+    padding: 24px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .ovu-pass-row h3,
+  .ovu-pass-price {
+    font-size: 30px !important;
+  }
+  .ovu-pass-row .ovu-button {
+    grid-column: span 2;
+  }
+  .ovu-product-story {
+    padding: 18px;
+    gap: 16px;
+  }
+  .ovu-product-story > span:nth-child(2) {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ovu-landing [data-reveal] {
+    animation: none;
+  }
+}
+.ovu-product-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ovu-community {
+  gap: 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 800px) auto;
+  justify-content: space-between;
+}
+.ovu-community .ovu-button {
+  margin-left: 0;
+}
+@media (max-width: 900px) {
+  .ovu-community {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+  }
+  .ovu-product-name {
+    -webkit-line-clamp: 4;
+  }
+}
+.ovu-community {
+  display: block;
+}
+.ovu-community > div {
+  max-width: none;
+}
+.ovu-community h2 {
+  max-width: none;
+  font-size: clamp(38px, 6vw, 86px);
+}
+.ovu-community > .ovu-button {
+  margin-top: 32px;
+}
+.ovu-landing > header > div > a > span:first-child svg,
+.ovu-landing > header > div > div > a svg {
+  color: inherit;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ovu-title-line > span {
+    animation: ovu-title-in 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .ovu-title-line:nth-child(2) > span {
+    animation-delay: 0.1s;
+  }
+  @keyframes ovu-title-in {
+    from {
+      transform: translateY(105%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
+/* One five-step scale across the editorial page. */
+.ovu-landing{--ovu-small:16px;--ovu-body:18px;--ovu-subhead:clamp(30px,3.2vw,46px);--ovu-heading:clamp(38px,5.7vw,82px)}
+.ovu-landing h2,.ovu-academy-copy h2,.ovu-community h2{font-size:var(--ovu-heading)}.ovu-landing h3,.ovu-pass-row h3,.ovu-pass-price{font-size:var(--ovu-subhead)!important}
+.ovu-hero-copy>p,.ovu-section-heading p,.ovu-academy-copy>p,.ovu-destination-copy p,.ovu-product-name,.ovu-product-purchase>p{font-size:var(--ovu-body)!important}
+.ovu-landing>header a,.ovu-landing>header>div>a>span:last-child,.ovu-landing>header nav a,.ovu-landing>footer p,.ovu-landing>footer a,.ovu-product-details>div>p,.ovu-product-count,.ovu-product-purchase a,.ovu-product-story>span:nth-child(2),.ovu-product-story>span:last-child,.ovu-film-toggle,.ovu-store-filters button,.ovu-destination-controls button,.ovu-hero-bottom,.ovu-pass-row>p:not(.ovu-pass-price){font-size:var(--ovu-small)!important}
+.ovu-product-story>span:first-child{font-size:var(--ovu-subhead)}.ovu-destination-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:720px;gap:12px}.ovu-destination-controls button{display:flex;flex-direction:column;align-items:start;gap:12px;padding:10px;min-width:0}.ovu-destination-controls img{display:block;width:100%;height:90px;object-fit:cover}.ovu-destination-controls button>span{padding:2px 0}
+@media(max-width:767px){.ovu-destination-controls{gap:6px}.ovu-destination-controls button{padding:6px}.ovu-destination-controls img{height:60px}.ovu-destination-controls button>span{font-size:16px}.ovu-product-story{padding:18px}}
+.ovu-atlas-pictures{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}.ovu-atlas-pictures figure{margin:0}.ovu-atlas-pictures img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover}.ovu-atlas-pictures figcaption{font-size:var(--ovu-small);margin-top:16px}.ovu-currency [role=group]{font-size:var(--ovu-small)}
+@media(max-width:767px){.ovu-atlas-pictures{grid-template-columns:1fr;gap:28px}}

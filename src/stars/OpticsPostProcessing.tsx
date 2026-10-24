@@ -21,7 +21,9 @@ import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 import { useStore } from "./store";
 
 export function OpticsPostProcessing() {
-  const { gl, scene, camera, size } = useThree();
+  const { gl, scene, camera, size, setDpr } = useThree();
+  const dpr = useThree((state) => state.viewport.dpr);
+  const quality = useRef({ seconds: 0, frames: 0, elapsed: 0, cooldown: 5 });
 
   const bloomEnabled = useStore((s) => s.bloomEnabled);
   const bloomStrength = useStore((s) => s.bloomStrength);
@@ -42,7 +44,7 @@ export function OpticsPostProcessing() {
     const renderTarget = new THREE.WebGLRenderTarget(size.width, size.height, {
       type: THREE.HalfFloatType,
       format: THREE.RGBAFormat,
-      colorSpace: THREE.SRGBColorSpace,
+      colorSpace: THREE.LinearSRGBColorSpace,
       minFilter: THREE.LinearFilter,
       magFilter: THREE.LinearFilter,
       stencilBuffer: false,
@@ -66,15 +68,16 @@ export function OpticsPostProcessing() {
     const outputPass = new OutputPass();
     comp.addPass(outputPass);
 
-    return { comp, bloomPass, renderPass, renderTarget };
+    return { comp, bloomPass, renderPass, renderTarget, outputPass };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, scene, camera]);
 
   // Sync window size changes
   useEffect(() => {
+    composer.comp.setPixelRatio(dpr);
     composer.comp.setSize(size.width, size.height);
     composer.bloomPass.resolution.set(size.width, size.height);
-  }, [size, composer]);
+  }, [size, dpr, composer]);
 
   // Sync bloom parameters
   useEffect(() => {
@@ -109,7 +112,7 @@ export function OpticsPostProcessing() {
   useEffect(() => {
     return () => {
       composer.bloomPass.dispose();
-      composer.renderTarget.dispose();
+      composer.outputPass.dispose();
       composer.comp.dispose();
     };
   }, [composer]);
@@ -122,7 +125,7 @@ export function OpticsPostProcessing() {
   const rollingFpsRef = useRef(60);
 
   // Per-frame render override with metrics sampling
-  useFrame(() => {
+  useFrame((_, dt) => {
     const t0 = performance.now();
     const frameDelta = t0 - lastFrameTimestamp.current;
     lastFrameTimestamp.current = t0;
@@ -136,11 +139,33 @@ export function OpticsPostProcessing() {
 
     // Respect subsystem toggle for bloom
     if (composer.bloomPass) {
-      composer.bloomPass.strength = bloomEnabled && subsystems.bloom ? bloomStrength : 0.0;
+      composer.bloomPass.enabled = bloomEnabled && subsystems.bloom && bloomStrength > 0;
+      composer.bloomPass.strength = bloomStrength;
     }
 
+    // Adapt buffer resolution in slow, discrete steps; never change simulation speed.
+    const q = quality.current;
+    if (dt > 0 && dt < 0.25) {
+      q.elapsed += dt;
+      q.frames++;
+    }
+    q.seconds += dt;
+    if (q.seconds >= q.cooldown && q.frames >= 30) {
+      const average = q.elapsed / q.frames;
+      const maxDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      if (average > 0.024 && dpr > 0.75) setDpr(Math.max(0.75, dpr - 0.25));
+      else if (average < 0.014 && dpr < maxDpr) setDpr(Math.min(maxDpr, dpr + 0.25));
+      q.seconds = 0;
+      q.frames = 0;
+      q.elapsed = 0;
+      q.cooldown = 3;
+    }
     // Render through composer with post-processing passes
+    const autoReset = gl.info.autoReset;
+    gl.info.autoReset = false;
+    gl.info.reset();
     composer.comp.render();
+    gl.info.autoReset = autoReset;
 
     const tCpu = performance.now() - t0;
 

@@ -1349,6 +1349,7 @@ function ObjectNode({ item }: { item: ObservedObject }) {
   return (
     <group position={position}>
       <mesh
+        visible={false}
         onPointerOver={(e) => {
           e.stopPropagation();
           setHover(true);

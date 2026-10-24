@@ -1231,6 +1231,14 @@ export function Branding() {
       <div className="text-[10px] uppercase tracking-[0.3em] text-white/30">
         Our Visible Universe — A Cosmic Experiment
       </div>
+      <a
+        className="pointer-events-auto text-xs text-white/50 hover:text-white"
+        href="/textures/solar/CREDITS.md"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Solar imagery credits
+      </a>
       {opticsPreset === "cinematic" ? (
         <div className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-950/70 px-2.5 py-0.5 text-[9px] font-mono text-amber-300 shadow-lg backdrop-blur">
           <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />

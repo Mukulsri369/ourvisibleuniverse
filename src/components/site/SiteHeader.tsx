@@ -95,13 +95,18 @@ export function SiteHeader() {
           className="flex size-9 items-center justify-center rounded-full border border-white/15 text-white md:hidden"
           onClick={() => setOpen((v) => !v)}
           aria-label="Menu"
+          aria-expanded={open}
+          aria-controls="site-mobile-navigation"
         >
           {open ? <X className="size-4" /> : <Menu className="size-4" />}
         </button>
       </div>
 
       {open && (
-        <nav className="mt-3 border-t border-white/10 bg-[#05060a]/95 px-6 py-6 backdrop-blur-2xl md:hidden">
+        <nav
+          id="site-mobile-navigation"
+          className="mt-3 border-t border-white/10 bg-[#05060a]/95 px-6 py-6 backdrop-blur-2xl md:hidden"
+        >
           <div className="flex flex-col space-y-2">
             {links.map(([to, label]) => (
               <Link

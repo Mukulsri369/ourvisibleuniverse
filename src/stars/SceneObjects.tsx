@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { backgroundFocus } from "./sim-clock";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
+import { useSolarMap } from "./solar-textures";
 import { NAMED_STARS } from "./data";
 
 const SUN_RADIUS = 0.015;
@@ -70,10 +71,11 @@ export function Sun() {
   }, []);
 
   const coronaTex = useMemo(() => makeSolarCoronaTexture(), []);
+  const solarMap = useSolarMap("Sun", () => coronaTex);
 
   const photosphereShader = useMemo(
     () => ({
-      uniforms: { uTime: { value: 0 } },
+      uniforms: { uTime: { value: 0 }, uMap: { value: solarMap } },
       vertexShader: /* glsl */ `
         #include <common>
         #include <logdepthbuf_pars_vertex>
@@ -91,114 +93,25 @@ export function Sun() {
       `,
       fragmentShader: /* glsl */ `
         #include <logdepthbuf_pars_fragment>
-        uniform float uTime;
-        varying vec3 vPos;
-        varying vec3 vNormal;
-        varying vec3 vViewPosition;
-
-        float hash(vec3 p) {
-          p = fract(p * vec3(443.8975, 397.2973, 491.1871));
-          p += dot(p.zxy, p.yxz + 19.19);
-          return fract(p.x * p.y * p.z);
-        }
-
-        float noise(vec3 p) {
-          vec3 i = floor(p);
-          vec3 f = fract(p);
-          f = f * f * (3.0 - 2.0 * f);
-          return mix(
-            mix(mix(hash(i), hash(i + vec3(1,0,0)), f.x),
-                mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
-            mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
-                mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y),
-            f.z
-          );
-        }
-
-        float fbm(vec3 p) {
-          float v = 0.0, a = 0.5;
-          for (int i = 0; i < 5; i++) {
-            v += a * noise(p);
-            p = p * 2.07 + vec3(13.1, 7.7, 19.3);
-            a *= 0.5;
-          }
-          return v;
-        }
-
-        // Voronoi-like cellular granulation pattern for convective plasma cells
-        float granuleCells(vec3 p) {
-          float n1 = noise(p);
-          float n2 = noise(p * 2.15 + vec3(4.2, -3.1, 8.7));
-          float ridge = 1.0 - abs(n1 * 2.0 - 1.0);
-          float fineRidge = 1.0 - abs(n2 * 2.0 - 1.0);
-          return clamp(ridge * 0.68 + fineRidge * 0.32, 0.0, 1.0);
-        }
-
-        void main() {
+        uniform float uTime; uniform sampler2D uMap;
+        varying vec3 vPos; varying vec3 vNormal; varying vec3 vViewPosition;
+        void main(){
           #include <logdepthbuf_fragment>
-          vec3 N = normalize(vNormal);
-          vec3 V = normalize(vViewPosition);
-          float mu = clamp(dot(N, V), 0.0, 1.0);
-
-          // Differential solar rotation (equator rotates faster than poles)
-          float lat = vPos.y;
-          float diffRot = uTime * 0.035 * (1.0 - 0.28 * lat * lat);
-          float ca = cos(diffRot), sa = sin(diffRot);
-          vec3 sp = vec3(vPos.x * ca - vPos.z * sa, vPos.y, vPos.x * sa + vPos.z * ca);
-
-          // Domain-warped convective granulation + supergranulation network
-          vec3 warp = vec3(
-            fbm(sp * 4.5 + vec3(uTime * 0.08, 0.0, 0.0)),
-            fbm(sp * 4.5 + vec3(0.0, uTime * 0.08, 5.2)),
-            fbm(sp * 4.5 + vec3(0.0, 5.2, -uTime * 0.08))
-          );
-          float superGran = fbm(sp * 6.0 + warp * 1.35);
-          float granules = granuleCells(sp * 26.0 + warp * 3.8 + vec3(uTime * 0.22));
-          float microGran = noise(sp * 64.0 - vec3(uTime * 0.45));
-
-          // Active magnetic belt latitudes (~10° to 30° N/S) for sunspots & faculae
-          float activeBelt = exp(-pow((abs(lat) - 0.28) / 0.16, 2.0));
-          float spotField = fbm(sp * 7.5 + warp * 0.55 + vec3(2.4, -1.7, 6.1));
-          float penumbraMask = smoothstep(0.66, 0.75, spotField) * activeBelt;
-          float umbraMask = smoothstep(0.75, 0.82, spotField) * activeBelt;
-          // Radial penumbral filaments
-          float penumbraStriation = 0.65 + 0.35 * noise(sp * 52.0 + warp * 4.0);
-
-          // Bright magnetic faculae / plage network around active regions (more visible near limb)
-          float faculaeMask = smoothstep(0.56, 0.66, spotField) * (1.0 - penumbraMask) * activeBelt;
-          float faculaeBoost = faculaeMask * (0.35 + 0.85 * pow(1.0 - mu, 0.75));
-
-          // Blackbody-inspired solar photosphere palette (5778 K center -> 4200 K limb)
-          vec3 intergranuleCol = vec3(0.78, 0.24, 0.03);
-          vec3 midPhotosphere  = vec3(1.00, 0.58, 0.14);
-          vec3 brightGranule   = vec3(1.00, 0.93, 0.68);
-          vec3 hotFaculae      = vec3(1.00, 0.98, 0.88);
-          vec3 penumbraCol     = vec3(0.42, 0.14, 0.02) * penumbraStriation;
-          vec3 umbraCol        = vec3(0.11, 0.02, 0.004);
-
-          float plasmaMix = clamp(granules * 0.65 + superGran * 0.35 + (microGran - 0.5) * 0.14, 0.0, 1.0);
-          vec3 col = mix(intergranuleCol, midPhotosphere, smoothstep(0.18, 0.58, plasmaMix));
-          col = mix(col, brightGranule, smoothstep(0.54, 0.90, plasmaMix));
-          col = mix(col, hotFaculae, clamp(faculaeBoost, 0.0, 0.85));
-
-          // Apply sunspot penumbra and dark umbra
-          col = mix(col, penumbraCol, penumbraMask * 0.88);
-          col = mix(col, umbraCol, umbraMask * 0.95);
-
-          // Eddington-Barbier wavelength-dependent limb darkening
-          vec3 limbPower = vec3(0.38, 0.54, 0.76);
-          vec3 limbDarkening = pow(vec3(max(mu, 0.04)), limbPower);
-          col *= (0.28 + 0.72 * limbDarkening);
-
-          // Subtle H-alpha chromospheric warmth right at the extreme grazing edge
-          float grazing = pow(1.0 - mu, 4.5);
-          col += vec3(1.0, 0.28, 0.06) * grazing * 0.42;
-
-          gl_FragColor = vec4(col, 1.0);
+          float mu=max(dot(normalize(vNormal),normalize(vViewPosition)),0.0);
+          vec2 uv=vec2(atan(vPos.z,vPos.x)/6.283185+0.5,asin(clamp(vPos.y,-1.0,1.0))/3.141593+0.5);
+          vec3 tex=texture2D(uMap,uv).rgb;
+          float detail=dot(tex,vec3(0.2126,0.7152,0.0722));
+          float granule=sin(vPos.x*420.0+uTime*0.6)*sin(vPos.y*430.0-uTime*0.4)*0.012;
+          // Visible-light photosphere: warm white, not H-alpha orange lava.
+          vec3 col=vec3(1.0,0.91,0.73)*(0.52+detail*0.92+granule);
+          col*=0.36+0.64*pow(mu,0.45);
+          gl_FragColor=vec4(col*7.0,1.0);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
         }
       `,
     }),
-    [],
+    [solarMap],
   );
 
   const chromosphereShader = useMemo(
@@ -325,7 +238,7 @@ export function Sun() {
           float eqBoost = 1.0 - 0.35 * vPos.y * vPos.y;
           float glow = pow(1.0 - nv, 2.2) * streamer * eqBoost;
           vec3 col = mix(vec3(1.0, 0.42, 0.12), vec3(1.0, 0.86, 0.52), glow);
-          gl_FragColor = vec4(col * glow * 0.85, clamp(glow * 0.65, 0.0, 0.75));
+          gl_FragColor = vec4(col * glow * 0.20, clamp(glow * 0.12, 0.0, 0.14));
         }
       `,
     }),
@@ -342,9 +255,11 @@ export function Sun() {
     if (chromoRef.current) {
       (chromoRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
       chromoRef.current.rotation.y = -t * 0.018;
+      chromoRef.current.visible = camera.position.distanceTo(worldPos) < SUN_RADIUS * 90;
     }
     if (kCoronaRef.current) {
       (kCoronaRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
+      kCoronaRef.current.visible = camera.position.distanceTo(worldPos) < SUN_RADIUS * 90;
     }
     if (coronaRef.current) {
       const camD = camera.position.distanceTo(worldPos);
@@ -352,7 +267,7 @@ export function Sun() {
       const closeFade = Math.min(1, Math.max(0.22, (camD - SUN_RADIUS * 2.5) / (SUN_RADIUS * 14)));
       const s = (0.13 + Math.sin(t * 0.9) * 0.005) * (0.55 + 0.45 * closeFade);
       coronaRef.current.scale.set(s, s, 1);
-      (coronaRef.current.material as THREE.SpriteMaterial).opacity = 0.78 * closeFade;
+      (coronaRef.current.material as THREE.SpriteMaterial).opacity = 0.32 * closeFade;
     }
   });
 
@@ -381,7 +296,7 @@ export function Sun() {
       </mesh>
 
       {/* Dynamic H-alpha Chromosphere & Solar Prominence Rim Shell */}
-      <mesh ref={chromoRef} scale={1.036} renderOrder={1}>
+      <mesh ref={chromoRef} scale={1.008} renderOrder={1}>
         <sphereGeometry args={[SUN_RADIUS, 64, 48]} />
         <shaderMaterial
           args={[chromosphereShader]}
@@ -393,7 +308,7 @@ export function Sun() {
       </mesh>
 
       {/* Volumetric Inner K-Corona Helmet Streamer Shell */}
-      <mesh ref={kCoronaRef} scale={1.26} renderOrder={2}>
+      <mesh ref={kCoronaRef} scale={1.08} renderOrder={2}>
         <sphereGeometry args={[SUN_RADIUS, 48, 32]} />
         <shaderMaterial
           args={[kCoronaShader]}
@@ -783,10 +698,11 @@ export function MilkyWay() {
 
   const subsystems = useStore((s) => s.subsystems);
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ clock, camera, gl }) => {
     if (!groupRef.current) return;
     // Galaxy itself is fixed; differential rotation happens in the shader.
     shader.uniforms.uTime.value = clock.elapsedTime;
+    shader.uniforms.uPixelRatio.value = gl.getPixelRatio();
     shader.uniforms.uFocus.value = backgroundFocus();
 
     // Distance-aware continuous fade coordinated with the far-field sprite in Universe.tsx
@@ -794,6 +710,17 @@ export function MilkyWay() {
     // Smoothly fade out heavy particle cloud between 180,000 and 550,000 ly as far sprite takes over
     const alpha = Math.min(1, Math.max(0, 1 - (d - 180_000) / 370_000));
     shader.uniforms.uOpacity.value = alpha;
+    const localDistance =
+      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
+      useStore.getState().cameraDistance;
+    const fraction = THREE.MathUtils.lerp(
+      0.18,
+      1,
+      THREE.MathUtils.smoothstep(localDistance, 200, 45000),
+    );
+    for (const geometry of [diskGeo, bulgeGeo, barGeo, hiiGeo, haloGeo]) {
+      geometry.setDrawRange(0, Math.floor(geometry.getAttribute("position").count * fraction));
+    }
     groupRef.current.visible = subsystems.milkyWay && alpha > 0.005;
   });
 

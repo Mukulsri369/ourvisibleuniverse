@@ -6,6 +6,7 @@ import { getSimulationJd, simTimeDays, simTimeYears, tickSim } from "./sim-clock
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
 import { computeMoonRelativeState } from "@/lib/astronomy/jpl/horizons-ephemeris";
 import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
+import { useSolarMap } from "./solar-textures";
 import { SolarSystemOverlays } from "./SolarSystemOverlays";
 
 // Real orbital elements (relative). We scale semi-major axis (a) so the
@@ -617,9 +618,9 @@ void main(){
 
   vec3 rayleighCol = uRay * pRay * rim * day * 1.5;
   vec3 sunsetCol = uSunset * term * rim * 1.35;
-  vec3 forwardMieCol = mix(uSunset, vec3(1.0), 0.6) * pMie * uMie * rim * max(nl + 0.35, 0.0);
+  vec3 forwardMieCol = mix(uSunset, vec3(1.0), 0.6) * min(pMie, 2.0) * uMie * rim * max(nl + 0.35, 0.0) * 0.35;
 
-  vec3 col = rayleighCol + sunsetCol + forwardMieCol;
+  vec3 col = (rayleighCol + sunsetCol + forwardMieCol) * 0.45;
   float a = clamp(max(col.r, max(col.g, col.b)), 0.0, 0.95);
   gl_FragColor = vec4(col, a);
 }`;
@@ -654,204 +655,57 @@ void main(){
 const DETAIL_FRAG = /* glsl */ `
 #include <logdepthbuf_pars_fragment>
 uniform sampler2D uMap;
+uniform sampler2D uNightMap;
 uniform vec3 uSun;
-uniform float uTime;
-uniform float uNear;
 uniform float uGas;
-uniform float uSeed;
 uniform float uPlanetId;
-uniform vec3 uTint;
-uniform vec3 uStorm;
-varying vec3 vP;
-varying vec3 vN;
-varying vec3 vW;
-varying vec2 vUv;
-
-float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
-float n3(vec3 p){
-  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
-  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
-             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
-}
-float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
-
+uniform float uRelief;
+varying vec3 vP; varying vec3 vN; varying vec3 vW; varying vec2 vUv;
 void main(){
   #include <logdepthbuf_fragment>
   vec3 N = normalize(vN);
-  vec3 V = normalize(cameraPosition - vW);
-  vec3 L = normalize(uSun - vW);
-  vec3 H = normalize(L + V);
-  float nl = dot(N, L);
-  float nv = max(dot(N, V), 0.0);
-  float dayLit = smoothstep(-0.08, 0.14, nl);
-  float diffuse = clamp(nl * 0.88 + 0.12, 0.0, 1.0) * dayLit + 0.025;
-
-  vec3 texCol = texture2D(uMap, vUv).rgb;
-  float lat = vP.y;
-  float lon = atan(vP.z, vP.x);
-
-  // Perturbed micro-normal for rocky/icy worlds
-  float eps = 0.015;
-  float h0 = fbm(vP * 18.0 + uSeed);
-  float hx = fbm((vP + vec3(eps, 0.0, 0.0)) * 18.0 + uSeed);
-  float hy = fbm((vP + vec3(0.0, eps, 0.0)) * 18.0 + uSeed);
-  vec3 bumpN = normalize(N + (vec3(h0 - hx, h0 - hy, 0.0)) * (uGas > 0.5 ? 0.08 : 0.45) * (0.35 + 0.65 * uNear));
-  float bumpLit = clamp(dot(bumpN, L) * 0.92 + 0.10, 0.0, 1.0) * dayLit + 0.025;
-
-  vec3 col = texCol;
-  vec3 additiveEmission = vec3(0.0);
-
-  if (abs(uPlanetId - 3.0) < 0.1) {
-    // EARTH: Ocean vs Land separation from texture chromaticity, ocean specular sunglint, & night city lights
-    float blueDominance = texCol.b - max(texCol.r, texCol.g * 0.92);
-    float polarCap = smoothstep(0.76, 0.90, abs(lat));
-    float oceanMask = clamp(smoothstep(0.01, 0.14, blueDominance) * (1.0 - polarCap), 0.0, 1.0);
-    float landMask = clamp((1.0 - oceanMask) * (1.0 - polarCap), 0.0, 1.0);
-
-    // Fine continental mountain relief on land
-    float relief = 0.82 + 0.36 * fbm(vP * 32.0 + uSeed);
-    col = mix(texCol, texCol * relief, landMask * (0.4 + 0.6 * uNear));
-
-    // Specular solar sunglint on oceans (warmer orange near terminator)
-    float spec = pow(max(dot(N, H), 0.0), 54.0) * oceanMask * max(nl, 0.0);
-    float fresnelWater = pow(1.0 - nv, 3.5) * oceanMask * dayLit * 0.25;
-    vec3 glintColor = mix(vec3(1.0, 0.62, 0.32), vec3(1.0, 0.97, 0.90), smoothstep(0.0, 0.38, nl));
-    col = col * mix(diffuse, bumpLit, landMask) + glintColor * spec * 0.85 + vec3(0.18, 0.42, 0.78) * fresnelWater;
-
-    // Night-side city lights along populated mid-latitude continents & coastlines
-    float nightMask = smoothstep(0.06, -0.18, nl);
-    if (nightMask > 0.005 && landMask > 0.15) {
-      float latBand = smoothstep(0.05, 0.22, abs(lat)) * (1.0 - smoothstep(0.55, 0.74, abs(lat)));
-      float urbanCluster = fbm(vP * 24.0 + vec3(3.1, 7.4, -2.2));
-      float citySparkle = smoothstep(0.58, 0.76, n3(vP * 115.0 + vec3(1.7))) * smoothstep(0.46, 0.66, urbanCluster);
-      float highway = smoothstep(0.48, 0.51, abs(n3(vP * 48.0) - 0.5)) * smoothstep(0.52, 0.68, urbanCluster) * 0.35;
-      vec3 cityCol = vec3(1.0, 0.76, 0.36) * (citySparkle * 1.45 + highway) * (0.35 + 0.65 * latBand);
-      additiveEmission += cityCol * nightMask * landMask;
-    }
-    gl_FragColor = vec4(col + additiveEmission, 1.0);
-    return;
+  vec3 V = normalize(cameraPosition-vW);
+  vec3 L = normalize(uSun-vW);
+  vec3 albedo = texture2D(uMap,vUv).rgb;
+  float earth = 1.0-step(0.1,abs(uPlanetId-3.0));
+  float ocean = earth * smoothstep(0.01,0.11,albedo.b-max(albedo.r,albedo.g));
+  // Derivative relief from the actual map replaces repeated 3D noise fields.
+  float height = dot(albedo,vec3(0.2126,0.7152,0.0722));
+  vec3 dx=dFdx(vW), dy=dFdy(vW);
+  vec3 rx=cross(dy,N), ry=cross(N,dx);
+  float det=dot(dx,rx);
+  vec3 grad=sign(det)*(dFdx(height)*rx+dFdy(height)*ry);
+  vec3 bump=normalize(abs(det)*N-grad*uRelief*(1.0-uGas)*(1.0-ocean));
+  float nl=dot(N,L);
+  float diffuse=max(dot(bump,L),0.0);
+  vec3 col=albedo*(0.008+diffuse*1.12);
+  vec3 H=normalize(L+V);
+  float spec=pow(max(dot(N,H),0.0),110.0)*max(nl,0.0)*ocean;
+  col+=vec3(1.0,0.96,0.86)*spec*0.65;
+  if(earth>0.5){
+    float night=1.0-smoothstep(-0.18,0.02,nl);
+    col+=texture2D(uNightMap,vUv).rgb*night*0.75;
   }
-
-  if (uGas > 0.5) {
-    // GAS & ICE GIANTS: Differential zonal rotation, Kelvin-Helmholtz wave festoons, & signature vortices
-    float shift = uTime * 0.018 * (1.0 - 0.65 * lat * lat);
-    vec3 q = vec3(cos(lon + shift), lat * 5.5, sin(lon + shift));
-    float warp = fbm(q * 2.6 + uSeed + vec3(0.0, uTime * 0.008, 0.0));
-    float bandFreq = (abs(uPlanetId - 5.0) < 0.1) ? 36.0 : (abs(uPlanetId - 6.0) < 0.1) ? 28.0 : 16.0;
-    float bands = sin(lat * bandFreq + warp * 4.5) * 0.5 + 0.5;
-    float fine = fbm(q * 11.0 + warp * 2.2);
-    vec3 procGas = mix(texCol * 0.85, texCol * (0.82 + 0.36 * bands) * (0.88 + 0.24 * fine), 0.45 + 0.45 * uNear);
-
-    if (abs(uPlanetId - 5.0) < 0.1) {
-      // JUPITER: Great Red Spot anticyclonic vortex at ~22°S (lat ≈ -0.37)
-      vec2 grsPos = vec2(mod(lon + shift * 0.45 + 3.14159, 6.28318) - 3.14159, (lat + 0.37) * 3.2);
-      float dGrs = length(grsPos * vec2(1.0, 1.85));
-      float swirlAngle = atan(grsPos.y, grsPos.x) + (1.0 - clamp(dGrs, 0.0, 1.0)) * 5.0 - uTime * 0.15;
-      float swirlNoise = fbm(vec3(cos(swirlAngle) * dGrs * 4.0, sin(swirlAngle) * dGrs * 4.0, uSeed));
-      float grsMask = smoothstep(0.36, 0.04, dGrs);
-      float grsRing = smoothstep(0.32, 0.18, dGrs) * smoothstep(0.05, 0.18, dGrs);
-      vec3 grsCol = mix(vec3(0.82, 0.28, 0.14), vec3(0.95, 0.56, 0.34), swirlNoise * 0.7 + grsRing * 0.4);
-      procGas = mix(procGas, grsCol, grsMask * 0.85);
-    } else if (abs(uPlanetId - 6.0) < 0.1) {
-      // SATURN: North Polar Hexagonal Jet Stream at ~78°N (lat > 0.78)
-      if (lat > 0.72) {
-        float rPolar = sqrt(max(0.0, 1.0 - lat * lat));
-        float hexRadius = 0.34 + 0.022 * cos(6.0 * (lon + uTime * 0.03));
-        float hexWall = exp(-pow((rPolar - hexRadius) / 0.035, 2.0));
-        float polarEye = smoothstep(0.08, 0.0, rPolar);
-        procGas = mix(procGas, vec3(0.62, 0.48, 0.28), hexWall * 0.65);
-        procGas = mix(procGas, vec3(0.32, 0.22, 0.12), polarEye * 0.75);
-      }
-    } else if (abs(uPlanetId - 8.0) < 0.1) {
-      // NEPTUNE: Great Dark Spot & high-altitude bright white methane-ice cirrus streaks
-      vec2 gdsPos = vec2(mod(lon + shift * 0.5 + 2.2, 6.28318) - 3.14159, (lat + 0.34) * 3.0);
-      float dGds = length(gdsPos * vec2(0.9, 1.9));
-      float gdsMask = smoothstep(0.32, 0.05, dGds);
-      float companionCloud = smoothstep(0.36, 0.22, dGds) * smoothstep(0.14, 0.26, dGds) * smoothstep(0.45, 0.75, fbm(q * 14.0));
-      procGas = mix(procGas, vec3(0.05, 0.12, 0.38), gdsMask * 0.78);
-      procGas = mix(procGas, vec3(0.92, 0.97, 1.0), companionCloud * 0.85);
-    }
-
-    // Minnaert / limb darkening for deep gas atmospheres
-    float limbDark = pow(max(nv, 0.05), 0.28);
-    gl_FragColor = vec4(procGas * diffuse * (0.72 + 0.28 * limbDark), 1.0);
-    return;
-  }
-
-  // ROCKY & ICY WORLDS (Mercury, Venus, Mars, Pluto)
-  if (abs(uPlanetId - 2.0) < 0.1) {
-    // VENUS: Super-rotating sulfuric acid clouds with Rossby-Kelvin Y-wave
-    float vShift = -uTime * 0.035;
-    float yWave = sin(lon + vShift + cos(lat * 3.2) * 1.6) * (1.0 - abs(lat));
-    float streaks = fbm(vec3(cos(lon + vShift), lat * 4.5, sin(lon + vShift)) * 5.0);
-    vec3 venusCol = mix(texCol, texCol * (0.86 + 0.18 * yWave + 0.16 * streaks), 0.65);
-    gl_FragColor = vec4(venusCol * diffuse, 1.0);
-    return;
-  }
-
-  // Cratered / tectonic relief shading for Mercury, Mars, Pluto
-  float micro = fbm(vP * 58.0 + uSeed * 2.0);
-  float cField = n3(vP * 38.0 + uSeed);
-  float craterRim = smoothstep(0.62, 0.69, cField) - smoothstep(0.69, 0.77, cField);
-  float shade = 0.84 + 0.22 * (h0 - 0.5) + 0.16 * (micro - 0.5) + craterRim * 0.28 * uNear;
-  gl_FragColor = vec4(texCol * shade * bumpLit, 1.0);
+  gl_FragColor=vec4(col*8.0,1.0);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
 }`;
 
 // --- Earth 3D Animated Cloud & Cyclone Sphere Shader -----------------------
-const EARTH_CLOUDS_VERT = /* glsl */ `
-#include <common>
-#include <logdepthbuf_pars_vertex>
-varying vec3 vP; varying vec3 vN; varying vec3 vW;
-void main(){
-  vP = normalize(position);
-  vec4 w = modelMatrix * vec4(position, 1.0);
-  vW = w.xyz;
-  vN = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * viewMatrix * w;
-  #include <logdepthbuf_vertex>
-}`;
 
 const EARTH_CLOUDS_FRAG = /* glsl */ `
 #include <logdepthbuf_pars_fragment>
-uniform vec3 uSun;
-uniform float uTime;
-varying vec3 vP;
-varying vec3 vN;
-varying vec3 vW;
-
-float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
-float n3(vec3 p){
-  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
-  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
-             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
-}
-float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.04; a*=0.5; } return s; }
-
+uniform sampler2D uMap; uniform vec3 uSun;
+varying vec3 vN; varying vec3 vW; varying vec2 vUv;
 void main(){
-  #include <logdepthbuf_fragment>
-  vec3 N = normalize(vN);
-  vec3 L = normalize(uSun - vW);
-  float nl = dot(N, L);
-
-  float lat = vP.y;
-  float lon = atan(vP.z, vP.x) + uTime * 0.012;
-  vec3 q = vec3(cos(lon) * (1.0 - 0.25 * lat * lat), lat * 2.2, sin(lon) * (1.0 - 0.25 * lat * lat));
-  vec3 warp = vec3(
-    fbm(q * 3.2 + vec3(uTime * 0.015, 0.0, 0.0)),
-    fbm(q * 3.2 + vec3(0.0, uTime * 0.015, 4.1)),
-    fbm(q * 3.2 + vec3(2.7, -uTime * 0.015, 0.0))
-  );
-  float cloud = fbm(q * 5.2 + warp * 1.65);
-  // Intertropical Convergence Zone (ITCZ) & mid-latitude storm tracks
-  float stormTrack = 0.12 * exp(-pow(lat / 0.14, 2.0)) + 0.10 * exp(-pow((abs(lat) - 0.52) / 0.18, 2.0));
-  float alpha = smoothstep(0.47 - stormTrack, 0.76, cloud) * 0.78;
-  if (alpha < 0.01) discard;
-
-  float day = smoothstep(-0.14, 0.25, nl);
-  float sunsetTerm = exp(-pow((nl - 0.02) / 0.14, 2.0));
-  vec3 cloudCol = mix(vec3(0.04, 0.06, 0.12), vec3(0.98, 0.99, 1.0), day);
-  cloudCol = mix(cloudCol, vec3(1.0, 0.58, 0.32), sunsetTerm * 0.65);
-  gl_FragColor = vec4(cloudCol, alpha);
+#include <logdepthbuf_fragment>
+float coverage=dot(texture2D(uMap,vUv).rgb,vec3(0.3333));
+float nl=dot(normalize(vN),normalize(uSun-vW));
+float alpha=smoothstep(0.18,0.8,coverage)*0.88;
+vec3 col=vec3(0.95,0.97,1.0)*(max(nl,0.0)*1.05+0.012);
+gl_FragColor=vec4(col*8.0,alpha);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
 }`;
 
 // --- Physically Shaded 3D Planetary Rings with Live Planet Shadow Casting ---
@@ -908,7 +762,9 @@ void main(){
   float microRinglet = 0.88 + 0.12 * sin(vUv.x * 420.0) * cos(vUv.x * 135.0);
 
   vec3 col = tex.rgb * uColor * microRinglet * (0.78 + backScatter + forwardScatter) * shadowFactor;
-  gl_FragColor = vec4(col, tex.a * 0.96);
+  gl_FragColor = vec4(col * 6.0, tex.a * 0.96);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
 }`;
 
 function Planet({ def }: { def: PlanetDef }) {
@@ -919,10 +775,12 @@ function Planet({ def }: { def: PlanetDef }) {
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const sunTmp = useMemo(() => new THREE.Vector3(), []);
-  const surface = useMemo(() => makeSurfaceTexture(def), [def]);
-  const ringTex = useMemo(
-    () => (def.ring ? makeRingTexture(def.name, def.ring.color) : null),
-    [def],
+  const surface = useSolarMap(def.name, () => makeSurfaceTexture(def));
+  const detailGroup = useRef<THREE.Group>(null!);
+  const nightMap = useSolarMap(def.name === "Earth" ? "EarthNight" : "None", () => surface);
+  const cloudMap = useSolarMap(def.name === "Earth" ? "EarthClouds" : "None", () => surface);
+  const ringTex = useSolarMap(def.name === "Saturn" ? "SaturnRing" : "None", () =>
+    def.ring ? makeRingTexture(def.name, def.ring.color) : surface,
   );
   const ringGeo = useMemo(
     () => (def.ring ? makeRingGeometry(def.ring.inner, def.ring.outer, 256) : null),
@@ -946,12 +804,14 @@ function Planet({ def }: { def: PlanetDef }) {
   const detailUniforms = useMemo(
     () => ({
       uMap: { value: surface },
+      uNightMap: { value: nightMap },
       uSun: { value: new THREE.Vector3() },
       uTime: { value: 0 },
       uNear: { value: 0 },
       uGas: { value: GAS_GIANTS.has(def.name) ? 1 : 0 },
       uSeed: { value: (hashSeed(def.name) % 1000) / 37 },
       uPlanetId: { value: PLANET_ID_MAP[def.name] ?? 0 },
+      uRelief: { value: def.size * 0.008 },
       uTint: { value: new THREE.Color(def.color) },
       uStorm: {
         value: new THREE.Color(
@@ -959,15 +819,16 @@ function Planet({ def }: { def: PlanetDef }) {
         ),
       },
     }),
-    [def, surface],
+    [def, surface, nightMap],
   );
 
   const earthCloudUniforms = useMemo(
     () => ({
+      uMap: { value: cloudMap },
       uSun: { value: new THREE.Vector3() },
       uTime: { value: 0 },
     }),
-    [],
+    [cloudMap],
   );
 
   const ringUniforms = useMemo(
@@ -1005,7 +866,7 @@ function Planet({ def }: { def: PlanetDef }) {
     let p: THREE.Vector3;
     try {
       const state = jplEphemerisManager.getPlanetState(def.name, jd);
-      p = new THREE.Vector3(state.xAu * auScale, state.zAu * auScale, state.yAu * auScale);
+      p = tmp.set(state.xAu * auScale, state.zAu * auScale, state.yAu * auScale);
     } catch {
       p = keplerPosition(def, phase, t, effectiveA);
     }
@@ -1018,8 +879,7 @@ function Planet({ def }: { def: PlanetDef }) {
         : (t / def.spinPeriod) * Math.PI * 2;
     }
     if (cloudRef.current) {
-      cloudRef.current.rotation.y =
-        (bodyRef.current?.rotation.y ?? 0) * 1.06 + t * 0.018;
+      cloudRef.current.rotation.y = (bodyRef.current?.rotation.y ?? 0) * 1.06 + t * 0.018;
     }
 
     groupRef.current.getWorldPosition(tmp);
@@ -1037,6 +897,8 @@ function Planet({ def }: { def: PlanetDef }) {
     }
 
     const camD = camera.position.distanceTo(tmp);
+    // Keep ephemerides/registry live, but do not submit sub-pixel sphere shells.
+    if (detailGroup.current) detailGroup.current.visible = camD < effectiveSize * 2400;
     // Detail fades in smoothly as the camera approaches the planet.
     detailUniforms.uNear.value = 1 - Math.min(1, Math.max(0, (camD / effectiveSize - 8) / 80));
     // The distant marker sprite must not wash the planet out up close:
@@ -1078,7 +940,11 @@ function Planet({ def }: { def: PlanetDef }) {
         />
       </sprite>
       {/* tilt + body */}
-      <group rotation={[0, 0, def.tilt]} scale={[sizeRatio, sizeRatio, sizeRatio]}>
+      <group
+        ref={detailGroup}
+        rotation={[0, 0, def.tilt]}
+        scale={[sizeRatio, sizeRatio, sizeRatio]}
+      >
         <mesh
           ref={bodyRef}
           castShadow
@@ -1111,7 +977,7 @@ function Planet({ def }: { def: PlanetDef }) {
           <mesh ref={cloudRef} scale={1.012} renderOrder={1}>
             <sphereGeometry args={[def.size, 64, 48]} />
             <shaderMaterial
-              vertexShader={EARTH_CLOUDS_VERT}
+              vertexShader={DETAIL_VERT}
               fragmentShader={EARTH_CLOUDS_FRAG}
               uniforms={earthCloudUniforms}
               transparent
@@ -1123,7 +989,7 @@ function Planet({ def }: { def: PlanetDef }) {
         {/* Physically-motivated atmosphere: Rayleigh-blue day limb, warm
             terminator, Mie forward scattering — all driven by the live Sun direction. */}
         {def.atmosphere && (
-          <mesh scale={1.042} renderOrder={2}>
+          <mesh scale={def.name === "Mars" ? 1.012 : 1.025} renderOrder={2}>
             <sphereGeometry args={[def.size, 56, 40]} />
             <shaderMaterial
               vertexShader={ATMO_VERT}
@@ -1367,7 +1233,7 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
       { x: 0.29, y: 0.66, rx: 0.02, ry: 0.14, rot: -0.15, biome: "#6e5536" }, // Andes
       // Africa & Sahara
       { x: 0.54, y: 0.44, rx: 0.075, ry: 0.08, rot: 0.05, biome: "#c79e58" }, // Sahara
-      { x: 0.56, y: 0.60, rx: 0.06, ry: 0.13, rot: 0.1, biome: "#326e34" }, // Central/South Africa
+      { x: 0.56, y: 0.6, rx: 0.06, ry: 0.13, rot: 0.1, biome: "#326e34" }, // Central/South Africa
       // Eurasia + Arabian + Tibetan Plateau
       { x: 0.53, y: 0.25, rx: 0.07, ry: 0.07, rot: -0.1, biome: "#3b753c" }, // Europe
       { x: 0.63, y: 0.39, rx: 0.045, ry: 0.05, rot: 0.3, biome: "#c29650" }, // Arabia
@@ -1457,8 +1323,8 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
 
     // Olympus Mons & Tharsis Montes volcanic shield edifices
     const volcanoes = [
-      { x: 0.24, y: 0.40, r: 42 }, // Olympus Mons
-      { x: 0.30, y: 0.46, r: 26 }, // Ascraeus Mons
+      { x: 0.24, y: 0.4, r: 42 }, // Olympus Mons
+      { x: 0.3, y: 0.46, r: 26 }, // Ascraeus Mons
       { x: 0.29, y: 0.51, r: 25 }, // Pavonis Mons
       { x: 0.28, y: 0.56, r: 27 }, // Arsia Mons
     ];
@@ -1537,14 +1403,7 @@ function makeSurfaceTexture(def: PlanetDef): THREE.Texture {
         const x = rand() * W;
         ctx.beginPath();
         ctx.moveTo(x, y);
-        ctx.bezierCurveTo(
-          x + 120,
-          y - 18 + rand() * 36,
-          x + 260,
-          y - 18 + rand() * 36,
-          x + 420,
-          y,
-        );
+        ctx.bezierCurveTo(x + 120, y - 18 + rand() * 36, x + 260, y - 18 + rand() * 36, x + 420, y);
         ctx.stroke();
       }
       ctx.globalAlpha = 1;
@@ -1606,13 +1465,10 @@ function makeRingTexture(name: string, color: string): THREE.Texture {
   for (let x = 0; x < W; x++) {
     const u = x / W;
     let a =
-      0.52 +
-      0.28 * Math.sin(u * 120 + rand() * 0.08) +
-      0.14 * Math.cos(u * 340) +
-      rand() * 0.08;
+      0.52 + 0.28 * Math.sin(u * 120 + rand() * 0.08) + 0.14 * Math.cos(u * 340) + rand() * 0.08;
     // soft inner/outer falloff
     a *= Math.min(1, u * 12) * Math.min(1, (1 - u) * 10);
-    let col = base.clone();
+    const col = base.clone();
 
     if (name === "Saturn") {
       if (u < 0.08) {
@@ -1803,79 +1659,7 @@ void main(){
   #include <logdepthbuf_vertex>
 }`;
 
-const MOON_FRAG = /* glsl */ `
-#include <logdepthbuf_pars_fragment>
-uniform sampler2D uMap;
-uniform vec3 uSun;
-uniform float uTime;
-uniform float uSeed;
-uniform float uStyle;
-uniform float uIrregular;
-varying vec3 vP;
-varying vec3 vN;
-varying vec3 vW;
-varying vec2 vUv;
-
-float h3(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
-float n3(vec3 p){
-  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
-  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),
-             mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);
-}
-float fbm(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<4;i++){ s+=a*n3(p); p*=2.05; a*=0.5; } return s; }
-
-void main(){
-  #include <logdepthbuf_fragment>
-  vec3 N = normalize(vN);
-  vec3 V = normalize(cameraPosition - vW);
-  vec3 L = normalize(uSun - vW);
-  vec3 H = normalize(L + V);
-  float nl = dot(N, L);
-  float day = smoothstep(-0.10, 0.14, nl);
-
-  // Micro-relief normal perturbation
-  float eps = 0.02;
-  float h0 = fbm(vP * 22.0 + uSeed);
-  float hx = fbm((vP + vec3(eps, 0.0, 0.0)) * 22.0 + uSeed);
-  float hy = fbm((vP + vec3(0.0, eps, 0.0)) * 22.0 + uSeed);
-  vec3 bumpN = normalize(N + vec3(h0 - hx, h0 - hy, 0.0) * (uStyle == 6.0 ? 0.05 : 0.55));
-  float lit = clamp(dot(bumpN, L) * 0.90 + 0.12, 0.0, 1.0) * day + 0.035;
-
-  vec3 col = texture2D(uMap, vUv).rgb;
-  vec3 glow = vec3(0.0);
-
-  if (abs(uStyle - 2.0) < 0.1) {
-    // IO: Glowing incandescent molten silicate lava calderas (Loki Patera, Pele) on night side
-    float caldera = smoothstep(0.73, 0.83, fbm(vP * 9.5 + uSeed));
-    float nightGlow = smoothstep(0.15, -0.25, nl);
-    glow = vec3(1.0, 0.32, 0.04) * caldera * (0.35 + 1.15 * nightGlow) * (0.85 + 0.15 * sin(uTime * 2.4 + uSeed));
-  } else if (abs(uStyle - 3.0) < 0.1 || abs(uStyle - 7.0) < 0.1) {
-    // EUROPA & ENCELADUS: Specular icy Fresnel reflection + subsurface scattering feel
-    float iceSpec = pow(max(dot(bumpN, H), 0.0), 42.0) * day * 0.38;
-    col += vec3(0.85, 0.95, 1.0) * iceSpec;
-    if (abs(uStyle - 7.0) < 0.1 && vP.y < -0.62) {
-      // Enceladus South Polar Tiger Stripes warm cryovolcanic fissures
-      float stripe = smoothstep(0.46, 0.52, abs(sin((vP.x + vP.z) * 28.0)));
-      col = mix(col, vec3(0.38, 0.76, 0.98), stripe * 0.65);
-    }
-  } else if (abs(uStyle - 8.0) < 0.1) {
-    // IAPETUS: Yin-yang dark leading hemisphere (Cassini Regio) vs bright trailing ice
-    float cassiniMask = smoothstep(-0.25, 0.35, vP.x + 0.18 * (h0 - 0.5));
-    col = mix(vec3(0.12, 0.09, 0.07), vec3(0.90, 0.88, 0.84), cassiniMask);
-  } else if (abs(uStyle - 10.0) < 0.1) {
-    // CHARON: Reddish-brown tholin north polar hood (Mordor Macula)
-    float mordor = smoothstep(0.58, 0.78, vP.y + 0.12 * (h0 - 0.5));
-    col = mix(col, vec3(0.48, 0.22, 0.15), mordor * 0.78);
-  }
-
-  if (uIrregular > 0.5) {
-    // Parallel grooves (Phobos) & sponge-like deep pits (Hyperion)
-    float grooves = 0.90 + 0.10 * sin((vP.x + vP.y) * 65.0 + h0 * 6.0);
-    col *= grooves;
-  }
-
-  gl_FragColor = vec4(col * lit + glow, 1.0);
-}`;
+const MOON_FRAG = DETAIL_FRAG;
 
 const MOON_TEX_CACHE = new Map<string, THREE.Texture>();
 
@@ -1968,7 +1752,15 @@ function makeMoonSurfaceTexture(name: string, parent: string, color: string): TH
     for (let i = 0; i < 12; i++) {
       ctx.fillStyle = i % 2 === 0 ? "rgba(75, 65, 54, 0.55)" : "rgba(215, 206, 192, 0.55)";
       ctx.beginPath();
-      ctx.ellipse(rand() * W, rand() * H, 45 + rand() * 75, 25 + rand() * 40, rand() * Math.PI, 0, Math.PI * 2);
+      ctx.ellipse(
+        rand() * W,
+        rand() * H,
+        45 + rand() * 75,
+        25 + rand() * 40,
+        rand() * Math.PI,
+        0,
+        Math.PI * 2,
+      );
       ctx.fill();
     }
   } else if (name === "Callisto") {
@@ -2064,9 +1856,8 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const setVisit = useStore((s) => s.setVisitPlanet);
   const mKey = moonKey(parent, moon.name);
 
-  const surface = useMemo(
-    () => makeMoonSurfaceTexture(moon.name, parent, moon.color),
-    [moon.name, parent, moon.color],
+  const surface = useSolarMap(moon.name, () =>
+    makeMoonSurfaceTexture(moon.name, parent, moon.color),
   );
   const isIrregular = !MAJOR_ROUND_MOONS.has(moon.name);
 
@@ -2077,9 +1868,12 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       uTime: { value: 0 },
       uSeed: { value: (hashSeed(mKey) % 1000) / 29 },
       uStyle: { value: MOON_STYLE_MAP[moon.name] ?? 0 },
+      uGas: { value: moon.name === "Titan" ? 1 : 0 },
+      uPlanetId: { value: 0 },
+      uRelief: { value: moon.size * 0.006 },
       uIrregular: { value: isIrregular ? 1.0 : 0.0 },
     }),
-    [surface, mKey, moon.name, isIrregular],
+    [surface, mKey, moon.name, moon.size, isIrregular],
   );
 
   const titanAtmoUniforms = useMemo(
@@ -2104,7 +1898,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const local = useMemo(() => new THREE.Vector3(), []);
   const parentPos = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (!ref.current) return;
     const t = clock.elapsedTime;
     const phys = JPL_PLANETS_PHYSICAL[parent]?.moons.find((m) => m.name === moon.name);
@@ -2135,8 +1929,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
 
     // Tidally locked synchronous rotation (faces parent planet) or chaotic spin for Hyperion
     if (bodyRef.current) {
-      bodyRef.current.rotation.y =
-        moon.name === "Hyperion" ? t * 0.9 : -angNow + Math.PI * 0.5;
+      bodyRef.current.rotation.y = moon.name === "Hyperion" ? t * 0.9 : -angNow + Math.PI * 0.5;
     }
 
     ref.current.getWorldPosition(tmp);
@@ -2154,6 +1947,15 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     }
     v.copy(tmp);
 
+    ref.current.visible = camera.position.distanceTo(tmp) < moon.size * mag * 1800;
+    const liveDistance =
+      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
+      useStore.getState().cameraDistance;
+    if (liveDistance > 25) {
+      getTrailSamples(mKey).length = 0;
+      prev.current = null;
+      return;
+    }
     // Fast moons sweep tens of degrees per frame; sub-sample the true orbit
     // between frames so the trail is a smooth curve instead of a zig-zag.
     const par = ref.current.parent;
@@ -2282,8 +2084,38 @@ export function Planets() {
 // so the belts shear differentially like the real thing.
 const BELT_K = 31.5; // Kepler: P = a^1.5 years, in sim-clock units (31.5 per year)
 
+const BELT_VERTEX = /* glsl */ `
+#include <common>
+#include <logdepthbuf_pars_vertex>
+attribute vec4 aOrbit; attribute float size;
+uniform float uTime; uniform float uPixelScale;
+varying vec3 vColor; varying float vSeed;
+void main(){
+float angle=aOrbit.y+aOrbit.w*uTime;
+vec3 p=vec3(cos(angle)*aOrbit.x,aOrbit.z,sin(angle)*aOrbit.x);
+vec4 mv=modelViewMatrix*vec4(p,1.0);
+gl_Position=projectionMatrix*mv;
+gl_PointSize=clamp(size*0.018*uPixelScale/max(0.00001,-mv.z),1.0,7.0);
+vColor=color; vSeed=aOrbit.y;
+#include <logdepthbuf_vertex>
+}`;
+const BELT_FRAGMENT = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+varying vec3 vColor; varying float vSeed;
+void main(){
+#include <logdepthbuf_fragment>
+vec2 p=gl_PointCoord*2.0-1.0;
+float edge=0.83+0.10*sin(atan(p.y,p.x)*5.0+vSeed);
+float alpha=1.0-smoothstep(edge-0.18,edge,length(p));
+if(alpha<0.02)discard;
+float light=0.30+0.65*sqrt(max(0.0,1.0-dot(p,p)));
+gl_FragColor=vec4(vColor*light,alpha*0.68);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`;
+
 function MinorBodies() {
-  const { geom, radii, thetas, heights, omegas } = useMemo(() => {
+  const { geom } = useMemo(() => {
     const ASTEROIDS = 1400;
     const KUIPER = 1800;
     const total = ASTEROIDS + KUIPER;
@@ -2295,7 +2127,7 @@ function MinorBodies() {
     const heights = new Float32Array(total);
     const omegas = new Float32Array(total);
     const cAst = new THREE.Color("#a89274");
-    const cKui = new THREE.Color("#7da6c8");
+    const cKui = new THREE.Color("#9c9690");
     const setOrbit = (i: number, rAU: number, z: number) => {
       radii[i] = rAU * AU;
       thetas[i] = Math.random() * Math.PI * 2;
@@ -2328,42 +2160,25 @@ function MinorBodies() {
   }, []);
 
   const pointsRef = useRef<THREE.Points>(null!);
-  const beltTick = useRef(0);
-  useFrame(({ clock }) => {
-    const liveDist =
-      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
-      useStore.getState().cameraDistance;
-    // Beyond 25 ly, the entire Kuiper Belt (< 2.5 ly radius) is sub-pixel;
-    // skip CPU buffer rewrites and GPU uploads while zoomed out to stars/galaxies.
-    if (pointsRef.current) {
-      pointsRef.current.visible = liveDist <= 25;
-    }
-    if (liveDist > 25) return;
-    // Rewriting tens of thousands of belt positions every frame is pure CPU
-    // cost for motion the eye can't resolve; every 3rd frame looks identical.
-    if (beltTick.current++ % 3 !== 0) return;
-    void clock;
-    const t = simTimeYears() * 31.5;
-    const attr = geom.getAttribute("position") as THREE.BufferAttribute;
-    const arr = attr.array as Float32Array;
-    for (let i = 0; i < radii.length; i++) {
-      const a = thetas[i] + omegas[i] * t;
-      arr[i * 3] = Math.cos(a) * radii[i];
-      arr[i * 3 + 1] = heights[i];
-      arr[i * 3 + 2] = Math.sin(a) * radii[i];
-    }
-    attr.needsUpdate = true;
+  const uniforms = useMemo(() => ({ uTime: { value: 0 }, uPixelScale: { value: 1 } }), []);
+  useFrame(({ camera, size, gl }) => {
+    const d = window.__liveCameraDistance ?? useStore.getState().cameraDistance;
+    if (pointsRef.current) pointsRef.current.visible = d <= 25;
+    uniforms.uTime.value = simTimeYears() * 31.5;
+    uniforms.uPixelScale.value =
+      (size.height * gl.getPixelRatio()) /
+      (2 * Math.tan(THREE.MathUtils.degToRad((camera as THREE.PerspectiveCamera).fov / 2)));
   });
-
+  useEffect(() => () => geom.dispose(), [geom]);
   return (
-    <points ref={pointsRef} geometry={geom} frustumCulled={false}>
-      <pointsMaterial
+    <points ref={pointsRef} geometry={geom} frustumCulled={false} raycast={() => {}}>
+      <shaderMaterial
+        uniforms={uniforms}
         vertexColors
-        size={0.18 * P}
-        sizeAttenuation
         transparent
-        opacity={0.85}
         depthWrite={false}
+        vertexShader={BELT_VERTEX}
+        fragmentShader={BELT_FRAGMENT}
       />
     </points>
   );
@@ -2500,6 +2315,13 @@ function useTrail(body: TrailBody) {
     const liveDist =
       (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
       useStore.getState().cameraDistance;
+    const focus = useStore.getState().visitPlanet;
+    const focusRadius = focus ? window.__exoSizes?.get(focus) : undefined;
+    const fade = focusRadius
+      ? THREE.MathUtils.smoothstep(liveDist, focusRadius * 12, focusRadius * 45)
+      : 1;
+    material.uniforms.uOpacity.value = (body.opacity ?? 1) * fade;
+    if (lineRef.current) lineRef.current.visible = liveDist <= 25 && fade > 0.001;
     // Skip GPU buffer uploads for Solar System trails when zoomed out to galactic scales (> 25 ly)
     if (liveDist > 25) {
       const queued = trailSamples().get(body.name);
@@ -2581,14 +2403,14 @@ function useTrail(body: TrailBody) {
 }
 
 function Trail({ body }: { body: TrailBody }) {
-  const { geometry, material } = useTrail(body);
+  const { lineRef, geometry, material } = useTrail(body);
   const line = useMemo(() => {
     const l = new THREE.Line(geometry, material);
     l.renderOrder = 999;
     l.frustumCulled = false;
     return l;
   }, [geometry, material]);
-  return <primitive object={line} />;
+  return <primitive ref={lineRef} object={line} />;
 }
 
 export function MotionTrails() {

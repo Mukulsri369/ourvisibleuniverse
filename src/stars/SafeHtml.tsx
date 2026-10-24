@@ -115,6 +115,7 @@ export const SafeHtml = React.forwardRef<HTMLDivElement, SafeHtmlProps>(
     const { gl, camera, scene, size, events } = useThree();
     const [el] = React.useState(() => document.createElement(as));
     const root = React.useRef<ReactDOM.Root | null>(null);
+    const pendingUnmount = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const group = React.useRef<THREE.Group>(null);
     const oldZoom = React.useRef(0);
     const oldPosition = React.useRef<[number, number]>([0, 0]);
@@ -125,7 +126,9 @@ export const SafeHtml = React.forwardRef<HTMLDivElement, SafeHtmlProps>(
     React.useLayoutEffect(() => {
       if (!group.current) return;
 
-      const currentRoot = (root.current = ReactDOM.createRoot(el));
+      if (pendingUnmount.current !== null) clearTimeout(pendingUnmount.current);
+      pendingUnmount.current = null;
+      const currentRoot = (root.current ??= ReactDOM.createRoot(el));
       scene.updateMatrixWorld();
 
       const vec = calculatePosition(group.current, camera, size);
@@ -140,24 +143,23 @@ export const SafeHtml = React.forwardRef<HTMLDivElement, SafeHtmlProps>(
       }
 
       return () => {
-        if (target && target.contains(el)) {
-          target.removeChild(el);
-        }
+        el.parentNode?.removeChild(el);
         // CRITICAL REACT 19 FIX: Defer unmounting to the next macrotask to prevent
         // "Attempted to synchronously unmount a root while React was already rendering"
-        setTimeout(() => {
+        pendingUnmount.current = setTimeout(() => {
           try {
             currentRoot.unmount();
+            if (root.current === currentRoot) root.current = null;
           } catch {
             // Root might already have unmounted
           }
         }, 0);
       };
-    }, [target]);
+    }, [target, calculatePosition, camera, el, prepend, scene, size]);
 
     React.useLayoutEffect(() => {
       if (wrapperClass) el.className = wrapperClass;
-    }, [wrapperClass]);
+    }, [wrapperClass, el]);
 
     const styles: React.CSSProperties = React.useMemo(() => {
       return {

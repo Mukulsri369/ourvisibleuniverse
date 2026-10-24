@@ -943,8 +943,9 @@ export function Andromeda() {
   // Detail continuous LOD with hysteresis and smooth alpha crossfade
   const detailRef = useRef<THREE.Group>(null!);
   const camWorld = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ clock, camera }) => {
+  useFrame(({ clock, camera, gl }) => {
     shader.uniforms.uTime.value = clock.elapsedTime;
+    shader.uniforms.uPixelRatio.value = gl.getPixelRatio();
     if (detailRef.current) {
       detailRef.current.getWorldPosition(camWorld);
       const lodState = lodManager.evaluate(
@@ -954,6 +955,26 @@ export function Andromeda() {
         { objectRadiusLy: M31_DISK_RADIUS, enterHighDetailPixels: 52, exitHighDetailPixels: 26 },
         size.height,
       );
+      // Angularly small background galaxies need fewer points, not their
+      // close-inspection budget. Keep every model mounted for seamless visits.
+      const distance = camera.position.distanceTo(camWorld);
+      const fraction = THREE.MathUtils.clamp(
+        (M31_DISK_RADIUS * 4) / Math.max(distance, 1),
+        0.12,
+        1,
+      );
+      for (const geometry of [
+        diskGeo,
+        ringGeo,
+        bulgeGeo,
+        barGeo,
+        hiiGeo,
+        haloGeo,
+        dustGeo,
+        satGeo,
+      ]) {
+        geometry.setDrawRange(0, Math.floor(geometry.getAttribute("position").count * fraction));
+      }
       shader.uniforms.uOpacity.value = lodState.alphaNear;
       detailRef.current.visible = subsystems.andromeda && lodState.isDetailedVisible;
     }

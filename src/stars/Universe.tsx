@@ -330,7 +330,7 @@ function ObservationalGalaxyNode({
 
   return (
     <group position={pos}>
-      <mesh ref={meshRef} rotation={rot} frustumCulled={false}>
+      <mesh ref={meshRef} rotation={rot} frustumCulled>
         <planeGeometry args={[renderSize, renderSize]} />
         <meshBasicMaterial
           ref={matRef}
@@ -344,53 +344,55 @@ function ObservationalGalaxyNode({
       </mesh>
 
       {/* Invisible pick target */}
-      <mesh onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
+      <mesh visible={false} onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
         <sphereGeometry args={[pickRadius, 10, 10]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* Interactive Tooltip HUD */}
-      <Billboard>
-        <Html center zIndexRange={[15, 0]} style={{ pointerEvents: "none" }}>
-          <div
-            style={{
-              opacity: hovered ? 1 : 0,
-              transform: "translate(12px, -12px)",
-              color: "#ffffff",
-              fontSize: 13,
-              fontFamily: "Inter, system-ui, sans-serif",
-              letterSpacing: 0.5,
-              whiteSpace: "nowrap",
-              padding: "5px 10px",
-              borderLeft: "2px solid rgba(120,180,255,0.9)",
-              background: "rgba(6,9,22,0.85)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
-              transition: "opacity 150ms ease-out",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <span className="font-medium text-white">{g.name}</span>
-              {hasDetail && (
-                <span className="rounded bg-sky-500/20 px-1 py-0.5 text-[9px] uppercase tracking-wider text-sky-300">
-                  ✦ 3D Model
-                </span>
-              )}
+      {/* Mount the tooltip only while hovered; hidden roots must not track the camera. */}
+      {hovered && (
+        <Billboard>
+          <Html center zIndexRange={[15, 0]} style={{ pointerEvents: "none" }}>
+            <div
+              style={{
+                opacity: hovered ? 1 : 0,
+                transform: "translate(12px, -12px)",
+                color: "#ffffff",
+                fontSize: 13,
+                fontFamily: "Inter, system-ui, sans-serif",
+                letterSpacing: 0.5,
+                whiteSpace: "nowrap",
+                padding: "5px 10px",
+                borderLeft: "2px solid rgba(120,180,255,0.9)",
+                background: "rgba(6,9,22,0.85)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+                transition: "opacity 150ms ease-out",
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-white">{g.name}</span>
+                {hasDetail && (
+                  <span className="rounded bg-sky-500/20 px-1 py-0.5 text-[9px] uppercase tracking-wider text-sky-300">
+                    ✦ 3D Model
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: 10, opacity: 0.75, marginTop: 3 }}>
+                {g.morphologyClass ? `${g.morphologyClass} · ` : ""}
+                {g.type} · {distLabel}
+              </div>
+              <div style={{ fontSize: 9, opacity: 0.55, marginTop: 1 }}>
+                {g.redshift < 0
+                  ? `z = ${g.redshift.toFixed(6)} (Blueshifted)`
+                  : `z = ${g.redshift.toFixed(g.redshift > 1 ? 3 : 5)}`}
+                {g.hostGroup ? ` · ${g.hostGroup}` : ""}
+              </div>
             </div>
-            <div style={{ fontSize: 10, opacity: 0.75, marginTop: 3 }}>
-              {g.morphologyClass ? `${g.morphologyClass} · ` : ""}
-              {g.type} · {distLabel}
-            </div>
-            <div style={{ fontSize: 9, opacity: 0.55, marginTop: 1 }}>
-              {g.redshift < 0
-                ? `z = ${g.redshift.toFixed(6)} (Blueshifted)`
-                : `z = ${g.redshift.toFixed(g.redshift > 1 ? 3 : 5)}`}
-              {g.hostGroup ? ` · ${g.hostGroup}` : ""}
-            </div>
-          </div>
-        </Html>
-      </Billboard>
+          </Html>
+        </Billboard>
+      )}
     </group>
   );
 }
@@ -475,6 +477,7 @@ export const NAMED_GALAXIES = NEARBY_GALAXIES.map((g) => ({
 // -----------------------------------------------------------------------------
 
 function ObservableUniverseShell() {
+  const ref = useRef<THREE.Mesh>(null!);
   const geo = useMemo(() => new THREE.SphereGeometry(4.65e10, 48, 32), []);
   const mat = useMemo(
     () =>
@@ -483,7 +486,7 @@ function ObservableUniverseShell() {
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
-        uniforms: { uTime: { value: 0 } },
+        uniforms: { uTime: { value: 0 }, uOpacity: { value: 0 } },
         vertexShader: /* glsl */ `
           varying vec3 vN;
           void main(){
@@ -493,6 +496,7 @@ function ObservableUniverseShell() {
         `,
         fragmentShader: /* glsl */ `
           uniform float uTime;
+          uniform float uOpacity;
           varying vec3 vN;
           float hash(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
           float noise(vec3 p){
@@ -508,13 +512,19 @@ function ObservableUniverseShell() {
             vec3 warm = vec3(1.0, 0.55, 0.35);
             vec3 cool = vec3(0.35, 0.55, 1.0);
             vec3 col = mix(cool, warm, n);
-            gl_FragColor = vec4(col * 0.28, 0.55);
+            gl_FragColor = vec4(col * 0.28, 0.55 * uOpacity);
           }
         `,
       }),
     [],
   );
-  return <mesh geometry={geo} material={mat} frustumCulled={false} />;
+  useFrame(({ camera }) => {
+    // The horizon is a cosmic-scale diagram, not luminous fog around planets.
+    const opacity = THREE.MathUtils.smoothstep(camera.position.length(), 1e9, 2e10);
+    mat.uniforms.uOpacity.value = opacity;
+    if (ref.current) ref.current.visible = opacity > 0.001;
+  });
+  return <mesh ref={ref} visible={false} geometry={geo} material={mat} frustumCulled={false} />;
 }
 
 // -----------------------------------------------------------------------------

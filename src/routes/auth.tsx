@@ -7,6 +7,13 @@ import { Input } from "@/components/ui/input";
 import { lovable } from "@/integrations/lovable";
 import { supabase } from "@/integrations/supabase/client";
 import { oauthReturnPath } from "@/lib/oauth-return-path";
+import {
+  authDestination,
+  googleAuthCallback,
+  readAuthNext,
+  saveAuthNext,
+  clearAuthNext,
+} from "@/lib/auth-navigation";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>) => {
@@ -46,9 +53,8 @@ function AuthPage() {
     const go = () => {
       if (leaving.current) return;
       leaving.current = true;
-      const target =
-        next ?? sessionStorage.getItem("auth_next") ?? (isStudentFlow ? "/learn" : "/universe");
-      sessionStorage.removeItem("auth_next");
+      const target = authDestination(next, readAuthNext(), isStudentFlow);
+      clearAuthNext();
       // One full navigation avoids racing React updates during sign-in.
       window.location.replace(target);
     };
@@ -96,11 +102,13 @@ function AuthPage() {
     else await navigate({ to: isStudentFlow ? "/learn" : "/universe" });
   };
   const google = async () => {
-    if (next) sessionStorage.setItem("auth_next", next);
+    if (busy || leaving.current) return;
+    const destination = authDestination(next, undefined, isStudentFlow);
+    saveAuthNext(destination);
     setBusy(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + "/auth",
+        redirect_uri: googleAuthCallback(window.location.origin, destination),
       });
       if (result.error) {
         toast.error(result.error.message || "Google sign-in failed. Please try again.");
@@ -114,9 +122,8 @@ function AuthPage() {
       }
       if (leaving.current) return;
       leaving.current = true;
-      const saved =
-        next ?? sessionStorage.getItem("auth_next") ?? (isStudentFlow ? "/learn" : "/universe");
-      sessionStorage.removeItem("auth_next");
+      const saved = authDestination(next, readAuthNext(), isStudentFlow);
+      clearAuthNext();
       window.location.replace(saved);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Google sign-in failed.");
@@ -155,7 +162,13 @@ function AuthPage() {
             ? "Sign in or create your free account to track verified academy achievements."
             : "Sign in to purchase or use your access pass."}
         </p>
-        <Button onClick={google} variant="outline" className="mt-8 w-full">
+        <Button
+          onClick={google}
+          disabled={busy}
+          aria-busy={busy}
+          variant="outline"
+          className="mt-8 w-full"
+        >
           Continue with Google
         </Button>
         <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">

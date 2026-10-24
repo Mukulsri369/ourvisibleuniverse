@@ -1,0 +1,562 @@
+/* The scene contract follows the taste-skill stage: native scroll, sticky stage, and a readable rest state. */
+.ovu-landing {
+  --ovu-ground: #080a0b;
+  --ovu-ink: #f0f1ed;
+  --ovu-accent: #c2dcd6;
+  --ovu-paper: #dedfd7;
+  --ovu-dark: #14191b;
+  --ovu-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ovu-exp-hero {
+  position: relative;
+  background: var(--ovu-ground);
+}
+.ovu-exp-stage {
+  position: relative;
+  min-height: 940px;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ovu-ground);
+}
+.ovu-exp-hero.is-live {
+  height: calc((var(--hold, 1.35) + 1) * 100svh);
+}
+.ovu-exp-hero.is-live > .scene-stage {
+  position: sticky;
+  top: 0;
+  min-height: 0;
+  height: 100svh;
+}
+.ovu-exp-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  transform: translateX(12%);
+  transform-origin: 58% 48%;
+  will-change: transform;
+}
+.ovu-exp-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.ovu-live-lens {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 800ms;
+}
+.ovu-exp-art.is-ready .ovu-live-lens {
+  opacity: 1;
+}
+.ovu-exp-art.is-ready > .ovu-exp-poster {
+  opacity: 0;
+}
+.ovu-exp-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(/* taste-skill-ignore: neutral image scrim */
+    /* taste-skill-ignore: neutral contrast scrim over the real astronomy image */ 90deg,
+    rgba(8, 10, 11, 0.93),
+    rgba(8, 10, 11, 0.26) 63%,
+    rgba(8, 10, 11, 0.05)
+  );
+}
+.ovu-exp-opening {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 170px;
+  z-index: 3;
+  pointer-events: none;
+}
+.ovu-exp-opening h1 {
+  font-size: clamp(64px, 8.7vw, 140px);
+  line-height: 0.94;
+  letter-spacing: -0.065em;
+  max-width: 1040px;
+}
+.ovu-exp-opening p,
+.ovu-exp-arrival p {
+  font-size: 18px;
+  max-width: 360px;
+  margin-top: 36px;
+}
+.ovu-exp-opening .ovu-button,
+.ovu-exp-arrival .ovu-button {
+  margin-top: 30px;
+  pointer-events: auto;
+}
+.ovu-exp-arrival {
+  display: none;
+  position: absolute;
+  inset-inline: 0;
+  bottom: 145px;
+  z-index: 3;
+  max-width: 850px;
+}
+.ovu-exp-hero.is-live .ovu-exp-arrival {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+}
+.ovu-exp-arrival h2 {
+  font-size: var(--ovu-heading);
+}
+.ovu-exp-lens-zone {
+  position: absolute;
+  right: 0;
+  top: 100px;
+  bottom: 150px;
+  width: 48%;
+  z-index: 2;
+  touch-action: pan-y;
+}
+.ovu-exp-hero-bottom {
+  position: absolute;
+  bottom: 34px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  z-index: 4;
+}
+.ovu-exp-hero-bottom p {
+  font-size: 16px;
+}
+.ovu-lens-control {
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  min-height: 50px;
+  border: 0;
+  border-radius: 0;
+  background: var(--ovu-ink);
+  color: var(--ovu-dark);
+  font-size: 16px;
+  padding: 12px 22px;
+  transition:
+    translate 350ms var(--ovu-ease),
+    background-color 180ms;
+}
+.ovu-lens-control[aria-pressed="true"] {
+  background: var(--ovu-accent);
+}
+.ovu-context-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  margin: -50px 0 0 -50px;
+  border-radius: 50%;
+  background: var(--ovu-accent);
+  color: var(--ovu-dark);
+  font:
+    500 16px/1.2 "Albert Sans",
+    Arial,
+    sans-serif;
+  text-align: center;
+  padding: 14px;
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 160ms,
+    scale 350ms var(--ovu-ease);
+  will-change: transform;
+}
+.ovu-context-cursor[data-visible="true"] {
+  opacity: 1;
+  scale: 1;
+}
+.ovu-button {
+  transition:
+    translate 400ms var(--ovu-ease),
+    transform 250ms,
+    background-color 180ms;
+}
+.ovu-product-image {
+  transition: transform 500ms var(--ovu-ease);
+  transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+}
+.ovu-product-image:hover img {
+  transform: scale(1.055);
+}
+.ovu-observatory {
+  background: #101617;
+  padding-top: 140px;
+}
+.ovu-observatory > .ovu-section-heading h2 {
+  font-size: clamp(38px, 6vw, 88px);
+}
+.ovu-destination-controls {
+  max-width: none;
+  gap: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 32px;
+}
+.ovu-destination-controls button {
+  padding: 0 0 16px;
+  gap: 20px;
+  background: none;
+  opacity: 0.5;
+  transition:
+    opacity 300ms,
+    transform 500ms var(--ovu-ease);
+}
+.ovu-destination-controls button:hover {
+  background: none;
+  opacity: 1;
+  transform: translateY(-4px);
+}
+.ovu-destination-controls button[aria-pressed="true"],
+.ovu-destination-controls button[aria-pressed="true"]:hover {
+  background: none;
+  color: var(--ovu-ink);
+  opacity: 1;
+}
+.ovu-destination-controls img {
+  height: auto;
+  aspect-ratio: 2.5/1;
+  object-fit: cover;
+}
+.ovu-destination-controls button > span {
+  padding: 0;
+}
+.ovu-destination {
+  min-height: 740px;
+}
+.ovu-destination > img {
+  transition:
+    opacity 400ms,
+    transform 1.2s var(--ovu-ease);
+}
+.ovu-destination:hover > img {
+  transform: scale(1.025);
+}
+.ovu-atlas-pictures {
+  margin-top: 32px;
+  gap: 32px;
+}
+.ovu-observatory-links {
+  margin-top: 40px;
+}
+.ovu-academy-scene {
+  position: relative;
+  background: var(--ovu-paper);
+  color: var(--ovu-dark);
+}
+.ovu-academy-stage {
+  position: relative;
+  min-height: 900px;
+  padding: 110px var(--ovu-gutter);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8vw;
+  align-items: center;
+  overflow: hidden;
+}
+.ovu-academy-window {
+  height: 680px;
+  overflow: hidden;
+}
+.ovu-academy-window img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ovu-academy-opening h2 {
+  font-size: var(--ovu-heading);
+}
+.ovu-academy-opening > p {
+  font-size: 18px;
+  max-width: 470px;
+  margin-top: 32px;
+}
+.ovu-academy-opening .ovu-button {
+  background: var(--ovu-dark);
+  color: var(--ovu-ink);
+}
+.ovu-academy-arrival {
+  display: none;
+}
+.ovu-academy-shade {
+  display: none;
+}
+.ovu-academy-scene.is-live {
+  height: calc((var(--hold, 1) + 1) * 100svh);
+}
+.ovu-academy-scene.is-live .ovu-academy-stage {
+  position: sticky;
+  top: 0;
+  min-height: 0;
+  height: 100svh;
+  padding: 0;
+  display: block;
+}
+.ovu-academy-scene.is-live .ovu-academy-window {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  clip-path: inset(14% 53% 14% 3%);
+}
+
+.ovu-academy-scene.is-live .ovu-academy-opening {
+  position: absolute;
+  top: 26%;
+  left: 54%;
+  width: 40%;
+  padding-right: var(--ovu-gutter);
+}
+.ovu-academy-scene.is-live .ovu-academy-shade {
+  display: block;
+  position: absolute;
+  inset: 0;
+  background: #080a0b;
+  opacity: 0;
+  pointer-events: none;
+}
+.ovu-academy-scene.is-live .ovu-academy-arrival {
+  display: block;
+  position: absolute;
+  left: var(--ovu-gutter);
+  bottom: 100px;
+  max-width: 790px;
+  color: var(--ovu-ink);
+  opacity: 0;
+  visibility: hidden;
+}
+.ovu-academy-arrival h3 {
+  font-size: var(--ovu-heading) !important;
+}
+.ovu-academy-arrival p {
+  font-size: 18px;
+  max-width: 390px;
+  margin-top: 30px;
+}
+.ovu-academy-arrival .ovu-button {
+  margin-top: 30px;
+}
+.ovu-store {
+  background: #151b1d;
+  color: var(--ovu-ink);
+}
+.ovu-store-filters button[aria-pressed="true"],
+.ovu-store-filters button[aria-pressed="true"]:hover {
+  background: var(--ovu-ink);
+  color: var(--ovu-dark);
+}
+.ovu-store-filters button:hover {
+  background: #303b3e;
+}
+.ovu-product-image {
+  background: #dcded5;
+}
+.ovu-product-details {
+  gap: 18px;
+}
+.ovu-product-story {
+  background: #253033;
+  color: var(--ovu-ink);
+}
+.ovu-product-no-photo .ovu-product-image {
+  aspect-ratio: auto;
+  min-height: 170px;
+  background: transparent;
+}
+.ovu-product-no-photo .ovu-product-story {
+  padding: 30px;
+  min-height: 230px;
+  gap: 24px;
+}
+.ovu-product-no-photo .ovu-product-story > span:first-child {
+  font-size: var(--ovu-subhead);
+}
+.ovu-product-no-photo .ovu-product-story > span:nth-child(2) {
+  max-width: 560px;
+}
+.ovu-product-featured.ovu-product-no-photo .ovu-product-image {
+  min-height: 170px;
+}
+.ovu-product-grid {
+  gap: 64px 32px;
+}
+.ovu-community {
+  background: var(--ovu-paper);
+}
+.ovu-community h2 {
+  max-width: 1100px;
+}
+.ovu-landing > footer > div > div:first-child > div:first-child p:first-child {
+  font-size: clamp(38px, 6.2vw, 90px) !important;
+  max-width: 940px;
+  letter-spacing: -0.06em;
+}
+.ovu-landing > footer {
+  padding-block: 100px 60px;
+}
+@media (min-width: 768px) {
+  .ovu-exp-stage {
+    min-height: 900px;
+  }
+  .ovu-exp-hero.is-live .ovu-exp-stage {
+    min-height: 0;
+  }
+}
+@media (max-width: 999px) {
+  .ovu-academy-stage {
+    min-height: 0;
+    padding-block: 80px;
+    gap: 40px;
+  }
+  .ovu-academy-window {
+    height: 580px;
+  }
+  .ovu-academy-opening h2 {
+    font-size: 46px;
+  }
+}
+@media (max-width: 767px) {
+  .ovu-exp-stage {
+    min-height: max(800px, 100svh);
+    height: auto;
+  }
+  .ovu-exp-art {
+    transform: none;
+  }
+  .ovu-exp-poster {
+    object-position: 60% center;
+  }
+  .ovu-exp-opening {
+    top: 180px;
+    bottom: auto;
+  }
+  .ovu-exp-opening h1 {
+    font-size: 58px;
+    max-width: 400px;
+  }
+  .ovu-exp-opening p {
+    max-width: 320px;
+    margin-top: 30px;
+  }
+  .ovu-exp-hero-bottom {
+    bottom: 30px;
+    gap: 25px;
+    align-items: start;
+  }
+  .ovu-exp-hero-bottom p {
+    max-width: 150px;
+  }
+  .ovu-lens-control {
+    padding: 12px 16px;
+    gap: 15px;
+    font-size: 16px;
+    max-width: 180px;
+  }
+  .ovu-exp-lens-zone {
+    inset: 460px 0 125px;
+    width: 100%;
+  }
+  .ovu-exp-scrim {
+    background: rgba(8, 10, 11, 0.45);
+  }
+  .ovu-observatory {
+    padding-top: 80px;
+  }
+  .ovu-destination-controls {
+    gap: 12px;
+  }
+  .ovu-destination-controls button {
+    gap: 14px;
+  }
+  .ovu-destination-controls img {
+    aspect-ratio: 1.6/1;
+  }
+  .ovu-destination {
+    min-height: 560px;
+  }
+  .ovu-atlas-pictures {
+    gap: 30px;
+  }
+  .ovu-academy-stage {
+    grid-template-columns: 1fr;
+    padding-block: 70px;
+  }
+  .ovu-academy-window {
+    height: 460px;
+  }
+  .ovu-academy-opening h2 {
+    font-size: 38px;
+  }
+  .ovu-product-grid {
+    gap: 40px 20px;
+  }
+  .ovu-product-no-photo .ovu-product-story {
+    padding: 20px;
+    min-height: 190px;
+  }
+  .ovu-product-story > span:nth-child(2) {
+    display: none;
+  }
+  .ovu-product-no-photo .ovu-product-story > span:first-child {
+    font-size: 26px;
+  }
+  .ovu-landing > footer > div > div:first-child > div:first-child p:first-child {
+    font-size: 38px !important;
+  }
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .ovu-context-cursor {
+    display: none;
+  }
+  .ovu-product-image {
+    transform: none !important;
+  }
+  .ovu-button,
+  .ovu-lens-control {
+    translate: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ovu-exp-hero,
+  .ovu-academy-scene {
+    height: auto !important;
+  }
+  .ovu-exp-hero .scene-stage,
+  .ovu-academy-scene .scene-stage {
+    position: relative !important;
+  }
+  .ovu-exp-art {
+    transform: none !important;
+  }
+  .ovu-exp-arrival,
+  .ovu-academy-arrival {
+    display: none !important;
+  }
+  .ovu-exp-opening,
+  .ovu-academy-opening {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .ovu-exp-lens-zone {
+    display: none;
+  }
+  .ovu-lens-control {
+    display: none;
+  }
+}
+.ovu-academy-opening h2{font-size:clamp(38px,4.9vw,72px)}
+.ovu-exp-opening h1,.ovu-exp-opening p{pointer-events:auto}.ovu-exp-opening h1{width:fit-content}
+.ovu-product-image{position:relative;aspect-ratio:1/1;overflow:hidden}.ovu-product-featured .ovu-product-image{aspect-ratio:2/1}.ovu-product-image>.ovu-product-story{position:absolute;inset:0;height:100%;transition:opacity 400ms}.ovu-product-image>img{position:absolute;inset:0;opacity:0;transition:opacity 500ms,transform 800ms var(--ovu-ease)}.ovu-product-image[data-image-state=loaded]>img{opacity:1}.ovu-product-image[data-image-state=loaded]>.ovu-product-story{opacity:0}.ovu-product-story>span:nth-child(2){font-size:16px;line-height:1.45}.ovu-product-story>span:first-child{font-size:var(--ovu-subhead)}
+@media(max-width:767px){.ovu-product-story>span:first-child{font-size:24px}.ovu-product-story{padding:18px}}
+.ovu-product-image[data-image-state=loaded]>.ovu-product-story{display:none}
