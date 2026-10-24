@@ -6,7 +6,7 @@ import { Universe } from "./Universe";
 import { Andromeda } from "./Andromeda";
 import { DetailedGalaxies } from "./GalaxyDetail";
 import { Planets, SolarSystem, MotionTrails } from "./Planets";
-import { StarLabels, BinaryMarkers } from "./StarLabels";
+import { StarLabels } from "./StarLabels";
 import { CameraRig } from "./CameraRig";
 import { ExoSystem } from "./ExoSystem";
 import {
@@ -40,8 +40,6 @@ import { useStore } from "./store";
 
 export function StarsApp() {
   const [loaded, setLoaded] = useState(false);
-  const selected = useStore((s) => s.selectedStar);
-  const setSelected = useStore((s) => s.setSelected);
   const uiHidden = useStore((s) => s.uiHidden);
   const subsystems = useStore((s) => s.subsystems);
   const observationModalOpen = useStore((s) => s.observationModalOpen);
@@ -54,12 +52,7 @@ export function StarsApp() {
   }, []);
 
   return (
-    <div
-      className="fixed inset-0 bg-black text-white"
-      onClick={() => {
-        if (selected) setSelected(null);
-      }}
-    >
+    <div className="fixed inset-0 bg-black text-white">
       <Canvas
         style={{ touchAction: "none" }}
         camera={{ fov: 40, near: 1e-10, far: 1e11, position: [4, 2, 6] }}
@@ -86,7 +79,6 @@ export function StarsApp() {
           {subsystems.planets && <MotionTrails />}
           <OrientationDisc />
           <StarField />
-          <BinaryMarkers />
           <StarLabels />
           <CameraRig />
           <OpticsPostProcessing />
@@ -94,7 +86,6 @@ export function StarsApp() {
       </Canvas>
 
       {/* Performance profiler HUD is not shown on screen */}
-
 
       {/* Hide toggle stays visible so users can bring the UI back */}
       <UIHideToggle />

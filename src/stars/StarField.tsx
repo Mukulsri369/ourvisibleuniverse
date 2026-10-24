@@ -1,3 +1,4 @@
+import { stellarDisplayRadius } from "./camera-navigation";
 /**
  * ESA Gaia DR3 Milky Way Star Atlas & Multi-Resolution StarField
  *
@@ -16,7 +17,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { useStore } from "./store";
 import { backgroundFocus } from "./sim-clock";
 import { gaiaTileManager } from "@/lib/astronomy/gaia/gaia-tile-manager";
@@ -32,13 +33,13 @@ export function StarField() {
   const materialRef = useRef<THREE.ShaderMaterial>(null!);
 
   const isMobile = useIsMobile();
+  const viewportHeight = useThree((s) => s.size.height);
   const spectralMode = useStore((s) => s.spectralMode);
   const properMotionYears = useStore((s) => s.properMotionYears);
   const starLODTier = useStore((s) => s.starLODTier);
   const showSkyDirection = useStore((s) => s.showSkyDirectionLayer);
   const showProcedural = useStore((s) => s.showProceduralStars);
   const selectedStar = useStore((s) => s.selectedStar);
-  const setSelected = useStore((s) => s.setSelected);
   const flyToStar = useStore((s) => s.flyToStar);
 
   // Optics & Observer mode hooks
@@ -241,7 +242,7 @@ export function StarField() {
   }, [catalogStars, showProcedural, isMobile, maxCapacity, buffers, geometry, starLookupRef]);
 
   // Frame animation: update uniforms & camera LOD streaming with velocity debounce
-  useFrame(({ clock, camera }, dt) => {
+  useFrame(({ clock, camera, gl }, dt) => {
     spectralTarget.current = spectralMode ? 1 : 0;
     spectralBlend.current += (spectralTarget.current - spectralBlend.current) * 0.05;
 
@@ -268,6 +269,14 @@ export function StarField() {
 
     if (materialRef.current) {
       materialRef.current.uniforms.uTime.value = clock.elapsedTime;
+      materialRef.current.uniforms.uPixelRatio.value = gl.getPixelRatio();
+      const focus = useStore.getState().selectedStar ?? useStore.getState().exoVisit?.star;
+      materialRef.current.uniforms.uSurfaceRadius.value = focus ? stellarDisplayRadius(focus) : 0;
+      materialRef.current.uniforms.uSurfacePosition.value.set(
+        focus?.x ?? 1e20,
+        focus?.y ?? 1e20,
+        focus?.z ?? 1e20,
+      );
       materialRef.current.uniforms.uSpectral.value = spectralBlend.current;
       materialRef.current.uniforms.uCamDist.value = camDist;
       materialRef.current.uniforms.uEpochYears.value = properMotionYears;
@@ -292,6 +301,8 @@ export function StarField() {
         uObserverMode: { value: 0 },
         uScintillation: { value: 0.35 },
         uCinematic: { value: 0 },
+        uSurfacePosition: { value: new THREE.Vector3(1e20, 1e20, 1e20) },
+        uSurfaceRadius: { value: 0 },
       },
       vertexShader: /* glsl */ `
         #include <common>
@@ -309,6 +320,8 @@ export function StarField() {
         uniform float uEpochYears;
         uniform float uPixelRatio;
         uniform float uCamDist;
+        uniform vec3 uSurfacePosition;
+        uniform float uSurfaceRadius;
         uniform float uObserverMode;
         uniform float uScintillation;
 
@@ -354,6 +367,8 @@ export function StarField() {
             vAlpha = clamp(1.0 - (length(mv.xyz) / 4500.0), 0.2, 1.0) * visibility;
           }
 
+          float resolving = 1.0-smoothstep(uSurfaceRadius*60.0,uSurfaceRadius*140.0,length(cameraPosition-uSurfacePosition));
+          if(uSurfaceRadius>0.0 && distance(position,uSurfacePosition)<uSurfaceRadius*0.5) vAlpha*=1.0-resolving;
           gl_Position = projectionMatrix * mv;
           #include <logdepthbuf_vertex>
         }
@@ -399,42 +414,65 @@ export function StarField() {
     [texture],
   );
 
-  // Proximity Raycasting / Picking on catalog star click
-  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    const lookup = starLookupRef.current;
-    if (!e.point || lookup.length === 0) return;
-
-    // Find nearest catalog star to intersection point
-    const clickPoint = e.point;
-    let closestStar: GaiaStarRecord | null = null;
-    let minDistanceSq = 16.0; // Picking radius in light-years
-
-    for (let i = 0; i < lookup.length; i++) {
-      const star = lookup[i];
-      const dx = star.x - clickPoint.x;
-      const dy = star.y - clickPoint.y;
-      const dz = star.z - clickPoint.z;
-      const distSq = dx * dx + dy * dy + dz * dz;
-      if (distSq < minDistanceSq) {
-        minDistanceSq = distSq;
-        closestStar = star;
+  // Points use a fixed pixel hit radius rather than a light-year-wide world
+  // threshold. Run only for click picking; do not scan the catalogue on hover.
+  const raycast = useCallback(
+    (raycaster: THREE.Raycaster, hits: THREE.Intersection[]) => {
+      const object = pointsRef.current;
+      const camera = raycaster.camera as THREE.PerspectiveCamera;
+      if (!object || !camera) return;
+      const origin = raycaster.ray.origin,
+        dir = raycaster.ray.direction;
+      const angular =
+        (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * 6) / Math.max(viewportHeight, 1);
+      const years = useStore.getState().properMotionYears / 1000;
+      let best = -1,
+        score = 1,
+        depth = 0,
+        bx = 0,
+        by = 0,
+        bz = 0;
+      const stars = starLookupRef.current;
+      for (let i = 0; i < stars.length; i++) {
+        const star = stars[i];
+        if (star.isSkyDirectionLayer) continue;
+        const x = star.x + star.properMotion3D.vxLyPerKyr * years;
+        const y = star.y + star.properMotion3D.vyLyPerKyr * years;
+        const z = star.z + star.properMotion3D.vzLyPerKyr * years;
+        const dx = x - origin.x,
+          dy = y - origin.y,
+          dz = z - origin.z;
+        const d = dx * dir.x + dy * dir.y + dz * dir.z;
+        if (d <= Math.max(raycaster.near, camera.near) || d > raycaster.far) continue;
+        const separation = Math.max(0, dx * dx + dy * dy + dz * dz - d * d);
+        const normalized = separation / Math.max(1e-30, d * d * angular * angular);
+        if (normalized < score) {
+          score = normalized;
+          best = i;
+          depth = d;
+          bx = x;
+          by = y;
+          bz = z;
+        }
       }
-    }
+      if (best >= 0)
+        hits.push({ distance: depth, point: new THREE.Vector3(bx, by, bz), index: best, object });
+    },
+    [starLookupRef, viewportHeight],
+  );
 
-    if (closestStar) {
-      setSelected(closestStar);
-      flyToStar(closestStar);
-    }
+  // Select on completed clicks, never on pointer-down while starting an orbit.
+  // The intersection index already addresses the catalogue buffer: no O(n) scan.
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 4 || e.index == null) return;
+    const star = starLookupRef.current[e.index];
+    if (!star || star.isSkyDirectionLayer) return;
+    e.stopPropagation();
+    flyToStar(star);
   };
 
   return (
-    <points
-      ref={pointsRef}
-      geometry={geometry}
-      frustumCulled={false}
-      onPointerDown={handlePointerDown}
-    >
+    <points ref={pointsRef} geometry={geometry} frustumCulled={false} onClick={handleClick}>
       <shaderMaterial ref={materialRef} args={[shader]} />
     </points>
   );

@@ -1,16 +1,20 @@
 // @ts-nocheck
+import { stellarDisplayRadius } from "./camera-navigation";
 import { create } from "zustand";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
 import { GALAXY_BY_NAME, systemViewDistance, systemWorldPosition } from "./galaxy-models";
-import { OBJECT_BY_ID, OBSERVED_OBJECTS, objectPosition, objectVisitDistance } from "./observed-objects";
+import {
+  OBJECT_BY_ID,
+  OBSERVED_OBJECTS,
+  objectPosition,
+  objectVisitDistance,
+} from "./observed-objects";
 import { COSMIC_BENCHMARKS } from "@/lib/astronomy/cosmic-web/survey-catalogs";
 
 function normalizeStar(s: NamedStar | null): NamedStar | null {
   if (!s) return null;
-  const canonical = NAMED_STARS.find(
-    (n) => n.name.toLowerCase() === s.name?.toLowerCase(),
-  );
+  const canonical = NAMED_STARS.find((n) => n.name.toLowerCase() === s.name?.toLowerCase());
   if (canonical) {
     return {
       ...canonical,
@@ -804,8 +808,22 @@ export const useStore = create<State>((set, get) => ({
   flyToStar: (s) => {
     const normStar = normalizeStar(s);
     if (!normStar) return;
+    if (
+      get().selectedStar?.name === normStar.name &&
+      !get().visitPlanet &&
+      !get().cameraFree &&
+      !get().tourActive
+    )
+      return;
     set({
-      flyTo: { x: normStar.x, y: normStar.y, z: normStar.z, distance: 3.5 },
+      flyTo: {
+        x: normStar.x,
+        y: normStar.y,
+        z: normStar.z,
+        distance: stellarDisplayRadius(normStar) * 9,
+      },
+      cameraFree: false,
+      tourActive: false,
       exoVisit: null,
       selectedStar: normStar,
       visitPlanet: null,

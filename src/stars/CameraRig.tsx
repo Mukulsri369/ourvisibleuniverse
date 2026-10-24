@@ -1,6 +1,7 @@
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { nearestOrbitAngle, stellarDisplayRadius } from "./camera-navigation";
 import { useStore, TOUR_STOPS } from "./store";
 import { PLANETS, getPlanetEffectiveSize } from "./Planets";
 import { M31_PLANETS } from "./andromeda-data";
@@ -23,6 +24,7 @@ export function CameraRig() {
   const desired = useRef({ radius: 8, theta: 0, phi: Math.PI / 2.2 });
   const velocity = useRef({ theta: 0, phi: 0 });
   const dragging = useRef(false);
+  const activePointer = useRef<number | null>(null);
   const last = useRef({ x: 0, y: 0 });
   const pinch = useRef<number | null>(null);
   const followedPlanet = useRef<{ name: string; position: THREE.Vector3 } | null>(null);
@@ -57,7 +59,7 @@ export function CameraRig() {
   useEffect(() => {
     if (resetOrientationTrigger > 0) {
       desired.current.phi = Math.PI / 2.2;
-      desired.current.theta = 0;
+      desired.current.theta = nearestOrbitAngle(spherical.current.theta, 0);
       velocity.current.theta = 0;
       velocity.current.phi = 0;
     }
@@ -65,7 +67,10 @@ export function CameraRig() {
 
   const planetMinimumRadius = () => {
     const name = useStore.getState().visitPlanet;
-    if (!name) return minR;
+    if (!name) {
+      const star = useStore.getState().selectedStar;
+      return star ? stellarDisplayRadius(star) * 1.5 : minR;
+    }
     const def =
       PLANETS.find((p) => p.name === name) ??
       M31_PLANETS.find((p) => p.name === name) ??
@@ -87,13 +92,49 @@ export function CameraRig() {
 
   useEffect(() => {
     const el = gl.domElement;
+    const takeControl = () => {
+      const state = useStore.getState();
+      const anchor = state.visitPlanet
+        ? window.__planetPositions?.get(state.visitPlanet)
+        : state.selectedStar
+          ? new THREE.Vector3(state.selectedStar.x, state.selectedStar.y, state.selectedStar.z)
+          : null;
+      if (
+        !anchor ||
+        target.current.distanceTo(anchor) < Math.max(1e-12, desired.current.radius * 0.02)
+      )
+        return;
+      // Interrupt a pending flight at its destination while preserving the camera's
+      // actual world position; manual orbiting then owns this reference frame.
+      target.current.copy(anchor);
+      scratchPos.current.copy(camera.position).sub(anchor);
+      spherical.current.setFromVector3(scratchPos.current);
+      desired.current.radius = Math.max(planetMinimumRadius(), spherical.current.radius);
+      desired.current.theta = spherical.current.theta;
+      desired.current.phi = spherical.current.phi;
+      if (state.visitPlanet)
+        followedPlanet.current = { name: state.visitPlanet, position: anchor.clone() };
+      camera.lookAt(anchor);
+    };
     const onDown = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return;
+      if (e.pointerType === "touch" || e.button !== 0 || activePointer.current !== null) return;
+      takeControl();
+      activePointer.current = e.pointerId;
+      velocity.current.theta = velocity.current.phi = 0;
+      const state = useStore.getState();
+      if (state.tourActive) state.stopTour();
+      if (state.isAutoOrbiting) state.toggleAutoOrbit();
       dragging.current = true;
       last.current = { x: e.clientX, y: e.clientY };
-      el.setPointerCapture(e.pointerId);
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {
+        /* Pointer may have been cancelled. */
+      }
     };
     const onUp = (e: PointerEvent) => {
+      if (activePointer.current !== e.pointerId) return;
+      activePointer.current = null;
       dragging.current = false;
       try {
         el.releasePointerCapture(e.pointerId);
@@ -102,7 +143,9 @@ export function CameraRig() {
       }
     };
     const onMove = (e: PointerEvent) => {
-      if (!dragging.current) return;
+      if (!dragging.current || e.pointerId !== activePointer.current || e.pointerType === "touch")
+        return;
+      if (!Number.isFinite(e.clientX + e.clientY)) return;
       const dx = e.clientX - last.current.x;
       const dy = e.clientY - last.current.y;
       last.current = { x: e.clientX, y: e.clientY };
@@ -134,6 +177,12 @@ export function CameraRig() {
       );
     };
     const onTouchStart = (e: TouchEvent) => {
+      takeControl();
+      dragging.current = true;
+      velocity.current.theta = velocity.current.phi = 0;
+      const state = useStore.getState();
+      if (state.tourActive) state.stopTour();
+      if (state.isAutoOrbiting) state.toggleAutoOrbit();
       if (e.touches.length === 2) {
         const a = e.touches[0],
           b = e.touches[1];
@@ -146,6 +195,11 @@ export function CameraRig() {
         const a = e.touches[0],
           b = e.touches[1];
         const d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        if (d < 2 || !Number.isFinite(d)) return;
+        if (pinch.current < 2) {
+          pinch.current = d;
+          return;
+        }
         const factor = pinch.current / d;
         desired.current.radius = Math.max(
           planetMinimumRadius(),
@@ -166,6 +220,7 @@ export function CameraRig() {
       }
     };
     const onTouchEnd = (e: TouchEvent) => {
+      dragging.current = e.touches.length > 0;
       pinch.current = null;
       const touch = e.touches[0];
       if (touch) last.current = { x: touch.clientX, y: touch.clientY };
@@ -177,7 +232,17 @@ export function CameraRig() {
       }
     };
 
+    const cancel = () => {
+      dragging.current = false;
+      activePointer.current = null;
+      pinch.current = null;
+      velocity.current.theta = velocity.current.phi = 0;
+    };
     el.addEventListener("pointerdown", onDown);
+    el.addEventListener("lostpointercapture", cancel);
+    window.addEventListener("pointercancel", cancel);
+    window.addEventListener("blur", cancel);
+    el.addEventListener("touchcancel", cancel);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointermove", onMove);
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -186,7 +251,12 @@ export function CameraRig() {
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd);
     return () => {
+      cancel();
       el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("lostpointercapture", cancel);
+      window.removeEventListener("pointercancel", cancel);
+      window.removeEventListener("blur", cancel);
+      el.removeEventListener("touchcancel", cancel);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointermove", onMove);
       el.removeEventListener("wheel", onWheel);
@@ -195,7 +265,7 @@ export function CameraRig() {
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
     };
-  }, [gl]);
+  }, [gl, camera]);
 
   // Keyboard zoom — SPACE zooms out, CTRL zooms in. Held keys ramp smoothly
   // via a per-frame factor driven by the user's zoom-speed setting.
@@ -280,7 +350,7 @@ export function CameraRig() {
     // Orbit angle chosen for a pleasant 3/4 view of the star system.
     const offset = new THREE.Vector3(r * 0.6, r * 0.4, r * 0.6);
     const sph = new THREE.Spherical().setFromVector3(offset);
-    desired.current.theta = sph.theta;
+    desired.current.theta = nearestOrbitAngle(spherical.current.theta, sph.theta);
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));
     fovTarget.current = 36;
     // Clear the flyTo flag quickly; selectedStar or freeFlyTarget keeps the camera anchored.
@@ -420,6 +490,7 @@ export function CameraRig() {
       freeFlyTarget.current = null;
       const p = reg?.get(visitPlanet);
       if (p) {
+        scratchTarget.current.copy(p);
         // Carry the camera along with the moving world, then ease away the
         // initial travel distance. Close up, never lag behind its orbit.
         const previous = followedPlanet.current;
@@ -459,7 +530,8 @@ export function CameraRig() {
         expDampVector3(target.current, scratchTarget.current, dist > 5 ? 1.8 : 4.5, clampedDt);
       }
     } else if (!tourActive && selectedStar && selectedStar.name !== "Sun") {
-      freeFlyTarget.current = null;
+      if (!freeFlyTarget.current) freeFlyTarget.current = new THREE.Vector3();
+      freeFlyTarget.current.set(selectedStar.x, selectedStar.y, selectedStar.z);
       // Smoothly sweep the target from wherever we are toward the selected
       // star's system, then keep it anchored there.
       scratchTarget.current.set(selectedStar.x, selectedStar.y, selectedStar.z);
@@ -483,9 +555,17 @@ export function CameraRig() {
 
     // Multiplicative logarithmic interpolation keeps close-up zoom smooth across
     // the enormous gap between a galaxy and a planet's surface.
+    const anchorDistance =
+      visitPlanet ||
+      visitGalaxy ||
+      selectedObjectId ||
+      (selectedStar && selectedStar.name !== "Sun")
+        ? target.current.distanceTo(scratchTarget.current)
+        : 0;
+    const travelRadius = Math.max(desired.current.radius, anchorDistance * 1.2);
     spherical.current.radius = expDampLogRadius(
       spherical.current.radius,
-      desired.current.radius,
+      travelRadius,
       4.5,
       clampedDt,
       minR,
@@ -538,13 +618,7 @@ export function CameraRig() {
       1,
       Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))),
     );
-    if (
-      !tourActive &&
-      !visitPlanet &&
-      !selectedObjectId &&
-      !visitGalaxy &&
-      !(selectedStar && selectedStar.name !== "Sun")
-    ) {
+    if (!tourActive && !visitPlanet && !selectedObjectId && !visitGalaxy && !selectedStar) {
       fovTarget.current = 30 + t * 60;
     }
     const pc = camera as THREE.PerspectiveCamera;

@@ -13,7 +13,7 @@
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import { Billboard, Text } from "@react-three/drei";
+import { Billboard } from "@react-three/drei";
 import { useStore } from "./store";
 import { getSimulationJd, simTimeDays } from "./sim-clock";
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
@@ -152,17 +152,7 @@ export function LagrangePointsOverlay() {
               <octahedronGeometry args={[0.003 * au, 0]} />
               <meshBasicMaterial color={color} wireframe />
             </mesh>
-            <Billboard follow lockX={false} lockY={false} lockZ={false}>
-              <Text
-                position={[0, 0.006 * au, 0]}
-                fontSize={0.004 * au}
-                color={color}
-                anchorX="center"
-                anchorY="bottom"
-              >
-                {`${pt.point} (${pt.system.replace("Sun-", "")})`}
-              </Text>
-            </Billboard>
+            <Billboard follow lockX={false} lockY={false} lockZ={false}></Billboard>
           </group>
         );
       })}
@@ -240,11 +230,7 @@ export function BarycenterOverlay() {
         <ringGeometry args={[0.002 * au, 0.004 * au, 32]} />
         <meshBasicMaterial color="#f59e0b" side={THREE.DoubleSide} transparent opacity={0.8} />
       </mesh>
-      <Billboard position={[0, 0.006 * au, 0]}>
-        <Text fontSize={0.0035 * au} color="#f59e0b" anchorX="center" anchorY="bottom">
-          Solar System Barycenter (SSB)
-        </Text>
-      </Billboard>
+      <Billboard position={[0, 0.006 * au, 0]}></Billboard>
 
       {/* Line connecting SSB to Sun center */}
       <line ref={sunLineRef} geometry={lineGeo}>
@@ -329,11 +315,7 @@ export function InterplanetaryDistanceRuler() {
       <line ref={lineRef} geometry={geo}>
         <lineBasicMaterial color="#38bdf8" linewidth={2} transparent opacity={0.7} />
       </line>
-      <Billboard position={[distInfo.midX, distInfo.midY + 0.005 * au, distInfo.midZ]}>
-        <Text fontSize={0.0035 * au} color="#38bdf8" anchorX="center" anchorY="bottom">
-          {distInfo.text}
-        </Text>
-      </Billboard>
+      <Billboard position={[distInfo.midX, distInfo.midY + 0.005 * au, distInfo.midZ]}></Billboard>
     </group>
   );
 }

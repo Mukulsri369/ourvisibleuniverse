@@ -1,3 +1,5 @@
+import { StellarSurface } from "./StellarSurface";
+import { stellarDisplayRadius } from "./camera-navigation";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -9,7 +11,6 @@ import { useStore } from "./store";
 const AU = 0.05;
 const EARTH_RADIUS_AU = 6371 / 149_597_870.7;
 const EARTH_R = EARTH_RADIUS_AU * AU;
-const SOLAR_R = 0.00465047 * AU;
 
 declare global {
   interface Window {
@@ -134,57 +135,6 @@ void main(){
   // terminator sunset Mie band
   lit += vec3(1.0,0.42,0.18) * rim * smoothstep(0.18,0.0,abs(ndl)) * (uMode>0.5&&uMode<1.5?0.48:0.15);
   gl_FragColor = vec4(lit + emit, 1.0);
-}`;
-
-const HOST_STAR_VERT = /* glsl */ `
-#include <common>
-#include <logdepthbuf_pars_vertex>
-varying vec3 vObj;
-varying vec3 vN;
-varying vec3 vView;
-void main(){
-  vObj = normalize(position);
-  vN = normalize(normalMatrix * normal);
-  vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  vView = normalize(-mv.xyz);
-  gl_Position = projectionMatrix * mv;
-  #include <logdepthbuf_vertex>
-}`;
-
-const HOST_STAR_FRAG = /* glsl */ `
-#include <logdepthbuf_pars_fragment>
-uniform vec3 uBaseColor;
-uniform vec3 uHotColor;
-uniform float uTime;
-uniform float uGranScale;
-varying vec3 vObj;
-varying vec3 vN;
-varying vec3 vView;
-float h(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
-float n3(vec3 p){
-  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
-  return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),
-             mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z);
-}
-float fbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.04; a*=0.5; } return s; }
-void main(){
-  #include <logdepthbuf_fragment>
-  vec3 q = normalize(vObj);
-  float coarse = fbm(q * uGranScale + vec3(0.0, uTime * 0.04, uTime * 0.02));
-  float fine = fbm(q * uGranScale * 2.8 - vec3(uTime * 0.07, 0.0, uTime * 0.05));
-  float gran = clamp(coarse * 0.68 + fine * 0.42, 0.0, 1.0);
-  // Magnetic starspots
-  float spots = smoothstep(0.66, 0.84, fbm(q * 2.6 + vec3(7.1, uTime * 0.015, 2.3)));
-  float mu = max(dot(normalize(vN), normalize(vView)), 0.0);
-  // Eddington-Barbier limb darkening
-  float limb = pow(mu, 0.48);
-  vec3 photosphere = mix(uBaseColor * 0.78, uHotColor * 1.25, gran);
-  photosphere = mix(photosphere, uBaseColor * 0.35, spots * 0.55);
-  photosphere *= (0.45 + 0.75 * limb);
-  // Chromospheric spicules at the limb
-  float rim = pow(1.0 - mu, 3.2);
-  photosphere += uBaseColor * rim * 0.65;
-  gl_FragColor = vec4(photosphere, 1.0);
 }`;
 
 function ExoBody({
@@ -312,97 +262,6 @@ function ExoBody({
 }
 
 /** Host star at its true radius, rendered with animated 3D FBM convective granulation and coronal glow. */
-function HostStar({ radius, temperature }: { radius: number; temperature: number }) {
-  const { baseColor, hotColor, granScale } = useMemo(() => {
-    const t = THREE.MathUtils.clamp(temperature, 2000, 30000);
-    if (t < 3500)
-      return {
-        baseColor: new THREE.Color("#ff6a2b"),
-        hotColor: new THREE.Color("#ffca80"),
-        granScale: 4.5,
-      };
-    if (t < 5000)
-      return {
-        baseColor: new THREE.Color("#ffa24a"),
-        hotColor: new THREE.Color("#ffe6b0"),
-        granScale: 6.5,
-      };
-    if (t < 6200)
-      return {
-        baseColor: new THREE.Color("#ffdfa0"),
-        hotColor: new THREE.Color("#ffffff"),
-        granScale: 9.0,
-      };
-    if (t < 9000)
-      return {
-        baseColor: new THREE.Color("#dce8ff"),
-        hotColor: new THREE.Color("#ffffff"),
-        granScale: 11.0,
-      };
-    return {
-      baseColor: new THREE.Color("#9ec0ff"),
-      hotColor: new THREE.Color("#f0f6ff"),
-      granScale: 13.0,
-    };
-  }, [temperature]);
-
-  const starMaterial = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader: HOST_STAR_VERT,
-        fragmentShader: HOST_STAR_FRAG,
-        uniforms: {
-          uBaseColor: { value: baseColor },
-          uHotColor: { value: hotColor },
-          uTime: { value: 0 },
-          uGranScale: { value: granScale },
-        },
-        toneMapped: false,
-      }),
-    [baseColor, hotColor, granScale],
-  );
-
-  useEffect(() => () => starMaterial.dispose(), [starMaterial]);
-
-  useFrame(({ clock }) => {
-    starMaterial.uniforms.uTime.value = clock.elapsedTime;
-  });
-
-  const displayRadius = Math.max(radius, 0.00018 * SOLAR_R);
-
-  return (
-    <group>
-      <mesh material={starMaterial}>
-        <sphereGeometry args={[displayRadius, 48, 32]} />
-      </mesh>
-      <mesh scale={1.22}>
-        <sphereGeometry args={[displayRadius, 32, 20]} />
-        <meshBasicMaterial
-          color={baseColor}
-          transparent
-          opacity={0.22}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
-      </mesh>
-      <mesh scale={1.65}>
-        <sphereGeometry args={[displayRadius, 28, 18]} />
-        <meshBasicMaterial
-          color={baseColor}
-          transparent
-          opacity={0.08}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
-  );
-}
-
 /** Habitable-zone annulus (green "Goldilocks" band). */
 function HabitableZone({ inner, outer }: { inner: number; outer: number }) {
   return (
@@ -430,11 +289,20 @@ export function ExoSystem() {
     () => new THREE.Vector3(star?.x ?? 0, star?.y ?? 0, star?.z ?? 0),
     [star],
   );
+  const systemRef = useRef<THREE.Group>(null!);
+  const renderDistance = useMemo(
+    () => (sys ? Math.max(sys.hzOuter, ...sys.planets.map((p) => p.aAU), 1) * AU * 20 : 0),
+    [sys],
+  );
+  useFrame(({ camera }) => {
+    if (!systemRef.current || !sys) return;
+    systemRef.current.visible = camera.position.distanceTo(starPos) < renderDistance;
+  });
   if (!star || !sys) return null;
   return (
-    <group position={[star.x, star.y, star.z]}>
+    <group ref={systemRef} position={[star.x, star.y, star.z]}>
       <pointLight intensity={2} distance={0} decay={0} color="#fff4e0" />
-      <HostStar radius={star.radius * SOLAR_R} temperature={star.temperature} />
+      <StellarSurface star={star} radius={stellarDisplayRadius(star)} />
       <HabitableZone inner={sys.hzInner} outer={sys.hzOuter} />
       {sys.planets.map((p) => (
         <ExoBody
