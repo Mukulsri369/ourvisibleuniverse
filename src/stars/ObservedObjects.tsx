@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { motionTimeSeconds, motionDeltaSeconds } from "./sim-clock";
+import { AccretionFlow, NeutronSurface, PlasmaJets } from "./CompactObjectMaterials";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
@@ -251,9 +253,9 @@ function NebulaDetail({
     };
   }, [item, profile, opticsPreset]);
 
-  useFrame((_, dt) => {
+  useFrame(() => {
     if (!group.current) return;
-    const step = Math.min(dt, 0.05);
+    const step = Math.min(motionDeltaSeconds(), 0.05);
     volumetricUniforms.uTime.value += step;
     volumetricUniforms.uCinematic.value = opticsPreset === "cinematic" ? 1.0 : 0.0;
     // Every cloud drifts a little: expanding remnants and outflows are never
@@ -376,281 +378,45 @@ function PulsarDetail({
   profile: ObservedVisualProfile;
   scale: number;
 }) {
-  const rotor = useRef<THREE.Group>(null);
-  const glow = useRef<THREE.Mesh>(null);
-  const companion = useRef<THREE.Group>(null);
-  useFrame(({ clock }, dt) => {
-    const t = clock.elapsedTime;
-    if (rotor.current) rotor.current.rotation.y += Math.min(dt, 0.05) * (profile.spin ?? 1);
-    if (glow.current) {
-      const material = glow.current.material as THREE.MeshBasicMaterial;
-      material.opacity =
-        0.42 +
-        Math.pow(
-          Math.max(0, Math.cos((t * (Math.PI * 2)) / Math.max(profile.pulsePeriod ?? 1, 0.18))),
-          10,
-        ) *
-          0.58;
-    }
-    if (companion.current) companion.current.rotation.y = t * 0.9;
+  const rotor = useRef<THREE.Group>(null!);
+  const companion = useRef<THREE.Group>(null!);
+  useFrame(() => {
+    if (rotor.current)
+      rotor.current.rotation.y += Math.min(motionDeltaSeconds(), 0.05) * (profile.spin ?? 1);
+    if (companion.current)
+      companion.current.rotation.y += Math.min(motionDeltaSeconds(), 0.05) * 0.9;
   });
-  const torus = profile.morphology === "pulsar-torus";
-  const magnetar = profile.morphology === "magnetar";
-  const binary = profile.morphology === "neutron-binary";
   return (
     <group scale={scale} rotation={profile.tilt}>
-      {/* the star itself is tiny and blindingly hot; a small hard sphere with a
-          bright halo reads far more like Chandra/NICER neutron-star imagery */}
-      <mesh ref={glow}>
-        <sphereGeometry args={[0.07, 24, 16]} />
-        <meshBasicMaterial color={item.color} transparent opacity={0.95} />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[0.14, 24, 16]} />
-        <meshBasicMaterial
-          color={item.color}
-          transparent
-          opacity={0.22}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-      <group ref={rotor} rotation-z={profile.beamTilt ?? 0.45}>
-        {[-1, 1].map((sign) => (
-          <mesh key={sign} position={[0, sign * 0.65, 0]} rotation-z={sign > 0 ? 0 : Math.PI}>
-            <coneGeometry args={[0.13, 1.2, 20, 1, true]} />
-            <meshBasicMaterial
-              color={item.accent}
-              transparent
-              opacity={0.22}
-              side={THREE.DoubleSide}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-        ))}
-        {/* incandescent magnetic polar caps where the beams are launched */}
-        {[-1, 1].map((sign) => (
-          <mesh key={`cap${sign}`} position={[0, sign * 0.065, 0]}>
-            <sphereGeometry args={[0.035, 14, 10]} />
-            <meshBasicMaterial color={item.accent} />
-          </mesh>
-        ))}
-        {/* closed dipole field loops of the magnetosphere */}
-        {[0, 1, 2, 3, 4, 5].map((n) => (
-          <mesh key={`fl${n}`} rotation-y={(n / 6) * Math.PI}>
-            <torusGeometry args={[0.2, 0.0035, 6, 60]} />
-            <meshBasicMaterial
-              color={item.accent}
-              transparent
-              opacity={0.3}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-        ))}
+      <NeutronSurface color={item.color} spin={profile.spin ?? 1} />
+      <group ref={rotor}>
+        <group rotation-z={profile.beamTilt ?? 0.45}>
+          <PlasmaJets color={item.accent} length={1.25} width={0.1} />
+        </group>
       </group>
-      {torus && (
-        <>
-          <mesh rotation-x={Math.PI / 2}>
-            <torusGeometry args={[0.34, 0.025, 8, 64]} />
-            <meshBasicMaterial color={item.accent} transparent opacity={0.55} depthWrite={false} />
-          </mesh>
-          <mesh rotation-x={Math.PI / 2} scale={1.42}>
-            <torusGeometry args={[0.34, 0.015, 8, 64]} />
-            <meshBasicMaterial color={item.accent} transparent opacity={0.24} depthWrite={false} />
-          </mesh>
-        </>
+      {profile.morphology === "pulsar-torus" && (
+        <mesh rotation-x={Math.PI / 2}>
+          <torusGeometry args={[0.34, 0.009, 8, 96]} />
+          <meshBasicMaterial
+            color={item.accent}
+            transparent
+            opacity={0.22}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </mesh>
       )}
-      {magnetar &&
-        [0, 1, 2, 3].map((n) => (
-          <mesh key={n} rotation={[n * 0.48, n * 0.72, n * 0.31]}>
-            <torusGeometry args={[0.36 + n * 0.055, 0.008, 6, 48]} />
-            <meshBasicMaterial
-              color={item.accent}
-              transparent
-              opacity={0.38}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-            />
-          </mesh>
-        ))}
-      {binary && (
+      {profile.morphology === "neutron-binary" && (
         <group ref={companion}>
-          <mesh position={[0.52, 0, 0]}>
-            <sphereGeometry args={[0.075, 18, 12]} />
-            <meshBasicMaterial color={item.accent} />
-          </mesh>
+          <group position={[0.52, 0, 0]}>
+            <NeutronSurface color={item.accent} radius={0.065} />
+          </group>
         </group>
       )}
     </group>
   );
 }
-
-/**
- * Relativistic jet rendered as a stream of plasma knots that travel outward
- * along the spin axis, twisting slightly — the behaviour seen in the M87 and
- * 3C 273 time-lapse sequences rather than a static cone.
- */
-function JetPlume({
-  color,
-  length,
-  sizeScale,
-}: {
-  color: string;
-  length: number;
-  sizeScale: number;
-}) {
-  const N = 260;
-  const { geometry, offsets, sides, radii } = useMemo(() => {
-    const rand = seeded(9137);
-    const positions = new Float32Array(N * 3);
-    const colors = new Float32Array(N * 3);
-    const offsets = new Float32Array(N);
-    const sides = new Float32Array(N);
-    const radii = new Float32Array(N);
-    const base = new THREE.Color(color);
-    for (let i = 0; i < N; i++) {
-      offsets[i] = rand();
-      sides[i] = rand() < 0.5 ? -1 : 1;
-      radii[i] = rand();
-      colors[i * 3] = base.r;
-      colors[i * 3 + 1] = base.g;
-      colors[i * 3 + 2] = base.b;
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    return { geometry: g, offsets, sides, radii };
-  }, [color]);
-  const texture = useMemo(makeGlowTexture, []);
-  const base = useMemo(() => new THREE.Color(color), [color]);
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
-    const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
-    const col = geometry.getAttribute("color") as THREE.BufferAttribute;
-    const p = pos.array as Float32Array;
-    const c = col.array as Float32Array;
-    for (let i = 0; i < N; i++) {
-      const f = (offsets[i] + t * 0.16) % 1;
-      const y = sides[i] * (0.2 + f * length);
-      // Jets stay collimated near the core and flare downstream.
-      const spread = (0.012 + f * 0.09) * (0.35 + radii[i]);
-      const a = radii[i] * Math.PI * 2 + f * 6.5 * sides[i];
-      p[i * 3] = Math.cos(a) * spread;
-      p[i * 3 + 1] = y;
-      p[i * 3 + 2] = Math.sin(a) * spread;
-      const fade = (1 - f) * (0.35 + 0.65 * Math.pow(1 - f, 0.5));
-      c[i * 3] = base.r * fade;
-      c[i * 3 + 1] = base.g * fade;
-      c[i * 3 + 2] = base.b * fade;
-    }
-    pos.needsUpdate = true;
-    col.needsUpdate = true;
-  });
-  return (
-    <points geometry={geometry}>
-      <pointsMaterial
-        map={texture}
-        vertexColors
-        size={0.055 * sizeScale}
-        sizeAttenuation
-        transparent
-        opacity={0.9}
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
-  );
-}
-
-// Camera-facing relativistic lensing layer. Approximates a ray-traced
-// Schwarzschild image analytically: black shadow (≈2.6 r_s apparent), a thin
-// photon ring at the critical impact parameter, the lensed far side of the
-// disk arching over and under the shadow, Doppler beaming (approaching side
-// brighter and bluer) and a faint Einstein ring of lensed background light.
-const LENS_VERT = /* glsl */ `
-varying vec2 vUv;
-void main() {
-  vUv = uv * 2.0 - 1.0;
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}`;
-const LENS_FRAG = /* glsl */ `
-uniform vec3 uColor;
-uniform float uTime;
-uniform float uSpin;
-varying vec2 vUv;
-float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-float noise(vec2 p){
-  vec2 i = floor(p), f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-  return mix(mix(hash(i), hash(i + vec2(1,0)), f.x), mix(hash(i + vec2(0,1)), hash(i + vec2(1,1)), f.x), f.y);
-}
-void main() {
-  // Units: 1.0 = billboard half-size; shadow edge at 0.19.
-  vec2 p = vUv;
-  float r = length(p);
-  float ang = atan(p.y, p.x);
-  float shadow = 0.19;
-  // Kerr asymmetric shadow: prograde frame-dragging flattens the approaching side (D-shape silhouette)
-  float kerrOffset = uSpin * 0.038 * (p.x / max(r, 0.01));
-  float kerrShadow = shadow - kerrOffset;
-  if (r < kerrShadow) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
-  // Photon ring at the critical curve
-  float ring = exp(-pow((r - 0.205) / 0.006, 2.0)) * 1.6;
-  ring += exp(-pow((r - 0.214) / 0.003, 2.0)) * 0.8; // secondary (n=2) image
-  // Lensed far-side disk: an elliptical band squashed vertically that wraps
-  // above and below the shadow.
-  vec2 q = vec2(p.x, p.y * 1.0);
-  float rr = length(q);
-  float swirl = ang + uTime * uSpin * 0.6 / pow(max(rr, 0.2), 1.5);
-  float turb = 0.55 + 0.45 * noise(vec2(swirl * 6.0, rr * 40.0));
-  float arcBand = smoothstep(0.215, 0.24, rr) * (1.0 - smoothstep(0.30, 0.46, rr));
-  float vertical = smoothstep(0.05, 0.6, abs(p.y) / max(rr, 1e-3));
-  float arc = arcBand * vertical * turb * 0.9;
-  // Doppler beaming: approaching (left) side boosted ~ (1+beta cos)^3
-  float beta = 0.45;
-  float dop = pow(1.0 + beta * (-p.x / max(r, 1e-3)), 3.0) / 1.6;
-  vec3 hot = mix(uColor, vec3(1.0, 0.95, 0.85), 0.55);
-  vec3 col = hot * (ring + arc) * dop;
-  col = mix(col, col * vec3(0.75, 0.85, 1.25), clamp(-p.x / max(r, 1e-3), 0.0, 1.0) * 0.5);
-  // Einstein ring of lensed background light
-  float ein = exp(-pow((r - 0.52) / 0.035, 2.0)) * 0.12;
-  col += vec3(0.75, 0.82, 1.0) * ein;
-  float a = clamp(max(max(col.r, col.g), col.b), 0.0, 1.0);
-  a *= 1.0 - smoothstep(0.8, 1.0, r);
-  gl_FragColor = vec4(col, a);
-}`;
-
-function LensingHalo({ color, spin }: { color: string; spin: number }) {
-  const uniforms = useMemo(
-    () => ({
-      uColor: { value: new THREE.Color(color) },
-      uTime: { value: 0 },
-      uSpin: { value: spin },
-    }),
-    [color, spin],
-  );
-  useFrame(({ clock }) => {
-    uniforms.uTime.value = clock.elapsedTime;
-  });
-  return (
-    <Billboard>
-      <mesh renderOrder={2}>
-        <planeGeometry args={[2, 2]} />
-        <shaderMaterial
-          vertexShader={LENS_VERT}
-          fragmentShader={LENS_FRAG}
-          uniforms={uniforms}
-          transparent
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-    </Billboard>
-  );
-}
+const LENS_VERT = `varying vec2 vUv;void main(){vUv=uv*2.-1.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 
 // Pure gravitational deflection for dormant / non-accreting black holes (Gaia BH1, Gaia BH3)
 // Features knife-edge photon ring, primary and secondary Einstein rings, zero hot plasma accretion.
@@ -664,13 +430,14 @@ void main() {
   float shadow = 0.19; // Event horizon shadow (apparent ~2.6 r_s)
   if (r < shadow) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
   // Thin photon ring at critical impact parameter b_crit ≈ 2.6 r_s
-  float ring = exp(-pow((r - 0.205) / 0.005, 2.0)) * 1.8;
+  float source = pow(0.5 + 0.5*sin(atan(p.y,p.x)*17.0 + sin(atan(p.y,p.x)*7.0)*2.0), 12.0);
+  float ring = exp(-pow((r - 0.205) / 0.003, 2.0)) * (0.035 + source * 0.25);
   // Primary Einstein ring of deflected background starlight
-  float ein = exp(-pow((r - 0.44) / 0.032, 2.0)) * 0.52;
+  float ein = exp(-pow((r - 0.44) / 0.008, 2.0)) * source * 0.28;
   // Secondary inner Einstein ring
-  float secondary = exp(-pow((r - 0.235) / 0.009, 2.0)) * 0.32;
+  float secondary = exp(-pow((r - 0.235) / 0.004, 2.0)) * source * 0.08;
   // Weak background starfield deflection gradient
-  float defl = (1.0 - smoothstep(0.19, 0.65, r)) * 0.12;
+  float defl = (1.0 - smoothstep(0.19, 0.65, r)) * source * 0.008;
   vec3 starlight = mix(vec3(0.88, 0.94, 1.0), uColor, 0.2);
   vec3 col = starlight * (ring + ein + secondary + defl);
   float a = clamp(ring + ein + secondary + defl, 0.0, 1.0);
@@ -686,8 +453,8 @@ function DormantLensingHalo({ color }: { color: string }) {
     }),
     [color],
   );
-  useFrame(({ clock }) => {
-    uniforms.uTime.value = clock.elapsedTime;
+  useFrame(() => {
+    uniforms.uTime.value = motionTimeSeconds();
   });
   return (
     <Billboard>
@@ -710,7 +477,6 @@ function AccretionDisk({
   item,
   profile,
   scale,
-  sizeScale,
   jet = false,
 }: {
   item: ObservedObject;
@@ -719,153 +485,10 @@ function AccretionDisk({
   sizeScale?: number;
   jet?: boolean;
 }) {
-  const ws = sizeScale ?? scale;
-  const N = 3200;
-  const inner = 0.235;
-  const outer = 0.72;
-  const { geometry, radii, phases, temps } = useMemo(() => {
-    const rand = seeded(profile.seed + 517);
-    const positions = new Float32Array(N * 3);
-    const colors = new Float32Array(N * 3);
-    const radii = new Float32Array(N);
-    const phases = new Float32Array(N);
-    const temps = new Float32Array(N);
-    for (let i = 0; i < N; i++) {
-      // Surface density rises steeply toward the innermost stable orbit.
-      const u = Math.pow(rand(), 1.7);
-      radii[i] = inner + u * (outer - inner);
-      phases[i] = rand() * Math.PI * 2;
-      temps[i] = 1 - (radii[i] - inner) / (outer - inner);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    return { geometry: g, radii, phases, temps };
-  }, [profile.seed]);
-  const texture = useMemo(makeGlowTexture, []);
-  const hot = useMemo(() => new THREE.Color(item.accent), [item.accent]);
-  const cool = useMemo(() => new THREE.Color(item.color), [item.color]);
-  const tmp = useMemo(() => new THREE.Color(), []);
-  const spin = profile.spin ?? 0.2;
-
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
-    const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
-    const col = geometry.getAttribute("color") as THREE.BufferAttribute;
-    const p = pos.array as Float32Array;
-    const c = col.array as Float32Array;
-    for (let i = 0; i < N; i++) {
-      const r = radii[i];
-      // Keplerian shear: inner gas laps the outer disk, producing the
-      // stretched spiral texture seen in simulated black-hole imagery.
-      const a = phases[i] + (t * spin * 0.22) / Math.pow(r, 1.5);
-      const wobble = 1 + 0.02 * Math.sin(a * 3 + r * 30);
-      p[i * 3] = Math.cos(a) * r * wobble;
-      p[i * 3 + 1] = Math.sin(a) * r * wobble;
-      p[i * 3 + 2] = (temps[i] - 0.5) * 0.012;
-      // Relativistic Doppler beaming: the side rotating toward us is far
-      // brighter than the receding side.
-      const beam = 0.28 + 1.55 * Math.pow(0.5 + 0.5 * Math.sin(a), 2.6);
-      const bright = beam * (0.45 + 0.9 * temps[i]);
-      tmp.copy(cool).lerp(hot, Math.min(1, temps[i] * 1.15));
-      c[i * 3] = Math.min(2.2, tmp.r * bright);
-      c[i * 3 + 1] = Math.min(2.2, tmp.g * bright);
-      c[i * 3 + 2] = Math.min(2.2, tmp.b * bright);
-    }
-    pos.needsUpdate = true;
-    col.needsUpdate = true;
-  });
-
   return (
     <group scale={scale} rotation={profile.tilt}>
-      <group rotation-x={Math.PI / 2}>
-        <points geometry={geometry}>
-          <pointsMaterial
-            map={texture}
-            vertexColors
-            size={0.028 * ws}
-            sizeAttenuation
-            transparent
-            opacity={0.95}
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </points>
-      </group>
-      {/* event-horizon shadow */}
-      <mesh>
-        <sphereGeometry args={[0.185, 32, 20]} />
-        <meshBasicMaterial color="#000000" />
-      </mesh>
-      {/* photon ring — light bent right around the hole */}
-      <mesh>
-        <sphereGeometry args={[0.205, 40, 26]} />
-        <meshBasicMaterial
-          color={item.accent}
-          transparent
-          opacity={0.5}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-      <mesh rotation-x={Math.PI / 2}>
-        <torusGeometry args={[0.222, 0.012, 12, 128]} />
-        <meshBasicMaterial
-          color={item.accent}
-          transparent
-          opacity={0.95}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-      {/* Gravitationally lensed images of the far side of the disk: strong
-          bending lifts the back of the disk over and under the shadow, the
-          signature look of ray-traced black holes and the EHT reconstruction. */}
-      {[0, Math.PI / 2].map((roll) => (
-        <mesh key={roll} rotation-z={roll}>
-          <torusGeometry args={[0.3, 0.045, 14, 128]} />
-          <meshBasicMaterial
-            color={item.accent}
-            transparent
-            opacity={0.3}
-            depthWrite={false}
-            side={THREE.DoubleSide}
-            blending={THREE.AdditiveBlending}
-          />
-        </mesh>
-      ))}
-      <LensingHalo color={item.accent} spin={spin} />
-      {/* X-ray corona hugging the horizon */}
-      <mesh>
-        <sphereGeometry args={[0.27, 28, 20]} />
-        <meshBasicMaterial
-          color={item.accent}
-          transparent
-          opacity={0.12}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-      {jet && (
-        <>
-          <JetPlume color={item.accent} length={profile.jetLength ?? 1.6} sizeScale={ws} />
-          {[-1, 1].map((s) => (
-            <mesh key={s} position={[0, (s * (profile.jetLength ?? 1.6)) / 2, 0]}>
-              <coneGeometry args={[0.07, profile.jetLength ?? 1.6, 18, 1, true]} />
-              <meshBasicMaterial
-                color={item.accent}
-                transparent
-                opacity={s > 0 ? 0.16 : 0.06}
-                side={THREE.DoubleSide}
-                depthWrite={false}
-                blending={THREE.AdditiveBlending}
-              />
-            </mesh>
-          ))}
-        </>
-      )}
+      <AccretionFlow color={item.accent} spin={profile.spin ?? 0.2} />
+      {jet && <PlasmaJets color={item.accent} length={profile.jetLength ?? 1.6} />}
     </group>
   );
 }
@@ -881,8 +504,8 @@ function BlackHoleDetail({
 }) {
   const merger = useRef<THREE.Group>(null);
   const companion = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+  useFrame(() => {
+    const t = motionTimeSeconds();
     if (merger.current) {
       const decay = 0.38 + 0.2 * (0.5 + 0.5 * Math.sin(t * 0.45));
       merger.current.rotation.y = t * 1.5;
@@ -921,12 +544,17 @@ function BlackHoleDetail({
           profile={{ ...profile, tilt: [0, 0, 0] }}
           scale={0.65}
           sizeScale={scale * 0.65}
-          jet
+          jet={item.compactPhysics?.hasRelativisticJet ?? true}
         />
         <group ref={companion}>
           <mesh position={[0.78, 0, 0]}>
-            <sphereGeometry args={[0.25, 28, 20]} />
-            <meshBasicMaterial color="#9ec5ff" />
+            <sphereGeometry args={[0.25, 48, 32]} />
+            <meshStandardMaterial
+              color="#9ec5ff"
+              emissive="#6a94dc"
+              emissiveIntensity={2}
+              roughness={1}
+            />
           </mesh>
         </group>
         <mesh rotation-z={Math.PI / 2} position={[0.46, 0, 0]}>
@@ -946,7 +574,7 @@ function BlackHoleDetail({
       item={item}
       profile={profile}
       scale={scale}
-      jet={profile.morphology === "eht-jet" || profile.morphology === "kerr-blackhole"}
+      jet={item.compactPhysics?.hasRelativisticJet ?? profile.morphology === "eht-jet"}
     />
   );
 }
@@ -961,8 +589,8 @@ function DormantBlackHoleDetail({
   scale: number;
 }) {
   const companion = useRef<THREE.Group>(null);
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+  useFrame(() => {
+    const t = motionTimeSeconds();
     if (companion.current) {
       companion.current.rotation.y = t * 0.35;
     }
@@ -1014,43 +642,9 @@ function ThermalNeutronStarDetail({
   profile: ObservedVisualProfile;
   scale: number;
 }) {
-  const starRef = useRef<THREE.Mesh>(null);
-  useFrame(({ clock }) => {
-    if (starRef.current) {
-      starRef.current.rotation.y = clock.elapsedTime * 0.05;
-    }
-  });
-
   return (
     <group scale={scale} rotation={profile.tilt}>
-      {/* Tiny, dense, Planckian cooling thermal surface (T ~ 700,000 K) */}
-      <mesh ref={starRef}>
-        <sphereGeometry args={[0.075, 32, 24]} />
-        <meshBasicMaterial color="#e0f2fe" />
-      </mesh>
-      {/* Relativistic light deflection halo around neutron star (>50% of surface visible) */}
-      <mesh>
-        <sphereGeometry args={[0.11, 32, 24]} />
-        <meshBasicMaterial
-          color="#38bdf8"
-          transparent
-          opacity={0.4}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-      <mesh>
-        <sphereGeometry args={[0.22, 24, 18]} />
-        <meshBasicMaterial
-          color="#0284c7"
-          transparent
-          opacity={0.15}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
+      <NeutronSurface color={item.color} radius={0.075} spin={0.05} />
     </group>
   );
 }
@@ -1067,8 +661,8 @@ function GravitationalWaveRegionDetail({
   const rippleRef = useRef<THREE.Group>(null);
   const arcRef = useRef<THREE.Group>(null);
 
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+  useFrame(() => {
+    const t = motionTimeSeconds();
     if (rippleRef.current) {
       rippleRef.current.rotation.z = t * 0.15;
     }
@@ -1264,8 +858,8 @@ function StarDetail({
     });
   }, [item.color, item.accent, dwarf]);
   const corona = useMemo(makeGlowTexture, []);
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+  useFrame(() => {
+    const t = motionTimeSeconds();
     material.uniforms.uTime.value = t;
     if (!star.current) return;
     star.current.rotation.y = t * (profile.spin ?? 0.02);
@@ -1332,6 +926,13 @@ function Detail({ item, scale }: { item: ObservedObject; scale: number }) {
   return <NebulaDetail item={item} profile={profile} scale={scale} />;
 }
 function ObjectNode({ item }: { item: ObservedObject }) {
+  const detailRef = useRef<THREE.Group>(null!);
+  const location = useMemo(() => new THREE.Vector3(...objectPosition(item)), [item]);
+  useFrame(({ camera }) => {
+    if (detailRef.current)
+      detailRef.current.visible =
+        camera.position.distanceTo(location) < Math.max(item.diameterLy, 2e-7) * 1500;
+  });
   const selected = useStore((s) => s.selectedObjectId === item.id),
     select = useStore((s) => s.setSelectedObject);
   const [hover, setHover] = useState(false);
@@ -1343,6 +944,7 @@ function ObjectNode({ item }: { item: ObservedObject }) {
     : Math.max(physical, item.category === "Quasar" ? physical : 2e-7);
   const pick = Math.max(physical, isGW ? 0.05 : item.distance * 2e-5, 0.000001);
   const click = (e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 4) return;
     e.stopPropagation();
     select(item.id);
   };
@@ -1360,7 +962,11 @@ function ObjectNode({ item }: { item: ObservedObject }) {
         <sphereGeometry args={[pick, 8, 6]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
-      {selected && <Detail item={item} scale={closeScale} />}{" "}
+      {selected && (
+        <group ref={detailRef} name={`object-detail:${item.id}`}>
+          <Detail item={item} scale={closeScale} />
+        </group>
+      )}{" "}
       {hover && (
         <Billboard>
           <Html

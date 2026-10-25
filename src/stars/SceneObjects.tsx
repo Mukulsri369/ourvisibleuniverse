@@ -1,6 +1,7 @@
+import { GalaxyRadiance, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { backgroundFocus } from "./sim-clock";
+import { backgroundFocus, motionTimeSeconds } from "./sim-clock";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
 import { useSolarMap } from "./solar-textures";
@@ -246,7 +247,7 @@ export function Sun() {
   );
 
   useFrame(({ clock, camera }) => {
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     if (meshRef.current) {
       (meshRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
       meshRef.current.rotation.y = t * 0.025;
@@ -701,7 +702,7 @@ export function MilkyWay() {
   useFrame(({ clock, camera, gl }) => {
     if (!groupRef.current) return;
     // Galaxy itself is fixed; differential rotation happens in the shader.
-    shader.uniforms.uTime.value = clock.elapsedTime;
+    shader.uniforms.uTime.value = motionTimeSeconds();
     shader.uniforms.uPixelRatio.value = gl.getPixelRatio();
     shader.uniforms.uFocus.value = backgroundFocus();
 
@@ -709,7 +710,16 @@ export function MilkyWay() {
     const d = camera.position.distanceTo(GALACTIC_CENTER);
     // Smoothly fade out heavy particle cloud between 180,000 and 550,000 ly as far sprite takes over
     const alpha = Math.min(1, Math.max(0, 1 - (d - 180_000) / 370_000));
-    shader.uniforms.uOpacity.value = alpha;
+    const volumeFade = THREE.MathUtils.smoothstep(camera.position.length(), 12000, 50000);
+    shader.uniforms.uOpacity.value = alpha * (1 - volumeFade);
+    for (const child of groupRef.current.children)
+      if ((child as THREE.Points).isPoints) child.visible = volumeFade < 0.995;
+    const volume = groupRef.current.getObjectByName("galaxy-radiance:Milky Way") as THREE.Mesh;
+    if (volume) {
+      volume.visible = volumeFade > 0.001;
+      (volume.material as THREE.ShaderMaterial).uniforms.uOpacity.value =
+        alpha * volumeFade * backgroundFocus();
+    }
     const localDistance =
       (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
       useStore.getState().cameraDistance;
@@ -796,6 +806,7 @@ export function MilkyWay() {
   return (
     <group position={GALACTIC_CENTER.toArray()}>
       <group ref={groupRef}>
+        <GalaxyRadiance model={MILKY_WAY_APPEARANCE} />
         <points geometry={diskGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>

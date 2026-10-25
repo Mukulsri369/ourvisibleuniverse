@@ -1,4 +1,5 @@
-import { Canvas } from "@react-three/fiber";
+import { tickSim } from "./sim-clock";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { StarField } from "./StarField";
 import { Sun, OrientationDisc, MilkyWay } from "./SceneObjects";
@@ -38,6 +39,11 @@ import { MajorDiscoveriesModal } from "./MajorDiscoveriesModal";
 
 import { useStore } from "./store";
 
+function SceneClock() {
+  useFrame((_, dt) => tickSim(dt), -3);
+  return null;
+}
+
 export function StarsApp() {
   const [loaded, setLoaded] = useState(false);
   const uiHidden = useStore((s) => s.uiHidden);
@@ -62,6 +68,7 @@ export function StarsApp() {
         performance={{ min: 0.5 }}
         gl={{ antialias: false, logarithmicDepthBuffer: true, powerPreference: "high-performance" }}
       >
+        <SceneClock />
         <color attach="background" args={["#000000"]} />
         <Suspense fallback={null}>
           <MilkyWay />

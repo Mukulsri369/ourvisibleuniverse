@@ -962,6 +962,8 @@ export const DOCUMENTED_SURVEY_GALAXIES: SurveyGalaxy[] = [
  *
  * DO NOT fill unobserved regions (Zone of Avoidance |b| < 8 deg or unobserved declination sectors).
  */
+const SURVEY_DISTANCE_TABLES = new Map<string, Float64Array>();
+
 export function generateSurveyDistributionPoints(
   targetCount = 8000,
   cosmology: CosmologicalParameters = COSMOLOGICAL_MODELS.planck2018,
@@ -980,10 +982,23 @@ export function generateSurveyDistributionPoints(
   // Precompute high-precision comoving distance lookup table (250 bins)
   const Z_MAX = 1.2;
   const BINS = 250;
-  const dLyTable = new Float64Array(BINS + 1);
-  for (let b = 0; b <= BINS; b++) {
-    const zb = (b / BINS) * Z_MAX;
-    dLyTable[b] = calculateCosmologicalDistances(zb, cosmology).comovingDistanceLy;
+  const key = JSON.stringify([
+    cosmology.h0,
+    cosmology.omegaM,
+    cosmology.omegaLambda,
+    cosmology.omegaRadiation ?? null,
+  ]);
+  let dLyTable = SURVEY_DISTANCE_TABLES.get(key);
+  if (!dLyTable) {
+    dLyTable = new Float64Array(BINS + 1);
+    for (let b = 0; b <= BINS; b++)
+      dLyTable[b] = calculateCosmologicalDistances(
+        (b / BINS) * Z_MAX,
+        cosmology,
+      ).comovingDistanceLy;
+    SURVEY_DISTANCE_TABLES.set(key, dLyTable);
+    if (SURVEY_DISTANCE_TABLES.size > 8)
+      SURVEY_DISTANCE_TABLES.delete(SURVEY_DISTANCE_TABLES.keys().next().value!);
   }
   const getFastComovingLy = (zVal: number) => {
     if (zVal <= 0) return 0;
@@ -1000,15 +1015,7 @@ export function generateSurveyDistributionPoints(
     const g = DOCUMENTED_SURVEY_GALAXIES[i];
     const dLy = getFastComovingLy(Math.max(0.0001, Math.abs(g.z)));
 
-    // Convert equatorial (RA, Dec) to 3D Cartesian in light-years
-    const raRad = (g.ra * Math.PI) / 180;
-    const decRad = (g.dec * Math.PI) / 180;
-    const cosDec = Math.cos(decRad);
-
-    const x = dLy * cosDec * Math.cos(raRad);
-    const y = dLy * Math.sin(decRad);
-    const z = dLy * cosDec * Math.sin(raRad);
-
+    const [x, y, z] = surveyScenePosition(g.ra, g.dec, dLy);
     positions[i * 3] = x;
     positions[i * 3 + 1] = y;
     positions[i * 3 + 2] = z;
@@ -1090,13 +1097,10 @@ export function generateSurveyDistributionPoints(
     // Apply FLRW Comoving Distance
     const dLy = getFastComovingLy(z);
 
-    const raRad = (ra * Math.PI) / 180;
-    const decRad = (dec * Math.PI) / 180;
-    const cosDec = Math.cos(decRad);
-
-    positions[currentIdx * 3] = dLy * cosDec * Math.cos(raRad);
-    positions[currentIdx * 3 + 1] = dLy * Math.sin(decRad);
-    positions[currentIdx * 3 + 2] = dLy * cosDec * Math.sin(raRad);
+    const [sx, sy, sz] = surveyScenePosition(ra, dec, dLy);
+    positions[currentIdx * 3] = sx;
+    positions[currentIdx * 3 + 1] = sy;
+    positions[currentIdx * 3 + 2] = sz;
 
     const col = getSurveyColor(survey);
     colors[currentIdx * 3] = col.r;
@@ -1145,4 +1149,18 @@ function getSurveyCode(s: SurveyId): number {
     case "deep_fields":
       return 5;
   }
+}
+
+/** IAU equatorial-to-Galactic rotation, in the scene's (-X, Z, Y) convention. */
+export function surveyScenePosition(ra: number, dec: number, d: number): [number, number, number] {
+  const a = (ra * Math.PI) / 180,
+    b = (dec * Math.PI) / 180,
+    x = Math.cos(b) * Math.cos(a),
+    y = Math.cos(b) * Math.sin(a),
+    z = Math.sin(b);
+  return [
+    -(-0.0548755604 * x - 0.8734370902 * y - 0.4838350155 * z) * d,
+    (-0.867666149 * x - 0.1980763734 * y + 0.4559837762 * z) * d,
+    (0.4941094279 * x - 0.44482963 * y + 0.7469822445 * z) * d,
+  ];
 }

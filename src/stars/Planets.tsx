@@ -2,7 +2,14 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
-import { getSimulationJd, simTimeDays, simTimeYears, tickSim } from "./sim-clock";
+import {
+  getSimulationJd,
+  simTimeDays,
+  simTimeYears,
+  motionTimeSeconds,
+  getSimPaused,
+  getTimeMultiplier,
+} from "./sim-clock";
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
 import { computeMoonRelativeState } from "@/lib/astronomy/jpl/horizons-ephemeris";
 import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
@@ -856,9 +863,9 @@ function Planet({ def }: { def: PlanetDef }) {
     window.__exoSizes.set(def.name, effectiveSize);
   }, [def.name, effectiveSize]);
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ camera }) => {
     if (!groupRef.current) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     const jd = getSimulationJd();
     const auScale = scaleMode === "true_scale" ? scaleManager.getRenderAU("true_scale") : AU;
 
@@ -1898,9 +1905,9 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const local = useMemo(() => new THREE.Vector3(), []);
   const parentPos = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(({ clock, camera }) => {
+  useFrame(({ camera }) => {
     if (!ref.current) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     const phys = JPL_PLANETS_PHYSICAL[parent]?.moons.find((m) => m.name === moon.name);
     const inc = phys ? (phys.inclinationDeg * Math.PI) / 180 : (moon.inclination ?? 0);
     const days = phys ? phys.orbitalPeriodDays : MOON_DAYS[moon.name];
@@ -1948,20 +1955,13 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     v.copy(tmp);
 
     ref.current.visible = camera.position.distanceTo(tmp) < moon.size * mag * 1800;
-    const liveDistance =
-      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
-      useStore.getState().cameraDistance;
-    if (liveDistance > 25) {
-      getTrailSamples(mKey).length = 0;
-      prev.current = null;
-      return;
-    }
     // Fast moons sweep tens of degrees per frame; sub-sample the true orbit
     // between frames so the trail is a smooth curve instead of a zig-zag.
     const par = ref.current.parent;
     if (!par) return;
     par.getWorldPosition(parentPos);
     const p0 = prev.current;
+    if (p0 && nowD === p0.days && parentPos.distanceToSquared(p0.parent) === 0) return;
     const samples = getTrailSamples(mKey);
     if (p0 && days) {
       const dA = Math.abs(((nowD - p0.days) / days) * Math.PI * 2);
@@ -2046,7 +2046,6 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
 }
 
 export function Planets() {
-  useFrame((_, dt) => tickSim(dt), -2);
   const scaleMode = useStore((s) => s.scaleMode);
   const showOrbits = useStore((s) => s.showOrbits);
 
@@ -2215,7 +2214,9 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
   useFrame((_, dt) => {
     if (!ref.current) return;
     if (showGalacticDrift) {
-      const factor = useStore.getState().systemSpeed / 50;
+      const factor = getSimPaused()
+        ? 0
+        : (useStore.getState().systemSpeed / 50) * getTimeMultiplier();
       dist.current += Math.min(dt, 0.1) * SUN_DRIFT_SPEED * factor;
       const d = dist.current;
       ref.current.position.set(SUN_DRIFT_DIR.x * d, SUN_DRIFT_DIR.y * d, SUN_DRIFT_DIR.z * d);
@@ -2248,6 +2249,10 @@ const TRAIL_LEN = 3000;
 // trace extended, graceful 3D helices along the planet's trajectory.
 const MOON_TRAIL_LEN = 3600;
 
+const trailCenter = new THREE.Vector3();
+const trailExtent = new THREE.Vector3();
+const trailPoint = new THREE.Vector3();
+
 type TrailBody = { name: string; color: THREE.Color; length?: number; opacity?: number };
 
 function useTrail(body: TrailBody) {
@@ -2265,6 +2270,16 @@ function useTrail(body: TrailBody) {
     posAttr.setUsage(THREE.DynamicDrawUsage);
     geo.setAttribute("position", posAttr);
     geo.setAttribute("aIndex", new THREE.BufferAttribute(idx, 1));
+    const indices: number[] = [];
+    const lodOffsets: number[] = [];
+    for (const step of [1, 2, 4, 8, 16, 32, 64]) {
+      lodOffsets.push(indices.length);
+      const count = Math.ceil(len / step);
+      for (let i = 0; i < count * 2; i++) indices.push((i % count) * step);
+    }
+    geo.userData.lodOffsets = lodOffsets;
+    geo.setIndex(indices);
+    geo.setDrawRange(0, len);
     const mat = new THREE.ShaderMaterial({
       uniforms: {
         uColor: { value: body.color },
@@ -2286,7 +2301,7 @@ function useTrail(body: TrailBody) {
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
           gl_Position = projectionMatrix * mv;
           // Collapse the oldest vertex so the wrap-around segment vanishes.
-          if (age > 0.995) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+          // The wrap seam is clipped in the fragment shader, never projected across the screen.
           #include <logdepthbuf_vertex>
         }
       `,
@@ -2297,6 +2312,7 @@ function useTrail(body: TrailBody) {
         varying float vAge;
         void main(){
           #include <logdepthbuf_fragment>
+          if (vAge > 0.985) discard;
           float a = pow(1.0 - vAge, 1.25) * uOpacity;
           if (a < 0.008) discard;
           gl_FragColor = vec4(uColor, a);
@@ -2311,7 +2327,17 @@ function useTrail(body: TrailBody) {
   }, [body.color, len, body.opacity]);
 
   const tick = useRef(0);
-  useFrame(() => {
+  const gpuDirty = useRef(false);
+  const previousPoint = useMemo(() => new THREE.Vector3(Infinity, Infinity, Infinity), []);
+  const bounds = useMemo(() => new THREE.Box3(), []);
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      material.dispose();
+    },
+    [geometry, material],
+  );
+  useFrame(({ camera, size }) => {
     const liveDist =
       (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
       useStore.getState().cameraDistance;
@@ -2322,20 +2348,45 @@ function useTrail(body: TrailBody) {
       : 1;
     material.uniforms.uOpacity.value = (body.opacity ?? 1) * fade;
     if (lineRef.current) lineRef.current.visible = liveDist <= 25 && fade > 0.001;
-    // Skip GPU buffer uploads for Solar System trails when zoomed out to galactic scales (> 25 ly)
-    if (liveDist > 25) {
-      const queued = trailSamples().get(body.name);
-      if (queued) queued.length = 0;
-      return;
-    }
-
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
+    // Keep recording exact history on the CPU. A subpixel path needs no draw
+    // or GPU upload, and is restored in full as soon as it becomes resolvable.
+    const distance = Math.max(camera.position.distanceTo(bounds.getCenter(trailCenter)), 1e-10);
+    const extent = bounds.isEmpty() ? Infinity : bounds.getSize(trailExtent).length();
+    const pixels =
+      ((extent / distance) * size.height) /
+      (2 * Math.tan(THREE.MathUtils.degToRad((camera as THREE.PerspectiveCamera).fov / 2)));
+    const drawable = pixels > 1.5 && fade > 0.001;
+    const lod = Math.min(6, Math.max(0, Math.floor(Math.log2(len / Math.max(64, pixels * 2)))));
+    const stride = 2 ** lod;
+    const count = Math.ceil(len / stride);
+
+    const fullUpload = drawable && gpuDirty.current;
+    lineRef.current.visible = drawable;
+    const upload = (first: number, count: number, full = false) => {
+      if (!drawable) {
+        gpuDirty.current = true;
+        return;
+      }
+      attr.clearUpdateRanges();
+      if (full || fullUpload || gpuDirty.current || count >= len) attr.addUpdateRange(0, len * 3);
+      else {
+        const tail = Math.min(count, len - first);
+        attr.addUpdateRange(first * 3, tail * 3);
+        if (tail < count) attr.addUpdateRange(0, (count - tail) * 3);
+      }
+      gpuDirty.current = false;
+      attr.needsUpdate = true;
+    };
+    if (drawable && gpuDirty.current) upload(0, len, true);
     // Moons publish sub-sampled orbit points; consume them all every frame.
     const queued = trailSamples().get(body.name);
     if (queued) {
       if (queued.length === 0) return;
       let start = 0;
+      const wasInitialized = initialized.current;
+      const firstWrite = (head.current + 1) % len;
       if (!initialized.current) {
         for (let i = 0; i < len; i++) {
           arr[i * 3] = queued[0];
@@ -2344,6 +2395,8 @@ function useTrail(body: TrailBody) {
         }
         initialized.current = true;
         start = 3;
+        trailPoint.set(queued[0], queued[1], queued[2]);
+        bounds.expandByPoint(trailPoint);
       }
       const from = Math.max(start, queued.length - len * 3);
       for (let j = from; j < queued.length; j += 3) {
@@ -2352,11 +2405,15 @@ function useTrail(body: TrailBody) {
         arr[h] = queued[j];
         arr[h + 1] = queued[j + 1];
         arr[h + 2] = queued[j + 2];
+        bounds.expandByPoint(trailPoint.set(queued[j], queued[j + 1], queued[j + 2]));
       }
+      const written = (queued.length - from) / 3;
       queued.length = 0;
-      const anyAttr = attr as unknown as { clearUpdateRanges?: () => void };
-      anyAttr.clearUpdateRanges?.();
-      attr.needsUpdate = true;
+      upload(firstWrite, written, !wasInitialized);
+      geometry.setDrawRange(
+        geometry.userData.lodOffsets[lod] + ((Math.floor(head.current / stride) + 1) % count),
+        count,
+      );
       material.uniforms.uHead.value = head.current;
       return;
     }
@@ -2366,6 +2423,8 @@ function useTrail(body: TrailBody) {
     const reg = (window as Window).__planetPositions;
     const p = reg?.get(body.name);
     if (!p) return;
+    if (previousPoint.equals(p)) return;
+    previousPoint.copy(p);
     if (!initialized.current) {
       for (let i = 0; i < len; i++) {
         arr[i * 3] = p.x;
@@ -2373,7 +2432,8 @@ function useTrail(body: TrailBody) {
         arr[i * 3 + 2] = p.z;
       }
       initialized.current = true;
-      attr.needsUpdate = true;
+      bounds.expandByPoint(p);
+      upload(0, len, true);
     } else {
       // Ring buffer: write one slot instead of shifting the whole array,
       // and upload only that slot to the GPU.
@@ -2382,20 +2442,13 @@ function useTrail(body: TrailBody) {
       arr[h * 3] = p.x;
       arr[h * 3 + 1] = p.y;
       arr[h * 3 + 2] = p.z;
-      const anyAttr = attr as unknown as {
-        addUpdateRange?: (start: number, count: number) => void;
-        clearUpdateRanges?: () => void;
-        updateRange?: { offset: number; count: number };
-      };
-      if (anyAttr.addUpdateRange && anyAttr.clearUpdateRanges) {
-        anyAttr.clearUpdateRanges();
-        anyAttr.addUpdateRange(h * 3, 3);
-      } else if (anyAttr.updateRange) {
-        anyAttr.updateRange.offset = h * 3;
-        anyAttr.updateRange.count = 3;
-      }
-      attr.needsUpdate = true;
+      bounds.expandByPoint(p);
+      upload(h, 1);
     }
+    geometry.setDrawRange(
+      geometry.userData.lodOffsets[lod] + ((Math.floor(head.current / stride) + 1) % count),
+      count,
+    );
     material.uniforms.uHead.value = head.current;
   });
 
@@ -2406,10 +2459,11 @@ function Trail({ body }: { body: TrailBody }) {
   const { lineRef, geometry, material } = useTrail(body);
   const line = useMemo(() => {
     const l = new THREE.Line(geometry, material);
+    l.name = `motion-trail:${body.name}`;
     l.renderOrder = 999;
     l.frustumCulled = false;
     return l;
-  }, [geometry, material]);
+  }, [geometry, material, body.name]);
   return <primitive ref={lineRef} object={line} />;
 }
 

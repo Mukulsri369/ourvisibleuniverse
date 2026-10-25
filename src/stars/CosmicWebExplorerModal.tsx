@@ -444,6 +444,11 @@ export function CosmicWebExplorerModal() {
                     </div>
 
                     {/* Landmark quick jump pills */}
+                    <p className="text-[11px] leading-relaxed text-slate-400">
+                      Landmark clouds illustrate spatial density around catalogue coordinates. Their
+                      individual tracers are not measured galaxy-member positions. Survey footprints
+                      and simulation structures remain separate views.
+                    </p>
                     <div className="pt-2 border-t border-white/5">
                       <div className="text-[11px] text-slate-400 mb-2 font-medium">
                         Quick-Focus Large-Scale Cosmological Structures:

@@ -1,3 +1,4 @@
+import { GalaxyDestinationGrid } from "./GalaxyDestinationGrid";
 import { useState } from "react";
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
@@ -208,6 +209,8 @@ export function GalaxyInfoPanel() {
                 <FileText className="h-4 w-4 text-cyan-300" />
                 <span>Open 7-Tab Science Dossier</span>
               </button>
+
+              <GalaxyDestinationGrid key={visit.name} name={visit.name} />
 
               {/* Navigation Tabs */}
               <div className="mt-5 flex border-b border-white/10 text-xs">

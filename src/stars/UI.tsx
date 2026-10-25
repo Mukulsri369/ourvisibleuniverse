@@ -1,3 +1,4 @@
+import { formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
 // @ts-nocheck
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
@@ -102,7 +103,10 @@ export function InfoPanel() {
                 <Stat label="Abs. magnitude" value={(star.absMagnitude ?? 4.83).toFixed(2)} />
                 <Stat label="Mass" value={`${star.mass ?? 1} M☉`} />
                 <Stat label="Radius" value={`${star.radius ?? 1} R☉`} />
-                <Stat label="Temperature" value={`${(star.temperature ?? 5778).toLocaleString()} K`} />
+                <Stat
+                  label="Temperature"
+                  value={`${(star.temperature ?? 5778).toLocaleString()} K`}
+                />
                 <Stat label="Luminosity" value={`${star.luminosity ?? 1} L☉`} />
                 <Stat label="Right ascension" value={star.ra ?? "00h 00m"} />
                 <Stat label="Declination" value={star.dec ?? "+00° 00'"} />
@@ -341,10 +345,7 @@ function StarDerived({ star }: { star: NamedStar }) {
                 ? "orange"
                 : "red";
   const rows: Array<[string, string]> = [
-    [
-      "Light travel time",
-      dist < 0.01 ? "8.3 minutes" : `${dist.toFixed(2)} years`,
-    ],
+    ["Light travel time", dist < 0.01 ? "8.3 minutes" : `${dist.toFixed(2)} years`],
     ["Distance", `${pc.toFixed(2)} parsecs · ${(dist * 63241).toExponential(2)} AU`],
     ["Peak colour", `${colorName}, peaking near ${Math.round(peakNm)} nm`],
     ["Habitable zone", `${hzInner.toFixed(2)} – ${hzOuter.toFixed(2)} AU`],
@@ -743,12 +744,41 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
             value={zoomSpeed}
             onChange={setZoomSpeed}
           />
-          <Slider
-            label="Solar System speed"
-            hint="Drift through space"
-            value={systemSpeed}
-            onChange={setSystemSpeed}
-          />
+          <div className="mb-4 space-y-2">
+            <label htmlFor="simulation-time" className="flex justify-between text-xs text-white/80">
+              <span>Time</span>
+              <span className="font-mono text-sky-200">{formatTimeRate(systemSpeed)}</span>
+            </label>
+            <input
+              id="simulation-time"
+              aria-label="Simulation time rate"
+              type="range"
+              min={-6}
+              max={2}
+              step={0.01}
+              value={Math.log10(Math.max(1e-6, systemSpeed))}
+              onChange={(e) => setSystemSpeed(10 ** Number(e.target.value))}
+              className="w-full accent-sky-300"
+            />
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { label: "Pause", rate: 0 },
+                { label: "Slow motion", rate: 1e-6 },
+                { label: "Real time", rate: 1 / SIM_SECONDS_PER_REAL_SECOND },
+                { label: "Slow", rate: 0.01 },
+                { label: "Default", rate: 1 },
+              ].map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => setSystemSpeed(p.rate)}
+                  className="min-h-11 rounded border border-white/15 px-2 text-[11px] text-white/75 hover:bg-white/10 focus-visible:outline focus-visible:outline-sky-300"
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <Slider
             label="Trail size"
             hint="Length of planet & moon trails"
@@ -2097,9 +2127,7 @@ export function SiteMap() {
                   {stars
                     .filter((s) => {
                       const sys = starExoSystems.get(s.name);
-                      const planetMatch = sys?.planets.some(
-                        (p) => match(p.name) || match(p.kind),
-                      );
+                      const planetMatch = sys?.planets.some((p) => match(p.name) || match(p.kind));
                       return (
                         match(s.name) ||
                         match(s.spectral) ||
@@ -2175,14 +2203,10 @@ export function SiteMap() {
                 <>
                   <div className="mb-1.5 flex items-center justify-between px-1.5 py-1">
                     <span className="text-[9px] uppercase tracking-[0.14em] text-emerald-300/80 font-semibold">
-                      {exoFilter === "confirmed"
-                        ? "Confirmed Archive Systems"
-                        : "All Star Systems"}
+                      {exoFilter === "confirmed" ? "Confirmed Archive Systems" : "All Star Systems"}
                     </span>
                     <button
-                      onClick={() =>
-                        setExoFilter((f) => (f === "confirmed" ? "all" : "confirmed"))
-                      }
+                      onClick={() => setExoFilter((f) => (f === "confirmed" ? "all" : "confirmed"))}
                       className="rounded border border-white/15 bg-white/5 px-1.5 py-0.5 font-mono text-[8.5px] text-white/70 transition hover:bg-white/10 hover:text-white"
                     >
                       {exoFilter === "confirmed" ? "Show +Modelled" : "Confirmed Only"}
@@ -2218,11 +2242,7 @@ export function SiteMap() {
                           />
                           {sys.planets
                             .filter(
-                              (p) =>
-                                !lower ||
-                                match(s.name) ||
-                                match(p.name) ||
-                                match(p.kind),
+                              (p) => !lower || match(s.name) || match(p.name) || match(p.kind),
                             )
                             .map((p) => (
                               <Row

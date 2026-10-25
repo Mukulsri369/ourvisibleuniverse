@@ -1,3 +1,5 @@
+import { motionTimeSeconds } from "./sim-clock";
+import { makeExoplanetMaps } from "./exoplanet-maps";
 import { StellarSurface } from "./StellarSurface";
 import { stellarDisplayRadius } from "./camera-navigation";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
@@ -56,85 +58,60 @@ function seedOf(name: string) {
 const SURF_VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
-void main(){
-  vObj = normalize(position);
-  vN = normalize(mat3(modelMatrix) * normal);
-  vec4 w = modelMatrix * vec4(position,1.0);
-  vWorld = w.xyz;
-  gl_Position = projectionMatrix * viewMatrix * w;
-  #include <logdepthbuf_vertex>
+varying vec2 vUv;varying vec3 vN;varying vec3 vView;varying vec3 vObj;
+void main(){vUv=uv;vObj=normalize(position);vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.);vView=-mv.xyz;gl_Position=projectionMatrix*mv;
+#include <logdepthbuf_vertex>
 }`;
-
 const SURF_FRAG = /* glsl */ `
 #include <logdepthbuf_pars_fragment>
-uniform vec3 uColor; uniform vec3 uStar; uniform float uMode; uniform float uSeed;
-uniform float uTime; uniform float uHot; uniform float uLocked;
-varying vec3 vObj; varying vec3 vN; varying vec3 vWorld;
-float h(vec3 p){ return fract(sin(dot(p, vec3(127.1,311.7,74.7))) * 43758.5453); }
-float n3(vec3 p){
-  vec3 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
-  return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),
-             mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z);
-}
-float fbm(vec3 p){ float a=0.5, s=0.0; for(int i=0;i<5;i++){ s+=a*n3(p); p*=2.03; a*=0.5; } return s; }
+uniform sampler2D uAlbedo;uniform sampler2D uDetail;
+uniform vec3 uStar;uniform vec3 uColor;uniform float uTime;uniform float uMode;uniform float uHot;
+varying vec2 vUv;varying vec3 vN;varying vec3 vView;varying vec3 vObj;
 void main(){
-  #include <logdepthbuf_fragment>
-  vec3 P = vObj * 2.2 + uSeed;
-  vec3 L = normalize(uStar - vWorld);
-  vec3 N = normalize(vN);
-  vec3 V = normalize(cameraPosition - vWorld);
-  float ndl = dot(N, L);
-  float day = smoothstep(-0.08, 0.25, ndl);
-  vec3 col; float spec = 0.0; vec3 emit = vec3(0.0);
-  float lat = vObj.y;
-  if (uMode < 0.5) { // rocky / barren
-    float t = fbm(P*1.6);
-    float crat = smoothstep(0.62, 0.7, n3(P*6.0)) * 0.25;
-    col = mix(uColor*0.55, uColor*1.25, t) - crat;
-  } else if (uMode < 1.5) { // habitable: oceans, land, ice, clouds
-    float t = fbm(P*1.3);
-    float land = smoothstep(0.5, 0.56, t);
-    vec3 ocean = vec3(0.04,0.16,0.38);
-    vec3 ground = mix(vec3(0.22,0.36,0.14), vec3(0.55,0.45,0.3), fbm(P*3.0));
-    col = mix(ocean, ground, land);
-    float ice = smoothstep(0.72, 0.8, abs(lat) + 0.08*n3(P*4.0));
-    col = mix(col, vec3(0.92), ice);
-    spec = (1.0 - land) * (1.0 - ice);
-    float cl = smoothstep(0.52, 0.72, fbm(P*2.1 + vec3(uTime*0.02,0.0,0.0)));
-    col = mix(col, vec3(0.95), cl*0.8);
-    spec *= 1.0 - cl;
-  } else if (uMode < 2.5) { // lava world (e.g. 55 Cancri e)
-    float t = fbm(P*2.0);
-    float cracks = 1.0 - smoothstep(0.018, 0.085, abs(fbm(P*3.8 + vec3(uTime*0.015, 0.0, 0.0)) - 0.5));
-    float magmaLake = smoothstep(0.35, 0.88, ndl) * smoothstep(0.46, 0.68, t);
-    col = mix(vec3(0.06,0.04,0.04), vec3(0.22,0.16,0.14), t);
-    vec3 lavaGlow = mix(vec3(1.0, 0.28, 0.04), vec3(1.0, 0.82, 0.32), cracks * 0.65 + magmaLake * 0.5);
-    emit = lavaGlow * (cracks * 1.55 + magmaLake * 1.2 + 0.25 * smoothstep(0.2, 1.0, ndl));
-  } else { // banded gas / ice giant
-    float warp = fbm(vec3(vObj.x*3.0, lat*8.0, vObj.z*3.0) + uSeed + uTime*0.012);
-    float bands = sin(lat*(uMode<3.5?24.0:11.0) + warp*3.8);
-    float b = 0.5 + 0.5*bands;
-    vec3 c2 = uMode<3.5 ? uColor*vec3(1.28,1.14,0.92) : uColor*vec3(0.84,1.06,1.18);
-    col = mix(uColor*0.68, c2, b);
-    // anticyclonic storm vortex
-    vec3 sc = normalize(vec3(0.6, -0.25, 0.75));
-    float sd = distance(vObj, sc);
-    col = mix(col, uColor*vec3(1.45,0.82,0.62), smoothstep(0.22,0.0,sd)*0.65*(uMode<3.5?1.0:0.4));
-    // hot jupiter: glowing dayside thermal hotspot shifted eastward by super-rotating jets
-    float hotspot = smoothstep(0.2, 0.95, ndl) * (0.65 + 0.35 * fbm(P * 2.6 + uTime * 0.02));
-    emit = vec3(1.0,0.36,0.1) * uHot * (0.14 + 0.68 * hotspot);
-  }
-  vec3 lit = col * (0.03 + day * max(ndl, 0.0) * 1.18);
-  vec3 Hh = normalize(L + V);
-  lit += vec3(1.0,0.96,0.88) * spec * pow(max(dot(N,Hh),0.0), 64.0) * day * 0.95;
-  // Rayleigh limb for habitable / gas worlds
-  float rim = pow(1.0 - max(dot(N,V),0.0), 3.0);
-  vec3 atm = uMode>0.5 && uMode<1.5 ? vec3(0.32,0.62,1.0) : uMode>2.5 ? uColor * 1.15 : vec3(0.0);
-  lit += atm * rim * smoothstep(-0.22, 0.45, ndl) * 0.68;
-  // terminator sunset Mie band
-  lit += vec3(1.0,0.42,0.18) * rim * smoothstep(0.18,0.0,abs(ndl)) * (uMode>0.5&&uMode<1.5?0.48:0.15);
-  gl_FragColor = vec4(lit + emit, 1.0);
+#include <logdepthbuf_fragment>
+vec4 data=texture2D(uDetail,vUv);vec3 col=texture2D(uAlbedo,vUv).rgb;
+vec3 N=normalize(vN),V=normalize(vView),L=normalize(uStar+vView);
+// Screen derivatives provide fine relief with no extra geometry or texture fetches.
+vec3 dx=dFdx(-vView),dy=dFdy(-vView);vec3 rx=cross(dy,N),ry=cross(N,dx);
+float det=dot(dx,rx);vec3 gradient=sign(det)*(dFdx(data.r)*rx+dFdy(data.r)*ry);
+N=normalize(abs(det)*N-gradient*(uMode<2.5?.000000004:.0000000006));
+float ndl=dot(N,L),day=smoothstep(-.035,.12,ndl),mu=max(dot(N,V),0.);
+float clouds=texture2D(uDetail,vec2(fract(vUv.x+uTime*.001),vUv.y)).g;
+col=mix(col,vec3(.8,.84,.88),clouds*.88);
+float lambert=max(ndl,0.);vec3 c=col*(.012+day*lambert*2.5);
+float spec=pow(max(dot(N,normalize(L+V)),0.),100.)*data.b*(1.-clouds);
+c+=vec3(1.,.91,.76)*spec*day*1.6;
+float rim=pow(1.-mu,4.);float atmospheric=step(.5,uMode);
+vec3 air=uMode<1.5?vec3(.12,.38,.9):uMode<2.5?vec3(.8,.16,.025):uColor*.5;
+c+=air*rim*day*.7*atmospheric;
+c+=vec3(.9,.22,.045)*rim*exp(-abs(ndl)*18.)*atmospheric*.5;
+if(uMode>1.5&&uMode<2.5){float fissure=1.-smoothstep(.009,.028,abs(data.r-.51));float lake=smoothstep(.25,.9,ndl)*smoothstep(.52,.7,data.r);c+=vec3(1.,.15,.012)*(fissure*.8+lake*1.2);}
+c+=vec3(1.,.2,.025)*uHot*pow(max(ndl,0.),2.)*.3;
+gl_FragColor=vec4(c*4.,1.);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`;
+const ATMOSPHERE = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform vec3 uStar;uniform vec3 uColor;varying vec3 vN;varying vec3 vView;
+void main(){
+#include <logdepthbuf_fragment>
+vec3 N=normalize(vN),V=normalize(vView),L=normalize(uStar+vView);
+float rim=pow(1.-abs(dot(N,V)),4.);float day=smoothstep(-.25,.4,dot(N,L));
+gl_FragColor=vec4(uColor*3.,rim*day*.28);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`;
+const RING = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+varying vec2 vUv;varying vec3 vN;varying vec3 vView;uniform vec3 uColor;uniform vec3 uStar;
+void main(){
+#include <logdepthbuf_fragment>
+float r=length((vUv-.5)*2.);float bands=.45+.35*sin(r*420.)+.2*sin(r*1190.);float gap=smoothstep(.015,.026,abs(r-.82));
+float alpha=clamp(bands,0.,1.)*gap*smoothstep(.62,.65,r)*(1.-smoothstep(.98,1.,r))*.65;
+gl_FragColor=vec4(uColor*2.,alpha);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
 }`;
 
 function ExoBody({
@@ -171,12 +148,18 @@ function ExoBody({
     (mode === 3 || mode === 4) &&
     p.aAU > 0.35 &&
     Math.floor(seedOf(starName + p.name) * 10) % 3 === 0;
+  const maps = useMemo(
+    () => makeExoplanetMaps(p, seedOf(starName + p.name), mode),
+    [p, starName, mode],
+  );
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
         vertexShader: SURF_VERT,
         fragmentShader: SURF_FRAG,
         uniforms: {
+          uAlbedo: { value: maps.albedo },
+          uDetail: { value: maps.detail },
           uColor: { value: new THREE.Color(p.color) },
           uStar: { value: starPos.clone() },
           uMode: { value: mode },
@@ -186,7 +169,7 @@ function ExoBody({
           uLocked: { value: p.tidallyLocked ? 1 : 0 },
         },
       }),
-    [p, mode, starName, starPos],
+    [p, mode, starName, starPos, maps],
   );
   useEffect(() => {
     sizes().set(p.name, size);
@@ -194,25 +177,38 @@ function ExoBody({
       sizes().delete(p.name);
       registry().delete(p.name);
       material.dispose();
+      maps.albedo.dispose();
+      maps.detail.dispose();
+      line.geometry.dispose();
+      line.material.dispose();
     };
-  }, [p.name, size, material]);
-  useFrame(({ clock }, dt) => {
+  }, [p.name, size, material, maps, line]);
+  useFrame(({ camera, size: viewport }) => {
     if (!ref.current) return;
-    const speed = useStore.getState().systemSpeed / 25;
+    const speed = 1 / 25;
     const ang =
       p.phase +
-      ((clock.elapsedTime * speed) / (8 * Math.pow(p.periodYears, 0.5))) * Math.PI * 2 * 0.25;
+      ((motionTimeSeconds() * speed) / (8 * Math.pow(p.periodYears, 0.5))) * Math.PI * 2 * 0.25;
     ref.current.position.copy(orbitPoint(p, ang, tmp));
     ref.current.getWorldPosition(world);
-    registry().set(p.name, world.clone());
-    material.uniforms.uTime.value = clock.elapsedTime;
+    let position = registry().get(p.name);
+    if (!position) {
+      position = new THREE.Vector3();
+      registry().set(p.name, position);
+    }
+    position.copy(world);
+    material.uniforms.uStar.value.copy(starPos).applyMatrix4(camera.matrixWorldInverse);
+    const pixels = (size / camera.position.distanceTo(world)) * viewport.height;
+    if (meshRef.current) meshRef.current.parent.visible = pixels > 0.15;
+    material.uniforms.uTime.value = motionTimeSeconds();
     // Tidally locked worlds keep one face to the star; others spin.
     if (meshRef.current) {
       if (p.tidallyLocked) meshRef.current.lookAt(starPos);
-      else meshRef.current.rotation.y += dt * 0.3;
+      else meshRef.current.rotation.y = motionTimeSeconds() * 0.3;
     }
   });
   const pick = (e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 4) return;
     e.stopPropagation();
     onPick(p.name);
   };
@@ -220,17 +216,18 @@ function ExoBody({
     <>
       <primitive object={line} />
       <group ref={ref}>
-        <mesh ref={meshRef} material={material} onClick={pick}>
+        <mesh ref={meshRef} name={`exoplanet:${p.name}`} material={material} onClick={pick}>
           <sphereGeometry args={[size, 48, 32]} />
         </mesh>
         {/* Outer Rayleigh / photochemical atmospheric scattering shell */}
         {mode >= 1 && (
           <mesh scale={1.045}>
             <sphereGeometry args={[size, 32, 24]} />
-            <meshBasicMaterial
-              color={mode === 1 ? "#5ca4ff" : mode === 2 ? "#ff6828" : p.color}
+            <shaderMaterial
+              vertexShader={SURF_VERT}
+              fragmentShader={ATMOSPHERE}
+              uniforms={material.uniforms}
               transparent
-              opacity={mode === 2 ? 0.16 : 0.14}
               side={THREE.BackSide}
               depthWrite={false}
               blending={THREE.AdditiveBlending}
@@ -241,10 +238,11 @@ function ExoBody({
         {hasRings && (
           <mesh rotation={[Math.PI / 2.3, 0.18, 0]}>
             <ringGeometry args={[size * 1.45, size * 2.35, 96]} />
-            <meshBasicMaterial
-              color={p.color}
+            <shaderMaterial
+              vertexShader={SURF_VERT}
+              fragmentShader={RING}
+              uniforms={material.uniforms}
               transparent
-              opacity={0.42}
               side={THREE.DoubleSide}
               depthWrite={false}
             />
@@ -261,7 +259,6 @@ function ExoBody({
   );
 }
 
-/** Host star at its true radius, rendered with animated 3D FBM convective granulation and coronal glow. */
 /** Habitable-zone annulus (green "Goldilocks" band). */
 function HabitableZone({ inner, outer }: { inner: number; outer: number }) {
   return (

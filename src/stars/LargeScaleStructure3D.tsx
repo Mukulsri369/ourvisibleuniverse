@@ -1,5 +1,6 @@
 // @ts-nocheck
-import { useMemo, useRef } from "react";
+import { StructureCloud, COSMIC_POINT_VERTEX, COSMIC_POINT_FRAGMENT } from "./StructureCloud";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
@@ -7,6 +8,7 @@ import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
 import {
   COSMIC_BENCHMARKS,
+  surveyScenePosition,
   generateSurveyDistributionPoints,
   SURVEY_FOOTPRINTS,
   type SurveyId,
@@ -125,21 +127,7 @@ function ObservationalSurveyWeb() {
     return { geometry: geo, visibleCount: passing };
   }, [rawData, selectedSurveys, redshiftFilter]);
 
-  const dotTex = useMemo(makeDotTexture, []);
-  const pointsMaterial = useMemo(
-    () =>
-      new THREE.PointsMaterial({
-        map: dotTex,
-        size: 180,
-        sizeAttenuation: true,
-        vertexColors: true,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        opacity: 0.88,
-      }),
-    [dotTex],
-  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   // Survey Footprint Cones / Wedges (SDSS Northern & Southern Galactic Caps, 2dFGRS strips)
   const footprintLines = useMemo(() => {
@@ -197,7 +185,16 @@ function ObservationalSurveyWeb() {
   return (
     <group>
       {/* 3D Observed Galaxy Survey Points */}
-      <points geometry={geometry} material={pointsMaterial} frustumCulled={false} />
+      <points geometry={geometry} frustumCulled={false}>
+        <shaderMaterial
+          vertexShader={COSMIC_POINT_VERTEX}
+          fragmentShader={COSMIC_POINT_FRAGMENT}
+          vertexColors
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
 
       {/* Survey Footprint Visual Boundaries */}
       {showSurveyFootprints && footprintLines && (
@@ -234,60 +231,9 @@ function ObservationalSurveyWeb() {
       {/* Confirmed Large-Scale Cosmological Structures & Clusters */}
       {showCosmicBenchmarks && (
         <group>
-          {COSMIC_BENCHMARKS.map((b) => {
-            const pos = toXYZ(b.l, b.b, b.distanceGlyPlanck * 1e9);
-            const color =
-              b.type === "cluster"
-                ? "#38bdf8"
-                : b.type === "supercluster"
-                  ? "#c084fc"
-                  : b.type === "wall"
-                    ? "#fbbf24"
-                    : "#64748b";
-            return (
-              <group key={b.id} position={pos}>
-                {/* Visual marker glow sphere */}
-                <mesh>
-                  <sphereGeometry args={[b.diameterMly * 0.4e6, 16, 16]} />
-                  <meshBasicMaterial
-                    color={color}
-                    wireframe
-                    transparent
-                    opacity={0.3}
-                    blending={THREE.AdditiveBlending}
-                  />
-                </mesh>
-
-                {/* Interactive billboard label */}
-                <Billboard follow lockX={false} lockY={false} lockZ={false}>
-                  <Html center distanceFactor={1e7} occlude={false}>
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedCosmicBenchmarkId(b.id);
-                      }}
-                      className="cursor-pointer select-none rounded-md border border-white/20 bg-slate-950/85 px-2.5 py-1 text-xs backdrop-blur-md shadow-lg transition-transform hover:scale-110 active:scale-95"
-                      style={{
-                        color,
-                        boxShadow: `0 0 12px ${color}40`,
-                      }}
-                    >
-                      <div className="font-bold flex items-center gap-1">
-                        <span
-                          className="size-1.5 rounded-full"
-                          style={{ backgroundColor: color }}
-                        />
-                        {b.name}
-                      </div>
-                      <div className="text-[10px] text-slate-300 font-mono">
-                        z={b.meanRedshift.toFixed(4)} • {b.distanceGlyPlanck.toFixed(2)} Gly
-                      </div>
-                    </div>
-                  </Html>
-                </Billboard>
-              </group>
-            );
-          })}
+          {COSMIC_BENCHMARKS.map((b) => (
+            <StructureCloud key={b.id} benchmark={b} />
+          ))}
         </group>
       )}
     </group>
@@ -360,21 +306,7 @@ function IllustrisTNGSimulationWeb() {
     return { geometry: geo, visibleCount: passing };
   }, [rawSimData, simulationComponent]);
 
-  const dotTex = useMemo(makeDotTexture, []);
-  const pointsMat = useMemo(
-    () =>
-      new THREE.PointsMaterial({
-        map: dotTex,
-        size: 220,
-        sizeAttenuation: true,
-        vertexColors: true,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-        opacity: 0.9,
-      }),
-    [dotTex],
-  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
 
   // Simulation Bounding Box wireframe: ~987 Mly (302.6 comoving Mpc)
   const boxSizeLy = TNG300_METADATA.boxSizeComovingMly * 1e6;
@@ -406,7 +338,16 @@ function IllustrisTNGSimulationWeb() {
   return (
     <group>
       {/* Simulation Particles */}
-      <points geometry={geometry} material={pointsMat} frustumCulled={false} />
+      <points geometry={geometry} frustumCulled={false}>
+        <shaderMaterial
+          vertexShader={COSMIC_POINT_VERTEX}
+          fragmentShader={COSMIC_POINT_FRAGMENT}
+          vertexColors
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
 
       {/* Wireframe Simulation Bounding Box with dimension indicators */}
       {showSimulationBoundingBox && (
@@ -510,17 +451,18 @@ function IllustrisTNGSimulationWeb() {
 // -----------------------------------------------------------------------------
 
 export function LargeScaleStructure3D() {
-  const cosmicWebMode = useStore((s) => s.cosmicWebMode);
-  const showCosmicWebDensity = useStore((s) => s.showCosmicWebDensity);
-
-  if (!showCosmicWebDensity || cosmicWebMode === "off") {
-    return null;
-  }
-
+  const mode = useStore((s) => s.cosmicWebMode),
+    visible = useStore((s) => s.showCosmicWebDensity),
+    id = useStore((s) => s.selectedCosmicBenchmarkId),
+    showBench = useStore((s) => s.showCosmicBenchmarks);
+  const benchmark = COSMIC_BENCHMARKS.find((b) => b.id === id);
   return (
     <group>
-      {cosmicWebMode === "observational" && <ObservationalSurveyWeb />}
-      {cosmicWebMode === "simulation" && <IllustrisTNGSimulationWeb />}
+      {visible && mode === "observational" && <ObservationalSurveyWeb />}
+      {visible && mode === "simulation" && <IllustrisTNGSimulationWeb />}
+      {benchmark && !(visible && mode === "observational" && showBench) && (
+        <StructureCloud benchmark={benchmark} />
+      )}
     </group>
   );
 }

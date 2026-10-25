@@ -1995,8 +1995,7 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     ],
     description:
       "A giant interstellar star-forming cloud in Sagittarius bisected by a dark dust lane, housing the turbulent Hourglass core sculpted by young O-star Herschel 36.",
-    visualNote:
-      "Luminous rose Hα lagoon crossed by dark extinction lanes and a glowing cyan core.",
+    visualNote: "Luminous rose Hα lagoon crossed by dark extinction lanes and a glowing cyan core.",
     source: "NASA / ESA Hubble",
     nebulaClass: "emission",
     filterPalette: "Optical Hα + [O III] & Dust Extinction",
@@ -2062,5 +2061,5 @@ export function objectVisitDistance(item: ObservedObject): number {
   if (item.diameterLy >= 0.05) return Math.max(item.diameterLy * 1.8, 0.2);
   // Compact remnants use a minimum presentation scale of 2e-7 ly in the
   // renderer. Keep the camera outside that model instead of inside its beams.
-  return Math.max(item.diameterLy * 24, 8e-7);
+  return Math.max(item.diameterLy * 4.5, 8e-7);
 }

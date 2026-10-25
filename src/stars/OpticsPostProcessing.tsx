@@ -30,6 +30,7 @@ export function OpticsPostProcessing() {
   const bloomRadius = useStore((s) => s.bloomRadius);
   const bloomThreshold = useStore((s) => s.bloomThreshold);
   const exposure = useStore((s) => s.exposure);
+  const sceneBrightness = useStore((s) => s.sceneBrightness);
   const toneMappingAlgorithm = useStore((s) => s.toneMappingAlgorithm);
   const setPerformanceStats = useStore((s) => s.setPerformanceStats);
 
@@ -66,6 +67,10 @@ export function OpticsPostProcessing() {
     comp.addPass(bloomPass);
 
     const outputPass = new OutputPass();
+    outputPass.uniforms.sceneBrightness = { value: 1 };
+    outputPass.material.fragmentShader = outputPass.material.fragmentShader
+      .replace("varying vec2 vUv;", "uniform float sceneBrightness;\nvarying vec2 vUv;")
+      .replace("// color space", "gl_FragColor.rgb *= sceneBrightness;\n// color space");
     comp.addPass(outputPass);
 
     return { comp, bloomPass, renderPass, renderTarget, outputPass };
@@ -85,6 +90,10 @@ export function OpticsPostProcessing() {
     composer.bloomPass.radius = bloomRadius;
     composer.bloomPass.threshold = bloomThreshold;
   }, [bloomEnabled, bloomStrength, bloomRadius, bloomThreshold, composer]);
+
+  useEffect(() => {
+    composer.outputPass.uniforms.sceneBrightness.value = sceneBrightness;
+  }, [composer, sceneBrightness]);
 
   // Sync Tone Mapping & Exposure
   useEffect(() => {

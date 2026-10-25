@@ -1,3 +1,5 @@
+import { GalaxyRadiance } from "./GalaxyRadiance";
+import { motionTimeSeconds } from "./sim-clock";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
@@ -47,416 +49,6 @@ function hashSeed(s: string) {
   return h >>> 0;
 }
 
-type Geos = THREE.BufferGeometry[];
-const GEO_CACHE = new Map<string, Geos>();
-
-function pack(pos: Float32Array, col: Float32Array, size: Float32Array) {
-  const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-  g.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
-  // Bounding sphere enables instantaneous GPU frustum culling
-  g.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 200_000);
-  return g;
-}
-
-function buildGalaxy(m: GalaxyModel): Geos {
-  const cached = GEO_CACHE.get(m.key);
-  if (cached) return cached;
-  const rand = mulberry32(hashSeed(m.key));
-  const out: Geos = [];
-  const B = (n: number) => Math.round(n * m.density);
-
-  const young = m.youngColor;
-  const old = m.oldColor;
-
-  const spheroid = (
-    count: number,
-    radius: number,
-    flatten: number,
-    power: number,
-    bright: number,
-  ) => {
-    const p = new Float32Array(count * 3);
-    const c = new Float32Array(count * 3);
-    const s = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      const r = Math.pow(rand(), power) * radius;
-      const theta = rand() * Math.PI * 2;
-      const phi = Math.acos(2 * rand() - 1);
-      p[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      p[i * 3 + 1] = r * Math.cos(phi) * flatten;
-      p[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
-      const b = (0.65 + rand() * 0.35) * bright;
-      c[i * 3] = old[0] * b;
-      c[i * 3 + 1] = old[1] * b;
-      c[i * 3 + 2] = old[2] * b;
-      s[i] = 5 + rand() * 11;
-    }
-    return pack(p, c, s);
-  };
-
-  // ---------- disk & morphology-dependent stellar populations ----------
-  if (
-    m.morphology === "spiral" ||
-    m.morphology === "grand-design" ||
-    m.morphology === "flocculent" ||
-    m.morphology === "barred" ||
-    m.morphology === "irregular" ||
-    m.morphology === "dwarf" ||
-    m.morphology === "interacting"
-  ) {
-    const isGrandDesign = m.morphology === "grand-design";
-    const isFlocculent = m.morphology === "flocculent";
-    const isDwarf = m.morphology === "dwarf";
-    const isInteracting = m.morphology === "interacting";
-    const isIrregular = m.morphology === "irregular";
-
-    const count = B(
-      isDwarf
-        ? 90_000
-        : isIrregular
-          ? 150_000
-          : isInteracting
-            ? 220_000
-            : isFlocculent
-              ? 250_000
-              : 260_000,
-    );
-
-    const PITCH = (m.pitchDeg * Math.PI) / 180;
-    const K = 1 / Math.tan(PITCH);
-    // Flocculent galaxies have many short arm fragments (8-14), grand-design has 2-4 clean arms
-    const armCount = isFlocculent ? Math.max(8, m.arms) : isDwarf ? 1 : Math.max(1, m.arms);
-    const p = new Float32Array(count * 3);
-    const c = new Float32Array(count * 3);
-    const s = new Float32Array(count);
-    const rScale = m.diskRadius * (isDwarf ? 0.35 : 0.22);
-
-    for (let i = 0; i < count; i++) {
-      const onArm = isDwarf
-        ? false
-        : isFlocculent
-          ? rand() < 0.62
-          : rand() < (isIrregular ? 0.45 : isGrandDesign ? 0.84 : 0.76);
-
-      const r = -Math.log(1 - rand() * 0.999) * rScale + m.diskRadius * 0.04;
-      if (r > m.diskRadius) {
-        i--;
-        continue;
-      }
-
-      const armIdx = Math.floor(rand() * armCount);
-      const base = (armIdx / armCount) * Math.PI * 2;
-      const rMin = Math.max(m.diskRadius * 0.03, 1);
-      const ridge = base + K * Math.log(Math.max(r, rMin) / rMin);
-      const flare = 1 + Math.min(2.0, r / (m.diskRadius * 0.4));
-      const sigma = (m.diskRadius * (isFlocculent ? 0.12 : 0.06) * flare) / Math.max(r, rMin);
-      const noise = onArm
-        ? (rand() + rand() + rand() - 1.5) *
-          sigma *
-          (isIrregular ? 1.6 : isFlocculent ? 1.35 : 0.85)
-        : (rand() - 0.5) * Math.PI * 0.95;
-      const theta = ridge + noise;
-      const scaleH = (rand() < 0.15 ? 0.045 : 0.012) * m.diskRadius;
-      const uz = rand() - 0.5;
-      const z =
-        -Math.sign(uz) *
-        Math.log(1 - 2 * Math.abs(uz) * 0.999) *
-        scaleH *
-        Math.exp(-r / (m.diskRadius * 0.45));
-
-      const interactingOffset = isInteracting ? (i % 2 === 0 ? -0.16 : 0.16) * m.diskRadius : 0;
-      const tidalStretch = isInteracting ? 1 + 0.7 * Math.pow(r / m.diskRadius, 3) : 1;
-
-      p[i * 3] = Math.cos(theta) * r * tidalStretch + interactingOffset;
-      p[i * 3 + 1] = isDwarf ? z * 1.8 : z;
-      p[i * 3 + 2] = Math.sin(theta) * r;
-
-      const ridgeClose = Math.exp(-(noise * noise) / (2 * sigma * sigma));
-      const rNorm = Math.min(1, r / m.diskRadius);
-      const isYoung = !isDwarf && rand() < (onArm ? 0.38 * ridgeClose * (1 - rNorm * 0.35) : 0.05);
-      const isGiant = !isYoung && rand() < 0.07;
-
-      if (isYoung) {
-        c[i * 3] = young[0];
-        c[i * 3 + 1] = young[1];
-        c[i * 3 + 2] = young[2];
-        s[i] = 16 + rand() * 20;
-      } else if (isGiant) {
-        c[i * 3] = 1.0;
-        c[i * 3 + 1] = 0.62;
-        c[i * 3 + 2] = 0.42;
-        s[i] = 14 + rand() * 18;
-      } else {
-        const b = (isDwarf ? 0.52 : 0.66) + rand() * 0.34;
-        c[i * 3] = old[0] * b;
-        c[i * 3 + 1] = old[1] * b;
-        c[i * 3 + 2] = old[2] * b;
-        s[i] = (isDwarf ? 4 : 6) + rand() * 9;
-      }
-    }
-    out.push(pack(p, c, s));
-
-    // Curved tidal tail streams for interacting galaxies (Antennae, Tadpole, Stephan's Quintet)
-    if (isInteracting) {
-      const tailCount = B(55_000);
-      const tp = new Float32Array(tailCount * 3);
-      const tc = new Float32Array(tailCount * 3);
-      const ts = new Float32Array(tailCount);
-      const isSingleTail = m.key.includes("tadpole");
-      for (let i = 0; i < tailCount; i++) {
-        const branch = isSingleTail ? 1 : i % 2 === 0 ? 1 : -1;
-        const u = Math.pow(rand(), 0.72);
-        const arc = u * Math.PI * (isSingleTail ? 1.35 : 1.05);
-        const rad = m.diskRadius * (0.35 + u * (isSingleTail ? 1.85 : 1.35));
-        const width = m.diskRadius * (0.04 + u * 0.08);
-        const angle = branch > 0 ? arc : Math.PI + arc * 0.92;
-        tp[i * 3] = Math.cos(angle) * rad + (rand() - 0.5) * width;
-        tp[i * 3 + 1] =
-          branch * Math.sin(u * Math.PI) * m.diskRadius * 0.14 + (rand() - 0.5) * width * 0.45;
-        tp[i * 3 + 2] = Math.sin(angle) * rad + (rand() - 0.5) * width;
-        const knot = rand() < 0.42;
-        tc[i * 3] = knot ? young[0] : old[0] * 0.85;
-        tc[i * 3 + 1] = knot ? young[1] : old[1] * 0.85;
-        tc[i * 3 + 2] = knot ? young[2] : old[2] * 0.85;
-        ts[i] = knot ? 14 + rand() * 18 : 6 + rand() * 8;
-      }
-      out.push(pack(tp, tc, ts));
-    }
-  }
-
-  // ---------- collisional / non-collisional ring galaxy (Cartwheel, Hoag's Object, Mayall's) ----------
-  if (m.morphology === "ring") {
-    const ringR = m.ringRadius ?? m.diskRadius * 0.86;
-    const innerR = m.bulgeRadius * 1.45;
-    const count = B(210_000);
-    const p = new Float32Array(count * 3);
-    const c = new Float32Array(count * 3);
-    const s = new Float32Array(count);
-    const hasSpokes = m.arms > 0;
-    const spokeCount = Math.max(4, m.arms);
-    for (let i = 0; i < count; i++) {
-      const u = rand();
-      let r: number;
-      let theta: number;
-      let isOuterRing = false;
-      if (u < (hasSpokes ? 0.62 : 0.78)) {
-        // Outer starburst ring
-        isOuterRing = true;
-        const gauss = (rand() + rand() + rand() - 1.5) * 0.66;
-        r = ringR + gauss * m.diskRadius * 0.085;
-        theta = rand() * Math.PI * 2;
-      } else if (hasSpokes && u < 0.86) {
-        // Radial Cartwheel spokes connecting inner ring to outer ring
-        const spokeIdx = Math.floor(rand() * spokeCount);
-        const tSpoke = rand();
-        r = innerR + tSpoke * (ringR - innerR);
-        const spiralTwist = tSpoke * 0.58;
-        theta =
-          (spokeIdx / spokeCount) * Math.PI * 2 +
-          spiralTwist +
-          (rand() - 0.5) * 0.14 * (1 - tSpoke * 0.3);
-      } else {
-        // Inner circum-nuclear ring
-        const gauss = (rand() + rand() + rand() - 1.5) * 0.6;
-        r = innerR + gauss * m.diskRadius * 0.04;
-        theta = rand() * Math.PI * 2;
-      }
-      p[i * 3] = Math.cos(theta) * r;
-      p[i * 3 + 1] = (rand() - 0.5) * m.diskRadius * (isOuterRing ? 0.018 : 0.025);
-      p[i * 3 + 2] = Math.sin(theta) * r;
-
-      if (isOuterRing && rand() < 0.78) {
-        c[i * 3] = young[0];
-        c[i * 3 + 1] = young[1];
-        c[i * 3 + 2] = young[2];
-        s[i] = 15 + rand() * 22;
-      } else {
-        const b = 0.7 + rand() * 0.3;
-        c[i * 3] = old[0] * b;
-        c[i * 3 + 1] = old[1] * b;
-        c[i * 3 + 2] = old[2] * b;
-        s[i] = 7 + rand() * 11;
-      }
-    }
-    out.push(pack(p, c, s));
-  }
-
-  // ---------- edge-on / lenticular / starburst smooth disk ----------
-  if (m.morphology === "lenticular" || m.morphology === "edge-on" || m.morphology === "starburst") {
-    const count = B(m.morphology === "starburst" ? 150_000 : 190_000);
-    const p = new Float32Array(count * 3);
-    const c = new Float32Array(count * 3);
-    const s = new Float32Array(count);
-    const elong = m.morphology === "starburst" ? 2.6 : 1;
-    for (let i = 0; i < count; i++) {
-      const r = -Math.log(1 - rand() * 0.999) * m.diskRadius * 0.26;
-      if (r > m.diskRadius) {
-        i--;
-        continue;
-      }
-      const theta = rand() * Math.PI * 2;
-      const uz = rand() - 0.5;
-      const z = -Math.sign(uz) * Math.log(1 - 2 * Math.abs(uz) * 0.999) * m.diskRadius * 0.02;
-      p[i * 3] = Math.cos(theta) * r * elong;
-      p[i * 3 + 1] = z;
-      p[i * 3 + 2] = Math.sin(theta) * r;
-      const rNorm = Math.min(1, r / m.diskRadius);
-      const isYoung = m.morphology === "starburst" && rand() < 0.4 * (1 - rNorm);
-      if (isYoung) {
-        c[i * 3] = young[0];
-        c[i * 3 + 1] = young[1];
-        c[i * 3 + 2] = young[2];
-        s[i] = 16 + rand() * 22;
-      } else {
-        const b = 0.6 + rand() * 0.4;
-        c[i * 3] = old[0] * b;
-        c[i * 3 + 1] = old[1] * b;
-        c[i * 3 + 2] = old[2] * b;
-        s[i] = 6 + rand() * 10;
-      }
-    }
-    out.push(pack(p, c, s));
-  }
-
-  // ---------- bulge ----------
-  out.push(
-    spheroid(
-      B(m.morphology === "elliptical" ? 260_000 : 70_000),
-      m.bulgeRadius,
-      m.morphology === "elliptical" ? 0.68 : 0.55,
-      m.morphology === "elliptical" ? 1.6 : 2.3,
-      1,
-    ),
-  );
-
-  // ---------- bar ----------
-  if (m.barLength > 0) {
-    const count = B(45_000);
-    const p = new Float32Array(count * 3);
-    const c = new Float32Array(count * 3);
-    const s = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      const t = (rand() - 0.5) * 2;
-      const x = t * m.barLength;
-      const w = m.barLength * 0.22 * (1 - Math.abs(t) * 0.55);
-      p[i * 3] = x + (rand() - 0.5) * w * 0.4;
-      p[i * 3 + 1] = (rand() - 0.5) * w * 0.35;
-      p[i * 3 + 2] = (rand() - 0.5) * w;
-      c[i * 3] = old[0];
-      c[i * 3 + 1] = old[1] * 0.96;
-      c[i * 3 + 2] = old[2] * 0.85;
-      s[i] = 9 + rand() * 14;
-    }
-    out.push(pack(p, c, s));
-  }
-
-  // ---------- star-forming ring ----------
-  if (m.ringRadius) {
-    const count = B(60_000);
-    const p = new Float32Array(count * 3);
-    const c = new Float32Array(count * 3);
-    const s = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      const r = m.ringRadius + (rand() + rand() + rand() - 1.5) * m.ringRadius * 0.12;
-      const theta = rand() * Math.PI * 2;
-      p[i * 3] = Math.cos(theta) * r;
-      p[i * 3 + 1] = (rand() - 0.5) * m.diskRadius * 0.01;
-      p[i * 3 + 2] = Math.sin(theta) * r;
-      if (rand() < 0.45) {
-        c[i * 3] = young[0];
-        c[i * 3 + 1] = young[1];
-        c[i * 3 + 2] = young[2];
-        s[i] = 17 + rand() * 22;
-      } else {
-        c[i * 3] = old[0];
-        c[i * 3 + 1] = old[1];
-        c[i * 3 + 2] = old[2];
-        s[i] = 8 + rand() * 11;
-      }
-    }
-    out.push(pack(p, c, s));
-  }
-
-  // ---------- HII knots ----------
-  if (m.morphology !== "elliptical") {
-    const clusters = Math.round(300 * m.density),
-      per = 24;
-    const n = clusters * per;
-    const p = new Float32Array(n * 3);
-    const c = new Float32Array(n * 3);
-    const s = new Float32Array(n);
-    let k = 0;
-    const PITCH = (Math.max(m.pitchDeg, 8) * Math.PI) / 180;
-    const K = 1 / Math.tan(PITCH);
-    for (let ci = 0; ci < clusters; ci++) {
-      const r = m.diskRadius * (0.12 + rand() * 0.8);
-      const rMin = Math.max(m.diskRadius * 0.03, 1);
-      const armIdx = Math.floor(rand() * Math.max(1, m.arms));
-      const base = m.arms > 0 ? (armIdx / m.arms) * Math.PI * 2 : rand() * Math.PI * 2;
-      const theta =
-        m.arms > 0
-          ? base + K * Math.log(Math.max(r, rMin) / rMin) + (rand() - 0.5) * 0.12
-          : rand() * Math.PI * 2;
-      const cx = Math.cos(theta) * r * (m.morphology === "starburst" ? 2.6 : 1);
-      const cz = Math.sin(theta) * r;
-      const spread = m.diskRadius * 0.012;
-      for (let j = 0; j < per; j++) {
-        p[k * 3] = cx + (rand() - 0.5) * spread;
-        p[k * 3 + 1] = (rand() - 0.5) * spread * 0.4;
-        p[k * 3 + 2] = cz + (rand() - 0.5) * spread;
-        const q = rand();
-        c[k * 3] = 1.0;
-        c[k * 3 + 1] = 0.4 + q * 0.22;
-        c[k * 3 + 2] = 0.66 + q * 0.28;
-        s[k] = 22 + rand() * 30;
-        k++;
-      }
-    }
-    out.push(pack(p, c, s));
-  }
-
-  // ---------- dust lanes (dark-red absorbing band) ----------
-  if (m.dustLanes) {
-    const count = B(70_000);
-    const p = new Float32Array(count * 3);
-    const c = new Float32Array(count * 3);
-    const s = new Float32Array(count);
-    const PITCH = (Math.max(m.pitchDeg, 10) * Math.PI) / 180;
-    const K = 1 / Math.tan(PITCH);
-    for (let i = 0; i < count; i++) {
-      const r =
-        m.morphology === "edge-on" || m.morphology === "lenticular"
-          ? m.diskRadius * (0.72 + rand() * 0.2)
-          : m.diskRadius * (0.08 + rand() * 0.85);
-      const rMin = Math.max(m.diskRadius * 0.03, 1);
-      const armIdx = Math.floor(rand() * Math.max(1, m.arms));
-      const base = m.arms > 0 ? (armIdx / m.arms) * Math.PI * 2 : 0;
-      const theta =
-        m.arms > 0
-          ? base + K * Math.log(Math.max(r, rMin) / rMin) - 0.14 + (rand() - 0.5) * 0.1
-          : rand() * Math.PI * 2;
-      p[i * 3] = Math.cos(theta) * r * (m.morphology === "starburst" ? 2.6 : 1);
-      p[i * 3 + 1] = (rand() - 0.5) * m.diskRadius * 0.008;
-      p[i * 3 + 2] = Math.sin(theta) * r;
-      const b = 0.1 + rand() * 0.18;
-      c[i * 3] = b * 1.0;
-      c[i * 3 + 1] = b * 0.42;
-      c[i * 3 + 2] = b * 0.28;
-      s[i] = 18 + rand() * 26;
-    }
-    out.push(pack(p, c, s));
-  }
-
-  // ---------- halo / globular clusters ----------
-  out.push(spheroid(B(20_000), m.haloRadius, 1, 0.6, 0.85));
-
-  GEO_CACHE.set(m.key, out);
-  return out;
-}
-
-// ---------------------------------------------------------------
 // textures
 // ---------------------------------------------------------------
 
@@ -649,9 +241,9 @@ function GxMoon({ moon, parent }: { moon: GxMoonDef; parent: string }) {
   const ref = useRef<THREE.Mesh>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!ref.current) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     const a = phase + (t / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
     ref.current.position.set(
@@ -662,6 +254,8 @@ function GxMoon({ moon, parent }: { moon: GxMoonDef; parent: string }) {
     ref.current.getWorldPosition(tmp);
     const reg = getRegistry();
     const key = `${parent} · ${moon.name}`;
+    if (!window.__exoSizes) window.__exoSizes = new Map();
+    window.__exoSizes.set(key, moon.size);
     let v = reg.get(key);
     if (!v) {
       v = new THREE.Vector3();
@@ -695,9 +289,9 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
     [def],
   );
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!groupRef.current) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     groupRef.current.position.copy(keplerPosition(def, phase, t, local));
     if (bodyRef.current) bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     groupRef.current.getWorldPosition(tmp);
@@ -820,9 +414,9 @@ function GxBelt({ system }: { system: GxSystemDef }) {
     return { geom: g, radii, thetas, heights, omegas };
   }, [system, au]);
   const beltTick = useRef(0);
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (beltTick.current++ % 3 !== 0) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < radii.length; i++) {
@@ -866,8 +460,8 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
   );
   const omega = useMemo(() => systemOmega(m), [m]);
 
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+  useFrame(() => {
+    const t = motionTimeSeconds();
     const ang = s.orbitPhase + omega * t;
     if (groupRef.current) {
       groupRef.current.position.set(
@@ -946,133 +540,32 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
 // ---------------------------------------------------------------
 
 function GalaxyBody({ m }: { m: GalaxyModel }) {
-  const geoms = useMemo(() => buildGalaxy(m), [m]);
-  const tex = useMemo(makeStarSprite, []);
-  const coreTex = useMemo(() => makeGlowTexture(m.coreColor, "rgba(255,150,60,0)"), [m]);
   const center = useMemo(() => galaxyCenter(m), [m]);
+  const ref = useRef<THREE.Group>(null!);
   const { size } = useThree();
-
-  const vFlat = useMemo(() => (2 * Math.PI * (m.diskRadius * 0.5)) / m.rotPeriod, [m]);
-  const rCore = m.diskRadius * 0.08;
-
-  const shader = useMemo(
-    () => ({
-      uniforms: {
-        uTex: { value: tex },
-        uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
-        uTime: { value: 0 },
-        uVflat: { value: vFlat },
-        uRcore: { value: rCore },
-        uOpacity: { value: 0 },
-      },
-      vertexShader: /* glsl */ `
-        attribute float aSize;
-        varying vec3 vColor;
-        uniform float uPixelRatio;
-        uniform float uTime;
-        uniform float uVflat;
-        uniform float uRcore;
-        void main(){
-          vColor = color;
-          float r = length(position.xz);
-          float vrot = (r < uRcore) ? uVflat * (r / uRcore) : uVflat;
-          float omega = (r > 0.5) ? (vrot / r) : 0.0;
-          float ang = omega * uTime;
-          float c = cos(ang), s = sin(ang);
-          vec3 p = vec3(position.x * c - position.z * s, position.y, position.x * s + position.z * c);
-          vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          float size = aSize * uPixelRatio * (300.0 / max(-mv.z, 1.0));
-          gl_PointSize = clamp(size, 1.0, 70.0);
-          gl_Position = projectionMatrix * mv;
-        }
-      `,
-      fragmentShader: /* glsl */ `
-        uniform sampler2D uTex;
-        uniform float uOpacity;
-        varying vec3 vColor;
-        void main(){
-          vec2 uv = gl_PointCoord * 2.0 - 1.0;
-          float r2 = dot(uv, uv);
-          if (r2 > 1.0) discard;
-          vec4 t = texture2D(uTex, gl_PointCoord);
-          // Analytical Gaussian core + soft Airy halo for HDR stellar cluster fidelity
-          float core = exp(-r2 * 7.5);
-          float halo = exp(-r2 * 2.1) * 0.45;
-          float intensity = max(t.a, core + halo);
-          if (intensity < 0.03) discard;
-          vec3 hdrCol = mix(vColor, vec3(1.0, 0.98, 0.95), core * 0.35);
-          gl_FragColor = vec4(hdrCol, intensity * uOpacity);
-        }
-      `,
-      vertexColors: true,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    }),
-    [tex, vFlat, rCore],
-  );
-
-  const groupRef = useRef<THREE.Group>(null!);
-
-  useFrame(({ clock, camera }) => {
-    shader.uniforms.uTime.value = clock.elapsedTime;
-    const lodState = lodManager.evaluate(
+  useFrame(({ camera }) => {
+    const lod = lodManager.evaluate(
       m.key,
       camera,
       center,
       { objectRadiusLy: m.diskRadius, enterHighDetailPixels: 45, exitHighDetailPixels: 22 },
       size.height,
     );
-    shader.uniforms.uOpacity.value = lodState.alphaNear;
-    if (groupRef.current) {
-      groupRef.current.visible = lodState.isDetailedVisible;
+    if (ref.current) {
+      ref.current.visible = lod.isDetailedVisible;
+      const volume = ref.current.getObjectByName("galaxy-radiance:" + m.name) as THREE.Mesh;
+      const mat = volume?.material as THREE.ShaderMaterial;
+      if (mat) mat.uniforms.uOpacity.value = lod.alphaNear;
     }
   });
-
   return (
     <group
       position={center.toArray()}
       rotation={[(m.inclination * Math.PI) / 180, 0, (m.posAngle * Math.PI) / 180]}
     >
-      <group ref={groupRef} rotation={[Math.PI / 2, 0, 0]}>
-        {geoms.map((g, i) => (
-          <points key={i} geometry={g} frustumCulled={true}>
-            <shaderMaterial args={[shader]} />
-          </points>
-        ))}
-        <sprite scale={[m.bulgeRadius * 1.6, m.bulgeRadius * 1.6, 1]}>
-          <spriteMaterial
-            map={coreTex}
-            transparent
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-            opacity={0.8}
-          />
-        </sprite>
+      <group ref={ref} rotation-x={Math.PI / 2}>
+        <GalaxyRadiance model={m} />
         {m.system && <GxSystem m={m} system={m.system} />}
-        {/* Labeled scientific reconstruction notice */}
-        <Billboard position={[0, -m.diskRadius * 1.08, 0]}>
-          <Html
-            center
-            distanceFactor={Math.max(m.diskRadius * 6, 25000)}
-            style={{ pointerEvents: "none" }}
-          >
-            <div className="flex flex-col items-center gap-1 rounded-md border border-cyan-500/30 bg-black/85 px-3 py-1.5 text-center shadow-lg backdrop-blur">
-              <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                Scientific Model Reconstruction
-              </div>
-              <div className="text-[11px] font-medium text-white/90">
-                {m.name} ({m.morphology.toUpperCase()})
-              </div>
-              <div className="max-w-[280px] text-[8.5px] text-white/50">
-                Density profile reconstructed from measured orientation (inc {m.inclination}°, PA{" "}
-                {m.posAngle}°)
-                {m.system ? " • Planetary systems modelled for scientific illustration" : ""}
-              </div>
-            </div>
-          </Html>
-        </Billboard>
       </group>
     </group>
   );

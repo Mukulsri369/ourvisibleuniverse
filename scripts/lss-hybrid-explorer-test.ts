@@ -131,13 +131,8 @@ for (let i = 0; i < obsSample.count; i++) {
     const z = obsSample.positions[i * 3 + 2];
     const d = Math.sqrt(x * x + y * y + z * z);
     if (d > 0) {
-      const decRad = Math.asin(y / d);
-      const raRad = Math.atan2(z, x);
-      // NGP: alpha_NGP = 192.86 deg (3.366 rad), delta_NGP = 27.13 deg (0.4735 rad)
-      const bRad = Math.asin(
-        Math.sin(decRad) * Math.sin(0.4735) +
-          Math.cos(decRad) * Math.cos(0.4735) * Math.cos(raRad - 3.366),
-      );
+      // Survey buffers use the scene Galactic frame: Y / radius is sin(latitude).
+      const bRad = Math.asin(Math.max(-1, Math.min(1, y / d)));
       const bDeg = (bRad * 180) / Math.PI;
       if (Math.abs(bDeg) < 7.9) {
         zoaViolations++;

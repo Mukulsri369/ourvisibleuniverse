@@ -1,3 +1,4 @@
+import { motionTimeSeconds } from "./sim-clock";
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -53,13 +54,13 @@ export function StellarSurface({ star, radius }: { star: NamedStar; radius: numb
       uActivity: { value: star.temperature < 4000 ? 1 : 0.5 },
     };
   }, [map, star.name, star.temperature]);
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera }) => {
     if (!mesh.current) return;
     mesh.current.getWorldPosition((mesh.current.userData.world ??= new THREE.Vector3()));
     const distance = camera.position.distanceTo(mesh.current.userData.world);
     mesh.current.visible = distance < radius * 1800;
-    uniforms.uTime.value = clock.elapsedTime;
-    mesh.current.rotation.y = clock.elapsedTime * 0.018;
+    uniforms.uTime.value = motionTimeSeconds();
+    mesh.current.rotation.y = motionTimeSeconds() * 0.018;
   });
   return (
     <mesh

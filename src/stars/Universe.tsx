@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from "react";
+import { makeGalaxyPortrait } from "./galaxy-portrait";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
@@ -254,15 +255,20 @@ function ObservationalGalaxyNode({
   const isElliptical = /Elliptical|Lenticular/i.test(g.type) || /^E|^S0/i.test(g.morphologyClass);
   const isIrregular = /Irregular|Starburst/i.test(g.type) || /dIrr|IBm/i.test(g.morphologyClass);
 
-  const tex = isHighZ
-    ? highZTex
-    : isBarred
-      ? barredTex
-      : isElliptical
-        ? ellipTex
-        : isIrregular
-          ? irrTex
-          : spiralTex;
+  const model = GALAXY_BY_NAME.get(g.name);
+  const portrait = useMemo(() => (model ? makeGalaxyPortrait(model) : null), [model]);
+  useEffect(() => () => portrait?.dispose(), [portrait]);
+  const tex =
+    portrait ??
+    (isHighZ
+      ? highZTex
+      : isBarred
+        ? barredTex
+        : isElliptical
+          ? ellipTex
+          : isIrregular
+            ? irrTex
+            : spiralTex);
 
   const meshRef = useRef<THREE.Mesh>(null!);
   const matRef = useRef<THREE.MeshBasicMaterial>(null!);
@@ -284,7 +290,7 @@ function ObservationalGalaxyNode({
     return Math.max(g.size, g.distance * 0.001);
   }, [g, isHighZ]);
 
-  const pickRadius = Math.max(renderSize * 0.6, g.distance * 0.015);
+  const pickRadius = Math.max(renderSize * 0.5, g.distance * 0.0003);
 
   useFrame(({ camera }) => {
     if (!matRef.current) return;
@@ -309,6 +315,7 @@ function ObservationalGalaxyNode({
     document.body.style.cursor = "";
   };
   const onClick = (e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 4) return;
     e.stopPropagation();
     setVisitGalaxy({
       name: g.name,
@@ -318,6 +325,7 @@ function ObservationalGalaxyNode({
       size: g.size,
       distance: g.distance,
       type: g.type,
+      view: "overview",
     });
   };
 
@@ -335,7 +343,7 @@ function ObservationalGalaxyNode({
         <meshBasicMaterial
           ref={matRef}
           map={tex}
-          color={g.color}
+          color={portrait ? "#ffffff" : g.color}
           transparent
           depthWrite={false}
           blending={THREE.AdditiveBlending}

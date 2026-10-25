@@ -20,6 +20,10 @@ let currentJd = J2000_JD + (Date.now() - J2000_MS) / MS_PER_DAY;
 let isPaused = false;
 let timeMultiplier = 1.0; // 1.0 = nominal standard speed
 let focus = 1.0;
+let motionSeconds = 0;
+let motionStep = 0;
+export const motionDeltaSeconds = () => motionStep;
+export const motionTimeSeconds = () => motionSeconds;
 
 /**
  * Sets the simulation date directly from a JavaScript Date or ISO string or JD.
@@ -86,9 +90,11 @@ export function tickSim(dt: number) {
   const d = Math.min(dt, 0.1);
   const st = useStore.getState();
 
+  motionStep = isPaused ? 0 : d * st.systemSpeed * timeMultiplier;
   if (!isPaused) {
     // Base speed: systemSpeed=25 -> 1 Earth year per 31.5 s
     // (i.e. ~11.59 days of sim time per real second)
+    motionSeconds += motionStep;
     const yearsPerSec = st.systemSpeed / 25.0 / 31.5;
     const simYearsStep = d * yearsPerSec * timeMultiplier;
     currentJd += simYearsStep * DAYS_PER_JULIAN_YEAR;

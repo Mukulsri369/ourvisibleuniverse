@@ -108,14 +108,9 @@ for (let i = 0; i < surveyPointsSample.count; i++) {
     const z = surveyPointsSample.positions[i * 3 + 2];
     const d = Math.sqrt(x * x + y * y + z * z);
     if (d > 0) {
-      // In equatorial Cartesian coordinates used in generateSurveyDistributionPoints:
-      const decRad = Math.asin(y / d);
-      const raRad = Math.atan2(z, x);
-      // Approximate Galactic latitude b:
-      const bRad = Math.asin(
-        Math.sin(decRad) * Math.sin(0.4735) +
-          Math.cos(decRad) * Math.cos(0.4735) * Math.cos(raRad - 3.366),
-      );
+      // In the shared scene Galactic frame:
+      // Survey buffers use the scene Galactic frame: Y / radius is sin(latitude).
+      const bRad = Math.asin(Math.max(-1, Math.min(1, y / d)));
       const bDeg = (bRad * 180) / Math.PI;
       if (Math.abs(bDeg) < 7.9) {
         zoaViolations++;

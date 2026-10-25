@@ -422,7 +422,7 @@ export function CameraRig() {
     desired.current.radius = r;
     const offset = new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
     const sph = new THREE.Spherical().setFromVector3(offset);
-    desired.current.theta = sph.theta;
+    desired.current.theta = nearestOrbitAngle(spherical.current.theta, sph.theta);
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));
     fovTarget.current = 42;
   }, [visitGalaxy]);

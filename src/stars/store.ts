@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { clampTimeRate } from "./scene-controls";
 import { stellarDisplayRadius } from "./camera-navigation";
 import { create } from "zustand";
 import { NAMED_STARS, type NamedStar } from "./data";
@@ -259,6 +260,8 @@ interface State {
   bloomRadius: number;
   bloomThreshold: number;
   exposure: number;
+  sceneBrightness: number;
+  setSceneBrightness: (value: number) => void;
   toneMappingAlgorithm: "aces" | "agx" | "neutral" | "reinhard";
   diffractionSpikesEnabled: boolean;
   atmosphericScintillation: number;
@@ -846,6 +849,7 @@ export const useStore = create<State>((set, get) => ({
   setVisitGalaxy: (g) =>
     set({
       visitGalaxy: g ? withFocus(g) : null,
+      cameraFree: g ? false : get().cameraFree,
       exoVisit: null,
       selectedStar: null,
       visitPlanet: null,
@@ -893,7 +897,7 @@ export const useStore = create<State>((set, get) => ({
   toggleUiHidden: () => set((st) => ({ uiHidden: !st.uiHidden })),
   toggleCameraFree: () => set((st) => ({ cameraFree: !st.cameraFree })),
   setZoomSpeed: (n) => set({ zoomSpeed: n }),
-  setSystemSpeed: (n) => set({ systemSpeed: n }),
+  setSystemSpeed: (n) => set({ systemSpeed: clampTimeRate(n) }),
   setTrailSize: (n) => set({ trailSize: n }),
   toggleOrbits: () => set((st) => ({ showOrbits: !st.showOrbits })),
   toggleVelocityVectors: () => set((st) => ({ showVelocityVectors: !st.showVelocityVectors })),
@@ -966,6 +970,7 @@ export const useStore = create<State>((set, get) => ({
         selectedObjectId: null,
         selectedStar: null,
         exoVisit: null,
+        cameraFree: false,
         tourActive: false,
         flyTo: {
           x: pos.x,
@@ -1044,6 +1049,7 @@ export const useStore = create<State>((set, get) => ({
   bloomRadius: 0.28,
   bloomThreshold: 0.82,
   exposure: 0.1,
+  sceneBrightness: 1,
   toneMappingAlgorithm: "neutral",
   diffractionSpikesEnabled: true,
   atmosphericScintillation: 0.35,
@@ -1090,7 +1096,10 @@ export const useStore = create<State>((set, get) => ({
   setBloomStrength: (v) => set({ bloomStrength: v }),
   setBloomRadius: (v) => set({ bloomRadius: v }),
   setBloomThreshold: (v) => set({ bloomThreshold: v }),
-  setExposure: (v) => set({ exposure: v }),
+  setSceneBrightness: (v) =>
+    set({ sceneBrightness: Number.isFinite(v) ? Math.min(2, Math.max(0.05, v)) : 1 }),
+  setExposure: (v) =>
+    set({ exposure: Number.isFinite(v) ? Math.min(2.5, Math.max(0.001, v)) : 0.1 }),
   setToneMappingAlgorithm: (algo) => set({ toneMappingAlgorithm: algo }),
   toggleDiffractionSpikes: () =>
     set((st) => ({ diffractionSpikesEnabled: !st.diffractionSpikesEnabled })),

@@ -23,6 +23,8 @@ export function OpticsControlModal() {
   const setBloomThreshold = useStore((s) => s.setBloomThreshold);
 
   const exposure = useStore((s) => s.exposure);
+  const sceneBrightness = useStore((s) => s.sceneBrightness);
+  const setSceneBrightness = useStore((s) => s.setSceneBrightness);
   const setExposure = useStore((s) => s.setExposure);
 
   const toneMapping = useStore((s) => s.toneMappingAlgorithm);
@@ -201,6 +203,61 @@ export function OpticsControlModal() {
               <label className="text-xs font-semibold uppercase tracking-wider text-white/60">
                 Optics & Color Management
               </label>
+              <div className="my-4 space-y-3 rounded-lg border border-white/10 p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      useStore.setState({
+                        opticsPreset: "scientific",
+                        exposure: 0.045,
+                        sceneBrightness: 0.65,
+                        bloomStrength: 0.04,
+                        bloomRadius: 0.18,
+                        bloomThreshold: 1.1,
+                        toneMappingAlgorithm: "agx",
+                      })
+                    }
+                    className="min-h-11 rounded border border-sky-300/30 px-3 text-xs text-sky-200 hover:bg-sky-300/10"
+                  >
+                    Low glare
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      useStore.setState({
+                        opticsPreset: "scientific",
+                        exposure: 0.1,
+                        sceneBrightness: 1,
+                        bloomStrength: 0.1,
+                        bloomRadius: 0.28,
+                        bloomThreshold: 0.82,
+                        toneMappingAlgorithm: "neutral",
+                        bloomEnabled: true,
+                      })
+                    }
+                    className="min-h-11 rounded border border-white/20 px-3 text-xs text-white/75 hover:bg-white/5"
+                  >
+                    Restore default
+                  </button>
+                </div>
+                <label className="block text-xs text-white/70" htmlFor="scene-brightness">
+                  Brightness{" "}
+                  <span className="float-right font-mono text-sky-200">
+                    {Math.round(sceneBrightness * 100)}%
+                  </span>
+                </label>
+                <input
+                  id="scene-brightness"
+                  type="range"
+                  min={-4}
+                  max={1}
+                  step={0.025}
+                  value={Math.log2(sceneBrightness)}
+                  onChange={(e) => setSceneBrightness(2 ** Number(e.target.value))}
+                  className="w-full accent-sky-300"
+                />
+              </div>
 
               <div className="mt-2.5 space-y-3.5">
                 <div>
@@ -229,38 +286,35 @@ export function OpticsControlModal() {
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/70">Exposure</span>
                     <span className="font-mono text-cyan-400">
-                      {exposure < 0.1 ? exposure.toFixed(3) : exposure.toFixed(2)} EV
+                      {exposure < 0.1 ? exposure.toFixed(3) : exposure.toFixed(2)}×
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-1.5">
                     <button
                       type="button"
-                      onClick={() =>
-                        setExposure(Math.max(0.001, Number((exposure - 0.02).toFixed(3))))
-                      }
+                      onClick={() => setExposure(exposure / Math.pow(2, 0.25))}
                       className="px-2 py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-white/80 border border-white/10"
-                      title="Reduce exposure by 0.02 EV"
+                      title="Reduce exposure by one-quarter stop"
                     >
-                      -0.02
+                      −¼ stop
                     </button>
                     <input
                       type="range"
-                      min="0.001"
-                      max="2.5"
-                      step="0.002"
-                      value={exposure}
-                      onChange={(e) => setExposure(parseFloat(e.target.value))}
+                      aria-label="Exposure"
+                      min={Math.log2(0.001)}
+                      max={Math.log2(2.5)}
+                      step={0.025}
+                      value={Math.log2(exposure)}
+                      onChange={(e) => setExposure(2 ** Number(e.target.value))}
                       className="flex-1 accent-cyan-400"
                     />
                     <button
                       type="button"
-                      onClick={() =>
-                        setExposure(Math.min(2.5, Number((exposure + 0.02).toFixed(3))))
-                      }
+                      onClick={() => setExposure(exposure * Math.pow(2, 0.25))}
                       className="px-2 py-1 text-[10px] font-mono rounded bg-white/5 hover:bg-white/10 text-white/80 border border-white/10"
-                      title="Increase exposure by 0.02 EV"
+                      title="Increase exposure by one-quarter stop"
                     >
-                      +0.02
+                      +¼ stop
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-2">

@@ -1,3 +1,5 @@
+import { GalaxyRadiance, ANDROMEDA_APPEARANCE } from "./GalaxyRadiance";
+import { motionTimeSeconds } from "./sim-clock";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
@@ -548,9 +550,9 @@ function M31Moon({ moon, parent }: { moon: M31MoonDef; parent: string }) {
   const ref = useRef<THREE.Mesh>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!ref.current) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     const a = phase + (t / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
     ref.current.position.set(
@@ -567,6 +569,8 @@ function M31Moon({ moon, parent }: { moon: M31MoonDef; parent: string }) {
       reg.set(key, v);
     }
     v.copy(tmp);
+    if (!window.__exoSizes) window.__exoSizes = new Map();
+    window.__exoSizes.set(key, moon.size);
   });
   return (
     <mesh ref={ref}>
@@ -593,9 +597,9 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
     [def],
   );
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!groupRef.current) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     groupRef.current.position.copy(keplerPosition(def, phase, t));
     if (bodyRef.current) bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     groupRef.current.getWorldPosition(tmp);
@@ -715,9 +719,9 @@ function M31Belt() {
     return { geom: g, radii, thetas, heights, omegas };
   }, []);
   const beltTick = useRef(0);
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (beltTick.current++ % 3 !== 0) return;
-    const t = clock.elapsedTime;
+    const t = motionTimeSeconds();
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < radii.length; i++) {
@@ -762,8 +766,8 @@ function PA99N2System() {
   const sysPhase = useMemo(() => Math.atan2(PA99N2_LOCAL.z, PA99N2_LOCAL.x), []);
   const sysOmega = useMemo(() => V_FLAT / Math.max(sysR, 1), [sysR]);
 
-  useFrame(({ clock }) => {
-    const t = clock.elapsedTime;
+  useFrame(() => {
+    const t = motionTimeSeconds();
     if (starRef.current) starRef.current.rotation.y = t * 0.05;
     if (sysRef.current) {
       const ang = sysPhase + sysOmega * t;
@@ -881,71 +885,15 @@ function M31FarGlow() {
 }
 
 export function Andromeda() {
-  const { diskGeo, ringGeo, bulgeGeo, barGeo, hiiGeo, haloGeo, dustGeo, satGeo } = useMemo(
-    buildAndromeda,
-    [],
-  );
-  const tex = useMemo(makeStarSprite, []);
   const coreTex = useMemo(() => makeGlowTexture("rgba(255,226,178,1)", "rgba(255,150,60,0)"), []);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const subsystems = useStore((s) => s.subsystems);
   const { size } = useThree();
 
-  const shader = useMemo(
-    () => ({
-      uniforms: {
-        uTex: { value: tex },
-        uPixelRatio: { value: typeof window !== "undefined" ? window.devicePixelRatio : 1 },
-        uTime: { value: 0 },
-        uVflat: { value: V_FLAT },
-        uRcore: { value: R_CORE },
-        uOpacity: { value: 0 },
-      },
-      vertexShader: /* glsl */ `
-        attribute float aSize;
-        varying vec3 vColor;
-        uniform float uPixelRatio;
-        uniform float uTime;
-        uniform float uVflat;
-        uniform float uRcore;
-        void main(){
-          vColor = color;
-          float r = length(position.xz);
-          float vrot = (r < uRcore) ? uVflat * (r / uRcore) : uVflat;
-          float omega = (r > 0.5) ? (vrot / r) : 0.0;
-          float ang = omega * uTime;
-          float c = cos(ang), s = sin(ang);
-          vec3 p = vec3(position.x * c - position.z * s, position.y, position.x * s + position.z * c);
-          vec4 mv = modelViewMatrix * vec4(p, 1.0);
-          float size = aSize * uPixelRatio * (300.0 / max(-mv.z, 1.0));
-          gl_PointSize = clamp(size, 1.0, 70.0);
-          gl_Position = projectionMatrix * mv;
-        }
-      `,
-      fragmentShader: /* glsl */ `
-        uniform sampler2D uTex;
-        uniform float uOpacity;
-        varying vec3 vColor;
-        void main(){
-          vec4 t = texture2D(uTex, gl_PointCoord);
-          if (t.a < 0.04) discard;
-          gl_FragColor = vec4(vColor, t.a * uOpacity);
-        }
-      `,
-      vertexColors: true,
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    }),
-    [tex],
-  );
-
   // Detail continuous LOD with hysteresis and smooth alpha crossfade
   const detailRef = useRef<THREE.Group>(null!);
   const camWorld = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ clock, camera, gl }) => {
-    shader.uniforms.uTime.value = clock.elapsedTime;
-    shader.uniforms.uPixelRatio.value = gl.getPixelRatio();
+  useFrame(({ camera }) => {
     if (detailRef.current) {
       detailRef.current.getWorldPosition(camWorld);
       const lodState = lodManager.evaluate(
@@ -955,27 +903,11 @@ export function Andromeda() {
         { objectRadiusLy: M31_DISK_RADIUS, enterHighDetailPixels: 52, exitHighDetailPixels: 26 },
         size.height,
       );
-      // Angularly small background galaxies need fewer points, not their
-      // close-inspection budget. Keep every model mounted for seamless visits.
-      const distance = camera.position.distanceTo(camWorld);
-      const fraction = THREE.MathUtils.clamp(
-        (M31_DISK_RADIUS * 4) / Math.max(distance, 1),
-        0.12,
-        1,
-      );
-      for (const geometry of [
-        diskGeo,
-        ringGeo,
-        bulgeGeo,
-        barGeo,
-        hiiGeo,
-        haloGeo,
-        dustGeo,
-        satGeo,
-      ]) {
-        geometry.setDrawRange(0, Math.floor(geometry.getAttribute("position").count * fraction));
-      }
-      shader.uniforms.uOpacity.value = lodState.alphaNear;
+      const volume = detailRef.current.getObjectByName(
+        "galaxy-radiance:Andromeda (M31)",
+      ) as THREE.Mesh;
+      if (volume)
+        (volume.material as THREE.ShaderMaterial).uniforms.uOpacity.value = lodState.alphaNear;
       detailRef.current.visible = subsystems.andromeda && lodState.isDetailedVisible;
     }
   });
@@ -999,11 +931,7 @@ export function Andromeda() {
       {/* Galaxy body lives in its own XZ plane, tipped into the disc plane */}
       <group rotation={[Math.PI / 2, 0, 0]}>
         <group ref={detailRef}>
-          {[diskGeo, ringGeo, barGeo, bulgeGeo, hiiGeo, haloGeo, dustGeo, satGeo].map((g, i) => (
-            <points key={i} geometry={g} frustumCulled={true}>
-              <shaderMaterial args={[shader]} />
-            </points>
-          ))}
+          <GalaxyRadiance model={ANDROMEDA_APPEARANCE} />
         </group>
         <mesh onClick={visit}>
           <sphereGeometry args={[120, 24, 24]} />
