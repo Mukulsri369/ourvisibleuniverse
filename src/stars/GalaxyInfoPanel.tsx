@@ -1,3 +1,4 @@
+import { GALAXY_REFERENCES } from "./galaxy-references";
 import { GalaxyDestinationGrid } from "./GalaxyDestinationGrid";
 import { useState } from "react";
 import { HideablePanel, NasaResources } from "./NasaResources";
@@ -98,6 +99,11 @@ export function GalaxyInfoPanel() {
 
   const g: ObservationalGalaxy | undefined = visit ? getGalaxyByAnyName(visit.name) : undefined;
   const system = visit ? systemFor(visit.name) : null;
+  const reference = visit
+    ? GALAXY_REFERENCES[
+        visit.name === ANDROMEDA_NAME ? "andromeda" : (GALAXY_BY_NAME.get(visit.name)?.key ?? "")
+      ]
+    : undefined;
   const detailed = visit ? visit.name === "Milky Way" || isDetailedGalaxy(visit.name) : false;
 
   // Active cosmology parameters
@@ -315,10 +321,20 @@ export function GalaxyInfoPanel() {
                   </p>
 
                   <div className="mt-4 rounded-lg border border-cyan-500/25 bg-cyan-950/30 p-3 text-[11px] leading-relaxed text-cyan-200/90">
-                    <strong className="text-cyan-300">Astrophysical Reconstruction:</strong>{" "}
-                    Internal 3D stellar density distribution and dust lanes are reconstructed from
-                    measured orientation angles (inclination &amp; position angle), NED integrated
-                    photometry, and empirical de Vaucouleurs / exponential disk profiles.
+                    <strong className="text-cyan-300">Astrophysical Reconstruction:</strong> Stellar
+                    depth, dust and unobserved viewing angles are reconstructed from the catalogue
+                    morphology. Fine structures are illustrative; the most distant galaxies are
+                    unresolved. Observatory composites may include colour-mapped infrared light.
+                    {reference && (
+                      <a
+                        className="mt-2 block underline underline-offset-4"
+                        href={reference.source}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View observatory image and full credits ↗
+                      </a>
+                    )}
                   </div>
 
                   {g?.uncertaintyNotes && (

@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
+
 import { clampTimeRate } from "./scene-controls";
 import { stellarDisplayRadius } from "./camera-navigation";
 import { create } from "zustand";
@@ -259,6 +261,8 @@ interface State {
   bloomStrength: number;
   bloomRadius: number;
   bloomThreshold: number;
+  autoGalaxyExposure: boolean;
+  setAutoGalaxyExposure: (enabled: boolean) => void;
   exposure: number;
   sceneBrightness: number;
   setSceneBrightness: (value: number) => void;
@@ -495,7 +499,7 @@ export const DEFAULT_CAMERA_BOOKMARKS: CameraBookmark[] = [
     radius: 0.25,
     theta: 0.9,
     phi: 1.4,
-    target: { x: -26000, y: 0, z: 0 },
+    target: { x: -SGR_A_DISTANCE_LY, y: 0, z: 0 },
     fov: 38,
     category: "deep_space",
     selectedObjectId: "sgr-a",
@@ -611,7 +615,7 @@ export const GUIDED_JOURNEY_STEPS: GuidedJourneyStep[] = [
     scaleDescription: "100,000 Light-Years (30 kpc)",
     distanceLy: 100_000,
     cameraDistance: 160_000,
-    targetPos: { x: -26000, y: 0, z: 0 },
+    targetPos: { x: -SGR_A_DISTANCE_LY, y: 0, z: 0 },
     lookbackTimeText: "0 to 100,000 Years",
     redshiftText: "z ≈ 0.000",
     cosmicEpoch: "Present Day (t = 13.8 Gyr)",
@@ -1048,6 +1052,8 @@ export const useStore = create<State>((set, get) => ({
   bloomStrength: 0.1,
   bloomRadius: 0.28,
   bloomThreshold: 0.82,
+  autoGalaxyExposure: true,
+  setAutoGalaxyExposure: (enabled) => set({ autoGalaxyExposure: enabled }),
   exposure: 0.1,
   sceneBrightness: 1,
   toneMappingAlgorithm: "neutral",

@@ -1,3 +1,6 @@
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
+import { GALAXY_MODELS, galaxyCenter } from "./galaxy-models";
+import { ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
 import { BlackHoleLensPass } from "./BlackHoleLensPass";
 import { OBJECT_BY_ID } from "./observed-objects";
 /**
@@ -37,6 +40,16 @@ export function OpticsPostProcessing() {
   const setPerformanceStats = useStore((s) => s.setPerformanceStats);
 
   // Frame timing & metrics
+  const galaxyMeter = useRef({ gain: 1, core: 0 });
+  const galaxyCenters = useMemo(
+    () =>
+      [...GALAXY_MODELS, ANDROMEDA_APPEARANCE]
+        .map((model) => ({ model, center: galaxyCenter(model) }))
+        .concat([
+          { model: MILKY_WAY_APPEARANCE, center: new THREE.Vector3(-SGR_A_DISTANCE_LY, 0, 0) },
+        ]),
+    [],
+  );
   const frameCount = useRef(0);
   const lastTime = useRef(performance.now());
   const fpsAccumulator = useRef(60);
@@ -167,7 +180,11 @@ export function OpticsPostProcessing() {
     if (q.seconds >= q.cooldown && q.frames >= 30) {
       const average = q.elapsed / q.frames;
       const maxDpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      if (average > 0.024 && dpr > 0.75) setDpr(Math.max(0.75, dpr - 0.25));
+      const minimumDpr = composer.blackHolePass.enabled
+        ? Math.min(window.devicePixelRatio || 1, 1)
+        : 0.75;
+      if (dpr < minimumDpr) setDpr(minimumDpr);
+      else if (average > 0.024 && dpr > minimumDpr) setDpr(Math.max(minimumDpr, dpr - 0.25));
       else if (average < 0.014 && dpr < maxDpr) setDpr(Math.min(maxDpr, dpr + 0.25));
       q.seconds = 0;
       q.frames = 0;
@@ -181,6 +198,66 @@ export function OpticsPostProcessing() {
       state.renderingQualityTier,
       dt,
     );
+    // Bounded scene-aware adaptation, independent of simulation time. Manual values
+    // stay in the store; returning to planets restores them without a brightness jump.
+    let galaxyWeight = state.autoGalaxyExposure
+      ? THREE.MathUtils.smoothstep(camera.position.length(), 180000, 2500000)
+      : 0;
+    let core = 0;
+    const star = state.selectedStar;
+    const nearStar =
+      star &&
+      Math.hypot(
+        camera.position.x - star.x,
+        camera.position.y - star.y,
+        camera.position.z - star.z,
+      ) < 100;
+    const focus = state.visitGalaxy?.focus;
+    const nearSystem =
+      focus &&
+      Math.hypot(
+        camera.position.x - focus.x,
+        camera.position.y - focus.y,
+        camera.position.z - focus.z,
+      ) < Math.max(1, focus.distance * 5);
+    if (
+      state.autoGalaxyExposure &&
+      camera.position.length() > 12000 &&
+      !state.selectedObjectId &&
+      !nearStar &&
+      !nearSystem
+    ) {
+      for (const { model, center } of galaxyCenters) {
+        const relative = camera.position.distanceTo(center) / model.diskRadius;
+        if (relative < 8) {
+          galaxyWeight = Math.max(galaxyWeight, 1 - THREE.MathUtils.smoothstep(relative, 5, 8));
+          core = Math.max(core, 1 - THREE.MathUtils.smoothstep(relative, 0.08, 0.65));
+        }
+      }
+    } else galaxyWeight = 0;
+    // 0.1 default -> 0.135 wide field, 0.075 at a dense core. Avoid compounding
+    // the cinematic preset or a manually raised exposure into a white galaxy.
+    const target = THREE.MathUtils.lerp(
+      1,
+      Math.min(1.35, 0.135 / Math.max(exposure, 0.001)) * (1 - core * 0.45),
+      galaxyWeight,
+    );
+    const meter = galaxyMeter.current;
+    meter.gain = THREE.MathUtils.damp(meter.gain, target, 2.3, Math.min(dt, 0.1));
+    meter.core = THREE.MathUtils.damp(meter.core, galaxyWeight, 2.3, Math.min(dt, 0.1));
+    gl.toneMappingExposure = exposure * meter.gain;
+    composer.bloomPass.strength = bloomStrength * THREE.MathUtils.lerp(1, 0.5, meter.core);
+    composer.bloomPass.threshold = THREE.MathUtils.lerp(
+      bloomThreshold,
+      Math.max(bloomThreshold, 1.2),
+      meter.core,
+    );
+    if (composer.blackHolePass.enabled) {
+      composer.bloomPass.enabled = false;
+      composer.bloomPass.strength = Math.min(composer.bloomPass.strength, 0.035);
+      composer.bloomPass.radius = Math.min(bloomRadius, 0.12);
+      composer.bloomPass.threshold = Math.max(composer.bloomPass.threshold, 2.2);
+    } else composer.bloomPass.radius = bloomRadius;
     // Render through composer with post-processing passes
     const autoReset = gl.info.autoReset;
     gl.info.autoReset = false;

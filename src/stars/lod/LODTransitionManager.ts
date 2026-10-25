@@ -91,7 +91,7 @@ export class LODTransitionManager {
     const smoothT = blendT * blendT * (3 - 2 * blendT);
 
     const alphaNear = smoothT;
-    const alphaFar = Math.max(0, 1.0 - smoothT * 1.15); // Fade far sprite as detail resolves
+    const alphaFar = Math.max(0, 1.0 - smoothT); // Fade far sprite as detail resolves
     const isDetailedVisible = alphaNear > 0.01;
 
     const updatedState: LODState = {

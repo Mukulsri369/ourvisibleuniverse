@@ -1,3 +1,8 @@
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
+import { galaxyDetailAlpha } from "./galaxy-detail-state";
+import { useGalaxyPortrait } from "./useGalaxyPortrait";
+import { SurveyGalaxyField } from "./SurveyGalaxyField";
+import { MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
 import { makeGalaxyPortrait } from "./galaxy-portrait";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -26,7 +31,7 @@ import { LargeScaleStructure3D } from "./LargeScaleStructure3D";
 export function toXYZ(l: number, b: number, d: number): THREE.Vector3 {
   const lr = (l * Math.PI) / 180;
   const br = (b * Math.PI) / 180;
-  // Flip x so galactic-center direction (l=0) points to -x (matches GALACTIC_CENTER at (-26000, 0, 0))
+  // Flip x so galactic-center direction (l=0) points to -x (matches GALACTIC_CENTER at (-SGR_A_DISTANCE_LY, 0, 0))
   const x = -d * Math.cos(br) * Math.cos(lr);
   const y = d * Math.sin(br);
   const z = d * Math.cos(br) * Math.sin(lr);
@@ -258,8 +263,9 @@ function ObservationalGalaxyNode({
   const model = GALAXY_BY_NAME.get(g.name);
   const portrait = useMemo(() => (model ? makeGalaxyPortrait(model) : null), [model]);
   useEffect(() => () => portrait?.dispose(), [portrait]);
+  const observedPortrait = useGalaxyPortrait(model?.key ?? g.name, portrait ?? spiralTex);
   const tex =
-    portrait ??
+    (observedPortrait.observed ? observedPortrait.texture : portrait) ??
     (isHighZ
       ? highZTex
       : isBarred
@@ -272,6 +278,7 @@ function ObservationalGalaxyNode({
 
   const meshRef = useRef<THREE.Mesh>(null!);
   const matRef = useRef<THREE.MeshBasicMaterial>(null!);
+  const pickRef = useRef<THREE.Mesh>(null!);
   const [hovered, setHovered] = useState(false);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
 
@@ -285,23 +292,38 @@ function ObservationalGalaxyNode({
   }, [g]);
 
   // Dynamic scale ensuring distant galaxies remain distinguishable without popping
-  const renderSize = useMemo(() => {
-    if (isHighZ) return Math.max(g.size * 200, g.distance * 0.008);
-    return Math.max(g.size, g.distance * 0.001);
-  }, [g, isHighZ]);
 
-  const pickRadius = Math.max(renderSize * 0.5, g.distance * 0.0003);
+  const normal = useMemo(() => new THREE.Vector3(0, 0, 1).applyEuler(rot), [rot]);
+  const direction = useMemo(() => new THREE.Vector3(), []);
 
-  useFrame(({ camera }) => {
-    if (!matRef.current) return;
-    const d = camera.position.distanceTo(pos);
-    if (hasDetail) {
-      // Fade out the 2D disc smoothly as camera approaches Level 4 3D particle model
-      const fade = Math.min(1, Math.max(0, (d - g.size * 2.5) / (g.size * 7)));
-      matRef.current.opacity = fade;
-    } else {
-      matRef.current.opacity = 0.95;
-    }
+  useFrame(({ camera, size }) => {
+    if (!matRef.current || !meshRef.current) return;
+    const radius = model?.diskRadius ?? g.size * 0.5;
+    const detailEnabled = useStore.getState().subsystems.detailedGalaxies;
+    matRef.current.opacity =
+      hasDetail && detailEnabled ? 1 - (galaxyDetailAlpha.get(model!.key) ?? 0) : 1;
+    matRef.current.color.setScalar(5.5);
+    const distance = camera.position.distanceTo(pos);
+    const minSize =
+      (distance *
+        2 *
+        Math.tan(THREE.MathUtils.degToRad((camera as THREE.PerspectiveCamera).fov * 0.5)) *
+        5) /
+      size.height;
+    const diameter = Math.max(radius * 2, minSize);
+    if (pickRef.current) pickRef.current.scale.setScalar(diameter * 0.5);
+    direction.copy(camera.position).sub(pos).normalize();
+    const ratio =
+      model && ["elliptical", "dwarf"].includes(model.morphology)
+        ? 0.85
+        : Math.max(0.16, Math.abs(normal.dot(direction)));
+    meshRef.current.quaternion.copy(camera.quaternion);
+    meshRef.current.scale.set(
+      diameter,
+      diameter * (observedPortrait.observed ? 1 / observedPortrait.aspect : ratio),
+      1,
+    );
+    meshRef.current.visible = matRef.current.opacity > 0.001;
   });
 
   const onOver = (e: ThreeEvent<PointerEvent>) => {
@@ -339,7 +361,7 @@ function ObservationalGalaxyNode({
   return (
     <group position={pos}>
       <mesh ref={meshRef} rotation={rot} frustumCulled>
-        <planeGeometry args={[renderSize, renderSize]} />
+        <planeGeometry args={[1, 1]} />
         <meshBasicMaterial
           ref={matRef}
           map={tex}
@@ -352,8 +374,14 @@ function ObservationalGalaxyNode({
       </mesh>
 
       {/* Invisible pick target */}
-      <mesh visible={false} onPointerOver={onOver} onPointerOut={onOut} onClick={onClick}>
-        <sphereGeometry args={[pickRadius, 10, 10]} />
+      <mesh
+        ref={pickRef}
+        visible={false}
+        onPointerOver={onOver}
+        onPointerOut={onOut}
+        onClick={onClick}
+      >
+        <sphereGeometry args={[1, 10, 10]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
@@ -541,15 +569,20 @@ function ObservableUniverseShell() {
 
 function MilkyWayFarSprite() {
   const ref = useRef<THREE.Sprite>(null!);
-  const tex = useMemo(() => makeSpiralGalaxyTexture(), []);
+  const tex = useMemo(() => makeGalaxyPortrait(MILKY_WAY_APPEARANCE), []);
+  useEffect(() => () => tex.dispose(), [tex]);
   useFrame(({ camera }) => {
     if (!ref.current) return;
     const d = camera.position.length();
     const a = Math.min(1, Math.max(0, (d - 200_000) / 400_000));
-    (ref.current.material as THREE.SpriteMaterial).opacity = a * 0.9;
+    (ref.current.material as THREE.SpriteMaterial).opacity = a;
+    (ref.current.material as THREE.SpriteMaterial).color.setScalar(5.5);
+    const diameter = Math.max(100000, d * 0.003);
+    ref.current.scale.set(diameter, diameter * 0.65, 1);
+    ref.current.visible = useStore.getState().subsystems.milkyWay && a > 0.001;
   });
   return (
-    <sprite ref={ref} position={[-26000, 0, 0]} scale={[100_000, 100_000, 1]}>
+    <sprite ref={ref} position={[-SGR_A_DISTANCE_LY, 0, 0]} scale={[100_000, 100_000, 1]}>
       <spriteMaterial
         map={tex}
         transparent
@@ -612,6 +645,7 @@ export function Universe() {
       <ObservableUniverseShell />
       {subsystems.cosmicWeb && <LargeScaleStructure3D />}
       <MilkyWayFarSprite />
+      {showObservedGalaxies && <SurveyGalaxyField />}
 
       {/* Observed Extragalactic Catalog Nodes */}
       {showObservedGalaxies && (

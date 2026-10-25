@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
+
 import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
 export type ObjectCategory =
   | "Nebula"
@@ -1137,7 +1139,7 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     aliases: ["Sgr A*", "Milky Way Center"],
     category: "Black hole",
     subtype: "Supermassive black hole",
-    distance: 26673,
+    distance: SGR_A_DISTANCE_LY,
     l: 0,
     b: 0,
     diameterLy: 1.3e-5,
@@ -2061,7 +2063,7 @@ export function objectPosition(
 export function objectVisitDistance(item: ObservedObject): number {
   if (isBlackHoleTarget(item)) return blackHoleModel(item).radiusLy * 32;
   // Frame the entire diffuse cloud; users can then travel through its interior.
-  if (item.nebulaClass) return Math.max(item.diameterLy * 3.4, 0.2);
+  if (item.nebulaClass) return Math.max(item.diameterLy * 2.4, 0.2);
   if (item.diameterLy >= 0.05) return Math.max(item.diameterLy * 1.8, 0.2);
   // Compact remnants use a minimum presentation scale of 2e-7 ly in the
   // renderer. Keep the camera outside that model instead of inside its beams.

@@ -1,6 +1,11 @@
 import { OBSERVED_VISUAL_PROFILES } from "./observed-object-visuals";
 import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
-import { useBlackHoleJourney, descentMotion, descentRadiusRs } from "./black-hole-journey";
+import {
+  useBlackHoleJourney,
+  descentMotion,
+  descentRadiusRs,
+  BLACK_HOLE_DESCENT_SECONDS,
+} from "./black-hole-journey";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
@@ -54,6 +59,7 @@ export function CameraRig() {
   const resetOrientationTrigger = useStore((s) => s.resetOrientationTrigger);
 
   const descentSession = useRef({ id: "", returnRadius: 0 });
+  const coreHandoff = useRef(false);
   const minR = 1e-10;
   // Zoom range spans from inside the Solar System out to ~50 Gly
   // (observable-universe scale) so pulling back reveals Local Group,
@@ -72,7 +78,12 @@ export function CameraRig() {
   const planetMinimumRadius = () => {
     const name = useStore.getState().visitPlanet;
     if (!name) {
-      const star = useStore.getState().selectedStar;
+      const state = useStore.getState();
+      const selected = state.selectedObjectId
+        ? OBJECT_BY_ID.get(state.selectedObjectId)
+        : undefined;
+      if (isBlackHoleTarget(selected)) return blackHoleModel(selected).radiusLy * 1.08;
+      const star = state.selectedStar;
       return star ? stellarDisplayRadius(star) * 1.5 : minR;
     }
     const def =
@@ -167,7 +178,14 @@ export function CameraRig() {
     };
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const speed = useStore.getState().zoomSpeed / 50;
+      const state = useStore.getState();
+      const selected = state.selectedObjectId
+        ? OBJECT_BY_ID.get(state.selectedObjectId)
+        : undefined;
+      const nearHole =
+        isBlackHoleTarget(selected) &&
+        desired.current.radius < blackHoleModel(selected).radiusLy * 100;
+      const speed = (state.zoomSpeed / 50) * (nearHole ? 0.5 : 1);
       const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
       // Logarithmic damping avoids nausea and uncontrolled overshooting
       const dampFactor = Math.min(
@@ -573,6 +591,27 @@ export function CameraRig() {
       else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
     }
 
+    // Same physical anchor across galaxy -> nuclear cluster -> horizon. Change
+    // context once at this boundary without a fly-to, radius or angle reset.
+    if (
+      visitGalaxy?.name === "Milky Way" &&
+      desired.current.radius < 25 &&
+      spherical.current.radius < 80 &&
+      target.current.distanceTo(scratchTarget.current) < 0.5 &&
+      !coreHandoff.current
+    ) {
+      coreHandoff.current = true;
+      const core = OBJECT_BY_ID.get("sgr-a")!;
+      desired.current.radius = Math.max(blackHoleModel(core).radiusLy * 32, desired.current.radius);
+      useStore.setState({
+        selectedObjectId: "sgr-a",
+        visitGalaxy: null,
+        selectedStar: null,
+        visitPlanet: null,
+        flyTo: null,
+      });
+    }
+    if (visitGalaxy?.name !== "Milky Way") coreHandoff.current = false;
     // Multiplicative logarithmic interpolation keeps close-up zoom smooth across
     // the enormous gap between a galaxy and a planet's surface.
     const anchorDistance =
@@ -590,12 +629,19 @@ export function CameraRig() {
         session = descentSession.current;
       if (session.id !== hole.id || descentMotion.startRadius === 0) {
         session.id = hole.id;
-        session.returnRadius = Math.max(desired.current.radius, rs * 32);
-        descentMotion.startRadius = Math.max(12, Math.min(80, spherical.current.radius / rs));
+        // Start from the actual vantage point, including a galaxy-scale
+        // approach. Never teleport a distant observer to an 80-Rs orbit.
+        scratchPos.current.copy(camera.position).sub(scratchTarget.current);
+        const actualRadius = Math.max(rs * 1.08, scratchPos.current.length());
+        spherical.current.setFromVector3(scratchPos.current);
+        desired.current.theta = nearestOrbitAngle(desired.current.theta, spherical.current.theta);
+        desired.current.phi = spherical.current.phi;
+        session.returnRadius = Math.max(actualRadius, rs * 32);
+        descentMotion.startRadius = Math.max(1.08, actualRadius / rs);
       }
       target.current.copy(scratchTarget.current);
       if (journey.mode === "falling") descentMotion.elapsed += Math.min(clampedDt, 0.05);
-      descentMotion.progress = Math.min(1, descentMotion.elapsed / 26);
+      descentMotion.progress = Math.min(1, descentMotion.elapsed / BLACK_HOLE_DESCENT_SECONDS);
       let radius = descentRadiusRs(descentMotion.startRadius, descentMotion.progress) * rs;
       if (journey.mode === "returning") {
         if (descentMotion.returnStartRadius === 0)

@@ -1,5 +1,7 @@
-import { formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
 // @ts-nocheck
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
+import { formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
+
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -1820,11 +1822,11 @@ export function SiteMap() {
       action: () => {
         setVisitGalaxy({
           name: "Milky Way",
-          x: -26000,
+          x: -SGR_A_DISTANCE_LY,
           y: 0,
           z: 0,
           size: 100000,
-          distance: 26000,
+          distance: SGR_A_DISTANCE_LY,
           type: "Barred Spiral (SBbc)",
           view: "overview",
         });

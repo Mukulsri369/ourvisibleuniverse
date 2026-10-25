@@ -1,3 +1,4 @@
+import { SGR_A_DISTANCE_LY } from "./galactic-scene";
 /**
  * Floating-Origin & Camera-Relative Rendering Engine
  * Reference: Cozzi, "3D Engine Design for Virtual Globes"; O'Neil, "GPU Gems 3"
@@ -182,7 +183,7 @@ export const HIERARCHICAL_FRAMES = {
   GALACTIC_CENTER: new SceneOriginNode(
     "galactic_center",
     "Milky Way Sgr A*",
-    new Vector3D(-26000, 0, 0),
+    new Vector3D(-SGR_A_DISTANCE_LY, 0, 0),
     10000,
   ),
   ANDROMEDA_M31: new SceneOriginNode(

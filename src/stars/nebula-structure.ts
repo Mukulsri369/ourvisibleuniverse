@@ -18,6 +18,6 @@ export const NEBULA_SHAPES: Record<string, number> = {
   m8: 16,
   m20: 17,
   sn1987a: 18,
-  "eta-car": 10,
+  "eta-car": 21,
   wr104: 19,
 };

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
 /** Low-cost distant portrait of each catalogue morphology; detail uses the 3D volume. */
 export function makeGalaxyPortrait(m: GalaxyModel) {
-  const n = 128,
+  const n = 256,
     pixels = new Uint8Array(n * n * 4);
   let seed = 0;
   for (const c of m.name) seed = (seed * 31 + c.charCodeAt(0)) % 997;
@@ -17,7 +17,12 @@ export function makeGalaxyPortrait(m: GalaxyModel) {
         angle = Math.atan2(py, px);
       const grain =
         0.5 +
-        0.5 * Math.sin(px * 157 + seed) * Math.sin(py * 191 - seed) * Math.sin((px + py) * 83);
+        0.5 *
+          Math.sin(
+            Math.sin(px * 157 + seed) * 41.7 +
+              Math.sin(py * 191 - seed) * 37.1 +
+              Math.sin((px + py) * 83) * 19.4,
+          );
       const phase =
         (angle -
           Math.log(Math.max(r, 0.045)) / Math.tan((Math.max(8, m.pitchDeg) * Math.PI) / 180)) *

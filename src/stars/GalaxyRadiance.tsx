@@ -1,3 +1,7 @@
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
+import { GALAXY_FRAGMENT } from "./galaxy-volume-shader";
+import { GALAXY_REFERENCES } from "./galaxy-references";
+import { useStore } from "./store";
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -10,52 +14,10 @@ varying vec3 vP;
 void main(){vP=position;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
 #include <logdepthbuf_vertex>
 }`;
-const FRAG = /* glsl */ `
-#include <logdepthbuf_pars_fragment>
-uniform vec3 uEye;uniform vec3 uOld;uniform vec3 uYoung;uniform float uMode;uniform float uSeed;uniform float uArms;uniform float uPitch;uniform float uBulge;uniform float uBar;uniform float uDust;uniform float uTime;uniform float uOpacity;uniform float uRing;uniform float uRotationRate;uniform float uSingleTail;
-varying vec3 vP;
-float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
-float noise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1)),f.x),f.y),f.z);}
-void main(){
-#include <logdepthbuf_fragment>
-vec3 rd=normalize(vP-uEye);float b=dot(uEye,rd),c=dot(uEye,uEye)-1.8;float disc=b*b-c;if(disc<0.)discard;
-float start=max(0.,-b-sqrt(disc)),finish=-b+sqrt(disc);
-bool elliptical=uMode<.5;bool irregular=uMode>3.5&&uMode<4.5;bool dwarf=uMode>7.5&&uMode<8.5;
-if(!elliptical&&!dwarf&&uMode!=6.&&abs(rd.y)>.001){float a=(-.18-uEye.y)/rd.y,z=(.18-uEye.y)/rd.y;start=max(start,min(a,z));finish=min(finish,max(a,z));}
-if(finish<=start)discard;float stepSize=(finish-start)/24.;vec3 sum=vec3(0.);float transmission=1.;
-for(int i=0;i<24;i++){
- vec3 p=uEye+rd*(start+(float(i)+.5)*stepSize);float r=length(p.xz),z=abs(p.y),a=atan(p.z,p.x)+uTime*uRotationRate/max(r,.12);
- float grain=noise(p*42.+uSeed);float turbulence=noise(p*11.+uSeed)*.7+grain*.3;
- float bulge=exp(-pow(length(p*vec3(1.,1.6,1.))/max(uBulge,.05),.75)*3.8);
- float radial=exp(-r*3.7)*(1.-smoothstep(.85,1.15,r));float disk=exp(-z/(.018+.025*r))*radial;
- float phase=(a-log(max(r,.12))/tan(uPitch))*max(uArms,1.)+(noise(p*7.+uSeed)-.5)*1.9;
- float arm=exp(-pow(sin(phase*.5)/.38,2.))*smoothstep(.08,.25,r);float dustArm=exp(-pow(sin((phase+.55)*.5)/.18,2.));
- float stellar=disk*(.85+arm*1.2)*(.45+pow(turbulence,1.5)*1.4);if(uRing>0.)stellar+=exp(-pow((r-uRing)/.055,2.))*exp(-z*40.)*.12;float young=arm*disk*smoothstep(.08,.3,r)*(.15+pow(turbulence,3.)*3.);
- if(uMode>1.5&&uMode<2.5){float bar=exp(-abs(p.z)*30.-abs(p.x)/max(uBar,.05)*2.-z*45.);stellar+=bar*.8;}
- if(uMode>2.5&&uMode<3.5){float ring=exp(-pow((r-.68-.018*sin(a*3.))/.075,2.))*exp(-z*30.);stellar=ring*(.5+turbulence)+disk*.08;young=ring*(.3+pow(turbulence,2.)*2.);bulge*=1.3;}
- if(irregular){stellar=disk*(.15+pow(turbulence,3.)*7.);young=stellar*.65;bulge*=.08;}
- if(uMode>5.5&&uMode<6.5){stellar*=1.7;young+=disk*1.1;}
- if(uMode>6.5&&uMode<7.5){if(uSingleTail<.5)bulge=.6*(exp(-length((p-vec3(.22,0.,.05))*vec3(1.,1.5,1.))*22.)+exp(-length((p+vec3(.22,0.,.05))*vec3(1.,1.5,1.))*22.));float tail=exp(-pow((r-(.65+.25*sin(a*2.)))/.09,2.))*exp(-z*14.);stellar+=tail*.24;young+=tail*grain*.12;}
- if(elliptical||dwarf){float e=length(p*vec3(1.,dwarf?1.6:1.25,1.1));stellar=exp(-pow(e,.65)*5.2);young=0.;bulge=0.;}
- if(uMode>8.5){stellar=disk*.65;young=0.;}
- float dust=uDust*dustArm*disk*(.6+turbulence)*9.*smoothstep(.13,.3,r);
- float knots=pow(smoothstep(.54,.86,grain),3.)*young;
- float fine=.65+noise(p*180.+uSeed)*.7;
- vec3 emission=uOld*(stellar*7.*fine+bulge*38.)+uYoung*young*5.*fine+vec3(1.,.28,.42)*knots*2.;
- if(uMode>5.5&&uMode<6.5)emission+=vec3(1.,.3,.2)*exp(-r/(.04+z*.25))*exp(-z*4.)*.35;
- // Dust attenuates the light behind it instead of adding red light.
- float optical=(stellar*.8+bulge*2.+dust)*stepSize*14.;float alpha=1.-exp(-optical);
- vec3 source=emission/max(stellar*.8+bulge*2.+dust,.001);
- sum+=transmission*source*alpha;transmission*=1.-alpha;
- if(transmission<.015)break;
-}
-float opacity=(1.-transmission)*uOpacity;if(opacity<.003)discard;
-gl_FragColor=vec4(sum/max(1.-transmission,.001),opacity);
-#include <tonemapping_fragment>
-#include <colorspace_fragment>
-}`;
+const FRAG = GALAXY_FRAGMENT;
 export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opacity?: number }) {
   const ref = useRef<THREE.Mesh>(null!);
+  const tier = useStore((s) => s.renderingQualityTier);
   const eye = useMemo(() => new THREE.Vector3(), []);
   const stars = useMemo(() => {
     let seed = 17;
@@ -64,7 +26,7 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
       return (seed >>> 0) / 4294967296;
     };
-    const count = 7000,
+    const count = 28000,
       p = new Float32Array(count * 3),
       c = new Float32Array(count * 3);
     const spheroid = ["elliptical", "dwarf"].includes(model.morphology);
@@ -74,6 +36,7 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
           (Math.floor(rand() * Math.max(2, model.arms)) * Math.PI * 2) / Math.max(2, model.arms) +
           Math.log(Math.max(r, 0.12)) / Math.tan((Math.max(8, model.pitchDeg) * Math.PI) / 180) +
           (rand() - 0.5) * 1.2;
+      if (r < 0.18) angle = rand() * Math.PI * 2;
       if (model.morphology === "ring") r = 0.68 + (rand() + rand() - 1) * 0.07;
       if (spheroid) {
         angle = rand() * Math.PI * 2;
@@ -86,7 +49,7 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
         p[i * 3 + 1] = (rand() + rand() - 1) * 0.022;
         p[i * 3 + 2] = Math.sin(angle) * r;
       }
-      const young = !spheroid && rand() < 0.24;
+      const young = !spheroid && rand() < (model.morphology === "ring" ? 0.78 : 0.24);
       for (let k = 0; k < 3; k++)
         c[i * 3 + k] = (young ? model.youngColor[k] : model.oldColor[k]) * (0.6 + rand() * 0.4);
     }
@@ -117,6 +80,17 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
     );
     return {
       uEye: { value: new THREE.Vector3() },
+      uNoise: { value: getGalaxyNoise() },
+      uReference: {
+        value: new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1) as THREE.Texture,
+      },
+      uHasReference: { value: 0 },
+      uInclination: { value: THREE.MathUtils.degToRad(model.inclination) },
+      uAspect: { value: 1 },
+      uGroup: { value: /quintet/i.test(model.name) ? 1 : 0 },
+      uSteps: { value: 40 },
+      uRadius: { value: model.diskRadius },
+      uInterior: { value: 0 },
       uOld: { value: new THREE.Color(...model.oldColor) },
       uYoung: { value: new THREE.Color(...model.youngColor) },
       uMode: { value: Math.max(0, mode) },
@@ -133,12 +107,103 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       uOpacity: { value: opacity },
     };
   }, [model, opacity]);
-  useEffect(() => () => stars.dispose(), [stars]);
+  const material = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: VERT,
+        fragmentShader: FRAG,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.BackSide,
+      }),
+    [uniforms],
+  );
+  const starMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms,
+        vertexShader: GLINT_VERT,
+        fragmentShader: GLINT_FRAG,
+        vertexColors: true,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [uniforms],
+  );
+  useEffect(
+    () => () => {
+      stars.dispose();
+      material.dispose();
+      starMaterial.dispose();
+    },
+    [stars, material, starMaterial],
+  );
+  useEffect(() => {
+    const placeholder = uniforms.uReference.value;
+    placeholder.needsUpdate = true;
+    return () => placeholder.dispose();
+  }, [uniforms]);
+  useEffect(() => {
+    const reference = GALAXY_REFERENCES[model.key];
+    if (!reference) return;
+    let alive = true;
+    let bitmap: ImageBitmap | undefined, texture: THREE.Texture | undefined;
+    const controller = new AbortController();
+    const max = tier === "scientific_high" ? 4096 : tier === "performance" ? 1024 : 2048;
+    const ratio = Math.min(1, max / Math.max(reference.width, reference.height));
+    void fetch(reference.url, { signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw Error("Galaxy reference " + r.status);
+        return r.blob();
+      })
+      .then((blob) =>
+        createImageBitmap(blob, {
+          imageOrientation: "flipY",
+          resizeWidth: Math.round(reference.width * ratio),
+          resizeHeight: Math.round(reference.height * ratio),
+          resizeQuality: "high",
+        }),
+      )
+      .then((image) => {
+        bitmap = image;
+        if (!alive) {
+          image.close();
+          return;
+        }
+        texture = new THREE.Texture(image);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.anisotropy = 4;
+        texture.needsUpdate = true;
+        uniforms.uReference.value = texture;
+        uniforms.uAspect.value = image.width / image.height;
+        uniforms.uHasReference.value = 1;
+      })
+      .catch((e) => {
+        if (e.name !== "AbortError") console.warn("Galaxy reference unavailable", model.name);
+      });
+    const fallback = uniforms.uReference.value;
+    return () => {
+      alive = false;
+      controller.abort();
+      uniforms.uHasReference.value = 0;
+      uniforms.uReference.value = fallback;
+      texture?.dispose();
+      bitmap?.close();
+    };
+  }, [model.key, model.name, tier, uniforms]);
   useFrame(({ camera }) => {
     if (!ref.current) return;
+    ref.current.updateWorldMatrix(true, false);
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
     uniforms.uTime.value = motionTimeSeconds();
+    const distance = eye.length();
+    uniforms.uInterior.value = 1 - THREE.MathUtils.smoothstep(distance, 0.15, 1.8);
+    uniforms.uSteps.value = tier === "performance" ? 24 : distance < 1.8 ? 64 : 36;
+    stars.setDrawRange(0, tier === "performance" ? 10000 : distance < 2 ? 28000 : 12000);
   });
   return (
     <mesh
@@ -146,27 +211,10 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       name={`galaxy-radiance:${model.name}`}
       scale={model.diskRadius}
       frustumCulled={false}
+      material={material}
     >
-      <points geometry={stars} frustumCulled={false}>
-        <shaderMaterial
-          uniforms={uniforms}
-          vertexShader={GLINT_VERT}
-          fragmentShader={GLINT_FRAG}
-          vertexColors
-          transparent
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
+      <points geometry={stars} material={starMaterial} frustumCulled={false} />
       <boxGeometry args={[2.7, 2.7, 2.7]} />
-      <shaderMaterial
-        vertexShader={VERT}
-        fragmentShader={FRAG}
-        uniforms={uniforms}
-        transparent
-        depthWrite={false}
-        side={THREE.BackSide}
-      />
     </mesh>
   );
 }
@@ -199,11 +247,15 @@ export const MILKY_WAY_APPEARANCE: GalaxyModel = {
   ...shared,
   key: "milky-way",
   name: "Milky Way",
-  distance: 26000,
+  distance: SGR_A_DISTANCE_LY,
 };
 export const ANDROMEDA_APPEARANCE: GalaxyModel = {
   ...shared,
   key: "andromeda",
+  l: 121.1743,
+  b: -21.5732,
+  inclination: 77,
+  posAngle: 38,
   name: "Andromeda (M31)",
   distance: 2537000,
   diskRadius: 110000,
@@ -218,14 +270,34 @@ export const ANDROMEDA_APPEARANCE: GalaxyModel = {
 const GLINT_VERT = `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-varying vec3 vColor;void main(){vColor=color;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;gl_PointSize=1.4;
+uniform float uRadius,uInterior;varying vec3 vColor;void main(){vColor=color;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp((.9+uInterior*1.4)*length(modelMatrix[0].xyz)/max(.0001,-mv.z)*1.2,1.,3.);
 #include <logdepthbuf_vertex>
 }`;
 const GLINT_FRAG = `
 #include <logdepthbuf_pars_fragment>
-uniform float uOpacity;varying vec3 vColor;void main(){
+uniform float uOpacity,uInterior;varying vec3 vColor;void main(){
 #include <logdepthbuf_fragment>
-float r=length(gl_PointCoord*2.-1.);if(r>1.)discard;gl_FragColor=vec4(vColor*5.,exp(-r*r*5.)*.3*uOpacity);
+float r=length(gl_PointCoord*2.-1.);if(r>1.)discard;gl_FragColor=vec4(vColor*(5.+uInterior*5.),exp(-r*r*5.)*(.035+uInterior*.11)*uOpacity);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`;
+
+let galaxyNoise: THREE.Data3DTexture | undefined;
+function getGalaxyNoise() {
+  if (galaxyNoise) return galaxyNoise;
+  const n = 64,
+    data = new Uint8Array(n * n * n);
+  let seed = 137;
+  for (let i = 0; i < data.length; i++) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
+    data[i] = seed >>> 24;
+  }
+  const t = new THREE.Data3DTexture(data, n, n, n);
+  t.format = THREE.RedFormat;
+  t.type = THREE.UnsignedByteType;
+  t.minFilter = t.magFilter = THREE.LinearFilter;
+  t.wrapS = t.wrapT = t.wrapR = THREE.RepeatWrapping;
+  t.unpackAlignment = 1;
+  t.needsUpdate = true;
+  return (galaxyNoise = t);
+}

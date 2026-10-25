@@ -7,7 +7,7 @@ import { objectPosition, type ObservedObject } from "./observed-objects";
 import { useBlackHoleJourney, descentMotion } from "./black-hole-journey";
 import { motionTimeSeconds } from "./sim-clock";
 function diskNoise() {
-  const size = 512,
+  const size = 1024,
     data = new Uint8Array(size * size);
   let seed = 937;
   for (let i = 0; i < data.length; i++) {
@@ -22,7 +22,7 @@ function diskNoise() {
   t.needsUpdate = true;
   return t;
 }
-/** One bounded-resolution geodesic pass. Original scene detail outside the lens
+/** Native-resolution optical transport. Original scene detail outside the lens
  * stays at native resolution. The cubemap contains this scene, not invented stars. */
 export class BlackHoleLensPass extends Pass {
   private ray: THREE.ShaderMaterial;
@@ -33,7 +33,7 @@ export class BlackHoleLensPass extends Pass {
     type: THREE.HalfFloatType,
     depthBuffer: false,
   });
-  private sky = new THREE.WebGLCubeRenderTarget(384, {
+  private sky = new THREE.WebGLCubeRenderTarget(512, {
     type: THREE.HalfFloatType,
     generateMipmaps: false,
     minFilter: THREE.LinearFilter,
@@ -50,15 +50,18 @@ export class BlackHoleLensPass extends Pass {
   private width = 1;
   private height = 1;
   private rs = 1;
-  private resolution = 0.6;
-  private resizeAge = 0;
+  private resolution = 1;
   private frameAverage = 1 / 60;
   private model: ReturnType<typeof blackHoleModel> | null = null;
   private lastEye = new THREE.Vector3();
   private lastRotation = new THREE.Quaternion();
   private idleSeconds = 0;
-  private maxWidth = 2560;
-  private maxHeight = 1440;
+  private maxWidth = 8192;
+  private maxHeight = 8192;
+  private bounds = new THREE.Vector4();
+  private projected = new THREE.Vector3();
+  private viewPosition = new THREE.Vector3();
+  private scissor = new THREE.Vector4();
   constructor(private scene: THREE.Scene) {
     super();
     this.cubeCamera.coordinateSystem = THREE.WebGLCoordinateSystem;
@@ -148,6 +151,29 @@ export class BlackHoleLensPass extends Pass {
     this.enabled = distance < 1800;
     if (!this.enabled) return;
     camera.updateMatrixWorld();
+    this.bounds.set(0, 0, this.target.width, this.target.height);
+    const influenceRadius = this.rs * 62;
+    this.viewPosition.copy(this.position).applyMatrix4(camera.matrixWorldInverse);
+    const depth = -this.viewPosition.z;
+    if (depth > influenceRadius * 1.2) {
+      this.projected.copy(this.position).project(camera);
+      const x = (this.projected.x * 0.5 + 0.5) * this.target.width,
+        y = (this.projected.y * 0.5 + 0.5) * this.target.height;
+      // Conservative off-axis perspective bound, including the near side.
+      const h = (this.target.height / Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5)) * 0.5;
+      const baseRadius = (h * influenceRadius) / (depth - influenceRadius);
+      const rx = baseRadius * (1 + Math.abs(this.viewPosition.x) / depth);
+      const ry = baseRadius * (1 + Math.abs(this.viewPosition.y) / depth);
+      const pad = 4;
+      const left = Math.max(0, Math.floor(x - rx - pad)),
+        bottom = Math.max(0, Math.floor(y - ry - pad));
+      this.bounds.set(
+        left,
+        bottom,
+        Math.max(0, Math.min(this.target.width, Math.ceil(x + rx + pad)) - left),
+        Math.max(0, Math.min(this.target.height, Math.ceil(y + ry + pad)) - bottom),
+      );
+    }
     const u = this.ray.uniforms;
     this.cameraRotation.setFromMatrix4(camera.matrixWorld);
     u.uCameraToDisk.value.multiplyMatrices(this.worldToDisk, this.cameraRotation);
@@ -158,6 +184,7 @@ export class BlackHoleLensPass extends Pass {
       .applyMatrix3(this.worldToDisk)
       .divideScalar(this.rs);
     u.uView.value.set(Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5), camera.aspect);
+    if (this.face >= 6) u.uSkyReady.value = Math.min(1, u.uSkyReady.value + Math.min(dt, 0.1) * 4);
     u.uTime.value = motionTimeSeconds();
     u.uInner.value = model.innerRs;
     u.uOuter.value = model.outerRs;
@@ -180,24 +207,12 @@ export class BlackHoleLensPass extends Pass {
     this.idleSeconds = moving ? 0 : this.idleSeconds + dt;
     this.lastEye.copy(u.uEye.value);
     this.lastRotation.copy(camera.quaternion);
-    this.frameAverage += (Math.min(dt, 0.15) - this.frameAverage) * 0.03;
-    this.resizeAge += dt;
-    if (this.resizeAge > 1.5) {
-      const cap =
-        tier === "performance" ? 0.5 : tier === "standard" ? 0.7 : this.idleSeconds > 1 ? 1 : 0.7;
-      const desired = Math.max(
-        0.35,
-        Math.min(cap, this.resolution * Math.sqrt(0.018 / Math.max(0.008, this.frameAverage))),
-      );
-      this.maxWidth = tier === "scientific_high" ? 2560 : 1400;
-      this.maxHeight = tier === "scientific_high" ? 1440 : 1000;
-      if (Math.abs(desired - this.resolution) > 0.045) {
-        this.resolution = desired;
-        this.resize();
-      }
-      this.resizeAge = 0;
-    }
-    u.uStep.value = tier === "performance" ? 0.14 : tier === "standard" ? 0.105 : 0.075;
+    // Preserve native pixels while moving and zooming. Bound the expensive
+    // geodesic work spatially and adapt integration effort, not image sharpness.
+    this.frameAverage += (Math.min(dt, 0.1) - this.frameAverage) * 0.02;
+    u.uStep.value = tier === "performance" ? 0.12 : tier === "standard" ? 0.085 : 0.06;
+    if (this.frameAverage > 0.032 && this.idleSeconds < 0.3)
+      u.uStep.value = Math.min(0.12, u.uStep.value * 1.15);
   }
   render(
     renderer: THREE.WebGLRenderer,
@@ -217,12 +232,25 @@ export class BlackHoleLensPass extends Pass {
       renderer.setRenderTarget(previous);
       renderer.xr.enabled = xr;
       this.face++;
-      if (this.face === 6) this.ray.uniforms.uSkyReady.value = 1;
     }
     this.ray.uniforms.tDiffuse.value = read.texture;
     renderer.setRenderTarget(this.target);
     renderer.clear();
+    // A native-resolution rectangle around the deflecting region. Outside it,
+    // the original scene never passes through an undersampled image.
+    const wasScissor = renderer.getScissorTest();
+    renderer.getScissor(this.scissor);
+    renderer.setScissorTest(true);
+    const pixelRatio = renderer.getPixelRatio();
+    renderer.setScissor(
+      this.bounds.x / pixelRatio,
+      this.bounds.y / pixelRatio,
+      this.bounds.z / pixelRatio,
+      this.bounds.w / pixelRatio,
+    );
     this.rayQuad.render(renderer);
+    renderer.setScissor(this.scissor);
+    renderer.setScissorTest(wasScissor);
     this.composite.uniforms.tDiffuse.value = read.texture;
     renderer.setRenderTarget(this.renderToScreen ? null : write);
     this.compositeQuad.render(renderer);

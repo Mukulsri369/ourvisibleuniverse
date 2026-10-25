@@ -22,6 +22,8 @@ export function OpticsControlModal() {
   const bloomThreshold = useStore((s) => s.bloomThreshold);
   const setBloomThreshold = useStore((s) => s.setBloomThreshold);
 
+  const autoGalaxyExposure = useStore((s) => s.autoGalaxyExposure);
+  const setAutoGalaxyExposure = useStore((s) => s.setAutoGalaxyExposure);
   const exposure = useStore((s) => s.exposure);
   const sceneBrightness = useStore((s) => s.sceneBrightness);
   const setSceneBrightness = useStore((s) => s.setSceneBrightness);
@@ -78,6 +80,21 @@ export function OpticsControlModal() {
           </div>
 
           <div className="mt-5 space-y-6">
+            <label className="flex items-start gap-3 rounded-lg border border-white/10 p-3 text-sm">
+              <input
+                type="checkbox"
+                checked={autoGalaxyExposure}
+                onChange={(e) => setAutoGalaxyExposure(e.target.checked)}
+                className="mt-1 accent-cyan-400"
+              />
+              <span>
+                Adaptive galaxy exposure
+                <span className="mt-1 block text-xs text-white/50">
+                  Smoothly balances galaxy fields, dust lanes and bright cores. Your manual settings
+                  remain the baseline.
+                </span>
+              </span>
+            </label>
             {/* 1. Scientific vs Cinematic Preset */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-wider text-white/60">

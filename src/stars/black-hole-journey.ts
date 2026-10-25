@@ -1,4 +1,5 @@
 import { create } from "zustand";
+export const BLACK_HOLE_DESCENT_SECONDS = 42;
 export type DescentMode = "idle" | "falling" | "paused" | "crossed" | "returning";
 /** Continuous camera values stay outside React/Zustand notifications. */
 export const descentMotion = {
@@ -45,5 +46,5 @@ export function descentRadiusRs(startRs: number, progress: number) {
   const p = Math.max(0, Math.min(1, progress));
   // Smooth start, increasing inward speed in logarithmic radius.
   const eased = p * p * (3 - 2 * p);
-  return Math.exp(Math.log(Math.max(startRs, 8)) * (1 - eased) + Math.log(0.985) * eased);
+  return Math.exp(Math.log(Math.max(startRs, 1.08)) * (1 - eased) + Math.log(0.985) * eased);
 }

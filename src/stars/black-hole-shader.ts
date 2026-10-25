@@ -25,17 +25,20 @@ vec4 diskEmission(vec3 hit,vec3 tangent,float observerR){
  float r=length(hit.xz);if(r<uInner||r>uOuter||uDisk<.5)return vec4(0.);
  float a=atan(hit.z,hit.x);
  float omega=1./pow(max(r,1.3),1.5);
- float phase=a-uTime*omega*.62;
- vec2 uv=vec2(phase/6.2831853,log(r)*.48);
+ // Blend continuously between advected turbulence patches. Bounded shear
+ // prevents a long-running simulation winding its texture into subpixel rings.
+ float cycle=floor(uTime/48.),age=mod(uTime,48.),blend=smoothstep(0.,48.,age);
+ float phase=a-age*omega*.62,phaseNext=a-(age-48.)*omega*.62;
+ vec2 drift=fract(vec2(.371,.619)*cycle),nextDrift=fract(drift+vec2(.371,.619));
  float pixelWorld=2.*uView.x*length(uEye-hit)/max(uResolution.y,1.)/max(.15,abs(normalize(tangent).y));
- float lod=clamp(log2(max(1.,pixelWorld/r*512.*.14)),0.,6.);
+ float lod=clamp(log2(max(1.,pixelWorld/r*1024.*.18)),0.,6.);
  // Magnetically sheared, broken azimuthal streaks, not perfect decorative rings.
- float coarse=noise(vec2(phase*.007,log(r)*.14),lod);
- float fine=noise(vec2(phase*.025+coarse*.003,log(r)*.52),min(lod+1.2,7.));
+ float coarse=mix(noise(vec2(phase*.0045,log(r)*.023)+drift,lod),noise(vec2(phaseNext*.0045,log(r)*.023)+nextDrift,lod),blend);
+ float fine=mix(noise(vec2(phase*.017+coarse*.002,log(r)*.075)+drift,min(lod+.25,7.)),noise(vec2(phaseNext*.017+coarse*.002,log(r)*.075)+nextDrift,min(lod+.25,7.)),blend);
  float streams=coarse*.68+fine*.32;
  float inner=smoothstep(uInner,uInner+.55,r),outer=1.-smoothstep(uOuter*.72,uOuter,r);
  float radial=pow(uInner/r,3.)*(1.-sqrt(uInner/r));
- float density=(.65+coarse*.30+fine*.10+streams*.30)*inner*outer;
+ float density=(.45+coarse*.45+fine*.25+streams*.25)*inner*outer;
  vec3 gasVelocity=normalize(vec3(-hit.z,0.,hit.x));
  float beta=min(.64,sqrt(1./max(2.*(r-1.),1.)));
  float doppler=sqrt(1.-beta*beta)/max(.25,1.+beta*dot(normalize(tangent),gasVelocity));
@@ -48,8 +51,37 @@ vec4 diskEmission(vec3 hit,vec3 tangent,float observerR){
  float alpha=1.-exp(-density*uOpacity/max(.17,abs(normalize(tangent).y)));
  float filaments=.20+.80*smoothstep(.18,.82,streams);
  float emission=(.012+radial*32.)*power*filaments*(.92+fine*.08)*uIntensity*20.;
- emission=24.*(1.-exp(-emission/24.));
+ emission=18.*(1.-exp(-emission/18.));
  return vec4(hot*emission,clamp(alpha,0.,.98));
+}
+// Second-order asymptotic transport for outer, weakly bent primary images.
+// Strong-field rays and all photon-ring images always use geodesic integration.
+vec3 weakPath(float s,vec3 d,vec3 offset,float z0,float ro,out vec3 tangent){
+ float b2=max(dot(offset,offset),.001),b=sqrt(b2),z=z0+s,r=sqrt(b2+z*z);
+ float factor=(1.+1.4726216/b)/b2;
+ tangent=normalize(d-offset*factor*(z/r-z0/ro));
+ return uEye+d*s-offset*factor*(r-ro-s*z0/ro);
+}
+vec3 weakTransport(vec3 d,float ro,out float valid){
+ float z0=dot(uEye,d);vec3 offset=uEye-d*z0;float b2=max(dot(offset,offset),.001);
+ vec3 escaped=normalize(d-offset*(1.+1.4726216/sqrt(b2))/b2*(1.-z0/ro));
+ vec3 background=sky(escaped);valid=1.;
+ if(uDisk<.5)return background;
+ if(abs(d.y)<.04){valid=0.;return background;}
+ float t=-uEye.y/d.y;
+ if(t<0.)return background;
+ vec3 tangent,hit;
+ for(int j=0;j<5;j++){
+  hit=weakPath(t,d,offset,z0,ro,tangent);
+  float dy=tangent.y;if(abs(dy)<.005){valid=0.;return background;}
+  // Derivative magnitude differs only at second order; the bounded Newton
+  // solve is continuous across zoom and avoids stepped disk intersections.
+  t=clamp(t-hit.y/dy,0.,ro*3.+uOuter*3.);
+ }
+ hit=weakPath(t,d,offset,z0,ro,tangent);
+ if(abs(hit.y)>.003*max(1.,length(hit))){valid=0.;return background;}
+ vec4 light=diskEmission(hit,tangent,ro);
+ return light.rgb*light.a+background*(1.-light.a);
 }
 vec3 acceleration(vec3 p,float angularMomentum2){
  float r2=max(dot(p,p),.01);return -1.5*angularMomentum2*p/(r2*r2*sqrt(r2));
@@ -69,6 +101,10 @@ vec4 trace(vec2 imageUV){
  float impact=sqrt(l2);
  float influence=1.-smoothstep(30.,58.,impact);
  if(ro>75.&&(mu>=0.||influence<.001)){return vec4(0.);}
+ float weakWeight=ro>20.&&mu<0.&&uFall<.001?smoothstep(7.,10.,impact):0.;
+ vec3 weakColor=vec3(0.);
+ if(weakWeight>0.){float valid;weakColor=weakTransport(d,ro,valid);weakWeight*=valid;
+  if(weakWeight>.999)return vec4(weakColor,ro<70.?1.:influence);}
  vec3 p=uEye;
  // Skip empty travel before the integration domain. Weak bending there is tiny.
  if(ro>80.){
@@ -87,12 +123,15 @@ vec4 trace(vec2 imageUV){
   float r=length(p);
   if(r<1.002){captured=true;break;}
   if(r>81.&&dot(p,velocity)>0.){escaped=true;break;}
-  float h=clamp(uStep*r/max(length(velocity),1.),.012,5.);
+  float weak=mix(1.,3.,smoothstep(5.,16.,r));
+  float h=clamp(uStep*r*weak/max(length(velocity),1.),.012,9.);
   vec3 a=acceleration(p,l2);
   vec3 next=p+velocity*h+.5*a*h*h;
   vec3 nextVelocity=velocity+.5*(a+acceleration(next,l2))*h;
   if(p.y*next.y<0.){
-   float t=clamp(p.y/(p.y-next.y),0.,1.);vec3 hit=mix(p,next,t);
+   float t=clamp(p.y/(p.y-next.y),0.,1.);
+   for(int j=0;j<2;j++){float y=p.y+velocity.y*h*t+.5*a.y*h*h*t*t;float dy=velocity.y*h+a.y*h*h*t;if(abs(dy)>.000001)t=clamp(t-y/dy,0.,1.);}
+   vec3 hit=p+velocity*h*t+.5*a*h*h*t*t;
    vec4 light=diskEmission(hit,mix(velocity,nextVelocity,t),ro);
    sum+=trans*light.rgb*light.a;trans*=1.-light.a;
    if(trans<.007)break;
@@ -108,14 +147,14 @@ vec4 trace(vec2 imageUV){
  // Unresolved high-order rays end dark rather than leaking an unbent sky.
  if(escaped&&!captured)sum+=trans*sky(normalize(velocity));
  float blend=ro<70.?1.:influence;
- return vec4(sum,blend);
+ return vec4(mix(sum,weakColor,weakWeight),blend);
 }
 void main(){
  vec4 color=trace(vUv);
  vec3 d=normalize(uCameraToDisk*vec3((vUv*2.-1.)*vec2(uView.x*uView.y,uView.x),-1.));
  float ro=length(uEye);float b=length(cross(uEye,d))/sqrt(max(.001,1.-1./max(ro,1.001)));
  // Extra rays only across the subpixel critical curve; no full-frame supersampling cost.
- if(abs(b-2.598076)<.16&&uFall<.01){
+ if(abs(b-2.598076)<max(.025,fwidth(b)*1.35)&&uFall<.01){
   vec2 pixel=.32/max(uResolution,vec2(1.));
   color=(color+trace(vUv+pixel)+trace(vUv-pixel))/3.;
  }

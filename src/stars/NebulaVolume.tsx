@@ -1,3 +1,4 @@
+import { NebulaStars } from "./NebulaStars";
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
@@ -42,6 +43,7 @@ export function NebulaVolume({
   scale: number;
 }) {
   const mesh = useRef<THREE.Mesh>(null);
+  const referenceReady = useRef(false);
   const frameBudget = useRef({ average: 1 / 60, steps: 56 });
   const tier = useStore((s) => s.renderingQualityTier);
   const uniforms = useMemo(() => {
@@ -57,7 +59,8 @@ export function NebulaVolume({
       uPrimary: { value: new THREE.Color(item.color) },
       uSecondary: { value: new THREE.Color(item.accent) },
       uDark: { value: item.nebulaClass === "dark" ? 1 : 0 },
-      uSteps: { value: 56 },
+      uSteps: { value: 80 },
+      uViewport: { value: 800 },
       uSeed: { value: (profile.seed % 997) / 997 },
     };
   }, [item, profile.seed]);
@@ -83,7 +86,7 @@ export function NebulaVolume({
     let bitmap: ImageBitmap | undefined;
     let alive = true;
     if (reference) {
-      const max = tier === "scientific_high" ? 4096 : tier === "performance" ? 1024 : 2048;
+      const max = tier === "scientific_high" ? 2048 : tier === "performance" ? 768 : 1280;
       const ratio = Math.min(1, max / Math.max(reference.width, reference.height));
       // Resize while decoding, off the main thread. Never allocate a 9K GPU map
       // or paint a multi-megapixel canvas during an orbit/zoom gesture.
@@ -114,7 +117,7 @@ export function NebulaVolume({
           loaded.needsUpdate = true;
           uniforms.uReference.value = loaded;
           uniforms.uAspect.value = decoded.width / decoded.height;
-          uniforms.uHasReference.value = 1;
+          referenceReady.current = true;
         })
         .catch((error) => {
           if (error.name !== "AbortError")
@@ -124,6 +127,7 @@ export function NebulaVolume({
     return () => {
       alive = false;
       controller.abort();
+      referenceReady.current = false;
       uniforms.uHasReference.value = 0;
       uniforms.uReference.value = fallback;
       loaded?.dispose();
@@ -134,7 +138,7 @@ export function NebulaVolume({
     const placeholder = uniforms.uReference.value;
     return () => placeholder.dispose();
   }, [uniforms]);
-  useFrame(({ camera }, delta) => {
+  useFrame(({ camera, size, gl }, delta) => {
     const object = mesh.current;
     if (!object) return;
     // Subtract astronomical world coordinates in JS double precision, not GLSL floats.
@@ -142,12 +146,19 @@ export function NebulaVolume({
     uniforms.uEye.value.copy(camera.position);
     object.worldToLocal(uniforms.uEye.value);
     const distance = uniforms.uEye.value.length();
+    uniforms.uHasReference.value = THREE.MathUtils.damp(
+      uniforms.uHasReference.value,
+      referenceReady.current ? 1 : 0,
+      4,
+      Math.min(delta, 0.1),
+    );
+    uniforms.uViewport.value = size.height * gl.getPixelRatio();
     const budget = frameBudget.current;
     budget.average += (Math.min(delta, 0.1) - budget.average) * 0.025;
     const desired =
-      tier === "performance" ? 28 : tier === "standard" ? 40 : distance < 1.7 ? 72 : 56;
+      tier === "performance" ? 40 : tier === "standard" ? 56 : distance < 1.7 ? 96 : 80;
     budget.steps +=
-      ((budget.average > 0.038 ? Math.min(desired, 32) : desired) - budget.steps) * 0.025;
+      ((budget.average > 0.038 ? Math.min(desired, 48) : desired) - budget.steps) * 0.025;
     uniforms.uSteps.value = Math.round(budget.steps);
     object.visible = distance < 2500;
   });
@@ -159,8 +170,10 @@ export function NebulaVolume({
       scale={scale * 0.8}
       frustumCulled={false}
       material={material}
+      renderOrder={10}
     >
       <boxGeometry args={[3.2, 3.2, 3.2]} />
+      <NebulaStars id={item.id} uniforms={uniforms} />
     </mesh>
   );
 }

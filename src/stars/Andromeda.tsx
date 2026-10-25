@@ -1,6 +1,9 @@
+import { galaxyDetailAlpha } from "./galaxy-detail-state";
+import { useGalaxyPortrait } from "./useGalaxyPortrait";
+import { makeGalaxyPortrait } from "./galaxy-portrait";
 import { GalaxyRadiance, ANDROMEDA_APPEARANCE } from "./GalaxyRadiance";
 import { motionTimeSeconds } from "./sim-clock";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
@@ -853,28 +856,29 @@ function PA99N2System() {
 // fading out as the camera closes in on the particle model.
 // Soft glow so M31 reads as a galaxy from millions of light-years away,
 // smoothly cross-fading with the particle model via continuous screen-space LOD.
-function M31FarGlow() {
+function M31FarPortrait() {
   const ref = useRef<THREE.Sprite>(null!);
-  const tex = useMemo(() => makeGlowTexture("rgba(240,236,255,0.95)", "rgba(120,140,255,0)"), []);
+  const tex = useMemo(() => makeGalaxyPortrait(ANDROMEDA_APPEARANCE), []);
+  useEffect(() => () => tex.dispose(), [tex]);
+  const portrait = useGalaxyPortrait("andromeda", tex);
   const world = useMemo(() => new THREE.Vector3(), []);
-  const { size } = useThree();
   useFrame(({ camera }) => {
     if (!ref.current) return;
     ref.current.getWorldPosition(world);
-    const lodState = lodManager.evaluate(
-      "andromeda",
-      camera,
-      world,
-      { objectRadiusLy: M31_DISK_RADIUS, enterHighDetailPixels: 52, exitHighDetailPixels: 26 },
-      size.height,
-    );
-    (ref.current.material as THREE.SpriteMaterial).opacity = lodState.alphaFar * 0.6;
-    ref.current.visible = lodState.alphaFar > 0.005;
+    (ref.current.material as THREE.SpriteMaterial).opacity =
+      1 - (galaxyDetailAlpha.get("andromeda") ?? 0);
+    (ref.current.material as THREE.SpriteMaterial).color.setScalar(5.5);
+    const d = camera.position.distanceTo(world);
+    const diameter = Math.max(220000, d * 0.004);
+    ref.current.scale.set(diameter, diameter * (portrait.observed ? 1 / portrait.aspect : 0.34), 1);
+    ref.current.visible =
+      useStore.getState().subsystems.andromeda &&
+      1 - (galaxyDetailAlpha.get("andromeda") ?? 0) > 0.005;
   });
   return (
     <sprite ref={ref} scale={[260_000, 130_000, 1]}>
       <spriteMaterial
-        map={tex}
+        map={portrait.texture}
         transparent
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -885,15 +889,21 @@ function M31FarGlow() {
 }
 
 export function Andromeda() {
-  const coreTex = useMemo(() => makeGlowTexture("rgba(255,226,178,1)", "rgba(255,150,60,0)"), []);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const subsystems = useStore((s) => s.subsystems);
   const { size } = useThree();
 
   // Detail continuous LOD with hysteresis and smooth alpha crossfade
   const detailRef = useRef<THREE.Group>(null!);
+  const blend = useRef(0);
+  useEffect(
+    () => () => {
+      galaxyDetailAlpha.delete("andromeda");
+    },
+    [],
+  );
   const camWorld = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, dt) => {
     if (detailRef.current) {
       detailRef.current.getWorldPosition(camWorld);
       const lodState = lodManager.evaluate(
@@ -906,9 +916,15 @@ export function Andromeda() {
       const volume = detailRef.current.getObjectByName(
         "galaxy-radiance:Andromeda (M31)",
       ) as THREE.Mesh;
-      if (volume)
-        (volume.material as THREE.ShaderMaterial).uniforms.uOpacity.value = lodState.alphaNear;
-      detailRef.current.visible = subsystems.andromeda && lodState.isDetailedVisible;
+      blend.current = THREE.MathUtils.damp(
+        blend.current,
+        lodState.alphaNear,
+        10,
+        Math.min(dt, 0.1),
+      );
+      galaxyDetailAlpha.set("andromeda", blend.current);
+      if (volume) (volume.material as THREE.ShaderMaterial).uniforms.uOpacity.value = blend.current;
+      detailRef.current.visible = subsystems.andromeda && blend.current > 0.001;
     }
   });
 
@@ -933,19 +949,9 @@ export function Andromeda() {
         <group ref={detailRef}>
           <GalaxyRadiance model={ANDROMEDA_APPEARANCE} />
         </group>
-        <mesh onClick={visit}>
-          <sphereGeometry args={[120, 24, 24]} />
-          <meshBasicMaterial color="#ffeccc" />
-        </mesh>
-        <M31FarGlow />
-        <sprite scale={[9000, 9000, 1]}>
-          <spriteMaterial
-            map={coreTex}
-            transparent
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </sprite>
+
+        <M31FarPortrait />
+
         <PA99N2System />
         {/* generous invisible pick target so M31 stays clickable from afar */}
         <mesh onClick={visit}>

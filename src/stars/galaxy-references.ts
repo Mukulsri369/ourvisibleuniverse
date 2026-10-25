@@ -1,0 +1,98 @@
+/** Observed single-view guides. Depth and unobserved directions are reconstructed. */
+export const GALAXY_REFERENCES: Record<
+  string,
+  { url: string; width: number; height: number; source: string; title: string }
+> = {
+  m51: {
+    url: "/textures/galaxies/m51.jpg",
+    width: 4000,
+    height: 2776,
+    source: "https://esahubble.org/images/heic0506a/",
+    title: "Out of this whirl: The Whirlpool Galaxy (M51) and companion galaxy | ESA/Hubble",
+  },
+  m101: {
+    url: "/textures/galaxies/m101.jpg",
+    width: 4000,
+    height: 3127,
+    source: "https://esahubble.org/images/heic0602a/",
+    title: "Largest ever galaxy portrait - stunning HD image of Pinwheel Galaxy | ESA/Hubble",
+  },
+  m81: {
+    url: "/textures/galaxies/m81.jpg",
+    width: 4000,
+    height: 2688,
+    source: "https://esahubble.org/images/heic0710a/",
+    title: "Hubble photographs grand design spiral galaxy M81 | ESA/Hubble",
+  },
+  m104: {
+    url: "/textures/galaxies/m104.jpg",
+    width: 4000,
+    height: 2242,
+    source: "https://esahubble.org/images/opo0328a/",
+    title: "Hubble mosaic of the majestic Sombrero Galaxy | ESA/Hubble",
+  },
+  m82: {
+    url: "/textures/galaxies/m82.jpg",
+    width: 4000,
+    height: 3116,
+    source: "https://esahubble.org/images/heic0604a/",
+    title: "The magnificent starburst galaxy Messier 82 | ESA/Hubble",
+  },
+  "catalog-ngc-1300": {
+    url: "/textures/galaxies/ngc1300.jpg",
+    width: 4000,
+    height: 2282,
+    source: "https://esahubble.org/images/opo0501a/",
+    title: "A poster-size image of the beautiful barred spiral galaxy NGC 1300 | ESA/Hubble",
+  },
+  tadpole: {
+    url: "/textures/galaxies/tadpole.jpg",
+    width: 4000,
+    height: 3484,
+    source: "https://esahubble.org/images/heic0206a/",
+    title:
+      "A &#39;wallpaper&#39; of distant galaxies is a stunning backdrop for a runaway galaxy | ESA/Hubble",
+  },
+  cena: {
+    url: "/textures/galaxies/cena.jpg",
+    width: 1460,
+    height: 1130,
+    source: "https://www.eso.org/public/images/cena/",
+    title: "A giant galaxy | ESO",
+  },
+  antennae: {
+    url: "/textures/galaxies/antennae.jpg",
+    width: 3915,
+    height: 3885,
+    source: "https://esahubble.org/images/heic0615a/",
+    title: "Colliding galaxies make love, not war | ESA/Hubble",
+  },
+  "stephans-quintet": {
+    url: "/textures/galaxies/quintet.jpg",
+    width: 4000,
+    height: 3835,
+    source: "https://esawebb.org/images/weic2208a/",
+    title: "Stephan’s Quintet (NIRCam + MIRI Imaging) | ESA/Webb",
+  },
+  andromeda: {
+    url: "/textures/galaxies/m31full.jpg",
+    width: 1574,
+    height: 1377,
+    source: "https://www.eso.org/public/images/b07/",
+    title: "The Andromeda galaxy | ESO",
+  },
+  "hoags-object": {
+    url: "/textures/galaxies/hoag.jpg",
+    width: 1521,
+    height: 1489,
+    source: "https://esahubble.org/images/opo0221a/",
+    title: "A Wheel within a Wheel | ESA/Hubble",
+  },
+  cartwheel: {
+    url: "/textures/galaxies/cartwheel.jpg",
+    width: 4000,
+    height: 3682,
+    source: "https://esawebb.org/images/weic2211a/",
+    title: "Cartwheel Galaxy (NIRCam and MIRI Composite Image) | ESA/Webb",
+  },
+};

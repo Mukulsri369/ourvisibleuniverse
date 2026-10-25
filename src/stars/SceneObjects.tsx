@@ -1,3 +1,5 @@
+import { GalacticNucleus } from "./GalacticNucleus";
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { GalaxyRadiance, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -416,12 +418,12 @@ export function OortCloud() {
 // MILKY WAY — real 3D particle galaxy with bulge, spiral disk,
 // halo, and Sgr A* at the galactic center. The Sun sits at
 // scene origin; the galactic center is offset by R0 ≈ 26,000 ly
-// along -X (matching the IAU-recommended Sun-to-Sgr A* distance).
+// along -X (sharing the catalogue anchor used by Sgr A*).
 // The whole galaxy rotates slowly around its own center, which
 // from the Sun's frame appears as the Sun orbiting the galaxy.
 // ---------------------------------------------------------------
 
-export const GALACTIC_CENTER = new THREE.Vector3(-26000, 0, 0);
+export const GALACTIC_CENTER = new THREE.Vector3(-SGR_A_DISTANCE_LY, 0, 0);
 const DISK_RADIUS = 50000;
 const DISK_SCALE_HEIGHT = 300;
 const BULGE_RADIUS = 4000;
@@ -432,7 +434,7 @@ const HALO_RADIUS = 60000;
 // stars rotate per a flat rotation curve V(r) ≈ V_flat (≈220 km/s in reality)
 // with solid-body behavior inside the bulge (r < R_CORE).
 const SUN_ORBIT_PERIOD_SEC = 600;
-const R0_LY = 26000;
+const R0_LY = SGR_A_DISTANCE_LY;
 const R_CORE_LY = 2000;
 // V_flat in scene units (ly per scene-second): chosen so omega(R0) = 2π/T_sun
 const V_FLAT = (2 * Math.PI * R0_LY) / SUN_ORBIT_PERIOD_SEC;
@@ -464,7 +466,6 @@ let CACHED_MW: {
 export function MilkyWay() {
   const groupRef = useRef<THREE.Group>(null!);
   const tex = useMemo(makeStarSprite, []);
-  const coreTex = useMemo(() => makeRadialTexture("rgba(255,220,160,1)", "rgba(255,140,40,0)"), []);
 
   const { diskGeo, bulgeGeo, haloGeo, hiiGeo, barGeo } = useMemo(() => {
     if (CACHED_MW) return CACHED_MW;
@@ -711,14 +712,19 @@ export function MilkyWay() {
     // Smoothly fade out heavy particle cloud between 180,000 and 550,000 ly as far sprite takes over
     const alpha = Math.min(1, Math.max(0, 1 - (d - 180_000) / 370_000));
     const volumeFade = THREE.MathUtils.smoothstep(camera.position.length(), 12000, 50000);
-    shader.uniforms.uOpacity.value = alpha * (1 - volumeFade);
+    const nucleusFade = THREE.MathUtils.smoothstep(d, 15, 350);
+    shader.uniforms.uOpacity.value = alpha * (1 - volumeFade) * nucleusFade;
     for (const child of groupRef.current.children)
-      if ((child as THREE.Points).isPoints) child.visible = volumeFade < 0.995;
+      if ((child as THREE.Points).isPoints)
+        child.visible = volumeFade < 0.995 && nucleusFade > 0.001;
     const volume = groupRef.current.getObjectByName("galaxy-radiance:Milky Way") as THREE.Mesh;
     if (volume) {
       volume.visible = volumeFade > 0.001;
       (volume.material as THREE.ShaderMaterial).uniforms.uOpacity.value =
-        alpha * volumeFade * backgroundFocus();
+        alpha *
+        volumeFade *
+        backgroundFocus() *
+        THREE.MathUtils.lerp(0.12, 1, THREE.MathUtils.smoothstep(d, 15, 350));
     }
     const localDistance =
       (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance ??
@@ -822,20 +828,9 @@ export function MilkyWay() {
         <points geometry={haloGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>
-        <mesh>
-          <sphereGeometry args={[60, 24, 24]} />
-          <meshBasicMaterial color="#ffeccc" />
-        </mesh>
-        <sprite scale={[3500, 3500, 1]}>
-          <spriteMaterial
-            map={coreTex}
-            blending={THREE.AdditiveBlending}
-            transparent
-            depthWrite={false}
-          />
-        </sprite>
       </group>
-      <SolarOrbitRing radius={26000} />
+      <GalacticNucleus />
+      <SolarOrbitRing radius={SGR_A_DISTANCE_LY} />
     </group>
   );
 }

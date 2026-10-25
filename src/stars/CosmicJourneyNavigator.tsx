@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
+
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "./store";
@@ -142,11 +144,11 @@ export function CosmicJourneyNavigator() {
       action: () => {
         setVisitGalaxy({
           name: "Milky Way",
-          x: -26000,
+          x: -SGR_A_DISTANCE_LY,
           y: 0,
           z: 0,
           size: 100000,
-          distance: 26000,
+          distance: SGR_A_DISTANCE_LY,
           type: "Barred Spiral (SBbc)",
           view: "overview",
         });

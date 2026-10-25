@@ -1,3 +1,4 @@
+import { galaxyDetailAlpha } from "./galaxy-detail-state";
 import { GalaxyRadiance } from "./GalaxyRadiance";
 import { motionTimeSeconds } from "./sim-clock";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -540,10 +541,17 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
 // ---------------------------------------------------------------
 
 function GalaxyBody({ m }: { m: GalaxyModel }) {
+  const blend = useRef(0);
+  useEffect(
+    () => () => {
+      galaxyDetailAlpha.delete(m.key);
+    },
+    [m.key],
+  );
   const center = useMemo(() => galaxyCenter(m), [m]);
   const ref = useRef<THREE.Group>(null!);
   const { size } = useThree();
-  useFrame(({ camera }) => {
+  useFrame(({ camera }, dt) => {
     const lod = lodManager.evaluate(
       m.key,
       camera,
@@ -552,10 +560,12 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
       size.height,
     );
     if (ref.current) {
-      ref.current.visible = lod.isDetailedVisible;
+      blend.current = THREE.MathUtils.damp(blend.current, lod.alphaNear, 10, Math.min(dt, 0.1));
+      galaxyDetailAlpha.set(m.key, blend.current);
+      ref.current.visible = blend.current > 0.001;
       const volume = ref.current.getObjectByName("galaxy-radiance:" + m.name) as THREE.Mesh;
       const mat = volume?.material as THREE.ShaderMaterial;
-      if (mat) mat.uniforms.uOpacity.value = lod.alphaNear;
+      if (mat) mat.uniforms.uOpacity.value = blend.current;
     }
   });
   return (
@@ -582,13 +592,17 @@ function GalaxyGate({ m }: { m: GalaxyModel }) {
   const center = useMemo(() => galaxyCenter(m), [m]);
   const acc = useRef(0);
 
-  useFrame(({ camera }, dt) => {
+  useFrame(({ camera, size }, dt) => {
     acc.current += dt;
     if (acc.current < 0.25) return;
     acc.current = 0;
     const d = camera.position.distanceTo(center);
     // Hysteresis gap: enter detail at 15x radius, keep detail until 21x radius
-    const shouldBeNear = d < (near ? m.diskRadius * 21 : m.diskRadius * 15);
+    const projected =
+      ((2 * Math.atan(m.diskRadius / Math.max(1, d))) /
+        THREE.MathUtils.degToRad((camera as THREE.PerspectiveCamera).fov || 45)) *
+      size.height;
+    const shouldBeNear = projected > (near ? 12 : 18);
     if (shouldBeNear !== near) setNear(shouldBeNear);
   });
 
