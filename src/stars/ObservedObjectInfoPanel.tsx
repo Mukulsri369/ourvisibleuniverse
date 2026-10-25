@@ -1,3 +1,5 @@
+import { BlackHoleAnatomy } from "./BlackHoleJourneyControls";
+import { NEBULA_REFERENCES } from "./nebula-references";
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
@@ -360,6 +362,25 @@ export function ObservedObjectInfoPanel() {
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-white/65">{item.visualNote}</p>
               </div>
+              {NEBULA_REFERENCES[item.id] && (
+                <div className="mt-3 rounded-lg border border-white/10 p-3 text-[11px] leading-relaxed text-white/55">
+                  <a
+                    className="text-cyan-200 underline underline-offset-4"
+                    href={NEBULA_REFERENCES[item.id].source}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Observatory image reference ↗
+                  </a>
+                  <p className="mt-2">
+                    {NEBULA_REFERENCES[item.id].band}. Image-guided 3D reconstruction; unseen depths
+                    and viewing directions are modelled. Telescope composites do not represent
+                    naked-eye brightness.
+                  </p>
+                  <p className="mt-2 text-[10px]">Image: {NEBULA_REFERENCES[item.id].credit}</p>
+                </div>
+              )}
+              <BlackHoleAnatomy item={item} />
               <QuestionList item={item} />
               <div className="mt-5 text-[11px] text-white/45">
                 <span className="text-white/65">Observed in:</span> {item.observed}

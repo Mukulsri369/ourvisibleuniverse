@@ -39,7 +39,13 @@ gl_FragColor=vec4(uColor*surface*limb*7.0,1.0);
 
 /** One surface program serves every catalogue star. Only a resolvable visited
  * star is drawn; the atlas keeps its batched points at wider viewing scales. */
-export function StellarSurface({ star, radius }: { star: NamedStar; radius: number }) {
+export function StellarSurface({
+  star,
+  radius,
+}: {
+  star: Pick<NamedStar, "name" | "temperature">;
+  radius: number;
+}) {
   const mesh = useRef<THREE.Mesh>(null!);
   const map = useSolarMap("Sun", () => new THREE.Texture());
   const uniforms = useMemo(() => {

@@ -1,0 +1,130 @@
+export const BLACK_HOLE_VERTEX = /*glsl*/ `
+varying vec2 vUv;
+void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}
+`;
+export const BLACK_HOLE_FRAGMENT = /*glsl*/ `
+precision highp float;
+uniform sampler2D tDiffuse,uNoise;
+uniform samplerCube uSky;
+uniform mat3 uCameraToDisk,uDiskToWorld,uWorldToCamera;
+uniform vec3 uEye;
+uniform vec2 uResolution;
+uniform vec2 uView; // tan(vertical FOV/2), aspect
+uniform float uTime,uInner,uOuter,uIntensity,uOpacity,uDisk,uHotFlow,uFall,uStep,uSkyReady;
+varying vec2 vUv;
+float noise(vec2 p,float lod){return textureLod(uNoise,p,lod).r;}
+vec3 sky(vec3 diskDirection){
+ vec3 world=normalize(uDiskToWorld*diskDirection);
+ vec3 color=textureLod(uSky,world,0.).rgb*uSkyReady;
+ vec3 view=uWorldToCamera*world;
+ if(view.z<-.001){vec2 uv=view.xy/(-view.z)/vec2(uView.x*uView.y,uView.x)*.5+.5;
+  if(all(greaterThan(uv,vec2(.002)))&&all(lessThan(uv,vec2(.998))))color=textureLod(tDiffuse,uv,0.).rgb;}
+ return color;
+}
+vec4 diskEmission(vec3 hit,vec3 tangent,float observerR){
+ float r=length(hit.xz);if(r<uInner||r>uOuter||uDisk<.5)return vec4(0.);
+ float a=atan(hit.z,hit.x);
+ float omega=1./pow(max(r,1.3),1.5);
+ float phase=a-uTime*omega*.62;
+ vec2 uv=vec2(phase/6.2831853,log(r)*.48);
+ float pixelWorld=2.*uView.x*length(uEye-hit)/max(uResolution.y,1.)/max(.15,abs(normalize(tangent).y));
+ float lod=clamp(log2(max(1.,pixelWorld/r*512.*.14)),0.,6.);
+ // Magnetically sheared, broken azimuthal streaks, not perfect decorative rings.
+ float coarse=noise(vec2(phase*.007,log(r)*.14),lod);
+ float fine=noise(vec2(phase*.025+coarse*.003,log(r)*.52),min(lod+1.2,7.));
+ float streams=coarse*.68+fine*.32;
+ float inner=smoothstep(uInner,uInner+.55,r),outer=1.-smoothstep(uOuter*.72,uOuter,r);
+ float radial=pow(uInner/r,3.)*(1.-sqrt(uInner/r));
+ float density=(.65+coarse*.30+fine*.10+streams*.30)*inner*outer;
+ vec3 gasVelocity=normalize(vec3(-hit.z,0.,hit.x));
+ float beta=min(.64,sqrt(1./max(2.*(r-1.),1.)));
+ float doppler=sqrt(1.-beta*beta)/max(.25,1.+beta*dot(normalize(tangent),gasVelocity));
+ float gravity=sqrt(max(.01,1.-1./r)/max(.025,1.-1./observerR));
+ float shift=clamp(gravity*doppler,.18,2.5);
+ float temperature=clamp(pow(max(radial*24.,.001),.25)*shift,0.,1.5);
+ vec3 hot=mix(vec3(1.,.12,.015),vec3(1.,.78,.36),smoothstep(.25,.85,temperature));
+ hot=mix(hot,vec3(.78,.9,1.),smoothstep(.85,1.4,temperature)*.8);
+ float power=clamp(pow(shift,3.),.035,7.);
+ float alpha=1.-exp(-density*uOpacity/max(.17,abs(normalize(tangent).y)));
+ float filaments=.20+.80*smoothstep(.18,.82,streams);
+ float emission=(.012+radial*32.)*power*filaments*(.92+fine*.08)*uIntensity*20.;
+ emission=24.*(1.-exp(-emission/24.));
+ return vec4(hot*emission,clamp(alpha,0.,.98));
+}
+vec3 acceleration(vec3 p,float angularMomentum2){
+ float r2=max(dot(p,p),.01);return -1.5*angularMomentum2*p/(r2*r2*sqrt(r2));
+}
+vec4 trace(vec2 imageUV){
+ float ro=length(uEye);
+ if(ro<=1.002){return vec4(0.,0.,0.,1.);}
+ vec3 d=normalize(uCameraToDisk*vec3((imageUV*2.-1.)*vec2(uView.x*uView.y,uView.x),-1.));
+ vec3 radial=uEye/ro;
+ // Aberration from the infalling observer's tetrad into the local static frame.
+ if(uFall>.001){vec3 axis=-radial;float beta=min(.985,sqrt(1./ro))*uFall;float mu=dot(d,axis);
+  float denom=max(.015,1.-beta*mu),gamma=inversesqrt(1.-beta*beta);
+  d=normalize(axis*((mu-beta)/denom)+(d-axis*mu)/(gamma*denom));}
+ float mu=dot(d,radial),f=max(.001,1.-1./ro);
+ vec3 velocity=radial*mu+(d-radial*mu)/sqrt(f);
+ float l2=dot(cross(uEye,velocity),cross(uEye,velocity));
+ float impact=sqrt(l2);
+ float influence=1.-smoothstep(30.,58.,impact);
+ if(ro>75.&&(mu>=0.||influence<.001)){return vec4(0.);}
+ vec3 p=uEye;
+ // Skip empty travel before the integration domain. Weak bending there is tiny.
+ if(ro>80.){
+  float b=dot(p,d),disc=b*b-dot(p,p)+6400.;
+  if(disc<0.){return vec4(0.);}
+  p+=d*max(0.,-b-sqrt(disc));
+  vec3 er=normalize(p),tangentDirection=d-er*dot(d,er);
+  vec3 et=tangentDirection/max(length(tangentDirection),.000001);float r=length(p);
+  float vr=-sqrt(max(0.,1.-l2/(r*r)*(1.-1./r)));
+  velocity=er*vr+et*sqrt(l2)/r;
+ }
+ vec3 sum=vec3(0.);float trans=1.;bool escaped=false,captured=false;
+ // Central-force affine form of Schwarzschild null geodesics, Rs=1:
+ // d²x/dλ² = -3 L² x/(2 r^5). Velocity Verlet conserves angular momentum.
+ for(int i=0;i<440;i++){
+  float r=length(p);
+  if(r<1.002){captured=true;break;}
+  if(r>81.&&dot(p,velocity)>0.){escaped=true;break;}
+  float h=clamp(uStep*r/max(length(velocity),1.),.012,5.);
+  vec3 a=acceleration(p,l2);
+  vec3 next=p+velocity*h+.5*a*h*h;
+  vec3 nextVelocity=velocity+.5*(a+acceleration(next,l2))*h;
+  if(p.y*next.y<0.){
+   float t=clamp(p.y/(p.y-next.y),0.,1.);vec3 hit=mix(p,next,t);
+   vec4 light=diskEmission(hit,mix(velocity,nextVelocity,t),ro);
+   sum+=trans*light.rgb*light.a;trans*=1.-light.a;
+   if(trans<.007)break;
+  }
+  // A restrained, optically thin inner-flow corona for low-state accretors.
+  if(uHotFlow>.5&&uDisk>.5&&r<7.){
+   float height=abs(p.y)/r;float halo=exp(-pow((r-3.3)/2.,2.))*exp(-height*7.);
+   float alpha=(1.-exp(-halo*h*.0004))*uIntensity;
+   sum+=trans*alpha*vec3(1.,.27,.065)*7.;trans*=1.-alpha;
+  }
+  p=next;velocity=nextVelocity;
+ }
+ // Unresolved high-order rays end dark rather than leaking an unbent sky.
+ if(escaped&&!captured)sum+=trans*sky(normalize(velocity));
+ float blend=ro<70.?1.:influence;
+ return vec4(sum,blend);
+}
+void main(){
+ vec4 color=trace(vUv);
+ vec3 d=normalize(uCameraToDisk*vec3((vUv*2.-1.)*vec2(uView.x*uView.y,uView.x),-1.));
+ float ro=length(uEye);float b=length(cross(uEye,d))/sqrt(max(.001,1.-1./max(ro,1.001)));
+ // Extra rays only across the subpixel critical curve; no full-frame supersampling cost.
+ if(abs(b-2.598076)<.16&&uFall<.01){
+  vec2 pixel=.32/max(uResolution,vec2(1.));
+  color=(color+trace(vUv+pixel)+trace(vUv-pixel))/3.;
+ }
+ gl_FragColor=color;
+}
+
+`;
+export const BLACK_HOLE_COMPOSITE = /*glsl*/ `
+uniform sampler2D tDiffuse,uLensed;varying vec2 vUv;
+void main(){vec4 base=texture2D(tDiffuse,vUv);vec4 lens=texture2D(uLensed,vUv);gl_FragColor=vec4(mix(base.rgb,lens.rgb,lens.a),base.a);}
+
+`;

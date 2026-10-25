@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
 export type ObjectCategory =
   | "Nebula"
   | "Quasar"
@@ -2058,6 +2059,9 @@ export function objectPosition(
 }
 
 export function objectVisitDistance(item: ObservedObject): number {
+  if (isBlackHoleTarget(item)) return blackHoleModel(item).radiusLy * 32;
+  // Frame the entire diffuse cloud; users can then travel through its interior.
+  if (item.nebulaClass) return Math.max(item.diameterLy * 3.4, 0.2);
   if (item.diameterLy >= 0.05) return Math.max(item.diameterLy * 1.8, 0.2);
   // Compact remnants use a minimum presentation scale of 2e-7 ly in the
   // renderer. Keep the camera outside that model instead of inside its beams.

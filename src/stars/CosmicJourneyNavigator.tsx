@@ -47,6 +47,7 @@ export function CosmicJourneyNavigator() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const executedIndex = useRef<number | null>(null);
 
   const steps: CosmicScaleStep[] = [
     {
@@ -274,8 +275,21 @@ export function CosmicJourneyNavigator() {
     };
   }, [isPlaying, currentIndex, steps.length, setIndex]);
 
-  // Execute step action on index change
+  // Restoring hidden UI must not restart a step or steal an existing camera target.
   useEffect(() => {
+    if (executedIndex.current === currentIndex) return;
+    if (executedIndex.current === null) {
+      executedIndex.current = currentIndex;
+      const state = useStore.getState();
+      if (
+        state.selectedObjectId ||
+        state.visitPlanet ||
+        state.visitGalaxy ||
+        state.exoVisit ||
+        (state.selectedStar && state.selectedStar.name !== "Sun")
+      )
+        return;
+    } else executedIndex.current = currentIndex;
     const s = steps[currentIndex];
     if (s) {
       s.action();
@@ -418,7 +432,10 @@ export function CosmicJourneyNavigator() {
               return (
                 <button
                   key={step.id}
-                  onClick={() => setIndex(idx)}
+                  onClick={() => {
+                    if (idx === currentIndex) steps[idx].action();
+                    else setIndex(idx);
+                  }}
                   className={`group relative flex flex-1 flex-col items-center justify-center rounded-lg px-1.5 py-1 transition ${
                     active
                       ? "bg-white/15 text-cyan-300 font-semibold shadow-inner"

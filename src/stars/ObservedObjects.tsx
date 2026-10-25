@@ -1,6 +1,7 @@
 // @ts-nocheck
+import { BlackHoleContext } from "./BlackHoleContext";
 import { motionTimeSeconds, motionDeltaSeconds } from "./sim-clock";
-import { AccretionFlow, NeutronSurface, PlasmaJets } from "./CompactObjectMaterials";
+import { NeutronSurface, PlasmaJets } from "./CompactObjectMaterials";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
@@ -8,17 +9,9 @@ import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OBSERVED_OBJECTS, objectPosition, type ObservedObject } from "./observed-objects";
 import { OBSERVED_VISUAL_PROFILES, type ObservedVisualProfile } from "./observed-object-visuals";
-import { VOLUMETRIC_NEBULA_SHADER, NEBULA_SPECTRAL_DATA } from "./nebula-shaders";
+import { NebulaVolume } from "./NebulaVolume";
 import { useStore } from "./store";
 
-function seeded(seed: number) {
-  let s = seed | 0;
-  return () => {
-    s = Math.imul(s ^ (s >>> 15), 1 | s);
-    s ^= s + Math.imul(s ^ (s >>> 7), 61 | s);
-    return ((s ^ (s >>> 14)) >>> 0) / 4294967296;
-  };
-}
 function makeGlowTexture() {
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = 64;
@@ -34,339 +27,17 @@ function makeGlowTexture() {
   return new THREE.CanvasTexture(canvas);
 }
 
-function hashSeed(id: string) {
-  return id.split("").reduce((a, c) => Math.imul(a ^ c.charCodeAt(0), 16777619), 2166136261);
-}
-
-function buildNebulaGeometry(item: ObservedObject, profile: ObservedVisualProfile) {
-  const count = profile.particleCount ?? 4000;
-  const rand = seeded(profile.seed || hashSeed(item.id));
-  const positions = new Float32Array(count * 3);
-  const colors = new Float32Array(count * 3);
-  const primary = new THREE.Color(item.color);
-  const secondary = new THREE.Color(item.accent);
-  const morphology = profile.morphology;
-
-  for (let i = 0; i < count; i++) {
-    const theta = rand() * Math.PI * 2;
-    const phi = Math.acos(2 * rand() - 1);
-    const radial = Math.pow(rand(), 0.58);
-    let x = Math.sin(phi) * Math.cos(theta) * radial;
-    let y = Math.cos(phi) * radial;
-    let z = Math.sin(phi) * Math.sin(theta) * radial;
-    let mix = rand();
-
-    if (morphology === "filament-remnant") {
-      const shell = 0.72 + 0.24 * rand();
-      const wrinkle = 1 + 0.11 * Math.sin(theta * 7 + phi * 11);
-      x *= shell * wrinkle;
-      y *= shell * 0.72;
-      z *= shell * 0.82;
-      if (rand() < 0.24) {
-        x *= 0.48;
-        y *= 0.48;
-        z *= 0.48;
-        mix = 1;
-      }
-    } else if (morphology === "orion-cloud") {
-      const wing = rand() < 0.55 ? -1 : 1;
-      x = wing * (0.12 + Math.pow(rand(), 0.45) * 0.9);
-      y = (rand() - 0.5) * (0.28 + Math.abs(x) * 0.62);
-      z = (rand() - 0.5) * 0.55;
-      if (rand() < 0.18) {
-        x *= 0.18;
-        y *= 0.18;
-        z *= 0.18;
-        mix = 1;
-      }
-    } else if (morphology === "pillars") {
-      const pillar = Math.floor(rand() * 3);
-      const heights = [1, 0.78, 0.62];
-      const bases = [-0.36, 0.02, 0.34];
-      y = -0.52 + rand() * heights[pillar];
-      const taper = 0.08 + (y + 0.52) * 0.055;
-      x = bases[pillar] + (rand() - 0.5) * taper + Math.sin(y * 9 + pillar) * 0.035;
-      z = (rand() - 0.5) * taper * 1.3;
-      mix = Math.max(0, (y + 0.25) * 1.1);
-    } else if (["helix-ring", "barrel-ring", "nested-shells"].includes(morphology)) {
-      const ring = morphology === "nested-shells" ? 0.35 + Math.floor(rand() * 3) * 0.22 : 0.66;
-      const tube = morphology === "helix-ring" ? 0.2 : 0.16;
-      const rr = ring + (rand() - 0.5) * tube;
-      x = Math.cos(theta) * rr;
-      z = Math.sin(theta) * rr;
-      y = (rand() - 0.5) * (morphology === "barrel-ring" ? 0.72 : 0.28);
-      if (morphology === "helix-ring" && rand() < 0.22) {
-        x *= 1.25;
-        z *= 1.25;
-      }
-      mix = 0.35 + Math.abs(y) * 1.6;
-    } else if (morphology === "veil-arcs") {
-      const arc = Math.floor(rand() * 5);
-      const a = -1.1 + rand() * 2.2;
-      const radius = 0.54 + arc * 0.09;
-      x = Math.cos(a + arc * 0.52) * radius + (rand() - 0.5) * 0.025;
-      y = Math.sin(a + arc * 0.52) * radius + (rand() - 0.5) * 0.025;
-      z = (rand() - 0.5) * 0.16;
-      mix = arc % 2;
-    } else if (morphology === "cosmic-cliffs") {
-      x = (rand() - 0.5) * 1.8;
-      const ridge = -0.2 + 0.18 * Math.sin(x * 5) + 0.1 * Math.sin(x * 13);
-      y = ridge - Math.pow(rand(), 1.8) * 0.65;
-      z = (rand() - 0.5) * 0.55;
-      if (rand() < 0.14) {
-        y = ridge + rand() * 0.65;
-        mix = 1;
-      }
-    } else if (["hourglass", "butterfly", "homunculus"].includes(morphology)) {
-      const sign = rand() < 0.5 ? -1 : 1;
-      y = sign * (0.08 + rand() * 0.85);
-      const width = Math.pow(Math.abs(y), morphology === "butterfly" ? 0.55 : 0.75) * 0.65;
-      x = (rand() - 0.5) * width * 2;
-      z = (rand() - 0.5) * width * (morphology === "butterfly" ? 0.7 : 1.15);
-      if (morphology === "homunculus") {
-        x *= 0.68;
-        z *= 0.75;
-      }
-      mix = Math.abs(y);
-    } else if (morphology === "triple-ring") {
-      const ring = Math.floor(rand() * 3);
-      const rr = ring === 0 ? 0.48 : 0.7;
-      x = Math.cos(theta) * rr;
-      z = Math.sin(theta) * rr * (ring === 0 ? 1 : 0.72);
-      y =
-        ring === 0 ? (rand() - 0.5) * 0.035 : (ring === 1 ? -0.45 : 0.45) + Math.sin(theta) * 0.25;
-      x += (rand() - 0.5) * 0.025;
-      z += (rand() - 0.5) * 0.025;
-      mix = ring === 0 ? 0 : 1;
-    } else if (morphology === "pinwheel") {
-      const t = rand() * Math.PI * 7;
-      const rr = 0.03 + t * 0.038;
-      x = Math.cos(t) * rr + (rand() - 0.5) * 0.035;
-      y = (rand() - 0.5) * 0.045;
-      z = Math.sin(t) * rr + (rand() - 0.5) * 0.035;
-      mix = t / (Math.PI * 7);
-    } else if (morphology === "disturbed-quasar") {
-      const arm = rand() < 0.5 ? 0 : Math.PI;
-      const rr = Math.pow(rand(), 0.55);
-      const a = arm + rr * 5.5 + (rand() - 0.5) * 0.65;
-      x = Math.cos(a) * rr;
-      z = Math.sin(a) * rr;
-      y = (rand() - 0.5) * 0.16;
-    } else if (morphology === "dusty-supergiant") {
-      const shell = 0.5 + rand() * 0.5;
-      x *= shell;
-      y *= shell;
-      z *= shell;
-      mix = shell;
-    }
-
-    const stretch = profile.stretch ?? [1, 1, 1];
-    positions[i * 3] = x * stretch[0];
-    positions[i * 3 + 1] = y * stretch[1];
-    positions[i * 3 + 2] = z * stretch[2];
-    const color = primary.clone().lerp(secondary, Math.min(1, Math.max(0, mix)));
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
-  }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-  return geometry;
-}
-
-function buildFilaments(profile: ObservedVisualProfile) {
-  const rand = seeded(profile.seed + 77);
-  const vertices: number[] = [];
-  const count = profile.filamentCount ?? 0;
-  for (let f = 0; f < count; f++) {
-    const theta = rand() * Math.PI * 2;
-    const phi = Math.acos(2 * rand() - 1);
-    const axis = new THREE.Vector3(
-      Math.sin(phi) * Math.cos(theta),
-      Math.cos(phi),
-      Math.sin(phi) * Math.sin(theta),
-    );
-    let previous = axis.clone().multiplyScalar(0.68 + rand() * 0.12);
-    for (let j = 1; j <= 9; j++) {
-      const next = axis.clone().multiplyScalar(0.7 + j * 0.025 + rand() * 0.035);
-      next.x += Math.sin(j * 1.7 + f) * 0.025;
-      next.y += Math.cos(j * 1.3 + f) * 0.025;
-      vertices.push(previous.x, previous.y, previous.z, next.x, next.y, next.z);
-      previous = next;
-    }
-  }
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-  return geometry;
-}
-
 function NebulaDetail({
   item,
   profile,
   scale,
-  sizeScale,
 }: {
   item: ObservedObject;
   profile: ObservedVisualProfile;
   scale: number;
-  /** World-space scale used for point sizing (defaults to `scale`). */
   sizeScale?: number;
 }) {
-  const geometry = useMemo(() => buildNebulaGeometry(item, profile), [item, profile]);
-  const filaments = useMemo(() => buildFilaments(profile), [profile]);
-  const texture = useMemo(makeGlowTexture, []);
-  const ws = sizeScale ?? scale;
-  const opticsPreset = useStore((s) => s.opticsPreset);
-  const group = useRef<THREE.Group>(null);
-  const slowlyTurning = false;
-
-  const volumetricUniforms = useMemo(() => {
-    const spectral = NEBULA_SPECTRAL_DATA[item.id];
-    let classId = 0;
-    if (item.nebulaClass === "reflection" || profile.morphology === "veil-arcs") classId = 1;
-    else if (item.nebulaClass === "dark") classId = 2;
-    else if (
-      item.nebulaClass === "planetary" ||
-      ["helix-ring", "barrel-ring", "nested-shells", "butterfly"].includes(profile.morphology)
-    )
-      classId = 3;
-    else if (item.nebulaClass === "supernova_remnant" || profile.morphology === "filament-remnant")
-      classId = 4;
-
-    return {
-      uTime: { value: 0 },
-      uClass: { value: classId },
-      uPalette: {
-        value:
-          spectral?.palette === "narrowband_sho"
-            ? 0
-            : spectral?.palette === "true_color_rgb"
-              ? 1
-              : 2,
-      },
-      uPrimaryColor: { value: new THREE.Color(item.color) },
-      uSecondaryColor: { value: new THREE.Color(item.accent) },
-      uOpticalDepth: { value: spectral?.opticalDepthTau ?? (classId === 2 ? 15.0 : 1.2) },
-      uTurbulence: { value: classId === 4 ? 2.8 : classId === 3 ? 1.6 : 2.0 },
-      uCinematic: { value: opticsPreset === "cinematic" ? 1.0 : 0.0 },
-    };
-  }, [item, profile, opticsPreset]);
-
-  useFrame(() => {
-    if (!group.current) return;
-    const step = Math.min(motionDeltaSeconds(), 0.05);
-    volumetricUniforms.uTime.value += step;
-    volumetricUniforms.uCinematic.value = opticsPreset === "cinematic" ? 1.0 : 0.0;
-    // Every cloud drifts a little: expanding remnants and outflows are never
-    // perfectly static in time-lapse imagery.
-    group.current.rotation.y += step * (slowlyTurning ? (profile.spin ?? 0.1) : 0.012);
-  });
-  return (
-    <group ref={group} rotation={profile.tilt} scale={scale}>
-      {/* Physically based volumetric gas emission & dust scattering shell */}
-      <mesh renderOrder={1}>
-        <sphereGeometry args={[0.95, 36, 28]} />
-        <shaderMaterial
-          vertexShader={VOLUMETRIC_NEBULA_SHADER.vertexShader}
-          fragmentShader={VOLUMETRIC_NEBULA_SHADER.fragmentShader}
-          uniforms={volumetricUniforms}
-          transparent
-          depthWrite={false}
-          side={THREE.DoubleSide}
-          blending={item.nebulaClass === "dark" ? THREE.NormalBlending : THREE.AdditiveBlending}
-        />
-      </mesh>
-      {/* fine, bright knots */}
-      <points geometry={geometry}>
-        <pointsMaterial
-          map={texture}
-          vertexColors
-          size={0.03 * ws}
-          sizeAttenuation
-          transparent
-          opacity={0.85}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
-      {/* broad, faint haze — gives the soft nebular glow of long exposures */}
-      <points geometry={geometry}>
-        <pointsMaterial
-          map={texture}
-          vertexColors
-          size={0.11 * ws}
-          sizeAttenuation
-          transparent
-          opacity={0.16}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
-      {(profile.filamentCount ?? 0) > 0 && (
-        <lineSegments geometry={filaments}>
-          <lineBasicMaterial
-            color={item.color}
-            transparent
-            opacity={0.5}
-            depthWrite={false}
-            blending={THREE.AdditiveBlending}
-          />
-        </lineSegments>
-      )}
-      {profile.morphology === "pillars" &&
-        [0, 1, 2].map((n) => (
-          <mesh key={n} position={[-0.36 + n * 0.34, -0.05 - n * 0.08, 0]}>
-            <coneGeometry args={[0.13 - n * 0.018, 0.9 - n * 0.14, 9, 3, true]} />
-            <meshBasicMaterial
-              color={item.color}
-              transparent
-              opacity={0.16}
-              side={THREE.DoubleSide}
-              depthWrite={false}
-            />
-          </mesh>
-        ))}
-      {["hourglass", "butterfly", "homunculus"].includes(profile.morphology) && (
-        <mesh rotation-x={Math.PI / 2} scale={[0.34, 0.34, 0.09]}>
-          <torusGeometry args={[0.42, 0.11, 10, 64]} />
-          <meshBasicMaterial
-            color={new THREE.Color(item.color).multiplyScalar(0.28)}
-            transparent
-            opacity={0.82}
-            depthWrite={false}
-          />
-        </mesh>
-      )}
-      {profile.morphology === "triple-ring" &&
-        Array.from({ length: 15 }, (_, n) => {
-          const a = (n / 15) * Math.PI * 2;
-          return (
-            <mesh key={n} position={[Math.cos(a) * 0.48, 0, Math.sin(a) * 0.48]}>
-              <sphereGeometry args={[0.035, 8, 6]} />
-              <meshBasicMaterial color={item.accent} />
-            </mesh>
-          );
-        })}
-      {/* Scientific palette & filter notice */}
-      <Billboard position={[0, -1.08, 0]}>
-        <Html center distanceFactor={Math.max(scale * 7, 24)} style={{ pointerEvents: "none" }}>
-          <div className="flex flex-col items-center gap-1 rounded-md border border-purple-500/35 bg-black/85 px-3 py-1.5 text-center shadow-lg backdrop-blur">
-            <div className="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-purple-400">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-purple-400" />
-              {item.nebulaClass
-                ? item.nebulaClass.replace("_", " ").toUpperCase() + " NEBULA"
-                : "ASTROPHYSICAL NEBULA"}
-            </div>
-            <div className="text-[11px] font-medium text-white/90">{item.name}</div>
-            <div className="max-w-[280px] text-[8.5px] text-white/50">
-              {item.filterPalette || "Multiwavelength Emission Composite"}
-            </div>
-          </div>
-        </Html>
-      </Billboard>
-    </group>
-  );
+  return <NebulaVolume item={item} profile={profile} scale={scale} />;
 }
 
 function PulsarDetail({
@@ -416,221 +87,23 @@ function PulsarDetail({
     </group>
   );
 }
-const LENS_VERT = `varying vec2 vUv;void main(){vUv=uv*2.-1.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-
-// Pure gravitational deflection for dormant / non-accreting black holes (Gaia BH1, Gaia BH3)
-// Features knife-edge photon ring, primary and secondary Einstein rings, zero hot plasma accretion.
-const DORMANT_LENS_FRAG = /* glsl */ `
-uniform vec3 uColor;
-uniform float uTime;
-varying vec2 vUv;
-void main() {
-  vec2 p = vUv;
-  float r = length(p);
-  float shadow = 0.19; // Event horizon shadow (apparent ~2.6 r_s)
-  if (r < shadow) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
-  // Thin photon ring at critical impact parameter b_crit ≈ 2.6 r_s
-  float source = pow(0.5 + 0.5*sin(atan(p.y,p.x)*17.0 + sin(atan(p.y,p.x)*7.0)*2.0), 12.0);
-  float ring = exp(-pow((r - 0.205) / 0.003, 2.0)) * (0.035 + source * 0.25);
-  // Primary Einstein ring of deflected background starlight
-  float ein = exp(-pow((r - 0.44) / 0.008, 2.0)) * source * 0.28;
-  // Secondary inner Einstein ring
-  float secondary = exp(-pow((r - 0.235) / 0.004, 2.0)) * source * 0.08;
-  // Weak background starfield deflection gradient
-  float defl = (1.0 - smoothstep(0.19, 0.65, r)) * source * 0.008;
-  vec3 starlight = mix(vec3(0.88, 0.94, 1.0), uColor, 0.2);
-  vec3 col = starlight * (ring + ein + secondary + defl);
-  float a = clamp(ring + ein + secondary + defl, 0.0, 1.0);
-  a *= (1.0 - smoothstep(0.75, 1.0, r));
-  gl_FragColor = vec4(col, a);
-}`;
-
-function DormantLensingHalo({ color }: { color: string }) {
-  const uniforms = useMemo(
-    () => ({
-      uColor: { value: new THREE.Color(color) },
-      uTime: { value: 0 },
-    }),
-    [color],
-  );
-  useFrame(() => {
-    uniforms.uTime.value = motionTimeSeconds();
-  });
-  return (
-    <Billboard>
-      <mesh renderOrder={2}>
-        <planeGeometry args={[2, 2]} />
-        <shaderMaterial
-          vertexShader={LENS_VERT}
-          fragmentShader={DORMANT_LENS_FRAG}
-          uniforms={uniforms}
-          transparent
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-    </Billboard>
-  );
-}
-
-function AccretionDisk({
-  item,
-  profile,
-  scale,
-  jet = false,
-}: {
-  item: ObservedObject;
-  profile: ObservedVisualProfile;
-  scale: number;
-  sizeScale?: number;
-  jet?: boolean;
-}) {
-  return (
-    <group scale={scale} rotation={profile.tilt}>
-      <AccretionFlow color={item.accent} spin={profile.spin ?? 0.2} />
-      {jet && <PlasmaJets color={item.accent} length={profile.jetLength ?? 1.6} />}
-    </group>
-  );
-}
-
 function BlackHoleDetail({
   item,
-  profile,
-  scale,
 }: {
   item: ObservedObject;
   profile: ObservedVisualProfile;
   scale: number;
 }) {
-  const merger = useRef<THREE.Group>(null);
-  const companion = useRef<THREE.Group>(null);
-  useFrame(() => {
-    const t = motionTimeSeconds();
-    if (merger.current) {
-      const decay = 0.38 + 0.2 * (0.5 + 0.5 * Math.sin(t * 0.45));
-      merger.current.rotation.y = t * 1.5;
-      merger.current.scale.setScalar(decay);
-    }
-    if (companion.current) companion.current.rotation.y = t * 0.5;
-  });
-  if (profile.morphology === "merger")
-    return (
-      <group scale={scale} rotation={profile.tilt}>
-        <group ref={merger}>
-          {[-1, 1].map((s) => (
-            <mesh key={s} position={[s * 0.55, 0, 0]}>
-              <sphereGeometry args={[s > 0 ? 0.2 : 0.17, 24, 18]} />
-              <meshBasicMaterial color="#000000" />
-            </mesh>
-          ))}
-        </group>
-        <mesh rotation-x={Math.PI / 2}>
-          <ringGeometry args={[0.55, 0.58, 96]} />
-          <meshBasicMaterial
-            color={item.accent}
-            transparent
-            opacity={0.18}
-            side={THREE.DoubleSide}
-            depthWrite={false}
-          />
-        </mesh>
-      </group>
-    );
-  if (profile.morphology === "xray-binary")
-    return (
-      <group scale={scale} rotation={profile.tilt}>
-        <AccretionDisk
-          item={item}
-          profile={{ ...profile, tilt: [0, 0, 0] }}
-          scale={0.65}
-          sizeScale={scale * 0.65}
-          jet={item.compactPhysics?.hasRelativisticJet ?? true}
-        />
-        <group ref={companion}>
-          <mesh position={[0.78, 0, 0]}>
-            <sphereGeometry args={[0.25, 48, 32]} />
-            <meshStandardMaterial
-              color="#9ec5ff"
-              emissive="#6a94dc"
-              emissiveIntensity={2}
-              roughness={1}
-            />
-          </mesh>
-        </group>
-        <mesh rotation-z={Math.PI / 2} position={[0.46, 0, 0]}>
-          <coneGeometry args={[0.12, 0.55, 14, 1, true]} />
-          <meshBasicMaterial
-            color={item.accent}
-            transparent
-            opacity={0.25}
-            side={THREE.DoubleSide}
-            depthWrite={false}
-          />
-        </mesh>
-      </group>
-    );
-  return (
-    <AccretionDisk
-      item={item}
-      profile={profile}
-      scale={scale}
-      jet={item.compactPhysics?.hasRelativisticJet ?? profile.morphology === "eht-jet"}
-    />
-  );
+  return <BlackHoleContext item={item} />;
 }
-
 function DormantBlackHoleDetail({
   item,
-  profile,
-  scale,
 }: {
   item: ObservedObject;
   profile: ObservedVisualProfile;
   scale: number;
 }) {
-  const companion = useRef<THREE.Group>(null);
-  useFrame(() => {
-    const t = motionTimeSeconds();
-    if (companion.current) {
-      companion.current.rotation.y = t * 0.35;
-    }
-  });
-
-  const cDist = profile.companionDist ?? 0.85;
-  const cColor = profile.companionColor ?? "#ffe9a8";
-
-  return (
-    <group scale={scale} rotation={profile.tilt}>
-      {/* Pitch-black event horizon shadow - NO GLOWING DISK */}
-      <mesh>
-        <sphereGeometry args={[0.185, 36, 24]} />
-        <meshBasicMaterial color="#000000" />
-      </mesh>
-
-      {/* Pure gravitational deflection & Einstein rings */}
-      <DormantLensingHalo color={item.accent} />
-
-      {/* Companion star if in a binary (Gaia BH1 with G-star, Gaia BH3 with metal-poor giant) */}
-      {profile.companionDist && (
-        <group ref={companion}>
-          <mesh position={[cDist, 0, 0]}>
-            <sphereGeometry args={[0.075, 20, 16]} />
-            <meshBasicMaterial color={cColor} />
-          </mesh>
-          <mesh rotation-x={Math.PI / 2}>
-            <ringGeometry args={[cDist - 0.003, cDist + 0.003, 64]} />
-            <meshBasicMaterial
-              color="#ffffff"
-              transparent
-              opacity={0.15}
-              side={THREE.DoubleSide}
-              depthWrite={false}
-            />
-          </mesh>
-        </group>
-      )}
-    </group>
-  );
+  return <BlackHoleContext item={item} />;
 }
 
 function ThermalNeutronStarDetail({
@@ -749,30 +222,19 @@ function QuasarDetail({
   profile: ObservedVisualProfile;
   scale: number;
 }) {
-  const hasJet = profile.morphology === "quasar-jet" || profile.morphology === "blazar";
+  const host = useRef<THREE.Group>(null);
+  const location = useMemo(() => new THREE.Vector3(...objectPosition(item)), [item]);
+  useFrame(({ camera }) => {
+    if (host.current) host.current.visible = camera.position.distanceTo(location) > scale * 0.02;
+  });
   return (
     <group>
-      {/* Surrounding giant elliptical / starburst host galaxy halo */}
-      <mesh>
-        <sphereGeometry args={[scale * 0.9, 28, 20]} />
-        <meshBasicMaterial
-          color="#ffd59e"
-          transparent
-          opacity={0.06}
-          side={THREE.BackSide}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </mesh>
-      {profile.morphology === "disturbed-quasar" && (
-        <NebulaDetail item={item} profile={profile} scale={scale} />
-      )}
-      <AccretionDisk
-        item={item}
-        profile={profile}
-        scale={profile.morphology === "disturbed-quasar" ? scale * 0.22 : scale}
-        jet={hasJet}
-      />
+      <BlackHoleContext item={item} />
+      <group ref={host}>
+        {profile.morphology === "disturbed-quasar" && (
+          <NebulaDetail item={item} profile={profile} scale={scale} />
+        )}
+      </group>
     </group>
   );
 }
@@ -946,7 +408,7 @@ function ObjectNode({ item }: { item: ObservedObject }) {
   const click = (e: ThreeEvent<MouseEvent>) => {
     if (e.delta > 4) return;
     e.stopPropagation();
-    select(item.id);
+    if (!selected) select(item.id);
   };
   return (
     <group position={position}>

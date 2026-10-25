@@ -1,3 +1,6 @@
+import { OBSERVED_VISUAL_PROFILES } from "./observed-object-visuals";
+import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
+import { useBlackHoleJourney, descentMotion, descentRadiusRs } from "./black-hole-journey";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
@@ -50,6 +53,7 @@ export function CameraRig() {
   const isAutoOrbiting = useStore((s) => s.isAutoOrbiting);
   const resetOrientationTrigger = useStore((s) => s.resetOrientationTrigger);
 
+  const descentSession = useRef({ id: "", returnRadius: 0 });
   const minR = 1e-10;
   // Zoom range spans from inside the Solar System out to ~50 Gly
   // (observable-universe scale) so pulling back reveals Local Group,
@@ -311,6 +315,12 @@ export function CameraRig() {
         useStore.getState().setUniversalSearchOpen(true);
       }
       // Escape = clear selections
+      if (e.key === "Escape" && useBlackHoleJourney.getState().mode !== "idle") {
+        e.preventDefault();
+        if (useBlackHoleJourney.getState().mode !== "returning")
+          useBlackHoleJourney.getState().returnToOrbit();
+        return;
+      }
       if (e.key === "Escape") {
         useStore.getState().setSelected(null);
         useStore.getState().setVisitPlanet(null);
@@ -349,6 +359,16 @@ export function CameraRig() {
     desired.current.radius = r;
     // Orbit angle chosen for a pleasant 3/4 view of the star system.
     const offset = new THREE.Vector3(r * 0.6, r * 0.4, r * 0.6);
+    const current = useStore.getState().selectedObjectId;
+    const hole = current ? OBJECT_BY_ID.get(current) : undefined;
+    if (isBlackHoleTarget(hole)) {
+      const tilt = OBSERVED_VISUAL_PROFILES[hole.id]?.tilt ?? [0, 0, 0];
+      offset
+        .set(0.35, 0.22, 0.91)
+        .normalize()
+        .multiplyScalar(r)
+        .applyEuler(new THREE.Euler(...tilt));
+    }
     const sph = new THREE.Spherical().setFromVector3(offset);
     desired.current.theta = nearestOrbitAngle(spherical.current.theta, sph.theta);
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));
@@ -562,7 +582,50 @@ export function CameraRig() {
       (selectedStar && selectedStar.name !== "Sun")
         ? target.current.distanceTo(scratchTarget.current)
         : 0;
-    const travelRadius = Math.max(desired.current.radius, anchorDistance * 1.2);
+    let travelRadius = Math.max(desired.current.radius, anchorDistance * 1.2);
+    const journey = useBlackHoleJourney.getState();
+    const hole = selectedObjectId ? OBJECT_BY_ID.get(selectedObjectId) : undefined;
+    if (journey.id === selectedObjectId && journey.mode !== "idle" && isBlackHoleTarget(hole)) {
+      const rs = blackHoleModel(hole).radiusLy,
+        session = descentSession.current;
+      if (session.id !== hole.id || descentMotion.startRadius === 0) {
+        session.id = hole.id;
+        session.returnRadius = Math.max(desired.current.radius, rs * 32);
+        descentMotion.startRadius = Math.max(12, Math.min(80, spherical.current.radius / rs));
+      }
+      target.current.copy(scratchTarget.current);
+      if (journey.mode === "falling") descentMotion.elapsed += Math.min(clampedDt, 0.05);
+      descentMotion.progress = Math.min(1, descentMotion.elapsed / 26);
+      let radius = descentRadiusRs(descentMotion.startRadius, descentMotion.progress) * rs;
+      if (journey.mode === "returning") {
+        if (descentMotion.returnStartRadius === 0)
+          descentMotion.returnStartRadius = spherical.current.radius;
+        descentMotion.returnElapsed += Math.min(clampedDt, 0.05);
+        const p = Math.min(1, descentMotion.returnElapsed / 2),
+          ease = p * p * (3 - 2 * p);
+        radius = Math.exp(
+          Math.log(descentMotion.returnStartRadius) * (1 - ease) +
+            Math.log(session.returnRadius) * ease,
+        );
+        if (p === 1) {
+          useBlackHoleJourney.getState().reset();
+          session.id = "";
+        }
+      } else if (journey.mode === "falling" && descentMotion.progress === 1) {
+        useBlackHoleJourney.setState({ mode: "crossed" });
+      }
+      descentMotion.radiusRs = radius / rs;
+      desired.current.radius = spherical.current.radius = travelRadius = Math.max(minR, radius);
+      if (journey.mode === "falling" && !dragging.current)
+        desired.current.theta += clampedDt * 0.025;
+    } else if (descentSession.current.id) {
+      // Clear a cancelled journey without leaving subsequent navigation at horizon scale.
+      desired.current.radius = Math.max(
+        desired.current.radius,
+        descentSession.current.returnRadius,
+      );
+      descentSession.current.id = "";
+    }
     spherical.current.radius = expDampLogRadius(
       spherical.current.radius,
       travelRadius,

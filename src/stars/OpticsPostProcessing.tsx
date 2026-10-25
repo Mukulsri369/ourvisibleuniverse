@@ -1,3 +1,5 @@
+import { BlackHoleLensPass } from "./BlackHoleLensPass";
+import { OBJECT_BY_ID } from "./observed-objects";
 /**
  * Astronomical Optics & Post-Processing Pipeline
  *
@@ -57,6 +59,8 @@ export function OpticsPostProcessing() {
 
     const renderPass = new RenderPass(scene, camera);
     comp.addPass(renderPass);
+    const blackHolePass = new BlackHoleLensPass(scene);
+    comp.addPass(blackHolePass);
 
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(size.width, size.height),
@@ -73,7 +77,7 @@ export function OpticsPostProcessing() {
       .replace("// color space", "gl_FragColor.rgb *= sceneBrightness;\n// color space");
     comp.addPass(outputPass);
 
-    return { comp, bloomPass, renderPass, renderTarget, outputPass };
+    return { comp, bloomPass, renderPass, renderTarget, outputPass, blackHolePass };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gl, scene, camera]);
 
@@ -120,6 +124,7 @@ export function OpticsPostProcessing() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      composer.blackHolePass.dispose();
       composer.bloomPass.dispose();
       composer.outputPass.dispose();
       composer.comp.dispose();
@@ -169,6 +174,13 @@ export function OpticsPostProcessing() {
       q.elapsed = 0;
       q.cooldown = 3;
     }
+    const state = useStore.getState();
+    composer.blackHolePass.update(
+      camera as THREE.PerspectiveCamera,
+      state.selectedObjectId ? OBJECT_BY_ID.get(state.selectedObjectId) : undefined,
+      state.renderingQualityTier,
+      dt,
+    );
     // Render through composer with post-processing passes
     const autoReset = gl.info.autoReset;
     gl.info.autoReset = false;

@@ -1,3 +1,4 @@
+import { BlackHoleJourneyControls } from "./BlackHoleJourneyControls";
 import { tickSim } from "./sim-clock";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
@@ -96,6 +97,7 @@ export function StarsApp() {
 
       {/* Hide toggle stays visible so users can bring the UI back */}
       <UIHideToggle />
+      <BlackHoleJourneyControls />
 
       {!uiHidden && (
         <>
