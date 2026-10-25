@@ -62,12 +62,21 @@ for (const tier of ["scientific_high", "standard", "performance"]) {
   );
 }
 const scissors: number[][] = [];
+let clearAlpha = 0.7;
+const clears: number[] = [];
 let scissorEnabled = false;
 const renderer = {
   xr: { enabled: false },
   getRenderTarget: () => null,
   setRenderTarget: () => {},
-  clear: () => {},
+  clear: () => {
+    clears.push(clearAlpha);
+  },
+  getClearColor: (value: THREE.Color) => value.setHex(0x142536),
+  getClearAlpha: () => clearAlpha,
+  setClearColor: (_color: THREE.Color | number, alpha: number) => {
+    clearAlpha = alpha;
+  },
   render: () => {},
   getPixelRatio: () => 1.5,
   getScissorTest: () => scissorEnabled,
@@ -88,6 +97,8 @@ assert.deepEqual(
 );
 assert.deepEqual(scissors.at(-1), [2, 3, 400, 300]);
 assert.equal(scissorEnabled, false);
+assert(clears.includes(0), "Untraced lens pixels must clear with zero alpha");
+assert.equal(clearAlpha, 0.7, "Lens rendering must restore the renderer clear alpha");
 pass.dispose();
 target.dispose();
 console.log(

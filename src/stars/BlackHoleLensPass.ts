@@ -62,6 +62,9 @@ export class BlackHoleLensPass extends Pass {
   private projected = new THREE.Vector3();
   private viewPosition = new THREE.Vector3();
   private scissor = new THREE.Vector4();
+  private clearColor = new THREE.Color();
+  /** Continuous optical weight shared with bloom; enabling the pass is visually inert. */
+  blend = 0;
   constructor(private scene: THREE.Scene) {
     super();
     this.cubeCamera.coordinateSystem = THREE.WebGLCoordinateSystem;
@@ -78,6 +81,10 @@ export class BlackHoleLensPass extends Pass {
         uNoise: { value: this.noise },
         uSky: { value: this.sky.texture },
         uSkyReady: { value: 0 },
+        uActivation: { value: 0 },
+        uTidal: { value: 0 },
+        uJourneyProgress: { value: 0 },
+        uFlightTime: { value: 0 },
         uCameraToDisk: { value: new THREE.Matrix3() },
         uDiskToWorld: { value: new THREE.Matrix3() },
         uWorldToCamera: { value: new THREE.Matrix3() },
@@ -130,6 +137,7 @@ export class BlackHoleLensPass extends Pass {
   ) {
     if (!isBlackHoleTarget(item)) {
       this.enabled = false;
+      this.blend = 0;
       this.id = "";
       return;
     }
@@ -149,6 +157,8 @@ export class BlackHoleLensPass extends Pass {
     const model = this.model;
     const distance = camera.position.distanceTo(this.position) / this.rs;
     this.enabled = distance < 1800;
+    this.blend = 1 - THREE.MathUtils.smoothstep(distance, 1100, 1800);
+    this.ray.uniforms.uActivation.value = this.blend;
     if (!this.enabled) return;
     camera.updateMatrixWorld();
     this.bounds.set(0, 0, this.target.width, this.target.height);
@@ -193,7 +203,7 @@ export class BlackHoleLensPass extends Pass {
     u.uIntensity.value = model.intensity;
     u.uOpacity.value = model.opacity;
     const journey = useBlackHoleJourney.getState();
-    u.uFall.value =
+    const fallTarget =
       journey.id !== item.id
         ? 0
         : journey.mode === "returning"
@@ -201,6 +211,13 @@ export class BlackHoleLensPass extends Pass {
           : journey.mode === "falling" || journey.mode === "paused" || journey.mode === "crossed"
             ? 1
             : 0;
+    u.uFall.value = THREE.MathUtils.damp(u.uFall.value, fallTarget, 3, Math.min(dt, 0.1));
+    const activeJourney = journey.id === item.id && journey.mode !== "idle";
+    const returning =
+      journey.mode === "returning" ? Math.max(0, 1 - descentMotion.returnElapsed / 2) : 1;
+    u.uTidal.value = activeJourney ? descentMotion.tidalStretch * returning : 0;
+    u.uJourneyProgress.value = activeJourney ? descentMotion.progress * returning : 0;
+    u.uFlightTime.value = descentMotion.elapsed;
     const moving =
       this.lastEye.distanceToSquared(u.uEye.value) > 0.0001 ||
       1 - Math.abs(this.lastRotation.dot(camera.quaternion)) > 1e-7;
@@ -234,12 +251,19 @@ export class BlackHoleLensPass extends Pass {
       this.face++;
     }
     this.ray.uniforms.tDiffuse.value = read.texture;
-    renderer.setRenderTarget(this.target);
-    renderer.clear();
-    // A native-resolution rectangle around the deflecting region. Outside it,
-    // the original scene never passes through an undersampled image.
     const wasScissor = renderer.getScissorTest();
     renderer.getScissor(this.scissor);
+    renderer.getClearColor(this.clearColor);
+    const clearAlpha = renderer.getClearAlpha();
+    renderer.setRenderTarget(this.target);
+    // Untraced pixels must be transparent. An opaque clear replaces the entire
+    // galaxy with black outside the small optical rectangle.
+    renderer.setScissorTest(false);
+    renderer.setClearColor(0x000000, 0);
+    renderer.clear();
+    renderer.setClearColor(this.clearColor, clearAlpha);
+    // A native-resolution rectangle around the deflecting region. Outside it,
+    // the original scene never passes through an undersampled image.
     renderer.setScissorTest(true);
     const pixelRatio = renderer.getPixelRatio();
     renderer.setScissor(

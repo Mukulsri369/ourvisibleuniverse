@@ -22,6 +22,11 @@ let timeMultiplier = 1.0; // 1.0 = nominal standard speed
 let focus = 1.0;
 let motionSeconds = 0;
 let motionStep = 0;
+let outerOrbitOffsetDays = 0;
+const OUTER_PLANETS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]);
+/** Extra elapsed orbital time, integrated continuously so changing speed never jumps phase. */
+export const getPlanetSimulationJd = (name: string) =>
+  currentJd + (OUTER_PLANETS.has(name) ? outerOrbitOffsetDays : 0);
 export const motionDeltaSeconds = () => motionStep;
 export const motionTimeSeconds = () => motionSeconds;
 
@@ -29,6 +34,7 @@ export const motionTimeSeconds = () => motionSeconds;
  * Sets the simulation date directly from a JavaScript Date or ISO string or JD.
  */
 export function setSimulationDate(target: Date | string | number) {
+  outerOrbitOffsetDays = 0;
   if (typeof target === "number") {
     // If > 2400000 assume Julian Date, else treat as timestamp ms
     if (target > 2_000_000) {
@@ -97,11 +103,13 @@ export function tickSim(dt: number) {
     motionSeconds += motionStep;
     const yearsPerSec = st.systemSpeed / 25.0 / 31.5;
     const simYearsStep = d * yearsPerSec * timeMultiplier;
-    currentJd += simYearsStep * DAYS_PER_JULIAN_YEAR;
+    const daysStep = simYearsStep * DAYS_PER_JULIAN_YEAR;
+    currentJd += daysStep;
+    outerOrbitOffsetDays += daysStep * ((st.outerOrbitSpeed ?? 1) - 1);
   }
 
   // Background stars/galaxy fade while visiting a planet, moon or exoplanet.
-  const target = st.visitPlanet ? 0.12 : 1;
+  const target = st.visitPlanet && !st.cameraFree ? 0.12 : 1;
   focus += (target - focus) * (1 - Math.exp(-1.5 * d));
 }
 

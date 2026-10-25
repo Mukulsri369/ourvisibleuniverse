@@ -45,7 +45,8 @@
     "test:nebulae": "tsx scripts/nebula-validation.ts",
     "test:black-holes": "tsx scripts/black-hole-validation.ts",
     "test:galaxies": "tsx scripts/galaxy-rendering-validation.ts",
-    "test:scene-depth": "tsx scripts/scene-depth-validation.ts"
+    "test:scene-depth": "tsx scripts/scene-depth-validation.ts",
+    "test:navigation": "tsx scripts/navigation-flight-validation.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

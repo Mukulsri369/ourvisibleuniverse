@@ -59,7 +59,7 @@ const SURF_VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
 varying vec2 vUv;varying vec3 vN;varying vec3 vView;varying vec3 vObj;
-void main(){vUv=uv;vObj=normalize(position);vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.);vView=-mv.xyz;gl_Position=projectionMatrix*mv;
+void main(){vUv=uv;vObj=normalize(normalMatrix*position);vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.);vView=-mv.xyz;gl_Position=projectionMatrix*mv;
 #include <logdepthbuf_vertex>
 }`;
 const SURF_FRAG = /* glsl */ `
@@ -70,11 +70,12 @@ varying vec2 vUv;varying vec3 vN;varying vec3 vView;varying vec3 vObj;
 void main(){
 #include <logdepthbuf_fragment>
 vec4 data=texture2D(uDetail,vUv);vec3 col=texture2D(uAlbedo,vUv).rgb;
-vec3 N=normalize(vN),V=normalize(vView),L=normalize(uStar+vView);
+vec3 N=normalize(vN),V=normalize(vView),L=normalize(mat3(viewMatrix)*uStar);
 // Screen derivatives provide fine relief with no extra geometry or texture fetches.
-vec3 dx=dFdx(-vView),dy=dFdy(-vView);vec3 rx=cross(dy,N),ry=cross(N,dx);
+vec3 dx=dFdx(vObj),dy=dFdy(vObj);vec3 rx=cross(dy,N),ry=cross(N,dx);
 float det=dot(dx,rx);vec3 gradient=sign(det)*(dFdx(data.r)*rx+dFdy(data.r)*ry);
-N=normalize(abs(det)*N-gradient*(uMode<2.5?.000000004:.0000000006));
+vec3 relief=gradient/max(abs(det),1e-12)*(uMode<2.5?.0015:.0005);
+relief*=min(1.,.15/max(length(relief),1e-8));N=normalize(N-relief);
 float ndl=dot(N,L),day=smoothstep(-.035,.12,ndl),mu=max(dot(N,V),0.);
 float clouds=texture2D(uDetail,vec2(fract(vUv.x+uTime*.001),vUv.y)).g;
 col=mix(col,vec3(.8,.84,.88),clouds*.88);
@@ -96,7 +97,7 @@ const ATMOSPHERE = /* glsl */ `
 uniform vec3 uStar;uniform vec3 uColor;varying vec3 vN;varying vec3 vView;
 void main(){
 #include <logdepthbuf_fragment>
-vec3 N=normalize(vN),V=normalize(vView),L=normalize(uStar+vView);
+vec3 N=normalize(vN),V=normalize(vView),L=normalize(mat3(viewMatrix)*uStar);
 float rim=pow(1.-abs(dot(N,V)),4.);float day=smoothstep(-.25,.4,dot(N,L));
 gl_FragColor=vec4(uColor*3.,rim*day*.28);
 #include <tonemapping_fragment>
@@ -197,9 +198,10 @@ function ExoBody({
       registry().set(p.name, position);
     }
     position.copy(world);
-    material.uniforms.uStar.value.copy(starPos).applyMatrix4(camera.matrixWorldInverse);
+    material.uniforms.uStar.value.copy(starPos).sub(world).normalize();
     const pixels = (size / camera.position.distanceTo(world)) * viewport.height;
-    if (meshRef.current) meshRef.current.parent.visible = pixels > 0.15;
+    const body = meshRef.current?.parent;
+    if (body) body.visible = pixels > 0.15;
     material.uniforms.uTime.value = motionTimeSeconds();
     // Tidally locked worlds keep one face to the star; others spin.
     if (meshRef.current) {
@@ -217,7 +219,7 @@ function ExoBody({
       <primitive object={line} />
       <group ref={ref}>
         <mesh ref={meshRef} name={`exoplanet:${p.name}`} material={material} onClick={pick}>
-          <sphereGeometry args={[size, 48, 32]} />
+          <sphereGeometry args={[size, 64, 48]} />
         </mesh>
         {/* Outer Rayleigh / photochemical atmospheric scattering shell */}
         {mode >= 1 && (

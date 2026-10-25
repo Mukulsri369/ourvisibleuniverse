@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useStore } from "./store";
 import {
-  getSimulationJd,
+  getPlanetSimulationJd,
   simTimeDays,
   simTimeYears,
   motionTimeSeconds,
@@ -475,19 +475,9 @@ function seedAngle(name: string) {
 function meanAnomaly(def: PlanetDef): number {
   const r = REAL_ORBITS[def.name];
   if (!r) return seedAngle(def.name) + (simTimeYears() / (def.period / 31.5)) * Math.PI * 2;
-  const boost = OUTER_ORBIT_BOOST[def.name] ?? 1;
-  return deg(r.L0 - r.peri) + ((simTimeYears() * boost) / r.years) * Math.PI * 2;
+  const years = (getPlanetSimulationJd(def.name) - 2451545) / 365.25;
+  return deg(r.L0 - r.peri) + (years / r.years) * Math.PI * 2;
 }
-
-// Outer worlds take decades to circle the Sun; speed up their revolution so
-// it is visibly animated (positions still start from today's real longitude).
-const OUTER_ORBIT_BOOST: Record<string, number> = {
-  Jupiter: 4,
-  Saturn: 6,
-  Uranus: 10,
-  Neptune: 14,
-  Pluto: 18,
-};
 
 export function getPlanetEffectiveA(def: PlanetDef, scaleMode: "enhanced" | "true_scale"): number {
   if (scaleMode === "true_scale" && def.aAU != null) {
@@ -590,10 +580,10 @@ const ATMO_VERT = /* glsl */ `
 #include <logdepthbuf_pars_vertex>
 varying vec3 vN; varying vec3 vW;
 void main(){
-  vec4 w = modelMatrix * vec4(position,1.0);
+  vec4 w = modelViewMatrix * vec4(position,1.0);
   vW = w.xyz;
-  vN = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * viewMatrix * w;
+  vN = normalize(normalMatrix * normal);
+  gl_Position = projectionMatrix * w;
   #include <logdepthbuf_vertex>
 }`;
 const ATMO_FRAG = /* glsl */ `
@@ -603,8 +593,8 @@ varying vec3 vN; varying vec3 vW;
 void main(){
   #include <logdepthbuf_fragment>
   vec3 N = normalize(vN);
-  vec3 V = normalize(cameraPosition - vW);
-  vec3 L = normalize(uSun - vW);
+  vec3 V = normalize(-vW);
+  vec3 L = normalize(mat3(viewMatrix) * uSun);
   float nv = max(dot(N,V), 0.0);
   float nl = dot(N,L);
   float cosGamma = dot(-V, L);
@@ -650,12 +640,12 @@ const DETAIL_VERT = /* glsl */ `
 #include <logdepthbuf_pars_vertex>
 varying vec3 vP; varying vec3 vN; varying vec3 vW; varying vec2 vUv;
 void main(){
-  vP = normalize(position);
+  vP = normalize(normalMatrix * position);
   vUv = uv;
-  vec4 w = modelMatrix * vec4(position,1.0);
+  vec4 w = modelViewMatrix * vec4(position,1.0);
   vW = w.xyz;
-  vN = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * viewMatrix * w;
+  vN = normalize(normalMatrix * normal);
+  gl_Position = projectionMatrix * w;
   #include <logdepthbuf_vertex>
 }`;
 
@@ -671,18 +661,20 @@ varying vec3 vP; varying vec3 vN; varying vec3 vW; varying vec2 vUv;
 void main(){
   #include <logdepthbuf_fragment>
   vec3 N = normalize(vN);
-  vec3 V = normalize(cameraPosition-vW);
-  vec3 L = normalize(uSun-vW);
+  vec3 V = normalize(-vW);
+  vec3 L = normalize(mat3(viewMatrix) * uSun);
   vec3 albedo = texture2D(uMap,vUv).rgb;
   float earth = 1.0-step(0.1,abs(uPlanetId-3.0));
   float ocean = earth * smoothstep(0.01,0.11,albedo.b-max(albedo.r,albedo.g));
   // Derivative relief from the actual map replaces repeated 3D noise fields.
   float height = dot(albedo,vec3(0.2126,0.7152,0.0722));
-  vec3 dx=dFdx(vW), dy=dFdy(vW);
+  vec3 dx=dFdx(vP), dy=dFdy(vP);
   vec3 rx=cross(dy,N), ry=cross(N,dx);
   float det=dot(dx,rx);
   vec3 grad=sign(det)*(dFdx(height)*rx+dFdy(height)*ry);
-  vec3 bump=normalize(abs(det)*N-grad*uRelief*(1.0-uGas)*(1.0-ocean));
+  vec3 relief=grad/max(abs(det),1e-12)*uRelief*(1.0-uGas)*(1.0-ocean);
+  relief*=min(1.0,0.15/max(length(relief),1e-8));
+  vec3 bump=normalize(N-relief);
   float nl=dot(N,L);
   float diffuse=max(dot(bump,L),0.0);
   vec3 col=albedo*(0.008+diffuse*1.12);
@@ -707,7 +699,7 @@ varying vec3 vN; varying vec3 vW; varying vec2 vUv;
 void main(){
 #include <logdepthbuf_fragment>
 float coverage=dot(texture2D(uMap,vUv).rgb,vec3(0.3333));
-float nl=dot(normalize(vN),normalize(uSun-vW));
+float nl=dot(normalize(vN),normalize(mat3(viewMatrix) * uSun));
 float alpha=smoothstep(0.18,0.8,coverage)*0.88;
 vec3 col=vec3(0.95,0.97,1.0)*(max(nl,0.0)*1.05+0.012);
 gl_FragColor=vec4(col*8.0,alpha);
@@ -721,13 +713,15 @@ const RING_VERT = /* glsl */ `
 #include <logdepthbuf_pars_vertex>
 varying vec2 vUv;
 varying vec3 vW;
+varying vec3 vRingOffset;
 varying vec3 vN;
 void main(){
   vUv = uv;
-  vec4 w = modelMatrix * vec4(position, 1.0);
+  vRingOffset = mat3(modelViewMatrix) * position;
+  vec4 w = modelViewMatrix * vec4(position, 1.0);
   vW = w.xyz;
-  vN = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * viewMatrix * w;
+  vN = normalize(normalMatrix * normal);
+  gl_Position = projectionMatrix * w;
   #include <logdepthbuf_vertex>
 }`;
 
@@ -738,6 +732,7 @@ uniform vec3 uColor;
 uniform vec3 uSun;
 uniform vec3 uPlanetCenter;
 uniform float uPlanetRadius;
+varying vec3 vRingOffset;
 varying vec2 vUv;
 varying vec3 vW;
 varying vec3 vN;
@@ -747,11 +742,11 @@ void main(){
   vec4 tex = texture2D(uRingTex, vUv);
   if (tex.a < 0.01) discard;
 
-  vec3 L = normalize(uSun - vW);
-  vec3 V = normalize(cameraPosition - vW);
+  vec3 L = normalize(mat3(viewMatrix) * uSun);
+  vec3 V = normalize(-vW);
 
   // Analytical ray-sphere intersection: cast shadow of planet onto its ring plane
-  vec3 oc = vW - uPlanetCenter;
+  vec3 oc = vRingOffset;
   float b = dot(oc, L);
   float c = dot(oc, oc) - uPlanetRadius * uPlanetRadius;
   float disc = b * b - c;
@@ -818,7 +813,7 @@ function Planet({ def }: { def: PlanetDef }) {
       uGas: { value: GAS_GIANTS.has(def.name) ? 1 : 0 },
       uSeed: { value: (hashSeed(def.name) % 1000) / 37 },
       uPlanetId: { value: PLANET_ID_MAP[def.name] ?? 0 },
-      uRelief: { value: def.size * 0.008 },
+      uRelief: { value: 0.0008 },
       uTint: { value: new THREE.Color(def.color) },
       uStorm: {
         value: new THREE.Color(
@@ -866,7 +861,7 @@ function Planet({ def }: { def: PlanetDef }) {
   useFrame(({ camera }) => {
     if (!groupRef.current) return;
     const t = motionTimeSeconds();
-    const jd = getSimulationJd();
+    const jd = getPlanetSimulationJd(def.name);
     const auScale = scaleMode === "true_scale" ? scaleManager.getRenderAU("true_scale") : AU;
 
     // NASA JPL Horizons DE440 state vector
@@ -892,13 +887,13 @@ function Planet({ def }: { def: PlanetDef }) {
     groupRef.current.getWorldPosition(tmp);
     // The Sun sits at the SolarSystem group's origin.
     if (groupRef.current.parent) groupRef.current.parent.getWorldPosition(sunTmp);
-    atmoUniforms.uSun.value.copy(sunTmp);
-    detailUniforms.uSun.value.copy(sunTmp);
+    atmoUniforms.uSun.value.copy(sunTmp).sub(tmp).normalize();
+    detailUniforms.uSun.value.copy(sunTmp).sub(tmp).normalize();
     detailUniforms.uTime.value = t;
-    earthCloudUniforms.uSun.value.copy(sunTmp);
+    earthCloudUniforms.uSun.value.copy(sunTmp).sub(tmp).normalize();
     earthCloudUniforms.uTime.value = t;
     if (ringUniforms) {
-      ringUniforms.uSun.value.copy(sunTmp);
+      ringUniforms.uSun.value.copy(sunTmp).sub(tmp).normalize();
       ringUniforms.uPlanetCenter.value.copy(tmp);
       ringUniforms.uPlanetRadius.value = effectiveSize;
     }
@@ -965,11 +960,12 @@ function Planet({ def }: { def: PlanetDef }) {
             document.body.style.cursor = "";
           }}
           onClick={(e) => {
+            if (e.delta > 4) return;
             e.stopPropagation();
             setVisit(def.name);
           }}
         >
-          <sphereGeometry args={[def.size, 72, 54]} />
+          <sphereGeometry args={[def.size, 96, 64]} />
           <shaderMaterial
             vertexShader={DETAIL_VERT}
             fragmentShader={DETAIL_FRAG}
@@ -1643,7 +1639,7 @@ float n3(vec3 p){
 void main(){
   vUv = uv;
   vec3 dir = normalize(position);
-  vP = dir;
+  vP = normalize(normalMatrix * dir);
   vec3 pos = position;
   vec3 norm = normal;
 
@@ -1659,10 +1655,11 @@ void main(){
     norm = normalize(normal / stretch + dir * (lobe - stickney));
   }
 
-  vec4 w = modelMatrix * vec4(pos, 1.0);
+  vP = normalize(normalMatrix * pos);
+  vec4 w = modelViewMatrix * vec4(pos, 1.0);
   vW = w.xyz;
-  vN = normalize(mat3(modelMatrix) * norm);
-  gl_Position = projectionMatrix * viewMatrix * w;
+  vN = normalize(normalMatrix * norm);
+  gl_Position = projectionMatrix * w;
   #include <logdepthbuf_vertex>
 }`;
 
@@ -1877,10 +1874,10 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       uStyle: { value: MOON_STYLE_MAP[moon.name] ?? 0 },
       uGas: { value: moon.name === "Titan" ? 1 : 0 },
       uPlanetId: { value: 0 },
-      uRelief: { value: moon.size * 0.006 },
+      uRelief: { value: 0.0007 },
       uIrregular: { value: isIrregular ? 1.0 : 0.0 },
     }),
-    [surface, mKey, moon.name, moon.size, isIrregular],
+    [surface, mKey, moon.name, isIrregular],
   );
 
   const titanAtmoUniforms = useMemo(
@@ -1940,11 +1937,11 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     }
 
     ref.current.getWorldPosition(tmp);
-    const solarSys = ref.current.parent?.parent?.parent;
+    const solarSys = ref.current.parent?.parent;
     if (solarSys) solarSys.getWorldPosition(sunTmp);
-    moonUniforms.uSun.value.copy(sunTmp);
+    moonUniforms.uSun.value.copy(sunTmp).sub(tmp).normalize();
     moonUniforms.uTime.value = t;
-    if (titanAtmoUniforms) titanAtmoUniforms.uSun.value.copy(sunTmp);
+    if (titanAtmoUniforms) titanAtmoUniforms.uSun.value.copy(sunTmp).sub(tmp).normalize();
 
     const reg = getRegistry();
     let v = reg.get(mKey);
@@ -1999,11 +1996,12 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
           document.body.style.cursor = "";
         }}
         onClick={(e) => {
+          if (e.delta > 4) return;
           e.stopPropagation();
           setVisit(mKey);
         }}
       >
-        <sphereGeometry args={[moon.size, 48, 36]} />
+        <sphereGeometry args={[moon.size, 64, 48]} />
         <shaderMaterial
           vertexShader={MOON_VERT}
           fragmentShader={MOON_FRAG}

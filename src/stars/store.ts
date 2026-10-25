@@ -151,6 +151,8 @@ interface State {
   uiHidden: boolean;
   cameraFree: boolean;
   zoomSpeed: number;
+  freeLookSpeed: number;
+  outerOrbitSpeed: number;
   systemSpeed: number;
   trailSize: number;
   scaleMode: "enhanced" | "true_scale";
@@ -180,6 +182,8 @@ interface State {
   toggleUiHidden: () => void;
   toggleCameraFree: () => void;
   setZoomSpeed: (n: number) => void;
+  setFreeLookSpeed: (n: number) => void;
+  setOuterOrbitSpeed: (n: number) => void;
   setSystemSpeed: (n: number) => void;
   setTrailSize: (n: number) => void;
   // NASA JPL Horizons Solar System enhancements
@@ -759,6 +763,8 @@ export const useStore = create<State>((set, get) => ({
   uiHidden: false,
   cameraFree: false,
   zoomSpeed: 50,
+  freeLookSpeed: 1,
+  outerOrbitSpeed: 1,
   systemSpeed: 1,
   trailSize: 50,
   scaleMode: "enhanced",
@@ -788,6 +794,7 @@ export const useStore = create<State>((set, get) => ({
     set({
       exoVisit: null,
       selectedStar: normalizeStar(s),
+      cameraFree: s ? false : get().cameraFree,
       visitGalaxy: null,
       selectedObjectId: null,
     }),
@@ -795,6 +802,7 @@ export const useStore = create<State>((set, get) => ({
   startTour: () =>
     set({
       tourActive: true,
+      cameraFree: false,
       tourStop: 0,
       selectedStar: null,
       visitPlanet: null,
@@ -890,6 +898,7 @@ export const useStore = create<State>((set, get) => ({
     const [x, y, z] = objectPosition(item);
     set({
       selectedObjectId: item.id,
+      cameraFree: false,
       exoVisit: null,
       selectedStar: null,
       visitPlanet: null,
@@ -899,8 +908,17 @@ export const useStore = create<State>((set, get) => ({
     });
   },
   toggleUiHidden: () => set((st) => ({ uiHidden: !st.uiHidden })),
-  toggleCameraFree: () => set((st) => ({ cameraFree: !st.cameraFree })),
+  toggleCameraFree: () =>
+    set((st) => ({
+      cameraFree: !st.cameraFree,
+      tourActive: false,
+      tourCaption: null,
+      isAutoOrbiting: false,
+      flyTo: null,
+    })),
   setZoomSpeed: (n) => set({ zoomSpeed: n }),
+  setFreeLookSpeed: (n) => set({ freeLookSpeed: Math.max(0.05, Math.min(20, n)) }),
+  setOuterOrbitSpeed: (n) => set({ outerOrbitSpeed: Math.max(1, Math.min(2000, n)) }),
   setSystemSpeed: (n) => set({ systemSpeed: clampTimeRate(n) }),
   setTrailSize: (n) => set({ trailSize: n }),
   toggleOrbits: () => set((st) => ({ showOrbits: !st.showOrbits })),
@@ -1137,7 +1155,7 @@ export const useStore = create<State>((set, get) => ({
   cameraMode: "orbit",
   setCameraMode: (mode) => set({ cameraMode: mode }),
   isAutoOrbiting: false,
-  toggleAutoOrbit: () => set((st) => ({ isAutoOrbiting: !st.isAutoOrbiting })),
+  toggleAutoOrbit: () => set((st) => ({ isAutoOrbiting: !st.isAutoOrbiting, cameraFree: false })),
   resetOrientationTrigger: 0,
   resetCameraOrientation: () =>
     set((st) => ({ resetOrientationTrigger: st.resetOrientationTrigger + 1 })),

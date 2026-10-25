@@ -14,7 +14,7 @@ Reference: [NASA black-hole anatomy](https://science.nasa.gov/universe/black-hol
 
 The Milky Way, far portrait, navigation targets, Sun-reference orbit ring and floating-origin anchor now use the same 26,673-light-year scene reference as the existing Sagittarius A* catalogue entry. The separate historical 26,000-light-year astrometry benchmark is unchanged. The old painted core sphere and broad core sprite have been removed. A lightweight representative nuclear stellar population takes over as the bulk galactic glow fades near the centre. Its individual positions are illustrative.
 
-Zooming within 25 light-years of a settled Milky Way centre switches context to Sagittarius A* without starting a new fly-to or resetting the orbit angles. Fine manual zoom slows near the hole and stops outside 1.08 navigation Schwarzschild radii. The explicit 42-second time-compressed descent begins at the actual camera radius, rather than teleporting to a fixed close orbit. Pause, return and Escape retain their normal controls. The sequence ends at the horizon; no interior is claimed.
+Zooming within 25 light-years of a settled Milky Way centre switches context to Sagittarius A* without starting a new fly-to or resetting the orbit angles. Fine manual zoom slows near the hole and stops outside 1.08 navigation Schwarzschild radii. The explicit 52-second time-compressed descent begins at the actual camera radius, rather than teleporting to a fixed close orbit. Pause, return and Escape retain their normal controls. The sequence ends at the horizon; no interior is claimed.
 
 ## Nebular geometry and stars
 

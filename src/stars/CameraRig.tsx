@@ -1,9 +1,10 @@
+import { freeLookInput, FREE_LOOK_KEYS, freeLookSpeed } from "./free-look-input";
 import { OBSERVED_VISUAL_PROFILES } from "./observed-object-visuals";
 import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
 import {
   useBlackHoleJourney,
   descentMotion,
-  descentRadiusRs,
+  descentFlightState,
   BLACK_HOLE_DESCENT_SECONDS,
 } from "./black-hole-journey";
 import { useFrame, useThree } from "@react-three/fiber";
@@ -37,6 +38,7 @@ export function CameraRig() {
   const pinch = useRef<number | null>(null);
   const followedPlanet = useRef<{ name: string; position: THREE.Vector3 } | null>(null);
   const fovTarget = useRef(40);
+  const followedSun = useRef<THREE.Vector3 | null>(null);
   // Pre-allocated scratch vectors & state for zero-GC useFrame loop
   const scratchPos = useRef(new THREE.Vector3());
   const scratchTarget = useRef(new THREE.Vector3());
@@ -60,11 +62,57 @@ export function CameraRig() {
 
   const descentSession = useRef({ id: "", returnRadius: 0 });
   const coreHandoff = useRef(false);
+  const diskFlight = useRef({
+    rotation: new THREE.Matrix4(),
+    inverse: new THREE.Matrix4(),
+    startAngle: 0,
+    startElevation: 0,
+    baseTheta: 0,
+    basePhi: 0,
+    bank: 0,
+  });
+  const flightSpherical = useRef(new THREE.Spherical());
+  const cameraFree = useStore((s) => s.cameraFree);
+  const freeFlyTarget = useRef<THREE.Vector3 | null>(null);
+  const freePosition = useRef(new THREE.Vector3());
+  const freeAnchor = useRef(new THREE.Vector3());
+  const freeForward = useRef(new THREE.Vector3());
+  const freeRight = useRef(new THREE.Vector3());
+  const freeMove = useRef(new THREE.Vector3());
+  const freeVelocity = useRef(new THREE.Vector3());
+  const freeWheel = useRef(0);
+  const freeScale = useRef(8);
+  const freeEntryScale = useRef(8);
+  const freeBoundary = useRef(2e11);
+  const resumeLook = useRef<THREE.Quaternion | null>(null);
+  const lookQuaternion = useRef(new THREE.Quaternion());
   const minR = 1e-10;
   // Zoom range spans from inside the Solar System out to ~50 Gly
   // (observable-universe scale) so pulling back reveals Local Group,
   // Virgo Supercluster, and cosmic-web filaments.
   const maxR = 5e10;
+
+  const resolveOrbitAnchor = (out: THREE.Vector3) => {
+    const state = useStore.getState();
+    const registry = window.__planetPositions;
+    const livePlanet = state.visitPlanet && registry?.get(state.visitPlanet);
+    if (livePlanet) return out.copy(livePlanet);
+    const galaxy = state.visitGalaxy;
+    if (galaxy) {
+      const focus = galaxy.focus;
+      const live = focus?.key && registry?.get(focus.key);
+      if (live) return out.copy(live);
+      return focus ? out.set(focus.x, focus.y, focus.z) : out.set(galaxy.x, galaxy.y, galaxy.z);
+    }
+    const object = state.selectedObjectId && OBJECT_BY_ID.get(state.selectedObjectId);
+    if (object) return out.set(...objectPosition(object));
+    const star = state.selectedStar;
+    if (star && star.name !== "Sun") return out.set(star.x, star.y, star.z);
+    if (!star && freeFlyTarget.current && freeFlyTarget.current.lengthSq() > 1e-6)
+      return out.copy(freeFlyTarget.current);
+    const sun = registry?.get("Sun");
+    return sun ? out.copy(sun) : out.set(0, 0, 0);
+  };
 
   useEffect(() => {
     if (resetOrientationTrigger > 0) {
@@ -84,7 +132,7 @@ export function CameraRig() {
         : undefined;
       if (isBlackHoleTarget(selected)) return blackHoleModel(selected).radiusLy * 1.08;
       const star = state.selectedStar;
-      return star ? stellarDisplayRadius(star) * 1.5 : minR;
+      return star ? stellarDisplayRadius(star) * 1.65 : minR;
     }
     const def =
       PLANETS.find((p) => p.name === name) ??
@@ -94,7 +142,7 @@ export function CameraRig() {
     const exo = (window as Window).__exoSizes?.get(name);
     const effSize =
       exo ?? (def && "aAU" in def ? getPlanetEffectiveSize(def, currentScaleMode) : def?.size) ?? 0;
-    return Math.max(minR, effSize * 1.5);
+    return Math.max(minR, effSize * (name.includes(":") ? 1.85 : 1.65));
   };
 
   // expose for slider
@@ -109,11 +157,8 @@ export function CameraRig() {
     const el = gl.domElement;
     const takeControl = () => {
       const state = useStore.getState();
-      const anchor = state.visitPlanet
-        ? window.__planetPositions?.get(state.visitPlanet)
-        : state.selectedStar
-          ? new THREE.Vector3(state.selectedStar.x, state.selectedStar.y, state.selectedStar.z)
-          : null;
+      if (state.cameraFree) return;
+      const anchor = resolveOrbitAnchor(scratchTarget.current);
       if (
         !anchor ||
         target.current.distanceTo(anchor) < Math.max(1e-12, desired.current.radius * 0.02)
@@ -165,11 +210,11 @@ export function CameraRig() {
       const dy = e.clientY - last.current.y;
       last.current = { x: e.clientX, y: e.clientY };
 
-      const currentR = desired.current.radius;
+      const currentR = useStore.getState().cameraFree ? freeScale.current : desired.current.radius;
       // Adaptive angular speed: reduce sensitivity when inspecting planets close-up
       const sensitivity = currentR < 1e-5 ? 0.0028 : currentR > 1e6 ? 0.004 : 0.005;
       velocity.current.theta = -dx * sensitivity;
-      velocity.current.phi = -dy * sensitivity;
+      velocity.current.phi = (useStore.getState().cameraFree ? dy : -dy) * sensitivity;
       desired.current.theta += velocity.current.theta;
       desired.current.phi = Math.max(
         0.03,
@@ -179,6 +224,16 @@ export function CameraRig() {
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const state = useStore.getState();
+      if (state.cameraFree) {
+        const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
+        freeWheel.current +=
+          -Math.max(-100, Math.min(100, dy)) *
+          0.0014 *
+          freeLookSpeed(freeScale.current, state.zoomSpeed, state.freeLookSpeed) *
+          8;
+        return;
+      }
+
       const selected = state.selectedObjectId
         ? OBJECT_BY_ID.get(state.selectedObjectId)
         : undefined;
@@ -223,6 +278,15 @@ export function CameraRig() {
           return;
         }
         const factor = pinch.current / d;
+        if (useStore.getState().cameraFree) {
+          const state = useStore.getState();
+          freeWheel.current +=
+            -Math.log(factor) *
+            freeLookSpeed(freeScale.current, state.zoomSpeed, state.freeLookSpeed) *
+            5;
+          pinch.current = d;
+          return;
+        }
         desired.current.radius = Math.max(
           planetMinimumRadius(),
           Math.min(maxR, desired.current.radius * factor),
@@ -237,7 +301,10 @@ export function CameraRig() {
         desired.current.theta -= dx * 0.005;
         desired.current.phi = Math.max(
           0.03,
-          Math.min(Math.PI - 0.03, desired.current.phi - dy * 0.005),
+          Math.min(
+            Math.PI - 0.03,
+            desired.current.phi + dy * (useStore.getState().cameraFree ? 0.005 : -0.005),
+          ),
         );
       }
     };
@@ -260,10 +327,17 @@ export function CameraRig() {
       pinch.current = null;
       velocity.current.theta = velocity.current.phi = 0;
     };
+    const blur = () => {
+      cancel();
+      freeLookInput.clear();
+      freeVelocity.current.set(0, 0, 0);
+      freeWheel.current = 0;
+      keys.current.in = keys.current.out = false;
+    };
     el.addEventListener("pointerdown", onDown);
     el.addEventListener("lostpointercapture", cancel);
     window.addEventListener("pointercancel", cancel);
-    window.addEventListener("blur", cancel);
+    window.addEventListener("blur", blur);
     el.addEventListener("touchcancel", cancel);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointermove", onMove);
@@ -277,7 +351,7 @@ export function CameraRig() {
       el.removeEventListener("pointerdown", onDown);
       el.removeEventListener("lostpointercapture", cancel);
       window.removeEventListener("pointercancel", cancel);
-      window.removeEventListener("blur", cancel);
+      window.removeEventListener("blur", blur);
       el.removeEventListener("touchcancel", cancel);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointermove", onMove);
@@ -296,6 +370,17 @@ export function CameraRig() {
     const down = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (
+        useStore.getState().cameraFree &&
+        FREE_LOOK_KEYS.has(e.code) &&
+        !e.ctrlKey &&
+        !e.metaKey
+      ) {
+        e.preventDefault();
+        freeLookInput.add(e.code);
+        return;
+      }
+      if (t?.closest("button") && (e.code === "Space" || e.code === "Enter")) return;
       if (e.code === "Space") {
         e.preventDefault();
         keys.current.out = true;
@@ -304,8 +389,8 @@ export function CameraRig() {
         e.preventDefault();
         keys.current.in = true;
       }
-      // S = stop/resume the camera (free look)
-      if ((e.key === "s" || e.key === "S") && !e.ctrlKey && !e.metaKey) {
+      // F toggles travel without conflicting with WASD movement.
+      if (e.code === "KeyF" && !e.repeat && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
         useStore.getState().toggleCameraFree();
       }
@@ -339,6 +424,10 @@ export function CameraRig() {
           useBlackHoleJourney.getState().returnToOrbit();
         return;
       }
+      if (e.key === "Escape" && useStore.getState().cameraFree) {
+        useStore.getState().toggleCameraFree();
+        return;
+      }
       if (e.key === "Escape") {
         useStore.getState().setSelected(null);
         useStore.getState().setVisitPlanet(null);
@@ -348,10 +437,12 @@ export function CameraRig() {
       }
     };
     const up = (e: KeyboardEvent) => {
+      freeLookInput.delete(e.code);
       if (e.code === "Space") keys.current.out = false;
       if (e.key === "Control") keys.current.in = false;
     };
     const blur = () => {
+      freeLookInput.clear();
       keys.current.out = false;
       keys.current.in = false;
     };
@@ -365,13 +456,52 @@ export function CameraRig() {
     };
   }, []);
 
-  const freeFlyTarget = useRef<THREE.Vector3 | null>(null);
+  const followSun = (sun: THREE.Vector3) => {
+    if (followedSun.current) {
+      target.current.add(sun).sub(followedSun.current);
+      followedSun.current.copy(sun);
+    } else followedSun.current = sun.clone();
+  };
+
+  const previousFree = useRef(false);
+  useEffect(() => {
+    freeLookInput.clear();
+    followedPlanet.current = null;
+    followedSun.current = null;
+    freeVelocity.current.set(0, 0, 0);
+    freeWheel.current = 0;
+    velocity.current.theta = velocity.current.phi = 0;
+    if (cameraFree) {
+      useBlackHoleJourney.getState().reset();
+      descentSession.current.id = "";
+      freePosition.current.copy(camera.position);
+      freeBoundary.current = Math.max(maxR * 4, camera.position.length() * 1.01);
+      freeAnchor.current.copy(target.current);
+      freeEntryScale.current = freeScale.current = Math.max(minR, spherical.current.radius);
+      camera.getWorldDirection(freeForward.current);
+      scratchPos.current.copy(freeForward.current);
+      spherical.current.setFromVector3(scratchPos.current);
+      desired.current.theta = spherical.current.theta;
+      desired.current.phi = spherical.current.phi;
+      resumeLook.current = null;
+    } else if (previousFree.current) {
+      resolveOrbitAnchor(target.current);
+      scratchPos.current.copy(camera.position).sub(target.current);
+      spherical.current.setFromVector3(scratchPos.current);
+      desired.current.radius = Math.max(planetMinimumRadius(), spherical.current.radius);
+      desired.current.theta = spherical.current.theta;
+      desired.current.phi = spherical.current.phi;
+      resumeLook.current = camera.quaternion.clone();
+    }
+    previousFree.current = cameraFree;
+  }, [cameraFree, camera]);
 
   // Fly-to handling — smoothly transition to the target star's system or cosmic coordinate.
   // We set desired radius/orientation and a close FOV, but let useFrame
   // ease the target position for a cinematic sweep instead of snapping.
   useEffect(() => {
     if (!flyTo) return;
+    if (useStore.getState().cameraFree) useStore.setState({ cameraFree: false });
     freeFlyTarget.current = new THREE.Vector3(flyTo.x, flyTo.y, flyTo.z);
     const r = Math.max(minR, Math.min(maxR, flyTo.distance));
     desired.current.radius = r;
@@ -465,6 +595,70 @@ export function CameraRig() {
     fovTarget.current = 42;
   }, [visitGalaxy]);
 
+  const syncView = (r: number, clampedDt: number, free = false) => {
+    camera.updateMatrixWorld();
+    // Synchronize high-precision 64-bit camera coordinates and active reference frame
+    floatingOriginManager.cameraWorldPos64.set(
+      camera.position.x,
+      camera.position.y,
+      camera.position.z,
+    );
+    floatingOriginManager.cameraTarget64.set(target.current.x, target.current.y, target.current.z);
+    const activeFrame = floatingOriginManager.updateActiveFrame(
+      floatingOriginManager.cameraWorldPos64,
+    );
+    const activeRegime = scaleCoordinator.current.updateRadiusWithHysteresis(r);
+    (window as unknown as { __activeOriginName?: string }).__activeOriginName = activeFrame.name;
+    (window as unknown as { __activeScaleRegimeId?: string }).__activeScaleRegimeId =
+      activeRegime.regimeId;
+    (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance = r;
+
+    // Smooth continuous dynamic FOV & clipping plane synchronization (eliminates 25% step-snap flicker)
+    const t = Math.min(
+      1,
+      Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))),
+    );
+    if (
+      !free &&
+      !tourActive &&
+      !visitPlanet &&
+      !selectedObjectId &&
+      !visitGalaxy &&
+      !useStore.getState().selectedStar
+    ) {
+      fovTarget.current = 30 + t * 60;
+    }
+    const pc = camera as THREE.PerspectiveCamera;
+    const nextFov = expDampScalar(pc.fov, fovTarget.current, 2.5, clampedDt);
+    const clip = computeContinuousNearFar(r, 1e-10, 0.05, 200, 5e11);
+
+    const fovChanged = Math.abs(nextFov - pc.fov) > 0.001;
+    const nearChanged = Math.abs(pc.near - clip.near) / Math.max(1e-12, clip.near) > 0.015;
+    const farChanged = Math.abs(pc.far - clip.far) / Math.max(1, clip.far) > 0.015;
+
+    if (fovChanged || nearChanged || farChanged) {
+      pc.fov = nextFov;
+      pc.near = clip.near;
+      pc.far = clip.far;
+      pc.updateProjectionMatrix();
+    }
+
+    // Throttle React Zustand store updates to prevent 60Hz UI re-render storms during zoom
+    const now = performance.now();
+    const relDistDelta =
+      Math.abs(r - lastReportedDist.current) / Math.max(1e-12, lastReportedDist.current);
+    const settled =
+      Math.abs(r - desired.current.radius) / Math.max(1e-12, desired.current.radius) < 0.005;
+    if (
+      (relDistDelta > 0.015 && now - lastReportTimestamp.current >= 50) ||
+      (settled && relDistDelta > 0.001)
+    ) {
+      lastReportedDist.current = r;
+      lastReportTimestamp.current = now;
+      setCameraDistance(r);
+    }
+  };
+
   useFrame((_, dt) => {
     const clampedDt = Math.min(dt, 0.1);
     const reg = (window as Window).__planetPositions;
@@ -473,7 +667,7 @@ export function CameraRig() {
     const cameraFree = st.cameraFree;
 
     // Held-key zoom
-    if (keys.current.out || keys.current.in) {
+    if (!cameraFree && (keys.current.out || keys.current.in)) {
       const rate = (st.zoomSpeed / 50) * 1.2 * clampedDt;
       const dir = (keys.current.out ? 1 : 0) - (keys.current.in ? 1 : 0);
       desired.current.radius = Math.max(
@@ -482,46 +676,74 @@ export function CameraRig() {
       );
     }
 
-    // Free-look: the camera target is frozen in space, so the Solar System
-    // drifts past instead of staying pinned to the centre of the screen.
+    // True free flight: turn at the observer position, then translate in that
+    // direction. Nothing in this branch follows or re-centres on an object.
     if (cameraFree) {
-      spherical.current.radius = expDampLogRadius(
-        spherical.current.radius,
-        desired.current.radius,
-        4.0,
-        clampedDt,
-        minR,
+      const held = freeLookInput;
+      desired.current.theta +=
+        ((held.has("ArrowLeft") ? 1 : 0) - (held.has("ArrowRight") ? 1 : 0)) * clampedDt;
+      desired.current.phi = THREE.MathUtils.clamp(
+        desired.current.phi +
+          ((held.has("ArrowDown") ? 1 : 0) - (held.has("ArrowUp") ? 1 : 0)) * clampedDt,
+        0.01,
+        Math.PI - 0.01,
       );
       spherical.current.theta = expDampScalar(
         spherical.current.theta,
         desired.current.theta,
-        6.0,
+        12,
         clampedDt,
       );
       spherical.current.phi = expDampScalar(
         spherical.current.phi,
         desired.current.phi,
-        6.0,
+        12,
         clampedDt,
       );
-      scratchPos.current.setFromSpherical(spherical.current).add(target.current);
-      camera.position.copy(scratchPos.current);
+      freeForward.current.setFromSphericalCoords(1, spherical.current.phi, spherical.current.theta);
+      freeRight.current.crossVectors(freeForward.current, camera.up).normalize();
+      const forward =
+        (held.has("KeyW") || keys.current.in ? 1 : 0) -
+        (held.has("KeyS") || keys.current.out ? 1 : 0);
+      const side = (held.has("KeyD") ? 1 : 0) - (held.has("KeyA") ? 1 : 0);
+      const up = (held.has("KeyE") ? 1 : 0) - (held.has("KeyQ") ? 1 : 0);
+      const contextScale = Math.max(
+        freeEntryScale.current * 0.1,
+        Math.min(maxR, freePosition.current.distanceTo(freeAnchor.current)),
+      );
+      freeScale.current = expDampScalar(freeScale.current, contextScale, 2, clampedDt);
+      const boost = held.has("ShiftLeft") || held.has("ShiftRight") ? 3 : 1;
+      const speed = freeLookSpeed(freeScale.current, st.zoomSpeed, st.freeLookSpeed) * boost;
+      freeMove.current
+        .copy(freeForward.current)
+        .multiplyScalar(forward)
+        .addScaledVector(freeRight.current, side);
+      freeMove.current.y += up;
+      if (freeMove.current.lengthSq() > 0) freeMove.current.normalize().multiplyScalar(speed);
+      // Stop quickly on release, while easing into travel without a velocity step.
+      const response = freeMove.current.lengthSq() > 0 ? 7 : 14;
+      freeVelocity.current.lerp(freeMove.current, 1 - Math.exp(-response * clampedDt));
+      freePosition.current
+        .addScaledVector(freeVelocity.current, clampedDt)
+        .addScaledVector(freeForward.current, freeWheel.current * clampedDt);
+      freeWheel.current *= Math.exp(-8 * clampedDt);
+      freePosition.current.clampLength(0, freeBoundary.current);
+      camera.position.copy(freePosition.current);
+      target.current
+        .copy(freePosition.current)
+        .addScaledVector(freeForward.current, freeScale.current);
       camera.lookAt(target.current);
-      (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance =
-        spherical.current.radius;
-      const now = performance.now();
-      if (
-        Math.abs(spherical.current.radius - lastReportedDist.current) /
-          Math.max(1e-12, lastReportedDist.current) >
-          0.015 &&
-        now - lastReportTimestamp.current >= 50
-      ) {
-        lastReportedDist.current = spherical.current.radius;
-        lastReportTimestamp.current = now;
-        setCameraDistance(spherical.current.radius);
-      }
+      syncView(freeScale.current, clampedDt, true);
       return;
     }
+
+    if (
+      visitPlanet ||
+      visitGalaxy ||
+      selectedObjectId ||
+      (selectedStar && selectedStar.name !== "Sun")
+    )
+      followedSun.current = null;
 
     // Follow a planet: move target toward live planet position
     if (visitPlanet) {
@@ -578,8 +800,10 @@ export function CameraRig() {
     } else if (!tourActive && freeFlyTarget.current) {
       if (freeFlyTarget.current.lengthSq() < 1e-6 && desired.current.radius < 100) {
         const sun = reg?.get("Sun");
-        if (sun) expDampVector3(target.current, sun, 3.5, clampedDt);
-        else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
+        if (sun) {
+          followSun(sun);
+          expDampVector3(target.current, sun, 3.5, clampedDt);
+        } else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
       } else {
         const dist = target.current.distanceTo(freeFlyTarget.current);
         expDampVector3(target.current, freeFlyTarget.current, dist > 5 ? 2.2 : 4.5, clampedDt);
@@ -587,8 +811,10 @@ export function CameraRig() {
     } else if (!tourActive && !flyTo) {
       // Follow the drifting Sun so the user stays with the Solar System
       const sun = reg?.get("Sun");
-      if (sun) expDampVector3(target.current, sun, 3.5, clampedDt);
-      else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
+      if (sun) {
+        followSun(sun);
+        expDampVector3(target.current, sun, 3.5, clampedDt);
+      } else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
     }
 
     // Same physical anchor across galaxy -> nuclear cluster -> horizon. Change
@@ -638,11 +864,34 @@ export function CameraRig() {
         desired.current.phi = spherical.current.phi;
         session.returnRadius = Math.max(actualRadius, rs * 32);
         descentMotion.startRadius = Math.max(1.08, actualRadius / rs);
+        const flight = diskFlight.current;
+        const tilt = OBSERVED_VISUAL_PROFILES[hole.id]?.tilt ?? [0, 0, 0];
+        flight.rotation.makeRotationFromEuler(new THREE.Euler(...tilt));
+        flight.inverse.copy(flight.rotation).invert();
+        scratchPos.current.applyMatrix4(flight.inverse);
+        flight.startAngle = Math.atan2(scratchPos.current.z, scratchPos.current.x);
+        flight.startElevation = Math.asin(
+          THREE.MathUtils.clamp(scratchPos.current.y / actualRadius, -1, 1),
+        );
+        flight.baseTheta = spherical.current.theta;
+        flight.basePhi = spherical.current.phi;
+        flight.bank = 0;
       }
       target.current.copy(scratchTarget.current);
       if (journey.mode === "falling") descentMotion.elapsed += Math.min(clampedDt, 0.05);
       descentMotion.progress = Math.min(1, descentMotion.elapsed / BLACK_HOLE_DESCENT_SECONDS);
-      let radius = descentRadiusRs(descentMotion.startRadius, descentMotion.progress) * rs;
+      const model = blackHoleModel(hole);
+      const flow = descentFlightState(
+        descentMotion.startRadius,
+        descentMotion.progress,
+        diskFlight.current.startElevation,
+        model.outerRs,
+        model.innerRs,
+      );
+      let radius = flow.radiusRs * rs;
+      descentMotion.angularSpeed = flow.angularSpeed;
+      descentMotion.orbitAngle = flow.angle;
+      descentMotion.tidalStretch = flow.tidalStretch;
       if (journey.mode === "returning") {
         if (descentMotion.returnStartRadius === 0)
           descentMotion.returnStartRadius = spherical.current.radius;
@@ -662,8 +911,28 @@ export function CameraRig() {
       }
       descentMotion.radiusRs = radius / rs;
       desired.current.radius = spherical.current.radius = travelRadius = Math.max(minR, radius);
-      if (journey.mode === "falling" && !dragging.current)
-        desired.current.theta += clampedDt * 0.025;
+      if (journey.mode !== "returning") {
+        const flight = diskFlight.current,
+          angle = flight.startAngle + flow.angle;
+        scratchPos.current
+          .set(
+            Math.cos(angle) * Math.cos(flow.elevation),
+            Math.sin(flow.elevation),
+            Math.sin(angle) * Math.cos(flow.elevation),
+          )
+          .applyMatrix4(flight.rotation);
+        flightSpherical.current.setFromVector3(scratchPos.current);
+        desired.current.theta +=
+          nearestOrbitAngle(flight.baseTheta, flightSpherical.current.theta) - flight.baseTheta;
+        desired.current.phi = THREE.MathUtils.clamp(
+          desired.current.phi + flightSpherical.current.phi - flight.basePhi,
+          0.03,
+          Math.PI - 0.03,
+        );
+        flight.baseTheta = flightSpherical.current.theta;
+        flight.basePhi = flightSpherical.current.phi;
+        flight.bank = flow.bank;
+      } else diskFlight.current.bank *= Math.exp(-3 * clampedDt);
     } else if (descentSession.current.id) {
       // Clear a cancelled journey without leaving subsequent navigation at horizon scale.
       desired.current.radius = Math.max(
@@ -704,61 +973,18 @@ export function CameraRig() {
     scratchPos.current.setFromSpherical(spherical.current).add(target.current);
     camera.position.copy(scratchPos.current);
     camera.lookAt(target.current);
-
-    // Synchronize high-precision 64-bit camera coordinates and active reference frame
-    floatingOriginManager.cameraWorldPos64.set(
-      scratchPos.current.x,
-      scratchPos.current.y,
-      scratchPos.current.z,
-    );
-    floatingOriginManager.cameraTarget64.set(target.current.x, target.current.y, target.current.z);
-    const activeFrame = floatingOriginManager.updateActiveFrame(
-      floatingOriginManager.cameraWorldPos64,
-    );
-    const r = spherical.current.radius;
-    const activeRegime = scaleCoordinator.current.updateRadiusWithHysteresis(r);
-    (window as unknown as { __activeOriginName?: string }).__activeOriginName = activeFrame.name;
-    (window as unknown as { __activeScaleRegimeId?: string }).__activeScaleRegimeId =
-      activeRegime.regimeId;
-    (window as unknown as { __liveCameraDistance?: number }).__liveCameraDistance = r;
-
-    // Smooth continuous dynamic FOV & clipping plane synchronization (eliminates 25% step-snap flicker)
-    const t = Math.min(
-      1,
-      Math.max(0, (Math.log(r) - Math.log(minR)) / (Math.log(maxR) - Math.log(minR))),
-    );
-    if (!tourActive && !visitPlanet && !selectedObjectId && !visitGalaxy && !selectedStar) {
-      fovTarget.current = 30 + t * 60;
-    }
-    const pc = camera as THREE.PerspectiveCamera;
-    const nextFov = expDampScalar(pc.fov, fovTarget.current, 2.5, clampedDt);
-    const clip = computeContinuousNearFar(r, 1e-10, 0.05, 200, 5e11);
-
-    const fovChanged = Math.abs(nextFov - pc.fov) > 0.001;
-    const nearChanged = Math.abs(pc.near - clip.near) / Math.max(1e-12, clip.near) > 0.015;
-    const farChanged = Math.abs(pc.far - clip.far) / Math.max(1, clip.far) > 0.015;
-
-    if (fovChanged || nearChanged || farChanged) {
-      pc.fov = nextFov;
-      pc.near = clip.near;
-      pc.far = clip.far;
-      pc.updateProjectionMatrix();
+    if (journey.id === selectedObjectId && journey.mode !== "idle")
+      camera.rotateZ(diskFlight.current.bank);
+    if (resumeLook.current) {
+      lookQuaternion.current.copy(camera.quaternion);
+      camera.quaternion
+        .copy(resumeLook.current)
+        .slerp(lookQuaternion.current, 1 - Math.exp(-5 * clampedDt));
+      resumeLook.current.copy(camera.quaternion);
+      if (camera.quaternion.angleTo(lookQuaternion.current) < 0.001) resumeLook.current = null;
     }
 
-    // Throttle React Zustand store updates to prevent 60Hz UI re-render storms during zoom
-    const now = performance.now();
-    const relDistDelta =
-      Math.abs(r - lastReportedDist.current) / Math.max(1e-12, lastReportedDist.current);
-    const settled =
-      Math.abs(r - desired.current.radius) / Math.max(1e-12, desired.current.radius) < 0.005;
-    if (
-      (relDistDelta > 0.015 && now - lastReportTimestamp.current >= 50) ||
-      (settled && relDistDelta > 0.001)
-    ) {
-      lastReportedDist.current = r;
-      lastReportTimestamp.current = now;
-      setCameraDistance(r);
-    }
+    syncView(spherical.current.radius, clampedDt);
   });
 
   return null;

@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    __liveCameraDistance?: number;
+  }
+}
+
 /** Keep a new orientation within half a turn of the current orbit. */
 export function nearestOrbitAngle(current: number, requested: number): number {
   return current + Math.atan2(Math.sin(requested - current), Math.cos(requested - current));

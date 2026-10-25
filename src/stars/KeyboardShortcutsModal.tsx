@@ -70,7 +70,7 @@ export function KeyboardShortcutsModal() {
                 <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] p-2.5">
                   <span className="text-white/70">Free Look / Resume Lock</span>
                   <kbd className="rounded bg-white/10 px-2 py-0.5 text-cyan-300 font-bold border border-white/20">
-                    S
+                    F
                   </kbd>
                 </div>
                 <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] p-2.5">
@@ -106,6 +106,12 @@ export function KeyboardShortcutsModal() {
               </div>
             </div>
 
+            <div className="rounded-lg border border-sky-300/20 bg-sky-300/5 p-3 leading-relaxed text-white/70">
+              <strong className="text-sky-200">Free look:</strong> W / S travel forward / backward,
+              A / D strafe, Q / E descend / rise. Drag or use arrow keys to turn. Hold Shift for a
+              temporary boost. On-screen direction buttons also support touch. Adjust movement speed
+              in Settings. Escape returns to orbit.
+            </div>
             {/* 2. Mouse & Trackpad */}
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-cyan-300 font-semibold uppercase tracking-wider text-[11px]">

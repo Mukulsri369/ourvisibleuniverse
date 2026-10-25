@@ -252,7 +252,9 @@ export function OpticsPostProcessing() {
       Math.max(bloomThreshold, 1.2),
       meter.core,
     );
-    if (composer.blackHolePass.enabled) {
+    const lensWeight = composer.blackHolePass.blend;
+    composer.bloomPass.strength *= 1 - lensWeight;
+    if (lensWeight > 0.995) {
       composer.bloomPass.enabled = false;
       composer.bloomPass.strength = Math.min(composer.bloomPass.strength, 0.035);
       composer.bloomPass.radius = Math.min(bloomRadius, 0.12);

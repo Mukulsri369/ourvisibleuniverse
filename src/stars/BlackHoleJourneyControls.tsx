@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { blackHoleAudio } from "./black-hole-audio";
 import { useStore } from "./store";
 import { OBJECT_BY_ID, type ObservedObject } from "./observed-objects";
 import { BLACK_HOLE_SOURCES, blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
@@ -69,11 +70,20 @@ export function BlackHoleJourneyControls() {
   const mode = useBlackHoleJourney((s) => s.mode);
   const readout = useRef<HTMLSpanElement>(null);
   const previousHidden = useRef<boolean | null>(null);
+  const previousMusic = useRef<boolean | null>(null);
+  const [sound, setSound] = useState(true);
   const item = selectedId ? OBJECT_BY_ID.get(selectedId) : undefined;
   useEffect(() => {
     useBlackHoleJourney.getState().reset();
   }, [selectedId]);
   useEffect(() => {
+    if (mode === "idle") {
+      blackHoleAudio.stop();
+      if (previousMusic.current !== null) {
+        useStore.setState({ musicOn: previousMusic.current });
+        previousMusic.current = null;
+      }
+    }
     if (mode === "idle" && previousHidden.current !== null) {
       useStore.setState({ uiHidden: previousHidden.current });
       previousHidden.current = null;
@@ -82,6 +92,8 @@ export function BlackHoleJourneyControls() {
   useEffect(
     () => () => {
       if (previousHidden.current !== null) useStore.setState({ uiHidden: previousHidden.current });
+      blackHoleAudio.stop();
+      if (previousMusic.current !== null) useStore.setState({ musicOn: previousMusic.current });
       useBlackHoleJourney.getState().reset();
     },
     [],
@@ -91,10 +103,24 @@ export function BlackHoleJourneyControls() {
     let frame = 0;
     const update = () => {
       if (readout.current) readout.current.textContent = descentMotion.radiusRs.toFixed(2) + " Rₛ";
+      blackHoleAudio.update(
+        descentMotion.progress,
+        descentMotion.radiusRs,
+        descentMotion.orbitAngle,
+        mode !== "paused" && mode !== "crossed" && !document.hidden,
+        mode === "returning" ? Math.max(0, 1 - descentMotion.returnElapsed / 2) : 1,
+      );
       frame = requestAnimationFrame(update);
     };
+    const visibility = () => {
+      if (document.hidden) blackHoleAudio.silence();
+    };
+    document.addEventListener("visibilitychange", visibility);
     frame = requestAnimationFrame(update);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("visibilitychange", visibility);
+    };
   }, [mode]);
   if (!isBlackHoleTarget(item) || (hidden && mode === "idle")) return null;
   const active = mode !== "idle";
@@ -109,7 +135,7 @@ export function BlackHoleJourneyControls() {
             {mode === "crossed"
               ? "Horizon reached"
               : active
-                ? "Time-compressed descent"
+                ? "Cinematic spiral descent"
                 : "Explore the strong field"}
           </p>
           <p className="mt-1 text-sm text-white/90">{item.name}</p>
@@ -120,17 +146,38 @@ export function BlackHoleJourneyControls() {
       </div>
       {mode === "crossed" && (
         <p className="mt-3 text-xs leading-relaxed text-white/60">
-          The sequence ends at the horizon. The black view is an endpoint, not a simulation of the
-          interior.
+          Horizon sequence complete. The tidal visualisation fades to black here.
         </p>
       )}
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <span className="text-[10px] text-white/45">Designed spatial audio</span>
+        <button
+          type="button"
+          aria-pressed={sound}
+          aria-label="Descent sound"
+          title={sound ? "Mute descent sound" : "Enable descent sound"}
+          onClick={() => {
+            const next = !sound;
+            setSound(next);
+            blackHoleAudio.setMuted(!next);
+            if (next && active) void blackHoleAudio.start();
+          }}
+          className="min-h-11 rounded-lg border border-white/15 px-3 text-[11px] text-amber-100/80 hover:bg-white/10 focus-visible:outline focus-visible:outline-amber-100"
+        >
+          Sound {sound ? "on" : "off"}
+        </button>
+      </div>
       <div className="mt-3 flex gap-2">
         {mode === "idle" && (
           <button
             onClick={() => {
               previousHidden.current = useStore.getState().uiHidden;
+              previousMusic.current = useStore.getState().musicOn;
+              blackHoleAudio.setMuted(!sound);
+              void blackHoleAudio.start();
               useStore.setState({
                 cameraFree: false,
+                musicOn: false,
                 isAutoOrbiting: false,
                 tourActive: false,
                 uiHidden: true,
@@ -170,7 +217,7 @@ export function BlackHoleJourneyControls() {
       </div>
       {active && mode !== "crossed" && (
         <p className="mt-2 text-[10px] text-white/40">
-          Drag to change your viewing angle · Esc to return
+          Approach · inspiral · plunge · tidal stretch · Esc to return
         </p>
       )}
     </aside>

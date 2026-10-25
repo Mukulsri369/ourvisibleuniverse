@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { FreeLookControls } from "./FreeLookControls";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
 
@@ -404,125 +405,20 @@ export function TopLeftControls() {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="fixed left-6 top-5 z-30 flex items-center gap-3 text-white/80"
+      className="fixed left-6 top-5 z-[35] flex max-w-[calc(100vw-3rem)] items-center gap-3 text-white/80"
     >
-      <IconButton
-        title="NASA JPL Horizons Solar System Time, Ephemerides & Dynamics"
-        onClick={() => setSolarControllerOpen((v) => !v)}
-        active={solarControllerOpen}
-      >
-        <Orbit className="h-4 w-4 text-emerald-400" />
-      </IconButton>
-      <IconButton
-        title="ESA Gaia DR3 Star Atlas, Proper Motion & Benchmarks"
-        onClick={() => setGaiaAtlasOpen((v) => !v)}
-        active={gaiaAtlasOpen}
-      >
-        <Telescope className="h-4 w-4 text-cyan-400" />
-      </IconButton>
-      <IconButton
-        title="Observational Extragalactic Atlas Search (NASA/IPAC NED)"
-        onClick={() => useStore.getState().setGalaxyAtlasSearchOpen(true)}
-      >
-        <Sparkles className="h-4 w-4 text-sky-400" />
-      </IconButton>
-      <IconButton
-        title="Galaxy Coverage & Cosmological Distance Dashboard"
-        onClick={() => useStore.getState().setGalaxyCoverageDashboardOpen(true)}
-      >
-        <Compass className="h-4 w-4 text-amber-400" />
-      </IconButton>
-      <IconButton
-        title="Astronomical Observation Evidence & Sky Survey Explorer (Aladin Lite / NASA / ESO)"
-        onClick={() => useStore.getState().setObservationModalOpen(true)}
-      >
-        <Eye className="h-4 w-4 text-emerald-400" />
-      </IconButton>
-      <IconButton
-        title="Large-Scale Structure & Cosmic Web Explorer (Mode A: Observational vs Mode B: IllustrisTNG Simulation & Guided Journey)"
-        onClick={() => useStore.getState().setCosmicWebExplorerOpen(true)}
-      >
-        <Layers className="h-4 w-4 text-cyan-400" />
-      </IconButton>
-      <IconButton
-        title="Astrophysical Optics, Shaders & Tone Mapping Settings"
-        onClick={() => useStore.getState().setOpticsModalOpen(true)}
-      >
-        <Sliders className="h-4 w-4 text-cyan-400" />
-      </IconButton>
-      <IconButton
-        title="Universal Indexed Celestial Search (Names, Aliases, Catalogs, Morphologies, Redshifts)"
-        onClick={() => useStore.getState().setUniversalSearchOpen(true)}
-      >
-        <SearchIcon />
-      </IconButton>
-      <IconButton
-        title={
-          useStore((s) => s.cosmicJourneyOpen)
-            ? "Cosmic Scale Journey (Earth → Observable Universe): ACTIVE (Click to hide)"
-            : "Launch Cosmic Scale Journey: Smooth flight from Earth to the Observable Horizon"
-        }
-        onClick={() => useStore.getState().toggleCosmicJourney()}
-        active={useStore((s) => s.cosmicJourneyOpen)}
-      >
-        <Compass className="h-4 w-4 text-cyan-400" />
-      </IconButton>
-      <IconButton
-        title="Camera Vistas & Curated Astronomical Bookmarks"
-        onClick={() => useStore.getState().setBookmarksModalOpen(true)}
-      >
-        <Bookmark className="h-4 w-4 text-cyan-300" />
-      </IconButton>
-      <IconButton
-        title="Landmark Discoveries in Observational Astrophysics (Hubble, Mayor, Penzias, EHT, LIGO)"
-        onClick={() => useStore.getState().setDiscoveriesModalOpen(true)}
-      >
-        <Award className="h-4 w-4 text-amber-400" />
-      </IconButton>
-      <IconButton
-        title={
-          useStore.getState().isAutoOrbiting
-            ? "Auto-Orbit Object: ACTIVE (Click to pause)"
-            : "Auto-Orbit Object: INACTIVE (Click to start smooth orbit)"
-        }
-        onClick={() => useStore.getState().toggleAutoOrbit()}
-        active={useStore.getState().isAutoOrbiting}
-      >
-        <Orbit className="h-4 w-4 text-sky-400" />
-      </IconButton>
-      <IconButton
-        title="Reset Camera Orientation to Galactic & Ecliptic North"
-        onClick={() => useStore.getState().resetCameraOrientation()}
-      >
-        <RotateCcw className="h-4 w-4 text-white/70" />
-      </IconButton>
-      <IconButton
-        title="Interaction, Keyboard Shortcuts & Accessibility Guide (?)"
-        onClick={() => useStore.getState().setShortcutsModalOpen(true)}
-      >
-        <Keyboard className="h-4 w-4 text-emerald-400" />
-      </IconButton>
-      <IconButton
-        title={
-          cameraFree
-            ? "Camera stopped — click to follow the Solar System again"
-            : "Stop the camera in space (free look)"
-        }
+      <button
+        type="button"
         onClick={toggleCameraFree}
-        active={cameraFree}
+        aria-pressed={cameraFree}
+        aria-label={cameraFree ? "Return to orbit (F)" : "Enter free look (F)"}
+        title="Free look · drag to look, WASD to move (F)"
+        className={`flex h-11 shrink-0 items-center gap-2 rounded-full border px-3 text-xs transition focus-visible:outline focus-visible:outline-sky-300 ${cameraFree ? "border-sky-200/50 bg-sky-300/15 text-sky-100" : "border-white/15 bg-black/30 text-white/70 hover:border-white/40 hover:text-white"}`}
       >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <rect x="6" y="6" width="12" height="12" rx="2" />
-        </svg>
-      </IconButton>
-      <MaximizeButton />
+        <Compass className="h-4 w-4" aria-hidden="true" />
+        <span>Free look</span>
+      </button>
+      <FreeLookControls onOpenSettings={() => setSettingsOpen(true)} />
       <IconButton title="Settings" onClick={() => setSettingsOpen((v) => !v)} active={settingsOpen}>
         <svg
           width="16"
@@ -536,24 +432,123 @@ export function TopLeftControls() {
           <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" />
         </svg>
       </IconButton>
-      <IconButton
-        title="Guide — what every button does"
-        onClick={() => setGuideOpen((v) => !v)}
-        active={guideOpen}
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
+      <div className="flex min-w-0 items-center gap-3 overflow-x-auto py-1 [&>button]:shrink-0">
+        <IconButton
+          title="NASA JPL Horizons Solar System Time, Ephemerides & Dynamics"
+          onClick={() => setSolarControllerOpen((v) => !v)}
+          active={solarControllerOpen}
         >
-          <circle cx="12" cy="12" r="9" />
-          <path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.5v.4" />
-          <path d="M12 17h.01" />
-        </svg>
-      </IconButton>
+          <Orbit className="h-4 w-4 text-emerald-400" />
+        </IconButton>
+        <IconButton
+          title="ESA Gaia DR3 Star Atlas, Proper Motion & Benchmarks"
+          onClick={() => setGaiaAtlasOpen((v) => !v)}
+          active={gaiaAtlasOpen}
+        >
+          <Telescope className="h-4 w-4 text-cyan-400" />
+        </IconButton>
+        <IconButton
+          title="Observational Extragalactic Atlas Search (NASA/IPAC NED)"
+          onClick={() => useStore.getState().setGalaxyAtlasSearchOpen(true)}
+        >
+          <Sparkles className="h-4 w-4 text-sky-400" />
+        </IconButton>
+        <IconButton
+          title="Galaxy Coverage & Cosmological Distance Dashboard"
+          onClick={() => useStore.getState().setGalaxyCoverageDashboardOpen(true)}
+        >
+          <Compass className="h-4 w-4 text-amber-400" />
+        </IconButton>
+        <IconButton
+          title="Astronomical Observation Evidence & Sky Survey Explorer (Aladin Lite / NASA / ESO)"
+          onClick={() => useStore.getState().setObservationModalOpen(true)}
+        >
+          <Eye className="h-4 w-4 text-emerald-400" />
+        </IconButton>
+        <IconButton
+          title="Large-Scale Structure & Cosmic Web Explorer (Mode A: Observational vs Mode B: IllustrisTNG Simulation & Guided Journey)"
+          onClick={() => useStore.getState().setCosmicWebExplorerOpen(true)}
+        >
+          <Layers className="h-4 w-4 text-cyan-400" />
+        </IconButton>
+        <IconButton
+          title="Astrophysical Optics, Shaders & Tone Mapping Settings"
+          onClick={() => useStore.getState().setOpticsModalOpen(true)}
+        >
+          <Sliders className="h-4 w-4 text-cyan-400" />
+        </IconButton>
+        <IconButton
+          title="Universal Indexed Celestial Search (Names, Aliases, Catalogs, Morphologies, Redshifts)"
+          onClick={() => useStore.getState().setUniversalSearchOpen(true)}
+        >
+          <SearchIcon />
+        </IconButton>
+        <IconButton
+          title={
+            useStore((s) => s.cosmicJourneyOpen)
+              ? "Cosmic Scale Journey (Earth → Observable Universe): ACTIVE (Click to hide)"
+              : "Launch Cosmic Scale Journey: Smooth flight from Earth to the Observable Horizon"
+          }
+          onClick={() => useStore.getState().toggleCosmicJourney()}
+          active={useStore((s) => s.cosmicJourneyOpen)}
+        >
+          <Compass className="h-4 w-4 text-cyan-400" />
+        </IconButton>
+        <IconButton
+          title="Camera Vistas & Curated Astronomical Bookmarks"
+          onClick={() => useStore.getState().setBookmarksModalOpen(true)}
+        >
+          <Bookmark className="h-4 w-4 text-cyan-300" />
+        </IconButton>
+        <IconButton
+          title="Landmark Discoveries in Observational Astrophysics (Hubble, Mayor, Penzias, EHT, LIGO)"
+          onClick={() => useStore.getState().setDiscoveriesModalOpen(true)}
+        >
+          <Award className="h-4 w-4 text-amber-400" />
+        </IconButton>
+        <IconButton
+          title={
+            useStore.getState().isAutoOrbiting
+              ? "Auto-Orbit Object: ACTIVE (Click to pause)"
+              : "Auto-Orbit Object: INACTIVE (Click to start smooth orbit)"
+          }
+          onClick={() => useStore.getState().toggleAutoOrbit()}
+          active={useStore.getState().isAutoOrbiting}
+        >
+          <Orbit className="h-4 w-4 text-sky-400" />
+        </IconButton>
+        <IconButton
+          title="Reset Camera Orientation to Galactic & Ecliptic North"
+          onClick={() => useStore.getState().resetCameraOrientation()}
+        >
+          <RotateCcw className="h-4 w-4 text-white/70" />
+        </IconButton>
+        <IconButton
+          title="Interaction, Keyboard Shortcuts & Accessibility Guide (?)"
+          onClick={() => useStore.getState().setShortcutsModalOpen(true)}
+        >
+          <Keyboard className="h-4 w-4 text-emerald-400" />
+        </IconButton>
+        <MaximizeButton />
+        <IconButton
+          title="Guide — what every button does"
+          onClick={() => setGuideOpen((v) => !v)}
+          active={guideOpen}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.5 9a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.5v.4" />
+            <path d="M12 17h.01" />
+          </svg>
+        </IconButton>
+      </div>
       <SolarSystemController
         open={solarControllerOpen}
         onClose={() => setSolarControllerOpen(false)}
@@ -585,9 +580,9 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
     items: [
       ["Sliders", "Astrophysical Optics, Shaders, Bloom & Tone Mapping controls"],
       ["Search", "Find any star, planet, galaxy or observed object"],
-      ["Square", "Stop the camera in space (free look)"],
+      ["Free look", "Fly freely: drag to look, WASD to move, Q/E to rise or descend"],
       ["Maximize", "Full screen — press Esc to exit"],
-      ["Gear", "Settings: zoom speed, system speed, trail size"],
+      ["Gear", "Settings: zoom, free look, outer planet orbits, time and trails"],
       ["?", "This guide"],
       ["Eye (top right)", "Hide or show the whole interface"],
       ["Music", "Ambient soundtrack on / off"],
@@ -598,7 +593,8 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
     items: [
       ["Space", "Zoom out"],
       ["Ctrl", "Zoom in"],
-      ["S", "Stop / resume the camera"],
+      ["F", "Free look / return to orbit"],
+      ["WASD · Q/E", "Travel in free look · descend / rise"],
       ["Esc", "Leave full screen"],
     ],
   },
@@ -630,7 +626,7 @@ function GuidePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          className="absolute left-0 top-12 max-h-[70vh] w-80 overflow-y-auto rounded-xl border border-white/10 bg-black/75 p-4 backdrop-blur-md"
+          className="absolute left-0 top-12 max-h-[70vh] w-80 max-w-[calc(100vw-3rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/75 p-4 backdrop-blur-md"
         >
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Guide</span>
@@ -718,6 +714,10 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
   const setZoomSpeed = useStore((s) => s.setZoomSpeed);
   const systemSpeed = useStore((s) => s.systemSpeed);
   const setSystemSpeed = useStore((s) => s.setSystemSpeed);
+  const freeSpeed = useStore((s) => s.freeLookSpeed);
+  const setFreeSpeed = useStore((s) => s.setFreeLookSpeed);
+  const outerSpeed = useStore((s) => s.outerOrbitSpeed);
+  const setOuterSpeed = useStore((s) => s.setOuterOrbitSpeed);
   const trailSize = useStore((s) => s.trailSize);
   const setTrailSize = useStore((s) => s.setTrailSize);
 
@@ -728,7 +728,7 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          className="absolute left-0 top-12 w-80 rounded-xl border border-white/10 bg-black/85 p-4 backdrop-blur-md"
+          className="absolute left-0 top-12 z-40 max-h-[calc(100dvh-6rem)] w-80 max-w-[calc(100vw-3rem)] overflow-y-auto rounded-xl border border-white/10 bg-black/85 p-4 backdrop-blur-md"
         >
           <div className="mb-3 flex items-center justify-between">
             <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">Settings</span>
@@ -746,6 +746,74 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
             value={zoomSpeed}
             onChange={setZoomSpeed}
           />
+          <div className="mb-4 space-y-2 border-t border-white/10 pt-4">
+            <label htmlFor="free-look-speed" className="flex justify-between text-xs text-white/80">
+              <span>Free look movement</span>
+              <span className="font-mono text-sky-200">{freeSpeed.toFixed(2)}×</span>
+            </label>
+            <input
+              id="free-look-speed"
+              type="range"
+              min={Math.log10(0.05)}
+              max={Math.log10(20)}
+              step={0.01}
+              value={Math.log10(freeSpeed)}
+              onChange={(e) => setFreeSpeed(10 ** Number(e.target.value))}
+              className="w-full accent-sky-300"
+            />
+            <p className="text-[11px] leading-relaxed text-white/50">
+              Adapts to your current scale. At 1×, movement matches the zoom speed where you enter
+              free look.
+            </p>
+            <button
+              type="button"
+              onClick={() => setFreeSpeed(1)}
+              className="min-h-11 rounded border border-white/15 px-2 text-[11px] text-white/75 hover:bg-white/10"
+            >
+              Default · 1×
+            </button>
+          </div>
+          <div className="mb-4 space-y-2 border-t border-white/10 pt-4">
+            <label
+              htmlFor="outer-orbit-speed"
+              className="flex justify-between text-xs text-white/80"
+            >
+              <span>Outer planet orbits</span>
+              <span className="font-mono text-sky-200">{outerSpeed.toFixed(0)}×</span>
+            </label>
+            <input
+              id="outer-orbit-speed"
+              type="range"
+              min={0}
+              max={Math.log10(2000)}
+              step={0.01}
+              value={Math.log10(outerSpeed)}
+              onChange={(e) => setOuterSpeed(10 ** Number(e.target.value))}
+              className="w-full accent-sky-300"
+            />
+            <p className="text-[11px] leading-relaxed text-white/50">
+              Jupiter through Pluto. Faster revolutions make their helical trails easier to see. The
+              current motion stays the default.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { label: "Default", rate: 1 },
+                { label: "10×", rate: 10 },
+                { label: "100×", rate: 100 },
+                { label: "Helical view", rate: 1000 },
+              ].map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  aria-pressed={Math.abs(outerSpeed - p.rate) < 0.01}
+                  onClick={() => setOuterSpeed(p.rate)}
+                  className="min-h-11 rounded border border-white/15 px-2 text-[11px] text-white/75 hover:bg-white/10 focus-visible:outline focus-visible:outline-sky-300"
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="mb-4 space-y-2">
             <label htmlFor="simulation-time" className="flex justify-between text-xs text-white/80">
               <span>Time</span>
@@ -840,7 +908,7 @@ function IconButton({
       onClick={onClick}
       title={title}
       aria-label={title}
-      className={`grid h-9 w-9 place-items-center rounded-full border transition ${active ? "border-white/60 bg-white/10 text-white" : "border-white/15 text-white/60 hover:border-white/40 hover:text-white"}`}
+      className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border transition ${active ? "border-white/60 bg-white/10 text-white" : "border-white/15 text-white/60 hover:border-white/40 hover:text-white"}`}
     >
       {children}
     </button>
@@ -1720,6 +1788,10 @@ export function LoadingScreen({ done }: { done: boolean }) {
 export function SiteMap() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(!isMobile);
+  const freeLook = useStore((s) => s.cameraFree);
+  useEffect(() => {
+    if (freeLook) setOpen(false);
+  }, [freeLook]);
   const [section, setSection] = useState<
     "journey" | "planets" | "stars" | "exoplanets" | "galaxies" | "objects"
   >("journey");

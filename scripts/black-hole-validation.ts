@@ -11,9 +11,11 @@ import {
 } from "../src/stars/black-hole-model";
 import {
   descentRadiusRs,
+  descentFlightState,
   useBlackHoleJourney,
   descentMotion,
 } from "../src/stars/black-hole-journey";
+import { descentSoundProfile } from "../src/stars/black-hole-audio";
 const holes = OBSERVED_OBJECTS.filter(isBlackHoleTarget);
 assert.equal(holes.length, 13, "Review new black-hole and quasar catalogue entries");
 for (const item of holes) {
@@ -77,3 +79,32 @@ pass.update(camera, undefined, "scientific_high", 1 / 60);
 assert.equal(pass.enabled, false);
 pass.dispose();
 console.log("PASS: distant/cleared targets disable the optical pass");
+
+for (const start of [1.08, 12, 32, 1e10]) {
+  let previous = start,
+    previousAngle = -Infinity,
+    previousSpeed = 0;
+  for (let i = 0; i <= 1000; i++) {
+    const p = i / 1000,
+      state = descentFlightState(start, p, 0.8, 13, 2.5);
+    assert(Object.values(state).every(Number.isFinite));
+    assert(state.radiusRs <= previous * (1 + 1e-12));
+    assert(state.angle >= previousAngle && state.angularSpeed >= previousSpeed);
+    assert(state.tidalStretch >= 0 && state.tidalStretch <= 1);
+    previous = state.radiusRs;
+    previousAngle = state.angle;
+    previousSpeed = state.angularSpeed;
+    const sound = descentSoundProfile(p, state.radiusRs, state.angle);
+    assert(sound.volume >= 0 && sound.volume <= 0.16);
+    assert(Math.abs(sound.pan) <= 0.58);
+  }
+}
+assert.equal(descentSoundProfile(1, 1, 0).volume, 0);
+assert.deepEqual(
+  descentFlightState(32, 0.5, 0.3),
+  descentFlightState(32, 0.5, 0.3),
+  "Paused path samples must be deterministic",
+);
+console.log(
+  "PASS: monotonic accelerating spiral, near-horizon tidal detail, finite large-scale approach and bounded sound envelope",
+);

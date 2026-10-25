@@ -15,7 +15,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { useStore } from "./store";
-import { getSimulationJd, simTimeDays } from "./sim-clock";
+import { getSimulationJd, getPlanetSimulationJd, simTimeDays } from "./sim-clock";
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
 import { computeLagrangePoints, type LagrangePointDef } from "@/lib/astronomy/jpl/lagrange-points";
 import { computeSunBarycentricOffsetAu } from "@/lib/astronomy/jpl/horizons-ephemeris";
@@ -70,7 +70,7 @@ export function VelocityVectorsOverlay() {
 
     for (let i = 0; i < VECTOR_PLANETS.length; i++) {
       const pName = VECTOR_PLANETS[i];
-      const state = jplEphemerisManager.getPlanetState(pName, jd);
+      const state = jplEphemerisManager.getPlanetState(pName, getPlanetSimulationJd(pName));
 
       // Planet position in scene: (x, z_elev, y)
       const px = state.xAu * au;
@@ -127,7 +127,10 @@ export function LagrangePointsOverlay() {
     if (!show) return;
     const jd = getSimulationJd();
     const earthState = jplEphemerisManager.getPlanetState("Earth", jd);
-    const jupiterState = jplEphemerisManager.getPlanetState("Jupiter", jd);
+    const jupiterState = jplEphemerisManager.getPlanetState(
+      "Jupiter",
+      getPlanetSimulationJd("Jupiter"),
+    );
 
     const sePts = computeLagrangePoints("Sun-Earth", earthState);
     const sjPts = computeLagrangePoints("Sun-Jupiter", jupiterState);
@@ -279,7 +282,10 @@ export function InterplanetaryDistanceRuler() {
     if (!show || !targetPlanet) return;
     const jd = getSimulationJd();
     const earth = jplEphemerisManager.getPlanetState("Earth", jd);
-    const target = jplEphemerisManager.getPlanetState(targetPlanet, jd);
+    const target = jplEphemerisManager.getPlanetState(
+      targetPlanet,
+      getPlanetSimulationJd(targetPlanet),
+    );
 
     const x1 = earth.xAu * au;
     const y1 = earth.zAu * au;
@@ -299,7 +305,20 @@ export function InterplanetaryDistanceRuler() {
     arr[5] = z2;
     pos.needsUpdate = true;
 
-    const distanceData = jplEphemerisManager.computeDistance("Earth", targetPlanet, jd);
+    const distanceAu = Math.hypot(
+      target.xAu - earth.xAu,
+      target.yAu - earth.yAu,
+      target.zAu - earth.zAu,
+    );
+    const lightSeconds = distanceAu * 499.004784;
+    const distanceData = {
+      distanceAu,
+      distanceKm: distanceAu * 149597870.7,
+      lightTravelTimeFormatted:
+        lightSeconds >= 3600
+          ? (lightSeconds / 3600).toFixed(2) + " h"
+          : Math.floor(lightSeconds / 60) + " m " + Math.round(lightSeconds % 60) + " s",
+    };
     setDistInfo({
       text: `Earth ↔ ${targetPlanet}: ${distanceData.distanceAu.toFixed(3)} AU (${(distanceData.distanceKm / 1e6).toFixed(1)}M km) · ${distanceData.lightTravelTimeFormatted}`,
       midX: (x1 + x2) * 0.5,

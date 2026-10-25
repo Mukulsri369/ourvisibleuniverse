@@ -10,15 +10,22 @@ uniform mat3 uCameraToDisk,uDiskToWorld,uWorldToCamera;
 uniform vec3 uEye;
 uniform vec2 uResolution;
 uniform vec2 uView; // tan(vertical FOV/2), aspect
-uniform float uTime,uInner,uOuter,uIntensity,uOpacity,uDisk,uHotFlow,uFall,uStep,uSkyReady;
+uniform float uTime,uInner,uOuter,uIntensity,uOpacity,uDisk,uHotFlow,uFall,uStep,uSkyReady,uActivation,uTidal,uJourneyProgress,uFlightTime;
 varying vec2 vUv;
 float noise(vec2 p,float lod){return textureLod(uNoise,p,lod).r;}
+// Circular embedding has identical values and derivatives at +/- pi.
+float flowNoise(float angle,float radial,float frequency,vec2 drift,float lod){
+ return noise(vec2(cos(angle),sin(angle))*frequency+vec2(radial*.023,radial*.047)+drift,lod);
+}
+float opticalCoverage(float r,float influence){return mix(influence,1.,1.-smoothstep(24.,70.,r));}
 vec3 sky(vec3 diskDirection){
  vec3 world=normalize(uDiskToWorld*diskDirection);
  vec3 color=textureLod(uSky,world,0.).rgb*uSkyReady;
  vec3 view=uWorldToCamera*world;
  if(view.z<-.001){vec2 uv=view.xy/(-view.z)/vec2(uView.x*uView.y,uView.x)*.5+.5;
-  if(all(greaterThan(uv,vec2(.002)))&&all(lessThan(uv,vec2(.998))))color=textureLod(tDiffuse,uv,0.).rgb;}
+  float edge=min(min(uv.x,uv.y),min(1.-uv.x,1.-uv.y));
+  float screenWeight=smoothstep(.003,.045,edge);
+  if(screenWeight>0.)color=mix(color,textureLod(tDiffuse,clamp(uv,vec2(0.),vec2(1.)),0.).rgb,screenWeight); }
  return color;
 }
 vec4 diskEmission(vec3 hit,vec3 tangent,float observerR){
@@ -33,8 +40,8 @@ vec4 diskEmission(vec3 hit,vec3 tangent,float observerR){
  float pixelWorld=2.*uView.x*length(uEye-hit)/max(uResolution.y,1.)/max(.15,abs(normalize(tangent).y));
  float lod=clamp(log2(max(1.,pixelWorld/r*1024.*.18)),0.,6.);
  // Magnetically sheared, broken azimuthal streaks, not perfect decorative rings.
- float coarse=mix(noise(vec2(phase*.0045,log(r)*.023)+drift,lod),noise(vec2(phaseNext*.0045,log(r)*.023)+nextDrift,lod),blend);
- float fine=mix(noise(vec2(phase*.017+coarse*.002,log(r)*.075)+drift,min(lod+.25,7.)),noise(vec2(phaseNext*.017+coarse*.002,log(r)*.075)+nextDrift,min(lod+.25,7.)),blend);
+ float coarse=mix(flowNoise(phase,log(r),.021,drift,lod),flowNoise(phaseNext,log(r),.021,nextDrift,lod),blend);
+ float fine=mix(flowNoise(phase*3.+coarse*.015,log(r)*3.,.047,drift,min(lod+.25,7.)),flowNoise(phaseNext*3.+coarse*.015,log(r)*3.,.047,nextDrift,min(lod+.25,7.)),blend);
  float streams=coarse*.68+fine*.32;
  float inner=smoothstep(uInner,uInner+.55,r),outer=1.-smoothstep(uOuter*.72,uOuter,r);
  float radial=pow(uInner/r,3.)*(1.-sqrt(uInner/r));
@@ -104,7 +111,7 @@ vec4 trace(vec2 imageUV){
  float weakWeight=ro>20.&&mu<0.&&uFall<.001?smoothstep(7.,10.,impact):0.;
  vec3 weakColor=vec3(0.);
  if(weakWeight>0.){float valid;weakColor=weakTransport(d,ro,valid);weakWeight*=valid;
-  if(weakWeight>.999)return vec4(weakColor,ro<70.?1.:influence);}
+  if(weakWeight>.999)return vec4(weakColor,opticalCoverage(ro,influence));}
  vec3 p=uEye;
  // Skip empty travel before the integration domain. Weak bending there is tiny.
  if(ro>80.){
@@ -146,10 +153,32 @@ vec4 trace(vec2 imageUV){
  }
  // Unresolved high-order rays end dark rather than leaking an unbent sky.
  if(escaped&&!captured)sum+=trans*sky(normalize(velocity));
- float blend=ro<70.?1.:influence;
+ float blend=opticalCoverage(ro,influence);
  return vec4(mix(sum,weakColor,weakWeight),blend);
 }
+// Cinematic, optically thin tracer material close to the travelling observer.
+// Radial correlation grows as tidal strain rises; circular sampling remains seamless.
+vec3 tidalMatter(vec3 direction){
+ if(uTidal<.001||uDisk<.5)return vec3(0.);
+ vec3 light=vec3(0.);float trans=1.;
+ for(int i=0;i<18;i++){
+  float q=(float(i)+.5)/18.,s=.025+q*q*2.8;
+  vec3 p=uEye+direction*s;
+  float r=length(p.xz),angle=atan(p.z,p.x);
+  float height=exp(-pow(p.y/max(.035,r*.07),2.));
+  float radial=log(max(.6,r))*mix(3.2,.16,uTidal)-uFlightTime*.035;
+  vec2 uv=vec2(cos(angle),sin(angle))*.12+vec2(radial*.08,radial*.021);
+  float filament=smoothstep(.57,.83,noise(uv,0.));
+  float detail=noise(uv*2.7+vec2(.21,.37),.5);
+  float density=filament*(.4+detail*.6)*height*(1.-smoothstep(3.,5.,r));
+  float alpha=1.-exp(-density*uTidal*.34);
+  vec3 tint=mix(vec3(1.,.18,.035),vec3(.75,.9,1.),detail*.55);
+  light+=trans*tint*alpha*(1.8+detail*2.4);trans*=1.-alpha;
+ }
+ return light;
+}
 void main(){
+ if(uJourneyProgress>=.99999){gl_FragColor=vec4(0.,0.,0.,uActivation);return;}
  vec4 color=trace(vUv);
  vec3 d=normalize(uCameraToDisk*vec3((vUv*2.-1.)*vec2(uView.x*uView.y,uView.x),-1.));
  float ro=length(uEye);float b=length(cross(uEye,d))/sqrt(max(.001,1.-1./max(ro,1.001)));
@@ -158,6 +187,10 @@ void main(){
   vec2 pixel=.32/max(uResolution,vec2(1.));
   color=(color+trace(vUv+pixel)+trace(vUv-pixel))/3.;
  }
+ float finalFade=1.-smoothstep(.975,1.,uJourneyProgress);
+ if(uTidal>.001){color.rgb+=tidalMatter(d);color.a=max(color.a,uTidal);}
+ color.rgb*=finalFade;
+ color.a*=uActivation;
  gl_FragColor=color;
 }
 
