@@ -1,3 +1,8 @@
+import { NebulaDensityCache } from "./nebula-density-cache";
+import { objectView, viewGain } from "./object-view-settings";
+import { NEBULA_BALANCE } from "./nebula-appearance";
+import { NEBULA_STELLAR_PROFILES } from "./nebula-stellar-profiles";
+import { useNebulaJourney, nebulaMotion } from "./nebula-journey";
 import { NebulaStars } from "./NebulaStars";
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
@@ -50,8 +55,23 @@ export function NebulaVolume({
     const empty = new THREE.DataTexture(new Uint8Array([110, 110, 110, 255]), 1, 1);
     empty.needsUpdate = true;
     return {
+      uViewGain: { value: 1 },
+      uBalance: { value: NEBULA_BALANCE[item.id] ?? 1 },
+      uContrast: { value: 1 },
+      uDust: { value: 1 },
+      uStars: { value: 1 },
+      uReveal: { value: 0 },
+      uLight: {
+        value: new THREE.Vector3(
+          ...(NEBULA_STELLAR_PROFILES[item.id]?.cluster?.center ?? [0, 0, 0]),
+        ),
+      },
       uEye: { value: new THREE.Vector3() },
       uNoise: { value: getNoise() },
+      uDensity: { value: getNoise() },
+      uDensityReady: { value: 0 },
+      uEmission: { value: getNoise() },
+      uCacheFade: { value: 0 },
       uReference: { value: empty as THREE.Texture },
       uHasReference: { value: 0 },
       uAspect: { value: 1 },
@@ -64,6 +84,11 @@ export function NebulaVolume({
       uSeed: { value: (profile.seed % 997) / 997 },
     };
   }, [item, profile.seed]);
+  const density = useMemo(
+    () => new NebulaDensityCache(uniforms, tier === "scientific_high" ? 160 : 128),
+    [uniforms, tier],
+  );
+  useEffect(() => () => density.dispose(), [density]);
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -139,6 +164,17 @@ export function NebulaVolume({
     return () => placeholder.dispose();
   }, [uniforms]);
   useFrame(({ camera, size, gl }, delta) => {
+    if (density.bake(gl, uniforms)) {
+      uniforms.uDensity.value = density.target.textures[0];
+      uniforms.uEmission.value = density.target.textures[1];
+      uniforms.uDensityReady.value = 1;
+    }
+    uniforms.uCacheFade.value = THREE.MathUtils.damp(
+      uniforms.uCacheFade.value,
+      uniforms.uDensityReady.value,
+      4,
+      Math.min(delta, 0.1),
+    );
     const object = mesh.current;
     if (!object) return;
     // Subtract astronomical world coordinates in JS double precision, not GLSL floats.
@@ -146,6 +182,25 @@ export function NebulaVolume({
     uniforms.uEye.value.copy(camera.position);
     object.worldToLocal(uniforms.uEye.value);
     const distance = uniforms.uEye.value.length();
+    const view = objectView(item.id),
+      journey = useNebulaJourney.getState();
+    const damp = (
+      key: "uViewGain" | "uBalance" | "uContrast" | "uDust" | "uStars" | "uReveal",
+      value: number,
+    ) => {
+      uniforms[key].value = THREE.MathUtils.damp(
+        uniforms[key].value,
+        value,
+        5,
+        Math.min(delta, 0.1),
+      );
+    };
+    damp("uViewGain", viewGain(view));
+    damp("uBalance", view.auto ? (NEBULA_BALANCE[item.id] ?? 1) : 1);
+    damp("uContrast", view.contrast);
+    damp("uDust", view.dust);
+    damp("uStars", view.stars);
+    damp("uReveal", journey.id === item.id ? nebulaMotion.reveal : 0);
     uniforms.uHasReference.value = THREE.MathUtils.damp(
       uniforms.uHasReference.value,
       referenceReady.current ? 1 : 0,
@@ -155,8 +210,7 @@ export function NebulaVolume({
     uniforms.uViewport.value = size.height * gl.getPixelRatio();
     const budget = frameBudget.current;
     budget.average += (Math.min(delta, 0.1) - budget.average) * 0.025;
-    const desired =
-      tier === "performance" ? 40 : tier === "standard" ? 56 : distance < 1.7 ? 96 : 80;
+    const desired = tier === "performance" ? 32 : tier === "standard" ? 40 : 64;
     budget.steps +=
       ((budget.average > 0.038 ? Math.min(desired, 48) : desired) - budget.steps) * 0.025;
     uniforms.uSteps.value = Math.round(budget.steps);

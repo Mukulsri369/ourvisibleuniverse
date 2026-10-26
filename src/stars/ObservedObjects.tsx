@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { SelectedObjectRadiance } from "./SelectedObjectRadiance";
 import { BlackHoleContext } from "./BlackHoleContext";
 import { motionTimeSeconds, motionDeltaSeconds } from "./sim-clock";
 import { NeutronSurface, PlasmaJets } from "./CompactObjectMaterials";
@@ -427,6 +428,7 @@ function ObjectNode({ item }: { item: ObservedObject }) {
       {selected && (
         <group ref={detailRef} name={`object-detail:${item.id}`}>
           <Detail item={item} scale={closeScale} />
+          <SelectedObjectRadiance id={item.id} root={detailRef} />
         </group>
       )}{" "}
       {hover && (

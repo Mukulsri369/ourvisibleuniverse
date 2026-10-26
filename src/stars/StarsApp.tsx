@@ -1,3 +1,4 @@
+import { NebulaJourneyControls } from "./NebulaJourneyControls";
 import { BlackHoleJourneyControls } from "./BlackHoleJourneyControls";
 import { tickSim } from "./sim-clock";
 import { Canvas, useFrame } from "@react-three/fiber";
@@ -98,6 +99,7 @@ export function StarsApp() {
       {/* Hide toggle stays visible so users can bring the UI back */}
       <UIHideToggle />
       <BlackHoleJourneyControls />
+      <NebulaJourneyControls />
 
       {!uiHidden && (
         <>

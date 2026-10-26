@@ -10,6 +10,7 @@ uniform mat3 uCameraToDisk,uDiskToWorld,uWorldToCamera;
 uniform vec3 uEye;
 uniform vec2 uResolution;
 uniform vec2 uView; // tan(vertical FOV/2), aspect
+uniform float uViewGain,uContrast;
 uniform float uTime,uInner,uOuter,uIntensity,uOpacity,uDisk,uHotFlow,uFall,uStep,uSkyReady,uActivation,uTidal,uJourneyProgress,uFlightTime;
 varying vec2 vUv;
 float noise(vec2 p,float lod){return textureLod(uNoise,p,lod).r;}
@@ -59,7 +60,7 @@ vec4 diskEmission(vec3 hit,vec3 tangent,float observerR){
  float filaments=.20+.80*smoothstep(.18,.82,streams);
  float emission=(.012+radial*32.)*power*filaments*(.92+fine*.08)*uIntensity*20.;
  emission=18.*(1.-exp(-emission/18.));
- return vec4(hot*emission,clamp(alpha,0.,.98));
+ return vec4(pow(max(hot*emission,vec3(0.)),vec3(uContrast))*uViewGain,clamp(alpha,0.,.98));
 }
 // Second-order asymptotic transport for outer, weakly bent primary images.
 // Strong-field rays and all photon-ring images always use geodesic integration.
@@ -108,7 +109,7 @@ vec4 trace(vec2 imageUV){
  float impact=sqrt(l2);
  float influence=1.-smoothstep(30.,58.,impact);
  if(ro>75.&&(mu>=0.||influence<.001)){return vec4(0.);}
- float weakWeight=ro>20.&&mu<0.&&uFall<.001?smoothstep(7.,10.,impact):0.;
+ float weakWeight=mu<0.?smoothstep(20.,28.,ro)*smoothstep(7.,10.,impact):0.;
  vec3 weakColor=vec3(0.);
  if(weakWeight>0.){float valid;weakColor=weakTransport(d,ro,valid);weakWeight*=valid;
   if(weakWeight>.999)return vec4(weakColor,opticalCoverage(ro,influence));}
@@ -123,34 +124,46 @@ vec4 trace(vec2 imageUV){
   float vr=-sqrt(max(0.,1.-l2/(r*r)*(1.-1./r)));
   velocity=er*vr+et*sqrt(l2)/r;
  }
+ // The orbital plane is fixed. Integrate Binet's null-geodesic equation
+ // u'' + u = 1.5*u*u, u=1/r, using fourth-order scalar RK stages.
+ // This avoids vector force evaluations and square roots at every affine step.
+ if(impact<.025)return vec4(mu<0.?vec3(0.):sky(d),opticalCoverage(ro,influence));
+ float radius=length(p);vec3 er0=p/radius;
+ float vr0=dot(velocity,er0);vec3 et0=normalize(velocity-er0*vr0);
+ vec2 orbit=vec2(1./radius,-vr0/impact);
+ float phi=0.,crossing=mod(atan(-er0.y,et0.y)+3.14159265359,3.14159265359);
+ if(crossing<.00001)crossing+=3.14159265359;
  vec3 sum=vec3(0.);float trans=1.;bool escaped=false,captured=false;
- // Central-force affine form of Schwarzschild null geodesics, Rs=1:
- // d²x/dλ² = -3 L² x/(2 r^5). Velocity Verlet conserves angular momentum.
- for(int i=0;i<440;i++){
-  float r=length(p);
-  if(r<1.002){captured=true;break;}
-  if(r>81.&&dot(p,velocity)>0.){escaped=true;break;}
-  float weak=mix(1.,3.,smoothstep(5.,16.,r));
-  float h=clamp(uStep*r*weak/max(length(velocity),1.),.012,9.);
-  vec3 a=acceleration(p,l2);
-  vec3 next=p+velocity*h+.5*a*h*h;
-  vec3 nextVelocity=velocity+.5*(a+acceleration(next,l2))*h;
-  if(p.y*next.y<0.){
-   float t=clamp(p.y/(p.y-next.y),0.,1.);
-   for(int j=0;j<2;j++){float y=p.y+velocity.y*h*t+.5*a.y*h*h*t*t;float dy=velocity.y*h+a.y*h*h*t;if(abs(dy)>.000001)t=clamp(t-y/dy,0.,1.);}
-   vec3 hit=p+velocity*h*t+.5*a*h*h*t*t;
-   vec4 light=diskEmission(hit,mix(velocity,nextVelocity,t),ro);
-   sum+=trans*light.rgb*light.a;trans*=1.-light.a;
+ float maxAngle=clamp(uStep*2.1,.10,.20);
+ for(int i=0;i<256;i++){
+  float u=orbit.x;
+  if(u>1./1.002){captured=true;break;}
+  if(u<1./81.&&orbit.y<0.){escaped=true;break;}
+  float h=clamp(.3*u/max(abs(orbit.y),.01),.0005,maxAngle);
+  vec2 k1=vec2(orbit.y,1.5*u*u-u);
+  vec2 s2=orbit+k1*(h*.5),k2=vec2(s2.y,1.5*s2.x*s2.x-s2.x);
+  vec2 s3=orbit+k2*(h*.5),k3=vec2(s3.y,1.5*s3.x*s3.x-s3.x);
+  vec2 s4=orbit+k3*h,k4=vec2(s4.y,1.5*s4.x*s4.x-s4.x);
+  vec2 next=orbit+(k1+2.*k2+2.*k3+k4)*(h/6.);
+  if(phi+h>=crossing){
+   float x=clamp((crossing-phi)/h,0.,1.),x2=x*x,x3=x2*x;
+   float uc=(2.*x3-3.*x2+1.)*u+(x3-2.*x2+x)*h*orbit.y+(-2.*x3+3.*x2)*next.x+(x3-x2)*h*next.y;
+   float duc=(6.*x2-6.*x)*u/h+(3.*x2-4.*x+1.)*orbit.y+(-6.*x2+6.*x)*next.x/h+(3.*x2-2.*x)*next.y;
+   vec3 er=er0*cos(crossing)+et0*sin(crossing),et=-er0*sin(crossing)+et0*cos(crossing);
+   vec4 light=diskEmission(er/max(uc,.0001),-impact*duc*er+impact*uc*et,ro);
+   sum+=trans*light.rgb*light.a;trans*=1.-light.a;crossing+=3.14159265359;
    if(trans<.007)break;
   }
-  // A restrained, optically thin inner-flow corona for low-state accretors.
-  if(uHotFlow>.5&&uDisk>.5&&r<7.){
-   float height=abs(p.y)/r;float halo=exp(-pow((r-3.3)/2.,2.))*exp(-height*7.);
-   float alpha=(1.-exp(-halo*h*.0004))*uIntensity;
+  // Sparse quadrature is sufficient for this deliberately optically thin corona.
+  if(uHotFlow>.5&&uDisk>.5&&u>1./7.&&i%3==0){
+   float r=1./u,height=abs(er0.y*cos(phi)+et0.y*sin(phi));
+   float q=(r-3.3)*.5,halo=exp(-q*q-height*7.);
+   float alpha=(1.-exp(-halo*h*3./max(impact*u*u,.001)*.0004))*uIntensity;
    sum+=trans*alpha*vec3(1.,.27,.065)*7.;trans*=1.-alpha;
   }
-  p=next;velocity=nextVelocity;
+  orbit=next;phi+=h;
  }
+ velocity=-impact*orbit.y*(er0*cos(phi)+et0*sin(phi))+impact*orbit.x*(-er0*sin(phi)+et0*cos(phi));
  // Unresolved high-order rays end dark rather than leaking an unbent sky.
  if(escaped&&!captured)sum+=trans*sky(normalize(velocity));
  float blend=opticalCoverage(ro,influence);
@@ -164,10 +177,10 @@ vec3 tidalMatter(vec3 direction){
  for(int i=0;i<18;i++){
   float q=(float(i)+.5)/18.,s=.025+q*q*2.8;
   vec3 p=uEye+direction*s;
-  float r=length(p.xz),angle=atan(p.z,p.x);
+  float r=length(p.xz);
   float height=exp(-pow(p.y/max(.035,r*.07),2.));
   float radial=log(max(.6,r))*mix(3.2,.16,uTidal)-uFlightTime*.035;
-  vec2 uv=vec2(cos(angle),sin(angle))*.12+vec2(radial*.08,radial*.021);
+  vec2 uv=p.xz/max(r,.001)*.12+vec2(radial*.08,radial*.021);
   float filament=smoothstep(.57,.83,noise(uv,0.));
   float detail=noise(uv*2.7+vec2(.21,.37),.5);
   float density=filament*(.4+detail*.6)*height*(1.-smoothstep(3.,5.,r));

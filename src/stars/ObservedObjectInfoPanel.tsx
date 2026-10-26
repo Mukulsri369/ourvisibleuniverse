@@ -1,3 +1,4 @@
+import { SelectedObjectViewControls } from "./SelectedObjectViewControls";
 import { BlackHoleAnatomy } from "./BlackHoleJourneyControls";
 import { NEBULA_REFERENCES } from "./nebula-references";
 import { HideablePanel, NasaResources } from "./NasaResources";
@@ -123,6 +124,7 @@ export function ObservedObjectInfoPanel() {
                 <span>Open 7-Tab Science Dossier</span>
               </button>
 
+              <SelectedObjectViewControls key={item.id} id={item.id} />
               <NasaResources
                 name={item.name}
                 query={item.aliases[0]}

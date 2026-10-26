@@ -1,3 +1,5 @@
+import { NebulaFlight } from "./NebulaFlight";
+import { useNebulaJourney } from "./nebula-journey";
 import { freeLookInput, FREE_LOOK_KEYS, freeLookSpeed } from "./free-look-input";
 import { OBSERVED_VISUAL_PROFILES } from "./observed-object-visuals";
 import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
@@ -27,7 +29,8 @@ import {
 
 // Custom orbit-style controller with smooth damped zoom & inertia
 export function CameraRig() {
-  const { camera, gl } = useThree();
+  const { camera, gl, scene } = useThree();
+  const nebulaFlight = useRef(new NebulaFlight());
   const target = useRef(new THREE.Vector3(0, 0, 0));
   const spherical = useRef(new THREE.Spherical(8, Math.PI / 2.2, 0));
   const desired = useRef({ radius: 8, theta: 0, phi: Math.PI / 2.2 });
@@ -392,6 +395,7 @@ export function CameraRig() {
       // F toggles travel without conflicting with WASD movement.
       if (e.code === "KeyF" && !e.repeat && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
+        useNebulaJourney.getState().reset();
         useStore.getState().toggleCameraFree();
       }
       // O = toggle auto orbit
@@ -416,6 +420,11 @@ export function CameraRig() {
       ) {
         e.preventDefault();
         useStore.getState().setUniversalSearchOpen(true);
+      }
+      if (e.key === "Escape" && useNebulaJourney.getState().mode !== "idle") {
+        e.preventDefault();
+        if (useNebulaJourney.getState().mode !== "returning") useNebulaJourney.getState().back();
+        return;
       }
       // Escape = clear selections
       if (e.key === "Escape" && useBlackHoleJourney.getState().mode !== "idle") {
@@ -665,6 +674,22 @@ export function CameraRig() {
     const st = useStore.getState();
     const selectedStar = st.selectedStar;
     const cameraFree = st.cameraFree;
+
+    const flight = nebulaFlight.current;
+    if (flight.update(camera as THREE.PerspectiveCamera, scene, clampedDt)) {
+      target.current.copy(flight.center);
+      scratchPos.current.copy(camera.position).sub(target.current);
+      spherical.current.setFromVector3(scratchPos.current);
+      desired.current.radius = spherical.current.radius;
+      desired.current.theta = spherical.current.theta;
+      desired.current.phi = spherical.current.phi;
+      velocity.current.theta = velocity.current.phi = 0;
+      fovTarget.current = (camera as THREE.PerspectiveCamera).fov;
+      if (useNebulaJourney.getState().mode === "idle")
+        resumeLook.current = camera.quaternion.clone();
+      syncView(Math.max(minR, flight.scale * 0.2), clampedDt, true);
+      return;
+    }
 
     // Held-key zoom
     if (!cameraFree && (keys.current.out || keys.current.in)) {

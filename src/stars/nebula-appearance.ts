@@ -1,0 +1,25 @@
+// Morphology-specific radiance normalization in the linear HDR pipeline.
+// Dark clouds retain extinction; this is display adaptation, not intrinsic luminosity.
+export const NEBULA_BALANCE: Record<string, number> = {
+  m42: 0.6,
+  m16: 0.9,
+  carina: 0.7,
+  pleiades_nebula: 1.2,
+  witch_head: 1.4,
+  horsehead: 2.8,
+  barnard68: 2.4,
+  m57: 0.55,
+  helix: 0.75,
+  cats_eye: 0.6,
+  butterfly: 0.7,
+  m1: 0.9,
+  veil: 1.25,
+  cas_a: 0.9,
+  rosette: 0.6,
+  tarantula: 0.65,
+  m8: 0.75,
+  m20: 0.85,
+  sn1987a: 1.1,
+  wr104: 1,
+  "eta-car": 0.8,
+};

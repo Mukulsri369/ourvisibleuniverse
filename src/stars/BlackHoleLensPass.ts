@@ -1,3 +1,4 @@
+import { objectView, viewGain } from "./object-view-settings";
 import * as THREE from "three";
 import { Pass, FullScreenQuad } from "three/examples/jsm/postprocessing/Pass.js";
 import { BLACK_HOLE_VERTEX, BLACK_HOLE_FRAGMENT, BLACK_HOLE_COMPOSITE } from "./black-hole-shader";
@@ -91,6 +92,8 @@ export class BlackHoleLensPass extends Pass {
         uEye: { value: new THREE.Vector3() },
         uView: { value: new THREE.Vector2() },
         uResolution: { value: new THREE.Vector2(1, 1) },
+        uViewGain: { value: 1 },
+        uContrast: { value: 1 },
         uTime: { value: 0 },
         uInner: { value: 3 },
         uOuter: { value: 19 },
@@ -185,6 +188,19 @@ export class BlackHoleLensPass extends Pass {
       );
     }
     const u = this.ray.uniforms;
+    const view = objectView(item.id);
+    u.uViewGain.value = THREE.MathUtils.damp(
+      u.uViewGain.value,
+      viewGain(view),
+      5,
+      Math.min(dt, 0.1),
+    );
+    u.uContrast.value = THREE.MathUtils.damp(
+      u.uContrast.value,
+      view.contrast,
+      5,
+      Math.min(dt, 0.1),
+    );
     this.cameraRotation.setFromMatrix4(camera.matrixWorld);
     u.uCameraToDisk.value.multiplyMatrices(this.worldToDisk, this.cameraRotation);
     u.uWorldToCamera.value.setFromMatrix4(camera.matrixWorldInverse);

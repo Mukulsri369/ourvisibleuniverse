@@ -20,7 +20,11 @@ export function blackHoleModel(item: ObservedObject) {
   const physics = item.compactPhysics;
   const physicalRsLy =
     (physics?.schwarzschildRadiusKm ?? (physics?.massSolar ?? 10) * 2.95325008) / LY_KM;
-  const radiusLy = Math.max(physicalRsLy, MIN_BLACK_HOLE_RS_LY);
+  // Distant tiny horizons must span many Float64 coordinate increments. HLX-1
+  // otherwise moves in whole horizon-sized jumps even with a fast renderer.
+  // This affects the documented navigation enlargement, never physical measurements.
+  const coordinateFloor = Math.max(1, item.distance) * Number.EPSILON * 4096;
+  const radiusLy = Math.max(physicalRsLy, MIN_BLACK_HOLE_RS_LY, coordinateFloor);
   const spin = physics?.spinDimensionless ?? 0.3;
   const dormant = !physics?.hasAccretionDisk;
   const hotFlow = ["sgr-a", "m87star", "hlx1"].includes(item.id);

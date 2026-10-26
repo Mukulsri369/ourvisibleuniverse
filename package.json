@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "tsx scripts/astronomy-validation.ts",
+    "test:nebula-journey": "tsx scripts/nebula-journey-validation.ts",
     "test:auth": "tsx scripts/auth-navigation-validation.ts",
     "test:qa": "tsx scripts/qa-audit-test.ts",
     "test:catalog": "tsx scripts/catalog-integration-test.ts",

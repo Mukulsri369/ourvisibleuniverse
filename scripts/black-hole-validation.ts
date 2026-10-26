@@ -22,6 +22,16 @@ for (const item of holes) {
   const model = blackHoleModel(item);
   assert.ok(model.radiusLy > 0 && Number.isFinite(model.radiusLy));
   assert.ok(model.radiusLy >= model.physicalRsLy);
+  const center64 = new THREE.Vector3(...objectPosition(item));
+  for (let i = 0; i < 200; i++) {
+    const direction = new THREE.Vector3(Math.sin(i * 0.031), 0.2, Math.cos(i * 0.031)).normalize();
+    const offset = direction.multiplyScalar(model.radiusLy * 1.08);
+    const reconstructed = center64.clone().add(offset).sub(center64);
+    assert.ok(
+      reconstructed.distanceTo(offset) / model.radiusLy < 0.001,
+      `${item.id}: close-up motion must survive Float64 world-coordinate rounding`,
+    );
+  }
   assert.equal(model.dormant, !item.compactPhysics?.hasAccretionDisk);
   assert.ok(objectVisitDistance(item) >= model.radiusLy * model.outerRs);
 }

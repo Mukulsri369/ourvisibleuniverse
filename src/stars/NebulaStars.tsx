@@ -1,6 +1,6 @@
+import { NEBULA_CACHED_MEDIUM } from "./nebula-density-cache";
 import { useMemo, useEffect } from "react";
 import * as THREE from "three";
-import { NEBULA_MEDIUM } from "./nebula-medium";
 import { NEBULA_STELLAR_PROFILES } from "./nebula-stellar-profiles";
 export function makeNebulaStars(id: string) {
   const profile = NEBULA_STELLAR_PROFILES[id];
@@ -48,26 +48,26 @@ const VERT = /* glsl */ `
 uniform vec3 uEye;uniform float uViewport;
 attribute float aLum;varying vec3 vStar,vColor;varying float vLum;
 void main(){vStar=position;vColor=color;vLum=aLum;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
-float d=max(.003,length(position-uEye));gl_PointSize=clamp(uViewport*.003*sqrt(aLum)/sqrt(d),1.,7.);
+float d=max(.003,length(position-uEye));gl_PointSize=clamp(uViewport*.003*sqrt(aLum)/sqrt(d),1.,14.);
 #include <logdepthbuf_vertex>
 }`;
 const FRAG = /* glsl */ `
 precision highp sampler3D;
 #include <common>
 #include <logdepthbuf_pars_fragment>
-uniform sampler3D uNoise;uniform vec3 uEye;uniform float uShape,uSeed;
+uniform sampler3D uNoise;uniform vec3 uEye;uniform float uShape,uSeed,uViewGain,uDust,uStars,uReveal;
 varying vec3 vStar,vColor;varying float vLum;
-${NEBULA_MEDIUM}
+${NEBULA_CACHED_MEDIUM}
 void main(){
 #include <logdepthbuf_fragment>
 vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;
 vec3 delta=vStar-uEye;float distance=length(delta);vec3 dir=delta/max(distance,.0001);
 vec3 inv=1./(dir+vec3(1.e-8)),aa=(-vec3(1.6)-uEye)*inv,bb=(vec3(1.6)-uEye)*inv;
 vec3 lo=min(aa,bb),hi=max(aa,bb);float start=max(0.,max(lo.x,max(lo.y,lo.z))),end=min(distance,min(hi.x,min(hi.y,hi.z)));
-float tau=0.;if(end>start){float ds=(end-start)/32.;for(int i=0;i<32;i++){vec3 q=uEye+dir*(start+(float(i)+.5)*ds);vec2 m=nebulaMedium(q);tau+=(m.x*.8+m.y*1.8)*ds;}}
+float tau=0.;if(end>start){float ds=(end-start)/32.;for(int i=0;i<32;i++){vec3 q=uEye+dir*(start+(float(i)+.5)*ds);vec2 m=sampleNebula(q);tau+=(m.x*.8+m.y*1.8*uDust*mix(1.,.45,uReveal))*ds;}}
 float transmission=exp(-min(tau,20.));float core=exp(-r2*18.)+exp(-r2*3.5)*.1;
 float fade=smoothstep(.0005,.004,distance);float power=clamp(vLum/sqrt(max(.3,distance)),.08,2.);
-gl_FragColor=vec4(vColor*20.,core*power*transmission*fade);
+gl_FragColor=vec4(vColor*20.*uViewGain*uStars*mix(1.,1.6,uReveal),core*power*transmission*fade);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`;
