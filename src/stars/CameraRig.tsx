@@ -1,3 +1,5 @@
+import { GalaxyFlight } from "./GalaxyFlight";
+import { useGalaxyJourney, galaxyOverviewFloor } from "./galaxy-journey";
 import { NebulaFlight } from "./NebulaFlight";
 import { useNebulaJourney } from "./nebula-journey";
 import { freeLookInput, FREE_LOOK_KEYS, freeLookSpeed } from "./free-look-input";
@@ -31,6 +33,7 @@ import {
 export function CameraRig() {
   const { camera, gl, scene } = useThree();
   const nebulaFlight = useRef(new NebulaFlight());
+  const galaxyFlight = useRef(new GalaxyFlight());
   const target = useRef(new THREE.Vector3(0, 0, 0));
   const spherical = useRef(new THREE.Spherical(8, Math.PI / 2.2, 0));
   const desired = useRef({ radius: 8, theta: 0, phi: Math.PI / 2.2 });
@@ -64,7 +67,6 @@ export function CameraRig() {
   const resetOrientationTrigger = useStore((s) => s.resetOrientationTrigger);
 
   const descentSession = useRef({ id: "", returnRadius: 0 });
-  const coreHandoff = useRef(false);
   const diskFlight = useRef({
     rotation: new THREE.Matrix4(),
     inverse: new THREE.Matrix4(),
@@ -130,6 +132,10 @@ export function CameraRig() {
     const name = useStore.getState().visitPlanet;
     if (!name) {
       const state = useStore.getState();
+      if (state.visitGalaxy && !state.visitGalaxy.focus)
+        return useGalaxyJourney.getState().mode === "idle"
+          ? galaxyOverviewFloor(state.visitGalaxy)
+          : Math.max(minR, state.visitGalaxy.size * 0.1);
       const selected = state.selectedObjectId
         ? OBJECT_BY_ID.get(state.selectedObjectId)
         : undefined;
@@ -395,6 +401,7 @@ export function CameraRig() {
       // F toggles travel without conflicting with WASD movement.
       if (e.code === "KeyF" && !e.repeat && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
+        if (useGalaxyJourney.getState().mode !== "inside") useGalaxyJourney.getState().reset();
         useNebulaJourney.getState().reset();
         useStore.getState().toggleCameraFree();
       }
@@ -424,6 +431,11 @@ export function CameraRig() {
       if (e.key === "Escape" && useNebulaJourney.getState().mode !== "idle") {
         e.preventDefault();
         if (useNebulaJourney.getState().mode !== "returning") useNebulaJourney.getState().back();
+        return;
+      }
+      if (e.key === "Escape" && useGalaxyJourney.getState().mode !== "idle") {
+        e.preventDefault();
+        if (useGalaxyJourney.getState().mode !== "returning") useGalaxyJourney.getState().exit();
         return;
       }
       // Escape = clear selections
@@ -675,6 +687,21 @@ export function CameraRig() {
     const selectedStar = st.selectedStar;
     const cameraFree = st.cameraFree;
 
+    const galFlight = galaxyFlight.current;
+    if (galFlight.update(camera as THREE.PerspectiveCamera, scene, clampedDt)) {
+      target.current.copy(galFlight.center);
+      scratchPos.current.copy(camera.position).sub(target.current);
+      spherical.current.setFromVector3(scratchPos.current);
+      desired.current.radius = spherical.current.radius;
+      desired.current.theta = spherical.current.theta;
+      desired.current.phi = spherical.current.phi;
+      velocity.current.theta = velocity.current.phi = 0;
+      fovTarget.current = (camera as THREE.PerspectiveCamera).fov;
+      if (useGalaxyJourney.getState().mode === "idle")
+        resumeLook.current = camera.quaternion.clone();
+      syncView(Math.max(minR, galFlight.scale * 0.2), clampedDt, true);
+      return;
+    }
     const flight = nebulaFlight.current;
     if (flight.update(camera as THREE.PerspectiveCamera, scene, clampedDt)) {
       target.current.copy(flight.center);
@@ -842,27 +869,6 @@ export function CameraRig() {
       } else expDampVector3(target.current, originZero.current, 2.0, clampedDt);
     }
 
-    // Same physical anchor across galaxy -> nuclear cluster -> horizon. Change
-    // context once at this boundary without a fly-to, radius or angle reset.
-    if (
-      visitGalaxy?.name === "Milky Way" &&
-      desired.current.radius < 25 &&
-      spherical.current.radius < 80 &&
-      target.current.distanceTo(scratchTarget.current) < 0.5 &&
-      !coreHandoff.current
-    ) {
-      coreHandoff.current = true;
-      const core = OBJECT_BY_ID.get("sgr-a")!;
-      desired.current.radius = Math.max(blackHoleModel(core).radiusLy * 32, desired.current.radius);
-      useStore.setState({
-        selectedObjectId: "sgr-a",
-        visitGalaxy: null,
-        selectedStar: null,
-        visitPlanet: null,
-        flyTo: null,
-      });
-    }
-    if (visitGalaxy?.name !== "Milky Way") coreHandoff.current = false;
     // Multiplicative logarithmic interpolation keeps close-up zoom smooth across
     // the enormous gap between a galaxy and a planet's surface.
     const anchorDistance =

@@ -1,3 +1,5 @@
+import { GalaxyInteriorField } from "./GalaxyInteriorField";
+import { useGalaxyJourney, galaxyMotion } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { GALAXY_FRAGMENT } from "./galaxy-volume-shader";
 import { GALAXY_REFERENCES } from "./galaxy-references";
@@ -18,6 +20,7 @@ const FRAG = GALAXY_FRAGMENT;
 export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opacity?: number }) {
   const ref = useRef<THREE.Mesh>(null!);
   const tier = useStore((s) => s.renderingQualityTier);
+  const entered = useGalaxyJourney((s) => s.galaxy?.name === model.name);
   const eye = useMemo(() => new THREE.Vector3(), []);
   const stars = useMemo(() => {
     let seed = 17;
@@ -26,7 +29,7 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
       return (seed >>> 0) / 4294967296;
     };
-    const count = 28000,
+    const count = 1200,
       p = new Float32Array(count * 3),
       c = new Float32Array(count * 3);
     const spheroid = ["elliptical", "dwarf"].includes(model.morphology);
@@ -91,6 +94,7 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       uSteps: { value: 40 },
       uRadius: { value: model.diskRadius },
       uInterior: { value: 0 },
+      uReveal: { value: 0 },
       uOld: { value: new THREE.Color(...model.oldColor) },
       uYoung: { value: new THREE.Color(...model.youngColor) },
       uMode: { value: Math.max(0, mode) },
@@ -200,10 +204,21 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
     uniforms.uTime.value = motionTimeSeconds();
+    uniforms.uReveal.value = entered ? galaxyMotion.reveal : 0;
     const distance = eye.length();
     uniforms.uInterior.value = 1 - THREE.MathUtils.smoothstep(distance, 0.15, 1.8);
-    uniforms.uSteps.value = tier === "performance" ? 24 : distance < 1.8 ? 64 : 36;
-    stars.setDrawRange(0, tier === "performance" ? 10000 : distance < 2 ? 28000 : 12000);
+    uniforms.uSteps.value = entered
+      ? Math.round(
+          THREE.MathUtils.lerp(
+            tier === "scientific_high" ? 64 : 40,
+            tier === "performance" ? 14 : 24,
+            galaxyMotion.reveal,
+          ),
+        )
+      : tier === "performance"
+        ? 24
+        : 40;
+    stars.setDrawRange(0, 1200);
   });
   return (
     <mesh
@@ -213,6 +228,7 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       frustumCulled={false}
       material={material}
     >
+      {entered && <GalaxyInteriorField model={model} />}
       <points geometry={stars} material={starMaterial} frustumCulled={false} />
       <boxGeometry args={[2.7, 2.7, 2.7]} />
     </mesh>

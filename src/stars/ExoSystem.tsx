@@ -11,6 +11,7 @@ import { useStore } from "./store";
 // True proportions: orbits, planet radii and the host star all share one
 // scale (1 AU = 0.05 scene units), so size-to-distance ratios are exact.
 const AU = 0.05;
+const ORBIT_AXIS = new THREE.Vector3(1, 0, 0);
 const EARTH_RADIUS_AU = 6371 / 149_597_870.7;
 const EARTH_R = EARTH_RADIUS_AU * AU;
 
@@ -34,7 +35,7 @@ function orbitPoint(p: ExoPlanet, ang: number, out: THREE.Vector3) {
   const b = a * Math.sqrt(1 - p.e * p.e);
   const c = a * p.e;
   out.set(Math.cos(ang) * a - c, 0, Math.sin(ang) * b);
-  out.applyAxisAngle(new THREE.Vector3(1, 0, 0), p.incl);
+  out.applyAxisAngle(ORBIT_AXIS, p.incl);
   return out;
 }
 
@@ -208,7 +209,7 @@ function ExoBody({
       if (p.tidallyLocked) meshRef.current.lookAt(starPos);
       else meshRef.current.rotation.y = motionTimeSeconds() * 0.3;
     }
-  });
+  }, -2); // Publish live body coordinates after the clock and before CameraRig.
   const pick = (e: ThreeEvent<MouseEvent>) => {
     if (e.delta > 4) return;
     e.stopPropagation();

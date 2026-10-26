@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
 
 type NasaImage = { id: string; title: string; thumb: string; page: string; credit: string };
 
@@ -299,13 +299,14 @@ export function HideablePanel({
   label: string;
   children: (hideButton: ReactNode) => ReactNode;
 }) {
-  const [hidden, setHidden] = useState(false);
-  useEffect(() => setHidden(false), [resetKey]);
+  const [openKey, setOpenKey] = useState<string | null>(null);
+  const hidden = openKey !== resetKey;
+  useLayoutEffect(() => setOpenKey(null), [resetKey]);
   const hideButton = (
     <button
       onClick={(e) => {
         e.stopPropagation();
-        setHidden(true);
+        setOpenKey(null);
       }}
       aria-label="Hide panel"
       title="Hide panel"
@@ -334,12 +335,14 @@ export function HideablePanel({
             exit={{ x: 60, opacity: 0 }}
             onClick={(e) => {
               e.stopPropagation();
-              setHidden(false);
+              setOpenKey(resetKey);
             }}
             className="fixed right-0 top-1/2 z-30 -translate-y-1/2 rounded-l-xl border border-r-0 border-white/15 bg-black/70 px-3 py-4 text-[10px] uppercase tracking-[0.2em] text-white/80 backdrop-blur-md [writing-mode:vertical-rl] hover:text-white"
-            title="Show panel"
+            title="View object information"
+            aria-label={"View information about " + label}
+            aria-expanded={false}
           >
-            ‹ {label}
+            Info · {label}
           </motion.button>
         )}
       </AnimatePresence>

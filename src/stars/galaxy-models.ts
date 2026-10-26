@@ -1655,5 +1655,19 @@ export function systemViewDistance(m: GalaxyModel): number {
   const s = m.system;
   if (!s) return Math.max(m.diskRadius * 2.2, 2000);
   const outer = s.planets.reduce((mx, p) => Math.max(mx, p.a), s.star.radius * 4);
-  return outer * 3.2;
+  return outer * 3.2 * systemPresentationScale(m);
+}
+
+/** Uniform navigation enlargement keeps tiny hosted worlds above Float64 world-coordinate precision. */
+export function systemPresentationScale(m: GalaxyModel): number {
+  const s = m.system;
+  if (!s) return 1;
+  const sizes = s.planets
+    .flatMap((p) => [p.size, ...(p.moons ?? []).map((m) => m.size)])
+    .filter((n) => n > 0);
+  const smallest = Math.min(s.star.radius, ...sizes);
+  return Math.max(
+    1,
+    ((m.distance + m.diskRadius) * Number.EPSILON * 4096) / Math.max(1e-12, smallest),
+  );
 }

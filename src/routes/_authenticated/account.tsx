@@ -1,3 +1,4 @@
+import { AdminAccessLink } from "@/components/admin/AdminAccessLink";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PublicLayout } from "@/components/site/PublicLayout";
@@ -57,6 +58,9 @@ function AccountPage() {
         <div>
           <p className="text-sm font-semibold uppercase text-primary">Your account</p>
           <h1 className="mt-2 text-4xl font-semibold">Account Overview</h1>
+          <div className="mt-4">
+            <AdminAccessLink />
+          </div>
         </div>
 
         {/* 1. Cosmic Learning Academy Student Profile */}

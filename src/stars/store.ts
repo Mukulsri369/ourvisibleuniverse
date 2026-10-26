@@ -120,6 +120,7 @@ export const TOUR_STOPS: TourStop[] = [
 ];
 
 export type VisitGalaxy = {
+  reconstructionNote?: string;
   name: string;
   x: number;
   y: number;
@@ -860,22 +861,14 @@ export const useStore = create<State>((set, get) => ({
     }),
   setVisitGalaxy: (g) =>
     set({
-      visitGalaxy: g ? withFocus(g) : null,
+      visitGalaxy: g ? { ...g, view: "overview", focus: undefined } : null,
       cameraFree: g ? false : get().cameraFree,
       exoVisit: null,
       selectedStar: null,
       visitPlanet: null,
       selectedObjectId: null,
       tourActive: false,
-      flyTo:
-        g && g.view !== "overview"
-          ? (() => {
-              const f = withFocus(g).focus;
-              return f
-                ? { x: f.x, y: f.y, z: f.z, distance: f.distance }
-                : { x: g.x, y: g.y, z: g.z, distance: Math.max(g.size * 2.2, 2000) };
-            })()
-          : null,
+      flyTo: null,
     }),
   setSelectedObject: (id) => {
     if (!id) {

@@ -1,3 +1,4 @@
+import { GalaxyJourneyControls } from "./GalaxyJourneyControls";
 import { NebulaJourneyControls } from "./NebulaJourneyControls";
 import { BlackHoleJourneyControls } from "./BlackHoleJourneyControls";
 import { tickSim } from "./sim-clock";
@@ -49,6 +50,9 @@ function SceneClock() {
 export function StarsApp() {
   const [loaded, setLoaded] = useState(false);
   const uiHidden = useStore((s) => s.uiHidden);
+  const focusedObject = useStore(
+    (s) => !!s.visitPlanet || !!s.selectedObjectId || !!s.selectedStar,
+  );
   const subsystems = useStore((s) => s.subsystems);
   const observationModalOpen = useStore((s) => s.observationModalOpen);
   const observationTargetId = useStore((s) => s.observationTargetId);
@@ -100,6 +104,7 @@ export function StarsApp() {
       <UIHideToggle />
       <BlackHoleJourneyControls />
       <NebulaJourneyControls />
+      <GalaxyJourneyControls />
 
       {!uiHidden && (
         <>
@@ -113,7 +118,7 @@ export function StarsApp() {
           <InfoPanel />
           <ExoPlanetPanel />
           <SolarBodyPanel />
-          <GalaxyInfoPanel />
+          {!focusedObject && <GalaxyInfoPanel />}
           <ObservedObjectInfoPanel />
           <OpticsControlModal />
           <RenderingBenchmarkModal />

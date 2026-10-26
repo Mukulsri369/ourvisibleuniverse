@@ -4,7 +4,7 @@ export const GALAXY_FRAGMENT = /* glsl */ `
 uniform vec3 uEye,uOld,uYoung;
 uniform sampler3D uNoise;
 uniform sampler2D uReference;
-uniform float uMode,uSeed,uArms,uPitch,uBulge,uBar,uDust,uTime,uOpacity,uRing,uRotationRate,uSingleTail,uSteps,uHasReference,uInclination,uAspect,uGroup;
+uniform float uMode,uSeed,uArms,uPitch,uBulge,uBar,uDust,uTime,uOpacity,uReveal,uRing,uRotationRate,uSingleTail,uSteps,uHasReference,uInclination,uAspect,uGroup;
 varying vec3 vP;
 float noise(vec3 p){return texture(uNoise,p/64.+uSeed*.017).r;}
 vec3 populations(vec3 p, out float dust){
@@ -18,12 +18,12 @@ vec3 populations(vec3 p, out float dust){
  float arm=exp(-pow(sin(phase*.5)/.23,2.))*smoothstep(.04,.2,r);
  float lane=exp(-pow(sin((phase+.34)*.5)/.105,2.));
  float bulge=exp(-pow(length(p*vec3(1.,1.65,1.))/max(uBulge,.04),.7)*1.8);
- float stars=disk*(.18+arm*1.9)*(.35+grain*1.2);
+ float stars=disk*(.13+arm*2.1)*(.22+grain*1.2)*(.55+.65*pow(fine,.7));
  float young=disk*arm*smoothstep(.08,.3,r)*pow(coarse,2.)*1.8;
  if(uMode>1.5&&uMode<2.5){stars+=exp(-abs(p.z)*55.-abs(p.x)/max(uBar,.04)*2.-height*75.)*.5;}
  if(uMode>2.5&&uMode<3.5){float ring=exp(-pow((r-.68-.015*sin(a*3.))/.045,2.))*exp(-height*65.);stars=ring*(.25+grain)*.65+disk*.025;young=ring*coarse*.9;}
- if(uMode>3.5&&uMode<4.5){stars=disk*(.08+pow(coarse,3.)*5.);young=stars*.5;bulge*=.04;}
- if(uMode>5.5&&uMode<6.5){young+=disk*.45;stars*=1.4;}
+ if(uMode>3.5&&uMode<4.5){float clouds=0.;for(int j=0;j<7;j++){float k=float(j),ang=k*2.399;vec3 center=vec3(cos(ang)*.4,0.,sin(ang)*.3);vec3 q=(p-center)/vec3(.16,.075,.14);clouds+=exp(-dot(q,q)*1.4);}stars=clouds*(.12+pow(coarse,2.)*1.6);young=stars*.6;bulge*=.02;}
+ if(uMode>5.5&&uMode<6.5){young+=disk*.45;stars*=1.4;float wind=exp(-pow(r/(.04+z*.33),2.))*smoothstep(.05,.18,z)*(1.-smoothstep(.35,.85,z));young+=wind*coarse*.055;}
  if(uMode>6.5&&uMode<7.5){
   if(uSingleTail<.5){bulge=exp(-length((p-vec3(.22,0.,.06))*vec3(1.,1.6,1.))*30.)*.45+exp(-length((p+vec3(.25,0.,.1))*vec3(1.,1.6,1.))*27.)*.4;}
   if(uGroup>.5){for(int j=0;j<3;j++){float q=float(j)*2.4;vec3 c=vec3(sin(q)*.47,0.,cos(q)*.36);bulge+=exp(-length((p-c)*vec3(1.,1.8,1.))*35.)*.33;}}
@@ -54,6 +54,9 @@ void main(){
   bool interior=length(uEye)<1.25;
   float t=interior?q*q:q;float ds=interior?stepSize*2.*q:stepSize;
   vec3 p=uEye+rd*mix(start,finish,t);float dust;vec3 emission=populations(p,dust);
+  // Blue light is preferentially absorbed through the dusty lanes.
+  emission*=mix(vec3(1.),vec3(.86,.68,.53),smoothstep(.15,1.4,dust)*.6);
+  dust*=mix(1.,.25,uReveal);
   float extinction=dust+dot(emission,vec3(.2126,.7152,.0722))*.09;
   float alpha=1.-exp(-extinction*ds*9.);
   sum+=trans*emission/max(extinction,.025)*alpha;trans*=1.-alpha;
@@ -77,7 +80,7 @@ void main(){
  float alpha=clamp(1.-trans,0.,.94)*uOpacity;if(alpha<.002)discard;
  // Compress core luminance locally so optical bloom cannot erase the dust structure.
  sum=sum/(1.+dot(sum,vec3(.2126,.7152,.0722))*.11);
- sum*=mix(.38,1.,smoothstep(.3,1.4,length(uEye)));
+ sum*=mix(.38,1.,smoothstep(.3,1.4,length(uEye)))*mix(1.,.18,uReveal);
  gl_FragColor=vec4(sum/max(1.-trans,.001),alpha);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>

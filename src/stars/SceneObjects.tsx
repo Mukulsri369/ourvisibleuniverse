@@ -1,3 +1,4 @@
+import { useGalaxyJourney } from "./galaxy-journey";
 import { GalacticNucleus } from "./GalacticNucleus";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { GalaxyRadiance, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
@@ -481,7 +482,7 @@ export function MilkyWay() {
     // Wider arms, especially in the outer disk, so branches look filled.
     const ARM_WIDTH = [1400, 1400, 1700, 1700]; // ly, gaussian σ across arm ridge
 
-    const diskCount = 620000;
+    const diskCount = 6000;
     const dPos = new Float32Array(diskCount * 3);
     const dCol = new Float32Array(diskCount * 3);
     const dSize = new Float32Array(diskCount);
@@ -570,7 +571,7 @@ export function MilkyWay() {
     diskGeo.setAttribute("aSize", new THREE.BufferAttribute(dSize, 1));
 
     // ---- Bulge (spheroidal, older population, warm colors) ----
-    const bulgeCount = 80000;
+    const bulgeCount = 1200;
     const bPos = new Float32Array(bulgeCount * 3);
     const bCol = new Float32Array(bulgeCount * 3);
     const bSize = new Float32Array(bulgeCount);
@@ -594,7 +595,7 @@ export function MilkyWay() {
     bulgeGeo.setAttribute("aSize", new THREE.BufferAttribute(bSize, 1));
 
     // ---- Central Bar (~8000 ly long, oriented ~27° from Sun-GC line) ----
-    const barCount = 22000;
+    const barCount = 400;
     const barLen = 8000,
       barWidth = 1500,
       barHeight = 700;
@@ -631,7 +632,7 @@ export function MilkyWay() {
     barGeo.setAttribute("aSize", new THREE.BufferAttribute(barSize, 1));
 
     // ---- HII regions: bright pink/magenta knots clumped along arm ridges ----
-    const hiiClusterCount = 420;
+    const hiiClusterCount = 24;
     const perCluster = 28;
     const hiiTotal = hiiClusterCount * perCluster;
     const hPos2 = new Float32Array(hiiTotal * 3);
@@ -666,7 +667,7 @@ export function MilkyWay() {
     hiiGeo.setAttribute("aSize", new THREE.BufferAttribute(hSize2, 1));
 
     // ---- Halo (spheroidal, sparse, old population II) ----
-    const haloCount = 18000;
+    const haloCount = 600;
     const hPos = new Float32Array(haloCount * 3);
     const hCol = new Float32Array(haloCount * 3);
     const hSize = new Float32Array(haloCount);
@@ -719,10 +720,11 @@ export function MilkyWay() {
         child.visible = volumeFade < 0.995 && nucleusFade > 0.001;
     const volume = groupRef.current.getObjectByName("galaxy-radiance:Milky Way") as THREE.Mesh;
     if (volume) {
-      volume.visible = volumeFade > 0.001;
+      const entered = useGalaxyJourney.getState().galaxy?.name === "Milky Way";
+      volume.visible = entered || volumeFade > 0.001;
       (volume.material as THREE.ShaderMaterial).uniforms.uOpacity.value =
         alpha *
-        volumeFade *
+        (entered ? 1 : volumeFade) *
         backgroundFocus() *
         THREE.MathUtils.lerp(0.12, 1, THREE.MathUtils.smoothstep(d, 15, 350));
     }

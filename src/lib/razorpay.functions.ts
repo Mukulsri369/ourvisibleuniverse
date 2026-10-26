@@ -80,6 +80,19 @@ export const getMyAccess = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { getRazorpayMode } = await import("@/lib/razorpay.server");
     const environment = getRazorpayMode() === "live" ? "live" : "sandbox";
+    const now = new Date().toISOString();
+    const { data: active, error: activeError } = await context.supabase
+      .from("access_passes")
+      .select("price_id,access_days,starts_at,expires_at,status")
+      .eq("user_id", context.userId)
+      .eq("environment", environment)
+      .eq("status", "active")
+      .lte("starts_at", now)
+      .gt("expires_at", now)
+      .order("expires_at", { ascending: false })
+      .limit(1);
+    if (activeError) throw activeError;
+    if (active?.[0]) return { access: active[0], environment };
     const { data, error } = await context.supabase
       .from("access_passes")
       .select("price_id,access_days,starts_at,expires_at,status")
@@ -88,5 +101,20 @@ export const getMyAccess = createServerFn({ method: "GET" })
       .order("expires_at", { ascending: false })
       .limit(1);
     if (error) throw error;
-    return { access: data?.[0] ?? null, environment };
+    const latest = data?.[0];
+    // Historical or scheduled rows must not grant access merely because their expiry is later.
+    return {
+      access: latest
+        ? {
+            ...latest,
+            status:
+              latest.status === "active"
+                ? new Date(latest.starts_at).getTime() > new Date(now).getTime()
+                  ? "scheduled"
+                  : "expired"
+                : latest.status,
+          }
+        : null,
+      environment,
+    };
   });

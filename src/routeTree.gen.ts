@@ -36,6 +36,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedUniverseRouteImport } from './routes/_authenticated/universe'
+import { Route as AdminSubscribersRouteImport } from './routes/admin.subscribers'
 import { Route as VerifyIndexRouteImport } from './routes/verify.index'
 import { Route as VerifyCertificateIdRouteImport } from './routes/verify.$certificateId'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
@@ -180,6 +181,11 @@ const AuthenticatedUniverseRoute = AuthenticatedUniverseRouteImport.update({
   path: '/universe',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AdminSubscribersRoute = AdminSubscribersRouteImport.update({
+  id: '/admin/subscribers',
+  path: '/admin/subscribers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyIndexRoute = VerifyIndexRouteImport.update({
   id: '/verify/',
   path: '/verify/',
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/admin/subscribers': typeof AdminSubscribersRoute
   '/verify/$certificateId': typeof VerifyCertificateIdRoute
   '/verify/': typeof VerifyIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -285,6 +292,7 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/universe': typeof AuthenticatedUniverseRoute
+  '/admin/subscribers': typeof AdminSubscribersRoute
   '/verify/$certificateId': typeof VerifyCertificateIdRoute
   '/verify': typeof VerifyIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -323,6 +331,7 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/universe': typeof AuthenticatedUniverseRoute
+  '/admin/subscribers': typeof AdminSubscribersRoute
   '/verify/$certificateId': typeof VerifyCertificateIdRoute
   '/verify/': typeof VerifyIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -361,6 +370,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/checkout'
     | '/universe'
+    | '/admin/subscribers'
     | '/verify/$certificateId'
     | '/verify/'
     | '/.lovable/oauth/consent'
@@ -397,6 +407,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/checkout'
     | '/universe'
+    | '/admin/subscribers'
     | '/verify/$certificateId'
     | '/verify'
     | '/.lovable/oauth/consent'
@@ -434,6 +445,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/checkout'
     | '/_authenticated/universe'
+    | '/admin/subscribers'
     | '/verify/$certificateId'
     | '/verify/'
     | '/.lovable/oauth/consent'
@@ -469,6 +481,7 @@ export interface RootRouteChildren {
   VerifyCertificateRoute: typeof VerifyCertificateRoute
   VisibleUniverseHistoryRoute: typeof VisibleUniverseHistoryRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  AdminSubscribersRoute: typeof AdminSubscribersRoute
   VerifyCertificateIdRoute: typeof VerifyCertificateIdRoute
   VerifyIndexRoute: typeof VerifyIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -670,6 +683,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUniverseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/admin/subscribers': {
+      id: '/admin/subscribers'
+      path: '/admin/subscribers'
+      fullPath: '/admin/subscribers'
+      preLoaderRoute: typeof AdminSubscribersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/': {
       id: '/verify/'
       path: '/verify'
@@ -770,6 +790,7 @@ const rootRouteChildren: RootRouteChildren = {
   VisibleUniverseHistoryRoute: VisibleUniverseHistoryRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  AdminSubscribersRoute: AdminSubscribersRoute,
   VerifyCertificateIdRoute: VerifyCertificateIdRoute,
   VerifyIndexRoute: VerifyIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,

@@ -1,3 +1,4 @@
+import { useGalaxyJourney } from "./galaxy-journey";
 import { galaxyDetailAlpha } from "./galaxy-detail-state";
 import { useGalaxyPortrait } from "./useGalaxyPortrait";
 import { makeGalaxyPortrait } from "./galaxy-portrait";
@@ -574,7 +575,7 @@ function M31Moon({ moon, parent }: { moon: M31MoonDef; parent: string }) {
     v.copy(tmp);
     if (!window.__exoSizes) window.__exoSizes = new Map();
     window.__exoSizes.set(key, moon.size);
-  });
+  }, -1.5);
   return (
     <mesh ref={ref}>
       <sphereGeometry args={[moon.size, 24, 24]} />
@@ -600,6 +601,16 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
     [def],
   );
 
+  useEffect(
+    () => () => {
+      surface.dispose();
+      haloTex.dispose();
+      ringTex?.dispose();
+      ringGeo?.dispose();
+      getRegistry().delete(def.name);
+    },
+    [surface, haloTex, ringTex, ringGeo, def.name],
+  );
   useFrame(() => {
     if (!groupRef.current) return;
     const t = motionTimeSeconds();
@@ -613,7 +624,7 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
       reg.set(def.name, v);
     }
     v.copy(tmp);
-  });
+  }, -2);
 
   return (
     <group ref={groupRef}>
@@ -639,6 +650,7 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
             document.body.style.cursor = "";
           }}
           onClick={(e: ThreeEvent<MouseEvent>) => {
+            if (e.delta > 4) return;
             e.stopPropagation();
             setVisit(def.name);
           }}
@@ -761,6 +773,17 @@ function PA99N2System() {
     [],
   );
 
+  useEffect(
+    () => () => {
+      glowTex.dispose();
+      for (const line of orbits) {
+        line.geometry.dispose();
+        line.material.dispose();
+      }
+      getRegistry().delete(PA99N2_STAR.name);
+    },
+    [glowTex, orbits],
+  );
   // The system rides M31's rotation curve, circling the galactic centre
   // exactly like the Sun does in the Milky Way.
   const sysRef = useRef<THREE.Group>(null!);
@@ -784,7 +807,7 @@ function PA99N2System() {
       reg.set(PA99N2_STAR.name, v);
     }
     v.copy(sysRef.current ? sysWorld : PA99N2_WORLD);
-  });
+  }, -2.5);
 
   return (
     <group ref={sysRef} position={PA99N2_LOCAL.toArray()}>
@@ -889,6 +912,7 @@ function M31FarPortrait() {
 }
 
 export function Andromeda() {
+  const entered = useGalaxyJourney((s) => s.galaxy?.name === ANDROMEDA_NAME);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const subsystems = useStore((s) => s.subsystems);
   const { size } = useThree();
@@ -930,6 +954,7 @@ export function Andromeda() {
 
   const pickRadius = M31_DISK_RADIUS * 0.9;
   const visit = (e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 4) return;
     e.stopPropagation();
     setVisitGalaxy({
       name: ANDROMEDA_NAME,
@@ -952,7 +977,7 @@ export function Andromeda() {
 
         <M31FarPortrait />
 
-        <PA99N2System />
+        {entered && <PA99N2System />}
         {/* generous invisible pick target so M31 stays clickable from afar */}
         <mesh onClick={visit}>
           <sphereGeometry args={[pickRadius, 12, 12]} />

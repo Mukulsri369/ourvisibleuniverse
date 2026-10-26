@@ -293,7 +293,10 @@ export function GalaxyInfoPanel() {
 
                   <div className="mt-5 grid grid-cols-2 gap-y-3 gap-x-2 text-sm">
                     <GStat label="Measured Distance" value={formatLy(visit.distance)} />
-                    <GStat label="Physical Diameter" value={formatLy(visit.size)} />
+                    <GStat
+                      label={visit.reconstructionNote ? "Illustrative extent" : "Physical Diameter"}
+                      value={formatLy(visit.size)}
+                    />
                     <GStat
                       label="Lookback Time"
                       value={
@@ -317,7 +320,8 @@ export function GalaxyInfoPanel() {
                   <div className="my-5 h-px bg-white/10" />
 
                   <p className="text-xs leading-relaxed text-white/75">
-                    {overviewFor(visit.name, visit.type, visit.distance, visit.size)}
+                    {visit.reconstructionNote ??
+                      overviewFor(visit.name, visit.type, visit.distance, visit.size)}
                   </p>
 
                   <div className="mt-4 rounded-lg border border-cyan-500/25 bg-cyan-950/30 p-3 text-[11px] leading-relaxed text-cyan-200/90">

@@ -47,6 +47,8 @@
     "test:black-holes": "tsx scripts/black-hole-validation.ts",
     "test:galaxies": "tsx scripts/galaxy-rendering-validation.ts",
     "test:scene-depth": "tsx scripts/scene-depth-validation.ts",
+    "test:galaxy-entry": "tsx scripts/galaxy-entry-validation.ts",
+    "test:subscription-admin": "node scripts/subscription-admin-validation.mjs",
     "test:navigation": "tsx scripts/navigation-flight-validation.ts"
   },
   "dependencies": {

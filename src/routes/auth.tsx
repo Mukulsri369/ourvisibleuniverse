@@ -43,7 +43,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
   const next = search.next;
-  const isStudentFlow = search.role === "student" || next?.includes("/learn");
+  const isStudentFlow = search.role === "student" || Boolean(next?.includes("/learn"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signup, setSignup] = useState(false);

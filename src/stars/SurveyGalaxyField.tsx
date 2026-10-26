@@ -1,5 +1,7 @@
+import { pickSurveyGalaxy } from "./survey-galaxy-picking";
+import { useStore } from "./store";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 /** Real 2MRS directions and recessional velocities (Huchra+2012).
  * Distances use cz/H0 (70 km/s/Mpc), not precision peculiar-velocity distances.
@@ -8,6 +10,29 @@ import * as THREE from "three";
 export function SurveyGalaxyField() {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
   const root = useRef<THREE.Points>(null);
+  const size = useThree((s) => s.size);
+  const select = (e: ThreeEvent<MouseEvent>) => {
+    if (e.delta > 4 || e.index == null || !geometry) return;
+    e.stopPropagation();
+    const position = new THREE.Vector3().fromBufferAttribute(
+        geometry.getAttribute("position"),
+        e.index,
+      ),
+      seed = geometry.getAttribute("seed").getX(e.index);
+    const spiral = (seed * 29.7) % 1 > 0.36;
+    useStore.getState().setVisitGalaxy({
+      name: "2MRS field source " + (e.index + 1),
+      x: position.x,
+      y: position.y,
+      z: position.z,
+      size: 70000 * (0.55 + ((seed * 17.3) % 1)),
+      distance: position.length(),
+      type: spiral ? "Unresolved spiral galaxy" : "Unresolved elliptical galaxy",
+      view: "overview",
+      reconstructionNote:
+        "2MRS survey direction with distance estimated from recessional velocity using cz/H₀ (70 km/s/Mpc). The displayed extent, morphology, orientation and individual stars are illustrative; this unresolved source has no resolved internal-object catalogue here.",
+    });
+  };
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -99,7 +124,8 @@ gl_FragColor=vec4(color*9.,light*vAlpha);
       geometry={geometry}
       material={material}
       frustumCulled={false}
-      raycast={() => {}}
+      onClick={select}
+      raycast={(raycaster, hits) => pickSurveyGalaxy(root.current, raycaster, size, hits)}
     />
   ) : null;
 }

@@ -1,3 +1,6 @@
+import { useGalaxyJourney } from "./galaxy-journey";
+import { systemWorldPosition, systemViewDistance } from "./galaxy-models";
+import { PA99N2_WORLD } from "./andromeda-data";
 import { useMemo, useState } from "react";
 import { useStore } from "./store";
 import { GALAXY_BY_NAME } from "./galaxy-models";
@@ -20,7 +23,7 @@ export function galaxyDestinations(name: string): GalaxyDestination[] {
         id: star.name,
         name: star.name,
         type: "Star",
-        note: star.spectralType,
+        note: star.spectral,
         action: "star",
       });
     for (const p of PLANETS) {
@@ -79,7 +82,7 @@ export function galaxyDestinations(name: string): GalaxyDestination[] {
   }
   return [...new Map(list.map((item) => [item.id, item])).values()];
 }
-export function GalaxyDestinationGrid({ name }: { name: string }) {
+export function GalaxyDestinationGrid({ name, onVisit }: { name: string; onVisit?: () => void }) {
   const [query, setQuery] = useState(""),
     [limit, setLimit] = useState(12);
   const all = useMemo(() => galaxyDestinations(name), [name]);
@@ -87,14 +90,36 @@ export function GalaxyDestinationGrid({ name }: { name: string }) {
     `${d.name} ${d.type} ${d.note}`.toLowerCase().includes(query.toLowerCase()),
   );
   const visit = (d: GalaxyDestination) => {
+    onVisit?.();
     const state = useStore.getState();
     if (d.action === "star") {
       const star = NAMED_STARS.find((s) => s.name === d.id);
       if (star) state.flyToStar(star);
     } else if (d.action === "object") state.setSelectedObject(d.id);
     else if (d.action === "host") {
-      if (state.visitGalaxy)
-        state.setVisitGalaxy({ ...state.visitGalaxy, view: undefined, focus: undefined });
+      const g = useGalaxyJourney.getState().galaxy ?? state.visitGalaxy;
+      if (g) {
+        const m = GALAXY_BY_NAME.get(name),
+          live = window.__planetPositions?.get(d.id);
+        const p =
+          live ?? (name === ANDROMEDA_NAME ? PA99N2_WORLD : m ? systemWorldPosition(m) : null);
+        const distance = m
+          ? systemViewDistance(m)
+          : M31_PLANETS.reduce((a, p) => Math.max(a, p.a), 0.001) * 3.2;
+        if (p)
+          useStore.setState({
+            visitGalaxy: {
+              ...g,
+              view: undefined,
+              focus: { x: p.x, y: p.y, z: p.z, distance, key: d.id },
+            },
+            selectedStar: null,
+            selectedObjectId: null,
+            visitPlanet: null,
+            cameraFree: false,
+            flyTo: { x: p.x, y: p.y, z: p.z, distance },
+          });
+      }
     } else if (name === "Milky Way") state.setVisitPlanet(d.id);
     else
       useStore.setState({

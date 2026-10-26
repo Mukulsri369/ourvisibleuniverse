@@ -1,7 +1,9 @@
+import { galaxyAppearance } from "./galaxy-appearance";
+import { useGalaxyJourney } from "./galaxy-journey";
 import { galaxyDetailAlpha } from "./galaxy-detail-state";
 import { GalaxyRadiance } from "./GalaxyRadiance";
 import { motionTimeSeconds } from "./sim-clock";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
@@ -12,6 +14,7 @@ import {
   GALAXY_MODELS,
   galaxyCenter,
   systemOmega,
+  systemPresentationScale,
   type GalaxyModel,
   type GxMoonDef,
   type GxPlanetDef,
@@ -238,8 +241,23 @@ function makeOrbitLine(def: GxPlanetDef, color: string, opacity: number) {
   );
 }
 
-function GxMoon({ moon, parent }: { moon: GxMoonDef; parent: string }) {
+function GxMoon({
+  moon,
+  parent,
+  displayScale,
+}: {
+  moon: GxMoonDef;
+  parent: string;
+  displayScale: number;
+}) {
   const ref = useRef<THREE.Mesh>(null!);
+  useEffect(
+    () => () => {
+      window.__exoSizes?.delete(parent + " · " + moon.name);
+      getRegistry().delete(parent + " · " + moon.name);
+    },
+    [parent, moon.name],
+  );
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame(() => {
@@ -256,14 +274,14 @@ function GxMoon({ moon, parent }: { moon: GxMoonDef; parent: string }) {
     const reg = getRegistry();
     const key = `${parent} · ${moon.name}`;
     if (!window.__exoSizes) window.__exoSizes = new Map();
-    window.__exoSizes.set(key, moon.size);
+    window.__exoSizes.set(key, moon.size * displayScale);
     let v = reg.get(key);
     if (!v) {
       v = new THREE.Vector3();
       reg.set(key, v);
     }
     v.copy(tmp);
-  });
+  }, -1.5);
   return (
     <mesh ref={ref}>
       <sphereGeometry args={[moon.size, 20, 20]} />
@@ -272,13 +290,29 @@ function GxMoon({ moon, parent }: { moon: GxMoonDef; parent: string }) {
   );
 }
 
-function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
+function GxPlanet({
+  def,
+  au,
+  displayScale,
+}: {
+  def: GxPlanetDef;
+  au: number;
+  displayScale: number;
+}) {
   const groupRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Mesh>(null!);
   const phase = useMemo(() => Math.random() * Math.PI * 2, []);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const local = useMemo(() => new THREE.Vector3(), []);
   const setVisit = useStore((s) => s.setVisitPlanet);
+  useEffect(() => {
+    window.__exoSizes ??= new Map();
+    window.__exoSizes.set(def.name, def.size * displayScale);
+    return () => {
+      window.__exoSizes?.delete(def.name);
+      getRegistry().delete(def.name);
+    };
+  }, [def.name, def.size, displayScale]);
   const surface = useMemo(() => makeSurfaceTexture(def, au), [def, au]);
   const haloTex = useMemo(
     () => makeGlowTexture("rgba(255,255,255,0.9)", "rgba(255,255,255,0)"),
@@ -290,6 +324,15 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
     [def],
   );
 
+  useEffect(
+    () => () => {
+      surface.dispose();
+      haloTex.dispose();
+      ringTex?.dispose();
+      ringGeo?.dispose();
+    },
+    [surface, haloTex, ringTex, ringGeo],
+  );
   useFrame(() => {
     if (!groupRef.current) return;
     const t = motionTimeSeconds();
@@ -303,7 +346,7 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
       reg.set(def.name, v);
     }
     v.copy(tmp);
-  });
+  }, -2);
 
   return (
     <group ref={groupRef}>
@@ -329,6 +372,7 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
             document.body.style.cursor = "";
           }}
           onClick={(e: ThreeEvent<MouseEvent>) => {
+            if (e.delta > 4) return;
             e.stopPropagation();
             setVisit(def.name);
           }}
@@ -381,7 +425,7 @@ function GxPlanet({ def, au }: { def: GxPlanetDef; au: number }) {
         )}
       </group>
       {def.moons?.map((mn) => (
-        <GxMoon key={mn.name} moon={mn} parent={def.name} />
+        <GxMoon key={mn.name} moon={mn} parent={def.name} displayScale={displayScale} />
       ))}
     </group>
   );
@@ -449,6 +493,7 @@ function GxBelt({ system }: { system: GxSystemDef }) {
 function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
   const groupRef = useRef<THREE.Group>(null!);
   const s = system;
+  const displayScale = systemPresentationScale(m);
   const starRef = useRef<THREE.Mesh>(null!);
   const world = useMemo(() => new THREE.Vector3(), []);
   const glowTex = useMemo(() => makeGlowTexture("rgba(255,215,160,1)", "rgba(255,140,50,0)"), []);
@@ -460,6 +505,17 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
     [s],
   );
   const omega = useMemo(() => systemOmega(m), [m]);
+  useEffect(
+    () => () => {
+      glowTex.dispose();
+      for (const line of orbits) {
+        line.geometry.dispose();
+        line.material.dispose();
+      }
+      getRegistry().delete(s.star.name);
+    },
+    [glowTex, orbits, s.star.name],
+  );
 
   useFrame(() => {
     const t = motionTimeSeconds();
@@ -480,58 +536,65 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
       v.copy(world);
     }
     if (starRef.current) starRef.current.rotation.y = t * 0.05;
-  });
+  }, -2.5);
 
   return (
     <group ref={groupRef}>
-      <mesh
-        ref={starRef}
-        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation();
-          document.body.style.cursor = "pointer";
-        }}
-        onPointerOut={(e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation();
-          document.body.style.cursor = "";
-        }}
-      >
-        <sphereGeometry args={[s.star.radius, 40, 40]} />
-        <meshBasicMaterial color={s.star.color} />
-      </mesh>
-      <pointLight color={s.star.color} intensity={6} distance={40 * s.au} decay={1.4} />
-      <sprite scale={[s.star.radius * 9, s.star.radius * 9, 1]}>
-        <spriteMaterial
-          map={glowTex}
-          transparent
-          opacity={0.45}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
+      <group scale={displayScale}>
+        <mesh
+          ref={starRef}
+          onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            document.body.style.cursor = "pointer";
+          }}
+          onPointerOut={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            document.body.style.cursor = "";
+          }}
+        >
+          <sphereGeometry args={[s.star.radius, 40, 40]} />
+          <meshBasicMaterial color={s.star.color} />
+        </mesh>
+        <pointLight
+          color={s.star.color}
+          intensity={6}
+          distance={40 * s.au * displayScale}
+          decay={1.4}
         />
-      </sprite>
-      {orbits.map((o, i) => (
-        <primitive key={i} object={o} />
-      ))}
-      {s.planets.map((p) => (
-        <GxPlanet key={p.name} def={p} au={s.au} />
-      ))}
-      <GxBelt system={s} />
-      <Billboard>
-        <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-          <div
-            style={{
-              transform: "translate(0px, -44px)",
-              color: "#ffe6c0",
-              fontSize: 11,
-              letterSpacing: 1.3,
-              fontFamily: "Inter, system-ui, sans-serif",
-              whiteSpace: "nowrap",
-              textShadow: "0 0 12px rgba(255,180,90,0.8)",
-            }}
-          >
-            {s.star.name}
-          </div>
-        </Html>
-      </Billboard>
+        <sprite scale={[s.star.radius * 9, s.star.radius * 9, 1]}>
+          <spriteMaterial
+            map={glowTex}
+            transparent
+            opacity={0.45}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </sprite>
+        {orbits.map((o, i) => (
+          <primitive key={i} object={o} />
+        ))}
+        {s.planets.map((p) => (
+          <GxPlanet key={p.name} def={p} au={s.au} displayScale={displayScale} />
+        ))}
+        <GxBelt system={s} />
+        <Billboard>
+          <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
+            <div
+              style={{
+                transform: "translate(0px, -44px)",
+                color: "#ffe6c0",
+                fontSize: 11,
+                letterSpacing: 1.3,
+                fontFamily: "Inter, system-ui, sans-serif",
+                whiteSpace: "nowrap",
+                textShadow: "0 0 12px rgba(255,180,90,0.8)",
+              }}
+            >
+              {s.star.name}
+            </div>
+          </Html>
+        </Billboard>
+      </group>
     </group>
   );
 }
@@ -541,6 +604,7 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
 // ---------------------------------------------------------------
 
 function GalaxyBody({ m }: { m: GalaxyModel }) {
+  const entered = useGalaxyJourney((s) => s.galaxy?.name === m.name);
   const blend = useRef(0);
   useEffect(
     () => () => {
@@ -575,7 +639,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
     >
       <group ref={ref} rotation-x={Math.PI / 2}>
         <GalaxyRadiance model={m} />
-        {m.system && <GxSystem m={m} system={m.system} />}
+        {entered && m.system && <GxSystem m={m} system={m.system} />}
       </group>
     </group>
   );
@@ -586,40 +650,38 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
 // ---------------------------------------------------------------
 
 function GalaxyGate({ m }: { m: GalaxyModel }) {
-  const visitGalaxy = useStore((s) => s.visitGalaxy);
-  const selectedByUser = visitGalaxy?.name === m.name;
-  const [near, setNear] = useState(false);
-  const center = useMemo(() => galaxyCenter(m), [m]);
-  const acc = useRef(0);
+  const selected = useStore((s) => s.visitGalaxy?.name === m.name);
+  const entered = useGalaxyJourney((s) => s.galaxy?.name === m.name);
+  return selected || entered ? <GalaxyBody m={m} /> : null;
+}
 
-  useFrame(({ camera, size }, dt) => {
-    acc.current += dt;
-    if (acc.current < 0.25) return;
-    acc.current = 0;
-    const d = camera.position.distanceTo(center);
-    // Hysteresis gap: enter detail at 15x radius, keep detail until 21x radius
-    const projected =
-      ((2 * Math.atan(m.diskRadius / Math.max(1, d))) /
-        THREE.MathUtils.degToRad((camera as THREE.PerspectiveCamera).fov || 45)) *
-      size.height;
-    const shouldBeNear = projected > (near ? 12 : 18);
-    if (shouldBeNear !== near) setNear(shouldBeNear);
-  });
-
-  // Give the camera a moment to start moving before paying for the build.
-  const [armed, setArmed] = useState(false);
-  useEffect(() => {
-    if (!(selectedByUser || near)) {
-      // Delay unmounting slightly to allow smooth fade out
-      const id = setTimeout(() => setArmed(false), 400);
-      return () => clearTimeout(id);
-    }
-    const id = setTimeout(() => setArmed(true), 60);
-    return () => clearTimeout(id);
-  }, [selectedByUser, near]);
-
-  if (!armed) return null;
-  return <GalaxyBody m={m} />;
+function SelectedSurveyDetail() {
+  const selected = useStore((s) => s.visitGalaxy),
+    active = useGalaxyJourney((s) => s.galaxy),
+    g = active ?? selected;
+  // A camera-focus change must not rebuild an entered 100k-star population.
+  const signature = g
+    ? JSON.stringify({
+        name: g.name,
+        x: g.x,
+        y: g.y,
+        z: g.z,
+        size: g.size,
+        distance: g.distance,
+        type: g.type,
+      })
+    : "";
+  const model = useMemo(() => {
+    if (!signature) return null;
+    const descriptor = JSON.parse(signature) as import("./store").VisitGalaxy;
+    return !GALAXY_MODELS.some((m) => m.name === descriptor.name) &&
+      descriptor.name !== "Milky Way" &&
+      descriptor.name !== "Andromeda (M31)" &&
+      !/galaxy cluster|supercluster|cosmic web/i.test(descriptor.type)
+      ? galaxyAppearance(descriptor)
+      : null;
+  }, [signature]);
+  return model ? <GalaxyBody m={model} /> : null;
 }
 
 export function DetailedGalaxies() {
@@ -628,6 +690,7 @@ export function DetailedGalaxies() {
 
   return (
     <group>
+      <SelectedSurveyDetail />
       {GALAXY_MODELS.map((m) => (
         <GalaxyGate key={m.key} m={m} />
       ))}
