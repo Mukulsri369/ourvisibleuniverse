@@ -9,7 +9,9 @@ export function pickSurveyGalaxy(
   if (!object?.visible || !raycaster.camera) return;
   const camera = raycaster.camera,
     positions = object.geometry.getAttribute("position"),
-    seeds = object.geometry.getAttribute("seed");
+    seeds = object.geometry.getAttribute("seed"),
+    catalogMask = object.geometry.getAttribute("aCatalogMask");
+  const hiddenSeed = (object.material as THREE.ShaderMaterial).uniforms?.uHiddenSeed?.value ?? -1;
   if (!positions || !seeds) return;
   object.updateWorldMatrix(true, false);
   camera.updateMatrixWorld();
@@ -21,6 +23,7 @@ export function pickSurveyGalaxy(
     index = -1,
     distance = Infinity;
   for (let i = 0; i < positions.count; i++) {
+    if (catalogMask?.getX(i) || Math.abs(seeds.getX(i) - hiddenSeed) < 0.000001) continue;
     world.fromBufferAttribute(positions, i).applyMatrix4(object.matrixWorld);
     view.copy(world).applyMatrix4(camera.matrixWorldInverse);
     if (view.z >= 0) continue;

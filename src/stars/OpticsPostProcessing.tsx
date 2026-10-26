@@ -1,3 +1,5 @@
+import { useGalaxyJourney, galaxyMotion } from "./galaxy-journey";
+import { useNebulaJourney, nebulaMotion } from "./nebula-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { GALAXY_MODELS, galaxyCenter } from "./galaxy-models";
 import { ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
@@ -180,9 +182,12 @@ export function OpticsPostProcessing() {
     if (q.seconds >= q.cooldown && q.frames >= 30) {
       const average = q.elapsed / q.frames;
       const maxDpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      const minimumDpr = composer.blackHolePass.enabled
-        ? Math.min(window.devicePixelRatio || 1, 1)
-        : 0.75;
+      const minimumDpr =
+        composer.blackHolePass.enabled ||
+        useGalaxyJourney.getState().mode !== "idle" ||
+        useNebulaJourney.getState().mode !== "idle"
+          ? Math.min(window.devicePixelRatio || 1, 1)
+          : 0.75;
       if (dpr < minimumDpr) setDpr(minimumDpr);
       else if (average > 0.024 && dpr > minimumDpr) setDpr(Math.max(minimumDpr, dpr - 0.25));
       else if (average < 0.014 && dpr < maxDpr) setDpr(Math.min(maxDpr, dpr + 0.25));
@@ -260,6 +265,12 @@ export function OpticsPostProcessing() {
       composer.bloomPass.radius = Math.min(bloomRadius, 0.12);
       composer.bloomPass.threshold = Math.max(composer.bloomPass.threshold, 2.2);
     } else composer.bloomPass.radius = bloomRadius;
+    const interiorClarity = Math.max(
+      useGalaxyJourney.getState().mode !== "idle" ? galaxyMotion.reveal : 0,
+      useNebulaJourney.getState().mode !== "idle" ? nebulaMotion.reveal : 0,
+    );
+    composer.bloomPass.strength *= 1 - interiorClarity * 0.97;
+    composer.bloomPass.threshold = Math.max(composer.bloomPass.threshold, interiorClarity * 1.8);
     // Render through composer with post-processing passes
     const autoReset = gl.info.autoReset;
     gl.info.autoReset = false;

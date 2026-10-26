@@ -12,7 +12,8 @@ export function makeGalaxyInteriorStars(model: GalaxyModel, count = 100000) {
     c = new Float32Array(count * 3),
     light = new Float32Array(count),
     phase = new Float32Array(count);
-  const spheroid = model.morphology === "elliptical" || model.morphology === "dwarf",
+  const spheroid =
+      model.morphology === "elliptical" || model.morphology === "dwarf" || model.key === "cena",
     irregular = model.morphology === "irregular" || model.morphology === "starburst",
     ring = model.morphology === "ring";
   for (let i = 0; i < count; i++) {
@@ -21,7 +22,7 @@ export function makeGalaxyInteriorStars(model: GalaxyModel, count = 100000) {
       y = (rand() + rand() + rand() - 1.5) * (0.012 + 0.025 * r),
       x = 0,
       z = 0;
-    const bulge = !irregular && !ring && rand() < 0.2;
+    const bulge = !irregular && rand() < 0.2;
     if (spheroid || bulge) {
       r *= bulge ? 0.34 : 1;
       const mu = rand() * 2 - 1;
@@ -37,7 +38,7 @@ export function makeGalaxyInteriorStars(model: GalaxyModel, count = 100000) {
       y = (rand() + rand() - 1) * 0.08;
     } else {
       if (ring) r = 0.68 + (rand() + rand() + rand() - 1.5) * 0.055;
-      else if (rand() < 0.7)
+      else if (model.arms > 0 && model.morphology !== "lenticular" && rand() < 0.7)
         a =
           (Math.floor(rand() * Math.max(2, model.arms)) * Math.PI * 2) / Math.max(2, model.arms) +
           Math.log(Math.max(r, 0.06)) / Math.tan((Math.max(8, model.pitchDeg) * Math.PI) / 180) +

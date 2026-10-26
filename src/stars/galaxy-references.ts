@@ -3,6 +3,27 @@ export const GALAXY_REFERENCES: Record<
   string,
   { url: string; width: number; height: number; source: string; title: string }
 > = {
+  m33: {
+    url: "/textures/galaxies/m33.jpg",
+    width: 4000,
+    height: 3355,
+    source: "https://www.eso.org/public/images/eso1424a/",
+    title: "VST snaps a very detailed view of the Triangulum Galaxy | ESO",
+  },
+  lmc: {
+    url: "/textures/galaxies/lmc.jpg",
+    width: 3581,
+    height: 4000,
+    source: "https://www.eso.org/public/images/eso1914a/",
+    title: "The Large Magellanic Cloud revealed by VISTA | ESO",
+  },
+  smc: {
+    url: "/textures/galaxies/smc.jpg",
+    width: 4000,
+    height: 3540,
+    source: "https://www.eso.org/public/images/eso1714a/",
+    title: "VISTA’s view of the Small Magellanic Cloud | ESO",
+  },
   m51: {
     url: "/textures/galaxies/m51.jpg",
     width: 4000,
@@ -55,10 +76,10 @@ export const GALAXY_REFERENCES: Record<
   },
   cena: {
     url: "/textures/galaxies/cena.jpg",
-    width: 1460,
-    height: 1130,
-    source: "https://www.eso.org/public/images/cena/",
-    title: "A giant galaxy | ESO",
+    width: 4000,
+    height: 3912,
+    source: "https://www.eso.org/public/images/eso1221a/",
+    title: "A deep look at the strange galaxy Centaurus A | ESO",
   },
   antennae: {
     url: "/textures/galaxies/antennae.jpg",

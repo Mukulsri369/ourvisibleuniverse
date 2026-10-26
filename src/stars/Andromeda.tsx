@@ -972,7 +972,7 @@ export function Andromeda() {
       {/* Galaxy body lives in its own XZ plane, tipped into the disc plane */}
       <group rotation={[Math.PI / 2, 0, 0]}>
         <group ref={detailRef}>
-          <GalaxyRadiance model={ANDROMEDA_APPEARANCE} />
+          <GalaxyRadiance model={ANDROMEDA_APPEARANCE} opacity={0} />
         </group>
 
         <M31FarPortrait />

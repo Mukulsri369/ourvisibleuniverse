@@ -1,67 +1,62 @@
 import { GalaxyInteriorField } from "./GalaxyInteriorField";
+import { GalaxyDensityCache } from "./galaxy-density-cache";
 import { useGalaxyJourney, galaxyMotion } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { GALAXY_FRAGMENT } from "./galaxy-volume-shader";
 import { GALAXY_REFERENCES } from "./galaxy-references";
 import { useStore } from "./store";
 import { useEffect, useMemo, useRef } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
 import { motionTimeSeconds } from "./sim-clock";
 const VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-varying vec3 vP;
-void main(){vP=position;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
+varying vec3 vP;varying vec2 vUv;
+void main(){vP=position;vUv=uv;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
 #include <logdepthbuf_vertex>
 }`;
-const FRAG = GALAXY_FRAGMENT;
+const PHOTO = /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+uniform sampler2D uReference;uniform float uPhotoOpacity;varying vec2 vUv;
+void main(){
+#include <logdepthbuf_fragment>
+ vec3 color=texture2D(uReference,vUv).rgb;
+ float lum=max(max(color.r,color.g),color.b);
+ float edge=min(min(vUv.x,1.-vUv.x),min(vUv.y,1.-vUv.y));
+ vec3 broad=textureLod(uReference,vUv,6.).rgb;
+ float diffuse=max(max(broad.r,broad.g),broad.b);
+ float footprint=smoothstep(.012,.085,diffuse);
+ float alpha=footprint*smoothstep(0.,.08,edge)*uPhotoOpacity;
+ if(alpha<.002)discard;
+ gl_FragColor=vec4(color*7.,alpha);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}`;
+/** Owns the exterior photograph and the 3D volume: exactly one coordinated presentation. */
 export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opacity?: number }) {
   const ref = useRef<THREE.Mesh>(null!);
+  const photo = useRef<THREE.Mesh>(null!);
+  const renderer = useThree((s) => s.gl);
+  const inspecting = useRef(false);
+  const selected = useStore((s) => s.visitGalaxy?.name === model.name);
+  useEffect(() => {
+    inspecting.current = false;
+  }, [selected]);
+  useEffect(() => {
+    const inspect = () => {
+      inspecting.current = true;
+    };
+    renderer.domElement.addEventListener("pointerdown", inspect);
+    return () => renderer.domElement.removeEventListener("pointerdown", inspect);
+  }, [renderer]);
   const tier = useStore((s) => s.renderingQualityTier);
   const entered = useGalaxyJourney((s) => s.galaxy?.name === model.name);
-  const eye = useMemo(() => new THREE.Vector3(), []);
-  const stars = useMemo(() => {
-    let seed = 17;
-    for (const c of model.name) seed = (Math.imul(seed, 31) + c.charCodeAt(0)) | 0;
-    const rand = () => {
-      seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
-      return (seed >>> 0) / 4294967296;
-    };
-    const count = 1200,
-      p = new Float32Array(count * 3),
-      c = new Float32Array(count * 3);
-    const spheroid = ["elliptical", "dwarf"].includes(model.morphology);
-    for (let i = 0; i < count; i++) {
-      let r = Math.min(1.08, -Math.log(1 - rand() * 0.98) / 4.5),
-        angle =
-          (Math.floor(rand() * Math.max(2, model.arms)) * Math.PI * 2) / Math.max(2, model.arms) +
-          Math.log(Math.max(r, 0.12)) / Math.tan((Math.max(8, model.pitchDeg) * Math.PI) / 180) +
-          (rand() - 0.5) * 1.2;
-      if (r < 0.18) angle = rand() * Math.PI * 2;
-      if (model.morphology === "ring") r = 0.68 + (rand() + rand() - 1) * 0.07;
-      if (spheroid) {
-        angle = rand() * Math.PI * 2;
-        const mu = rand() * 2 - 1;
-        p[i * 3] = Math.cos(angle) * r * Math.sqrt(1 - mu * mu);
-        p[i * 3 + 1] = mu * r * 0.7;
-        p[i * 3 + 2] = Math.sin(angle) * r * Math.sqrt(1 - mu * mu);
-      } else {
-        p[i * 3] = Math.cos(angle) * r;
-        p[i * 3 + 1] = (rand() + rand() - 1) * 0.022;
-        p[i * 3 + 2] = Math.sin(angle) * r;
-      }
-      const young = !spheroid && rand() < (model.morphology === "ring" ? 0.78 : 0.24);
-      for (let k = 0; k < 3; k++)
-        c[i * 3 + k] = (young ? model.youngColor[k] : model.oldColor[k]) * (0.6 + rand() * 0.4);
-    }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(p, 3));
-    g.setAttribute("color", new THREE.BufferAttribute(c, 3));
-    g.computeBoundingSphere();
-    return g;
-  }, [model]);
+  const eye = useMemo(() => new THREE.Vector3(), []),
+    direction = useMemo(() => new THREE.Vector3(), []);
+  const observer = useRef<THREE.Vector3 | null>(null);
+  const inverseRotation = useMemo(() => new THREE.Quaternion(), []);
   const uniforms = useMemo(() => {
     let seed = 0;
     for (const c of model.name) seed = (seed * 31 + c.charCodeAt(0)) % 997;
@@ -88,12 +83,12 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
         value: new THREE.DataTexture(new Uint8Array([0, 0, 0, 255]), 1, 1) as THREE.Texture,
       },
       uHasReference: { value: 0 },
-      uInclination: { value: THREE.MathUtils.degToRad(model.inclination) },
       uAspect: { value: 1 },
-      uGroup: { value: /quintet/i.test(model.name) ? 1 : 0 },
-      uSteps: { value: 40 },
-      uRadius: { value: model.diskRadius },
-      uInterior: { value: 0 },
+      uField: { value: null as THREE.Texture | null },
+      uCacheFade: { value: 0 },
+      uVolumeWeight: { value: 0 },
+      uPhotoOpacity: { value: 0 },
+      uSteps: { value: 32 },
       uReveal: { value: 0 },
       uOld: { value: new THREE.Color(...model.oldColor) },
       uYoung: { value: new THREE.Color(...model.youngColor) },
@@ -105,44 +100,55 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       uBar: { value: model.barLength / model.diskRadius },
       uDust: { value: model.dustLanes ? 1 : 0 },
       uSingleTail: { value: /tadpole/i.test(model.name) ? 1 : 0 },
-      uRotationRate: { value: Math.PI / model.rotPeriod },
-      uRing: { value: (model.ringRadius ?? 0) / model.diskRadius },
+      uGroup: { value: /quintet/i.test(model.name) ? 1 : 0 },
+      uCenA: { value: model.key === "cena" ? 1 : 0 },
+      uRotationRate: {
+        value: ["elliptical", "dwarf", "lenticular", "irregular"].includes(model.morphology)
+          ? 0
+          : Math.PI / model.rotPeriod,
+      },
       uTime: { value: 0 },
       uOpacity: { value: opacity },
     };
   }, [model, opacity]);
+  const cache = useMemo(
+    () => new GalaxyDensityCache(uniforms, tier === "performance" ? 80 : 128),
+    [uniforms, tier],
+  );
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
         uniforms,
         vertexShader: VERT,
-        fragmentShader: FRAG,
+        fragmentShader: GALAXY_FRAGMENT,
         transparent: true,
         depthWrite: false,
         side: THREE.BackSide,
       }),
     [uniforms],
   );
-  const starMaterial = useMemo(
+  const photoMaterial = useMemo(
     () =>
       new THREE.ShaderMaterial({
         uniforms,
-        vertexShader: GLINT_VERT,
-        fragmentShader: GLINT_FRAG,
-        vertexColors: true,
+        vertexShader: VERT,
+        fragmentShader: PHOTO,
         transparent: true,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
       }),
     [uniforms],
   );
+  useEffect(() => {
+    uniforms.uCacheFade.value = 0;
+    return () => cache.dispose();
+  }, [cache, uniforms]);
   useEffect(
     () => () => {
-      stars.dispose();
       material.dispose();
-      starMaterial.dispose();
+      photoMaterial.dispose();
     },
-    [stars, material, starMaterial],
+    [material, photoMaterial],
   );
   useEffect(() => {
     const placeholder = uniforms.uReference.value;
@@ -155,7 +161,7 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
     let alive = true;
     let bitmap: ImageBitmap | undefined, texture: THREE.Texture | undefined;
     const controller = new AbortController();
-    const max = tier === "scientific_high" ? 4096 : tier === "performance" ? 1024 : 2048;
+    const max = tier === "performance" ? 2048 : 4096;
     const ratio = Math.min(1, max / Math.max(reference.width, reference.height));
     void fetch(reference.url, { signal: controller.signal })
       .then((r) => {
@@ -198,39 +204,70 @@ export function GalaxyRadiance({ model, opacity = 1 }: { model: GalaxyModel; opa
       bitmap?.close();
     };
   }, [model.key, model.name, tier, uniforms]);
-  useFrame(({ camera }) => {
+
+  useFrame(({ camera, gl }, dt) => {
     if (!ref.current) return;
     ref.current.updateWorldMatrix(true, false);
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
     uniforms.uTime.value = motionTimeSeconds();
-    uniforms.uReveal.value = entered ? galaxyMotion.reveal : 0;
-    const distance = eye.length();
-    uniforms.uInterior.value = 1 - THREE.MathUtils.smoothstep(distance, 0.15, 1.8);
-    uniforms.uSteps.value = entered
-      ? Math.round(
-          THREE.MathUtils.lerp(
-            tier === "scientific_high" ? 64 : 40,
-            tier === "performance" ? 14 : 24,
-            galaxyMotion.reveal,
-          ),
-        )
-      : tier === "performance"
-        ? 24
-        : 40;
-    stars.setDrawRange(0, 1200);
+    const reveal = entered ? galaxyMotion.reveal : 0;
+    uniforms.uReveal.value = reveal;
+    if (selected || entered || (ref.current.visible && uniforms.uOpacity.value > 0.001)) {
+      const ready = cache.bake(gl);
+      uniforms.uField.value = cache.target.texture;
+      uniforms.uCacheFade.value = THREE.MathUtils.damp(
+        uniforms.uCacheFade.value,
+        ready ? 1 : 0,
+        5,
+        Math.min(dt, 0.1),
+      );
+    }
+    if (!observer.current && eye.length() > 1.2) observer.current = eye.clone().normalize();
+    if (!inspecting.current && observer.current) observer.current.copy(eye).normalize();
+    direction.copy(eye).normalize();
+    const offAxis = observer.current
+      ? 1 - THREE.MathUtils.smoothstep(direction.dot(observer.current), 0.72, 0.97)
+      : 1;
+    const passage = entered ? THREE.MathUtils.smoothstep(galaxyMotion.progress, 0.015, 0.3) : 0;
+    const hasPhoto = uniforms.uHasReference.value > 0.5;
+    const volumeWeight = (hasPhoto ? Math.max(passage, offAxis) : 1) * uniforms.uCacheFade.value;
+    uniforms.uVolumeWeight.value = volumeWeight;
+    uniforms.uPhotoOpacity.value = hasPhoto
+      ? (1 - volumeWeight) * (1 - reveal) * uniforms.uOpacity.value
+      : 0;
+    uniforms.uSteps.value = tier === "scientific_high" ? 48 : tier === "performance" ? 24 : 32;
+    if (photo.current) {
+      ref.current.getWorldQuaternion(inverseRotation).invert();
+      photo.current.quaternion.copy(inverseRotation).multiply(camera.quaternion);
+      const diameter = model.key === "cena" ? (2 * 33.87) / 25.7 : 2.15;
+      photo.current.scale.set(diameter, diameter / uniforms.uAspect.value, 1);
+      photo.current.visible = uniforms.uPhotoOpacity.value > 0.001;
+    }
   });
   return (
     <mesh
       ref={ref}
-      name={`galaxy-radiance:${model.name}`}
+      name={"galaxy-radiance:" + model.name}
       scale={model.diskRadius}
       frustumCulled={false}
       material={material}
     >
-      {entered && <GalaxyInteriorField model={model} />}
-      <points geometry={stars} material={starMaterial} frustumCulled={false} />
       <boxGeometry args={[2.7, 2.7, 2.7]} />
+      <mesh
+        ref={photo}
+        material={photoMaterial}
+        name={"galaxy-observed-exterior:" + model.name}
+        raycast={() => {}}
+      >
+        <planeGeometry args={[1, 1]} />
+      </mesh>
+      <GalaxyInteriorField
+        model={model}
+        count={entered ? 100000 : 18000}
+        exterior={!entered}
+        visibility={uniforms.uVolumeWeight}
+      />
     </mesh>
   );
 }
@@ -282,21 +319,6 @@ export const ANDROMEDA_APPEARANCE: GalaxyModel = {
   barLength: 14000,
   ringRadius: 32000,
 };
-
-const GLINT_VERT = `
-#include <common>
-#include <logdepthbuf_pars_vertex>
-uniform float uRadius,uInterior;varying vec3 vColor;void main(){vColor=color;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp((.9+uInterior*1.4)*length(modelMatrix[0].xyz)/max(.0001,-mv.z)*1.2,1.,3.);
-#include <logdepthbuf_vertex>
-}`;
-const GLINT_FRAG = `
-#include <logdepthbuf_pars_fragment>
-uniform float uOpacity,uInterior;varying vec3 vColor;void main(){
-#include <logdepthbuf_fragment>
-float r=length(gl_PointCoord*2.-1.);if(r>1.)discard;gl_FragColor=vec4(vColor*(5.+uInterior*5.),exp(-r*r*5.)*(.035+uInterior*.11)*uOpacity);
-#include <tonemapping_fragment>
-#include <colorspace_fragment>
-}`;
 
 let galaxyNoise: THREE.Data3DTexture | undefined;
 function getGalaxyNoise() {

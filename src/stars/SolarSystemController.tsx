@@ -1,3 +1,6 @@
+import * as THREE from "three";
+import { ECLIPTIC_TO_SCENE } from "./solar-galactic-motion";
+import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
 /**
  * NASA JPL Horizons Solar System Controller & Ephemeris Dashboard
  *
@@ -21,6 +24,9 @@ import {
   getSimPaused,
   setTimeMultiplier,
   getTimeMultiplier,
+  getGalacticTimeYears,
+  getGalacticTimeScale,
+  setGalacticTimeScale,
 } from "./sim-clock";
 import { JPL_BENCHMARK_DATES } from "@/lib/astronomy/jpl/horizons-ephemeris";
 import { SOLAR_SYSTEM_RESONANCES } from "@/lib/astronomy/jpl/orbital-resonances";
@@ -30,6 +36,9 @@ export function SolarSystemController({ open, onClose }: { open: boolean; onClos
   const [currentJd, setCurrentJd] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [selectedSpeed, setSelectedSpeed] = useState(1);
+  const [galacticScale, setGalacticScale] = useState(getGalacticTimeScale);
+  const [galacticEpoch, setGalacticEpoch] = useState(getGalacticTimeYears);
+  const [earthPlaneAngle, setEarthPlaneAngle] = useState(60.19);
   const [customDateInput, setCustomDateInput] = useState("");
   const [showResonanceModal, setShowResonanceModal] = useState(false);
 
@@ -62,6 +71,13 @@ export function SolarSystemController({ open, onClose }: { open: boolean; onClos
       setCurrentJd(getSimulationJd());
       setIsPaused(getSimPaused());
       setSelectedSpeed(getTimeMultiplier());
+      setGalacticScale(getGalacticTimeScale());
+      setGalacticEpoch(getGalacticTimeYears());
+      const earth = jplEphemerisManager.getPlanetState("Earth", getSimulationJd());
+      const pole = new THREE.Vector3(earth.xAu, earth.zAu, earth.yAu)
+        .cross(new THREE.Vector3(earth.vxKmS, earth.vzKmS, earth.vyKmS))
+        .transformDirection(ECLIPTIC_TO_SCENE);
+      setEarthPlaneAngle(THREE.MathUtils.radToDeg(Math.acos(Math.min(1, Math.abs(pole.y)))));
     }, 150);
     return () => clearInterval(interval);
   }, []);
@@ -359,7 +375,7 @@ export function SolarSystemController({ open, onClose }: { open: boolean; onClos
                 <div>
                   <span className="text-white/80">Galactic Drift Model</span>
                   <div className="text-[10px] text-white/40">
-                    Decoupled Milky Way kinematic path
+                    Galactic orbit with radial and vertical motion
                   </div>
                 </div>
                 <input
@@ -371,6 +387,50 @@ export function SolarSystemController({ open, onClose }: { open: boolean; onClos
               </label>
             </div>
           </div>
+
+          <section className="mt-5 border-t border-white/10 pt-4" aria-label="Galactic motion">
+            <label className="block text-xs text-white/80">
+              Galactic time acceleration
+              <select
+                value={galacticScale}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  setGalacticTimeScale(value);
+                  setGalacticScale(value);
+                }}
+                className="mt-2 min-h-11 w-full rounded-lg border border-white/15 bg-black px-3 text-white"
+              >
+                {[1, 1000, 100000, 1000000, 10000000, 100000000].map((value) => (
+                  <option key={value} value={value}>
+                    {value === 1
+                      ? "Physical · same time as planets"
+                      : value.toLocaleString() + "× · Galactic orbit only"}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <p className="mt-2 text-[11px] leading-relaxed text-white/60">
+              Galactic epoch: {(galacticEpoch / 1e6).toFixed(4)} Myr from J2000.
+              {Math.abs(galacticEpoch) >= 5e8
+                ? " Model boundary reached; reverse time to return."
+                : ""}{" "}
+              The Sun follows an approximate orbit in a smooth Galactic potential. The J2000
+              ecliptic is tilted about 60.2° to the Galactic plane; it does not turn with the travel
+              direction.
+            </p>
+            <p className="mt-2 text-[11px] text-white/70">
+              Earth’s orbital plane to Galactic plane: {earthPlaneAngle.toFixed(3)}°
+              <span className="block text-[10px] text-white/40">
+                At the planetary date; includes the existing secular orbital-element model.
+              </span>
+            </p>
+            <p className="mt-2 text-[10px] leading-relaxed text-white/40">
+              Acceleration changes the Galactic clock only. Planetary dates, orbits and sizes retain
+              their existing controls. The model covers ±500 Myr and omits spiral-arm encounters,
+              Galactic evolution and long-term planetary-plane evolution. Astronomical date
+              selection resets both clocks.
+            </p>
+          </section>
 
           {/* Planet Visibility Magnification */}
           <div className="mt-5 border-t border-white/10 pt-4">

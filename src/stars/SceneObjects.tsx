@@ -714,10 +714,11 @@ export function MilkyWay() {
     const alpha = Math.min(1, Math.max(0, 1 - (d - 180_000) / 370_000));
     const volumeFade = THREE.MathUtils.smoothstep(camera.position.length(), 12000, 50000);
     const nucleusFade = THREE.MathUtils.smoothstep(d, 15, 350);
-    shader.uniforms.uOpacity.value = alpha * (1 - volumeFade) * nucleusFade;
+    const entered = useGalaxyJourney.getState().galaxy?.name === "Milky Way";
+    shader.uniforms.uOpacity.value = entered ? 0 : alpha * (1 - volumeFade) * nucleusFade;
     for (const child of groupRef.current.children)
       if ((child as THREE.Points).isPoints)
-        child.visible = volumeFade < 0.995 && nucleusFade > 0.001;
+        child.visible = !entered && volumeFade < 0.995 && nucleusFade > 0.001;
     const volume = groupRef.current.getObjectByName("galaxy-radiance:Milky Way") as THREE.Mesh;
     if (volume) {
       const entered = useGalaxyJourney.getState().galaxy?.name === "Milky Way";
@@ -814,7 +815,7 @@ export function MilkyWay() {
   return (
     <group position={GALACTIC_CENTER.toArray()}>
       <group ref={groupRef}>
-        <GalaxyRadiance model={MILKY_WAY_APPEARANCE} />
+        <GalaxyRadiance model={MILKY_WAY_APPEARANCE} opacity={0} />
         <points geometry={diskGeo} frustumCulled={true}>
           <shaderMaterial args={[shader]} />
         </points>

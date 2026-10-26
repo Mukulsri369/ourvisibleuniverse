@@ -1,3 +1,4 @@
+import { PassagePanelToggle, usePassagePanel } from "./PassagePanel";
 import { galaxyAppearance } from "./galaxy-appearance";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
@@ -15,6 +16,7 @@ export function GalaxyJourneyControls() {
     hidden = useStore((s) => s.uiHidden),
     mode = useGalaxyJourney((s) => s.mode),
     active = useGalaxyJourney((s) => s.galaxy);
+  const panel = usePassagePanel((active ?? selected)?.name ?? "");
   const [places, setPlaces] = useState(true);
   const progress = useRef<HTMLSpanElement>(null);
   useEffect(() => {
@@ -47,6 +49,7 @@ export function GalaxyJourneyControls() {
     (hidden && mode === "idle")
   )
     return null;
+  if (panel.collapsed) return <PassagePanelToggle kind="Galaxy" collapsed onClick={panel.show} />;
   const journey = useGalaxyJourney.getState();
   const region = (local: [number, number, number]) => {
     const model = galaxyAppearance(galaxy);
@@ -75,7 +78,8 @@ export function GalaxyJourneyControls() {
           (focusedObject && mode === "inside" ? "bottom-52" : "bottom-6")
         }
       >
-        <div className="flex items-center justify-between gap-4">
+        <PassagePanelToggle kind="Galaxy" collapsed={false} onClick={panel.hide} />
+        <div className="flex items-center justify-between gap-4 pr-10">
           <div>
             <p className="text-[11px] text-white/50">
               {mode === "inside" ? "Inside the galaxy" : "Galaxy passage"}

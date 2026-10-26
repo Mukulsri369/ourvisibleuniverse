@@ -21,3 +21,13 @@ export const FREE_LOOK_KEYS = new Set([
   "ShiftLeft",
   "ShiftRight",
 ]);
+
+/** Interior travel stays local instead of inheriting the galaxy-sized arrival radius. */
+export function interiorTravelScale(
+  kind: "galaxy" | "nebula" | null,
+  extent: number,
+  ordinary: number,
+) {
+  if (!kind || !Number.isFinite(extent) || extent <= 0) return ordinary;
+  return Math.min(ordinary, Math.max(1e-10, extent * (kind === "galaxy" ? 0.0015 : 0.006)));
+}

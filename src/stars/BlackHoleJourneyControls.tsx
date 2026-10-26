@@ -1,3 +1,4 @@
+import { PassagePanelToggle, usePassagePanel } from "./PassagePanel";
 import { useEffect, useRef, useState } from "react";
 import { blackHoleAudio } from "./black-hole-audio";
 import { useStore } from "./store";
@@ -68,6 +69,7 @@ export function BlackHoleJourneyControls() {
   const selectedId = useStore((s) => s.selectedObjectId),
     hidden = useStore((s) => s.uiHidden);
   const mode = useBlackHoleJourney((s) => s.mode);
+  const panel = usePassagePanel(selectedId ?? "");
   const readout = useRef<HTMLSpanElement>(null);
   const previousHidden = useRef<boolean | null>(null);
   const previousMusic = useRef<boolean | null>(null);
@@ -123,13 +125,16 @@ export function BlackHoleJourneyControls() {
     };
   }, [mode]);
   if (!isBlackHoleTarget(item) || (hidden && mode === "idle")) return null;
+  if (panel.collapsed)
+    return <PassagePanelToggle kind="Black hole" collapsed onClick={panel.show} />;
   const active = mode !== "idle";
   return (
     <aside
       aria-label="Black hole descent controls"
       className="pointer-events-auto fixed bottom-6 left-1/2 z-40 w-[min(92vw,460px)] -translate-x-1/2 rounded-2xl border border-amber-100/20 bg-[#08090d]/90 p-4 text-white shadow-2xl backdrop-blur-xl"
     >
-      <div className="flex items-center justify-between gap-4">
+      <PassagePanelToggle kind="Black hole" collapsed={false} onClick={panel.hide} />
+      <div className="flex items-center justify-between gap-4 pr-10">
         <div>
           <p className="text-[9px] uppercase tracking-[.22em] text-amber-100/55">
             {mode === "crossed"

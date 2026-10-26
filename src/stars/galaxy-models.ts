@@ -719,13 +719,13 @@ const CURATED_GALAXY_MODELS: GalaxyModel[] = [
 
   // ---------------- Centaurus A ----------------
   (() => {
-    const diskRadius = 30_000;
+    const diskRadius = 48_593;
     const au = AU_OF(diskRadius);
     return {
       key: "cena",
       name: "Centaurus A (NGC 5128)",
-      type: "Lenticular",
-      morphology: "lenticular" as Morphology,
+      type: "Peculiar Elliptical",
+      morphology: "elliptical" as Morphology,
       l: 309.5,
       b: 19.4,
       distance: 13_000_000,
@@ -1437,6 +1437,7 @@ function morphologyFor(type: string, name?: string): Morphology {
     return "grand-design";
   if (n.includes("sunflower") || n.includes("2841") || t.includes("flocculent"))
     return "flocculent";
+  if (t.includes("dwarf") && t.includes("irregular")) return "irregular";
   if (t.includes("dwarf") || t.includes("dsph") || n.includes("dwarf")) return "dwarf";
   if (
     /interacting|merging|colliding/i.test(type) ||

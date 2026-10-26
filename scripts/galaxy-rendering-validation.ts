@@ -43,7 +43,7 @@ function jpegDimensions(bytes: Buffer) {
   }
   throw Error("Invalid JPEG");
 }
-assert.equal(Object.keys(GALAXY_REFERENCES).length, 13);
+assert.equal(Object.keys(GALAXY_REFERENCES).length, 16);
 for (const ref of Object.values(GALAXY_REFERENCES)) {
   assert.deepEqual(jpegDimensions(readFileSync("public" + ref.url)), [ref.width, ref.height]);
   const preview = jpegDimensions(
@@ -64,5 +64,5 @@ for (let i = 0; i < buffer.length; i += 12) {
   assert(l >= 0 && l <= 360 && b >= -90 && b <= 90 && cz > 1500 && Number.isFinite(cz));
 }
 console.log(
-  "PASS: 63 catalogue approaches at four viewport sizes; 13 observed guide/portrait pairs; 42,541 valid survey records.",
+  "PASS: 63 catalogue approaches at four viewport sizes; 16 observed guide/portrait pairs; 42,541 valid survey records.",
 );

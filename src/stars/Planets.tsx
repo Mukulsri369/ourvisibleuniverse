@@ -1,3 +1,4 @@
+import { ECLIPTIC_TO_SCENE, solarGalacticPosition } from "./solar-galactic-motion";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
@@ -7,8 +8,7 @@ import {
   simTimeDays,
   simTimeYears,
   motionTimeSeconds,
-  getSimPaused,
-  getTimeMultiplier,
+  getGalacticTimeYears,
 } from "./sim-clock";
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
 import { computeMoonRelativeState } from "@/lib/astronomy/jpl/horizons-ephemeris";
@@ -2056,16 +2056,8 @@ export function Planets() {
     [scaleMode],
   );
 
-  // Tilt the entire planetary + belt system so its orbital-plane normal
-  // aligns with the Sun's galactic drift direction.
-  const quat = useMemo(() => {
-    const q = new THREE.Quaternion();
-    q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), SUN_DRIFT_DIR.clone().normalize());
-    return q;
-  }, []);
-
   return (
-    <group quaternion={quat}>
+    <group matrix={ECLIPTIC_TO_SCENE} matrixAutoUpdate={false}>
       {showOrbits && orbits.map((o, i) => <primitive key={`orbit-${i}`} object={o} />)}
       {PLANETS.map((p) => (
         <Planet key={p.name} def={p} />
@@ -2181,43 +2173,16 @@ function MinorBodies() {
   );
 }
 
-// ---------------------------------------------------------------
-// SolarSystem — wraps Sun + Planets and drifts them along the
-// Sun's galactic orbital tangent (+Z). Locally subtle, but enough
-// that the world-space trails of the planets become true helices
-// (Kepler ellipse + linear drift = helix), matching the real
-// motion of our Solar System through the Milky Way.
-// ---------------------------------------------------------------
-
-// The Sun moves through the galaxy roughly PERPENDICULAR to the ecliptic
-// plane (the ecliptic is tilted ~60° to the galactic plane). Orbits are
-// in the local XZ plane, so we drift mostly along +Y with a small +Z
-// tilt — this reproduces the vortex/helix motion seen in real
-// visualizations (planets spiraling around the Sun's forward path).
-// Slow drift along the Sun's galactic orbital tangent (+Z in scene coords,
-// since Sgr A* is on -X). A small +Y tilt (~25°) matches the tilt of the
-// ecliptic to the galactic plane so the planetary trails still helix, but
-// the Sun now moves with — not away from — the surrounding stars.
-export const SUN_DRIFT_SPEED = 0.12;
-// Flipped 180° so the Solar System travels along the galactic rotation
-// direction the surrounding stars are moving in (was previously reversed).
-export const SUN_DRIFT_DIR = new THREE.Vector3(0.0, -0.42, -0.91).normalize();
-
+// Galactic translation is independent of the fixed J2000 planetary frame.
 export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
   const tmp = useMemo(() => new THREE.Vector3(), []);
-  const dist = useRef(0);
   const showGalacticDrift = useStore((s) => s.showGalacticDrift);
 
-  useFrame((_, dt) => {
+  useFrame(() => {
     if (!ref.current) return;
     if (showGalacticDrift) {
-      const factor = getSimPaused()
-        ? 0
-        : (useStore.getState().systemSpeed / 50) * getTimeMultiplier();
-      dist.current += Math.min(dt, 0.1) * SUN_DRIFT_SPEED * factor;
-      const d = dist.current;
-      ref.current.position.set(SUN_DRIFT_DIR.x * d, SUN_DRIFT_DIR.y * d, SUN_DRIFT_DIR.z * d);
+      solarGalacticPosition(getGalacticTimeYears(), ref.current.position);
     } else {
       ref.current.position.set(0, 0, 0);
     }

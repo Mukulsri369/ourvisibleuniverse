@@ -1,6 +1,7 @@
+import { lodManager } from "./lod/LODTransitionManager";
 import { galaxyAppearance } from "./galaxy-appearance";
 import { useGalaxyJourney } from "./galaxy-journey";
-import { galaxyDetailAlpha } from "./galaxy-detail-state";
+import { galaxyDetailAlpha, galaxyPresentationAlpha } from "./galaxy-detail-state";
 import { GalaxyRadiance } from "./GalaxyRadiance";
 import { motionTimeSeconds } from "./sim-clock";
 import { useEffect, useMemo, useRef } from "react";
@@ -9,7 +10,6 @@ import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
-import { lodManager } from "./lod/LODTransitionManager";
 import {
   GALAXY_MODELS,
   galaxyCenter,
@@ -609,26 +609,36 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
   useEffect(
     () => () => {
       galaxyDetailAlpha.delete(m.key);
+      galaxyPresentationAlpha.delete(m.name);
     },
-    [m.key],
+    [m.key, m.name],
   );
   const center = useMemo(() => galaxyCenter(m), [m]);
   const ref = useRef<THREE.Group>(null!);
-  const { size } = useThree();
+  const viewportHeight = useThree((s) => s.size.height);
   useFrame(({ camera }, dt) => {
     const lod = lodManager.evaluate(
       m.key,
       camera,
       center,
       { objectRadiusLy: m.diskRadius, enterHighDetailPixels: 45, exitHighDetailPixels: 22 },
-      size.height,
+      viewportHeight,
     );
     if (ref.current) {
-      blend.current = THREE.MathUtils.damp(blend.current, lod.alphaNear, 10, Math.min(dt, 0.1));
-      galaxyDetailAlpha.set(m.key, blend.current);
-      ref.current.visible = blend.current > 0.001;
       const volume = ref.current.getObjectByName("galaxy-radiance:" + m.name) as THREE.Mesh;
       const mat = volume?.material as THREE.ShaderMaterial;
+      const ready =
+        mat && (mat.uniforms.uHasReference.value > 0.5 || mat.uniforms.uCacheFade.value > 0.9);
+      blend.current = THREE.MathUtils.damp(
+        blend.current,
+        entered ? 1 : ready ? lod.alphaNear : 0,
+        10,
+        Math.min(dt, 0.1),
+      );
+      galaxyDetailAlpha.set(m.key, blend.current);
+      galaxyPresentationAlpha.set(m.name, blend.current);
+      ref.current.visible = blend.current > 0.001;
+
       if (mat) mat.uniforms.uOpacity.value = blend.current;
     }
   });

@@ -2,7 +2,12 @@ import { GalaxyFlight } from "./GalaxyFlight";
 import { useGalaxyJourney, galaxyOverviewFloor } from "./galaxy-journey";
 import { NebulaFlight } from "./NebulaFlight";
 import { useNebulaJourney } from "./nebula-journey";
-import { freeLookInput, FREE_LOOK_KEYS, freeLookSpeed } from "./free-look-input";
+import {
+  freeLookInput,
+  FREE_LOOK_KEYS,
+  freeLookSpeed,
+  interiorTravelScale,
+} from "./free-look-input";
 import { OBSERVED_VISUAL_PROFILES } from "./observed-object-visuals";
 import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
 import {
@@ -763,7 +768,16 @@ export function CameraRig() {
         freeEntryScale.current * 0.1,
         Math.min(maxR, freePosition.current.distanceTo(freeAnchor.current)),
       );
-      freeScale.current = expDampScalar(freeScale.current, contextScale, 2, clampedDt);
+      const inNebula = useNebulaJourney.getState().mode === "inside";
+      const inGalaxy = useGalaxyJourney.getState().mode === "inside";
+      const interiorKind = inNebula ? "nebula" : inGalaxy ? "galaxy" : null;
+      const interiorExtent = inNebula ? nebulaFlight.current.scale : galaxyFlight.current.scale;
+      const travelScale = interiorTravelScale(interiorKind, interiorExtent, contextScale);
+      // A bounded local scale prevents exponential acceleration through a cloud or galaxy.
+      if (interiorKind && freeScale.current > travelScale) freeScale.current = travelScale;
+      else freeScale.current = expDampScalar(freeScale.current, travelScale, 2, clampedDt);
+      if (interiorKind)
+        freeWheel.current = THREE.MathUtils.clamp(freeWheel.current, -travelScale, travelScale);
       const boost = held.has("ShiftLeft") || held.has("ShiftRight") ? 3 : 1;
       const speed = freeLookSpeed(freeScale.current, st.zoomSpeed, st.freeLookSpeed) * boost;
       freeMove.current

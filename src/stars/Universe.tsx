@@ -1,3 +1,4 @@
+import { useGalaxyJourney } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { galaxyDetailAlpha } from "./galaxy-detail-state";
 import { useGalaxyPortrait } from "./useGalaxyPortrait";
@@ -360,7 +361,7 @@ function ObservationalGalaxyNode({
 
   return (
     <group position={pos}>
-      <mesh ref={meshRef} rotation={rot} frustumCulled>
+      <mesh name={"galaxy-catalog-portrait:"+g.name} ref={meshRef} rotation={rot} frustumCulled>
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial
           ref={matRef}
@@ -579,7 +580,10 @@ function MilkyWayFarSprite() {
     (ref.current.material as THREE.SpriteMaterial).color.setScalar(5.5);
     const diameter = Math.max(100000, d * 0.003);
     ref.current.scale.set(diameter, diameter * 0.65, 1);
-    ref.current.visible = useStore.getState().subsystems.milkyWay && a > 0.001;
+    ref.current.visible =
+      useStore.getState().subsystems.milkyWay &&
+      a > 0.001 &&
+      useGalaxyJourney.getState().galaxy?.name !== "Milky Way";
   });
   return (
     <sprite ref={ref} position={[-SGR_A_DISTANCE_LY, 0, 0]} scale={[100_000, 100_000, 1]}>

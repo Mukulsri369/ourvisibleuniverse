@@ -1,3 +1,6 @@
+import { galaxyPresentationAlpha } from "./galaxy-detail-state";
+import { namedSurveyCounterpart } from "./survey-galaxy-identity";
+import { useGalaxyJourney } from "./galaxy-journey";
 import { pickSurveyGalaxy } from "./survey-galaxy-picking";
 import { useStore } from "./store";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -36,17 +39,17 @@ export function SurveyGalaxyField() {
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        uniforms: { uHeight: { value: 800 }, uGain: { value: 0 } },
+        uniforms: { uHeight: { value: 800 }, uGain: { value: 0 }, uHiddenSeed: { value: -1 } },
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
         vertexShader: `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-attribute float seed;varying float vSeed,vAlpha;uniform float uHeight,uGain;
+attribute float seed,aCatalogMask;varying float vSeed,vAlpha;uniform float uHeight,uGain,uHiddenSeed;
 void main(){vSeed=seed;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
 float physical=35000.*(.55+fract(seed*17.3))*uHeight*projectionMatrix[1][1]/max(1.,-mv.z);
-gl_PointSize=clamp(physical,4.2,128.);vAlpha=uGain*smoothstep(60000.,300000.,length(mv.xyz));
+gl_PointSize=clamp(physical,4.2,128.);vAlpha=uGain*smoothstep(60000.,300000.,length(mv.xyz));if(abs(seed-uHiddenSeed)<.000001||aCatalogMask>.5)vAlpha=0.;
 #include <logdepthbuf_vertex>
 }`,
         fragmentShader: `
@@ -54,6 +57,7 @@ gl_PointSize=clamp(physical,4.2,128.);vAlpha=uGain*smoothstep(60000.,300000.,len
 varying float vSeed,vAlpha;
 void main(){
 #include <logdepthbuf_fragment>
+if(vAlpha<.001)discard;
 vec2 p=gl_PointCoord*2.-1.;float angle=vSeed*6.283185;mat2 rot=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));p=rot*p;
 float mode=fract(vSeed*29.7),ratio=mix(.18,.95,fract(vSeed*7.13));p.y/=ratio;
 float r=length(p);if(r>1.)discard;
@@ -85,7 +89,8 @@ gl_FragColor=vec4(color*9.,light*vAlpha);
         const rows = new Float32Array(buffer),
           n = rows.length / 3,
           p = new Float32Array(n * 3),
-          seed = new Float32Array(n);
+          seed = new Float32Array(n),
+          catalogMask = new Float32Array(n);
         for (let i = 0; i < n; i++) {
           const l = (rows[i * 3] * Math.PI) / 180,
             b = (rows[i * 3 + 1] * Math.PI) / 180,
@@ -93,11 +98,15 @@ gl_FragColor=vec4(color*9.,light*vAlpha);
           p[i * 3] = -d * Math.cos(b) * Math.cos(l);
           p[i * 3 + 1] = d * Math.sin(b);
           p[i * 3 + 2] = d * Math.cos(b) * Math.sin(l);
+          catalogMask[i] = namedSurveyCounterpart(rows[i * 3], rows[i * 3 + 1], rows[i * 3 + 2])
+            ? 1
+            : 0;
           seed[i] = ((Math.imul(i + 17, 1664525) >>> 0) % 65536) / 65536;
         }
         owned = new THREE.BufferGeometry();
         owned.setAttribute("position", new THREE.BufferAttribute(p, 3));
         owned.setAttribute("seed", new THREE.BufferAttribute(seed, 1));
+        owned.setAttribute("aCatalogMask", new THREE.BufferAttribute(catalogMask, 1));
         owned.computeBoundingSphere();
         setGeometry(owned);
       })
@@ -113,6 +122,12 @@ gl_FragColor=vec4(color*9.,light*vAlpha);
   useEffect(() => () => material.dispose(), [material]);
   useFrame(({ camera, size }) => {
     const gain = THREE.MathUtils.smoothstep(camera.position.length(), 180000, 2500000);
+    const selected = useGalaxyJourney.getState().galaxy ?? useStore.getState().visitGalaxy;
+    const match = selected?.name.match(/^2MRS field source (\d+)$/);
+    const index =
+      match && (galaxyPresentationAlpha.get(selected!.name) ?? 0) > 0.5 ? Number(match[1]) - 1 : -1;
+    material.uniforms.uHiddenSeed.value =
+      index >= 0 ? (geometry?.getAttribute("seed").getX(index) ?? -1) : -1;
     material.uniforms.uGain.value = gain * 0.95;
     material.uniforms.uHeight.value = size.height;
     if (root.current) root.current.visible = gain > 0.001;
