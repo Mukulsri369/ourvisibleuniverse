@@ -57,8 +57,9 @@ export function StarField() {
   const spectralBlend = useRef(0);
   const lastCameraDistance = useRef(8);
 
+  // The moving SolarSystem owns the Sun; a catalogue point at J2000 would leave a second Sun behind.
   const [catalogStars, setCatalogStars] = useState<GaiaStarRecord[]>(() =>
-    gaiaTileManager.getConsolidatedStars(showSkyDirection),
+    gaiaTileManager.getConsolidatedStars(showSkyDirection).filter((star) => star.name !== "Sun"),
   );
 
   // Sync device tier with manager
@@ -83,7 +84,11 @@ export function StarField() {
   const refreshLOD = (dist: number, pos: { x: number; y: number; z: number }) => {
     void gaiaTileManager
       .updateLOD(dist, pos, () =>
-        setCatalogStars(gaiaTileManager.getConsolidatedStars(showSkyDirection)),
+        setCatalogStars(
+          gaiaTileManager
+            .getConsolidatedStars(showSkyDirection)
+            .filter((star) => star.name !== "Sun"),
+        ),
       )
       .catch(() => undefined);
   };

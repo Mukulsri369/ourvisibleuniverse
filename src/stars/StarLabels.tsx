@@ -10,6 +10,10 @@ function StarTarget({ star }: { star: NamedStar }) {
   const flyTo = useStore((s) => s.flyToStar);
   useFrame(({ camera, size }) => {
     if (!ref.current) return;
+    if (star.name === "Sun") {
+      const sun = window.__planetPositions?.get("Sun");
+      if (sun) ref.current.position.copy(sun);
+    }
     const distance = camera.position.distanceTo(ref.current.position);
     const pixelRadius =
       (distance *

@@ -1,3 +1,5 @@
+import { galaxyEntryRoute } from "./galaxy-entry-route";
+import { galaxyAppearance } from "./galaxy-appearance";
 import * as THREE from "three";
 import { useStore } from "./store";
 import { useGalaxyJourney, galaxyMotion } from "./galaxy-journey";
@@ -53,17 +55,7 @@ export class GalaxyFlight {
       this.startQ.copy(camera.quaternion);
       this.startFov = camera.fov;
       this.localStart.copy(this.start).applyMatrix4(this.inverse);
-      const seed = [...this.id].reduce((n, c) => n + c.charCodeAt(0), 0);
-      const sign = seed % 2 ? 1 : -1;
-      const route = {
-        points: [
-          [1.4, 0.7, 1.6],
-          [0.98, 0.16, 0.6 * sign],
-          [0.72, 0.055, 0.28 * sign],
-          [0.52, 0.025, 0.2 * sign],
-        ] as [number, number, number][],
-        focus: [0.1, 0.03, -0.55 * sign] as [number, number, number],
-      };
+      const route = galaxyEntryRoute(galaxyAppearance(state.galaxy));
       this.entry.set(...route.points[0]);
       this.focus.set(...route.focus).applyMatrix4(this.matrix);
       this.direction.copy(this.localStart).normalize();

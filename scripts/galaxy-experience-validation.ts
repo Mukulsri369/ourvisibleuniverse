@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { GALAXY_MODELS } from "../src/stars/galaxy-models";
-import { makeGalaxyPortrait } from "../src/stars/galaxy-portrait";
+import { galaxyEntryRoute } from "../src/stars/galaxy-entry-route";
+import { galaxyStructure } from "../src/stars/galaxy-structure";
+import { makeGalaxyInteriorStars } from "../src/stars/galaxy-interior-stars";
 import { galaxyDestinations } from "../src/stars/GalaxyDestinationGrid";
 import {
   surveyScenePosition,
@@ -15,10 +17,23 @@ for (const m of GALAXY_MODELS) {
   names.add(m.name);
   families.add(m.morphology);
   assert(m.diskRadius > 0 && m.bulgeRadius > 0);
-  const map = makeGalaxyPortrait(m);
-  assert.equal(map.image.data.length, 128 * 128 * 4);
-  assert(map.image.data.some((v: number) => v > 0));
+  const map = makeGalaxyInteriorStars(m, 4096);
+  assert.equal(map.getAttribute("position").count, 4096);
+  const positions = map.getAttribute("position").array;
+  assert(positions.every(Number.isFinite));
+  assert(
+    positions.some((v, i) => i % 3 === 1 && Math.abs(v) > 0.001),
+    m.name + " must have depth",
+  );
   map.dispose();
+  const route = galaxyEntryRoute(m),
+    end = route.points.at(-1)!;
+  assert(route.points.flat().every(Number.isFinite));
+  if (m.morphology === "ring")
+    assert(
+      Math.abs(Math.hypot(end[0], end[2]) - galaxyStructure(m).ringRadius) < 0.001,
+      m.name + " entry must finish among ring stars",
+    );
   const d = galaxyDestinations(m.name);
   assert.equal(new Set(d.map((o) => o.id)).size, d.length);
   if (m.system) assert(d.some((o) => o.id === m.system!.star.name));

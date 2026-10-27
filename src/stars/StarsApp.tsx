@@ -1,3 +1,4 @@
+import { ObjectAudioRuntime, ObjectAudioControl } from "./ObjectAudio";
 import { GalaxyJourneyControls } from "./GalaxyJourneyControls";
 import { NebulaJourneyControls } from "./NebulaJourneyControls";
 import { BlackHoleJourneyControls } from "./BlackHoleJourneyControls";
@@ -18,7 +19,6 @@ import {
   TopLeftControls,
   ZoomSlider,
   ScaleIndicator,
-  MusicToggle,
   Branding,
   LoadingScreen,
   UIHideToggle,
@@ -94,6 +94,7 @@ export function StarsApp() {
           <StarField />
           <StarLabels />
           <CameraRig />
+          <ObjectAudioRuntime />
           <OpticsPostProcessing />
         </Suspense>
       </Canvas>
@@ -102,6 +103,7 @@ export function StarsApp() {
 
       {/* Hide toggle stays visible so users can bring the UI back */}
       <UIHideToggle />
+      <ObjectAudioControl />
       <BlackHoleJourneyControls />
       <NebulaJourneyControls />
       <GalaxyJourneyControls />
@@ -113,7 +115,6 @@ export function StarsApp() {
           <ZoomSlider />
           <ScaleIndicator />
           <CosmicJourneyNavigator />
-          <MusicToggle />
           <Branding />
           <InfoPanel />
           <ExoPlanetPanel />

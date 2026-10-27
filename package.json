@@ -51,7 +51,8 @@
     "test:solar-galactic-motion": "tsx scripts/solar-galactic-motion-validation.ts",
     "test:galaxy-entry": "tsx scripts/galaxy-entry-validation.ts",
     "test:subscription-admin": "node scripts/subscription-admin-validation.mjs",
-    "test:navigation": "tsx scripts/navigation-flight-validation.ts"
+    "test:navigation": "tsx scripts/navigation-flight-validation.ts",
+    "test:object-audio": "tsx scripts/object-audio-validation.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

@@ -1,7 +1,7 @@
 import { useGalaxyJourney } from "./galaxy-journey";
 import { galaxyDetailAlpha } from "./galaxy-detail-state";
-import { useGalaxyPortrait } from "./useGalaxyPortrait";
-import { makeGalaxyPortrait } from "./galaxy-portrait";
+import { GalaxyCatalogCloud } from "./GalaxyCatalogCloud";
+
 import { GalaxyRadiance, ANDROMEDA_APPEARANCE } from "./GalaxyRadiance";
 import { motionTimeSeconds } from "./sim-clock";
 import { useEffect, useMemo, useRef } from "react";
@@ -879,38 +879,6 @@ function PA99N2System() {
 // fading out as the camera closes in on the particle model.
 // Soft glow so M31 reads as a galaxy from millions of light-years away,
 // smoothly cross-fading with the particle model via continuous screen-space LOD.
-function M31FarPortrait() {
-  const ref = useRef<THREE.Sprite>(null!);
-  const tex = useMemo(() => makeGalaxyPortrait(ANDROMEDA_APPEARANCE), []);
-  useEffect(() => () => tex.dispose(), [tex]);
-  const portrait = useGalaxyPortrait("andromeda", tex);
-  const world = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ camera }) => {
-    if (!ref.current) return;
-    ref.current.getWorldPosition(world);
-    (ref.current.material as THREE.SpriteMaterial).opacity =
-      1 - (galaxyDetailAlpha.get("andromeda") ?? 0);
-    (ref.current.material as THREE.SpriteMaterial).color.setScalar(5.5);
-    const d = camera.position.distanceTo(world);
-    const diameter = Math.max(220000, d * 0.004);
-    ref.current.scale.set(diameter, diameter * (portrait.observed ? 1 / portrait.aspect : 0.34), 1);
-    ref.current.visible =
-      useStore.getState().subsystems.andromeda &&
-      1 - (galaxyDetailAlpha.get("andromeda") ?? 0) > 0.005;
-  });
-  return (
-    <sprite ref={ref} scale={[260_000, 130_000, 1]}>
-      <spriteMaterial
-        map={portrait.texture}
-        transparent
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-        opacity={0.6}
-      />
-    </sprite>
-  );
-}
-
 export function Andromeda() {
   const entered = useGalaxyJourney((s) => s.galaxy?.name === ANDROMEDA_NAME);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
@@ -928,7 +896,7 @@ export function Andromeda() {
   );
   const camWorld = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ camera }, dt) => {
-    if (detailRef.current) {
+    if (detailRef.current && !subsystems.detailedGalaxies) {
       detailRef.current.getWorldPosition(camWorld);
       const lodState = lodManager.evaluate(
         "andromeda",
@@ -972,10 +940,12 @@ export function Andromeda() {
       {/* Galaxy body lives in its own XZ plane, tipped into the disc plane */}
       <group rotation={[Math.PI / 2, 0, 0]}>
         <group ref={detailRef}>
-          <GalaxyRadiance model={ANDROMEDA_APPEARANCE} opacity={0} />
+          {!subsystems.detailedGalaxies && (
+            <GalaxyRadiance model={ANDROMEDA_APPEARANCE} opacity={0} />
+          )}
         </group>
 
-        <M31FarPortrait />
+        <GalaxyCatalogCloud model={ANDROMEDA_APPEARANCE} />
 
         {entered && <PA99N2System />}
         {/* generous invisible pick target so M31 stays clickable from afar */}

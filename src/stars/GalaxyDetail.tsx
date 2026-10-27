@@ -2,7 +2,7 @@ import { lodManager } from "./lod/LODTransitionManager";
 import { galaxyAppearance } from "./galaxy-appearance";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { galaxyDetailAlpha, galaxyPresentationAlpha } from "./galaxy-detail-state";
-import { GalaxyRadiance } from "./GalaxyRadiance";
+import { GalaxyRadiance, ANDROMEDA_APPEARANCE } from "./GalaxyRadiance";
 import { motionTimeSeconds } from "./sim-clock";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -605,6 +605,7 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
 
 function GalaxyBody({ m }: { m: GalaxyModel }) {
   const entered = useGalaxyJourney((s) => s.galaxy?.name === m.name);
+  const selected = useStore((s) => s.visitGalaxy?.name === m.name);
   const blend = useRef(0);
   useEffect(
     () => () => {
@@ -627,11 +628,10 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
     if (ref.current) {
       const volume = ref.current.getObjectByName("galaxy-radiance:" + m.name) as THREE.Mesh;
       const mat = volume?.material as THREE.ShaderMaterial;
-      const ready =
-        mat && (mat.uniforms.uHasReference.value > 0.5 || mat.uniforms.uCacheFade.value > 0.9);
+      const ready = mat && mat.uniforms.uCacheFade.value > 0.9;
       blend.current = THREE.MathUtils.damp(
         blend.current,
-        entered ? 1 : ready ? lod.alphaNear : 0,
+        ready ? (entered || selected ? 1 : lod.alphaNear) : 0,
         10,
         Math.min(dt, 0.1),
       );
@@ -701,6 +701,7 @@ export function DetailedGalaxies() {
   return (
     <group>
       <SelectedSurveyDetail />
+      <GalaxyGate m={ANDROMEDA_APPEARANCE} />
       {GALAXY_MODELS.map((m) => (
         <GalaxyGate key={m.key} m={m} />
       ))}

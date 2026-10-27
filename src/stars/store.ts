@@ -831,11 +831,15 @@ export const useStore = create<State>((set, get) => ({
       !get().tourActive
     )
       return;
+    const destination =
+      normStar.name === "Sun" && typeof window !== "undefined"
+        ? (window.__planetPositions?.get("Sun") ?? normStar)
+        : normStar;
     set({
       flyTo: {
-        x: normStar.x,
-        y: normStar.y,
-        z: normStar.z,
+        x: destination.x,
+        y: destination.y,
+        z: destination.z,
         distance: stellarDisplayRadius(normStar) * 9,
       },
       cameraFree: false,

@@ -1,3 +1,4 @@
+import { galaxyDetailAlpha } from "./galaxy-detail-state";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { GalacticNucleus } from "./GalacticNucleus";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
@@ -276,7 +277,7 @@ export function Sun() {
   });
 
   return (
-    <group>
+    <group name="solar-sun">
       {/* Solar Photosphere with 3D convective granulation, sunspots (umbra/penumbra) & faculae */}
       <mesh
         ref={meshRef}
@@ -712,7 +713,12 @@ export function MilkyWay() {
     const d = camera.position.distanceTo(GALACTIC_CENTER);
     // Smoothly fade out heavy particle cloud between 180,000 and 550,000 ly as far sprite takes over
     const alpha = Math.min(1, Math.max(0, 1 - (d - 180_000) / 370_000));
-    const volumeFade = THREE.MathUtils.smoothstep(camera.position.length(), 12000, 50000);
+    const activeMilkyWay =
+      useStore.getState().visitGalaxy?.name === "Milky Way" ||
+      useGalaxyJourney.getState().galaxy?.name === "Milky Way";
+    const volumeFade = activeMilkyWay
+      ? 1
+      : THREE.MathUtils.smoothstep(camera.position.length(), 12000, 50000);
     const nucleusFade = THREE.MathUtils.smoothstep(d, 15, 350);
     const entered = useGalaxyJourney.getState().galaxy?.name === "Milky Way";
     shader.uniforms.uOpacity.value = entered ? 0 : alpha * (1 - volumeFade) * nucleusFade;
@@ -723,8 +729,16 @@ export function MilkyWay() {
     if (volume) {
       const entered = useGalaxyJourney.getState().galaxy?.name === "Milky Way";
       volume.visible = entered || volumeFade > 0.001;
+      galaxyDetailAlpha.set(
+        "milky-way",
+        Math.min(
+          1,
+          (volume.material as THREE.ShaderMaterial).uniforms.uCacheFade.value *
+            (activeMilkyWay ? 1 : alpha),
+        ),
+      );
       (volume.material as THREE.ShaderMaterial).uniforms.uOpacity.value =
-        alpha *
+        (activeMilkyWay ? 1 : alpha) *
         (entered ? 1 : volumeFade) *
         backgroundFocus() *
         THREE.MathUtils.lerp(0.12, 1, THREE.MathUtils.smoothstep(d, 15, 350));
@@ -740,7 +754,7 @@ export function MilkyWay() {
     for (const geometry of [diskGeo, bulgeGeo, barGeo, hiiGeo, haloGeo]) {
       geometry.setDrawRange(0, Math.floor(geometry.getAttribute("position").count * fraction));
     }
-    groupRef.current.visible = subsystems.milkyWay && alpha > 0.005;
+    groupRef.current.visible = subsystems.milkyWay && (activeMilkyWay || alpha > 0.005);
   });
 
   const shader = useMemo(

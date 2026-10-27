@@ -7,6 +7,7 @@ import {
   ECLIPTIC_POLE,
   ECLIPTIC_TO_SCENE,
 } from "../src/stars/solar-galactic-motion";
+import { NAMED_STARS } from "../src/stars/data";
 import { useStore } from "../src/stars/store";
 import {
   getGalacticTimeYears,
@@ -98,3 +99,26 @@ console.log(
   "PASS: initial velocity, Galactic rotation, 60.19° plane, radial/vertical motion, conserved orbit, continuous interpolation, physical/accelerated time, pause, reverse, date reset and bounds",
   { angle, minR, maxR, minY, maxY },
 );
+
+// The catalogue retains the Sun's J2000 metadata; navigation must use its live position.
+const previousWindow = globalThis.window;
+const liveSun = new THREE.Vector3(8, -2, 13);
+Object.defineProperty(globalThis, "window", {
+  value: { __planetPositions: new Map([["Sun", liveSun]]) },
+  configurable: true,
+  writable: true,
+});
+useStore.setState({ selectedStar: null, visitPlanet: null });
+useStore.getState().flyToStar(NAMED_STARS.find((s) => s.name === "Sun")!);
+assert.deepEqual(useStore.getState().flyTo, {
+  x: 8,
+  y: -2,
+  z: 13,
+  distance: useStore.getState().flyTo!.distance,
+});
+Object.defineProperty(globalThis, "window", {
+  value: previousWindow,
+  configurable: true,
+  writable: true,
+});
+console.log("PASS: Sun selection flies to its current galactic position");

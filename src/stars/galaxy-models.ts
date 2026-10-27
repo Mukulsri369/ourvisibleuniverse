@@ -1438,6 +1438,7 @@ function morphologyFor(type: string, name?: string): Morphology {
   if (n.includes("sunflower") || n.includes("2841") || t.includes("flocculent"))
     return "flocculent";
   if (t.includes("dwarf") && t.includes("irregular")) return "irregular";
+  if (/starburst/.test(t)) return "starburst";
   if (t.includes("dwarf") || t.includes("dsph") || n.includes("dwarf")) return "dwarf";
   if (
     /interacting|merging|colliding/i.test(type) ||
@@ -1608,13 +1609,35 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
 }
 
 /** Every named galaxy has a stable particle model; Andromeda remains bespoke. */
-export const GALAXY_MODELS: GalaxyModel[] = [
+const RECONSTRUCTED_GALAXIES: GalaxyModel[] = [
   ...CURATED_GALAXY_MODELS,
   ...NEARBY_GALAXIES.filter(
     (g) => g.name !== "Andromeda (M31)" && !CURATED_BY_NAME.has(g.name),
   ).map(catalogModel),
 ];
 
+export const GALAXY_MODELS: GalaxyModel[] = RECONSTRUCTED_GALAXIES.map((m) => {
+  const observed = NEARBY_GALAXIES.find((g) => g.name === m.name);
+  if (!observed) return m;
+  const ratio = (observed.size * 0.5) / m.diskRadius;
+  return {
+    ...m,
+    diskRadius: observed.size * 0.5,
+    bulgeRadius: m.bulgeRadius * ratio,
+    haloRadius: m.haloRadius * ratio,
+    barLength: m.barLength * ratio,
+    ringRadius: m.ringRadius === undefined ? undefined : m.ringRadius * ratio,
+    inclination: observed.inclination ?? m.inclination,
+    posAngle: observed.posAngle ?? m.posAngle,
+    system: m.system
+      ? {
+          ...m.system,
+          orbitRadius: m.system.orbitRadius * ratio,
+          orbitHeight: m.system.orbitHeight * ratio,
+        }
+      : undefined,
+  };
+});
 export const GALAXY_BY_NAME = new Map(GALAXY_MODELS.map((m) => [m.name, m]));
 
 export const GX_PLANET_INDEX = new Map<string, { planet: GxPlanetDef; model: GalaxyModel }>();

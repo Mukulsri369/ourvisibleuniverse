@@ -46,29 +46,42 @@ export function SurveyGalaxyField() {
         vertexShader: `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-attribute float seed,aCatalogMask;varying float vSeed,vAlpha;uniform float uHeight,uGain,uHiddenSeed;
-void main(){vSeed=seed;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
+attribute float seed,aCatalogMask;varying float vSeed,vAlpha;varying vec3 vRight,vUp,vToward;uniform float uHeight,uGain,uHiddenSeed;
+void main(){vSeed=seed;
+float a=seed*6.283185,b=fract(seed*7.13)*3.14159;
+mat3 orient=mat3(cos(a),0.,sin(a),sin(a)*sin(b),cos(b),-cos(a)*sin(b),-sin(a)*cos(b),sin(b),cos(a)*cos(b));
+vRight=orient*vec3(viewMatrix[0][0],viewMatrix[1][0],viewMatrix[2][0]);
+vUp=orient*vec3(viewMatrix[0][1],viewMatrix[1][1],viewMatrix[2][1]);
+vToward=orient*normalize(cameraPosition-(modelMatrix*vec4(position,1.)).xyz);
+vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
 float physical=35000.*(.55+fract(seed*17.3))*uHeight*projectionMatrix[1][1]/max(1.,-mv.z);
 gl_PointSize=clamp(physical,4.2,128.);vAlpha=uGain*smoothstep(60000.,300000.,length(mv.xyz));if(abs(seed-uHiddenSeed)<.000001||aCatalogMask>.5)vAlpha=0.;
 #include <logdepthbuf_vertex>
 }`,
         fragmentShader: `
 #include <logdepthbuf_pars_fragment>
-varying float vSeed,vAlpha;
+varying float vSeed,vAlpha;varying vec3 vRight,vUp,vToward;
 void main(){
 #include <logdepthbuf_fragment>
 if(vAlpha<.001)discard;
-vec2 p=gl_PointCoord*2.-1.;float angle=vSeed*6.283185;mat2 rot=mat2(cos(angle),-sin(angle),sin(angle),cos(angle));p=rot*p;
-float mode=fract(vSeed*29.7),ratio=mix(.18,.95,fract(vSeed*7.13));p.y/=ratio;
-float r=length(p);if(r>1.)discard;
-float grain=fract(sin(dot(floor(p*180.),vec2(127.1,311.7))+vSeed*899.)*43758.5453);
-float phase=(atan(p.y,p.x)-log(max(r,.06))*3.4)*2.;float arm=exp(-pow(sin(phase*.5)/.24,2.));
-float disk=exp(-r*3.8)*(mode>.36?.22+arm*1.5:1.);
-float bulge=exp(-pow(r,.7)*12.);float dust=mode>.36?exp(-pow(sin((phase+.4)*.5)/.12,2.))*.65:0.;
-vec3 old=vec3(1.,.79,.55),young=vec3(.52,.72,1.);
-vec3 color=mix(old,young,mode>.36?arm*r*.75:0.);
-float light=(disk+bulge*2.)*(1.-dust)*(.68+grain*.32)*(1.-smoothstep(.7,1.,r));
-gl_FragColor=vec4(color*9.,light*vAlpha);
+vec2 pixel=gl_PointCoord*2.-1.;float radius2=dot(pixel,pixel);if(radius2>1.)discard;
+float span=sqrt(1.-radius2),ds=span/8.,trans=1.;vec3 light=vec3(0.);
+float mode=fract(vSeed*29.7);
+for(int j=0;j<16;j++){
+ vec3 p=vRight*pixel.x-vUp*pixel.y+vToward*(span-(float(j)+.5)*ds);
+ float r=length(p.xz),height=abs(p.y),a=atan(p.z,p.x);
+ float phase=(a-log(max(r,.06))*3.4)*2.;
+ float arm=exp(-pow(sin(phase*.5)/.28,2.));
+ float disk=exp(-r*4.-height*22.)*(.3+arm*1.4);
+ float bulge=exp(-length(p*vec3(1.,1.3,1.))*14.);
+ float stellar=mode>.36?disk+bulge:exp(-pow(length(p*vec3(1.,1.4,1.1)),.8)*6.);
+ float dust=mode>.36?exp(-height*55.-r*3.)*exp(-pow(sin((phase+.35)*.5)/.15,2.))*3.:0.;
+ vec3 color=mix(vec3(1.,.82,.64),vec3(.62,.79,1.),mode>.36?arm*r*.7:0.);
+ float extinction=dust+stellar*.2,alpha=1.-exp(-extinction*ds*5.);
+ light+=trans*color*stellar/max(.01,extinction)*alpha;trans*=1.-alpha;
+}
+float alpha=(1.-trans)*vAlpha;if(alpha<.001)discard;
+gl_FragColor=vec4(light/max(.001,1.-trans)*3.,alpha);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`,

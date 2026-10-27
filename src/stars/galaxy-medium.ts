@@ -1,47 +1,64 @@
-/** Static reconstructed emissivity and dust, baked once for the selected galaxy. */
+/** Stellar emissivity and absorbing dust in galaxy-local 3D coordinates. */
 export const GALAXY_MEDIUM = /* glsl */ `
 uniform sampler3D uNoise;
 uniform vec3 uOld,uYoung;
 uniform float uMode,uSeed,uArms,uPitch,uBulge,uBar,uDust,uTime,uRotationRate,uSingleTail,uGroup,uCenA;
+uniform float uFeature,uThickness,uFlattening,uRing,uAsymmetry,uArmContrast;
 float noise(vec3 p){return texture(uNoise,p/64.+uSeed*.017).r;}
-vec3 populations(vec3 p, out float dust){
- float r=length(p.xz),z=abs(p.y),a=atan(p.z,p.x)+uTime*uRotationRate/max(r,.12);
- float coarse=noise(p*38.),fine=noise(p*290.);float grain=coarse*.65+fine*.35;
- float warp=sin(a*2.+r*9.+uSeed)*.014*r*r;
+float cloud(vec3 p){return noise(p*12.)*.5+noise(p*33.)*.3+noise(p*86.)*.2;}
+float ball(vec3 p,vec3 center,vec3 axes){vec3 q=(p-center)/axes;return exp(-dot(q,q)*2.);}
+vec3 populations(vec3 p,out float dust){
+ float r=length(p.xz),z=abs(p.y),a=atan(p.z,p.x);
+ float coarse=cloud(p),fine=noise(p*190.);
+ float warp=sin(a*2.+r*7.+uSeed)*.018*r*r;
  float height=abs(p.y-warp);
- float radial=exp(-r*3.2)*(1.-smoothstep(.88,1.22,r));
- float disk=exp(-height/(.009+.022*r))*radial;
- float phase=(a-log(max(r,.055))/tan(uPitch))*uArms+(noise(p*18.)-.5)*1.3;
- float arm=exp(-pow(sin(phase*.5)/.23,2.))*smoothstep(.04,.2,r);
- float lane=exp(-pow(sin((phase+.34)*.5)/.105,2.));
- float bulge=exp(-pow(length(p*vec3(1.,1.65,1.))/max(uBulge,.04),.7)*1.8);
- float stars=disk*(.13+arm*2.1)*(.22+grain*1.2)*(.55+.65*pow(fine,.7));
- float young=disk*arm*smoothstep(.08,.3,r)*pow(coarse,2.)*1.8;
- if(uMode>1.5&&uMode<2.5){stars+=exp(-abs(p.z)*55.-abs(p.x)/max(uBar,.04)*2.-height*75.)*.5;}
- if(uMode>2.5&&uMode<3.5){float ring=exp(-pow((r-.68-.015*sin(a*3.))/.045,2.))*exp(-height*65.);stars=ring*(.25+grain)*.65+disk*.025;young=ring*coarse*.9;}
- if(uMode>3.5&&uMode<4.5){float clouds=0.;for(int j=0;j<7;j++){float k=float(j),ang=k*2.399;vec3 center=vec3(cos(ang)*.4,0.,sin(ang)*.3);vec3 q=(p-center)/vec3(.16,.075,.14);clouds+=exp(-dot(q,q)*1.4);}stars=clouds*(.12+pow(coarse,2.)*1.6);young=stars*.6;bulge*=.02;}
- if(uMode>5.5&&uMode<6.5){young+=disk*.45;stars*=1.4;float wind=exp(-pow(r/(.04+z*.33),2.))*smoothstep(.05,.18,z)*(1.-smoothstep(.35,.85,z));young+=wind*coarse*.055;}
+ float radial=exp(-r*3.3)*(1.-smoothstep(.9,1.25,r));
+ float disk=exp(-height/(uThickness+.018*r))*radial;
+ float launch=max(.045,uBar);
+ float phase=(a-log(max(r,launch)/launch)/tan(uPitch))*uArms;
+ phase+=(noise(p*14.)-.5)*(.9+uAsymmetry*6.);
+ float arm=exp(-pow(sin(phase*.5)/mix(.55,.36,uArmContrast),2.))*smoothstep(launch*.7,launch*1.3,r);
+ float lane=exp(-pow(sin((phase+.32)*.5)/.13,2.));
+ float bulge=exp(-pow(length(p*vec3(1.,1.7,1.))/max(uBulge,.045),.8)*2.3);
+ float stars=disk*(.38+arm*1.1)*(.35+coarse),young=disk*arm*smoothstep(.1,.3,r)*pow(coarse,2.)*2.2;
+ float ring=exp(-pow((r-max(.15,uRing))/.046,2.))*exp(-height*60.);
+ if(uMode>1.5&&uMode<2.5){stars+=ball(p,vec3(0.),vec3(max(uBar,.08),.03,.055))*.65;}
+ if(uMode>2.5&&uMode<3.5){stars=ring*(.2+coarse)*.8+disk*.016;young=ring*coarse*.7;}
+ if(uRing>.05&&uMode<2.5){stars+=ring*.12;young+=ring*.18;}
+ if(uMode>3.5&&uMode<4.5){
+  float clouds=0.;for(int j=0;j<8;j++){float k=float(j),ang=k*2.399+uSeed;vec3 center=vec3(cos(ang)*(.15+.035*k),sin(k*1.7)*.04,sin(ang)*(.13+.025*k));clouds+=ball(p,center,vec3(.22,.10,.18));}
+  stars=clouds*(.12+coarse*.55);young=stars*.45;bulge=0.;
+ }
+ if(uMode<.5||(uMode>7.5&&uMode<8.5)){
+  float e=length(p/vec3(1.,uFlattening,.9));stars=exp(-pow(e,.78)*7.)*(.95+coarse*.1)*(uMode>7.5?.3:1.);young=0.;bulge=0.;
+ }
+ if(uMode>8.5){stars=disk*.4;young=0.;}
+ dust=uDust*disk*(lane*(.5+coarse)*8.+pow(smoothstep(.4,.73,coarse),2.)*4.)*smoothstep(.07,.2,r);
+ if(uMode>4.5&&uMode<5.5||uMode>8.5){dust+=uDust*exp(-height*120.)*radial*2.;}
+ // Distinct observed structures are volumes, never pictures on planes.
+ if(uFeature>.5&&uFeature<1.5){
+  float spheroid=exp(-pow(length(p*vec3(1.,1.2,1.1)),.8)*6.2);
+  float warped=p.y-.085*sin(p.x*3.4)-.025*sin(p.z*7.);
+  float diskDust=exp(-abs(warped)/(.012+.018*r))*exp(-r*2.4);
+  dust=diskDust*(.35+coarse*1.5+fine*.4)*11.;stars=spheroid;bulge=0.;young=diskDust*pow(coarse,3.)*.15;
+ }
+ if(uFeature>1.5&&uFeature<2.5){bulge=exp(-pow(length(p*vec3(1.,1.2,1.))/.36,.8)*2.6);stars=disk*.18;young=0.;dust=exp(-pow((r-.67)/.1,2.))*exp(-height*110.)*(.5+coarse)*16.;}
+ if(uFeature>2.5&&uFeature<3.5){stars=exp(-length(p*vec3(2.4,11.,4.)))*(.5+coarse);bulge=0.;young=stars*.35;float wind=exp(-pow(r/(.035+z*.32),2.))*smoothstep(.05,.13,z)*(1.-smoothstep(.4,.95,z));young+=wind*coarse*.08;dust=stars*uDust*(coarse+fine)*6.;}
+ if(uFeature>3.5&&uFeature<4.5){stars+=ball(p,vec3(.02,0.,0.),vec3(.65,.08,.14))*.36;young+=ball(p,vec3(.4,.025,-.18),vec3(.08,.055,.08))*.8;}
+ if(uFeature>4.5&&uFeature<5.5){stars*=.55;stars+=ball(p,vec3(.2,.015,.08),vec3(.45,.14,.18))*.25;}
+ if(uFeature>5.5&&uFeature<6.5){bulge+=ball(p,vec3(.65,.04,.45),vec3(.13,.12,.13))*.6;}
  if(uMode>6.5&&uMode<7.5){
-  if(uSingleTail<.5){bulge=exp(-length((p-vec3(.22,0.,.06))*vec3(1.,1.6,1.))*30.)*.45+exp(-length((p+vec3(.25,0.,.1))*vec3(1.,1.6,1.))*27.)*.4;}
-  if(uGroup>.5){for(int j=0;j<3;j++){float q=float(j)*2.4;vec3 c=vec3(sin(q)*.47,0.,cos(q)*.36);bulge+=exp(-length((p-c)*vec3(1.,1.8,1.))*35.)*.33;}}
-  float tail=exp(-pow((r-(.62+.27*sin(a*2.)))/.045,2.))*exp(-height*45.);stars+=tail*.12;young+=tail*grain*.06;
+  if(uFeature>8.5&&uFeature<9.5){float tail=exp(-pow((p.z-.22*sin(p.x*3.)+.12)/.045,2.))*exp(-p.y*p.y*600.)*smoothstep(.1,.3,p.x)*(1.-smoothstep(.9,1.28,p.x));stars+=tail*.18;young+=tail*.14;}
+  else {bulge=ball(p,vec3(.24,.04,.08),vec3(.16,.11,.15))*.55+ball(p,vec3(-.24,-.02,-.12),vec3(.16,.13,.17))*.5;float tail=exp(-pow((r-(.64+.24*sin(a*2.)))/.055,2.))*exp(-height*45.);stars=stars*.5+tail*.12;young+=tail*coarse*.12;}
+  if(uFeature>7.5&&uFeature<8.5){for(int j=0;j<3;j++){float k=float(j)*2.4;bulge+=ball(p,vec3(sin(k)*.65,sin(k*2.)*.13,cos(k)*.55),vec3(.12,.10,.14))*.5;}}
  }
- if(uMode<.5||uMode>7.5&&uMode<8.5){float e=length(p*vec3(1.,uMode>7.5?1.8:1.3,1.1));stars=exp(-pow(e,.8)*7.)*(.8+grain*.3)*(uMode>7.5?.2:1.);young=0.;bulge=0.;}
- if(uMode>8.5){stars=disk*.25;young=0.;}
- dust=uDust*lane*disk*(.6+coarse)*12.*smoothstep(.08,.22,r);
- dust+=uDust*pow(smoothstep(.38,.75,noise(p*95.)),2.)*disk*2.8;
- // Edge-on dust lanes remain dark; no additive reddish fog.
- if(uMode>4.5&&uMode<5.5||uMode>8.5) dust+=uDust*exp(-height*160.)*radial*.9;
- float knots=pow(smoothstep(.68,.88,fine),3.)*young;
- if(uCenA>.5){
-   float spheroid=exp(-pow(length(p*vec3(1.,1.15,1.1)),.8)*6.2);
-   float warped=p.y-.09*sin(p.x*3.4)-.035*sin(p.z*7.);
-   float diskDust=exp(-abs(warped)/(.016+.018*r))*exp(-r*2.4);
-   dust=diskDust*(.35+coarse*1.4+fine*.8)*9.;
-   stars=spheroid*(.7+fine*.25);bulge=0.;young=diskDust*pow(coarse,3.)*.12;
- }
- float support=1.-smoothstep(.88,1.26,length(p*vec3(1.,.85,1.)));
+ if(uFeature>9.5&&uFeature<10.5){float spokes=pow(max(0.,cos(a*14.+r*4.)),10.)*exp(-height*85.)*smoothstep(.18,.28,r)*(1.-smoothstep(.7,.78,r));stars+=spokes*.08;young+=spokes*.2;}
+ if(uFeature>11.5&&uFeature<12.5){bulge+=ball(p,vec3(.8,.06,.1),vec3(.28,.08,.07))*.6;}
+ if(uFeature>12.5&&uFeature<13.5){dust+=ball(p,vec3(.12,.01,.05),vec3(.3,.025,.24))*10.;}
+ if(uFeature>14.5){stars*=.18;young*=.2;bulge*=1.3;}
+ float support=1.-smoothstep(1.12,1.32,length(p*vec3(1.,.75,1.)));
  dust*=support;
- return (uOld*(stars*9.+bulge*8.)+uYoung*young*6.+vec3(1.,.22,.35)*knots*3.)*support;
+ float knots=pow(smoothstep(.65,.9,fine),3.)*young;
+ return (uOld*(stars*19.+bulge*30.)+uYoung*young*36.+vec3(1.,.16,.29)*knots*24.)*support;
 }
 `;
