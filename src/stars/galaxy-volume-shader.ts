@@ -4,7 +4,8 @@ export const GALAXY_FRAGMENT =
   /* glsl */ `
 #include <logdepthbuf_pars_fragment>
 precision highp sampler3D;
-uniform vec3 uEye;uniform sampler3D uField;
+uniform vec3 uEye,uFieldSize;uniform sampler3D uField;
+uniform float uAdaptiveSampling;
 uniform float uOpacity,uReveal,uSteps,uCacheFade,uVolumeWeight;
 varying vec3 vP;
 ` +
@@ -23,10 +24,18 @@ void main(){
   float y0=(-h-uEye.y)*inv.y,y1=(h-uEye.y)*inv.y;lo.y=max(lo.y,min(y0,y1));hi.y=min(hi.y,max(y0,y1));
  }
  float start=max(0.,max(lo.x,max(lo.y,lo.z))),finish=min(hi.x,min(hi.y,hi.z));if(finish<=start)discard;
- float ds=(finish-start)/uSteps,trans=1.;vec3 light=vec3(0.);
+ float steps=uSteps;
+#ifndef GALAXY_PREVIEW
+ // Three samples per cached voxel retain its resolved structure. Short sky rays
+ // need fewer samples than long rays through the disk; their old 80+ samples
+ // repeatedly fetched the same trilinearly interpolated cells.
+ float crossedVoxels=(finish-start)*max(abs(rd.x)*uFieldSize.x,max(abs(rd.y)*uFieldSize.y,abs(rd.z)*uFieldSize.z))/2.7;
+ if(uAdaptiveSampling>.5)steps=min(uSteps,max(20.,ceil(crossedVoxels*3.)));
+#endif
+ float ds=(finish-start)/steps,trans=1.;vec3 light=vec3(0.);
  float jitter=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);
  for(int i=0;i<112;i++){
-  if(float(i)>=uSteps||trans<.012)break;
+  if(float(i)>=steps||trans<.012)break;
   vec3 p=uEye+rd*(start+(float(i)+.5+(jitter-.5)*.35)*ds);
   float r=length(p.xz),angle=uTime*uRotationRate/max(r,.12);
   float c=cos(angle),s=sin(angle);vec3 q=vec3(p.x*c-p.z*s,p.y,p.x*s+p.z*c);

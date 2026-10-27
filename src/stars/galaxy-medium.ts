@@ -4,10 +4,30 @@ uniform sampler3D uNoise;
 uniform vec3 uOld,uYoung;
 uniform float uMode,uSeed,uArms,uPitch,uBulge,uBar,uDust,uTime,uRotationRate,uSingleTail,uGroup,uCenA;
 uniform float uFeature,uThickness,uFlattening,uRing,uAsymmetry,uArmContrast;
+uniform float uPopKind,uPopCore,uPopContinuum,uPopHot,uPopDust,uPopHii,uPopTail,uPopKnotCount;
+uniform vec3 uPopAxes;uniform vec4 uPopKnots[6];
 float noise(vec3 p){return texture(uNoise,p/64.+uSeed*.017).r;}
 float cloud(vec3 p){return noise(p*12.)*.5+noise(p*33.)*.3+noise(p*86.)*.2;}
 float ball(vec3 p,vec3 center,vec3 axes){vec3 q=(p-center)/axes;return exp(-dot(q,q)*2.);}
 vec3 populations(vec3 p,out float dust){
+ // Specialize populations at compile time so their code adds no Milky Way shader work.
+#ifdef GALAXY_POPULATION
+ {
+  vec3 q=p/uPopAxes;float e=length(q),profile=pow(1.+e*e/(uPopCore*uPopCore),-2.5);
+  float oldLight=profile*uPopContinuum*22.;float hotLight=profile*uPopHot*.55;
+  float gas=0.,clusters=0.;dust=0.;
+  for(int k=0;k<6;k++){if(float(k)>=uPopKnotCount)break;vec4 knot=uPopKnots[k];
+   float d=length((p-knot.xyz)/max(.008,knot.w));float association=exp(-d*d*1.4);
+   if(uPopKind<1.5){clusters+=association*.25;dust+=association*uPopDust*2.5;gas+=association*uPopHii*.25;}
+   else{hotLight+=association*uPopHot*.8;gas+=association*uPopHii*(.35+.65*cloud(p*1.7));dust+=association*uPopDust*(.25+cloud(p*2.))*2.;}
+  }
+  if(uPopKind>3.5){oldLight*=.55;hotLight=0.;dust=0.;}
+  float tide=exp(-pow((p.z-.12*sin(p.x*3.))/max(.025,uPopAxes.z*.12),2.))*exp(-p.y*p.y/ .007)*smoothstep(.28,.55,abs(p.x))*(1.-smoothstep(.95,1.3,abs(p.x)));
+  oldLight+=tide*uPopTail*.10;
+  float support=1.-smoothstep(1.1,1.33,length(p*vec3(1.,.7,1.)));
+  return (uOld*(oldLight+clusters)+uYoung*hotLight+vec3(1.,.12,.30)*gas*1.6)*support;
+ }
+#else
  float r=length(p.xz),z=abs(p.y),a=atan(p.z,p.x);
  float coarse=cloud(p),fine=noise(p*190.);
  float warp=sin(a*2.+r*7.+uSeed)*.018*r*r;
@@ -60,5 +80,6 @@ vec3 populations(vec3 p,out float dust){
  dust*=support;
  float knots=pow(smoothstep(.65,.9,fine),3.)*young;
  return (uOld*(stars*19.+bulge*30.)+uYoung*young*36.+vec3(1.,.16,.29)*knots*24.)*support;
+#endif
 }
 `;

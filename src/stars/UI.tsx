@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { FreeLookControls } from "./FreeLookControls";
+import { useGalaxyJourney } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
 
@@ -398,7 +398,8 @@ export function TopLeftControls() {
   const cameraFree = useStore((s) => s.cameraFree);
   const toggleCameraFree = useStore((s) => s.toggleCameraFree);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsOpen = useStore((s) => s.navigationSettingsOpen);
+  const setSettingsOpen = useStore((s) => s.setNavigationSettingsOpen);
   const [guideOpen, setGuideOpen] = useState(false);
   const [gaiaAtlasOpen, setGaiaAtlasOpen] = useState(false);
   const [solarControllerOpen, setSolarControllerOpen] = useState(false);
@@ -418,8 +419,11 @@ export function TopLeftControls() {
         <Compass className="h-4 w-4" aria-hidden="true" />
         <span>Free look</span>
       </button>
-      <FreeLookControls onOpenSettings={() => setSettingsOpen(true)} />
-      <IconButton title="Settings" onClick={() => setSettingsOpen((v) => !v)} active={settingsOpen}>
+      <IconButton
+        title="Settings"
+        onClick={() => setSettingsOpen(!settingsOpen)}
+        active={settingsOpen}
+      >
         <svg
           width="16"
           height="16"
@@ -716,6 +720,10 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
   const setSystemSpeed = useStore((s) => s.setSystemSpeed);
   const freeSpeed = useStore((s) => s.freeLookSpeed);
   const setFreeSpeed = useStore((s) => s.setFreeLookSpeed);
+  const galacticSpeed = useStore((s) => s.galacticTravelSpeed);
+  const setGalacticSpeed = useStore((s) => s.setGalacticTravelSpeed);
+  const galacticDrift = useStore((s) => s.showGalacticDrift);
+  const toggleDrift = useStore((s) => s.toggleGalacticDrift);
   const outerSpeed = useStore((s) => s.outerOrbitSpeed);
   const setOuterSpeed = useStore((s) => s.setOuterOrbitSpeed);
   const trailSize = useStore((s) => s.trailSize);
@@ -773,6 +781,52 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
               Default · 1×
             </button>
           </div>
+          <section
+            className="mb-4 space-y-2 border-t border-white/10 pt-4"
+            aria-label="Solar system galactic travel"
+          >
+            <label
+              htmlFor="galactic-travel-speed"
+              className="flex justify-between text-xs text-white/80"
+            >
+              <span>Solar system galactic travel</span>
+              <span className="tabular-nums text-sky-200">
+                {galacticSpeed.toLocaleString(undefined, { maximumFractionDigits: 0 })}×
+              </span>
+            </label>
+            <input
+              id="galactic-travel-speed"
+              aria-label="Solar system galactic travel speed"
+              type="range"
+              min={0}
+              max={8}
+              step={0.01}
+              value={Math.log10(galacticSpeed)}
+              onChange={(e) => setGalacticSpeed(10 ** Number(e.target.value))}
+              className="w-full accent-sky-300"
+            />
+            <p className="text-[11px] leading-relaxed text-white/50">
+              Accelerates the Sun and the whole solar system around the Milky Way. Planet and moon
+              orbits keep their own time.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {[1, 100, 10000, 1000000].map((rate) => (
+                <button
+                  key={rate}
+                  type="button"
+                  onClick={() => setGalacticSpeed(rate)}
+                  className="min-h-11 rounded border border-white/15 px-2 text-[11px] text-white/75 hover:bg-white/10"
+                >
+                  {rate === 1 ? "Default · 1×" : rate.toLocaleString() + "×"}
+                </button>
+              ))}
+            </div>
+            {!galacticDrift && (
+              <button type="button" onClick={toggleDrift} className="min-h-11 text-xs text-sky-200">
+                Enable galactic motion
+              </button>
+            )}
+          </section>
           <div className="mb-4 space-y-2 border-t border-white/10 pt-4">
             <label
               htmlFor="outer-orbit-speed"
@@ -1707,9 +1761,10 @@ export function SiteMap() {
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(!isMobile);
   const freeLook = useStore((s) => s.cameraFree);
+  const galaxyPassage = useGalaxyJourney((s) => s.mode !== "idle");
   useEffect(() => {
-    if (freeLook) setOpen(false);
-  }, [freeLook]);
+    if (freeLook || galaxyPassage) setOpen(false);
+  }, [freeLook, galaxyPassage]);
   const [section, setSection] = useState<
     "journey" | "planets" | "stars" | "exoplanets" | "galaxies" | "objects"
   >("journey");

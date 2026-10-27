@@ -65,7 +65,8 @@ export function SolarSystemController({ open, onClose }: { open: boolean; onClos
 
   // Poll live simulation time for display
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (!open) return;
+    const update = () => {
       const d = getSimulationDate();
       setCurrentDateStr(d.toISOString().slice(0, 10));
       setCurrentJd(getSimulationJd());
@@ -78,9 +79,11 @@ export function SolarSystemController({ open, onClose }: { open: boolean; onClos
         .cross(new THREE.Vector3(earth.vxKmS, earth.vzKmS, earth.vyKmS))
         .transformDirection(ECLIPTIC_TO_SCENE);
       setEarthPlaneAngle(THREE.MathUtils.radToDeg(Math.acos(Math.min(1, Math.abs(pole.y)))));
-    }, 150);
+    };
+    update();
+    const interval = setInterval(update, 150);
     return () => clearInterval(interval);
-  }, []);
+  }, [open]);
 
   const handleApplyDate = (e: React.FormEvent) => {
     e.preventDefault();

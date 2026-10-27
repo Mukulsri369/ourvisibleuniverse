@@ -154,6 +154,8 @@ interface State {
   zoomSpeed: number;
   freeLookSpeed: number;
   outerOrbitSpeed: number;
+  galacticTravelSpeed: number;
+  navigationSettingsOpen: boolean;
   systemSpeed: number;
   trailSize: number;
   scaleMode: "enhanced" | "true_scale";
@@ -185,6 +187,8 @@ interface State {
   setZoomSpeed: (n: number) => void;
   setFreeLookSpeed: (n: number) => void;
   setOuterOrbitSpeed: (n: number) => void;
+  setGalacticTravelSpeed: (n: number) => void;
+  setNavigationSettingsOpen: (open: boolean) => void;
   setSystemSpeed: (n: number) => void;
   setTrailSize: (n: number) => void;
   // NASA JPL Horizons Solar System enhancements
@@ -766,6 +770,8 @@ export const useStore = create<State>((set, get) => ({
   zoomSpeed: 50,
   freeLookSpeed: 1,
   outerOrbitSpeed: 1,
+  galacticTravelSpeed: 1,
+  navigationSettingsOpen: false,
   systemSpeed: 1,
   trailSize: 50,
   scaleMode: "enhanced",
@@ -916,6 +922,9 @@ export const useStore = create<State>((set, get) => ({
   setZoomSpeed: (n) => set({ zoomSpeed: n }),
   setFreeLookSpeed: (n) => set({ freeLookSpeed: Math.max(0.05, Math.min(20, n)) }),
   setOuterOrbitSpeed: (n) => set({ outerOrbitSpeed: Math.max(1, Math.min(2000, n)) }),
+  setNavigationSettingsOpen: (open) => set({ navigationSettingsOpen: open }),
+  setGalacticTravelSpeed: (n) =>
+    set({ galacticTravelSpeed: Number.isFinite(n) ? Math.max(1, Math.min(1e8, n)) : 1 }),
   setSystemSpeed: (n) => set({ systemSpeed: clampTimeRate(n) }),
   setTrailSize: (n) => set({ trailSize: n }),
   toggleOrbits: () => set((st) => ({ showOrbits: !st.showOrbits })),

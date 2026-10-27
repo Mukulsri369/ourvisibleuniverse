@@ -1,4 +1,6 @@
+import { FreeLookControls } from "./FreeLookControls";
 import { ObjectAudioRuntime, ObjectAudioControl } from "./ObjectAudio";
+import { useGalaxyJourney } from "./galaxy-journey";
 import { GalaxyJourneyControls } from "./GalaxyJourneyControls";
 import { NebulaJourneyControls } from "./NebulaJourneyControls";
 import { BlackHoleJourneyControls } from "./BlackHoleJourneyControls";
@@ -50,6 +52,7 @@ function SceneClock() {
 export function StarsApp() {
   const [loaded, setLoaded] = useState(false);
   const uiHidden = useStore((s) => s.uiHidden);
+  const galaxyJourneyActive = useGalaxyJourney((s) => s.mode !== "idle");
   const focusedObject = useStore(
     (s) => !!s.visitPlanet || !!s.selectedObjectId || !!s.selectedStar,
   );
@@ -108,6 +111,9 @@ export function StarsApp() {
       <NebulaJourneyControls />
       <GalaxyJourneyControls />
 
+      <FreeLookControls
+        onOpenSettings={() => useStore.setState({ uiHidden: false, navigationSettingsOpen: true })}
+      />
       {!uiHidden && (
         <>
           <SiteMap />
@@ -119,7 +125,7 @@ export function StarsApp() {
           <InfoPanel />
           <ExoPlanetPanel />
           <SolarBodyPanel />
-          {!focusedObject && <GalaxyInfoPanel />}
+          {!focusedObject && !galaxyJourneyActive && <GalaxyInfoPanel />}
           <ObservedObjectInfoPanel />
           <OpticsControlModal />
           <RenderingBenchmarkModal />

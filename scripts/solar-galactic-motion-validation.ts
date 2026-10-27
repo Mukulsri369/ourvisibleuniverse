@@ -7,6 +7,7 @@ import {
   ECLIPTIC_POLE,
   ECLIPTIC_TO_SCENE,
 } from "../src/stars/solar-galactic-motion";
+import { computeMoonRelativeState } from "../src/lib/astronomy/jpl/horizons-ephemeris";
 import { NAMED_STARS } from "../src/stars/data";
 import { useStore } from "../src/stars/store";
 import {
@@ -18,6 +19,8 @@ import {
   stepSimulationDays,
   tickSim,
   getSimulationJd,
+  getPlanetSimulationJd,
+  motionDeltaSeconds,
 } from "../src/stars/sim-clock";
 const p = new THREE.Vector3();
 assert(position(0, p).length() < 1e-9);
@@ -122,3 +125,30 @@ Object.defineProperty(globalThis, "window", {
   writable: true,
 });
 console.log("PASS: Sun selection flies to its current galactic position");
+
+function clockSnapshot(rate: number) {
+  setSimulationDate("2000-01-01T12:00:00Z");
+  setTimeMultiplier(1);
+  setSimPaused(false);
+  setGalacticTimeScale(rate);
+  for (let n = 0; n < 8; n++) tickSim(0.1);
+  const jd = getSimulationJd();
+  return {
+    jd,
+    planets: ["Earth", "Jupiter", "Neptune"].map(getPlanetSimulationJd),
+    step: motionDeltaSeconds(),
+    moon: computeMoonRelativeState("Moon", "Earth", jd, 384400, 27.321661, 5.145, 0.0549),
+    galactic: getGalacticTimeYears(),
+  };
+}
+const normal = clockSnapshot(1),
+  fast = clockSnapshot(10000);
+assert.equal(fast.jd, normal.jd);
+assert.deepEqual(fast.planets, normal.planets);
+assert.equal(fast.step, normal.step);
+assert.deepEqual(fast.moon, normal.moon);
+assert(Math.abs(fast.galactic / normal.galactic - 10000) < 1e-8);
+setGalacticTimeScale(1);
+console.log(
+  "PASS: galactic travel speed changes neither planetary dates, orbital motion nor the Moon's relative state",
+);

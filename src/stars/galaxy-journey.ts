@@ -29,6 +29,7 @@ export const useGalaxyJourney = create<{
       },
       cameraFree: false,
       uiHidden: true,
+      navigationSettingsOpen: false,
       flyTo: null,
       tourActive: false,
       isAutoOrbiting: false,

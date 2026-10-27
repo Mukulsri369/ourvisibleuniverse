@@ -1,3 +1,5 @@
+import { useGalaxyJourney } from "./galaxy-journey";
+import { useNebulaJourney } from "./nebula-journey";
 import {
   ArrowDown,
   ArrowLeft,
@@ -21,12 +23,22 @@ const DIRECTIONS = [
 
 export function FreeLookControls({ onOpenSettings }: { onOpenSettings?: () => void }) {
   const active = useStore((s) => s.cameraFree);
+  const galaxyPassage = useGalaxyJourney((s) => s.mode !== "idle");
+  const nebulaPassage = useNebulaJourney((s) => s.mode !== "idle");
+  const inPassage = galaxyPassage || nebulaPassage;
   const speed = useStore((s) => s.freeLookSpeed);
-  if (!active) return null;
   return (
     <section
       aria-label="Free look navigation"
-      className="fixed bottom-24 left-1/2 z-30 flex w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 flex-col items-center gap-3 sm:w-auto sm:flex-row rounded-2xl border border-sky-200/20 bg-black/80 p-3 text-white shadow-2xl backdrop-blur-xl"
+      aria-hidden={!active}
+      inert={!active}
+      style={{ visibility: active ? "visible" : "hidden" }}
+      className={
+        (inPassage
+          ? "fixed bottom-52 left-4 z-30 w-[calc(100vw-2rem)] max-w-[440px] "
+          : "fixed bottom-24 left-1/2 z-30 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 sm:w-auto ") +
+        "flex flex-col items-center gap-3 sm:flex-row rounded-2xl border border-sky-200/20 bg-neutral-950/95 p-3 text-white shadow-2xl"
+      }
     >
       <div className="max-w-80 pr-8 sm:max-w-48 sm:pr-0">
         <div className="flex items-center gap-2 text-xs font-medium text-sky-100">

@@ -30,3 +30,7 @@ Run the solar-galactic-motion validation for initial position/velocity, rotation
 The controls also report Earth’s instantaneous orbital-plane inclination from its heliocentric position/velocity angular momentum, transformed into Galactic axes. Existing date-dependent secular inclination/node rates remain active. This is an approximate Earth-plane angle at the planetary date, distinct from the fixed J2000 reference plane and from the invariable plane of the entire system.
 
 Validation results: production build passed; numerical orbit and clock regressions passed; existing navigation-flight regression passed. Native HDR browser checks compiled 17 shader programs with no failures and kept moving Earth and Jupiter centred (maximum sampled normalized-screen offsets below 0.004). These tests do not establish accuracy of a unique real Galactic trajectory or a universal frame-rate guarantee.
+
+## Quick Settings
+
+Settings now exposes Solar system galactic travel, from 1× through 100,000,000×, with a 1× default and presets. It shares one store value with the scientific controller. The multiplier is integrated only into galacticYears: planetary Julian dates, the outer-planet clock, lunar phase and spin remain on their existing clocks. Changing the rate preserves the current galactic position and does not reset trail history. A regression compares equal planetary dates and Moon state vectors at 1× and 10,000×.

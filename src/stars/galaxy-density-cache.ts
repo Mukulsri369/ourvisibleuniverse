@@ -30,6 +30,7 @@ export class GalaxyDensityCache {
         uLayer: { value: 0 },
         uSize: { value: new THREE.Vector3(size, size * 2, size) },
       },
+      defines: uniforms.uPopKind?.value > 0 ? { GALAXY_POPULATION: 1 } : {},
       glslVersion: THREE.GLSL3,
       depthTest: false,
       depthWrite: false,

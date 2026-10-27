@@ -1,10 +1,14 @@
+import { galaxyPopulation } from "./galaxy-populations";
 import type { GalaxyModel } from "./galaxy-models";
 
 /** Observed morphology constrains the reconstruction; unseen depth is illustrative.
  * See docs/galaxy-reconstruction.md for sources and coverage. */
 export function galaxyStructure(m: GalaxyModel) {
   const name = m.name.toLowerCase();
-  const spheroid = ["elliptical", "dwarf"].includes(m.morphology);
+  const population = galaxyPopulation(m);
+  const spheroid = population
+    ? population.kind === 1 || population.kind === 4
+    : ["elliptical", "dwarf"].includes(m.morphology);
   const irregular = ["irregular", "starburst"].includes(m.morphology);
   let feature = 0;
   if (/centaurus a/.test(name)) feature = 1;
@@ -24,6 +28,7 @@ export function galaxyStructure(m: GalaxyModel) {
   else if (/malin/.test(name)) feature = 15;
   const thin = ["edge-on", "lenticular"].includes(m.morphology);
   return {
+    population,
     feature,
     spheroid,
     irregular,

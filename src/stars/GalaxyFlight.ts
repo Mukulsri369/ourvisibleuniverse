@@ -114,7 +114,7 @@ export class GalaxyFlight {
     galaxyMotion.reveal = THREE.MathUtils.smoothstep(p, 0.45, 0.88);
     if (p === 1) {
       useGalaxyJourney.setState({ mode: "inside" });
-      useStore.setState({ cameraFree: true, uiHidden: false });
+      useStore.setState({ cameraFree: true });
     }
     return true;
   }

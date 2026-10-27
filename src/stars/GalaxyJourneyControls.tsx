@@ -17,7 +17,9 @@ export function GalaxyJourneyControls() {
     mode = useGalaxyJourney((s) => s.mode),
     active = useGalaxyJourney((s) => s.galaxy);
   const panel = usePassagePanel((active ?? selected)?.name ?? "");
-  const [places, setPlaces] = useState(true);
+  const [places, setPlaces] = useState(
+    () => typeof window === "undefined" || !window.matchMedia("(max-width: 640px)").matches,
+  );
   const progress = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const j = useGalaxyJourney.getState();
@@ -98,7 +100,7 @@ export function GalaxyJourneyControls() {
                 useNebulaJourney.getState().reset();
                 useBlackHoleJourney.getState().reset();
                 journey.enter(galaxy);
-                setPlaces(true);
+                setPlaces(!window.matchMedia("(max-width: 640px)").matches);
               }}
             >
               Enter galaxy
@@ -140,9 +142,12 @@ export function GalaxyJourneyControls() {
               : "A continuous passage through a reconstructed stellar population."}
         </p>
       </aside>
-      {mode === "inside" && places && (
+      {mode !== "idle" && mode !== "returning" && places && (
         <aside
           aria-label="Places to visit in galaxy"
+          aria-hidden={mode !== "inside"}
+          inert={mode !== "inside"}
+          style={{ visibility: mode === "inside" ? "visible" : "hidden" }}
           className="pointer-events-auto fixed right-14 top-20 z-30 max-h-[calc(100dvh-280px)] w-[min(calc(100vw-72px),340px)] overflow-y-auto rounded-xl border border-white/15 bg-neutral-950/95 p-5 text-white"
         >
           <div className="flex items-center justify-between">

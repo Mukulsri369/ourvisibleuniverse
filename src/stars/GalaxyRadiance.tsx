@@ -34,6 +34,7 @@ export function GalaxyRadiance({
   const eye = useMemo(() => new THREE.Vector3(), []);
   const uniforms = useMemo(() => {
     const structure = galaxyStructure(model);
+    const population = structure.population;
     let seed = 0;
     for (const c of model.name) seed = (seed * 31 + c.charCodeAt(0)) % 997;
     const mode = [
@@ -59,11 +60,28 @@ export function GalaxyRadiance({
       uCacheFade: { value: preview ? 1 : 0 },
       uVolumeWeight: { value: 0 },
       uSteps: { value: 32 },
+      uFieldSize: { value: new THREE.Vector3(1, 1, 1) },
+      uAdaptiveSampling: { value: 1 },
       uReveal: { value: 0 },
-      uOld: { value: new THREE.Color(...model.oldColor) },
-      uYoung: { value: new THREE.Color(...model.youngColor) },
+      uOld: { value: new THREE.Color(...(population?.old ?? model.oldColor)) },
+      uYoung: { value: new THREE.Color(...(population?.hot ?? model.youngColor)) },
       uMode: { value: Math.max(0, mode) },
       uFeature: { value: structure.feature },
+      uPopKind: { value: population?.kind ?? 0 },
+      uPopAxes: { value: new THREE.Vector3(...(population?.axes ?? [1, 1, 1])) },
+      uPopCore: { value: population?.core ?? 0.3 },
+      uPopContinuum: { value: population?.continuum ?? 1 },
+      uPopHot: { value: population?.hotFraction ?? 0.2 },
+      uPopDust: { value: population?.dust ?? 0 },
+      uPopHii: { value: population?.hii ?? 0 },
+      uPopTail: { value: population?.tail ?? 0 },
+      uPopKnotCount: { value: population?.knots.length ?? 0 },
+      uPopKnots: {
+        value: Array.from(
+          { length: 6 },
+          (_, i) => new THREE.Vector4(...(population?.knots[i] ?? [0, 0, 0, 0])),
+        ),
+      },
       uThickness: { value: structure.thickness },
       uFlattening: { value: structure.flattening },
       uRing: { value: structure.ringRadius },
@@ -99,7 +117,10 @@ export function GalaxyRadiance({
         uniforms,
         vertexShader: VERT,
         fragmentShader: GALAXY_FRAGMENT,
-        defines: preview ? { GALAXY_PREVIEW: 1 } : {},
+        defines: {
+          ...(preview ? { GALAXY_PREVIEW: 1 } : {}),
+          ...(uniforms.uPopKind.value > 0 ? { GALAXY_POPULATION: 1 } : {}),
+        },
         transparent: true,
         depthWrite: false,
         side: THREE.BackSide,
@@ -121,6 +142,7 @@ export function GalaxyRadiance({
     ref.current.updateWorldMatrix(true, false);
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
+    if (cache) uniforms.uFieldSize.value.set(cache.size, cache.size * 2, cache.size);
     uniforms.uTime.value = motionTimeSeconds();
     const reveal = entered ? galaxyMotion.reveal : 0;
     uniforms.uReveal.value = reveal;
@@ -154,7 +176,7 @@ export function GalaxyRadiance({
       ref={ref}
       name={(preview ? "galaxy-catalog-volume:" : "galaxy-radiance:") + model.name}
       scale={model.diskRadius}
-      frustumCulled={false}
+      frustumCulled
       material={material}
     >
       <boxGeometry args={[2.7, 2.7, 2.7]} />

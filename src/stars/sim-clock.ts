@@ -24,12 +24,11 @@ let motionSeconds = 0;
 let motionStep = 0;
 let outerOrbitOffsetDays = 0;
 let galacticYears = (currentJd - J2000_JD) / DAYS_PER_JULIAN_YEAR;
-let galacticTimeScale = 1;
 export const getGalacticTimeYears = () => galacticYears;
-export const getGalacticTimeScale = () => galacticTimeScale;
+export const getGalacticTimeScale = () => useStore.getState().galacticTravelSpeed;
 /** Optional Galactic-only time compression; changing rate never jumps position. */
 export function setGalacticTimeScale(value: number) {
-  galacticTimeScale = Number.isFinite(value) ? Math.min(1e8, Math.max(1, value)) : 1;
+  useStore.getState().setGalacticTravelSpeed(value);
 }
 const OUTER_PLANETS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]);
 /** Extra elapsed orbital time, integrated continuously so changing speed never jumps phase. */
@@ -115,7 +114,10 @@ export function tickSim(dt: number) {
     const simYearsStep = d * yearsPerSec * timeMultiplier;
     const daysStep = simYearsStep * DAYS_PER_JULIAN_YEAR;
     currentJd += daysStep;
-    galacticYears = Math.min(5e8, Math.max(-5e8, galacticYears + simYearsStep * galacticTimeScale));
+    galacticYears = Math.min(
+      5e8,
+      Math.max(-5e8, galacticYears + simYearsStep * st.galacticTravelSpeed),
+    );
     outerOrbitOffsetDays += daysStep * ((st.outerOrbitSpeed ?? 1) - 1);
   }
 

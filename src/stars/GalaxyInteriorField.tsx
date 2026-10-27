@@ -1,10 +1,14 @@
 import { galaxyStructure } from "./galaxy-structure";
 import { motionTimeSeconds } from "./sim-clock";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
-import { makeGalaxyInteriorStars } from "./galaxy-interior-stars";
+import {
+  makeGalaxyInteriorStars,
+  galaxyStarGeometry,
+  type GalaxyStarData,
+} from "./galaxy-interior-stars";
 import { galaxyMotion } from "./galaxy-journey";
 export function GalaxyInteriorField({
   model,
@@ -23,7 +27,56 @@ export function GalaxyInteriorField({
   cacheFade?: THREE.IUniform<number>;
   eye?: THREE.IUniform<THREE.Vector3>;
 }) {
-  const geometry = useMemo(() => makeGalaxyInteriorStars(model, count), [model, count]);
+  // Keep the existing exterior while a worker prepares the nested interior population.
+  const populationGain = galaxyStructure(model).population ? 2.5 : 1;
+  const baseCount = Math.min(count, 36000);
+  const baseGeometry = useMemo(() => makeGalaxyInteriorStars(model, baseCount), [model, baseCount]);
+  const [stream, setStream] = useState<{
+    name: string;
+    count: number;
+    geometry: THREE.BufferGeometry;
+  } | null>(null);
+  const geometry =
+    stream?.name === model.name && stream.count === count ? stream.geometry : baseGeometry;
+  useEffect(() => {
+    if (count <= 36000) {
+      setStream(null);
+      return;
+    }
+    let alive = true;
+    const accept = (data: GalaxyStarData) => {
+      if (alive) setStream({ name: model.name, count, geometry: galaxyStarGeometry(data) });
+    };
+    let worker: Worker | undefined;
+    const fallback = () => {
+      const build = () => {
+        if (alive)
+          setStream({ name: model.name, count, geometry: makeGalaxyInteriorStars(model, count) });
+      };
+      if ("requestIdleCallback" in window) window.requestIdleCallback(build, { timeout: 1000 });
+      else setTimeout(build, 0);
+    };
+    try {
+      worker = new Worker(new URL("./galaxy-star-worker.ts", import.meta.url), { type: "module" });
+      worker.onmessage = (event: MessageEvent<GalaxyStarData>) => {
+        accept(event.data);
+        worker?.terminate();
+      };
+      worker.onerror = () => {
+        worker?.terminate();
+        fallback();
+      };
+      worker.postMessage({ model, count });
+    } catch {
+      fallback();
+    }
+    return () => {
+      alive = false;
+      worker?.terminate();
+    };
+  }, [model, count]);
+  useEffect(() => () => baseGeometry.dispose(), [baseGeometry]);
+  useEffect(() => () => stream?.geometry.dispose(), [stream]);
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
@@ -69,7 +122,9 @@ vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;float core=exp(-r2
     material.uniforms.uField.value = field?.value ?? null;
     material.uniforms.uHasField.value = field?.value && (cacheFade?.value ?? 0) > 0.9 ? 1 : 0;
     if (eye) material.uniforms.uEye.value.copy(eye.value);
-    material.uniforms.uPopulation.value = exterior ? Math.min(4, 100000 / count) : 1;
+    material.uniforms.uPopulation.value =
+      populationGain *
+      (exterior ? Math.min(4, 100000 / geometry.getAttribute("position").count) : 1);
     material.uniforms.uVisibility.value = visibility?.value ?? 1;
     material.uniforms.uExterior.value = exterior ? 1 : 0;
     material.uniforms.uReveal.value = exterior
@@ -80,14 +135,14 @@ vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;float core=exp(-r2
         );
     material.uniforms.uViewport.value = size.height * gl.getPixelRatio();
   });
-  useEffect(() => () => geometry.dispose(), [geometry]);
+
   useEffect(() => () => material.dispose(), [material]);
   return (
     <points
       name={(exterior ? "galaxy-exterior-stars:" : "galaxy-interior-stars:") + model.name}
       geometry={geometry}
       material={material}
-      frustumCulled={false}
+      frustumCulled
       raycast={() => {}}
     />
   );
