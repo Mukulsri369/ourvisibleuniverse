@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore, GUIDED_JOURNEY_STEPS } from "./store";
 import {
@@ -42,7 +42,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function CosmicWebExplorerModal() {
+export function CosmicWebExplorerModal({ journeyRequest = 0 }: { journeyRequest?: number } = {}) {
   const open = useStore((s) => s.cosmicWebExplorerOpen);
   const setOpen = useStore((s) => s.setCosmicWebExplorerOpen);
 
@@ -90,6 +90,10 @@ export function CosmicWebExplorerModal() {
   const [activeTab, setActiveTab] = useState<
     "modes" | "journey" | "cosmology" | "statistics" | "benchmarks" | "citations"
   >("modes");
+
+  useEffect(() => {
+    if (journeyRequest > 0) setActiveTab("journey");
+  }, [journeyRequest]);
 
   // Local interactive redshift calculator
   const [calcZ, setCalcZ] = useState<number>(0.15);
@@ -161,6 +165,7 @@ export function CosmicWebExplorerModal() {
 
             <div className="flex items-center gap-2">
               <button
+                aria-label="Close cosmic web explorer"
                 onClick={() => setOpen(false)}
                 className="flex size-8 items-center justify-center rounded-lg text-slate-400 hover:bg-white/10 hover:text-white transition"
               >

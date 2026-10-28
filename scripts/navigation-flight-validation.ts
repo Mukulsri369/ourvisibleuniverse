@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { useStore } from "../src/stars/store";
+import { useExploration } from "../src/stars/exploration-scope";
+useExploration.setState({ phase: "inside", galaxy: "Milky Way" });
 import { freeLookSpeed } from "../src/stars/free-look-input";
 import {
   getPlanetSimulationJd,

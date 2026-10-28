@@ -224,6 +224,7 @@ export function MajorDiscoveriesModal() {
               </div>
             </div>
             <button
+              aria-label="Close major discoveries"
               onClick={() => setOpen(false)}
               className="grid h-8 w-8 place-items-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white"
             >

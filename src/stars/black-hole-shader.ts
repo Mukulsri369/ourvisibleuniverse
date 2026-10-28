@@ -192,14 +192,18 @@ vec3 tidalMatter(vec3 direction){
 }
 void main(){
  if(uJourneyProgress>=.99999){gl_FragColor=vec4(0.,0.,0.,uActivation);return;}
- vec4 color=trace(vUv);
  vec3 d=normalize(uCameraToDisk*vec3((vUv*2.-1.)*vec2(uView.x*uView.y,uView.x),-1.));
  float ro=length(uEye);float b=length(cross(uEye,d))/sqrt(max(.001,1.-1./max(ro,1.001)));
- // Extra rays only across the subpixel critical curve; no full-frame supersampling cost.
- if(abs(b-2.598076)<max(.025,fwidth(b)*1.35)&&uFall<.01){
-  vec2 pixel=.32/max(uResolution,vec2(1.));
-  color=(color+trace(vUv+pixel)+trace(vUv-pixel))/3.;
+ // Keep one geodesic call site. Three expanded copies create very large driver
+ // programs; a dynamic sample loop preserves exactly the same native-pixel rays.
+ int samples=(abs(b-2.598076)<max(.025,fwidth(b)*1.35)&&uFall<.01)?3:1;
+ vec2 pixel=.32/max(uResolution,vec2(1.));
+ vec4 color=vec4(0.);
+ for(int sampleIndex=0;sampleIndex<samples;sampleIndex++){
+  vec2 offset=sampleIndex==0?vec2(0.):pixel*(sampleIndex==1?1.:-1.);
+  color+=trace(vUv+offset);
  }
+ color/=float(samples);
  float finalFade=1.-smoothstep(.975,1.,uJourneyProgress);
  if(uTidal>.001){color.rgb+=tidalMatter(d);color.a=max(color.a,uTidal);}
  color.rgb*=finalFade;

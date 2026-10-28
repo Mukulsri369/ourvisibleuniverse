@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { GalaxyExplorer } from "./GalaxyExplorer";
+import { useExploration } from "./exploration-scope";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 import { formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
@@ -402,6 +403,8 @@ export function TopLeftControls() {
   const settingsOpen = useStore((s) => s.navigationSettingsOpen);
   const setSettingsOpen = useStore((s) => s.setNavigationSettingsOpen);
   const [guideOpen, setGuideOpen] = useState(false);
+  const [journeyRequest, setJourneyRequest] = useState(0);
+  const isAutoOrbiting = useStore((s) => s.isAutoOrbiting);
   const [gaiaAtlasOpen, setGaiaAtlasOpen] = useState(false);
   const [solarControllerOpen, setSolarControllerOpen] = useState(false);
   return (
@@ -422,7 +425,10 @@ export function TopLeftControls() {
       </button>
       <IconButton
         title="Settings"
-        onClick={() => setSettingsOpen(!settingsOpen)}
+        onClick={() => {
+          useExploration.setState({ mapOpen: false });
+          setSettingsOpen(!settingsOpen);
+        }}
         active={settingsOpen}
       >
         <svg
@@ -489,13 +495,12 @@ export function TopLeftControls() {
           <SearchIcon />
         </IconButton>
         <IconButton
-          title={
-            useStore((s) => s.cosmicJourneyOpen)
-              ? "Cosmic Scale Journey (Earth → Observable Universe): ACTIVE (Click to hide)"
-              : "Launch Cosmic Scale Journey: Smooth flight from Earth to the Observable Horizon"
-          }
-          onClick={() => useStore.getState().toggleCosmicJourney()}
-          active={useStore((s) => s.cosmicJourneyOpen)}
+          title="Cosmic Scale Journey — choose a guided tour"
+          onClick={() => {
+            setJourneyRequest((n) => n + 1);
+            useStore.getState().setCosmicWebExplorerOpen(true);
+          }}
+          active={useStore((s) => s.guidedJourneyActive)}
         >
           <Compass className="h-4 w-4 text-cyan-400" />
         </IconButton>
@@ -513,12 +518,12 @@ export function TopLeftControls() {
         </IconButton>
         <IconButton
           title={
-            useStore.getState().isAutoOrbiting
+            isAutoOrbiting
               ? "Auto-Orbit Object: ACTIVE (Click to pause)"
               : "Auto-Orbit Object: INACTIVE (Click to start smooth orbit)"
           }
           onClick={() => useStore.getState().toggleAutoOrbit()}
-          active={useStore.getState().isAutoOrbiting}
+          active={isAutoOrbiting}
         >
           <Orbit className="h-4 w-4 text-sky-400" />
         </IconButton>
@@ -562,7 +567,7 @@ export function TopLeftControls() {
       <GalaxySearchModal />
       <GalaxyCoverageDashboard />
       <CompactObjectLabModal />
-      <CosmicWebExplorerModal />
+      <CosmicWebExplorerModal journeyRequest={journeyRequest} />
       <GuidedJourneyHUD />
       <CosmicWebHUDOverlay />
       <SearchBar open={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -615,10 +620,10 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
   {
     title: "Site map (left)",
     items: [
-      ["Stars", "Visit any catalogued star system"],
-      ["Planets", "Follow a planet of the Solar System"],
-      ["Galaxies", "Fly to a galaxy and its star system"],
-      ["Objects", "Visit quasars, black holes, remnants and every kind of star"],
+      ["Galaxies", "Choose a galaxy, then press Visit galaxy"],
+      ["Inside a galaxy", "Search and visit only that galaxy’s plotted objects"],
+      ["Search outside", "Find an object and its host, then visit the galaxy to reach it"],
+      ["Beyond galaxies", "Large structures and events whose individual hosts are unknown"],
     ],
   },
 ];
@@ -934,6 +939,7 @@ function Slider({
         <span className="text-white/45">{Math.round(value)}</span>
       </div>
       <input
+        aria-label={label}
         type="range"
         min={0}
         max={100}
@@ -963,6 +969,7 @@ function IconButton({
       onClick={onClick}
       title={title}
       aria-label={title}
+      aria-pressed={active}
       className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border transition ${active ? "border-white/60 bg-white/10 text-white" : "border-white/15 text-white/60 hover:border-white/40 hover:text-white"}`}
     >
       {children}

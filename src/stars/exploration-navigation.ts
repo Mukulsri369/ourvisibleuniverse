@@ -25,6 +25,11 @@ export function navigateExplorationTarget(target: ExploreTarget) {
   if (target.host === "Milky Way" && (target.kind === "solar" || target.kind === "planet"))
     useStore.setState({ subsystems: { ...state.subsystems, planets: true } });
   useExploration.setState({ pending: null });
+  if (target.kind === "journey") {
+    state.startGuidedJourney();
+    if (target.journeyStep) state.setGuidedJourneyStep(target.journeyStep);
+    return;
+  }
   if (target.kind === "solar") {
     const sun = typeof window !== "undefined" ? window.__planetPositions?.get("Sun") : null;
     useStore.setState({

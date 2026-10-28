@@ -80,6 +80,7 @@ export function CameraBookmarksModal() {
               </div>
             </div>
             <button
+              aria-label="Close camera bookmarks"
               onClick={() => setOpen(false)}
               className="grid h-8 w-8 place-items-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white"
             >

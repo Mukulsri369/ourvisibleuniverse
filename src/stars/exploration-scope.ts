@@ -4,7 +4,18 @@ export type ExploreTarget = {
   id: string;
   name: string;
   host: string | null;
-  kind: "solar" | "star" | "planet" | "exo" | "object" | "host" | "region" | "galaxy" | "space";
+  kind:
+    | "solar"
+    | "star"
+    | "planet"
+    | "exo"
+    | "object"
+    | "host"
+    | "region"
+    | "galaxy"
+    | "space"
+    | "journey";
+  journeyStep?: number;
   galaxy?: VisitGalaxy;
   starName?: string;
   position?: [number, number, number];

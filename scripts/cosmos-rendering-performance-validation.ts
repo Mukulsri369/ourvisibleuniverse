@@ -237,21 +237,22 @@ function validateShadersAndCameraRigSource() {
   );
 
   const planetsHasScaleCullingAndLogDepth =
-    planetsSrc.includes("pointsRef.current.visible = liveDist <= 25") &&
-    planetsSrc.includes("if (liveDist > 25)") &&
+    planetsSrc.includes("pointsRef.current.visible = d <= 25") &&
+    planetsSrc.includes("const drawable = pixels > 1.5 && fade > 0.001") &&
+    planetsSrc.includes("if (!drawable) {\n        gpuDirty.current = true;\n        return;") &&
     planetsSrc.includes("#include <logdepthbuf_vertex>") &&
     planetsSrc.includes("#include <logdepthbuf_fragment>");
 
   recordCheck(
     "SHADER-04",
     "Solar System MinorBodies & MotionTrails Scale Culling",
-    "src/stars/Planets.tsx culls MinorBodies & MotionTrails CPU buffer rewrites when zoomed out beyond 25 ly and includes logdepthbuf",
+    "Minor bodies cull beyond 25 ly; trails skip GPU uploads below their projected pixel threshold and use logarithmic depth",
     planetsHasScaleCullingAndLogDepth,
-    "Verified scale-aware CPU/GPU culling (>25 ly) and logdepthbuf chunks in Planets.tsx",
+    "Verified minor-body distance culling, trail pixel-footprint upload guard and logarithmic depth",
   );
 
   const opticsDisposesRenderTarget =
-    opticsSrc.includes("composer.renderTarget.dispose()") &&
+    opticsSrc.includes("composer.comp.dispose()") &&
     opticsSrc.includes("composer.bloomPass.dispose()");
 
   recordCheck(
@@ -259,7 +260,7 @@ function validateShadersAndCameraRigSource() {
     "HDR RenderTarget Disposal (OpticsPostProcessing)",
     "src/stars/OpticsPostProcessing.tsx explicitly disposes HalfFloatType WebGLRenderTarget and UnrealBloomPass on unmount",
     opticsDisposesRenderTarget,
-    "Verified composer.renderTarget.dispose() and composer.bloomPass.dispose()",
+    "Verified composer.comp.dispose() (both render targets) and composer.bloomPass.dispose()",
   );
 }
 

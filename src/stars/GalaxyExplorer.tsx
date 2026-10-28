@@ -188,7 +188,10 @@ export function GalaxyExplorer() {
               <button
                 aria-label="View options"
                 title="View options"
-                onClick={() => useStore.setState({ uiHidden: false, navigationSettingsOpen: true })}
+                onClick={() => {
+                  useExploration.setState({ mapOpen: false });
+                  useStore.setState({ uiHidden: false, navigationSettingsOpen: true });
+                }}
                 className="grid size-11 shrink-0 place-items-center rounded-lg hover:bg-white/10"
               >
                 <Settings2 size={18} />
@@ -423,14 +426,20 @@ export function GalaxyExplorer() {
             </DialogTitle>
             <DialogDescription className="pt-2 text-sm leading-relaxed text-neutral-300">
               {phase === "inside"
-                ? `You are inside ${active}. Exit this galaxy before travelling to ${pending?.host ?? "objects beyond galaxies"}.`
+                ? pending?.kind === "journey"
+                  ? `Exit ${active} before starting the Cosmic Scale Journey.`
+                  : `You are inside ${active}. Exit this galaxy before travelling to ${pending?.host ?? "objects beyond galaxies"}.`
                 : pending?.kind === "galaxy"
                   ? `Visit ${pending.name} to explore what’s inside.`
                   : `${pending?.name} is in ${pending?.host}. To visit this object, click Visit galaxy. We will fly inside, then take you to your chosen destination.`}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-3 rounded-xl bg-neutral-900 p-4">
-            <p className="text-xs text-neutral-400">{pending?.host ?? "Host unknown"}</p>
+            <p className="text-xs text-neutral-400">
+              {pending?.kind === "journey"
+                ? "Beyond this galaxy"
+                : (pending?.host ?? "Host unknown")}
+            </p>
             <p className="mt-1 text-base">{pending?.name}</p>
           </div>
           <button

@@ -128,6 +128,7 @@ export function GalaxySearchModal() {
               </h2>
             </div>
             <button
+              aria-label="Close galaxy search"
               onClick={() => setOpen(false)}
               className="grid h-8 w-8 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"
             >

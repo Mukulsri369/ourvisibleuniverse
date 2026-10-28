@@ -140,7 +140,10 @@ export function StarsApp() {
       <GalaxyJourneyControls />
 
       <FreeLookControls
-        onOpenSettings={() => useStore.setState({ uiHidden: false, navigationSettingsOpen: true })}
+        onOpenSettings={() => {
+          useExploration.setState({ mapOpen: false });
+          useStore.setState({ uiHidden: false, navigationSettingsOpen: true });
+        }}
       />
       {!uiHidden && (
         <>

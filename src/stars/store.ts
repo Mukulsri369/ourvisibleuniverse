@@ -1072,9 +1072,20 @@ export const useStore = create<State>((set, get) => ({
   setCatalogDensityLevel: (level) => set({ catalogDensityLevel: level }),
   setCosmicWebExplorerOpen: (open) => set({ cosmicWebExplorerOpen: open }),
   startGuidedJourney: () => {
+    if (
+      requireGalaxy({
+        id: "cosmic-scale-journey-0",
+        name: "Cosmic Scale Journey",
+        kind: "journey",
+        host: null,
+        journeyStep: 0,
+      })
+    )
+      return;
     const step = GUIDED_JOURNEY_STEPS[0];
     set({
       guidedJourneyActive: true,
+      uiHidden: false,
       guidedJourneyStep: 0,
       cosmicWebMode: "observational",
       visitPlanet: null,
@@ -1093,6 +1104,16 @@ export const useStore = create<State>((set, get) => ({
   },
   setGuidedJourneyStep: (stepIdx) => {
     const idx = Math.max(0, Math.min(GUIDED_JOURNEY_STEPS.length - 1, stepIdx));
+    if (
+      requireGalaxy({
+        id: "cosmic-scale-journey-" + idx,
+        name: "Cosmic Scale Journey",
+        kind: "journey",
+        host: null,
+        journeyStep: idx,
+      })
+    )
+      return;
     const step = GUIDED_JOURNEY_STEPS[idx];
     set({
       guidedJourneyStep: idx,
