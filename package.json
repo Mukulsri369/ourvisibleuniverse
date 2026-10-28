@@ -53,7 +53,10 @@
     "test:subscription-admin": "node scripts/subscription-admin-validation.mjs",
     "test:navigation": "tsx scripts/navigation-flight-validation.ts",
     "test:object-audio": "tsx scripts/object-audio-validation.ts",
-    "test:galaxy-populations": "tsx scripts/galaxy-populations-validation.ts"
+    "test:galaxy-populations": "tsx scripts/galaxy-populations-validation.ts",
+    "test:galaxy-landmarks": "tsx scripts/galaxy-landmarks-validation.ts",
+    "test:galaxy-empty-space": "tsx scripts/galaxy-empty-space-validation.ts",
+    "test:galaxy-explorer": "tsx scripts/galaxy-explorer-validation.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

@@ -2,8 +2,8 @@ import { lodManager } from "./lod/LODTransitionManager";
 import { galaxyAppearance } from "./galaxy-appearance";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { galaxyDetailAlpha, galaxyPresentationAlpha } from "./galaxy-detail-state";
-import { GalaxyRadiance, ANDROMEDA_APPEARANCE } from "./GalaxyRadiance";
-import { motionTimeSeconds } from "./sim-clock";
+import { GalaxyRadiance, ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
+import { motionTimeSeconds, backgroundFocus } from "./sim-clock";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
@@ -539,7 +539,7 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
   }, -2.5);
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} name={"galaxy-content:" + m.name}>
       <group scale={displayScale}>
         <mesh
           ref={starRef}
@@ -576,7 +576,7 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
         {s.planets.map((p) => (
           <GxPlanet key={p.name} def={p} au={s.au} displayScale={displayScale} />
         ))}
-        <GxBelt system={s} />
+        {s.beltOuterAU > s.beltInnerAU && <GxBelt system={s} />}
         <Billboard>
           <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
             <div
@@ -604,7 +604,11 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
 // ---------------------------------------------------------------
 
 function GalaxyBody({ m }: { m: GalaxyModel }) {
-  const entered = useGalaxyJourney((s) => s.galaxy?.name === m.name);
+  const entered = useGalaxyJourney(
+    (s) =>
+      s.galaxy?.name === m.name &&
+      (s.mode === "flying" || s.mode === "paused" || s.mode === "inside"),
+  );
   const selected = useStore((s) => s.visitGalaxy?.name === m.name);
   const blend = useRef(0);
   useEffect(
@@ -639,7 +643,9 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
       galaxyPresentationAlpha.set(m.name, blend.current);
       ref.current.visible = blend.current > 0.001;
 
-      if (mat) mat.uniforms.uOpacity.value = blend.current;
+      if (mat)
+        mat.uniforms.uOpacity.value =
+          blend.current * (m.name === "Milky Way" ? backgroundFocus() : 1);
     }
   });
   return (
@@ -647,7 +653,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
       position={center.toArray()}
       rotation={[(m.inclination * Math.PI) / 180, 0, (m.posAngle * Math.PI) / 180]}
     >
-      <group ref={ref} rotation-x={Math.PI / 2}>
+      <group ref={ref} rotation-x={m.name === "Milky Way" ? 0 : Math.PI / 2}>
         <GalaxyRadiance model={m} />
         {entered && m.system && <GxSystem m={m} system={m.system} />}
       </group>
@@ -701,6 +707,7 @@ export function DetailedGalaxies() {
   return (
     <group>
       <SelectedSurveyDetail />
+      <GalaxyGate m={MILKY_WAY_APPEARANCE} />
       <GalaxyGate m={ANDROMEDA_APPEARANCE} />
       {GALAXY_MODELS.map((m) => (
         <GalaxyGate key={m.key} m={m} />

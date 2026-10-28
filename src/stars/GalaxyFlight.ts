@@ -1,3 +1,4 @@
+import { useExploration } from "./exploration-scope";
 import { galaxyEntryRoute } from "./galaxy-entry-route";
 import { galaxyAppearance } from "./galaxy-appearance";
 import * as THREE from "three";
@@ -29,6 +30,8 @@ export class GalaxyFlight {
   returnStart = new THREE.Vector3();
   returnQ = new THREE.Quaternion();
   returnFov = 35;
+  exitPosition = new THREE.Vector3();
+  exitOrientation = new THREE.Quaternion();
   curve = new THREE.CatmullRomCurve3();
   scale = 1;
   insideStart = false;
@@ -54,6 +57,24 @@ export class GalaxyFlight {
       this.start.copy(camera.position);
       this.startQ.copy(camera.quaternion);
       this.startFov = camera.fov;
+      const width = typeof window !== "undefined" ? window.innerWidth : 1440;
+      const fraction = width >= 768 ? Math.max(0.6, 1 - 350 / width) : 1;
+      const extent = state.galaxy.size * (/Interacting/i.test(state.galaxy.type) ? 0.85 : 0.55);
+      const overviewRadius =
+        extent / (Math.tan((42 * Math.PI) / 360) * Math.min(1, camera.aspect * fraction)) + extent;
+      this.exitPosition
+        .set(
+          ...((state.galaxy.name === "Milky Way" ? [0.15, 0.85, 0.5] : [0.6, 0.35, 0.7]) as [
+            number,
+            number,
+            number,
+          ]),
+        )
+        .normalize()
+        .multiplyScalar(overviewRadius)
+        .add(this.center);
+      this.look.lookAt(this.exitPosition, this.center, camera.up);
+      this.exitOrientation.setFromRotationMatrix(this.look);
       this.localStart.copy(this.start).applyMatrix4(this.inverse);
       const route = galaxyEntryRoute(galaxyAppearance(state.galaxy));
       this.entry.set(...route.points[0]);
@@ -82,11 +103,16 @@ export class GalaxyFlight {
         this.returnFov = camera.fov;
       }
       this.returnTime += dt;
-      const t = ease(Math.min(1, this.returnTime / 4));
-      camera.position.lerpVectors(this.returnStart, this.start, t);
-      camera.quaternion.slerpQuaternions(this.returnQ, this.startQ, t);
-      camera.fov = THREE.MathUtils.lerp(this.returnFov, this.startFov, t);
+      const t = ease(Math.min(1, this.returnTime / (state.reducedMotion ? 1.2 : 2.4)));
+      camera.position.lerpVectors(this.returnStart, this.exitPosition, t);
+      camera.quaternion.slerpQuaternions(this.returnQ, this.exitOrientation, t);
+      camera.fov = THREE.MathUtils.lerp(this.returnFov, 42, t);
+      if (state.reducedMotion) {
+        camera.position.copy(t < 0.5 ? this.returnStart : this.exitPosition);
+        camera.quaternion.copy(t < 0.5 ? this.returnQ : this.exitOrientation);
+      }
       galaxyMotion.reveal *= Math.exp(-dt * 2);
+      galaxyMotion.progress = 1 - t;
       if (t === 1) state.reset();
       return true;
     }
@@ -106,15 +132,24 @@ export class GalaxyFlight {
       this.approachStep.identity().slerp(this.approachRotation, t);
       this.point.copy(this.direction).applyQuaternion(this.approachStep).multiplyScalar(radius);
     } else this.curve.getPoint(ease((p - approach) / (1 - approach)), this.point);
+    if (state.reducedMotion) {
+      this.point.copy(p < 0.5 ? this.localStart : this.curve.getPoint(1));
+    }
     camera.position.copy(this.point).applyMatrix4(this.matrix);
     this.look.lookAt(camera.position, this.focus, camera.up);
     this.orientation.setFromRotationMatrix(this.look);
     camera.quaternion.slerpQuaternions(this.startQ, this.orientation, ease(Math.min(1, p / 0.16)));
     camera.fov = THREE.MathUtils.lerp(this.startFov, 48, ease(Math.min(1, p / 0.35)));
+    if (state.reducedMotion) {
+      camera.quaternion.copy(p < 0.5 ? this.startQ : this.orientation);
+      camera.fov = p < 0.5 ? this.startFov : 48;
+    }
     galaxyMotion.reveal = THREE.MathUtils.smoothstep(p, 0.45, 0.88);
     if (p === 1) {
       useGalaxyJourney.setState({ mode: "inside" });
-      useStore.setState({ cameraFree: true });
+      const queued = useExploration.getState().queued;
+      useExploration.setState({ phase: "inside", mapOpen: !queued });
+      useStore.setState({ cameraFree: !queued });
     }
     return true;
   }

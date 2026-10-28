@@ -18,3 +18,5 @@
 - Sitemap galaxy visits use a galaxy-centered overview while scene clicks may focus a hosted star system, because the two actions have different framing goals.
 - Planet visits follow the live body position and keep orbit/zoom active, because a moving planet otherwise drifts out of the close-up view.
 - The MCP server (`src/lib/mcp/`, mounted at `/mcp`) requires OAuth sign-in and reads user data only through the caller's token, because pass records are private per user.
+
+- Galaxy exploration starts outside the Milky Way. Object navigation must respect `requireGalaxy` and explicit host membership in `object-hosts.ts`; never infer membership from distance. Mount named contents only during that galaxy’s entering/inside phases, and execute queued object visits only after entry completes. Cross-galaxy requests require exit, preview and explicit visit.

@@ -29,8 +29,13 @@ export function GalaxyRadiance({
 }) {
   const ref = useRef<THREE.Mesh>(null!);
   const tier = useStore((s) => s.renderingQualityTier);
+  const journeyActive = useGalaxyJourney((s) => s.galaxy?.name === model.name);
   const selected = useStore((s) => s.visitGalaxy?.name === model.name);
-  const entered = useGalaxyJourney((s) => s.galaxy?.name === model.name);
+  const entered = useGalaxyJourney(
+    (s) =>
+      s.galaxy?.name === model.name &&
+      (s.mode === "flying" || s.mode === "paused" || s.mode === "inside"),
+  );
   const eye = useMemo(() => new THREE.Vector3(), []);
   const uniforms = useMemo(() => {
     const structure = galaxyStructure(model);
@@ -62,9 +67,27 @@ export function GalaxyRadiance({
       uSteps: { value: 32 },
       uFieldSize: { value: new THREE.Vector3(1, 1, 1) },
       uAdaptiveSampling: { value: 1 },
+      uSkipEmpty: { value: 1 },
+      uOccupancy: { value: null as THREE.Texture | null },
+      uOccupancyReady: { value: 0 },
+      uOccupancySize: { value: new THREE.Vector3(1, 1, 1) },
       uReveal: { value: 0 },
-      uOld: { value: new THREE.Color(...(population?.old ?? model.oldColor)) },
-      uYoung: { value: new THREE.Color(...(population?.hot ?? model.youngColor)) },
+      uOld: {
+        value: new THREE.Color(
+          ...(population?.old ??
+            ([10, 11, 15].includes(structure.feature)
+              ? ([1, 0.67, 0.33] as [number, number, number])
+              : model.oldColor)),
+        ),
+      },
+      uYoung: {
+        value: new THREE.Color(
+          ...(population?.hot ??
+            ([10, 11, 15].includes(structure.feature)
+              ? ([0.23, 0.52, 1] as [number, number, number])
+              : model.youngColor)),
+        ),
+      },
       uMode: { value: Math.max(0, mode) },
       uFeature: { value: structure.feature },
       uPopKind: { value: population?.kind ?? 0 },
@@ -144,7 +167,7 @@ export function GalaxyRadiance({
     uniforms.uEye.value.copy(eye);
     if (cache) uniforms.uFieldSize.value.set(cache.size, cache.size * 2, cache.size);
     uniforms.uTime.value = motionTimeSeconds();
-    const reveal = entered ? galaxyMotion.reveal : 0;
+    const reveal = journeyActive ? galaxyMotion.reveal : 0;
     uniforms.uReveal.value = reveal;
     if (
       cache &&
@@ -152,6 +175,14 @@ export function GalaxyRadiance({
     ) {
       const ready = cache.bake(gl);
       uniforms.uField.value = cache.target.texture;
+      uniforms.uOccupancy.value = cache.occupancy?.texture ?? null;
+      uniforms.uOccupancySize.value.set(
+        cache.occupancySize,
+        cache.occupancySize * 2,
+        cache.occupancySize,
+      );
+      uniforms.uOccupancyReady.value =
+        !cache.occupancy || cache.occupancyLayer >= cache.occupancySize ? 1 : 0;
       uniforms.uCacheFade.value = THREE.MathUtils.damp(
         uniforms.uCacheFade.value,
         ready ? 1 : 0,

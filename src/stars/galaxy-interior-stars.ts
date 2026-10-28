@@ -8,6 +8,7 @@ export function galaxyStarGeometry(data: GalaxyStarData) {
   g.setAttribute("color", new THREE.BufferAttribute(data.colors, 3));
   g.setAttribute("aLum", new THREE.BufferAttribute(data.luminosities, 1));
   g.setAttribute("aPhase", new THREE.BufferAttribute(data.phases, 1));
+  if (data.indices) g.setIndex(new THREE.BufferAttribute(data.indices, 1));
   g.computeBoundingSphere();
   return g;
 }

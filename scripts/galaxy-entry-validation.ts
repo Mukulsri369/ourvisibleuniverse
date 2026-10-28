@@ -83,9 +83,14 @@ for (const model of sample) {
   for (let n = 0; n < 250; n++) flight.update(camera, scene, 1 / 60);
   assert.equal(useGalaxyJourney.getState().mode, "idle");
   assert(
-    camera.position.distanceTo(initial) < Math.max(1e-6, initial.length() * Number.EPSILON * 8),
+    camera.position.distanceTo(flight.exitPosition) <
+      Math.max(1e-6, initial.length() * Number.EPSILON * 8),
   );
-  assert(camera.quaternion.angleTo(q) < 1e-7);
+  assert(camera.quaternion.angleTo(flight.exitOrientation) < 1e-7);
+  assert(
+    camera.position.distanceTo(center) > model.diskRadius * 1.5,
+    "Exit frames the galaxy from outside",
+  );
 }
 for (const m of GALAXY_MODELS.filter((m) => m.system))
   for (const planet of m.system!.planets) {

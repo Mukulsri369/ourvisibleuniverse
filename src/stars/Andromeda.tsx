@@ -880,7 +880,11 @@ function PA99N2System() {
 // Soft glow so M31 reads as a galaxy from millions of light-years away,
 // smoothly cross-fading with the particle model via continuous screen-space LOD.
 export function Andromeda() {
-  const entered = useGalaxyJourney((s) => s.galaxy?.name === ANDROMEDA_NAME);
+  const entered = useGalaxyJourney(
+    (s) =>
+      s.galaxy?.name === ANDROMEDA_NAME &&
+      (s.mode === "flying" || s.mode === "paused" || s.mode === "inside"),
+  );
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const subsystems = useStore((s) => s.subsystems);
   const { size } = useThree();
@@ -947,7 +951,11 @@ export function Andromeda() {
 
         <GalaxyCatalogCloud model={ANDROMEDA_APPEARANCE} />
 
-        {entered && <PA99N2System />}
+        {entered && (
+          <group name="galaxy-content:Andromeda (M31)">
+            <PA99N2System />
+          </group>
+        )}
         {/* generous invisible pick target so M31 stays clickable from afar */}
         <mesh onClick={visit}>
           <sphereGeometry args={[pickRadius, 12, 12]} />

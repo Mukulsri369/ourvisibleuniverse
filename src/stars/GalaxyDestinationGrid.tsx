@@ -1,3 +1,10 @@
+import { galaxyAppearance } from "./galaxy-appearance";
+import type { VisitGalaxy } from "./store";
+import { galaxyLandmarks, type GalaxyLandmark } from "./galaxy-landmarks";
+import { galaxyQuat } from "./galaxy-models";
+import { galaxyStructure } from "./galaxy-structure";
+import { motionTimeSeconds } from "./sim-clock";
+import * as THREE from "three";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { systemWorldPosition, systemViewDistance } from "./galaxy-models";
 import { PA99N2_WORLD } from "./andromeda-data";
@@ -13,9 +20,11 @@ export type GalaxyDestination = {
   name: string;
   type: string;
   note: string;
-  action: "star" | "body" | "object" | "host";
+  action: "star" | "body" | "object" | "host" | "region";
+  landmark?: GalaxyLandmark;
+  source?: string;
 };
-export function galaxyDestinations(name: string): GalaxyDestination[] {
+export function galaxyDestinations(name: string, descriptor?: VisitGalaxy): GalaxyDestination[] {
   const list: GalaxyDestination[] = [];
   if (name === "Milky Way") {
     for (const star of NAMED_STARS)
@@ -47,8 +56,8 @@ export function galaxyDestinations(name: string): GalaxyDestination[] {
       list.push({
         id: star.name,
         name: star.name,
-        type: "Host star",
-        note: star.spectral,
+        type: "Observed source",
+        note: star.spectral + " · close-up and placement reconstructed",
         action: "host",
       });
     for (const p of planets ?? []) {
@@ -68,6 +77,32 @@ export function galaxyDestinations(name: string): GalaxyDestination[] {
           action: "body",
         });
     }
+    const model =
+      GALAXY_BY_NAME.get(name) ?? (descriptor ? galaxyAppearance(descriptor) : undefined);
+    if (model)
+      for (const landmark of galaxyLandmarks(model))
+        list.push({
+          id: "region:" + landmark.id,
+          name: landmark.name,
+          type: "Observed structure · 3D reconstruction",
+          note: landmark.note,
+          action: "region",
+          landmark,
+          source: landmark.source,
+        });
+    if (/3C 273/.test(name)) {
+      const o = OBSERVED_OBJECTS.find((o) => o.id === "3c273");
+      if (o)
+        list.push({
+          id: o.id,
+          name: o.name,
+          type: "Quasar and optical jet",
+          note: "Observed active nucleus; close view is reconstructed.",
+          action: "object",
+          source:
+            "https://science.nasa.gov/missions/hubble/hubble-probes-the-heart-of-a-nearby-quasar/",
+        });
+    }
     if (/M87|Virgo A/i.test(name)) {
       const o = OBSERVED_OBJECTS.find((o) => o.id === "m87star");
       if (o)
@@ -85,14 +120,40 @@ export function galaxyDestinations(name: string): GalaxyDestination[] {
 export function GalaxyDestinationGrid({ name, onVisit }: { name: string; onVisit?: () => void }) {
   const [query, setQuery] = useState(""),
     [limit, setLimit] = useState(12);
-  const all = useMemo(() => galaxyDestinations(name), [name]);
+  const selected = useStore((s) => s.visitGalaxy);
+  const all = useMemo(
+    () => galaxyDestinations(name, selected?.name === name ? selected : undefined),
+    [name, selected],
+  );
   const filtered = all.filter((d) =>
     `${d.name} ${d.type} ${d.note}`.toLowerCase().includes(query.toLowerCase()),
   );
   const visit = (d: GalaxyDestination) => {
     onVisit?.();
     const state = useStore.getState();
-    if (d.action === "star") {
+    if (d.action === "region" && d.landmark) {
+      const g = useGalaxyJourney.getState().galaxy ?? state.visitGalaxy,
+        m = GALAXY_BY_NAME.get(name) ?? (g ? galaxyAppearance(g) : undefined);
+      if (!g || !m) return;
+      const p = new THREE.Vector3(...d.landmark.local);
+      p.applyAxisAngle(
+        new THREE.Vector3(0, 1, 0),
+        motionTimeSeconds() * galaxyStructure(m).rotationRate,
+      );
+      p.multiplyScalar(m.diskRadius)
+        .applyQuaternion(galaxyQuat(m.inclination, m.posAngle))
+        .add(new THREE.Vector3(g.x, g.y, g.z));
+      const distance = m.diskRadius * d.landmark.distance;
+      useStore.setState({
+        visitGalaxy: { ...g, view: undefined, focus: { x: p.x, y: p.y, z: p.z, distance } },
+        selectedStar: null,
+        selectedObjectId: null,
+        visitPlanet: null,
+        exoVisit: null,
+        cameraFree: false,
+        flyTo: { x: p.x, y: p.y, z: p.z, distance },
+      });
+    } else if (d.action === "star") {
       const star = NAMED_STARS.find((s) => s.name === d.id);
       if (star) state.flyToStar(star);
     } else if (d.action === "object") state.setSelectedObject(d.id);
@@ -147,23 +208,37 @@ export function GalaxyDestinationGrid({ name, onVisit }: { name: string; onVisit
               setQuery(e.target.value);
               setLimit(12);
             }}
-            placeholder="Search stars, worlds and objects"
+            placeholder="Search objects and observed structures"
             className="mt-3 min-h-11 w-full rounded-lg border border-white/15 bg-black/30 px-3 text-xs text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-sky-300"
           />
           <div className="mt-3 grid grid-cols-2 gap-2">
             {filtered.slice(0, limit).map((d) => (
-              <button
-                type="button"
+              <div
                 key={d.id}
-                onClick={() => visit(d)}
-                className="min-h-20 rounded-lg border border-white/10 bg-white/[.025] p-3 text-left transition hover:border-sky-300/50 hover:bg-sky-300/5 focus-visible:outline focus-visible:outline-sky-300"
+                className="flex flex-col rounded-lg border border-white/10 bg-white/[.025]"
               >
-                <span className="block text-[10px] uppercase tracking-wider text-sky-200/65">
-                  {d.type}
-                </span>
-                <span className="mt-1 block text-xs font-medium text-white/90">{d.name}</span>
-                <span className="mt-1 block text-[11px] text-white/45">{d.note}</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => visit(d)}
+                  className="min-h-20 flex-1 rounded-lg p-3 text-left transition hover:border-sky-300/50 hover:bg-sky-300/5 focus-visible:outline focus-visible:outline-sky-300"
+                >
+                  <span className="block text-[10px] uppercase tracking-wider text-sky-200/65">
+                    {d.type}
+                  </span>
+                  <span className="mt-1 block text-xs font-medium text-white/90">{d.name}</span>
+                  <span className="mt-1 block text-[11px] text-white/45">{d.note}</span>
+                </button>
+                {d.source && (
+                  <a
+                    href={d.source}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 pb-3 text-[10px] text-sky-200/65 underline"
+                  >
+                    Observation source ↗
+                  </a>
+                )}
+              </div>
             ))}
           </div>
           {!filtered.length && (

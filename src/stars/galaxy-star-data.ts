@@ -55,7 +55,15 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
         z = 0.12 * Math.sin(x * 3) + gaussian() * population.axes[2] * 0.07;
       }
     } else if (shape.spheroid || bulge) {
-      r *= shape.spheroid ? 1 : Math.max(0.16, model.bulgeRadius / model.diskRadius);
+      r *= shape.spheroid
+        ? 1
+        : f === 10
+          ? 0.2
+          : f === 11
+            ? 0.32
+            : f === 15
+              ? 0.14
+              : Math.max(0.16, model.bulgeRadius / model.diskRadius);
       const mu = rand() * 2 - 1,
         s = Math.sqrt(1 - mu * mu);
       x = Math.cos(a) * r * s;
@@ -78,8 +86,25 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
         y *= 1.7;
       }
     } else {
-      if (ring) r = shape.ringRadius + gaussian() * 0.028;
-      else if (model.arms > 0 && model.morphology !== "lenticular" && rand() < shape.armContrast) {
+      if (ring) {
+        const cart = f === 10;
+        // Associations break the band into stellar clouds, with finite vertical depth.
+        if (rand() < 0.62) {
+          const k = Math.floor(rand() * (cart ? 17 : 12));
+          a = k * 2.399963 + Math.sin(k * 1.7) * 0.28 + gaussian() * 0.045;
+        }
+        r =
+          shape.ringRadius +
+          (cart ? 0.032 * Math.sin(a * 3 + 0.4) : 0.013 * Math.sin(a * 2)) +
+          gaussian() * (cart ? 0.033 : 0.04);
+        if (cart && rand() < 0.25) {
+          r = rand() < 0.45 ? 0.21 + gaussian() * 0.025 : 0.26 + rand() * 0.43;
+        }
+      } else if (
+        model.arms > 0 &&
+        model.morphology !== "lenticular" &&
+        rand() < shape.armContrast
+      ) {
         const launch = Math.max(0.045, model.barLength / model.diskRadius);
         a =
           (Math.floor(rand() * model.arms) * Math.PI * 2) / model.arms +
@@ -97,6 +122,25 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
       ) {
         x = ((rand() * 2 - 1) * model.barLength) / model.diskRadius;
         z = gaussian() * 0.025;
+      }
+      if (f === 15) {
+        if (rand() < 0.68) {
+          r = 0.22 + Math.pow(rand(), 0.65) * 0.86;
+          a =
+            (rand() < 0.5 ? 0 : Math.PI) +
+            Math.log(r / 0.09) / Math.tan(0.34) +
+            Math.sin(r * 4) * 0.2 +
+            gaussian() * 0.18;
+        } else {
+          r *= 0.24;
+        }
+        x = Math.cos(a) * r;
+        z = Math.sin(a) * r;
+        y = gaussian() * (0.012 + 0.018 * r);
+      }
+      if (ring) {
+        x += f === 10 ? 0.035 : 0;
+        z += f === 10 ? -0.025 : 0;
       }
       if (f === 3) {
         x *= 0.8;
@@ -149,12 +193,38 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
             ? [1, 0.4, 0.16]
             : population.old
         : young
-          ? model.youngColor
-          : model.oldColor;
+          ? [10, 11, 15].includes(f)
+            ? [0.3, 0.62, 1]
+            : model.youngColor
+          : [10, 11, 15].includes(f)
+            ? [1, 0.74, 0.45]
+            : model.oldColor;
     const warmth = rand();
     for (let k = 0; k < 3; k++) c[i * 3 + k] = color[k] * (0.85 + warmth * 0.15);
-    light[i] = 0.08 + Math.pow(rand(), 12) * 4.5;
+    light[i] = (0.08 + Math.pow(rand(), 12) * 4.5) * (f === 15 && r > 0.22 ? 0.48 : 1);
     phase[i] = rand() * Math.PI * 2;
   }
-  return { positions: p, colors: c, luminosities: light, phases: phase };
+  let indices: Uint32Array<ArrayBuffer> | undefined;
+  if (count > 36000) {
+    const buckets = Array.from({ length: 256 }, () => [] as number[]);
+    for (let i = 0; i < count; i++) {
+      const ix = Math.max(0, Math.min(7, Math.floor(((p[i * 3] + 1.35) / 2.7) * 8)));
+      const iy = Math.max(0, Math.min(3, Math.floor(((p[i * 3 + 1] + 1.35) / 2.7) * 4)));
+      const iz = Math.max(0, Math.min(7, Math.floor(((p[i * 3 + 2] + 1.35) / 2.7) * 8)));
+      buckets[ix + iz * 8 + iy * 64].push(i);
+    }
+    indices = new Uint32Array(count);
+    let offset = 0;
+    for (const bucket of buckets) {
+      indices.set(bucket, offset);
+      offset += bucket.length;
+    }
+  }
+  return {
+    positions: p,
+    colors: c,
+    luminosities: light,
+    phases: phase,
+    ...(indices ? { indices } : {}),
+  };
 }

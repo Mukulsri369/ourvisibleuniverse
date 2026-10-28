@@ -1,5 +1,4 @@
 import { GALAXY_REFERENCES } from "./galaxy-references";
-import { GalaxyDestinationGrid } from "./GalaxyDestinationGrid";
 import { useState } from "react";
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
@@ -216,7 +215,9 @@ export function GalaxyInfoPanel() {
                 <span>Open 7-Tab Science Dossier</span>
               </button>
 
-              <GalaxyDestinationGrid key={visit.name} name={visit.name} />
+              <p className="mt-4 text-sm text-white/60">
+                Visit this galaxy to discover its objects in the galaxy map.
+              </p>
 
               {/* Navigation Tabs */}
               <div className="mt-5 flex border-b border-white/10 text-xs">

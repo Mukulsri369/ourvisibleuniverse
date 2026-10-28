@@ -1,3 +1,4 @@
+import { useExploration } from "./exploration-scope";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { useNebulaJourney } from "./nebula-journey";
 import {
@@ -22,6 +23,7 @@ const DIRECTIONS = [
 ] as const;
 
 export function FreeLookControls({ onOpenSettings }: { onOpenSettings?: () => void }) {
+  const mapOpen = useExploration((s) => s.mapOpen);
   const active = useStore((s) => s.cameraFree);
   const galaxyPassage = useGalaxyJourney((s) => s.mode !== "idle");
   const nebulaPassage = useNebulaJourney((s) => s.mode !== "idle");
@@ -35,8 +37,9 @@ export function FreeLookControls({ onOpenSettings }: { onOpenSettings?: () => vo
       style={{ visibility: active ? "visible" : "hidden" }}
       className={
         (inPassage
-          ? "fixed bottom-52 left-4 z-30 w-[calc(100vw-2rem)] max-w-[440px] "
+          ? "fixed bottom-6 right-4 z-30 w-[calc(100vw-2rem)] max-w-[440px] "
           : "fixed bottom-24 left-1/2 z-30 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 sm:w-auto ") +
+        (mapOpen ? "max-sm:hidden " : "") +
         "flex flex-col items-center gap-3 sm:flex-row rounded-2xl border border-sky-200/20 bg-neutral-950/95 p-3 text-white shadow-2xl"
       }
     >

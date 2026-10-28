@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { requireGalaxy, useExploration } from "./exploration-scope";
+import { objectHost, starHost, ANDROMEDA, MILKY_WAY } from "./object-hosts";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 
 import { clampTimeRate } from "./scene-controls";
@@ -6,7 +8,12 @@ import { stellarDisplayRadius } from "./camera-navigation";
 import { create } from "zustand";
 import { NAMED_STARS, type NamedStar } from "./data";
 import { ANDROMEDA_NAME, M31_AU, M31_PLANETS, PA99N2_STAR, PA99N2_WORLD } from "./andromeda-data";
-import { GALAXY_BY_NAME, systemViewDistance, systemWorldPosition } from "./galaxy-models";
+import {
+  GX_PLANET_INDEX,
+  GALAXY_BY_NAME,
+  systemViewDistance,
+  systemWorldPosition,
+} from "./galaxy-models";
 import {
   OBJECT_BY_ID,
   OBSERVED_OBJECTS,
@@ -746,11 +753,21 @@ export const useStore = create<State>((set, get) => ({
   tourStop: 0,
   tourCaption: null,
   musicOn: false,
-  cameraDistance: 8,
+  cameraDistance: 180000,
   flyTo: null,
   visitPlanet: null,
   exoVisit: null,
   visitExoPlanet: (star, planet) => {
+    if (
+      requireGalaxy({
+        kind: "exo",
+        id: planet,
+        name: planet,
+        host: starHost(star.name),
+        starName: star.name,
+      })
+    )
+      return;
     const normStar = normalizeStar(star)!;
     set({
       visitPlanet: planet,
@@ -763,9 +780,18 @@ export const useStore = create<State>((set, get) => ({
       cameraFree: false,
     });
   },
-  visitGalaxy: null,
+  visitGalaxy: {
+    name: MILKY_WAY,
+    x: -SGR_A_DISTANCE_LY,
+    y: 0,
+    z: 0,
+    size: 100000,
+    distance: SGR_A_DISTANCE_LY,
+    type: "Barred Spiral",
+    view: "overview",
+  },
   selectedObjectId: null,
-  uiHidden: false,
+  uiHidden: true,
   cameraFree: false,
   zoomSpeed: 50,
   freeLookSpeed: 1,
@@ -797,16 +823,21 @@ export const useStore = create<State>((set, get) => ({
   toggleSkyDirectionLayer: () =>
     set((st) => ({ showSkyDirectionLayer: !st.showSkyDirectionLayer })),
   toggleProceduralStars: () => set((st) => ({ showProceduralStars: !st.showProceduralStars })),
-  setSelected: (s) =>
+  setSelected: (s) => {
+    if (s && requireGalaxy({ kind: "star", id: s.name, name: s.name, host: starHost(s.name) }))
+      return;
     set({
       exoVisit: null,
       selectedStar: normalizeStar(s),
       cameraFree: s ? false : get().cameraFree,
       visitGalaxy: null,
       selectedObjectId: null,
-    }),
+    });
+  },
   toggleSpectral: () => set((st) => ({ spectralMode: !st.spectralMode })),
-  startTour: () =>
+  startTour: () => {
+    if (requireGalaxy({ kind: "solar", id: "solar-system", name: "Solar System", host: MILKY_WAY }))
+      return;
     set({
       tourActive: true,
       cameraFree: false,
@@ -814,7 +845,8 @@ export const useStore = create<State>((set, get) => ({
       selectedStar: null,
       visitPlanet: null,
       visitGalaxy: null,
-    }),
+    });
+  },
   stopTour: () => set({ tourActive: false, tourCaption: null }),
   setTourStop: (n) => set({ tourStop: n }),
   setTourCaption: (c) => set({ tourCaption: c }),
@@ -828,6 +860,7 @@ export const useStore = create<State>((set, get) => ({
     set({ cameraDistance: d });
   },
   flyToStar: (s) => {
+    if (requireGalaxy({ kind: "star", id: s.name, name: s.name, host: starHost(s.name) })) return;
     const normStar = normalizeStar(s);
     if (!normStar) return;
     if (
@@ -858,7 +891,11 @@ export const useStore = create<State>((set, get) => ({
     });
   },
   clearFly: () => set({ flyTo: null }),
-  setVisitPlanet: (name) =>
+  setVisitPlanet: (name) => {
+    const host =
+      GX_PLANET_INDEX.get(name)?.model.name ??
+      (/^PA-99-N2/.test(name ?? "") ? ANDROMEDA : MILKY_WAY);
+    if (name && requireGalaxy({ kind: "planet", id: name, name, host })) return;
     set({
       visitPlanet: name,
       exoVisit: null,
@@ -868,8 +905,19 @@ export const useStore = create<State>((set, get) => ({
       selectedObjectId: null,
       flyTo: null,
       cameraFree: name ? false : get().cameraFree,
-    }),
-  setVisitGalaxy: (g) =>
+    });
+  },
+  setVisitGalaxy: (g) => {
+    const scope = useExploration.getState();
+    if (
+      g &&
+      scope.phase !== "outside" &&
+      scope.galaxy !== g.name &&
+      requireGalaxy({ kind: "galaxy", galaxy: g, id: g.name, name: g.name, host: g.name })
+    )
+      return;
+    if (g && scope.pending && scope.pending.host !== g.name)
+      useExploration.setState({ pending: null });
     set({
       visitGalaxy: g ? { ...g, view: "overview", focus: undefined } : null,
       cameraFree: g ? false : get().cameraFree,
@@ -879,7 +927,8 @@ export const useStore = create<State>((set, get) => ({
       selectedObjectId: null,
       tourActive: false,
       flyTo: null,
-    }),
+    });
+  },
   setSelectedObject: (id) => {
     if (!id) {
       set({ selectedObjectId: null });
@@ -898,6 +947,8 @@ export const useStore = create<State>((set, get) => ({
       set({ selectedObjectId: null });
       return;
     }
+    if (requireGalaxy({ kind: "object", id: item.id, name: item.name, host: objectHost(item.id) }))
+      return;
     const [x, y, z] = objectPosition(item);
     set({
       selectedObjectId: item.id,

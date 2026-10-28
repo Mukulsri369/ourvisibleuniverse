@@ -97,13 +97,20 @@ export function GalaxyInteriorField({
           uVisibility: { value: 1 },
           uExterior: { value: 0 },
           uViewport: { value: 800 },
+          uAspect: { value: 1 },
+          uClipStars: { value: 1 },
         },
         vertexShader: /* glsl */ `#include <common>
 #include <logdepthbuf_pars_vertex>
 precision highp sampler3D;
 uniform sampler3D uField;uniform vec3 uEye;uniform float uHasField,uPopulation;
-uniform float uTime,uReveal,uViewport,uRotation,uExterior;attribute float aLum,aPhase;varying vec3 vColor;varying float vLum,vDistance;
-void main(){float radius=length(position.xz),angle=-uTime*uRotation/max(radius,.12);float c=cos(angle),s=sin(angle);vec3 p=vec3(position.x*c-position.z*s,position.y,position.x*s+position.z*c);vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;float unit=length(modelMatrix[0].xyz);vDistance=length(mv.xyz)/max(unit,.001);vColor=color;float tau=0.;if(uHasField>.5){vec3 end=mix(p,uEye,min(1.,2.7/max(.001,length(uEye-p))));float ds=length(end-p)/6.;for(int j=0;j<6;j++){vec3 q=mix(p,end,(float(j)+.5)/6.);float an=uTime*uRotation/max(length(q.xz),.12);q.xz=mat2(cos(an),sin(an),-sin(an),cos(an))*q.xz;tau+=texture(uField,q/2.7+.5).a*ds;}}vLum=aLum*(.985+.015*sin(uTime*.4+aPhase))*exp(-tau*5.)*uPopulation;gl_PointSize=clamp(uViewport*.002*sqrt(aLum)/sqrt(max(.0001,vDistance)),mix(.9,1.,uExterior),mix(9.,3.,uExterior));
+uniform float uTime,uReveal,uViewport,uRotation,uExterior,uAspect,uClipStars;attribute float aLum,aPhase;varying vec3 vColor;varying float vLum,vDistance;
+void main(){float radius=length(position.xz),angle=-uTime*uRotation;float c=cos(angle),s=sin(angle);vec3 p=vec3(position.x*c-position.z*s,position.y,position.x*s+position.z*c);vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;
+// Reject invisible points before six 3D dust lookups. Worker-sorted indices
+// keep nearby stars together so neighbouring GPU lanes take the same branch.
+vec2 margin=vec2(20./(uViewport*uAspect),20./uViewport);
+if(uClipStars>.5&&(gl_Position.w<=0.||any(greaterThan(abs(gl_Position.xy),vec2(gl_Position.w)*(vec2(1.)+margin))))){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vColor=vec3(0.);vLum=0.;vDistance=1.;return;}
+float unit=length(modelMatrix[0].xyz);vDistance=length(mv.xyz)/max(unit,.001);vColor=color;float tau=0.;if(uHasField>.5){vec3 end=mix(p,uEye,min(1.,2.7/max(.001,length(uEye-p))));float ds=length(end-p)/6.;for(int j=0;j<6;j++){vec3 q=mix(p,end,(float(j)+.5)/6.);float an=uTime*uRotation;q.xz=mat2(cos(an),sin(an),-sin(an),cos(an))*q.xz;tau+=texture(uField,q/2.7+.5).a*ds;}}vLum=aLum*(.985+.015*sin(uTime*.4+aPhase))*exp(-tau*5.)*uPopulation;gl_PointSize=clamp(uViewport*.002*sqrt(aLum)/sqrt(max(.0001,vDistance)),mix(.9,1.,uExterior),mix(9.,3.,uExterior));
 #include <logdepthbuf_vertex>
 }`,
         fragmentShader: /* glsl */ `#include <logdepthbuf_pars_fragment>
@@ -118,7 +125,8 @@ vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;float core=exp(-r2
     [model],
   );
   useFrame(({ size, gl }) => {
-    material.uniforms.uTime.value = motionTimeSeconds();
+    const time = motionTimeSeconds();
+    material.uniforms.uTime.value = time;
     material.uniforms.uField.value = field?.value ?? null;
     material.uniforms.uHasField.value = field?.value && (cacheFade?.value ?? 0) > 0.9 ? 1 : 0;
     if (eye) material.uniforms.uEye.value.copy(eye.value);
@@ -134,11 +142,13 @@ vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;float core=exp(-r2
           THREE.MathUtils.smoothstep(galaxyMotion.progress, 0.08, 0.4) * 0.5,
         );
     material.uniforms.uViewport.value = size.height * gl.getPixelRatio();
+    material.uniforms.uAspect.value = size.width / Math.max(1, size.height);
   });
 
   useEffect(() => () => material.dispose(), [material]);
   return (
     <points
+      dispose={null}
       name={(exterior ? "galaxy-exterior-stars:" : "galaxy-interior-stars:") + model.name}
       geometry={geometry}
       material={material}

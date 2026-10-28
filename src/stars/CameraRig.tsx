@@ -39,9 +39,23 @@ export function CameraRig() {
   const { camera, gl, scene } = useThree();
   const nebulaFlight = useRef(new NebulaFlight());
   const galaxyFlight = useRef(new GalaxyFlight());
-  const target = useRef(new THREE.Vector3(0, 0, 0));
-  const spherical = useRef(new THREE.Spherical(8, Math.PI / 2.2, 0));
-  const desired = useRef({ radius: 8, theta: 0, phi: Math.PI / 2.2 });
+  const bootGalaxy = useRef(useStore.getState().visitGalaxy);
+  const bootRadius = bootGalaxy.current ? Math.max(2000, bootGalaxy.current.size * 1.8) : 8;
+  const target = useRef(
+    new THREE.Vector3(
+      bootGalaxy.current?.x ?? 0,
+      bootGalaxy.current?.y ?? 0,
+      bootGalaxy.current?.z ?? 0,
+    ),
+  );
+  const spherical = useRef(
+    new THREE.Spherical(bootRadius, bootGalaxy.current ? 0.6 : Math.PI / 2.2, 0),
+  );
+  const desired = useRef({
+    radius: bootRadius,
+    theta: 0,
+    phi: bootGalaxy.current ? 0.6 : Math.PI / 2.2,
+  });
   const velocity = useRef({ theta: 0, phi: 0 });
   const dragging = useRef(false);
   const activePointer = useRef<number | null>(null);
@@ -383,7 +397,15 @@ export function CameraRig() {
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
-      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (
+        t &&
+        (t.tagName === "INPUT" ||
+          t.tagName === "TEXTAREA" ||
+          t.tagName === "SELECT" ||
+          t.closest("[role=dialog]") ||
+          t.isContentEditable)
+      )
+        return;
       if (
         useStore.getState().cameraFree &&
         FREE_LOOK_KEYS.has(e.code) &&
@@ -603,7 +625,7 @@ export function CameraRig() {
     const height = window.innerHeight;
     // Reserve room for the site map and the selected galaxy's information.
     // Clamp the reservation on narrow windows so the view remains navigable.
-    const visibleWidth = Math.max(width * 0.6, width - (width >= 768 ? 264 + 380 : 0));
+    const visibleWidth = Math.max(width * 0.6, width - (width >= 768 ? 350 : 0));
     const verticalHalfFov = (42 * Math.PI) / 360;
     const horizontalHalfFov = Math.atan((Math.tan(verticalHalfFov) * visibleWidth) / height);
     const limitingHalfFov = Math.min(verticalHalfFov, horizontalHalfFov);
@@ -614,7 +636,10 @@ export function CameraRig() {
         ? visitGalaxy.focus.distance
         : Math.max(visitGalaxy.size * 2.2, 2000);
     desired.current.radius = r;
-    const offset = new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
+    const offset =
+      visitGalaxy.name === "Milky Way"
+        ? new THREE.Vector3(r * 0.15, r * 0.85, r * 0.5)
+        : new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
     const sph = new THREE.Spherical().setFromVector3(offset);
     desired.current.theta = nearestOrbitAngle(spherical.current.theta, sph.theta);
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));

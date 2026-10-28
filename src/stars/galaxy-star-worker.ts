@@ -8,6 +8,7 @@ self.onmessage = (event: MessageEvent<{ model: GalaxyModel; count: number }>) =>
       data.colors.buffer,
       data.luminosities.buffer,
       data.phases.buffer,
+      ...(data.indices ? [data.indices.buffer] : []),
     ],
   });
 };

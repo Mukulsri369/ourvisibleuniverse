@@ -72,10 +72,38 @@ vec3 populations(vec3 p,out float dust){
   else {bulge=ball(p,vec3(.24,.04,.08),vec3(.16,.11,.15))*.55+ball(p,vec3(-.24,-.02,-.12),vec3(.16,.13,.17))*.5;float tail=exp(-pow((r-(.64+.24*sin(a*2.)))/.055,2.))*exp(-height*45.);stars=stars*.5+tail*.12;young+=tail*coarse*.12;}
   if(uFeature>7.5&&uFeature<8.5){for(int j=0;j<3;j++){float k=float(j)*2.4;bulge+=ball(p,vec3(sin(k)*.65,sin(k*2.)*.13,cos(k)*.55),vec3(.12,.10,.14))*.5;}}
  }
- if(uFeature>9.5&&uFeature<10.5){float spokes=pow(max(0.,cos(a*14.+r*4.)),10.)*exp(-height*85.)*smoothstep(.18,.28,r)*(1.-smoothstep(.7,.78,r));stars+=spokes*.08;young+=spokes*.2;}
+ // Collisional rings and detached rings have different density fields, not a shared neon torus.
+ if(uFeature>9.5&&uFeature<11.5){
+  bool cart=uFeature<10.5;
+  vec2 off=p.xz-vec2(cart?.035:0.,cart?-.025:0.);float rr=length(off);
+  float az=atan(off.y,off.x);float rim=uRing+(cart?.032*sin(az*3.+.4):.013*sin(az*2.));
+  float width=(cart?.062:.074)*(1.+.24*sin(az*5.+uSeed));
+  float band=exp(-pow((rr-rim)/width,2.))*exp(-pow(p.y/(cart?.028:.024),2.));
+  float association=pow(smoothstep(.37,.76,cloud(p*1.8)),1.6);
+  float clumpiness=.12+.88*association;float gap=1.-smoothstep(.19,cart?.38:.32,rr);
+  bulge=exp(-pow(length(p/vec3(cart?.105:.17,cart?.075:.15,cart?.09:.17)),1.1)*2.)*3.;
+  stars=band*clumpiness*.3;young=band*(.08+association*1.65);dust=band*pow(coarse,3.)*(cart?2.6:.22);
+  if(cart){
+   float inner=exp(-pow((rr-.21)/.039,2.))*exp(-pow(p.y/.028,2.));
+   float spoke=pow(max(0.,cos(az*11.+rr*6.+noise(p*22.)*2.)),7.)*exp(-pow(p.y/.025,2.))*smoothstep(.24,.34,rr)*(1.-smoothstep(.67,.78,rr));
+   stars+=inner*(.65+coarse*.6)+spoke*(.04+coarse*.23);young+=spoke*association*.65;
+   dust+=(inner*.8+spoke*1.5)*coarse;
+  }else{stars+=disk*.002*gap;}
+ }
+
  if(uFeature>11.5&&uFeature<12.5){bulge+=ball(p,vec3(.8,.06,.1),vec3(.28,.08,.07))*.6;}
  if(uFeature>12.5&&uFeature<13.5){dust+=ball(p,vec3(.12,.01,.05),vec3(.3,.025,.24))*10.;}
- if(uFeature>14.5){stars*=.18;young*=.2;bulge*=1.3;}
+ if(uFeature>14.5&&uFeature<15.5){
+  // Malin 1: a compact barred inner disk, embedded in an enormous, faint asymmetric disk.
+  float inner=exp(-r/ .105)*exp(-height/.017);
+  float phi=(a-log(max(r,.09)/.09)/tan(.34))*2.+sin(r*4.)*.4;
+  float outerArm=exp(-pow(sin(phi*.5)/.32,2.));
+  float outer=exp(-r*1.8)*smoothstep(.15,.27,r)*(1.-smoothstep(.93,1.2,r))*exp(-height/(.022+.018*r));
+  stars=inner*(.75+coarse*.6)+outer*(.02+outerArm*.14)*(.25+coarse);
+  young=outer*outerArm*pow(coarse,3.)*.22;bulge=exp(-length(p/vec3(.07,.05,.07))*2.)*2.;
+  stars+=ball(p,vec3(0.),vec3(.15,.02,.035))*.3;
+  dust=inner*lane*.55+outer*outerArm*pow(coarse,3.)*.18;
+ }
  float support=1.-smoothstep(1.12,1.32,length(p*vec3(1.,.75,1.)));
  dust*=support;
  float knots=pow(smoothstep(.65,.9,fine),3.)*young;

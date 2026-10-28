@@ -34,13 +34,20 @@ export function galaxyStructure(m: GalaxyModel) {
     irregular,
     thickness: spheroid ? 0.56 : irregular ? 0.1 : thin ? 0.012 : 0.018,
     flattening: spheroid ? (/m87|m32/.test(name) ? 0.88 : 0.64) : 1,
-    bulgeFraction: spheroid
-      ? 1
-      : irregular
-        ? 0.035
-        : feature === 2
-          ? 0.58
-          : Math.min(0.35, Math.max(0.07, m.bulgeRadius / m.diskRadius)),
+    bulgeFraction:
+      feature === 10
+        ? 0.11
+        : feature === 11
+          ? 0.25
+          : feature === 15
+            ? 0.2
+            : spheroid
+              ? 1
+              : irregular
+                ? 0.035
+                : feature === 2
+                  ? 0.58
+                  : Math.min(0.35, Math.max(0.07, m.bulgeRadius / m.diskRadius)),
     ringRadius:
       feature === 11
         ? 0.72

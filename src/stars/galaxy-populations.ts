@@ -441,6 +441,7 @@ export const GALAXY_POPULATIONS: Record<string, GalaxyPopulation> = {
     continuum: 0.62,
     hotFraction: 0.1,
     old: [1, 0.87, 0.72],
+    source: "https://science.nasa.gov/missions/hubble/hubble-probes-the-heart-of-a-nearby-quasar/",
     note: "Resolved host reconstruction only; the separate quasar rendering retains ownership of the active nucleus.",
   }),
 };

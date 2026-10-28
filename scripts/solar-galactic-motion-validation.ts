@@ -10,6 +10,7 @@ import {
 import { computeMoonRelativeState } from "../src/lib/astronomy/jpl/horizons-ephemeris";
 import { NAMED_STARS } from "../src/stars/data";
 import { useStore } from "../src/stars/store";
+import { useExploration } from "../src/stars/exploration-scope";
 import {
   getGalacticTimeYears,
   setGalacticTimeScale,
@@ -111,6 +112,7 @@ Object.defineProperty(globalThis, "window", {
   configurable: true,
   writable: true,
 });
+useExploration.setState({ phase: "inside", galaxy: "Milky Way" });
 useStore.setState({ selectedStar: null, visitPlanet: null });
 useStore.getState().flyToStar(NAMED_STARS.find((s) => s.name === "Sun")!);
 assert.deepEqual(useStore.getState().flyTo, {

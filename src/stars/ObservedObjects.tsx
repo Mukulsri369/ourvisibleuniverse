@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { useExploration } from "./exploration-scope";
+import { objectHost } from "./object-hosts";
 import { SelectedObjectRadiance } from "./SelectedObjectRadiance";
 import { BlackHoleContext } from "./BlackHoleContext";
 import { motionTimeSeconds, motionDeltaSeconds } from "./sim-clock";
@@ -452,11 +454,14 @@ function ObjectNode({ item }: { item: ObservedObject }) {
   );
 }
 export function ObservedObjects() {
+  const galaxy = useExploration((s) =>
+    s.phase === "entering" || s.phase === "inside" ? s.galaxy : null,
+  );
   return (
-    <>
-      {OBSERVED_OBJECTS.map((item) => (
+    <group name={"observed-contents:" + (galaxy ?? "unassigned")}>
+      {OBSERVED_OBJECTS.filter((item) => objectHost(item.id) === galaxy).map((item) => (
         <ObjectNode key={item.id} item={item} />
       ))}
-    </>
+    </group>
   );
 }

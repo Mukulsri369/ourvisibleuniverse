@@ -313,7 +313,7 @@ function MilkyWayFarSprite() {
   const enabled = useStore((s) => s.subsystems.milkyWay);
   return enabled ? (
     <group position={[-SGR_A_DISTANCE_LY, 0, 0]}>
-      <GalaxyCatalogCloud model={MILKY_WAY_APPEARANCE} fadeInDistance={200000} />
+      <GalaxyCatalogCloud model={MILKY_WAY_APPEARANCE} fadeInDistance={0} />
     </group>
   ) : null;
 }
