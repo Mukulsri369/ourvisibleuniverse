@@ -14,7 +14,7 @@ Updated 2026-10-29. Results below are local development evidence, not production
 | OVU official Node build | PASS | Provider runtime calls still exist |
 | OVU realtime voice validation | PASS, 61 checks | Server-only fallback import boundary repaired |
 | OVU original build/test:all | PASS at baseline | Existing suite is not independent service proof |
-| Store original provider build | PASS | Independent Node build pending |
+| Store original provider build | PASS | Official independent Node build also passes |
 | Store retailer URL/DNS/address/limit validation | PASS, 4 tests | Not yet wired into all scraper paths |
 | Store original suite after dependency/import repair | FAIL | 195 passed / 40 failed; 13 failing files / 52. No skipped/deleted assertions |
 | Store typecheck | FAIL | Existing editor/public types and legacy tests disagree; new fetch Response body typing fixed afterward |
@@ -27,3 +27,5 @@ Updated 2026-10-29. Results below are local development evidence, not production
 Raw logs remain in work/evidence outside source commits. No real payment or production write was performed. Both package lockfiles are retained for reproducible installs. Earlier npm audit reported 8 OVU dependency vulnerabilities including existing Lovable MCP dependencies; removals/upgrades require tested replacements, not force-fix.
 
 Additional Store checks: independent authentication lifecycle/HTTPS tests PASS (3); real Store schema replay/Unicode/UTC/category/editor invariants PASS (2). OVU latest combined independent backend suite: 16 passing tests with no skips.
+
+Migration portability: .gitattributes preserves the exact applied SQL bytes on Windows/Linux. Staged SQL blobs were compared byte-for-byte to the applied local files; checksums must never depend on Git line-ending conversion. No completed SQL statement or database ledger was rewritten.

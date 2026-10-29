@@ -52,3 +52,5 @@ Create separate numbered MariaDB migrations with checksums and a schema_migratio
 ## Data preservation gate
 
 Privately export auth identity mappings, access passes, payment/order IDs, admin audit, student profiles/progress/completions, certificates/signing versions, Store tables and storage manifests. Keep encrypted dumps outside repositories and outputs. Verify row counts, monetary totals, identifiers, expiry instants, object checksums and FK integrity in a disposable restored copy. Export schema drift must be reconciled before writing an import. Accounts may be recreated for 4–6 users, but entitlements and historical records must remain traceable through legacy IDs. Manual grants require approved users and periods.
+
+Migration portability: .gitattributes preserves the exact applied SQL bytes on Windows/Linux. Staged SQL blobs were compared byte-for-byte to the applied local files; checksums must never depend on Git line-ending conversion. No completed SQL statement or database ledger was rewritten.
