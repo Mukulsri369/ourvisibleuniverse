@@ -149,7 +149,7 @@ export class GalaxyFlight {
       useGalaxyJourney.setState({ mode: "inside" });
       const queued = useExploration.getState().queued;
       useExploration.setState({ phase: "inside", mapOpen: !queued });
-      useStore.setState({ cameraFree: !queued });
+      useStore.setState({ cameraFree: false });
     }
     return true;
   }

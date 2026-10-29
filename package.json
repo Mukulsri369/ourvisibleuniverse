@@ -58,7 +58,8 @@
     "test:galaxy-empty-space": "tsx scripts/galaxy-empty-space-validation.ts",
     "test:galaxy-explorer": "tsx scripts/galaxy-explorer-validation.ts",
     "test:preview": "node scripts/preview-validation.mjs",
-    "test:exploration-camera": "tsx scripts/exploration-camera-ownership-validation.ts"
+    "test:exploration-camera": "tsx scripts/exploration-camera-ownership-validation.ts",
+    "test:solar-controls": "tsx scripts/solar-controls-validation.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

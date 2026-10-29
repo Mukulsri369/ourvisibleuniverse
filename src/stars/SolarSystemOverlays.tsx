@@ -125,8 +125,7 @@ export function LagrangePointsOverlay() {
 
   useFrame(() => {
     if (!show) return;
-    const jd = getSimulationJd();
-    const earthState = jplEphemerisManager.getPlanetState("Earth", jd);
+    const earthState = jplEphemerisManager.getPlanetState("Earth", getPlanetSimulationJd("Earth"));
     const jupiterState = jplEphemerisManager.getPlanetState(
       "Jupiter",
       getPlanetSimulationJd("Jupiter"),
@@ -280,8 +279,7 @@ export function InterplanetaryDistanceRuler() {
 
   useFrame(() => {
     if (!show || !targetPlanet) return;
-    const jd = getSimulationJd();
-    const earth = jplEphemerisManager.getPlanetState("Earth", jd);
+    const earth = jplEphemerisManager.getPlanetState("Earth", getPlanetSimulationJd("Earth"));
     const target = jplEphemerisManager.getPlanetState(
       targetPlanet,
       getPlanetSimulationJd(targetPlanet),

@@ -1,4 +1,10 @@
 // @ts-nocheck
+import {
+  defaultPlanetOrbitSpeeds,
+  clampPlanetOrbitSpeed,
+  SOLAR_ORBIT_NAMES,
+  OUTER_ORBIT_NAMES,
+} from "./planet-orbit-controls";
 import { requireGalaxy, useExploration } from "./exploration-scope";
 import { objectHost, starHost, ANDROMEDA, MILKY_WAY } from "./object-hosts";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
@@ -161,6 +167,9 @@ interface State {
   zoomSpeed: number;
   freeLookSpeed: number;
   outerOrbitSpeed: number;
+  planetOrbitSpeeds: Record<string, number>;
+  setPlanetOrbitSpeed: (name: string, value: number) => void;
+  resetPlanetOrbitSpeeds: () => void;
   galacticTravelSpeed: number;
   navigationSettingsOpen: boolean;
   systemSpeed: number;
@@ -796,6 +805,15 @@ export const useStore = create<State>((set, get) => ({
   zoomSpeed: 50,
   freeLookSpeed: 1,
   outerOrbitSpeed: 1,
+  planetOrbitSpeeds: defaultPlanetOrbitSpeeds(),
+  setPlanetOrbitSpeed: (name, value) => {
+    if (SOLAR_ORBIT_NAMES.some((n) => n === name))
+      set((st) => ({
+        planetOrbitSpeeds: { ...st.planetOrbitSpeeds, [name]: clampPlanetOrbitSpeed(value) },
+      }));
+  },
+  resetPlanetOrbitSpeeds: () =>
+    set({ planetOrbitSpeeds: defaultPlanetOrbitSpeeds(), outerOrbitSpeed: 1 }),
   galacticTravelSpeed: 1,
   navigationSettingsOpen: false,
   systemSpeed: 1,
@@ -962,17 +980,29 @@ export const useStore = create<State>((set, get) => ({
     });
   },
   toggleUiHidden: () => set((st) => ({ uiHidden: !st.uiHidden })),
-  toggleCameraFree: () =>
-    set((st) => ({
-      cameraFree: !st.cameraFree,
+  toggleCameraFree: () => {
+    const enabled = !get().cameraFree;
+    if (enabled) useExploration.setState({ mapOpen: false });
+    set({
+      cameraFree: enabled,
       tourActive: false,
       tourCaption: null,
       isAutoOrbiting: false,
       flyTo: null,
-    })),
+    });
+  },
   setZoomSpeed: (n) => set({ zoomSpeed: n }),
   setFreeLookSpeed: (n) => set({ freeLookSpeed: Math.max(0.05, Math.min(20, n)) }),
-  setOuterOrbitSpeed: (n) => set({ outerOrbitSpeed: Math.max(1, Math.min(2000, n)) }),
+  setOuterOrbitSpeed: (n) => {
+    const rate = Math.max(1, clampPlanetOrbitSpeed(n));
+    set((st) => ({
+      outerOrbitSpeed: rate,
+      planetOrbitSpeeds: {
+        ...st.planetOrbitSpeeds,
+        ...Object.fromEntries(OUTER_ORBIT_NAMES.map((name) => [name, rate])),
+      },
+    }));
+  },
   setNavigationSettingsOpen: (open) => set({ navigationSettingsOpen: open }),
   setGalacticTravelSpeed: (n) =>
     set({ galacticTravelSpeed: Number.isFinite(n) ? Math.max(1, Math.min(1e8, n)) : 1 }),

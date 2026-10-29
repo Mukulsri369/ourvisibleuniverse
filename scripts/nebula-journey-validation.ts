@@ -46,7 +46,11 @@ for (const id of Object.keys(NEBULA_ROUTES)) {
   }
   flight.update(camera, scene, 0.01);
   assert.equal(useNebulaJourney.getState().mode, "inside");
-  assert.equal(useStore.getState().cameraFree, true);
+  assert.equal(
+    useStore.getState().cameraFree,
+    false,
+    "Passage completion must keep free look opt-in",
+  );
   assert.equal(nebulaMotion.reveal, 1);
   const local = volume.worldToLocal(camera.position.clone());
   assert(local.distanceTo(new THREE.Vector3(...NEBULA_ROUTES[id].points.at(-1)!)) < 1e-7);

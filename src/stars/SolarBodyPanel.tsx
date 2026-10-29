@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AU, MOON_DAYS, PLANETS, REAL_ORBITS } from "./Planets";
 import { useStore } from "./store";
-import { getSimulationDate, getSimulationJd } from "./sim-clock";
+import { getSimulationDate, getPlanetSimulationJd } from "./sim-clock";
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
 import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
 import { FileText } from "lucide-react";
@@ -34,7 +34,7 @@ export function SolarBodyPanel() {
   const moonPhys = planetPhys?.moons.find((m) => m.name === moonName);
 
   // Live ephemeris state
-  const jd = getSimulationJd();
+  const jd = getPlanetSimulationJd(planet.name);
   let state = null;
   try {
     state = jplEphemerisManager.getPlanetState(planet.name, jd);
@@ -46,7 +46,12 @@ export function SolarBodyPanel() {
   let earthDist = null;
   if (!moon && planet.name !== "Earth") {
     try {
-      earthDist = jplEphemerisManager.computeDistance("Earth", planet.name, jd);
+      earthDist = jplEphemerisManager.computeDistance(
+        "Earth",
+        planet.name,
+        getPlanetSimulationJd("Earth"),
+        jd,
+      );
     } catch {
       /* fallback */
     }

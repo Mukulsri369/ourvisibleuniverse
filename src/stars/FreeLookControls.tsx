@@ -1,3 +1,4 @@
+import { useBlackHoleJourney } from "./black-hole-journey";
 import { useExploration } from "./exploration-scope";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { useNebulaJourney } from "./nebula-journey";
@@ -25,10 +26,29 @@ const DIRECTIONS = [
 export function FreeLookControls({ onOpenSettings }: { onOpenSettings?: () => void }) {
   const mapOpen = useExploration((s) => s.mapOpen);
   const active = useStore((s) => s.cameraFree);
-  const galaxyPassage = useGalaxyJourney((s) => s.mode !== "idle");
-  const nebulaPassage = useNebulaJourney((s) => s.mode !== "idle");
+  const galaxyMode = useGalaxyJourney((s) => s.mode);
+  const nebulaMode = useNebulaJourney((s) => s.mode);
+  const blackHoleMode = useBlackHoleJourney((s) => s.mode);
+  const hidden = useStore((s) => s.uiHidden);
+  const galaxyPassage = galaxyMode !== "idle",
+    nebulaPassage = nebulaMode !== "idle";
   const inPassage = galaxyPassage || nebulaPassage;
   const speed = useStore((s) => s.freeLookSpeed);
+  const flying =
+    !["idle", "inside"].includes(galaxyMode) ||
+    !["idle", "inside"].includes(nebulaMode) ||
+    blackHoleMode !== "idle";
+  if (!active)
+    return hidden && !flying ? (
+      <button
+        type="button"
+        aria-label="Enter free look (F)"
+        onClick={() => useStore.getState().toggleCameraFree()}
+        className="pointer-events-auto fixed left-4 top-5 z-40 min-h-11 rounded-xl bg-neutral-950 px-4 text-sm text-white"
+      >
+        Free look
+      </button>
+    ) : null;
   return (
     <section
       aria-label="Free look navigation"

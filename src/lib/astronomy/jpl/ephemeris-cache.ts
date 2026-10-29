@@ -69,7 +69,12 @@ export class JplEphemerisManager {
   /**
    * Computes exact distance, light travel time, and relative speed between two bodies.
    */
-  public computeDistance(bodyA: string, bodyB: string, jd: number): InterplanetaryDistanceInfo {
+  public computeDistance(
+    bodyA: string,
+    bodyB: string,
+    jd: number,
+    jdB = jd,
+  ): InterplanetaryDistanceInfo {
     let posA = { xAu: 0, yAu: 0, zAu: 0, vxKmS: 0, vyKmS: 0, vzKmS: 0 };
     let posB = { xAu: 0, yAu: 0, zAu: 0, vxKmS: 0, vyKmS: 0, vzKmS: 0 };
 
@@ -85,7 +90,7 @@ export class JplEphemerisManager {
       };
     }
     if (bodyB !== "Sun") {
-      const stateB = this.getPlanetState(bodyB, jd);
+      const stateB = this.getPlanetState(bodyB, jdB);
       posB = {
         xAu: stateB.xAu,
         yAu: stateB.yAu,

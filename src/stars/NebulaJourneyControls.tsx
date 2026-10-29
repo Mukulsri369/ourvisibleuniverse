@@ -1,7 +1,7 @@
 import { PassagePanelToggle, usePassagePanel } from "./PassagePanel";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useStore } from "./store";
-import { useNebulaJourney, nebulaMotion } from "./nebula-journey";
+import { useNebulaJourney } from "./nebula-journey";
 import { NEBULA_ROUTES } from "./nebula-journey-profiles";
 import { NEBULA_STELLAR_PROFILES } from "./nebula-stellar-profiles";
 export function NebulaJourneyControls() {
@@ -9,31 +9,49 @@ export function NebulaJourneyControls() {
     hidden = useStore((s) => s.uiHidden);
   const mode = useNebulaJourney((s) => s.mode);
   const panel = usePassagePanel(id ?? "");
-  const progress = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     useNebulaJourney.getState().reset();
   }, [id]);
   useEffect(() => () => useNebulaJourney.getState().reset(), []);
   useEffect(() => {
     if (mode === "idle") return;
-    let frame = 0;
-    const tick = () => {
-      if (progress.current)
-        progress.current.textContent = Math.round(nebulaMotion.progress * 100) + "%";
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
     const pause = () => {
       if (document.hidden) useNebulaJourney.getState().pause();
     };
     document.addEventListener("visibilitychange", pause);
     return () => {
-      cancelAnimationFrame(frame);
       document.removeEventListener("visibilitychange", pause);
     };
   }, [mode]);
   if (!id || !NEBULA_ROUTES[id] || (hidden && mode === "idle")) return null;
   if (panel.collapsed) return <PassagePanelToggle kind="Nebula" collapsed onClick={panel.show} />;
+  if (mode === "flying" || mode === "paused" || mode === "returning")
+    return (
+      <div
+        aria-label="Nebula journey controls"
+        className="pointer-events-auto fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 gap-2"
+      >
+        {mode !== "returning" && (
+          <button
+            className="min-h-11 rounded-xl bg-neutral-950 px-4 text-sm text-white"
+            onClick={() =>
+              mode === "paused"
+                ? useNebulaJourney.getState().resume()
+                : useNebulaJourney.getState().pause()
+            }
+          >
+            {mode === "paused" ? "Resume passage" : "Pause"}
+          </button>
+        )}
+        <button
+          disabled={mode === "returning"}
+          className="min-h-11 rounded-xl bg-neutral-950 px-4 text-sm text-white"
+          onClick={() => useNebulaJourney.getState().back()}
+        >
+          Return to viewpoint
+        </button>
+      </div>
+    );
   const route = NEBULA_ROUTES[id],
     journey = useNebulaJourney.getState(),
     active = mode !== "idle";
@@ -51,7 +69,6 @@ export function NebulaJourneyControls() {
           </p>
           <p className="mt-1 text-xs text-white/85">{route.title}</p>
         </div>
-        {active && <span ref={progress} className="text-xs tabular-nums text-white/50" />}
       </div>
       <div className="mt-3 flex gap-2">
         {!active ? (
@@ -63,27 +80,18 @@ export function NebulaJourneyControls() {
           </button>
         ) : (
           <>
-            {(mode === "flying" || mode === "paused") && (
-              <button
-                className="min-h-11 flex-1 rounded-lg border border-white/20 px-3 text-xs hover:bg-white/10"
-                onClick={() => (mode === "paused" ? journey.resume() : journey.pause())}
-              >
-                {mode === "paused" ? "Resume passage" : "Pause"}
-              </button>
-            )}
             <button
-              disabled={mode === "returning"}
               className="min-h-11 flex-1 rounded-lg border border-white/20 px-3 text-xs hover:bg-white/10 disabled:opacity-40"
               onClick={journey.back}
             >
-              {mode === "returning" ? "Returning…" : "Return to viewpoint"}
+              Return to viewpoint
             </button>
           </>
         )}
       </div>
       {mode === "inside" && (
         <p className="mt-2 text-[10px] leading-relaxed text-white/55">
-          Free look is active. Drag to turn; W/S move forward/back, A/D sideways, Q/E up/down.{" "}
+          Drag to look around. Choose Free look when you want to travel; then use WASD and Q/E.{" "}
           {anchors.length > 0
             ? "Visible anchors: " + anchors.map((a) => a.name).join(", ") + "."
             : "Foreground and background stars remain distinct from the cloud."}

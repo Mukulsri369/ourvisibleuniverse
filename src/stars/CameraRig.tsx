@@ -1,3 +1,4 @@
+import { useExploration } from "./exploration-scope";
 import { GalaxyFlight } from "./GalaxyFlight";
 import { useGalaxyJourney, galaxyOverviewFloor } from "./galaxy-journey";
 import { NebulaFlight } from "./NebulaFlight";
@@ -506,7 +507,8 @@ export function CameraRig() {
 
   const followSun = (sun: THREE.Vector3) => {
     if (followedSun.current) {
-      target.current.add(sun).sub(followedSun.current);
+      scratchTarget.current.copy(sun).sub(followedSun.current);
+      target.current.add(scratchTarget.current);
       followedSun.current.copy(sun);
     } else followedSun.current = sun.clone();
   };
@@ -719,7 +721,9 @@ export function CameraRig() {
 
     const galFlight = galaxyFlight.current;
     if (galFlight.update(camera as THREE.PerspectiveCamera, scene, clampedDt)) {
-      target.current.copy(galFlight.center);
+      target.current.copy(
+        useGalaxyJourney.getState().mode === "inside" ? galFlight.focus : galFlight.center,
+      );
       scratchPos.current.copy(camera.position).sub(target.current);
       spherical.current.setFromVector3(scratchPos.current);
       desired.current.radius = spherical.current.radius;
@@ -727,14 +731,16 @@ export function CameraRig() {
       desired.current.phi = spherical.current.phi;
       velocity.current.theta = velocity.current.phi = 0;
       fovTarget.current = (camera as THREE.PerspectiveCamera).fov;
-      if (useGalaxyJourney.getState().mode === "idle")
+      if (["idle", "inside"].includes(useGalaxyJourney.getState().mode))
         resumeLook.current = camera.quaternion.clone();
       syncView(Math.max(minR, galFlight.scale * 0.2), clampedDt, true);
       return;
     }
     const flight = nebulaFlight.current;
     if (flight.update(camera as THREE.PerspectiveCamera, scene, clampedDt)) {
-      target.current.copy(flight.center);
+      target.current.copy(
+        useNebulaJourney.getState().mode === "inside" ? flight.focus : flight.center,
+      );
       scratchPos.current.copy(camera.position).sub(target.current);
       spherical.current.setFromVector3(scratchPos.current);
       desired.current.radius = spherical.current.radius;
@@ -742,7 +748,7 @@ export function CameraRig() {
       desired.current.phi = spherical.current.phi;
       velocity.current.theta = velocity.current.phi = 0;
       fovTarget.current = (camera as THREE.PerspectiveCamera).fov;
-      if (useNebulaJourney.getState().mode === "idle")
+      if (["idle", "inside"].includes(useNebulaJourney.getState().mode))
         resumeLook.current = camera.quaternion.clone();
       syncView(Math.max(minR, flight.scale * 0.2), clampedDt, true);
       return;
@@ -836,8 +842,17 @@ export function CameraRig() {
     )
       followedSun.current = null;
 
-    // Follow a planet: move target toward live planet position
-    if (visitPlanet) {
+    const interiorHold =
+      (useNebulaJourney.getState().mode === "inside" &&
+        useNebulaJourney.getState().id === selectedObjectId) ||
+      (useGalaxyJourney.getState().mode === "inside" &&
+        visitGalaxy?.name === useGalaxyJourney.getState().galaxy?.name &&
+        !visitGalaxy?.focus);
+    // Keep the completed passage viewpoint until the user chooses a destination.
+    if (interiorHold) {
+      freeFlyTarget.current = null;
+      scratchTarget.current.copy(target.current);
+    } else if (visitPlanet) {
       freeFlyTarget.current = null;
       const p = reg?.get(visitPlanet);
       if (p) {
@@ -889,7 +904,10 @@ export function CameraRig() {
       const dist = target.current.distanceTo(scratchTarget.current);
       expDampVector3(target.current, scratchTarget.current, dist > 5 ? 1.8 : 4.5, clampedDt);
     } else if (!tourActive && freeFlyTarget.current) {
-      if (freeFlyTarget.current.lengthSq() < 1e-6 && desired.current.radius < 100) {
+      if (
+        selectedStar?.name === "Sun" ||
+        useExploration.getState().destinationName === "Solar System"
+      ) {
         const sun = reg?.get("Sun");
         if (sun) {
           followSun(sun);

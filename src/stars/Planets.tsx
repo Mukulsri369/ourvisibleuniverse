@@ -1,3 +1,4 @@
+import { orbitalTrailSampleCount, writeTrailPosition } from "./trail-sampling";
 import { ECLIPTIC_TO_SCENE, solarGalacticPosition } from "./solar-galactic-motion";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
@@ -11,7 +12,10 @@ import {
   getGalacticTimeYears,
 } from "./sim-clock";
 import { jplEphemerisManager } from "@/lib/astronomy/jpl/ephemeris-cache";
-import { computeMoonRelativeState } from "@/lib/astronomy/jpl/horizons-ephemeris";
+import {
+  computePlanetStateVector,
+  computeMoonRelativeState,
+} from "@/lib/astronomy/jpl/horizons-ephemeris";
 import { JPL_PLANETS_PHYSICAL } from "@/lib/astronomy/jpl/planetary-physical-data";
 import { useSolarMap } from "./solar-textures";
 import { SolarSystemOverlays } from "./SolarSystemOverlays";
@@ -858,6 +862,9 @@ function Planet({ def }: { def: PlanetDef }) {
     window.__exoSizes.set(def.name, effectiveSize);
   }, [def.name, effectiveSize]);
 
+  const previousOrbit = useRef<{ jd: number; galacticYears: number } | null>(null);
+  const samplePosition = useMemo(() => new THREE.Vector3(), []);
+  const sampleSun = useMemo(() => new THREE.Vector3(), []);
   useFrame(({ camera }) => {
     if (!groupRef.current) return;
     const t = motionTimeSeconds();
@@ -919,6 +926,36 @@ function Planet({ def }: { def: PlanetDef }) {
       reg.set(def.name, v);
     }
     v.copy(tmp);
+    const galacticYears = getGalacticTimeYears();
+    const previous = previousOrbit.current;
+    const samples = getTrailSamples(def.name);
+    if (!previous || previous.jd !== jd || previous.galacticYears !== galacticYears) {
+      const n = previous
+        ? orbitalTrailSampleCount(jd - previous.jd, (REAL_ORBITS[def.name]?.years ?? 1) * 365.25)
+        : 1;
+      for (let k = 1; k <= n; k++) {
+        const f = k / n;
+        if (!previous || k === n) samplePosition.copy(tmp);
+        else {
+          const state = computePlanetStateVector(def.name, previous.jd + (jd - previous.jd) * f);
+          samplePosition
+            .set(state.xAu * auScale, state.zAu * auScale, state.yAu * auScale)
+            .applyMatrix4(ECLIPTIC_TO_SCENE);
+          if (useStore.getState().showGalacticDrift)
+            samplePosition.add(
+              solarGalacticPosition(
+                previous.galacticYears + (galacticYears - previous.galacticYears) * f,
+                sampleSun,
+              ),
+            );
+        }
+        samples.push(samplePosition.x, samplePosition.y, samplePosition.z);
+      }
+      if (samples.length > 3 * 8192) samples.splice(0, samples.length - 3 * 8192);
+    }
+    previousOrbit.current ??= { jd, galacticYears };
+    previousOrbit.current.jd = jd;
+    previousOrbit.current.galacticYears = galacticYears;
   }, -1);
 
   const setVisit = useStore((s) => s.setVisitPlanet);
@@ -1857,6 +1894,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const sunTmp = useMemo(() => new THREE.Vector3(), []);
   const mag = useStore((s) => s.planetVisibilityMagnification);
+  const scaleMode = useStore((s) => s.scaleMode);
   const setVisit = useStore((s) => s.setVisitPlanet);
   const mKey = moonKey(parent, moon.name);
 
@@ -1898,9 +1936,17 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     window.__exoSizes.set(mKey, moon.size * mag);
   }, [mKey, moon.size, mag]);
 
-  const prev = useRef<{ days: number; parent: THREE.Vector3 } | null>(null);
+  const prev = useRef<{
+    days: number;
+    parent: THREE.Vector3;
+    planetJd: number;
+    galacticYears: number;
+    time: number;
+  } | null>(null);
   const local = useMemo(() => new THREE.Vector3(), []);
   const parentPos = useMemo(() => new THREE.Vector3(), []);
+  const parentSample = useMemo(() => new THREE.Vector3(), []);
+  const sampleSolar = useMemo(() => new THREE.Vector3(), []);
 
   useFrame(({ camera }) => {
     if (!ref.current) return;
@@ -1909,7 +1955,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     const inc = phys ? (phys.inclinationDeg * Math.PI) / 180 : (moon.inclination ?? 0);
     const days = phys ? phys.orbitalPeriodDays : MOON_DAYS[moon.name];
 
-    const angleAt = (simD: number) => {
+    const angleAt = (simD: number, time = t) => {
       if (phys) {
         const sign = days < 0 ? -1 : 1; // retrograde support (e.g. Triton)
         return phase + sign * (simD / Math.abs(days)) * Math.PI * 2;
@@ -1917,7 +1963,7 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       return days
         ? (MOON_L0[moon.name] !== undefined ? deg(MOON_L0[moon.name]) : phase) +
             (simD / days) * Math.PI * 2
-        : phase + (t / moon.period) * Math.PI * 2;
+        : phase + (time / moon.period) * Math.PI * 2;
     };
 
     const setLocal = (out: THREE.Vector3, a: number) =>
@@ -1957,28 +2003,51 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
     const par = ref.current.parent;
     if (!par) return;
     par.getWorldPosition(parentPos);
+    const planetJd = getPlanetSimulationJd(parent),
+      galacticYears = getGalacticTimeYears();
     const p0 = prev.current;
     if (p0 && nowD === p0.days && parentPos.distanceToSquared(p0.parent) === 0) return;
     const samples = getTrailSamples(mKey);
-    if (p0 && days) {
-      const dA = Math.abs(((nowD - p0.days) / days) * Math.PI * 2);
-      const n = Math.min(64, Math.max(1, Math.ceil(dA / deg(3.5))));
+    const periodDays = days ?? (moon.period * 365.25) / (25 * 31.5);
+    if (p0 && periodDays) {
+      const parentAngle =
+        ((planetJd - p0.planetJd) / ((REAL_ORBITS[parent]?.years ?? 1) * 365.25)) * Math.PI * 2;
+      const n = orbitalTrailSampleCount(nowD - p0.days, periodDays, parentAngle);
       for (let k = 1; k <= n; k++) {
         const f = k / n;
-        setLocal(local, angleAt(p0.days + (nowD - p0.days) * f));
+        setLocal(local, angleAt(p0.days + (nowD - p0.days) * f, p0.time + (t - p0.time) * f));
         local.applyMatrix4(par.matrixWorld);
-        local.x += (p0.parent.x - parentPos.x) * (1 - f);
-        local.y += (p0.parent.y - parentPos.y) * (1 - f);
-        local.z += (p0.parent.z - parentPos.z) * (1 - f);
+        if (k < n) {
+          const state = computePlanetStateVector(
+            parent,
+            p0.planetJd + (planetJd - p0.planetJd) * f,
+          );
+          const au = scaleMode === "true_scale" ? scaleManager.getRenderAU("true_scale") : AU;
+          parentSample
+            .set(state.xAu * au, state.zAu * au, state.yAu * au)
+            .applyMatrix4(ECLIPTIC_TO_SCENE);
+          if (useStore.getState().showGalacticDrift)
+            parentSample.add(
+              solarGalacticPosition(
+                p0.galacticYears + (galacticYears - p0.galacticYears) * f,
+                sampleSolar,
+              ),
+            );
+          local.add(parentSample).sub(parentPos);
+        }
         samples.push(local.x, local.y, local.z);
       }
       if (samples.length > 3 * 8192) samples.splice(0, samples.length - 3 * 8192);
     } else {
       samples.push(tmp.x, tmp.y, tmp.z);
     }
-    if (!prev.current) prev.current = { days: nowD, parent: parentPos.clone() };
+    if (!prev.current)
+      prev.current = { days: nowD, parent: parentPos.clone(), planetJd, galacticYears, time: t };
     else {
       prev.current.days = nowD;
+      prev.current.time = t;
+      prev.current.planetJd = planetJd;
+      prev.current.galacticYears = galacticYears;
       prev.current.parent.copy(parentPos);
     }
   });
@@ -2178,6 +2247,10 @@ export function SolarSystem({ children }: { children: React.ReactNode }) {
   const ref = useRef<THREE.Group>(null!);
   const tmp = useMemo(() => new THREE.Vector3(), []);
   const showGalacticDrift = useStore((s) => s.showGalacticDrift);
+  useEffect(() => {
+    TRAIL_SAMPLES.clear();
+    return () => TRAIL_SAMPLES.clear();
+  }, []);
 
   useFrame(() => {
     if (!ref.current) return;
@@ -2232,6 +2305,9 @@ function useTrail(body: TrailBody) {
     const posAttr = new THREE.BufferAttribute(positions, 3);
     posAttr.setUsage(THREE.DynamicDrawUsage);
     geo.setAttribute("position", posAttr);
+    const lowAttr = new THREE.BufferAttribute(new Float32Array(len * 3), 3);
+    lowAttr.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute("aPositionLow", lowAttr);
     geo.setAttribute("aIndex", new THREE.BufferAttribute(idx, 1));
     const indices: number[] = [];
     const lodOffsets: number[] = [];
@@ -2249,11 +2325,15 @@ function useTrail(body: TrailBody) {
         uOpacity: { value: body.opacity ?? 1 },
         uHead: { value: 0 },
         uLen: { value: len },
+        uCameraHigh: { value: new THREE.Vector3() },
+        uCameraLow: { value: new THREE.Vector3() },
       },
       vertexShader: /* glsl */ `
         #include <common>
         #include <logdepthbuf_pars_vertex>
         attribute float aIndex;
+        attribute vec3 aPositionLow;
+        uniform vec3 uCameraHigh, uCameraLow;
         uniform float uHead;
         uniform float uLen;
         varying float vAge;
@@ -2261,7 +2341,8 @@ function useTrail(body: TrailBody) {
           // Ring buffer: age is distance behind the write head.
           float age = mod(uHead - aIndex + uLen, uLen) / (uLen - 1.0);
           vAge = age;
-          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vec3 relativePosition = (position - uCameraHigh) + (aPositionLow - uCameraLow);
+          vec4 mv = vec4(mat3(viewMatrix) * relativePosition, 1.0);
           gl_Position = projectionMatrix * mv;
           // Collapse the oldest vertex so the wrap-around segment vanishes.
           // The wrap seam is clipped in the fragment shader, never projected across the screen.
@@ -2313,6 +2394,16 @@ function useTrail(body: TrailBody) {
     if (lineRef.current) lineRef.current.visible = liveDist <= 25 && fade > 0.001;
     const attr = geometry.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
+    const lowAttr = geometry.getAttribute("aPositionLow") as THREE.BufferAttribute;
+    const low = lowAttr.array as Float32Array;
+    material.uniforms.uCameraHigh.value.set(
+      Math.fround(camera.position.x),
+      Math.fround(camera.position.y),
+      Math.fround(camera.position.z),
+    );
+    material.uniforms.uCameraLow.value
+      .copy(camera.position)
+      .sub(material.uniforms.uCameraHigh.value);
     // Keep recording exact history on the CPU. A subpixel path needs no draw
     // or GPU upload, and is restored in full as soon as it becomes resolvable.
     const distance = Math.max(camera.position.distanceTo(bounds.getCenter(trailCenter)), 1e-10);
@@ -2332,15 +2423,17 @@ function useTrail(body: TrailBody) {
         gpuDirty.current = true;
         return;
       }
-      attr.clearUpdateRanges();
-      if (full || fullUpload || gpuDirty.current || count >= len) attr.addUpdateRange(0, len * 3);
-      else {
-        const tail = Math.min(count, len - first);
-        attr.addUpdateRange(first * 3, tail * 3);
-        if (tail < count) attr.addUpdateRange(0, (count - tail) * 3);
+      for (const attr of [geometry.getAttribute("position") as THREE.BufferAttribute, lowAttr]) {
+        attr.clearUpdateRanges();
+        if (full || fullUpload || gpuDirty.current || count >= len) attr.addUpdateRange(0, len * 3);
+        else {
+          const tail = Math.min(count, len - first);
+          attr.addUpdateRange(first * 3, tail * 3);
+          if (tail < count) attr.addUpdateRange(0, (count - tail) * 3);
+        }
+        gpuDirty.current = false;
+        attr.needsUpdate = true;
       }
-      gpuDirty.current = false;
-      attr.needsUpdate = true;
     };
     if (drawable && gpuDirty.current) upload(0, len, true);
     // Moons publish sub-sampled orbit points; consume them all every frame.
@@ -2352,9 +2445,7 @@ function useTrail(body: TrailBody) {
       const firstWrite = (head.current + 1) % len;
       if (!initialized.current) {
         for (let i = 0; i < len; i++) {
-          arr[i * 3] = queued[0];
-          arr[i * 3 + 1] = queued[1];
-          arr[i * 3 + 2] = queued[2];
+          writeTrailPosition(arr, low, i * 3, queued[0], queued[1], queued[2]);
         }
         initialized.current = true;
         start = 3;
@@ -2365,9 +2456,7 @@ function useTrail(body: TrailBody) {
       for (let j = from; j < queued.length; j += 3) {
         head.current = (head.current + 1) % len;
         const h = head.current * 3;
-        arr[h] = queued[j];
-        arr[h + 1] = queued[j + 1];
-        arr[h + 2] = queued[j + 2];
+        writeTrailPosition(arr, low, h, queued[j], queued[j + 1], queued[j + 2]);
         bounds.expandByPoint(trailPoint.set(queued[j], queued[j + 1], queued[j + 2]));
       }
       const written = (queued.length - from) / 3;
@@ -2390,9 +2479,7 @@ function useTrail(body: TrailBody) {
     previousPoint.copy(p);
     if (!initialized.current) {
       for (let i = 0; i < len; i++) {
-        arr[i * 3] = p.x;
-        arr[i * 3 + 1] = p.y;
-        arr[i * 3 + 2] = p.z;
+        writeTrailPosition(arr, low, i * 3, p.x, p.y, p.z);
       }
       initialized.current = true;
       bounds.expandByPoint(p);
@@ -2402,9 +2489,7 @@ function useTrail(body: TrailBody) {
       // and upload only that slot to the GPU.
       head.current = (head.current + 1) % len;
       const h = head.current;
-      arr[h * 3] = p.x;
-      arr[h * 3 + 1] = p.y;
-      arr[h * 3 + 2] = p.z;
+      writeTrailPosition(arr, low, h * 3, p.x, p.y, p.z);
       bounds.expandByPoint(p);
       upload(h, 1);
     }

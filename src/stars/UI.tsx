@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { PlanetOrbitSettings } from "./PlanetOrbitSettings";
 import { GalaxyExplorer } from "./GalaxyExplorer";
 import { useExploration } from "./exploration-scope";
 import { useGalaxyJourney } from "./galaxy-journey";
@@ -592,7 +593,7 @@ const GUIDE_SECTIONS: { title: string; items: [string, string][] }[] = [
       ["Search", "Find any star, planet, galaxy or observed object"],
       ["Free look", "Fly freely: drag to look, WASD to move, Q/E to rise or descend"],
       ["Maximize", "Full screen — press Esc to exit"],
-      ["Gear", "Settings: zoom, free look, outer planet orbits, time and trails"],
+      ["Gear", "Settings: zoom, free look, individual planet orbits, time and trails"],
       ["?", "This guide"],
       ["Eye (top right)", "Hide or show the whole interface"],
       ["Music", "Ambient soundtrack on / off"],
@@ -730,8 +731,6 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
   const setGalacticSpeed = useStore((s) => s.setGalacticTravelSpeed);
   const galacticDrift = useStore((s) => s.showGalacticDrift);
   const toggleDrift = useStore((s) => s.toggleGalacticDrift);
-  const outerSpeed = useStore((s) => s.outerOrbitSpeed);
-  const setOuterSpeed = useStore((s) => s.setOuterOrbitSpeed);
   const trailSize = useStore((s) => s.trailSize);
   const setTrailSize = useStore((s) => s.setTrailSize);
 
@@ -833,47 +832,7 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
               </button>
             )}
           </section>
-          <div className="mb-4 space-y-2 border-t border-white/10 pt-4">
-            <label
-              htmlFor="outer-orbit-speed"
-              className="flex justify-between text-xs text-white/80"
-            >
-              <span>Outer planet orbits</span>
-              <span className="font-mono text-sky-200">{outerSpeed.toFixed(0)}×</span>
-            </label>
-            <input
-              id="outer-orbit-speed"
-              type="range"
-              min={0}
-              max={Math.log10(2000)}
-              step={0.01}
-              value={Math.log10(outerSpeed)}
-              onChange={(e) => setOuterSpeed(10 ** Number(e.target.value))}
-              className="w-full accent-sky-300"
-            />
-            <p className="text-[11px] leading-relaxed text-white/50">
-              Jupiter through Pluto. Faster revolutions make their helical trails easier to see. The
-              current motion stays the default.
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                { label: "Default", rate: 1 },
-                { label: "10×", rate: 10 },
-                { label: "100×", rate: 100 },
-                { label: "Helical view", rate: 1000 },
-              ].map((p) => (
-                <button
-                  key={p.label}
-                  type="button"
-                  aria-pressed={Math.abs(outerSpeed - p.rate) < 0.01}
-                  onClick={() => setOuterSpeed(p.rate)}
-                  className="min-h-11 rounded border border-white/15 px-2 text-[11px] text-white/75 hover:bg-white/10 focus-visible:outline focus-visible:outline-sky-300"
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          <PlanetOrbitSettings />
           <div className="mb-4 space-y-2">
             <label htmlFor="simulation-time" className="flex justify-between text-xs text-white/80">
               <span>Time</span>

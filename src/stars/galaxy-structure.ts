@@ -62,6 +62,8 @@ export function galaxyStructure(m: GalaxyModel) {
     // Broken symmetry prevents the same perfect spiral being repeated across the catalogue.
     asymmetry: /m101|triangulum|m66|whale/.test(name) ? 0.16 : irregular ? 0.25 : 0.045,
     rotationRate:
-      spheroid || irregular || m.morphology === "interacting" ? 0 : Math.PI / m.rotPeriod,
+      spheroid || irregular || m.morphology === "interacting"
+        ? 0
+        : ((m.name === "Milky Way" ? -1 : 1) * Math.PI) / m.rotPeriod,
   };
 }

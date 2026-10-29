@@ -18,6 +18,7 @@ import { useStore } from "./store";
 import {
   getSimulationDate,
   getSimulationJd,
+  getPlanetSimulationJd,
   setSimulationDate,
   stepSimulationDays,
   toggleSimPaused,
@@ -74,7 +75,7 @@ export function SolarSystemController({ open, onClose }: { open: boolean; onClos
       setSelectedSpeed(getTimeMultiplier());
       setGalacticScale(getGalacticTimeScale());
       setGalacticEpoch(getGalacticTimeYears());
-      const earth = jplEphemerisManager.getPlanetState("Earth", getSimulationJd());
+      const earth = jplEphemerisManager.getPlanetState("Earth", getPlanetSimulationJd("Earth"));
       const pole = new THREE.Vector3(earth.xAu, earth.zAu, earth.yAu)
         .cross(new THREE.Vector3(earth.vxKmS, earth.vzKmS, earth.vyKmS))
         .transformDirection(ECLIPTIC_TO_SCENE);

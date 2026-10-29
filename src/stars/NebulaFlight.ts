@@ -116,7 +116,7 @@ export class NebulaFlight {
     nebulaMotion.reveal = THREE.MathUtils.smoothstep(p, 0.45, 0.88);
     if (p === 1) {
       useNebulaJourney.setState({ mode: "inside" });
-      useStore.setState({ cameraFree: true, uiHidden: false });
+      useStore.setState({ cameraFree: false, uiHidden: false });
     }
     return true;
   }

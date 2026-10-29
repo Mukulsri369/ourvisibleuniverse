@@ -8,6 +8,7 @@
  * 4. Backward-compatible simTimeYears(), simTimeDays(), and backgroundFocus().
  */
 
+import { SOLAR_ORBIT_NAMES } from "./planet-orbit-controls";
 import { useStore } from "./store";
 
 const J2000_JD = 2451545.0;
@@ -22,7 +23,9 @@ let timeMultiplier = 1.0; // 1.0 = nominal standard speed
 let focus = 1.0;
 let motionSeconds = 0;
 let motionStep = 0;
-let outerOrbitOffsetDays = 0;
+const planetOrbitalJd: Record<string, number> = Object.fromEntries(
+  SOLAR_ORBIT_NAMES.map((name) => [name, currentJd]),
+);
 let galacticYears = (currentJd - J2000_JD) / DAYS_PER_JULIAN_YEAR;
 export const getGalacticTimeYears = () => galacticYears;
 export const getGalacticTimeScale = () => useStore.getState().galacticTravelSpeed;
@@ -30,10 +33,9 @@ export const getGalacticTimeScale = () => useStore.getState().galacticTravelSpee
 export function setGalacticTimeScale(value: number) {
   useStore.getState().setGalacticTravelSpeed(value);
 }
-const OUTER_PLANETS = new Set(["Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"]);
-/** Extra elapsed orbital time, integrated continuously so changing speed never jumps phase. */
-export const getPlanetSimulationJd = (name: string) =>
-  currentJd + (OUTER_PLANETS.has(name) ? outerOrbitOffsetDays : 0);
+
+/** Independent elapsed orbital time, integrated continuously so changing speed never jumps phase. */
+export const getPlanetSimulationJd = (name: string) => planetOrbitalJd[name] ?? currentJd;
 export const motionDeltaSeconds = () => motionStep;
 export const motionTimeSeconds = () => motionSeconds;
 
@@ -41,7 +43,6 @@ export const motionTimeSeconds = () => motionSeconds;
  * Sets the simulation date directly from a JavaScript Date or ISO string or JD.
  */
 export function setSimulationDate(target: Date | string | number) {
-  outerOrbitOffsetDays = 0;
   if (typeof target === "number") {
     // If > 2400000 assume Julian Date, else treat as timestamp ms
     if (target > 2_000_000) {
@@ -54,6 +55,7 @@ export function setSimulationDate(target: Date | string | number) {
     currentJd = J2000_JD + (d.getTime() - J2000_MS) / MS_PER_DAY;
   }
   galacticYears = (currentJd - J2000_JD) / DAYS_PER_JULIAN_YEAR;
+  for (const name of SOLAR_ORBIT_NAMES) planetOrbitalJd[name] = currentJd;
 }
 
 /**
@@ -61,6 +63,7 @@ export function setSimulationDate(target: Date | string | number) {
  */
 export function stepSimulationDays(days: number) {
   currentJd += days;
+  for (const name of SOLAR_ORBIT_NAMES) planetOrbitalJd[name] += days;
   galacticYears = Math.min(5e8, Math.max(-5e8, galacticYears + days / DAYS_PER_JULIAN_YEAR));
 }
 
@@ -118,7 +121,8 @@ export function tickSim(dt: number) {
       5e8,
       Math.max(-5e8, galacticYears + simYearsStep * st.galacticTravelSpeed),
     );
-    outerOrbitOffsetDays += daysStep * ((st.outerOrbitSpeed ?? 1) - 1);
+    for (const name of SOLAR_ORBIT_NAMES)
+      planetOrbitalJd[name] += daysStep * (st.planetOrbitSpeeds[name] ?? 1);
   }
 
   // Background stars/galaxy fade while visiting a planet, moon or exoplanet.

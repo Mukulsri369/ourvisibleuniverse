@@ -70,7 +70,7 @@ function enter(name: string, queued = false) {
   for (let n = 0; n < 62; n++) flight.update(camera, scene, 1 / 60);
   assert.equal(useGalaxyJourney.getState().mode, "inside");
   assert(mayVisit(name));
-  assert.equal(useStore.getState().cameraFree, !queued);
+  assert.equal(useStore.getState().cameraFree, false, "Galaxy entry must not enable free look");
   return { flight, camera, scene };
 }
 let session = enter(ANDROMEDA);

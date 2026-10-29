@@ -73,7 +73,11 @@ for (const model of sample) {
   assert(camera.quaternion.angleTo(q) < 1e-7);
   for (let n = 0; n < 62; n++) flight.update(camera, scene, 1 / 60);
   assert.equal(useGalaxyJourney.getState().mode, "inside");
-  assert.equal(useStore.getState().cameraFree, true);
+  assert.equal(
+    useStore.getState().cameraFree,
+    false,
+    "Passage completion must keep free look opt-in",
+  );
   const local = volume.worldToLocal(camera.position.clone());
   assert(
     local.length() > 0.4 && local.length() < 1,
