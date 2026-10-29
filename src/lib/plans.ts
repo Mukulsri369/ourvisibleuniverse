@@ -35,7 +35,7 @@ export const ACCESS_PLANS = {
 } as const;
 export type PlanId = keyof typeof ACCESS_PLANS;
 export function isPlanId(value: unknown): value is PlanId {
-  return typeof value === "string" && value in ACCESS_PLANS;
+  return typeof value === "string" && Object.hasOwn(ACCESS_PLANS, value);
 }
 export function planPrice(planId: PlanId, currency: Currency) {
   return ACCESS_PLANS[planId].prices[currency];

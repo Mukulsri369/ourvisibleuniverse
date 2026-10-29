@@ -3,7 +3,7 @@ import { ACCESS_PLANS, isCurrency, isPlanId } from "@/lib/plans";
 
 export type RazorpayMode = "test" | "live";
 
-type RazorpayOrder = {
+export type RazorpayOrder = {
   id: string;
   amount: number;
   amount_paid: number;
@@ -12,13 +12,14 @@ type RazorpayOrder = {
   status: string;
 };
 
-type RazorpayPayment = {
+export type RazorpayPayment = {
   id: string;
   amount: number;
   captured: boolean;
   currency: string;
   order_id: string;
   status: string;
+  amount_refunded: number;
 };
 
 export function getRazorpayMode(): RazorpayMode {
@@ -41,10 +42,11 @@ function authHeader(keyId: string, keySecret: string) {
   return `Basic ${btoa(`${keyId}:${keySecret}`)}`;
 }
 
-async function razorpayRequest<T>(path: string, init: RequestInit, mode: RazorpayMode): Promise<T> {
+export async function razorpayRequest<T>(path: string, init: RequestInit, mode: RazorpayMode): Promise<T> {
   const { keyId, keySecret } = getRazorpayConfig(mode);
   const response = await fetch(`https://api.razorpay.com/v1${path}`, {
     ...init,
+    signal: AbortSignal.timeout(15000),
     headers: {
       Authorization: authHeader(keyId, keySecret),
       "Content-Type": "application/json",
@@ -53,7 +55,7 @@ async function razorpayRequest<T>(path: string, init: RequestInit, mode: Razorpa
   });
   const body = await response.text();
   if (!response.ok) {
-    console.error(`Razorpay request failed [${response.status}]: ${body}`);
+    // Provider bodies can contain customer data. Report only the status.
     throw new Error(`Razorpay request failed with status ${response.status}`);
   }
   return JSON.parse(body) as T;

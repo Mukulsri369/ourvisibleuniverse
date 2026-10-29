@@ -14,6 +14,7 @@
 
 import type { CosmosLiveSessionToken, LiveSessionState } from "./cosmos-types";
 import { createLiveSession } from "./cosmos.functions";
+import { liveSessionWithoutRequestContext } from './provider-request-context';
 
 export interface LiveSessionEventPayload {
   state: LiveSessionState;
@@ -140,9 +141,8 @@ export class LiveSessionManager {
           },
         });
       } catch (fnErr: any) {
-        if (typeof window === "undefined" || fnErr?.message?.includes("No Start context")) {
-          const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
-          token = await AIServiceProviderServer.createLiveSession({ moduleId });
+        if (typeof window === "undefined") {
+          token = await liveSessionWithoutRequestContext({ moduleId });
         } else {
           throw fnErr;
         }

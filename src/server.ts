@@ -40,6 +40,14 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      if (process.env.OVU_BACKEND === 'mariadb') {
+        const path = new URL(request.url).pathname;
+        if (path.startsWith('/api/auth/') || path.startsWith('/api/backend/')) {
+          const { handleIndependentRequest } = await import('./backend/http.server');
+          const response = await handleIndependentRequest(request);
+          if (response) return response;
+        }
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
