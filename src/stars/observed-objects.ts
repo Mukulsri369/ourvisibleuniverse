@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { EXTRAGALACTIC_HII_OBJECTS } from "./extragalactic-hii";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 
 import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
@@ -61,6 +62,8 @@ export type ObservedObject = {
   l: number;
   b: number;
   diameterLy: number;
+  extentBasis?: "observational" | "illustrative";
+  hostGalaxy?: string;
   visual: ObjectVisual;
   color: string;
   accent: string;
@@ -2032,6 +2035,8 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
     filterPalette: "True Color Hα Emission + Rayleigh Blue Reflection",
   }),
 ];
+
+OBSERVED_OBJECTS.push(...EXTRAGALACTIC_HII_OBJECTS);
 
 export const OBJECT_BY_ID = new Map(OBSERVED_OBJECTS.map((item) => [item.id, item]));
 export const OBJECT_CATEGORIES: ObjectCategory[] = [

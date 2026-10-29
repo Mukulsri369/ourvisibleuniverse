@@ -20,6 +20,21 @@ import {
   computePlanetStateVector,
   computeMoonRelativeState,
 } from "../src/lib/astronomy/jpl/horizons-ephemeris";
+const expectedDefaults: Record<string, number> = {
+  Mercury: 1,
+  Venus: 1,
+  Earth: 1,
+  Mars: 1,
+  Jupiter: 3.63,
+  Saturn: 4.9,
+  Uranus: 10.96,
+  Neptune: 12.88,
+  Pluto: 15.49,
+};
+assert.deepEqual(useStore.getState().planetOrbitSpeeds, expectedDefaults);
+useStore.getState().setPlanetOrbitSpeed("Jupiter", 100);
+useStore.getState().resetPlanetOrbitSpeeds();
+assert.deepEqual(useStore.getState().planetOrbitSpeeds, expectedDefaults);
 setSimPaused(false);
 setTimeMultiplier(1);
 useStore.setState({ systemSpeed: 25, galacticTravelSpeed: 1 });
@@ -36,7 +51,9 @@ for (const name of SOLAR_ORBIT_NAMES) {
   const step = getSimulationJd() - base;
   for (const n of SOLAR_ORBIT_NAMES)
     assert(
-      Math.abs((getPlanetSimulationJd(n) - before[n]) / step - (n === name ? 10 : 1)) < 1e-5,
+      Math.abs(
+        (getPlanetSimulationJd(n) - before[n]) / step - (n === name ? 10 : expectedDefaults[n]),
+      ) < 1e-5,
       n,
     );
   assert(

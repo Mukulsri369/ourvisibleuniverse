@@ -1,3 +1,4 @@
+import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 export type NebulaAnchor = { name: string; position: [number, number, number]; power: number };
 export type NebulaStellarProfile = {
   cluster?: { center: [number, number, number]; spread: [number, number, number]; count: number };
@@ -79,3 +80,17 @@ export const NEBULA_STELLAR_PROFILES: Record<string, NebulaStellarProfile> = {
   "eta-car": { anchors: [], field: 450 },
   wr104: { anchors: [], field: 400 },
 };
+
+Object.assign(
+  NEBULA_STELLAR_PROFILES,
+  Object.fromEntries(
+    EXTRAGALACTIC_HII_TARGETS.map((t) => [
+      t.id,
+      {
+        cluster: { center: [0, 0.05, 0.1], spread: [0.22, 0.2, 0.24], count: 600 },
+        anchors: [],
+        field: 500,
+      },
+    ]),
+  ),
+);

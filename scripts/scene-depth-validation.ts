@@ -102,5 +102,5 @@ assert.equal(clearAlpha, 0.7, "Lens rendering must restore the renderer clear al
 pass.dispose();
 target.dispose();
 console.log(
-  "PASS: Galactic Centre alignment, extended descent, 21 reproducible 3D stellar fields, native black-hole targets and fractional-DPR scissor restoration.",
+  "PASS: Galactic Centre alignment, extended descent, all registered reproducible 3D stellar fields, native black-hole targets and fractional-DPR scissor restoration.",
 );

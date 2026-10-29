@@ -133,7 +133,14 @@ export function ObservedObjectInfoPanel() {
               <div className="mt-6 grid grid-cols-2 gap-y-4">
                 <Stat label="Category" value={item.category} />
                 <Stat label="Distance" value={distanceLabel(item.distance)} />
-                <Stat label="Physical size" value={sizeLabel(item.diameterLy)} />
+                <Stat
+                  label="Physical size"
+                  value={
+                    item.extentBasis === "illustrative"
+                      ? "Not catalogued"
+                      : sizeLabel(item.diameterLy)
+                  }
+                />
                 <Stat
                   label="Galactic l, b"
                   value={`${item.l.toFixed(1)}°, ${item.b.toFixed(1)}°`}
@@ -167,13 +174,17 @@ export function ObservedObjectInfoPanel() {
                     ["Distance in parsecs", `${(item.distance / 3.26156).toExponential(2)} pc`],
                     [
                       "Light-crossing time",
-                      item.diameterLy >= 1
-                        ? `${item.diameterLy.toLocaleString()} years across`
-                        : `${(item.diameterLy * 3.156e7).toFixed(2)} seconds across`,
+                      item.extentBasis === "illustrative"
+                        ? "Not measured"
+                        : item.diameterLy >= 1
+                          ? `${item.diameterLy.toLocaleString()} years across`
+                          : `${(item.diameterLy * 3.156e7).toFixed(2)} seconds across`,
                     ],
                     [
                       "Size vs Solar System",
-                      `${(item.diameterLy / 0.0012).toFixed(item.diameterLy < 0.01 ? 3 : 0)}× Neptune's orbit`,
+                      item.extentBasis === "illustrative"
+                        ? "Not measured"
+                        : `${(item.diameterLy / 0.0012).toFixed(item.diameterLy < 0.01 ? 3 : 0)}× Neptune's orbit`,
                     ],
                   ] as Array<[string, string]>
                 ).map(([k, v]) => (

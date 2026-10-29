@@ -88,5 +88,5 @@ useStore.setState({ selectedObjectId: "m57" });
 flight.update(camera, scene, 0.1);
 assert.equal(useNebulaJourney.getState().mode, "idle", "Changing object cancels old flight");
 console.log(
-  "PASS: 21 transformed routes, continuous entry, exact return, free-look handoff, pause, cancellation, and isolated view preferences",
+  "PASS: all registered transformed routes, continuous entry, exact return, free-look handoff, pause, cancellation, and isolated view preferences",
 );

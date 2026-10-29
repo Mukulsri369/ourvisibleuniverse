@@ -1,3 +1,4 @@
+import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 export const NEBULA_SHAPES: Record<string, number> = {
   m42: 0,
   m16: 1,
@@ -21,3 +22,8 @@ export const NEBULA_SHAPES: Record<string, number> = {
   "eta-car": 21,
   wr104: 19,
 };
+
+Object.assign(
+  NEBULA_SHAPES,
+  Object.fromEntries(EXTRAGALACTIC_HII_TARGETS.map((t) => [t.id, t.shape])),
+);

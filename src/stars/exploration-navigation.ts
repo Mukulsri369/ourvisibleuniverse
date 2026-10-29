@@ -5,7 +5,7 @@ import { NAMED_STARS } from "./data";
 import { PLANETS } from "./Planets";
 import {
   GALAXY_BY_NAME,
-  galaxyQuat,
+  galaxyOrientation,
   systemWorldPosition,
   systemViewDistance,
 } from "./galaxy-models";
@@ -97,7 +97,7 @@ export function navigateExplorationTarget(target: ExploreTarget) {
         motionTimeSeconds() * galaxyStructure(appearance).rotationRate,
       )
       .multiplyScalar(appearance.diskRadius)
-      .applyQuaternion(galaxyQuat(appearance.inclination, appearance.posAngle))
+      .applyQuaternion(galaxyOrientation(appearance))
       .add(new THREE.Vector3(galaxy.x, galaxy.y, galaxy.z));
     distance = appearance.diskRadius * (target.distance ?? 0.15);
   }

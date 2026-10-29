@@ -1,3 +1,4 @@
+import { galaxyOrientation } from "./galaxy-models";
 import { lodManager } from "./lod/LODTransitionManager";
 import { galaxyAppearance } from "./galaxy-appearance";
 import { useGalaxyJourney } from "./galaxy-journey";
@@ -619,6 +620,7 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
     [m.key, m.name],
   );
   const center = useMemo(() => galaxyCenter(m), [m]);
+  const orientation = useMemo(() => galaxyOrientation(m), [m]);
   const ref = useRef<THREE.Group>(null!);
   const viewportHeight = useThree((s) => s.size.height);
   useFrame(({ camera }, dt) => {
@@ -649,11 +651,8 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
     }
   });
   return (
-    <group
-      position={center.toArray()}
-      rotation={[(m.inclination * Math.PI) / 180, 0, (m.posAngle * Math.PI) / 180]}
-    >
-      <group ref={ref} rotation-x={m.name === "Milky Way" ? 0 : Math.PI / 2}>
+    <group position={center.toArray()} quaternion={orientation}>
+      <group ref={ref}>
         <GalaxyRadiance model={m} />
         {entered && m.system && <GxSystem m={m} system={m.system} />}
       </group>

@@ -1,3 +1,4 @@
+import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 export type NebulaRoute = {
   title: string;
   points: [number, number, number][];
@@ -202,3 +203,22 @@ export const NEBULA_ROUTES: Record<string, NebulaRoute> = {
     [0.1, 0.25, 0.15],
   ]),
 };
+
+Object.assign(
+  NEBULA_ROUTES,
+  Object.fromEntries(
+    EXTRAGALACTIC_HII_TARGETS.map((t) => [
+      t.id,
+      {
+        title: "Through " + t.name + "’s stellar nursery",
+        points: [
+          [-0.7, 0.35, 2.7],
+          [-0.35, 0.25, 0.8],
+          [-0.1, 0.12, 0.4],
+          [0.2, 0.1, 0.12],
+        ],
+        focus: [0, 0.05, 0.1],
+      },
+    ]),
+  ),
+);

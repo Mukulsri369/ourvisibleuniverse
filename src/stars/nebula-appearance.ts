@@ -1,3 +1,4 @@
+import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 // Morphology-specific radiance normalization in the linear HDR pipeline.
 // Dark clouds retain extinction; this is display adaptation, not intrinsic luminosity.
 export const NEBULA_BALANCE: Record<string, number> = {
@@ -23,3 +24,13 @@ export const NEBULA_BALANCE: Record<string, number> = {
   wr104: 1,
   "eta-car": 0.8,
 };
+
+Object.assign(
+  NEBULA_BALANCE,
+  Object.fromEntries(
+    EXTRAGALACTIC_HII_TARGETS.map((t) => [
+      t.id,
+      t.id === "ngc604" ? 0.65 : t.id === "ngc346" ? 0.75 : 0.8,
+    ]),
+  ),
+);

@@ -1,3 +1,4 @@
+import { makeNearbyGalaxyAdditions, type NearbyMeasurement } from "./nearby-galaxy-data";
 /**
  * LARGE-SCALE OBSERVATIONAL EXTRAGALACTIC ATLAS
  *
@@ -52,8 +53,10 @@ export interface ObservationalGalaxy extends NamedGalaxy {
   aliases: string[]; // Cross-catalog designations
   ra: number; // J2000 Right Ascension in decimal degrees
   dec: number; // J2000 Declination in decimal degrees
-  redshift: number; // Heliocentric / CMB redshift z
-  redshiftMethod?: "spectroscopic" | "photometric" | "optical" | "hi_21cm" | "ned_consensus";
+  redshift: number;
+  measurements?: NearbyMeasurement; // Heliocentric / CMB redshift z
+  redshiftMethod?:
+    "spectroscopic" | "photometric" | "optical" | "hi_21cm" | "ned_consensus" | "velocity_proxy";
   redshiftUncertainty?: number;
   radialVelocityKmS?: number; // Radial velocity in km/s (negative = blueshifted/approaching)
   independentDistanceLy?: number; // Redshift-independent distance in ly
@@ -1976,6 +1979,8 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
     distanceTier: "high_redshift",
   },
 ];
+
+OBSERVATIONAL_GALAXY_CATALOG.push(...makeNearbyGalaxyAdditions(OBSERVATIONAL_GALAXY_CATALOG));
 
 // Deduplicated aliases lookup map
 const ALIAS_INDEX = new Map<string, ObservationalGalaxy>();

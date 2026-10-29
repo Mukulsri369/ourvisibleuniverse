@@ -1,3 +1,4 @@
+import { observedSkyQuaternion, type SkyOrientation } from "./galaxy-sky-orientation";
 import * as THREE from "three";
 import { EXO_BODY_SCALE, EXO_STAR_MAGNIFY, LIGHT_YEARS_PER_AU, SOLAR_RADIUS_AU } from "./scale";
 import { NEARBY_GALAXIES, type NamedGalaxy } from "./galaxy-catalog";
@@ -85,6 +86,7 @@ export type Morphology =
   | "ring";
 
 export type GalaxyModel = {
+  skyOrientation?: SkyOrientation;
   key: string;
   /** Must match the name used in Universe.tsx / the site map. */
   name: string;
@@ -133,6 +135,15 @@ export function galaxyQuat(inclinationDeg: number, posAngleDeg: number): THREE.Q
     new THREE.Euler(d2r(inclinationDeg), 0, d2r(posAngleDeg), "XYZ"),
   );
   return ORIENT.clone().multiply(RX);
+}
+
+export function galaxyOrientation(m: GalaxyModel): THREE.Quaternion {
+  if (m.skyOrientation) return observedSkyQuaternion(m.skyOrientation);
+  if (m.name === "Milky Way")
+    return new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(d2r(m.inclination), 0, d2r(m.posAngle)),
+    );
+  return galaxyQuat(m.inclination, m.posAngle);
 }
 
 export function galaxyCenter(m: GalaxyModel): THREE.Vector3 {
@@ -888,8 +899,8 @@ function morphologyFor(type: string, name?: string): Morphology {
     return "interacting";
   if (/starburst/i.test(type)) return "starburst";
   if (/edge-on/i.test(type)) return "edge-on";
-  if (/barred/i.test(type) || /sb/i.test(type)) return "barred";
   if (/lenticular|s0/i.test(type)) return "lenticular";
+  if (/barred/i.test(type) || /sb/i.test(type)) return "barred";
   if (/elliptical|spheroidal/i.test(type)) return "elliptical";
   if (/irregular|magellanic/i.test(type)) return "irregular";
   return "spiral";
@@ -949,6 +960,14 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
     dustLanes: /spiral|lenticular|interacting/i.test(g.type),
     description: `${g.name} is a real ${g.type.toLowerCase()} galaxy about ${g.distance.toLocaleString()} light-years away${obs.hostGroup ? ` in the ${obs.hostGroup}` : ""}. Its observational model reflects catalogued physical diameter, sky position, and morphological class from NASA/IPAC NED. In accordance with strict scientific integrity, no fictional internal exoplanets or speculative star catalogs are invented for unresolved galaxies.`,
   };
+  if (obs.measurements)
+    base.skyOrientation = {
+      ra: obs.ra!,
+      dec: obs.dec!,
+      inclination: base.inclination,
+      pa: obs.posAngle ?? 0,
+    };
+  if (obs.measurements) base.description = obs.uncertaintyNotes!;
   const merged = { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
   // Only curated models carry visitable planetary systems; others retain purely observational reconstruction
   return merged;
@@ -1016,7 +1035,7 @@ export function systemWorldPosition(m: GalaxyModel, t = 0): THREE.Vector3 {
     s.orbitHeight,
     Math.sin(ang) * s.orbitRadius,
   );
-  local.applyQuaternion(galaxyQuat(m.inclination, m.posAngle));
+  local.applyQuaternion(galaxyOrientation(m));
   return local.add(c);
 }
 

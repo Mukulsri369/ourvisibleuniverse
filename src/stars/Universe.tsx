@@ -11,7 +11,7 @@ import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
-import { GALAXY_BY_NAME, galaxyQuat } from "./galaxy-models";
+import { GALAXY_BY_NAME, galaxyOrientation } from "./galaxy-models";
 import { NEARBY_GALAXIES, type NamedGalaxy, type ObservationalGalaxy } from "./galaxy-catalog";
 import { LargeScaleStructure3D } from "./LargeScaleStructure3D";
 
@@ -62,7 +62,7 @@ function makeDotTexture(): THREE.Texture {
 function ObservationalGalaxyNode({ g }: { g: ObservationalGalaxy }) {
   const pos = useMemo(() => toXYZ(g.l, g.b, g.distance), [g]);
   const model = GALAXY_BY_NAME.get(g.name)!;
-  const orientation = useMemo(() => galaxyQuat(model.inclination, model.posAngle), [model]);
+  const orientation = useMemo(() => galaxyOrientation(model), [model]);
   const pickRef = useRef<THREE.Mesh>(null!);
   const [hovered, setHovered] = useState(false);
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);

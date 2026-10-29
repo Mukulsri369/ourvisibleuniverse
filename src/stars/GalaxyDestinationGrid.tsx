@@ -1,7 +1,7 @@
 import { galaxyAppearance } from "./galaxy-appearance";
 import type { VisitGalaxy } from "./store";
 import { galaxyLandmarks, type GalaxyLandmark } from "./galaxy-landmarks";
-import { galaxyQuat } from "./galaxy-models";
+import { galaxyOrientation } from "./galaxy-models";
 import { galaxyStructure } from "./galaxy-structure";
 import { motionTimeSeconds } from "./sim-clock";
 import * as THREE from "three";
@@ -141,7 +141,7 @@ export function GalaxyDestinationGrid({ name, onVisit }: { name: string; onVisit
         motionTimeSeconds() * galaxyStructure(m).rotationRate,
       );
       p.multiplyScalar(m.diskRadius)
-        .applyQuaternion(galaxyQuat(m.inclination, m.posAngle))
+        .applyQuaternion(galaxyOrientation(m))
         .add(new THREE.Vector3(g.x, g.y, g.z));
       const distance = m.diskRadius * d.landmark.distance;
       useStore.setState({

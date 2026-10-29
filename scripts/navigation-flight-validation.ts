@@ -13,6 +13,8 @@ import {
 } from "../src/stars/sim-clock";
 
 useStore.setState({ systemSpeed: 1, outerOrbitSpeed: 1, zoomSpeed: 50 });
+// This baseline tests explicit 1× motion, independently of the presentation defaults.
+useStore.getState().setOuterOrbitSpeed(1);
 setSimulationDate("2026-10-26T00:00:00Z");
 setTimeMultiplier(1);
 setSimPaused(false);

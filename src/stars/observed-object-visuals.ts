@@ -1,3 +1,4 @@
+import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 export type ObservedMorphology =
   | "filament-remnant"
   | "orion-cloud"
@@ -433,3 +434,18 @@ export const OBSERVED_VISUAL_PROFILES: Record<string, ObservedVisualProfile> = {
   }),
 };
 
+Object.assign(
+  OBSERVED_VISUAL_PROFILES,
+  Object.fromEntries(
+    EXTRAGALACTIC_HII_TARGETS.map((t) => [
+      t.id,
+      {
+        morphology: "orion-cloud",
+        seed: t.seed,
+        tilt: [0, 0, 0],
+        stretch: [1, 1, 1],
+        particleCount: 5200,
+      },
+    ]),
+  ),
+);

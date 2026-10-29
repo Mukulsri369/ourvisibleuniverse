@@ -92,6 +92,29 @@ vec2 structure(vec3 p,float f){
  }else if(uShape>20.5&&uShape<21.5){ // Eta Carinae: distinct hollow Homunculus lobes and equatorial skirt.
   float lobe=length((q-vec3(0.,sign(q.y)*.43,0.))/vec3(.43,.48,.43));
   gas=bell(lobe-1.,.11)*(.45+f);dust=ell(q,vec3(.55,.09,.5))*3.;
+ }else if(uShape>21.5&&uShape<22.5){ // NGC 604: interconnected wind-blown cavities, not a closed sphere.
+  gas=ell(q,vec3(.94,.68,.83))*.9;
+  vec3 c0=vec3(-.28,.08,.1),c1=vec3(.32,-.12,-.12),c2=vec3(.03,.38,-.2);
+  float a0=ell(q-c0,vec3(.32,.34,.45)),a1=ell(q-c1,vec3(.36,.32,.38)),a2=ell(q-c2,vec3(.24,.28,.4));
+  gas*=max(.02,1.-max(a0,max(a1,a2))*1.45);
+  gas+=bell(q.y+.25+.17*sin(q.x*7.+q.z*3.),.075)*ell(q,vec3(.85,.9,.7))*.7;
+  dust=gas*pow(smoothstep(.42,.72,f),2.)*1.8;
+ }else if(uShape>22.5&&uShape<23.5){ // Unresolved SINGS H II regions: explicitly illustrative 3D gas.
+  vec3 offset=vec3(sin(uSeed*19.),cos(uSeed*23.),sin(uSeed*31.))*.2;
+  gas=(ell(q-offset,vec3(.85,.55,.7))+.4*ell(q+offset+vec3(.4,-.3,.15),vec3(.4,.4,.45)));
+  gas*=1.-.95*ell(q-vec3(0.,.05,.1),vec3(.33,.28,.4));
+  dust=gas*smoothstep(.35,.65,f)*1.2;
+ }else if(uShape>23.5&&uShape<24.5){ // NGC 346: asymmetric curved star-forming ridge and open stellar clearing.
+  float arc=.28*sin(q.y*3.6)+.14*sin(q.z*4.);
+  gas=bell(q.x-arc,.16)*ell(q-vec3(.1,.12,-.2),vec3(.95,.9,.8));
+  gas+=ell(q+vec3(.42,.35,.14),vec3(.4,.34,.5))*.6;
+  gas*=1.-.93*ell(q-vec3(0.,.05,.1),vec3(.32,.3,.4));
+  dust=gas*smoothstep(.36,.72,f)*1.35;
+ }else if(uShape>24.5&&uShape<25.5){ // NGC 602: wind-swept ridges around the central association.
+  float wall=.23+.34*q.x*q.x+.2*q.z*q.z;
+  gas=bell(q.y-wall,.12)*ell(q,vec3(.95,.9,.85));
+  gas+=ell(q-vec3(-.48,-.23,-.1),vec3(.32,.38,.5))*.6;
+  dust=gas*.8+bell(q.x+.5+.12*sin(q.y*8.),.055)*ell(q,vec3(.9,.8,.6));
  }else{gas=ell(q,vec3(.85,.43,.65))*smoothstep(.35,.68,f);dust=gas*.4;}
  return vec2(gas,dust);
 }

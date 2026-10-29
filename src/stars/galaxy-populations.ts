@@ -1,3 +1,4 @@
+import { NEARBY_MEASUREMENT_BY_NAME } from "./nearby-galaxy-data";
 import type { GalaxyModel } from "./galaxy-models";
 export type PopulationKnot = readonly [number, number, number, number];
 export type GalaxyPopulation = {
@@ -445,6 +446,42 @@ export const GALAXY_POPULATIONS: Record<string, GalaxyPopulation> = {
     note: "Resolved host reconstruction only; the separate quasar rendering retains ownership of the active nucleus.",
   }),
 };
+const nearbyPopulations = new Map<string, GalaxyPopulation>();
+for (const [name, m] of NEARBY_MEASUREMENT_BY_NAME) {
+  const q = m.minor / m.major,
+    old = /spheroidal|elliptical|lenticular/i.test(m.type),
+    mixed = /transition/i.test(m.type),
+    starFormingNucleus = m.nuclearActivity?.includes("SF") ?? false;
+  if (!old && !/irregular/i.test(m.type)) continue;
+  nearbyPopulations.set(
+    name,
+    old
+      ? sph({
+          axes: [1, Math.sqrt(q), q],
+          core: 0.38,
+          continuum: /spheroidal/i.test(m.type) ? 0.09 : 0.4,
+          source: m.source,
+          hotFraction: starFormingNucleus ? 0.32 : 0.04,
+          dust: starFormingNucleus ? 0.4 : 0,
+          hii: starFormingNucleus ? 0.4 : 0,
+          knots: starFormingNucleus ? [[0, 0, 0, 0.06]] : [],
+          note: starFormingNucleus
+            ? "KINGFISH reports a star-forming nucleus in this early-type galaxy. Its central gas and young population are reconstructed; no individual source identities are invented."
+            : "Projected stellar axis ratio follows the source fit; intrinsic depth, star colours and individual stars are reconstructed. No invented gas cloud.",
+        })
+      : irr({
+          axes: [1, 0.3, q],
+          core: 0.5,
+          continuum: 0.12,
+          hotFraction: mixed ? 0.15 : 0.42,
+          dust: mixed ? 0.03 : 0.16,
+          hii: mixed ? 0.05 : 0.35,
+          knots: [],
+          source: m.source,
+          note: "Observed irregular stellar morphology; unresolved associations and intrinsic depth are reconstructed.",
+        }),
+  );
+}
 export function galaxyPopulation(model: Pick<GalaxyModel, "name">) {
-  return GALAXY_POPULATIONS[model.name];
+  return GALAXY_POPULATIONS[model.name] ?? nearbyPopulations.get(model.name);
 }

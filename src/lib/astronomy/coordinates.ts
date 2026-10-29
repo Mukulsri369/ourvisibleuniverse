@@ -81,7 +81,7 @@ export function galacticToIcrs(lDeg: number, bDeg: number): { ra: number; dec: n
   const y = cosB * Math.sin(deltaL);
   const x = sinB * COS_DEC_NGP - cosB * SIN_DEC_NGP * Math.cos(deltaL);
 
-  let raRad = RA_NGP_RAD + Math.atan2(y, x);
+  let raRad = RA_NGP_RAD - Math.atan2(y, x);
   if (raRad < 0) raRad += 2 * Math.PI;
   if (raRad >= 2 * Math.PI) raRad -= 2 * Math.PI;
 

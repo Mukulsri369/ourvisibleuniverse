@@ -1,3 +1,4 @@
+import { EXTRAGALACTIC_HII_IDS } from "../src/stars/extragalactic-hii";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { OBSERVED_OBJECTS } from "../src/stars/observed-objects";
@@ -19,7 +20,11 @@ function dimensions(buffer: Buffer) {
   }
   throw Error("Missing JPEG dimensions");
 }
-const objects = OBSERVED_OBJECTS.filter((o) => o.nebulaClass);
+const allNebulae = OBSERVED_OBJECTS.filter((o) => o.nebulaClass);
+assert.equal(allNebulae.length, 64);
+// Published H II targets use analytic 3D reconstruction, not an invented image identity.
+const objects = allNebulae.filter((o) => !EXTRAGALACTIC_HII_IDS.has(o.id));
+assert.equal(allNebulae.length - objects.length, 46);
 assert.equal(objects.length, 18, "Review coverage when adding a new nebula");
 for (const item of objects) {
   const ref = NEBULA_REFERENCES[item.id];

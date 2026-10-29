@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { objectHost } from "./object-hosts";
 import { type UniversalTarget } from "./store";
 import { PLANETS, AU } from "./Planets";
 import { NAMED_STARS, type NamedStar } from "./data";
@@ -156,7 +157,8 @@ export function createTargetFromGalaxy(galaxy: ObservationalGalaxy): UniversalTa
     subtitle: `${galaxy.morphologyClass || galaxy.type} · ${galaxy.hostGroup || "Local Group"}`,
     category: `Galaxy (${galaxy.morphologyClass || galaxy.type})`,
     distanceLy: dist,
-    radiusKm: (size * 9.461e12) / 2,
+    radiusKm:
+      galaxy.measurements?.sizeDefinition === "half-light" ? undefined : (size * 9.461e12) / 2,
     redshift: z,
     galacticL: galaxy.l,
     galacticB: galaxy.b,
@@ -164,14 +166,20 @@ export function createTargetFromGalaxy(galaxy: ObservationalGalaxy): UniversalTa
     parentName: galaxy.hostGroup || "Universe",
     parentType: "cluster",
     description: {
-      explorer: `${galaxy.name} is a gigantic island of hundreds of billions of stars, gas, and dust traveling through the universe ${formatDistance(dist)} from us.`,
-      standard: `${galaxy.name} is an extragalactic ${galaxy.morphologyClass || galaxy.type} system spanning roughly ${formatDistance(size)} across, cataloged by the NASA/IPAC Extragalactic Database.`,
-      advanced: `Extragalactic system at cosmological redshift z = ${z.toFixed(5)} with angular diameter and inclination angles derived from NED isophotal surface photometry.`,
+      explorer: `${galaxy.name} is a ${galaxy.type.toLowerCase()} galaxy, an island of stars ${formatDistance(dist)} from us.`,
+      standard: galaxy.measurements
+        ? `${galaxy.name}: ${galaxy.uncertaintyNotes}`
+        : `${galaxy.name} is an extragalactic ${galaxy.morphologyClass || galaxy.type} system spanning roughly ${formatDistance(size)} across, cataloged by the NASA/IPAC Extragalactic Database.`,
+      advanced: galaxy.measurements
+        ? `Published morphology ${galaxy.morphologyClass}; heliocentric velocity ${galaxy.radialVelocityKmS} km/s. Redshift z = ${z.toFixed(6)} is a low-redshift v/c proxy, not a cosmological distance estimate. Source: ${galaxy.observationSource}.`
+        : `Extragalactic system at cosmological redshift z = ${z.toFixed(5)} with angular diameter and inclination angles derived from NED isophotal surface photometry.`,
     },
     formationAndEvolution: `Assembled hierarchically through cold dark matter halo mergers, gas cooling, and primordial accretion shocks since the cosmic dawn epoch (z > 6).`,
     telescopeObservations: `Observed by NASA Hubble Space Telescope, James Webb Space Telescope (JWST), Spitzer, and ground-based multi-wavelength survey arrays.`,
     isSimulatedOrModelled: true,
-    modelledDetailsNote: `Internal 3D stellar density distribution and spiral arm structures are reconstructed using measured inclination and position angles with empirical exponential disk profiles.`,
+    modelledDetailsNote: galaxy.measurements
+      ? galaxy.uncertaintyNotes
+      : `Internal 3D stellar density distribution and spiral arm structures are reconstructed using measured inclination and position angles with empirical exponential disk profiles.`,
     citations: [
       "NASA/IPAC Extragalactic Database (NED)",
       "Freedman et al. Local Group Distance Scales",
@@ -204,18 +212,21 @@ export function createTargetFromObservedObject(obj: ObservedObject): UniversalTa
     subtitle: `${obj.category} · ${obj.subtype}`,
     category: `${obj.category} (${obj.subtype})`,
     distanceLy: distLy,
-    radiusKm: (sizeLy * 9.4607e12) / 2,
+    radiusKm: obj.extentBasis === "illustrative" ? undefined : (sizeLy * 9.4607e12) / 2,
     massSolar: obj.compactPhysics?.massSolar,
     galacticL: obj.l,
     galacticB: obj.b,
-    parentName: distLy > 200000 ? "Extragalactic Space" : "Milky Way",
+    parentName: objectHost(obj.id) ?? "Host not identified",
     parentType: "galaxy",
     description: {
       explorer: `${obj.name} is an extraordinary deep-space landmark located ${formatDistance(distLy)} away. ${obj.description}`,
-      standard: `${obj.name}${obj.aliases?.length ? ` (${obj.aliases.join(", ")})` : ""} is a ${obj.subtype.toLowerCase()} in the ${obj.category.toLowerCase()} category spanning ${formatDistance(sizeLy)} across.`,
+      standard: `${obj.name}${obj.aliases?.length ? ` (${obj.aliases.join(", ")})` : ""} is a ${obj.subtype.toLowerCase()} in the ${obj.category.toLowerCase()} category${obj.extentBasis === "illustrative" ? "; its physical extent is not catalogued" : ` spanning ${formatDistance(sizeLy)} across`}.`,
       advanced: `Astrophysical high-energy compact or volumetric structure with emission profiles characterized by multi-wavelength space observatory datasets (${obj.observed}).`,
     },
-    formationAndEvolution: `Formed through core-collapse supernova explosion, stellar death mass ejection, or supermassive black hole accretion in galactic nucleosynthesis.`,
+    formationAndEvolution:
+      obj.nebulaClass === "emission"
+        ? "Young hot stars ionize the surrounding hydrogen gas. Stellar radiation and winds shape cavities and compressed star-forming ridges."
+        : `Formed through stellar evolution, mass ejection, or accretion; see the object-specific observed properties for its classification.`,
     telescopeObservations: `Observed extensively across ${obj.observed || "multi-wavelength spectra"} (${obj.source || "NASA / ESA"}).`,
     isSimulatedOrModelled: true,
     modelledDetailsNote:
@@ -286,4 +297,3 @@ export function createTargetFromExoplanet(star: NamedStar, planet: any): Univers
     rawEntity: { star, planet },
   };
 }
-

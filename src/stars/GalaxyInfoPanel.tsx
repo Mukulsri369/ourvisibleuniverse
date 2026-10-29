@@ -295,19 +295,27 @@ export function GalaxyInfoPanel() {
                   <div className="mt-5 grid grid-cols-2 gap-y-3 gap-x-2 text-sm">
                     <GStat label="Measured Distance" value={formatLy(visit.distance)} />
                     <GStat
-                      label={visit.reconstructionNote ? "Illustrative extent" : "Physical Diameter"}
+                      label={
+                        visit.reconstructionNote || g?.measurements?.sizeDefinition === "half-light"
+                          ? "Display envelope"
+                          : "Physical Diameter"
+                      }
                       value={formatLy(visit.size)}
                     />
                     <GStat
-                      label="Lookback Time"
+                      label={g?.measurements ? "Light travel time (approx.)" : "Lookback Time"}
                       value={
-                        z <= 0
+                        g?.measurements || z <= 0
                           ? `${formatLy(visit.distance).replace(" ly", " yr")}`
                           : `${cosmo.lookbackTimeGyr.toFixed(3)} Gyr`
                       }
                     />
                     <GStat
-                      label="Redshift (z)"
+                      label={
+                        g?.redshiftMethod === "velocity_proxy"
+                          ? "Velocity proxy (v/c)"
+                          : "Redshift (z)"
+                      }
                       value={
                         g
                           ? g.redshift < 0
@@ -376,107 +384,150 @@ export function GalaxyInfoPanel() {
                   animate={{ opacity: 1 }}
                   className="mt-4 space-y-4"
                 >
-                  <div className="rounded-lg border border-sky-500/20 bg-sky-950/20 p-3">
-                    <div className="flex items-center justify-between text-[11px] text-sky-300">
-                      <span>Cosmological Model:</span>
-                      <span className="font-semibold">{cosmologyParams.name}</span>
+                  {g?.measurements ? (
+                    <div className="space-y-4 text-xs">
+                      <div className="grid grid-cols-2 gap-4">
+                        <GStat label="Adopted distance" value={formatLy(g.distance)} />
+                        <GStat label="Distance method" value={g.measurements.distanceMethod} />
+                        <GStat
+                          label="Heliocentric velocity"
+                          value={`${g.radialVelocityKmS} km/s`}
+                        />
+                        <GStat
+                          label="Light travel time (approx.)"
+                          value={`${(g.distance / 1e6).toFixed(3)} million years`}
+                        />
+                        <GStat
+                          label="Distance error"
+                          value={
+                            g.distanceUncertaintyLy
+                              ? `±${formatLy(g.distanceUncertaintyLy)}`
+                              : "Not specified in this table"
+                          }
+                        />
+                        <GStat label="Velocity proxy (v/c)" value={g.redshift.toFixed(6)} />
+                      </div>
+                      <p className="leading-relaxed text-white/65">
+                        Nearby galaxies have substantial local motions. Their velocity divided by
+                        the Hubble constant is not a reliable distance measurement. This view uses
+                        the adopted published distance and method above. The light travel time is a
+                        nearby-universe approximation.
+                      </p>
+                      <a
+                        className="inline-block underline underline-offset-4 text-cyan-200"
+                        href={g.measurements.distanceSource}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Published distance source ↗
+                      </a>
                     </div>
-                    <div className="mt-1 text-[10px] font-mono text-white/60">
-                      H₀ = {cosmologyParams.h0} km/s/Mpc · Ω_m = {cosmologyParams.omegaM} · Ω_Λ ={" "}
-                      {cosmologyParams.omegaLambda}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">
-                      Cosmological Distance Ladder Metrics
-                    </div>
-                    <div className="mt-2 space-y-2 text-xs">
-                      <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
-                        <span className="text-white/60">Redshift (z)</span>
-                        <span className="font-mono text-white font-medium">
-                          {g
-                            ? g.redshift < 0
-                              ? `${g.redshift.toFixed(6)}`
-                              : g.redshift.toFixed(5)
-                            : z.toFixed(4)}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
-                        <span className="text-white/60">Lookback Time (t_L)</span>
-                        <span className="font-mono text-white">
-                          {z <= 0
-                            ? `${formatLy(visit.distance).replace(" ly", " yr")}`
-                            : `${cosmo.lookbackTimeGyr.toFixed(3)} Gyr (${(cosmo.lookbackTimeYr / 1e6).toFixed(1)} Myr)`}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
-                        <span className="text-white/60">Comoving Distance (D_C)</span>
-                        <span className="font-mono text-white">
-                          {z <= 0
-                            ? formatLy(visit.distance)
-                            : `${cosmo.comovingDistanceGly.toFixed(3)} Gly (${cosmo.comovingDistanceMpc.toFixed(1)} Mpc)`}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
-                        <span className="text-white/60">Luminosity Distance (D_L)</span>
-                        <span className="font-mono text-white">
-                          {z <= 0
-                            ? formatLy(visit.distance)
-                            : `${cosmo.luminosityDistanceGly.toFixed(3)} Gly (${cosmo.luminosityDistanceMpc.toFixed(1)} Mpc)`}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
-                        <span className="text-white/60">Angular Diameter Dist (D_A)</span>
-                        <span className="font-mono text-white">
-                          {z <= 0
-                            ? formatLy(visit.distance)
-                            : `${cosmo.angularDiameterDistanceGly.toFixed(3)} Gly (${cosmo.angularDiameterDistanceMpc.toFixed(1)} Mpc)`}
-                        </span>
-                      </div>
-                      <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
-                        <span className="text-white/60">Distance Modulus (μ)</span>
-                        <span className="font-mono text-white">
-                          {z <= 0
-                            ? (5 * Math.log10(visit.distance / 3.26156) - 5).toFixed(2)
-                            : cosmo.distanceModulus.toFixed(2)}{" "}
-                          mag
-                        </span>
-                      </div>
-                      {g?.independentDistanceMethod && (
-                        <div className="flex items-baseline justify-between rounded bg-emerald-950/20 border border-emerald-500/20 p-2">
-                          <span className="text-emerald-300">Independent Ladder Method</span>
-                          <span className="font-medium text-emerald-200">
-                            {g.independentDistanceMethod}
-                            {g.distanceUncertaintyLy && ` (±${formatLy(g.distanceUncertaintyLy)})`}
-                          </span>
+                  ) : (
+                    <>
+                      <div className="rounded-lg border border-sky-500/20 bg-sky-950/20 p-3">
+                        <div className="flex items-center justify-between text-[11px] text-sky-300">
+                          <span>Cosmological Model:</span>
+                          <span className="font-semibold">{cosmologyParams.name}</span>
                         </div>
-                      )}
-                    </div>
-                  </div>
+                        <div className="mt-1 text-[10px] font-mono text-white/60">
+                          H₀ = {cosmologyParams.h0} km/s/Mpc · Ω_m = {cosmologyParams.omegaM} · Ω_Λ
+                          = {cosmologyParams.omegaLambda}
+                        </div>
+                      </div>
 
-                  <div className="rounded border border-white/10 bg-black/40 p-3 text-[11px] leading-relaxed text-white/50">
-                    <strong className="text-white/80">Why Distances Differ:</strong> Due to the
-                    continuous expansion of spacetime during light transit:
-                    <ul className="mt-1 list-disc pl-4 space-y-0.5">
-                      <li>
-                        <strong>Lookback time:</strong> Elapsed physical time since photons
-                        departed.
-                      </li>
-                      <li>
-                        <strong>Comoving distance:</strong> Instantaneous present-day coordinate
-                        separation.
-                      </li>
-                      <li>
-                        <strong>Luminosity distance (D_L):</strong> Governs flux dilution as (1+z)
-                        expands the surface area.
-                      </li>
-                      <li>
-                        <strong>Angular diameter distance (D_A):</strong> Governs observed angular
-                        size on the sky.
-                      </li>
-                    </ul>
-                  </div>
+                      <div>
+                        <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">
+                          Cosmological Distance Ladder Metrics
+                        </div>
+                        <div className="mt-2 space-y-2 text-xs">
+                          <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
+                            <span className="text-white/60">Redshift (z)</span>
+                            <span className="font-mono text-white font-medium">
+                              {g
+                                ? g.redshift < 0
+                                  ? `${g.redshift.toFixed(6)}`
+                                  : g.redshift.toFixed(5)
+                                : z.toFixed(4)}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
+                            <span className="text-white/60">Lookback Time (t_L)</span>
+                            <span className="font-mono text-white">
+                              {z <= 0
+                                ? `${formatLy(visit.distance).replace(" ly", " yr")}`
+                                : `${cosmo.lookbackTimeGyr.toFixed(3)} Gyr (${(cosmo.lookbackTimeYr / 1e6).toFixed(1)} Myr)`}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
+                            <span className="text-white/60">Comoving Distance (D_C)</span>
+                            <span className="font-mono text-white">
+                              {z <= 0
+                                ? formatLy(visit.distance)
+                                : `${cosmo.comovingDistanceGly.toFixed(3)} Gly (${cosmo.comovingDistanceMpc.toFixed(1)} Mpc)`}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
+                            <span className="text-white/60">Luminosity Distance (D_L)</span>
+                            <span className="font-mono text-white">
+                              {z <= 0
+                                ? formatLy(visit.distance)
+                                : `${cosmo.luminosityDistanceGly.toFixed(3)} Gly (${cosmo.luminosityDistanceMpc.toFixed(1)} Mpc)`}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
+                            <span className="text-white/60">Angular Diameter Dist (D_A)</span>
+                            <span className="font-mono text-white">
+                              {z <= 0
+                                ? formatLy(visit.distance)
+                                : `${cosmo.angularDiameterDistanceGly.toFixed(3)} Gly (${cosmo.angularDiameterDistanceMpc.toFixed(1)} Mpc)`}
+                            </span>
+                          </div>
+                          <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
+                            <span className="text-white/60">Distance Modulus (μ)</span>
+                            <span className="font-mono text-white">
+                              {z <= 0
+                                ? (5 * Math.log10(visit.distance / 3.26156) - 5).toFixed(2)
+                                : cosmo.distanceModulus.toFixed(2)}{" "}
+                              mag
+                            </span>
+                          </div>
+                          {g?.independentDistanceMethod && (
+                            <div className="flex items-baseline justify-between rounded bg-emerald-950/20 border border-emerald-500/20 p-2">
+                              <span className="text-emerald-300">Independent Ladder Method</span>
+                              <span className="font-medium text-emerald-200">
+                                {g.independentDistanceMethod}
+                                {g.distanceUncertaintyLy &&
+                                  ` (±${formatLy(g.distanceUncertaintyLy)})`}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="rounded border border-white/10 bg-black/40 p-3 text-[11px] leading-relaxed text-white/50">
+                        <strong className="text-white/80">Why Distances Differ:</strong> Due to the
+                        continuous expansion of spacetime during light transit:
+                        <ul className="mt-1 list-disc pl-4 space-y-0.5">
+                          <li>
+                            <strong>Lookback time:</strong> Elapsed physical time since photons
+                            departed.
+                          </li>
+                          <li>
+                            <strong>Comoving distance:</strong> Instantaneous present-day coordinate
+                            separation.
+                          </li>
+                          <li>
+                            <strong>Luminosity distance (D_L):</strong> Governs flux dilution as
+                            (1+z) expands the surface area.
+                          </li>
+                          <li>
+                            <strong>Angular diameter distance (D_A):</strong> Governs observed
+                            angular size on the sky.
+                          </li>
+                        </ul>
+                      </div>
+                    </>
+                  )}
                 </motion.div>
               )}
 
@@ -531,7 +582,11 @@ export function GalaxyInfoPanel() {
                     </div>
                     {g?.angularDiameterArcmin && (
                       <div className="flex justify-between rounded bg-white/[0.03] p-2">
-                        <span className="text-white/60">Angular Extent</span>
+                        <span className="text-white/60">
+                          {g.measurements?.sizeDefinition === "half-light"
+                            ? "Display envelope (4rₕ)"
+                            : "Angular Extent"}
+                        </span>
                         <span className="text-white">
                           {g.angularDiameterArcmin.major}&apos; × {g.angularDiameterArcmin.minor}
                           &apos;
