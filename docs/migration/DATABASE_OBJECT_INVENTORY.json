@@ -1,0 +1,142 @@
+[
+  {
+    "file": "drizzle/migrations/0000_create_paid_access_passes.sql",
+    "kind": "TABLE",
+    "name": "public.access_passes"
+  },
+  {
+    "file": "drizzle/migrations/0000_create_paid_access_passes.sql",
+    "kind": "FUNCTION",
+    "name": "public.has_active_access"
+  },
+  {
+    "file": "drizzle/migrations/0001_add_atomic_access_activation.sql",
+    "kind": "FUNCTION",
+    "name": "public.apply_access_purchase"
+  },
+  {
+    "file": "drizzle/migrations/0002_create_astronomical_catalog_tables.sql",
+    "kind": "TABLE",
+    "name": "public.astronomical_catalogs"
+  },
+  {
+    "file": "drizzle/migrations/0002_create_astronomical_catalog_tables.sql",
+    "kind": "TABLE",
+    "name": "public.catalog_batches"
+  },
+  {
+    "file": "drizzle/migrations/0002_create_astronomical_catalog_tables.sql",
+    "kind": "TABLE",
+    "name": "public.astronomical_objects"
+  },
+  {
+    "file": "drizzle/migrations/0002_create_astronomical_catalog_tables.sql",
+    "kind": "TABLE",
+    "name": "public.catalog_measurements"
+  },
+  {
+    "file": "drizzle/migrations/0003_create_academy_student_profiles.sql",
+    "kind": "TABLE",
+    "name": "public.student_profiles"
+  },
+  {
+    "file": "drizzle/migrations/0003_create_academy_student_profiles.sql",
+    "kind": "TABLE",
+    "name": "public.academy_module_progress"
+  },
+  {
+    "file": "drizzle/migrations/0003_create_academy_student_profiles.sql",
+    "kind": "TABLE",
+    "name": "public.academy_stage_badges"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_courses"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_course_versions"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_modules"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_module_versions"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_lessons"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_enrollments"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_lesson_progress"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_activity_evidence"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_assessment_attempts"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_verified_completions"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_stage_achievements"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_certificate_eligibility"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_certificates"
+  },
+  {
+    "file": "drizzle/migrations/0004_create_secure_learning_database.sql",
+    "kind": "TABLE",
+    "name": "public.academy_audit_log"
+  },
+  {
+    "file": "drizzle/migrations/0005_subscription_administration.sql",
+    "kind": "FUNCTION",
+    "name": "public.is_subscription_admin"
+  },
+  {
+    "file": "drizzle/migrations/0005_subscription_administration.sql",
+    "kind": "TABLE",
+    "name": "public.access_admin_audit"
+  },
+  {
+    "file": "drizzle/migrations/0005_subscription_administration.sql",
+    "kind": "FUNCTION",
+    "name": "public.admin_list_subscribers"
+  },
+  {
+    "file": "drizzle/migrations/0005_subscription_administration.sql",
+    "kind": "FUNCTION",
+    "name": "public.admin_grant_access"
+  }
+]
