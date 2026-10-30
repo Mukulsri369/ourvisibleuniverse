@@ -141,8 +141,18 @@ test("built Node app verifies email, persists cookie sessions and student data a
       ).status,
       200,
     );
+    assert.equal((await call("/api/backend/academy/lessons", {
+      moduleId: "02", lessonId: "02-core", scrollDepthPercent: 75, timeSpentSeconds: 90,
+    }, cookie)).status, 200);
     await stop();
     await start();
+    const lessonsAfterRestart = await call("/api/backend/academy/lessons", undefined, cookie);
+    assert.equal(lessonsAfterRestart.status, 200);
+    const savedLessons = (await lessonsAfterRestart.json()).lessons;
+    assert.equal(savedLessons.length, 1);
+    assert.equal(savedLessons[0].lesson_id, "02-core");
+    assert.equal(savedLessons[0].scroll_depth_percent, 75);
+    assert.equal(savedLessons[0].time_spent_seconds, 90);
     const me = await call("/api/backend/me", undefined, cookie);
     assert.equal(me.status, 200);
     assert.equal((await me.json()).user.id, userId);

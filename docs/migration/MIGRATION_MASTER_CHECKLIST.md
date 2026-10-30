@@ -1,3 +1,13 @@
+## Academy lesson persistence checkpoint — 2026-10-30
+
+Razorpay Test Mode credential entry and external payment testing are deferred at the user's request. Synthetic provider/HMAC tests passing does not verify the actual Razorpay checkout or webhook workflow. This remains a release gate.
+
+Migration 0004 copies the original public course, version, 24 modules and core lesson definitions into MariaDB without customer records or changes to lesson content. Existing definitions are retained. Composite foreign keys prevent writing a lesson under a different module; negative reading duration is rejected. Its initial lesson INSERT SELECT encountered an ambiguous column reference; the audited pending repair verified all four executed statements unchanged, corrected only the unexecuted insert and resumed. Completed migration bytes are immutable.
+
+Lesson saving now uses the independent verified cookie identity, bounded strict input, per-user locking, monotonic reading depth/time and intentional bookmark updates. The existing recordLessonProgress server function and /api/backend/academy/lessons use MariaDB. These are unverified reading signals, not certification evidence. No assessment pass, official completion, certificate or paid entitlement is created by reading telemetry. Other Academy assessment/completion/certificate paths and the progress hook still require migration; the Academy is not yet independently functional end to end.
+
+Verification: all 30 backend tests pass with no skips, including curriculum coverage, concurrent lesson retries, private per-user reads, reconnect persistence, forged/invalid input denial and authenticated HTTP origin checks. Schema replay/checksum/Unicode/JSON/FK/UTC/rollback tests pass (4). The official Node build and TypeScript pass. The built-app full process-restart test passes (1), now verifying persisted lesson data in addition to authentication/profile/reset/session behavior. No production data or service changed.
+
 # OVU migration master checklist
 
 ## Independent account and access checkpoint — 2026-10-30

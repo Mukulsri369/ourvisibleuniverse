@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireIndependentAuth } from "../../backend/session-middleware";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const activityEvidenceInput = z.object({
@@ -17,13 +18,7 @@ const submitAssessmentInput = z.object({
   idempotencyKey: z.string().optional(),
 });
 
-const lessonProgressInput = z.object({
-  moduleId: z.string().min(1).max(5),
-  lessonId: z.string().min(1).max(100),
-  scrollDepthPercent: z.number().min(0).max(100),
-  timeSpentSeconds: z.number().min(0),
-  isBookmarked: z.boolean().optional(),
-});
+import { lessonProgressInput } from "./lesson-progress-inputs";
 
 /**
  * Submits interactive lab/3D simulation telemetry evidence to the server.
@@ -85,28 +80,9 @@ export const getAuthoritativeProgress = createServerFn({ method: "GET" })
  * Saves unverified lesson reading position and time spent.
  */
 export const recordLessonProgress = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireIndependentAuth])
   .inputValidator((input) => lessonProgressInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-    const formattedModId = data.moduleId.padStart(2, "0");
-
-    const { error } = await supabase.from("academy_lesson_progress").upsert(
-      {
-        user_id: userId,
-        module_id: formattedModId,
-        lesson_id: data.lessonId,
-        scroll_depth_percent: data.scrollDepthPercent,
-        time_spent_seconds: data.timeSpentSeconds,
-        is_bookmarked: data.isBookmarked ?? false,
-        last_accessed_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id,lesson_id" },
-    );
-
-    if (error) {
-      console.warn("Could not save lesson progress:", error.message);
-      return { success: false, error: error.message };
-    }
-    return { success: true };
+    const { saveLessonProgress } = await import("../../backend/academy-progress.server");
+    return saveLessonProgress(context.principal, data);
   });

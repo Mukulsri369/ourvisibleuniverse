@@ -1,3 +1,7 @@
+## Test Mode deferral — 2026-10-30
+
+The user deferred private test-key setup and external Razorpay testing. No real Razorpay Test Mode checkout or webhook workflow has been verified. Continue independent development, but do not approve production payment migration based only on synthetic provider tests. Live configuration remains unchanged.
+
 # Razorpay migration report
 
 ## Independent account and access checkpoint — 2026-10-30

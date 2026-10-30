@@ -73,6 +73,28 @@ test("mounted cookie-authenticated APIs enforce origin, roles, safe projections 
     admin = await account();
   assert.equal((await call("/api/backend/me", undefined, member.cookie)).status, 200);
   assert.equal((await call("/api/backend/admin/users", undefined, member.cookie)).status, 403);
+  const lessonPath = "/api/backend/academy/lessons";
+  const lesson = {
+    moduleId: "01",
+    lessonId: "01-core",
+    scrollDepthPercent: 60,
+    timeSpentSeconds: 75,
+  };
+  assert.equal((await call(lessonPath)).status, 401);
+  assert.equal(
+    (await call(lessonPath, lesson, member.cookie, "https://untrusted.example")).status,
+    403,
+  );
+  assert.equal(
+    (await call(lessonPath, { ...lesson, userId: admin.id }, member.cookie)).status,
+    400,
+  );
+  assert.equal((await call(lessonPath, { ...lesson, moduleId: "02" }, member.cookie)).status, 400);
+  assert.equal((await call(lessonPath, lesson, member.cookie)).status, 200);
+  const privateLessons = await call(lessonPath, undefined, member.cookie);
+  assert.equal(privateLessons.headers.get("cache-control"), "no-store");
+  assert.equal((await privateLessons.json()).lessons.length, 1);
+  assert.deepEqual((await (await call(lessonPath, undefined, admin.cookie)).json()).lessons, []);
   const input = {
     requestId: randomUUID(),
     userId: member.id,

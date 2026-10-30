@@ -9,6 +9,8 @@ import { paymentService, PaymentRequestError } from "./payments.server";
 import { isPlanId } from "../lib/plans";
 import { getStudentProfile, updateStudentProfile, syncGuestProgress } from "./student.server";
 
+import { getLessonProgress, saveLessonProgress } from "./academy-progress.server";
+
 class HttpError extends Error {
   constructor(
     readonly status: number,
@@ -90,6 +92,12 @@ export function createBackendHandler(auth: ReturnType<typeof createIndependentAu
       }
       if (path === "/api/backend/student/progress" && request.method === "POST")
         return response(await syncGuestProgress(principal, JSON.parse(await boundedBody(request))));
+      if (path === "/api/backend/academy/lessons")
+        return response(
+          request.method === "GET"
+            ? await getLessonProgress(principal)
+            : await saveLessonProgress(principal, JSON.parse(await boundedBody(request))),
+        );
       if (path === "/api/backend/me" && request.method === "GET") {
         const [roles]: any = await database().execute(
           "SELECT role FROM app_roles WHERE user_id=?",
