@@ -1,3 +1,4 @@
+import { evaluateCompletion } from "./academy-completion.server";
 import { z } from "zod";
 import { transaction } from "./db.server";
 import type { Principal } from "./authorization.server";
@@ -60,6 +61,7 @@ export async function saveLessonProgress(principal: Principal | null, input: unk
       status=IF(status='not_started','in_progress',status),updated_at=CURRENT_TIMESTAMP(6)`,
       [userId, data.moduleId, userId, data.moduleId],
     );
+    await evaluateCompletion(connection, userId, data.moduleId);
     return { success: true as const };
   });
 }

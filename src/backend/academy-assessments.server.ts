@@ -1,5 +1,10 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { PoolConnection } from "mysql2/promise";
+import { lockLearner } from "./academy-common.server";
+import { evaluateCompletion, syncAchievements } from "./academy-completion.server";
+import { issueCertificateInTransaction } from "./academy-certificates.server";
+import { STAGE_BADGES } from "../lib/academy/stage-badges";
+import { ensureStudentProfileInTransaction } from "./student.server";
 import { transaction } from "./db.server";
 import type { Principal } from "./authorization.server";
 import {
@@ -23,15 +28,6 @@ import {
 function json<T>(value: T | string): T {
   return typeof value === "string" ? JSON.parse(value) : value;
 }
-async function identity(connection: PoolConnection, principal: Principal | null) {
-  if (!principal?.emailVerified) throw new Error("Verified student account required");
-  const [rows]: any = await connection.execute(
-    "SELECT id FROM auth_user WHERE id=? AND emailVerified=true FOR UPDATE",
-    [principal.id],
-  );
-  if (!rows.length) throw new Error("Verified student account required");
-  return principal.id;
-}
 async function requireFinalEligibility(connection: PoolConnection, userId: string) {
   const [rows]: any = await connection.execute(
     "SELECT module_id FROM academy_verified_completions WHERE user_id=?",
@@ -46,16 +42,17 @@ async function requireFinalEligibility(connection: PoolConnection, userId: strin
     throw new Error("Complete all 24 verified modules before the official final examination");
 }
 
-/** Internal migration service. UI replacement waits for transactional completion/certificate integration. */
+/** Server-issued question snapshots and learner authorization. */
 export async function startStoredAssessment(
   principal: Principal | null,
   input: unknown,
 ): Promise<StartAssessmentResponse> {
   const data = storedAssessmentStartInput.parse(input);
   return transaction(async (connection) => {
-    const userId = await identity(connection, principal);
+    const userId = await lockLearner(connection, principal, data.mode === "practice");
     if (data.moduleId === "exam" && data.mode === "official")
       await requireFinalEligibility(connection, userId);
+    if (data.mode === "official") await ensureStudentProfileInTransaction(connection, userId);
     // Preserve question freshness across restarts, rather than keeping a process-local Set.
     const [past]: any = await connection.execute(
       `SELECT question_snapshot FROM academy_assessment_sessions
@@ -107,14 +104,14 @@ export async function startStoredAssessment(
   });
 }
 
-/** Grading is durable but intentionally awards nothing until the completion integration is connected. */
+/** Grading, completion, achievements, eligibility and issuance commit atomically. */
 export async function gradeStoredAssessment(
   principal: Principal | null,
   input: unknown,
 ): Promise<AssessmentResult> {
   const data = storedAssessmentSubmitInput.parse(input);
   return transaction(async (connection) => {
-    const userId = await identity(connection, principal);
+    const userId = await lockLearner(connection, principal, data.mode === "practice");
     const [sessions]: any = await connection.execute(
       `SELECT *,
       TIMESTAMPDIFF(SECOND,started_at,CURRENT_TIMESTAMP(6)) AS elapsed_seconds,
@@ -224,6 +221,35 @@ export async function gradeStoredAssessment(
       verdict=?,recorded_attempt_id=?,submitted_at=CURRENT_TIMESTAMP(6) WHERE id=?`,
       [key, hash, JSON.stringify(verdict), attemptId, data.attemptId],
     );
+    if (data.mode === "official") {
+      if (data.moduleId !== "exam") {
+        const stage = Math.ceil(Number(data.moduleId) / 4);
+        const [priorBadges]: any = await connection.execute(
+          "SELECT id FROM academy_stage_achievements WHERE user_id=? AND stage_id=?",
+          [userId, stage],
+        );
+        const evaluation = await evaluateCompletion(connection, userId, data.moduleId);
+        verdict.verifiedCompletionAwarded = evaluation.isVerifiedComplete;
+        const [badges]: any = await connection.execute(
+          "SELECT id FROM academy_stage_achievements WHERE user_id=? AND stage_id=?",
+          [userId, stage],
+        );
+        if (!priorBadges.length && badges.length)
+          verdict.newStageBadgeAwarded = STAGE_BADGES[stage].title;
+      } else if (verdict.passed) {
+        await syncAchievements(connection, userId);
+        await connection.execute(
+          "UPDATE academy_certificate_eligibility SET final_exam_passed=true,final_exam_score_pct=GREATEST(COALESCE(final_exam_score_pct,0),?),eligible_at=COALESCE(eligible_at,CURRENT_TIMESTAMP(6)),updated_at=CURRENT_TIMESTAMP(6) WHERE user_id=? AND course_id='cosmic_journey' AND course_version='1.0.0'",
+          [verdict.percentage, userId],
+        );
+        await issueCertificateInTransaction(connection, userId);
+        verdict.certificateEligible = true;
+      }
+      await connection.execute("UPDATE academy_assessment_sessions SET verdict=? WHERE id=?", [
+        JSON.stringify(verdict),
+        data.attemptId,
+      ]);
+    }
     return verdict;
   });
 }

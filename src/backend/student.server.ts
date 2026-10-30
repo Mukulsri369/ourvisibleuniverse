@@ -163,3 +163,5 @@ export function syncGuestProgress(principal: Principal | null, input: unknown) {
     };
   });
 }
+
+export { load as ensureStudentProfileInTransaction };

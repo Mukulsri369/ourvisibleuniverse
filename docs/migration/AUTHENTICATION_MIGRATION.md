@@ -1,3 +1,13 @@
+## Atomic certification checkpoint — 30 October 2026
+
+Migration 0006 is applied locally and replay/checksum tests pass. It adds evidence retry identifiers, one active certificate per learner/course version, signature versioning and audited certificate operation identities. Grading now commits official module completion, module progress, stage achievements, final eligibility and certificate issuance together. Existing completion criteria, 70% module passing and 80% final passing rules are retained. Practice never awards certification. Completion-status, activity submission and explicit completion recheck server functions now use independent cookie authentication/MariaDB; unauthenticated checklist requests expose only empty public criteria.
+
+The full synthetic 24-module journey passes against MariaDB, including concurrent evidence/grading/claim requests, signing-failure rollback, reconnect persistence, name tamper detection, private student names by default, unauthorized PDF-data access denial, audited revocation/reissue and duplicate operation replay. New certificates require a private signing secret (no public fallback) and record signature version 2. The local runner generates/stores this key encrypted outside source. Existing production certificate compatibility still requires authoritative reconciliation; no legacy certificate or customer data was imported.
+
+Verification: 34 combined backend tests pass with no skips; 4 schema/replay/Unicode/JSON/FK/UTC/rollback tests pass; TypeScript and official Node build pass. Built Node authentication/profile/lesson/reset/session workflow across process restart passes (1). Its first run encountered the existing authentication rate limit immediately after the combined suite; rerun after the limit expired passed without weakening the limiter. These checks are not a full Academy browser/certificate workflow test.
+
+Still pending: connect assessment and certificate server functions/screens to the independent services; migrate anonymous practice using established session tooling; isolate offline queues and local progress by identity; replace remaining Academy provider paths and run browser/mobile/restart authorization workflows. Store work, Store backup, scientific catalogue/MCP runtime replacements, provider tests and Hostinger report remain open. Razorpay external testing is deferred at the user's request. Production and customer access remain unchanged.
+
 # Independent authentication
 
 ## Independent account and access checkpoint — 2026-10-30

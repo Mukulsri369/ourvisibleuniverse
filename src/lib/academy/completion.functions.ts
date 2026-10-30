@@ -1,116 +1,57 @@
-// @ts-nocheck
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-
-const moduleStatusSchema = z.object({
-  moduleId: z.string().min(1).max(20),
-});
-
-const submitActivitySchema = z.object({
-  moduleId: z.string().min(1).max(20),
+import { requireIndependentAuth } from "@/backend/session-middleware";
+const moduleStatusSchema = z
+  .object({ moduleId: z.string().regex(/^(?:0?[1-9]|1[0-9]|2[0-4])$/) })
+  .strict();
+const activitySchema = moduleStatusSchema.extend({
   activityId: z.string().min(2).max(100),
   payload: z.record(z.string(), z.unknown()),
   isAccessibleAlternative: z.boolean().optional(),
+  requestId: z.string().min(1).max(120).optional(),
 });
-
-/**
- * Retrieves the authoritative completion status & requirement checklist for a module.
- */
 export const getModuleCompletionStatus = createServerFn({ method: "POST" })
   .inputValidator((input) => moduleStatusSchema.parse(input))
   .handler(async ({ data }) => {
-    let userId = "";
-
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const request = getRequest();
-      const authHeader = request?.headers?.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabaseAdmin.auth.getUser(token);
-        if (userData?.user?.id) {
-          userId = userData.user.id;
-        }
-      }
-    } catch {
-      // Unauthenticated
+    const [{ getRequest }, { independentAuth }] = await Promise.all([
+      import("@tanstack/react-start/server"),
+      import("@/backend/runtime.server"),
+    ]);
+    const session = await independentAuth().api.getSession({ headers: getRequest().headers });
+    if (session?.user.emailVerified) {
+      const { recheckCompletion } = await import("@/backend/academy-completion.server");
+      return recheckCompletion(session.user, data.moduleId);
     }
-
-    if (!userId) {
-      userId = `anon_${Math.random().toString(36).substring(2, 9)}`;
-    }
-
-    const { evaluateModuleCompletionServer } = await import("./completion.server");
-    return evaluateModuleCompletionServer(userId, data.moduleId);
+    const [{ getModuleCompletionRule }, { evaluateCompletionCriteria }] = await Promise.all([
+      import("./completion-rules"),
+      import("./completion-criteria"),
+    ]);
+    const moduleId = data.moduleId.padStart(2, "0"),
+      rule = getModuleCompletionRule(moduleId)!;
+    const criteria = evaluateCompletionCriteria(rule, {});
+    return {
+      moduleId,
+      moduleTitle: rule.title,
+      stageId: rule.stageId,
+      isVerifiedComplete: false,
+      allCriteriaSatisfied: false,
+      missingRequirements: criteria.missingRequirements,
+      checklist: criteria.checklist,
+      recommendedAction: criteria.recommendedAction,
+      recommendedActionText: criteria.recommendedActionText,
+    };
   });
-
-/**
- * Submits an educational simulation or lab outcome for server-side physical validation.
- */
 export const submitActivityOutcome = createServerFn({ method: "POST" })
-  .inputValidator((input) => submitActivitySchema.parse(input))
-  .handler(async ({ data }) => {
-    let userId = "";
-
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const request = getRequest();
-      const authHeader = request?.headers?.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabaseAdmin.auth.getUser(token);
-        if (userData?.user?.id) {
-          userId = userData.user.id;
-        }
-      }
-    } catch {
-      // Unauthenticated
-    }
-
-    if (!userId) {
-      userId = `anon_${Math.random().toString(36).substring(2, 9)}`;
-    }
-
-    const { recordValidatedActivityOutcomeServer } = await import("./completion.server");
-    return recordValidatedActivityOutcomeServer(
-      userId,
-      data.moduleId,
-      data.activityId,
-      data.payload,
-      data.isAccessibleAlternative,
-    );
+  .middleware([requireIndependentAuth])
+  .inputValidator((input) => activitySchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { recordActivity } = await import("@/backend/academy-completion.server");
+    return recordActivity(context.principal, data);
   });
-
-/**
- * Explicit re-evaluation trigger after finishing a lesson or assessment.
- */
 export const recheckModuleCompletion = createServerFn({ method: "POST" })
+  .middleware([requireIndependentAuth])
   .inputValidator((input) => moduleStatusSchema.parse(input))
-  .handler(async ({ data }) => {
-    let userId = "";
-
-    try {
-      const { getRequest } = await import("@tanstack/react-start/server");
-      const request = getRequest();
-      const authHeader = request?.headers?.get("authorization");
-      if (authHeader?.startsWith("Bearer ")) {
-        const token = authHeader.substring(7);
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: userData } = await supabaseAdmin.auth.getUser(token);
-        if (userData?.user?.id) {
-          userId = userData.user.id;
-        }
-      }
-    } catch {
-      // Unauthenticated
-    }
-
-    if (!userId) {
-      throw new Error("Student authentication required to record verified module completion.");
-    }
-
-    const { evaluateModuleCompletionServer } = await import("./completion.server");
-    return evaluateModuleCompletionServer(userId, data.moduleId);
+  .handler(async ({ data, context }) => {
+    const { recheckCompletion } = await import("@/backend/academy-completion.server");
+    return recheckCompletion(context.principal, data.moduleId);
   });
