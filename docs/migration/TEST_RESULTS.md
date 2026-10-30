@@ -1,3 +1,13 @@
+## Durable assessment foundation — 2026-10-30
+
+Migration 0005 adds private server-issued question snapshots, learner ownership, expiry, submission fingerprints, saved verdicts and links to scored attempts. The internal service reuses the canonical question banks and preserves the 70% module / 80% final thresholds and final 20-question stage blueprint. It rechecks database verification and all 24 official completions before an official final exam begins or is graded. Elapsed time is measured from the database-issued start, not accepted from the browser. Concurrent retries return one durable JSON verdict; changed answers or submission keys are rejected. Practice attempt IDs are segregated from official quiz IDs so the existing completion reader cannot treat practice as qualifying.
+
+This is an internal, tested foundation. It is deliberately NOT connected to the assessment UI/server functions yet: transactional completion, achievement and certificate integration must be completed first. It grants no completion, badge or certificate. Anonymous practice remains on the existing implementation until its guest-session replacement is ready. Other provider-dependent Academy paths remain open.
+
+All 33 combined real-MariaDB backend tests pass with no skips. Assessment tests cover all 24 modules at all three levels, sanitized client questions, reconnect persistence, ten concurrent retries, owner/context checks, server timing, expiry, conflicting retries and final-exam eligibility/blueprint. The first test run caught differing undefined properties between initial and persisted responses; verdict serialization was corrected and the unchanged assertions pass. Schema replay/checksum/Unicode/JSON/FK/UTC/rollback tests pass (4) after migration 0005. TypeScript passes. The last official Node build and built-process-restart test passed with the lesson API; the new assessment service is internal and not bundled into a public route yet.
+
+Next: connect durable grading to atomic completion/achievement/certificate issuance, replace all Academy bearer/provider access and guest offline synchronization safely, then finish Store persistence and its original failing editor tests. Actual Razorpay Test Mode testing is deferred at the user's request and remains a release gate. Store backup remains unavailable because Lovable paused its workspace. No hosting purchase, production data import or production service change is authorized.
+
 ## Academy lesson persistence checkpoint — 2026-10-30
 
 Razorpay Test Mode credential entry and external payment testing are deferred at the user's request. Synthetic provider/HMAC tests passing does not verify the actual Razorpay checkout or webhook workflow. This remains a release gate.
