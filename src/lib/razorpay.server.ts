@@ -1,5 +1,6 @@
+import { env } from "node:process";
 import type { Currency, PlanId } from "@/lib/plans";
-import { ACCESS_PLANS, isCurrency, isPlanId } from "@/lib/plans";
+import { ACCESS_PLANS } from "@/lib/plans";
 
 export type RazorpayMode = "test" | "live";
 
@@ -23,7 +24,11 @@ export type RazorpayPayment = {
 };
 
 export function getRazorpayMode(): RazorpayMode {
-  return process.env["RAZORPAY_MODE"] === "live" ? "live" : "test";
+  const mode = env.RAZORPAY_MODE ?? "test";
+  if (mode !== "test" && mode !== "live") throw new Error("Invalid payment environment");
+  if (mode === "live" && (env.NODE_ENV !== "production" || env.RAZORPAY_LIVE_ENABLED !== "true"))
+    throw new Error("Live payments are not enabled");
+  return mode;
 }
 
 export function getRazorpayConfig(mode: RazorpayMode = getRazorpayMode()) {
@@ -42,7 +47,11 @@ function authHeader(keyId: string, keySecret: string) {
   return `Basic ${btoa(`${keyId}:${keySecret}`)}`;
 }
 
-export async function razorpayRequest<T>(path: string, init: RequestInit, mode: RazorpayMode): Promise<T> {
+export async function razorpayRequest<T>(
+  path: string,
+  init: RequestInit,
+  mode: RazorpayMode,
+): Promise<T> {
   const { keyId, keySecret } = getRazorpayConfig(mode);
   const response = await fetch(`https://api.razorpay.com/v1${path}`, {
     ...init,
@@ -144,51 +153,4 @@ export async function verifyRazorpayWebhook(
   for (let index = 0; index < expected.length; index += 1)
     mismatch |= expected.charCodeAt(index) ^ supplied.charCodeAt(index);
   return mismatch === 0;
-}
-
-export async function fulfillRazorpayPayment(options: {
-  paymentId: string;
-  orderId: string;
-  expectedUserId?: string;
-  mode: RazorpayMode;
-}) {
-  const payment = await razorpayRequest<RazorpayPayment>(
-    `/payments/${encodeURIComponent(options.paymentId)}`,
-    { method: "GET" },
-    options.mode,
-  );
-  const order = await razorpayRequest<RazorpayOrder>(
-    `/orders/${encodeURIComponent(options.orderId)}`,
-    { method: "GET" },
-    options.mode,
-  );
-  if (payment.order_id !== order.id || payment.id !== options.paymentId)
-    throw new Error("Payment does not match the order");
-  if (!payment.captured || payment.status !== "captured")
-    throw new Error("Payment has not been captured");
-  if (
-    !isCurrency(order.currency) ||
-    payment.amount !== order.amount ||
-    payment.currency !== order.currency
-  )
-    throw new Error("Payment amount or currency does not match");
-  const userId = order.notes?.userId;
-  const planId = order.notes?.planId;
-  if (!userId || !isPlanId(planId)) throw new Error("Order is missing access details");
-  if (options.expectedUserId && userId !== options.expectedUserId)
-    throw new Error("Payment belongs to a different account");
-  const plan = ACCESS_PLANS[planId];
-  if (order.amount !== plan.prices[order.currency].amount)
-    throw new Error("Payment amount does not match the selected pass");
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: expiresAt, error } = await supabaseAdmin.rpc("apply_access_purchase", {
-    p_user_id: userId,
-    p_payment_session_id: payment.id,
-    p_payment_customer_id: order.id,
-    p_price_id: planId,
-    p_access_days: plan.days,
-    p_environment: options.mode === "live" ? "live" : "sandbox",
-  });
-  if (error) throw error;
-  return { expiresAt, planId };
 }

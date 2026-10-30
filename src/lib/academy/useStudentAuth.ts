@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import type { User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { identity, type IdentityUser as User } from "@/lib/auth-client";
 import type { LearningLevel } from "./types";
 import {
   type StudentProfile,
@@ -93,10 +92,15 @@ export function useStudentAuth() {
   const [profile, setProfile] = useState<StudentProfile>(loadGuestProfile);
   const [isLoading, setIsLoading] = useState(true);
   const syncedRef = useRef(false);
+  const profileEpoch = useRef(0);
+  const { data: identitySession, isPending: identityPending } = identity.useSession();
 
   const fetchAuthenticatedProfile = useCallback(async (activeUser: User) => {
+    const epoch = ++profileEpoch.current;
+    setIsLoading(true);
     try {
       const res = await getMyStudentProfile();
+      if (profileEpoch.current !== epoch) return;
       if (res?.profile) {
         setProfile(res.profile);
 
@@ -122,69 +126,36 @@ export function useStudentAuth() {
         }
       }
     } catch (err) {
+      if (profileEpoch.current !== epoch) return;
       console.error("Failed to load authenticated student profile:", err);
       // Fallback: derive safe profile for authenticated user
-      setProfile((prev) => ({
-        ...prev,
+      setProfile({
+        ...loadGuestProfile(),
         user_id: activeUser.id,
-        student_public_id: prev.student_public_id.startsWith("GUEST")
-          ? generateStudentPublicId()
-          : prev.student_public_id,
-        display_name: activeUser.user_metadata?.full_name || prev.display_name || "Cosmic Explorer",
-      }));
+        student_public_id: generateStudentPublicId(),
+        display_name: activeUser.name || "Cosmic Explorer",
+      });
     } finally {
-      setIsLoading(false);
+      if (profileEpoch.current === epoch) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-    void supabase.auth
-      .getUser()
-      .then(({ data }) => {
-        if (!mounted) return;
-        if (data?.user) {
-          setUser(data.user);
-          void fetchAuthenticatedProfile(data.user);
-        } else {
-          setUser(null);
-          setProfile(loadGuestProfile());
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!mounted) return;
-        setUser(null);
-        setProfile(loadGuestProfile());
-        setIsLoading(false);
-      });
-
-    let unsubscribe = () => {};
-    try {
-      const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (!mounted) return;
-        if (session?.user) {
-          setUser(session.user);
-          await fetchAuthenticatedProfile(session.user);
-        } else {
-          setUser(null);
-          setProfile(loadGuestProfile());
-          setIsLoading(false);
-        }
-      });
-      if (sub?.subscription) {
-        unsubscribe = () => sub.subscription.unsubscribe();
-      }
-    } catch (err) {
-      console.warn("[StudentAuth] Auth listener fallback:", err);
+    if (identityPending) return;
+    const active = identitySession?.user;
+    if (active?.emailVerified) {
+      setUser(active);
+      void fetchAuthenticatedProfile(active);
+    } else {
+      setUser(null);
+      setProfile(loadGuestProfile());
+      setIsLoading(false);
+      syncedRef.current = false;
     }
-
     return () => {
-      mounted = false;
-      unsubscribe();
+      profileEpoch.current++;
     };
-  }, [fetchAuthenticatedProfile]);
+  }, [fetchAuthenticatedProfile, identitySession, identityPending]);
 
   const updateProfile = useCallback(
     async (changes: Partial<StudentProfile>): Promise<StudentProfile> => {
@@ -234,7 +205,7 @@ export function useStudentAuth() {
   );
 
   const handleSignOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    await identity.signOut();
     setUser(null);
     setProfile(loadGuestProfile());
     toast.info("Signed out of student profile. You are now exploring as a guest.");

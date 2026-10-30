@@ -1,4 +1,5 @@
-import { supabase } from "@/integrations/supabase/client";
+import { identity } from "@/lib/auth-client";
+import { AccessHistoryDialog } from "./AccessHistoryDialog";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -14,6 +15,10 @@ const date = (value: string) =>
     year: "numeric",
   });
 export function SubscriptionAdmin() {
+  const [historyTarget, setHistoryTarget] = useState<{ userId: string; email: string } | null>(
+    null,
+  );
+  const { data: identitySession, isPending: identityPending } = identity.useSession();
   const [permission, setPermission] = useState<
     "loading" | "allowed" | "denied" | "setup" | "error"
   >("loading");
@@ -38,20 +43,12 @@ export function SubscriptionAdmin() {
   const sessionEpoch = useRef(0),
     environmentInitialized = useRef(false);
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        sessionEpoch.current++;
-        setPermission("denied");
-        setData(null);
-      } else if (event === "SIGNED_IN" || event === "USER_UPDATED") {
-        sessionEpoch.current++;
-        setPermission("loading");
-        setData(null);
-        setRevision((n) => n + 1);
-      }
-    });
-    return () => data.subscription.unsubscribe();
-  }, []);
+    if (identityPending) return;
+    sessionEpoch.current++;
+    setPermission(identitySession?.user.emailVerified ? "loading" : "denied");
+    setData(null);
+    setRevision((n) => n + 1);
+  }, [identitySession?.user.id, identitySession?.user.emailVerified, identityPending]);
   useEffect(() => {
     let alive = true;
     const epoch = sessionEpoch.current;
@@ -152,7 +149,7 @@ export function SubscriptionAdmin() {
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-neutral-400">
             {permission === "setup"
-              ? "The subscription administration migration (0005) must be applied to the connected Supabase database before this panel can manage real accounts."
+              ? "Administrator access has not been configured for this account. Ask the owner to assign access."
               : permission === "denied"
                 ? "Sign in with the verified administrator account to view subscribers."
                 : permission === "error"
@@ -284,6 +281,14 @@ export function SubscriptionAdmin() {
                         <td className="py-4 pl-3">
                           <button
                             className="min-h-11 px-2 text-sm underline underline-offset-4"
+                            onClick={() =>
+                              setHistoryTarget({ userId: user.user_id, email: user.email })
+                            }
+                          >
+                            History and access
+                          </button>
+                          <button
+                            className="min-h-11 px-2 text-sm underline underline-offset-4"
                             onClick={() => {
                               setEmail(user.email);
                               emailInput.current?.focus();
@@ -397,6 +402,14 @@ export function SubscriptionAdmin() {
             </section>
           </div>
         </>
+      )}
+      {permission === "allowed" && historyTarget && (
+        <AccessHistoryDialog
+          user={historyTarget}
+          environment={environment}
+          onClose={() => setHistoryTarget(null)}
+          onChanged={() => setRevision((n) => n + 1)}
+        />
       )}
     </main>
   );

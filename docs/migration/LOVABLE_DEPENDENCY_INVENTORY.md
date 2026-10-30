@@ -108,3 +108,27 @@ This is an exhaustive pattern scan of the pinned tracked text files, with target
 - `VITE_SUPABASE_PROJECT_ID`
 - `VITE_SUPABASE_PUBLISHABLE_KEY`
 - `VITE_SUPABASE_URL`
+
+## File replacement checkpoint — 2026-10-30
+
+| File | Current replacement |
+|---|---|
+| src/routes/auth.tsx | Independent email/password and Google initiation; verification resend; external Google pending |
+| src/routes/reset-password.tsx | Independent reset form; library tokens; no-referrer; private local testing |
+| src/lib/auth-client.ts | Better Auth same-origin cookie client; no browser bearer storage |
+| src/lib/identity.functions.ts | Request-scoped SSR/server identity |
+| src/backend/session-middleware.ts | Verified independent session required |
+| src/routes/_authenticated/route.tsx | Independent protected-route identity |
+| src/start.ts | Removed global Supabase bearer attachment |
+| src/lib/razorpay.functions.ts | Independent checkout/confirmation/access |
+| src/lib/razorpay.server.ts | Provider HTTP/HMAC only; removed Supabase purchase RPC |
+| src/routes/api/public/payments/razorpay.ts | Independent webhook with signature/body limits/retryable outage responses |
+| src/lib/academy/student.functions.ts | Independent MariaDB student/profile/progress repository |
+| src/lib/academy/useStudentAuth.ts | Independent cookie session hook and stale-profile response guard |
+| src/lib/subscription-admin.functions.ts | Independent roles/subscriber queries/grants |
+| src/components/admin/SubscriptionAdmin.tsx | Independent session and history/access management |
+| src/components/admin/AccessHistoryDialog.tsx | Private purchase/audit/refund history plus revoke/expiry controls |
+| src/routes/__root.tsx | Owned minimal local error diagnostics |
+| src/lib/lovable-error-reporting.ts | Removed; replaced with local diagnostics without external transmission |
+
+This is a replacement checkpoint, not a claim that remaining Academy, catalogue, MCP or Store provider dependencies are gone.

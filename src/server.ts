@@ -30,7 +30,8 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
     return response;
   }
 
-  console.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`));
+  const error = consumeLastCapturedError();
+  console.error("SSR request failed", error instanceof Error ? error.name : "UnknownError");
   return new Response(renderErrorPage(), {
     status: 500,
     headers: { "content-type": "text/html; charset=utf-8" },
@@ -40,10 +41,10 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      if (process.env.OVU_BACKEND === 'mariadb') {
+      if (process.env.OVU_BACKEND === "mariadb") {
         const path = new URL(request.url).pathname;
-        if (path.startsWith('/api/auth/') || path.startsWith('/api/backend/')) {
-          const { handleIndependentRequest } = await import('./backend/http.server');
+        if (path.startsWith("/api/auth/") || path.startsWith("/api/backend/")) {
+          const { handleIndependentRequest } = await import("./backend/http.server");
           const response = await handleIndependentRequest(request);
           if (response) return response;
         }
@@ -52,7 +53,10 @@ export default {
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Application request failed",
+        error instanceof Error ? error.name : "UnknownError",
+      );
       return new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },

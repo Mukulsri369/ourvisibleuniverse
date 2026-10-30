@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { lovable } from "@/integrations/lovable";
-import { supabase } from "@/integrations/supabase/client";
+import { Label } from "@/components/ui/label";
+import { identity } from "@/lib/auth-client";
 import { oauthReturnPath } from "@/lib/oauth-return-path";
 import {
   authDestination,
@@ -48,7 +48,9 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [signup, setSignup] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [verificationNeeded, setVerificationNeeded] = useState(false);
   const leaving = useRef(false);
+  const { data: identitySession } = identity.useSession();
   useEffect(() => {
     const go = () => {
       if (leaving.current) return;
@@ -58,48 +60,71 @@ function AuthPage() {
       // One full navigation avoids racing React updates during sign-in.
       window.location.replace(target);
     };
-    void supabase.auth
-      .getUser()
-      .then(({ data }) => {
-        if (data?.user) go();
-      })
-      .catch(() => {});
-    let unsub = () => {};
-    try {
-      const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === "SIGNED_IN" && session) go();
-      });
-      if (sub?.subscription) {
-        unsub = () => sub.subscription.unsubscribe();
-      }
-    } catch {
-      // offline fallback
-    }
-    return () => unsub();
-  }, [navigate, next, isStudentFlow]);
+    if (identitySession?.user.emailVerified) go();
+  }, [navigate, next, isStudentFlow, identitySession]);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (busy) return;
     setBusy(true);
-    const result = signup
-      ? await supabase.auth.signUp({
-          email,
-          password,
-          options: next
-            ? { emailRedirectTo: new URL(next, window.location.origin).href }
-            : undefined,
-        })
-      : await supabase.auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (result.error) {
-      toast.error(result.error.message);
+    try {
+      const result = signup
+        ? await identity.signUp.email({
+            email,
+            password,
+            name: email.split("@")[0],
+            callbackURL: googleAuthCallback(
+              window.location.origin,
+              authDestination(next, undefined, isStudentFlow),
+            ),
+          })
+        : await identity.signIn.email({ email, password });
+      if (result.error) {
+        if (result.error.code === "EMAIL_NOT_VERIFIED") setVerificationNeeded(true);
+        toast.error(result.error.message || "Sign-in could not be completed.");
+        return;
+      }
+      if (signup) {
+        setVerificationNeeded(true);
+        toast.success("Check your email to confirm your account.");
+        return;
+      }
+      if (!leaving.current) {
+        leaving.current = true;
+        const target = authDestination(next, readAuthNext(), isStudentFlow);
+        clearAuthNext();
+        window.location.replace(target);
+      }
+    } catch {
+      toast.error("Sign-in is temporarily unavailable. Please try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const resendVerification = async () => {
+    if (busy) return;
+    if (!email.trim()) {
+      toast.error("Enter your account email first.");
       return;
     }
-    if (signup && !result.data.session) {
-      toast.success("Check your email to confirm your account.");
-      return;
+    setBusy(true);
+    try {
+      const result = await identity.sendVerificationEmail({
+        email,
+        callbackURL: googleAuthCallback(
+          window.location.origin,
+          authDestination(next, undefined, isStudentFlow),
+        ),
+      });
+      if (result.error) {
+        toast.error("The verification request could not be sent. Please try again.");
+        return;
+      }
+      toast.success("If this account needs verification, a new link will be sent to it.");
+    } catch {
+      toast.error("Verification is temporarily unavailable. Please try again.");
+    } finally {
+      setBusy(false);
     }
-    if (next) await navigate({ href: next });
-    else await navigate({ to: isStudentFlow ? "/learn" : "/universe" });
   };
   const google = async () => {
     if (busy || leaving.current) return;
@@ -107,24 +132,14 @@ function AuthPage() {
     saveAuthNext(destination);
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: googleAuthCallback(window.location.origin, destination),
+      const result = await identity.signIn.social({
+        provider: "google",
+        callbackURL: googleAuthCallback(window.location.origin, destination),
       });
       if (result.error) {
         toast.error(result.error.message || "Google sign-in failed. Please try again.");
         return;
       }
-      if (result.redirected) return;
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        toast.error("Google sign-in didn't finish. Please try again.");
-        return;
-      }
-      if (leaving.current) return;
-      leaving.current = true;
-      const saved = authDestination(next, readAuthNext(), isStudentFlow);
-      clearAuthNext();
-      window.location.replace(saved);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Google sign-in failed.");
     } finally {
@@ -177,21 +192,37 @@ function AuthPage() {
           <span className="h-px flex-1 bg-border" />
         </div>
         <form onSubmit={submit} className="space-y-4">
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email address"
-            required
-          />
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            minLength={8}
-            required
-          />
+          <div>
+            <Label htmlFor="auth-email" className="sr-only">
+              Email address
+            </Label>
+            <Input
+              id="auth-email"
+              type="email"
+              autoComplete="email"
+              maxLength={254}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email address"
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="auth-password" className="sr-only">
+              Password
+            </Label>
+            <Input
+              id="auth-password"
+              type="password"
+              autoComplete={signup ? "new-password" : "current-password"}
+              maxLength={128}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              minLength={signup ? 12 : 1}
+              required
+            />
+          </div>
           <Button disabled={busy} className="w-full">
             {busy
               ? "Please wait…"
@@ -202,6 +233,29 @@ function AuthPage() {
                 : "Sign in"}
           </Button>
         </form>
+        {verificationNeeded && (
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 w-full"
+            disabled={busy}
+            onClick={resendVerification}
+          >
+            Resend verification email
+          </Button>
+        )}
+        {!signup && (
+          <p className="mt-4 text-sm">
+            <Link
+              to="/reset-password"
+              search={{ token: undefined, error: undefined }}
+              onClick={() => saveAuthNext(authDestination(next, undefined, isStudentFlow))}
+              className="text-primary underline"
+            >
+              Forgot your password?
+            </Link>
+          </p>
+        )}
         <button onClick={() => setSignup((v) => !v)} className="mt-6 text-sm text-primary">
           {signup ? "Already registered? Sign in" : "New here? Create an account"}
         </button>

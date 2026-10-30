@@ -65,7 +65,8 @@
     "start:node": "node .output/server/index.mjs",
     "db:migrate": "tsx scripts/migrate.ts",
     "test:db": "node --import tsx --test scripts/test-mariadb.test.ts",
-    "test:backend": "node --import tsx --test --test-concurrency=1 scripts/test-auth.test.ts scripts/test-access.test.ts scripts/test-payments.test.ts scripts/test-backend-http.test.ts"
+    "test:backend": "node --import tsx --test --test-concurrency=1 scripts/test-auth.test.ts scripts/test-access.test.ts scripts/test-payments.test.ts scripts/test-backend-http.test.ts scripts/test-student.test.ts scripts/test-subscribers.test.ts scripts/test-email.test.ts scripts/test-refund-rebasing.test.ts",
+    "test:built": "node --import tsx --test scripts/test-built-auth.test.ts"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

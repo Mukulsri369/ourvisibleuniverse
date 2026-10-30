@@ -1,44 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-const webhookSchema = z.object({
-  event: z.string(),
-  payload: z.object({
-    payment: z.object({
-      entity: z.object({ id: z.string(), order_id: z.string().nullable(), status: z.string() }),
-    }),
-  }),
-});
-
 export const Route = createFileRoute("/api/public/payments/razorpay")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const modeParam = new URL(request.url).searchParams.get("mode");
-        if (modeParam !== "test" && modeParam !== "live")
-          return new Response("Invalid mode", { status: 400 });
-        const signature = request.headers.get("x-razorpay-signature") ?? "";
-        const rawBody = await request.text();
+        const [{ paymentService, PaymentRequestError }, { boundedRequestBody, RequestBodyError }] =
+          await Promise.all([
+            import("@/backend/payments.server"),
+            import("@/backend/request-body.server"),
+          ]);
         try {
-          const { fulfillRazorpayPayment, verifyRazorpayWebhook } =
-            await import("@/lib/razorpay.server");
-          if (!(await verifyRazorpayWebhook(rawBody, signature, modeParam)))
-            return new Response("Invalid signature", { status: 401 });
-          const event = webhookSchema.parse(JSON.parse(rawBody));
-          if (event.event === "payment.captured") {
-            const payment = event.payload.payment.entity;
-            if (!payment.order_id || payment.status !== "captured")
-              return new Response("Invalid payment", { status: 400 });
-            await fulfillRazorpayPayment({
-              paymentId: payment.id,
-              orderId: payment.order_id,
-              mode: modeParam,
-            });
-          }
-          return Response.json({ received: true });
+          const mode = z
+            .enum(["test", "live"])
+            .parse(new URL(request.url).searchParams.get("mode"));
+          await paymentService().webhook(
+            await boundedRequestBody(request, 256 * 1024),
+            request.headers.get("x-razorpay-signature") ?? "",
+            request.headers.get("x-razorpay-event-id") ?? "",
+            mode,
+          );
+          return Response.json({ received: true }, { headers: { "cache-control": "no-store" } });
         } catch (error) {
-          console.error("Razorpay payment notification error", error);
-          return new Response("Invalid payment notification", { status: 400 });
+          if (error instanceof PaymentRequestError || error instanceof RequestBodyError)
+            return new Response(error.message, { status: error.status });
+          if (error instanceof z.ZodError || error instanceof SyntaxError)
+            return new Response("Invalid payment notification", { status: 400 });
+          // Provider/database outages stay retryable. Never log payment payloads or secrets.
+          return new Response("Payment notification temporarily unavailable", { status: 503 });
         }
       },
     },

@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { getMyAccess } from "@/lib/razorpay.functions";
 import { useStudentAuth } from "@/lib/academy/useStudentAuth";
 import { StudentProfileModal } from "@/components/academy/StudentProfileModal";
