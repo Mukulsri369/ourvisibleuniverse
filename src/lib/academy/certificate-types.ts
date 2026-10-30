@@ -1,3 +1,4 @@
+import type { JSONValue } from "./json-values";
 import type { LearningLevel } from "./types";
 
 export type CertificateTheme = "cosmic_dark" | "print_light";
@@ -25,7 +26,7 @@ export interface CanonicalCertificate {
   organization: string;
   certificateText: string;
   disclaimer: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, JSONValue>;
 }
 
 export interface CertificateVerificationResult {
@@ -78,7 +79,7 @@ export interface AdminCertificateRecord {
   verificationUrl: string;
   createdAt: string;
   updatedAt: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, JSONValue>;
   assessmentEvidence?: {
     totalModulesCompleted: number;
     finalExamScore: number;

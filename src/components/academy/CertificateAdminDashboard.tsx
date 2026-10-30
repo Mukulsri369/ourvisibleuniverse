@@ -35,12 +35,11 @@ import type {
   AdminCertificateStats,
   LearningLevel,
 } from "@/lib/academy/certificate-types";
-import { supabase } from "@/integrations/supabase/client";
 
 export function CertificateAdminDashboard() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [authToken, setAuthToken] = useState<string>("");
+  const actionRequest = React.useRef(crypto.randomUUID());
   const [stats, setStats] = useState<AdminCertificateStats | null>(null);
   const [certificates, setCertificates] = useState<AdminCertificateRecord[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -73,12 +72,8 @@ export function CertificateAdminDashboard() {
     async function initAdmin() {
       setLoading(true);
       try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        const token = sessionData?.session?.access_token || "";
-        setAuthToken(token);
-
         // Fetch stats first (server evaluates real admin credentials)
-        const statsRes = await adminGetCertificateStats({ data: { adminToken: token } });
+        const statsRes = await adminGetCertificateStats({ data: {} });
         setStats(statsRes);
         setIsAdmin(true);
         const certsRes = await adminListCertificates({
@@ -88,7 +83,6 @@ export function CertificateAdminDashboard() {
             search: "",
             status: "all",
             level: "all",
-            adminToken: token,
           },
         });
         setCertificates(certsRes.records as AdminCertificateRecord[]);
@@ -104,13 +98,7 @@ export function CertificateAdminDashboard() {
     void initAdmin();
   }, []);
 
-  const loadCertificates = async (
-    p = page,
-    s = search,
-    st = statusFilter,
-    lvl = levelFilter,
-    token = authToken,
-  ) => {
+  const loadCertificates = async (p = page, s = search, st = statusFilter, lvl = levelFilter) => {
     setLoading(true);
     try {
       const res = await adminListCertificates({
@@ -120,7 +108,6 @@ export function CertificateAdminDashboard() {
           search: s,
           status: st,
           level: lvl,
-          adminToken: token,
         },
       });
       setCertificates(res.records as AdminCertificateRecord[]);
@@ -143,7 +130,7 @@ export function CertificateAdminDashboard() {
     setInspectModalOpen(true);
     try {
       const details = await adminGetCertificateDetails({
-        data: { certificateNumber: certNumber, adminToken: authToken },
+        data: { certificateNumber: certNumber },
       });
       setInspectingCert(details);
     } catch (err: any) {
@@ -157,6 +144,7 @@ export function CertificateAdminDashboard() {
   const handleOpenRevoke = (cert: AdminCertificateRecord) => {
     setTargetCert(cert);
     setRevokeReason("");
+    actionRequest.current = crypto.randomUUID();
     setRevokeModalOpen(true);
   };
 
@@ -171,13 +159,13 @@ export function CertificateAdminDashboard() {
         data: {
           certificateNumber: targetCert.certificateNumber,
           reason: revokeReason.trim(),
-          adminToken: authToken,
+          requestId: actionRequest.current,
         },
       });
       toast.success(`Certificate ${targetCert.certificateNumber} revoked.`);
       setRevokeModalOpen(false);
       await loadCertificates();
-      const updatedStats = await adminGetCertificateStats({ data: { adminToken: authToken } });
+      const updatedStats = await adminGetCertificateStats({ data: {} });
       setStats(updatedStats);
     } catch (err: any) {
       toast.error(err?.message || "Revocation failed.");
@@ -189,6 +177,7 @@ export function CertificateAdminDashboard() {
   const handleOpenReissue = (cert: AdminCertificateRecord) => {
     setTargetCert(cert);
     setReissueReason("");
+    actionRequest.current = crypto.randomUUID();
     setUpdatedName(cert.certificateName || cert.displayName);
     setUpdatedLevel(cert.learningLevel);
     setReissueModalOpen(true);
@@ -205,15 +194,15 @@ export function CertificateAdminDashboard() {
         data: {
           certificateNumber: targetCert.certificateNumber,
           reason: reissueReason.trim(),
+          requestId: actionRequest.current,
           updatedCertificateName: updatedName.trim() || undefined,
           updatedLearningLevel: updatedLevel,
-          adminToken: authToken,
         },
       });
       toast.success(res.message);
       setReissueModalOpen(false);
       await loadCertificates();
-      const updatedStats = await adminGetCertificateStats({ data: { adminToken: authToken } });
+      const updatedStats = await adminGetCertificateStats({ data: {} });
       setStats(updatedStats);
     } catch (err: any) {
       toast.error(err?.message || "Reissuance failed.");
@@ -261,7 +250,7 @@ export function CertificateAdminDashboard() {
           size="sm"
           onClick={() => {
             loadCertificates();
-            adminGetCertificateStats({ data: { adminToken: authToken } }).then(setStats);
+            adminGetCertificateStats({ data: {} }).then(setStats);
           }}
           className="border-white/20 text-slate-200 hover:text-white"
         >

@@ -1,3 +1,4 @@
+import { ensurePracticeSession } from "@/lib/auth-client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import type { LearningLevel } from "@/lib/academy/types";
 import type {
@@ -91,7 +92,8 @@ export function UnifiedAssessmentEngine({
       activeLevelRef.current = currentLevel;
 
       try {
-        const response = await startAssessmentAttempt({
+        await ensurePracticeSession();
+      const response = await startAssessmentAttempt({
           data: {
             moduleId,
             level: currentLevel,

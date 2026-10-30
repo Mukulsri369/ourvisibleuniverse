@@ -46,7 +46,8 @@ export const submitActivityOutcome = createServerFn({ method: "POST" })
   .inputValidator((input) => activitySchema.parse(input))
   .handler(async ({ data, context }) => {
     const { recordActivity } = await import("@/backend/academy-completion.server");
-    return recordActivity(context.principal, data);
+    const result = await recordActivity(context.principal, data);
+    return {...result,metrics:z.record(z.string(),z.json()).parse(result.metrics)};
   });
 export const recheckModuleCompletion = createServerFn({ method: "POST" })
   .middleware([requireIndependentAuth])

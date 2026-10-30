@@ -1,3 +1,4 @@
+import { ensurePracticeSession } from "@/lib/auth-client";
 // @ts-nocheck
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import type { LearningLevel } from "@/lib/academy/types";
@@ -145,6 +146,7 @@ export const FinalExamEngine: React.FC<FinalExamEngineProps> = ({
     stopSpeech();
 
     try {
+      await ensurePracticeSession();
       const response = await startAssessmentAttempt({
         data: {
           moduleId: "exam",

@@ -11,3 +11,15 @@ export const requireIndependentAuth = createMiddleware({ type: "function" }).ser
     return next({ context: { userId: session.user.id, principal: session.user } });
   },
 );
+
+export const requireAcademySession = createMiddleware({ type: "function" }).server(
+  async ({ next }) => {
+    const [{ getRequest }, { independentAuth }] = await Promise.all([
+      import("@tanstack/react-start/server"),
+      import("./runtime.server"),
+    ]);
+    const session = await independentAuth().api.getSession({ headers: getRequest().headers });
+    if (!session) throw new Error("Student session required");
+    return next({ context: { principal: session.user, userId: session.user.id } });
+  },
+);

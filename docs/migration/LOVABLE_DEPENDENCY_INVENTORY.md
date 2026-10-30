@@ -1,3 +1,13 @@
+## Connected assessment and certificate screens — 30 October 2026
+
+The unified module quiz and final examination screens now call the durable assessment service through cookie sessions. Certificate claim, active certificate, public verification, private PDF/badge download and administrator registry/detail/statistics/revoke/correct/reissue server functions now call independent MariaDB services. The administrator UI no longer reads or passes Supabase bearer tokens and uses stable operation UUIDs for revoke/reissue retries. Private downloads require ownership or an administrator; a redacted public badge export remains to be reviewed before calling this feature fully migrated.
+
+Guest practice uses Better Auth's anonymous plugin and HttpOnly cookie sessions. A real library-session test confirms a guest can pass practice but cannot begin official grading or obtain verified completion, certificates or paid access. Anonymous records are retained when linking/signing in (disableDeleteAnonymousUser); guest history transfer/retention and cleanup require completion alongside offline synchronization. No custom authentication protocol was added.
+
+Verification: 35 combined backend tests pass, zero failures/skips; focused authentication/Academy tests pass (11); TypeScript and the latest Node production build pass. JSON metadata/metrics are typed and validated for server-function transport. No new browser/mobile or built-process restart run was performed for this screen wiring, so those workflow claims remain pending.
+
+Remaining Academy blockers/work: learning.functions.ts and progress.ts still use the old provider path for the legacy progress/submission hook; achievements loader replacement, identity-scoped offline queue replay, guest-to-account unverified progress reconciliation, account-change clearing of cached admin/private data, full browser/mobile assessment/PDF/admin testing and final provider-dependency scan. The Academy is not yet independent end to end. Store development/test failures and backup availability, catalogue/MCP dependencies and the final Hostinger compatibility assessment also remain open. Razorpay checkout/webhook provider testing is deferred at the user's request; synthetic tests are not proof of actual payment integration. Production and existing customer access remain unchanged.
+
 # Lovable, Supabase and PostgreSQL dependency inventory
 
 ## Verified foundation checkpoint — 2026-10-29

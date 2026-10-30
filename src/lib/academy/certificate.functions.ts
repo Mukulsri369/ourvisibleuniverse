@@ -1,154 +1,55 @@
-// @ts-nocheck
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { CertificateTheme } from "./certificate-types";
-
-async function resolveCertAuthenticatedUserId(): Promise<string> {
-  try {
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const request = getRequest();
-    const authHeader = request?.headers?.get("authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.substring(7);
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { data: userData } = await supabaseAdmin.auth.getUser(token);
-      if (userData?.user?.id) {
-        return userData.user.id;
-      }
-    }
-  } catch {
-    // Unauthenticated
-  }
-
-  return "";
-}
-
-/**
- * Server function to issue an authoritative certificate.
- * Enforces authentication and evaluates eligibility server-side.
- */
+import { requireIndependentAuth } from "@/backend/session-middleware";
+const reference = z.object({ certificateNumber: z.string().trim().min(1).max(100) });
+const change = reference.extend({
+  requestId: z.string().uuid(),
+  reason: z.string().trim().min(3).max(500),
+  updatedCertificateName: z.string().trim().min(1).max(100).optional(),
+  updatedLearningLevel: z.enum(["junior", "explorer", "astronomer"]).optional(),
+});
 export const issueOfficialCertificate = createServerFn({ method: "POST" })
+  .middleware([requireIndependentAuth])
   .inputValidator(
     (input: { userId?: string; level?: "junior" | "explorer" | "astronomer" } = {}) => input,
   )
-  .handler(async ({ data }) => {
-    const userId = await resolveCertAuthenticatedUserId();
-
-    if (!userId) {
-      throw new Error("Student authentication required to claim official verified certificate.");
-    }
-
-    const { issueOfficialCertificateServer } = await import("./certificate.server");
-    return issueOfficialCertificateServer(userId, data?.level);
+  .handler(async ({ context }) => {
+    const { issueCertificate } = await import("@/backend/academy-certificates.server");
+    return issueCertificate(context.principal);
   });
-
-/**
- * Retrieve active certificate for current user.
- */
 export const getActiveCertificate = createServerFn({ method: "GET" })
+  .middleware([requireIndependentAuth])
   .inputValidator((input: { userId?: string } = {}) => input)
-  .handler(async () => {
-    const userId = await resolveCertAuthenticatedUserId();
-
-    if (!userId) return null;
-
-    const { getStudentActiveCertificateServer } = await import("./certificate.server");
-    return getStudentActiveCertificateServer(userId);
+  .handler(async ({ context }) => {
+    const { activeCertificate } = await import("@/backend/academy-certificates.server");
+    return activeCertificate(context.principal);
   });
-
-/**
- * Public Verification Service.
- * Does not require authentication.
- */
 export const verifyCertificatePublic = createServerFn({ method: "GET" })
-  .inputValidator((input: { certificateId: string }) => input)
+  .inputValidator((input: { certificateId: string }) =>
+    z.object({ certificateId: z.string().trim().min(1).max(100) }).parse(input),
+  )
   .handler(async ({ data }) => {
-    const { verifyCertificatePublicServer } = await import("./certificate.server");
-    return verifyCertificatePublicServer(data.certificateId);
+    const { verifyCertificate } = await import("@/backend/academy-certificates.server");
+    return verifyCertificate(data.certificateId);
   });
-
-/**
- * Generates and returns a base64-encoded PDF document for direct download or preview.
- */
 export const generateCertificatePdfPayload = createServerFn({ method: "POST" })
-  .inputValidator((input: { certificateNumber: string; theme?: CertificateTheme }) => input)
-  .handler(async ({ data }) => {
-    const { verifyCertificatePublicServer } = await import("./certificate.server");
+  .middleware([requireIndependentAuth])
+  .inputValidator((input) =>
+    reference.extend({ theme: z.enum(["cosmic_dark", "print_light"]).optional() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { privateCertificate } = await import("@/backend/academy-certificates.server");
     const { generateCertificatePdf } = await import("./certificate-pdf");
-    const { getStudentActiveCertificateServer } = await import("./certificate.server");
-
-    // Fetch full certificate details
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
-      .from("academy_certificates")
-      .select("*")
-      .eq("certificate_number", data.certificateNumber)
-      .maybeSingle();
-
-    if (error || !row) {
-      throw new Error("Certificate not found.");
-    }
-
-    const { LEARNING_LEVEL_LABELS, CERTIFICATE_CONSTANTS } = await import("./certificate-types");
-    const { formatCertificateDate } = await import("./certificate.server");
-    const level = row.learning_level as "junior" | "explorer" | "astronomer";
-
-    const canonical = {
-      id: row.id,
-      certificateNumber: row.certificate_number,
-      userId: row.user_id,
-      studentPublicId: row.student_public_id,
-      displayName: row.display_name,
-      certificateName: row.certificate_name,
-      learningLevel: level,
-      learningLevelLabel: LEARNING_LEVEL_LABELS[level] || "Space Explorer",
-      courseId: row.course_id,
-      courseTitle: CERTIFICATE_CONSTANTS.COURSE_TITLE,
-      achievementTitle: CERTIFICATE_CONSTANTS.ACHIEVEMENT_TITLE,
-      courseVersion: row.course_version,
-      curriculumVersion: row.curriculum_version || "1.0.0",
-      finalScorePercentage: row.final_score_percentage,
-      issueDate: row.issue_date,
-      issueDateFormatted: formatCertificateDate(row.issue_date),
-      verificationHash: row.verification_hash,
-      verificationUrl: `${CERTIFICATE_CONSTANTS.VERIFICATION_BASE_URL}?id=${encodeURIComponent(row.certificate_number)}`,
-      status: row.status as "active" | "revoked" | "superseded",
-      organization: CERTIFICATE_CONSTANTS.ORGANIZATION,
-      certificateText: CERTIFICATE_CONSTANTS.CERTIFICATE_TEXT,
-      disclaimer: CERTIFICATE_CONSTANTS.DISCLAIMER,
-      metadata: row.metadata || {},
-    };
-
-    const pdfBytes = await generateCertificatePdf(canonical, {
-      theme: data.theme || "cosmic_dark",
-    });
-    const base64 = Buffer.from(pdfBytes).toString("base64");
-
+    const certificate = await privateCertificate(context.principal, data.certificateNumber);
+    const bytes = await generateCertificatePdf(certificate, { theme: data.theme ?? "cosmic_dark" });
     return {
-      certificateNumber: row.certificate_number,
-      fileName: `Cosmic-Journey-Certificate-${row.certificate_number}.pdf`,
-      base64,
+      certificateNumber: certificate.certificateNumber,
+      fileName: "Cosmic-Journey-Certificate-" + certificate.certificateNumber + ".pdf",
+      base64: Buffer.from(bytes).toString("base64"),
     };
   });
-
-async function extractAdminToken(): Promise<string> {
-  try {
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const request = getRequest();
-    const authHeader = request?.headers?.get("authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      return authHeader.substring(7);
-    }
-  } catch {
-    // Unauthenticated
-  }
-  return "";
-}
-
-/**
- * Admin: List all certificates with filtering & pagination
- */
 export const adminListCertificates = createServerFn({ method: "POST" })
+  .middleware([requireIndependentAuth])
   .inputValidator(
     (
       input: {
@@ -157,147 +58,55 @@ export const adminListCertificates = createServerFn({ method: "POST" })
         level?: "all" | "junior" | "explorer" | "astronomer";
         page?: number;
         pageSize?: number;
-        adminToken?: string;
       } = {},
     ) => input,
   )
-  .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
-    const { adminListCertificatesServer } = await import("./certificate.server");
-    return adminListCertificatesServer(data, token);
+  .handler(async ({ data, context }) => {
+    const { listCertificates } = await import("@/backend/academy-certificates.server");
+    return listCertificates(context.principal, data);
   });
-
-/**
- * Admin: Get certificate details, evidence, and audit trail
- */
 export const adminGetCertificateDetails = createServerFn({ method: "POST" })
-  .inputValidator((input: { certificateNumber: string; adminToken?: string }) => input)
-  .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
-    const { adminGetCertificateDetailsServer } = await import("./certificate.server");
-    return adminGetCertificateDetailsServer(data.certificateNumber, token);
+  .middleware([requireIndependentAuth])
+  .inputValidator((input) => reference.parse(input))
+  .handler(async ({ data, context }) => {
+    const { certificateDetails } = await import("@/backend/academy-certificates.server");
+    return certificateDetails(context.principal, data.certificateNumber);
   });
-
-/**
- * Admin: Revoke a certificate with mandatory reason
- */
-export const adminRevokeCertificate = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: { certificateNumber: string; reason: string; adminToken?: string }) => input,
-  )
-  .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
-    const { adminRevokeCertificateServer } = await import("./certificate.server");
-    return adminRevokeCertificateServer(data.certificateNumber, data.reason, token);
-  });
-
-/**
- * Admin: Correct certificate details
- */
-export const adminCorrectCertificate = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: {
-      certificateNumber: string;
-      reason: string;
-      updatedCertificateName?: string;
-      updatedLearningLevel?: "junior" | "explorer" | "astronomer";
-      adminToken?: string;
-    }) => input,
-  )
-  .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
-    const { adminCorrectCertificateServer } = await import("./certificate.server");
-    return adminCorrectCertificateServer(
-      data.certificateNumber,
-      {
-        updatedCertificateName: data.updatedCertificateName,
-        updatedLearningLevel: data.updatedLearningLevel,
-      },
-      data.reason,
-      token,
-    );
-  });
-
-/**
- * Admin: Reissue certificate with historical supersession
- */
-export const adminReissueCertificate = createServerFn({ method: "POST" })
-  .inputValidator(
-    (input: {
-      certificateNumber: string;
-      reason: string;
-      updatedCertificateName?: string;
-      updatedLearningLevel?: "junior" | "explorer" | "astronomer";
-      adminToken?: string;
-    }) => input,
-  )
-  .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
-    const { adminReissueCertificateServer } = await import("./certificate.server");
-    return adminReissueCertificateServer(data.certificateNumber, data.reason, token, {
-      updatedCertificateName: data.updatedCertificateName,
-      updatedLearningLevel: data.updatedLearningLevel,
-    });
-  });
-
-/**
- * Admin: Get certificate registry stats
- */
 export const adminGetCertificateStats = createServerFn({ method: "POST" })
-  .inputValidator((input: { adminToken?: string } = {}) => input)
-  .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
-    const { adminGetCertificateStatsServer } = await import("./certificate.server");
-    return adminGetCertificateStatsServer(token);
+  .middleware([requireIndependentAuth])
+  .inputValidator((input: Record<string, never> = {}) => input)
+  .handler(async ({ context }) => {
+    const { certificateStats } = await import("@/backend/academy-certificates.server");
+    return certificateStats(context.principal);
   });
-
-/**
- * Open Badges 3.0 / W3C Verifiable Credential standard metadata export
- */
+export const adminRevokeCertificate = createServerFn({ method: "POST" })
+  .middleware([requireIndependentAuth])
+  .inputValidator((input) => change.parse(input))
+  .handler(async ({ data, context }) => {
+    const { changeCertificate } = await import("@/backend/academy-certificates.server");
+    return changeCertificate(context.principal, "revoke", data);
+  });
+export const adminCorrectCertificate = createServerFn({ method: "POST" })
+  .middleware([requireIndependentAuth])
+  .inputValidator((input) => change.parse(input))
+  .handler(async ({ data, context }) => {
+    const { changeCertificate } = await import("@/backend/academy-certificates.server");
+    return changeCertificate(context.principal, "correct", data);
+  });
+export const adminReissueCertificate = createServerFn({ method: "POST" })
+  .middleware([requireIndependentAuth])
+  .inputValidator((input) => change.parse(input))
+  .handler(async ({ data, context }) => {
+    const { changeCertificate } = await import("@/backend/academy-certificates.server");
+    return changeCertificate(context.principal, "reissue", data);
+  });
 export const getCertificateOpenBadgePayload = createServerFn({ method: "GET" })
-  .inputValidator((input: { certificateNumber: string }) => input)
-  .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
-      .from("academy_certificates")
-      .select("*")
-      .eq("certificate_number", data.certificateNumber.trim().toUpperCase())
-      .maybeSingle();
-
-    if (error || !row) {
-      throw new Error("Certificate not found.");
-    }
-
-    const { LEARNING_LEVEL_LABELS, CERTIFICATE_CONSTANTS } = await import("./certificate-types");
-    const { formatCertificateDate, generateOpenBadge3Metadata } =
-      await import("./certificate.server");
-    const level = (row.learning_level as "junior" | "explorer" | "astronomer") || "explorer";
-
-    const canonical = {
-      id: row.id,
-      certificateNumber: row.certificate_number,
-      userId: row.user_id,
-      studentPublicId: row.student_public_id,
-      displayName: row.display_name,
-      certificateName: row.certificate_name,
-      learningLevel: level,
-      learningLevelLabel: LEARNING_LEVEL_LABELS[level] || "Space Explorer",
-      courseId: row.course_id,
-      courseTitle: CERTIFICATE_CONSTANTS.COURSE_TITLE,
-      achievementTitle: CERTIFICATE_CONSTANTS.ACHIEVEMENT_TITLE,
-      courseVersion: row.course_version,
-      curriculumVersion: row.curriculum_version || "1.0.0",
-      finalScorePercentage: row.final_score_percentage,
-      issueDate: row.issue_date,
-      issueDateFormatted: formatCertificateDate(row.issue_date),
-      verificationHash: row.verification_hash,
-      verificationUrl: `${CERTIFICATE_CONSTANTS.OFFICIAL_VERIFICATION_BASE_URL}/${encodeURIComponent(row.certificate_number)}`,
-      status: row.status as "active" | "revoked" | "superseded",
-      organization: CERTIFICATE_CONSTANTS.ORGANIZATION,
-      certificateText: CERTIFICATE_CONSTANTS.CERTIFICATE_TEXT,
-      disclaimer: CERTIFICATE_CONSTANTS.DISCLAIMER,
-      metadata: row.metadata || {},
-    };
-
-    return generateOpenBadge3Metadata(canonical);
+  .middleware([requireIndependentAuth])
+  .inputValidator((input) => reference.parse(input))
+  .handler(async ({ data, context }) => {
+    const { privateCertificate } = await import("@/backend/academy-certificates.server");
+    const { generateOpenBadge3Metadata } = await import("./open-badge");
+    return generateOpenBadge3Metadata(
+      await privateCertificate(context.principal, data.certificateNumber),
+    );
   });
