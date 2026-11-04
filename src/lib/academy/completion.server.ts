@@ -211,6 +211,7 @@ export async function evaluateModuleCompletionServer(
         .select("*")
         .eq("user_id", userId)
         .eq("assessment_id", `quiz_module_${formattedModId}`)
+        .eq("mode", "official")
         .order("percentage", { ascending: false }),
     ]);
 

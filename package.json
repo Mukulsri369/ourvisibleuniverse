@@ -67,7 +67,9 @@
     "test:mcp": "node --import tsx --test scripts/mcp-independent.test.ts",
     "test:independence": "node --import tsx --test scripts/runtime-independence.test.ts",
     "test:admin-oauth-db": "node --test scripts/admin-oauth-database.test.mjs",
-    "test:built-session": "node --test scripts/built-session-boundary.test.mjs"
+    "test:built-session": "node --test scripts/built-session-boundary.test.mjs",
+    "test:academy-durable": "node --import tsx --test scripts/academy-durable-postgres.test.ts",
+    "test:academy-built": "node scripts/academy-built-supabase-qa.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",

@@ -37,6 +37,12 @@ import {
   DEFAULT_ASSESSMENT_POLICY,
 } from "../src/lib/academy/assessment-types";
 
+// Legacy acceptance fixtures must never target real student data. The durable
+// production path has separate real-PostgreSQL and built/Supabase integration QA.
+process.env.NODE_ENV = "test";
+process.env.SUPABASE_URL = "https://placeholder-project.supabase.co";
+process.env.SUPABASE_SERVICE_ROLE_KEY = "sb_secret_placeholder_service_role_key";
+
 console.log("======================================================================");
 console.log("OUR VISIBLE UNIVERSE ACADEMY");
 console.log("PROMPT 09: COSMIC EXPLORER FINAL KNOWLEDGE ASSESSMENT VALIDATION SUITE");

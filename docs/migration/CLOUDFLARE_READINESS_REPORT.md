@@ -43,4 +43,4 @@ Use Node 22.12+ or a supported newer LTS version for build tooling; local checks
 
 References: [official TanStack Start adapter](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/), [local secrets](https://developers.cloudflare.com/workers/vite-plugin/reference/secrets/), [Supabase OAuth server setup](https://supabase.com/docs/guides/auth/oauth-server/getting-started).
 
-Current source review also identifies process-memory official final-exam sessions in `assessment.server.ts`. Cloudflare can evict/restart an isolate, so those sessions must be reconciled with durable PostgreSQL state and tested across restart before claiming full Academy readiness. User-reported UI success and local fixture suites do not close this release gate.
+Official assessment sessions/results now use PostgreSQL; fresh-process and actual built Worker/Supabase cold-restart tests pass. Anonymous practice remains nonauthoritative and cannot grant certification. Atomic completion/progress/stage awards and concurrent certificate issuance remain release gates; do not infer full Academy readiness from the passing failing-quiz workflow.

@@ -63,3 +63,15 @@ Final rebuilt Worker checks: **3 session-boundary tests passed**: forged header,
 - Initial OAuth QA failed due to reconnecting an already started SDK transport. The runner now uses a fresh connection after code exchange, preserves SDK discovery/issuer binding with PKCE state, and passes the retained assertions. Tokens and verifiers are memory-only; QA process stopped after evidence capture.
 
 These results supersede earlier pending-administrator/local-OAuth notes above. They do not prove historical customer migration, official Academy restart/concurrency safety, actual provider payments or hosted Cloudflare behavior.
+
+## Durable official assessment checkpoint
+
+Migration 0008 is installed in the new project. The exact integrity-guarded transaction passed locally and on the target; existing attempts, eligibility and certificate hashes stayed unchanged. Canonical snapshots and the commit RPC deny anon/authenticated access; service execution is allowed.
+
+**11 PostgreSQL tests passed**, including fresh-process final-exam recovery and 80% scoring, immutable retries, owner/level binding, outages without official fallback, independent SQL scoring, rollback, practice/historical provenance exclusion and database-free anonymous passing-practice retries. The production path was exercised using real PostgreSQL behind a test HTTP adapter; legacy synthetic acceptance fixtures remain explicitly isolated and do not substitute for those tests.
+
+**Actual built Worker + actual Supabase QA passed**: disposable identity, official quiz start, cold Worker restart, server-side failed grading, same-result retry, changed-answer rejection, private snapshot/RPC denials, anonymous practice retry and anonymous official-start denial. No module award, certificate eligibility, certificate or paid access was granted. The owned fixture was removed, and preceding identities remained unchanged. An initial harness attempt lacked TanStack serialization context; the harness now uses the installed TanStack parser/serializer inside its required context. Application authorization was not weakened.
+
+Current regressions: 12 original final-exam checks, 9 completion checks, 26 certificate-generation checks and 34 certificate-admin checks passed with assertions retained. The final-exam fixture script now explicitly selects the placeholder emulator so it cannot target real students. Four actual read-only project checks, 14 security tests and 3 built session-boundary tests passed. TypeScript and Cloudflare build passed; no hosted deployment or provider payment test is implied.
+
+Atomic completion/progress/awards and concurrent certificate issuance remain open. The actual Supabase QA exercised a failing quiz, not a successful official 24-module/certificate journey. Scientific calculations and visual assets were not changed.

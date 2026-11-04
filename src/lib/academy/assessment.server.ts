@@ -24,6 +24,23 @@ import {
   MODULE_TITLES,
 } from "./final-exam-bank.server";
 import { STAGE_BADGES } from "./stage-badges";
+import { createOfficialAssessmentSessions, usesIsolatedAcademyFixtures } from "./assessment-sessions.server";
+const officialSessions = () => createOfficialAssessmentSessions(supabaseAdmin as unknown as Parameters<typeof createOfficialAssessmentSessions>[0]);
+async function finishOfficialCompletion(result: AssessmentResult, userId: string, moduleId: string) {
+  if (moduleId !== "exam" && result.passed) {
+    const { evaluateModuleCompletionServer } = await import("./completion.server");
+    const completion = await evaluateModuleCompletionServer(userId, moduleId);
+    result.verifiedCompletionAwarded = completion.isVerifiedComplete;
+    if (completion.isVerifiedComplete) {
+      const stageId = Math.ceil(Number(moduleId) / 4);
+      const { data: achievement, error } = await supabaseAdmin.from("academy_stage_achievements")
+        .select("badge_id").eq("user_id", userId).eq("stage_id", stageId).maybeSingle();
+      if (error) throw new Error("Official stage status is unavailable. Retry the same assessment.");
+      result.newStageBadgeAwarded = achievement && STAGE_BADGES[stageId] ? STAGE_BADGES[stageId].title : null;
+    }
+  }
+  return result;
+}
 
 export interface StartAssessmentInput {
   userId: string;
@@ -118,6 +135,7 @@ export function getCertificateEligibilityStatusServer(userId: string) {
 const MOCK_USER_VERIFIED_MODULES = new Map<string, Set<string>>();
 
 export function setMockUserVerifiedModules(userId: string, moduleIds: string[]): void {
+  if (!usesIsolatedAcademyFixtures()) throw new Error("Mock Academy eligibility is restricted to isolated fixtures");
   MOCK_USER_VERIFIED_MODULES.set(userId, new Set(moduleIds.map((m) => m.padStart(2, "0"))));
 }
 
@@ -132,7 +150,7 @@ export async function checkFinalExamEligibilityServer(
   const verifiedSet = new Set<string>();
 
   // Check mock registry (used by validation tests)
-  const mockSet = MOCK_USER_VERIFIED_MODULES.get(userId);
+  const mockSet = usesIsolatedAcademyFixtures() ? MOCK_USER_VERIFIED_MODULES.get(userId) : undefined;
   if (mockSet) {
     for (const id of mockSet) {
       verifiedSet.add(id);
@@ -230,6 +248,7 @@ export function verifyCosmosAssistanceAllowed(params: {
 export async function startAssessmentServer(
   input: StartAssessmentInput,
 ): Promise<StartAssessmentResponse> {
+  const durableOfficial = input.mode === "official" && !usesIsolatedAcademyFixtures();
   const isFinalExam = input.moduleId === "exam" || input.moduleId === "24-capstone";
   const formattedModId = isFinalExam ? "exam" : input.moduleId.padStart(2, "0");
 
@@ -248,11 +267,15 @@ export async function startAssessmentServer(
   }
 
   // Generate unique server attempt ID with entropy
-  const attemptId = `att_${formattedModId}_${input.level}_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
+  const attemptId = `att_${formattedModId}_${input.level}_${Date.now()}_${crypto.randomBytes(16).toString("hex")}`;
+
+  if (input.mode === "practice" && input.userId.startsWith("anon_")) input = { ...input, userId: `anon_${attemptId}` };
 
   if (isFinalExam) {
     const userSeenKey = `${input.userId}_${input.level}`;
-    const previouslySeenSet = USER_SEEN_QUESTIONS.get(userSeenKey) || new Set<string>();
+    const previouslySeenSet = durableOfficial
+      ? new Set(await officialSessions().previouslySeen(input.userId, input.level))
+      : USER_SEEN_QUESTIONS.get(userSeenKey) || new Set<string>();
 
     // Generate exactly 20 questions according to the 6-stage blueprint, prioritizing fresh questions on retry
     const canonicalQuestions = generateFinalExamAttemptServer(
@@ -261,15 +284,19 @@ export async function startAssessmentServer(
     );
     const clientQuestions = sanitizeQuestionsForClient(canonicalQuestions);
 
+    const startedAt = durableOfficial
+      ? await officialSessions().start({ id: attemptId, user_id: input.userId, module_id: "exam", learning_level: input.level, question_snapshot: canonicalQuestions })
+      : new Date().toISOString();
+
     // Record assigned questions for future retry freshness
     const updatedSeen = new Set(previouslySeenSet);
     for (const q of canonicalQuestions) {
       updatedSeen.add(q.id);
     }
-    USER_SEEN_QUESTIONS.set(userSeenKey, updatedSeen);
+    if (!durableOfficial) USER_SEEN_QUESTIONS.set(userSeenKey, updatedSeen);
 
     // Register active session for grading
-    ACTIVE_EXAM_SESSIONS.set(attemptId, {
+    if (!durableOfficial) ACTIVE_EXAM_SESSIONS.set(attemptId, {
       userId: input.userId,
       level: input.level,
       mode: input.mode,
@@ -286,7 +313,7 @@ export async function startAssessmentServer(
       passingScorePct: FINAL_EXAM_BLUEPRINT.passingScorePct,
       totalQuestions: FINAL_EXAM_BLUEPRINT.totalQuestions,
       questions: clientQuestions,
-      startedAt: new Date().toISOString(),
+      startedAt,
       blueprint: FINAL_EXAM_BLUEPRINT,
     };
   }
@@ -301,6 +328,10 @@ export async function startAssessmentServer(
     );
   }
 
+  const startedAt = durableOfficial
+    ? await officialSessions().start({ id: attemptId, user_id: input.userId, module_id: formattedModId, learning_level: input.level, question_snapshot: canonicalQuestions })
+    : new Date().toISOString();
+
   return {
     attemptId,
     moduleId: formattedModId,
@@ -309,7 +340,7 @@ export async function startAssessmentServer(
     passingScorePct,
     totalQuestions: questions.length,
     questions,
-    startedAt: new Date().toISOString(),
+    startedAt,
   };
 }
 
@@ -321,6 +352,7 @@ export async function startAssessmentServer(
 export async function submitAssessmentAttemptServer(
   input: SubmitAssessmentAttemptInput,
 ): Promise<AssessmentResult> {
+  const durableOfficial = input.mode === "official" && !usesIsolatedAcademyFixtures();
   const isFinalExam = input.moduleId === "exam" || input.moduleId === "24-capstone";
   const formattedModId = isFinalExam ? "exam" : input.moduleId.padStart(2, "0");
 
@@ -338,19 +370,28 @@ export async function submitAssessmentAttemptServer(
     );
   }
 
+  const durableSession = durableOfficial
+    ? await officialSessions().load(input.attemptId, input.userId, formattedModId, input.level)
+    : null;
+  if (durableSession?.result_payload) {
+    const result = await officialSessions().commit(input.attemptId, input.userId, input.answers, null);
+    return finishOfficialCompletion(result, input.userId, formattedModId);
+  }
+
   // Idempotency / Replay Guard: check in-memory cache and database
   const uniqueSubmissionKey =
     input.idempotencyKey ||
     input.attemptId ||
     `sub_${input.userId}_${formattedModId}_${Date.now()}`;
 
-  let existingAttempt = RECORDED_ATTEMPTS.get(uniqueSubmissionKey);
-  if (!existingAttempt) {
+  let existingAttempt = durableOfficial ? null : RECORDED_ATTEMPTS.get(uniqueSubmissionKey);
+  if (!durableOfficial && !existingAttempt && !input.userId.startsWith("anon_")) {
     try {
       const { data: dbAttempt } = await supabaseAdmin
         .from("academy_assessment_attempts")
         .select("*")
         .eq("idempotency_key", uniqueSubmissionKey)
+        .eq("user_id", input.userId)
         .maybeSingle();
       if (dbAttempt) {
         existingAttempt = dbAttempt;
@@ -359,6 +400,8 @@ export async function submitAssessmentAttemptServer(
       // Offline fallback
     }
   }
+
+  if (existingAttempt && existingAttempt.user_id !== input.userId) throw new Error("Attempt ownership mismatch");
 
   // Final examination official ownership & eligibility verification
   if (isFinalExam && input.mode === "official") {
@@ -379,7 +422,9 @@ export async function submitAssessmentAttemptServer(
 
   // Retrieve canonical questions for this attempt
   let canonicalQuestions: any[] = [];
-  if (isFinalExam) {
+  if (durableSession) {
+    canonicalQuestions = durableSession.question_snapshot;
+  } else if (isFinalExam) {
     const session = ACTIVE_EXAM_SESSIONS.get(input.attemptId);
     if (session && session.questions?.length > 0) {
       canonicalQuestions = session.questions;
@@ -446,7 +491,7 @@ export async function submitAssessmentAttemptServer(
       passingScorePct,
       verifiedCompletionAwarded: false,
       newStageBadgeAwarded: null,
-      certificateEligible: isFinalExam ? existingAttempt.passed : false,
+      certificateEligible: input.mode === "official" && isFinalExam ? existingAttempt.passed : false,
       feedback,
       topicStrengths: breakdown.topicStrengths,
       topicsRequiringReview: breakdown.topicsRequiringReview,
@@ -503,13 +548,29 @@ export async function submitAssessmentAttemptServer(
   const percentage = Math.round((score / totalPoints) * 10000) / 100;
   const passed = percentage >= passingScorePct;
 
-  // Record attempt in database with in-memory fallback
+  if (durableOfficial) {
+    const breakdown = isFinalExam ? computeFinalExamTopicBreakdown(feedback) : {};
+    const result = await officialSessions().commit(input.attemptId, input.userId, input.answers, {
+      attemptId: input.attemptId, moduleId: formattedModId, level: input.level, mode: "official",
+      score, totalPoints, percentage, passed, passingScorePct,
+      verifiedCompletionAwarded: false, newStageBadgeAwarded: null,
+      certificateEligible: isFinalExam && passed, feedback,
+      ...breakdown, recommendations: reviewRecommendations.slice(0, 3),
+    });
+    // Retry completion evaluation as well as grading confirmation after interruptions.
+    return finishOfficialCompletion(result, input.userId, formattedModId);
+  }
+
+  // Anonymous practice is intentionally nonauthoritative and never writes an auth.users UUID.
   let attempt: any = null;
-  try {
+  if (!input.userId.startsWith("anon_")) try {
     const { data: dbAttempt, error: attemptError } = await supabaseAdmin
       .from("academy_assessment_attempts")
       .insert({
         user_id: input.userId,
+        mode: input.mode,
+        learning_level: input.level,
+        course_version: input.courseVersion || "1.0.0",
         assessment_id: isFinalExam ? "cosmic_explorer_final_exam" : `quiz_module_${formattedModId}`,
         assessment_version: "1.0.0",
         question_set_version: "1.0.0",
@@ -574,7 +635,7 @@ export async function submitAssessmentAttemptServer(
     passingStatus: passed,
     completionTimestamp,
   };
-  OFFICIAL_EXAM_ATTEMPTS.set(officialRecord.attemptId, officialRecord);
+  if (input.mode === "official") OFFICIAL_EXAM_ATTEMPTS.set(officialRecord.attemptId, officialRecord);
 
   let verifiedCompletionAwarded = false;
   let newStageBadgeAwarded: string | null = null;

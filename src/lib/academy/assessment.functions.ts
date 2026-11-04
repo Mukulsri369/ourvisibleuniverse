@@ -45,6 +45,10 @@ export const startAssessmentAttempt = createServerFn({ method: "POST" })
       // Unauthenticated / anonymous visitor
     }
 
+    if (data.mode === "official" && userId.startsWith("anon_")) {
+      throw new Error("Student authentication required for official certified module assessments.");
+    }
+
     const { startAssessmentServer } = await import("./assessment.server");
     return startAssessmentServer({
       userId,
@@ -86,7 +90,7 @@ export const submitAssessmentAttempt = createServerFn({ method: "POST" })
     }
 
     if (!userId) {
-      userId = `anon_${Math.random().toString(36).substring(2, 9)}`;
+      userId = `anon_${data.attemptId}`;
     }
 
     const { submitAssessmentAttemptServer } = await import("./assessment.server");

@@ -57,6 +57,13 @@
       "when": 1793750400007,
       "tag": "0007_scoped_oauth_access",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793750400008,
+      "tag": "0008_durable_official_assessments",
+      "breakpoints": true
     }
   ]
 }

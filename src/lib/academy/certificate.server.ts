@@ -163,8 +163,10 @@ export async function issueOfficialCertificateServer(
       .select("*")
       .eq("user_id", userId)
       .eq("assessment_id", "cosmic_explorer_final_exam")
+      .eq("course_version", courseVersion)
+      .eq("mode", "official")
       .eq("passed", true)
-      .order("created_at", { ascending: false })
+      .order("submitted_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
@@ -176,6 +178,7 @@ export async function issueOfficialCertificateServer(
         .select("*")
         .eq("user_id", userId)
         .eq("module_id", "exam")
+        .eq("mode", "official")
         .eq("passed", true)
         .order("created_at", { ascending: false })
         .limit(1)

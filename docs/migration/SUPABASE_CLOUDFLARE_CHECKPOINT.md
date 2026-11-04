@@ -132,3 +132,7 @@ References: [Cloudflare TanStack Start guide](https://developers.cloudflare.com/
 ## Administrator/OAuth local candidate — 4 November
 
 Owner identity confirmed as the recent Google sign-in account; stored privately, no role granted. Additive admin schema and OAuth-restrictive policies are locally tested (8 PostgreSQL checks), with 14 security tests and 34 original certificate-admin checks passing. The exact generated SQL is staged for review but not executed. Public loopback-only MCP client form is prepared but not submitted. See ADMIN_OAUTH_REVIEW.md and TEST_RESULTS.md for evidence and remaining approval gates. Production, Store, paid entitlements and payment provider settings are unchanged.
+
+## Subsequent durable assessment checkpoint
+
+0008 is applied and official runtime assessments use PostgreSQL sessions/results, not process memory. Eleven PostgreSQL tests and actual built Worker/Supabase cold-restart QA passed, including anonymous practice retries and exclusion from official eligibility. Disposable QA identity/rows were removed; original identities and record hashes are unchanged. See DATABASE_MIGRATION_PLAN.md for exact scope. Completion/progress/stage awards and concurrent certificate issuance still need atomic transactions; payment provider tests remain deferred. Production and Store remain unchanged.

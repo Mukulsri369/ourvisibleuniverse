@@ -49,6 +49,24 @@ test("approved administrator and scoped-summary schema is present and denies ano
   }
 });
 
+test("durable assessment schema is installed without exposing question snapshots to anonymous callers", async () => {
+  assert.equal(process.env.SUPABASE_URL, target);
+  const response = await fetch(target + "/rest/v1/", {
+    headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "", accept: "application/openapi+json" },
+    signal: AbortSignal.timeout(15_000),
+  });
+  assert.equal(response.status, 200);
+  const schema = await response.json() as { definitions: Record<string, { properties: Record<string, unknown> }> };
+  assert.ok(schema.definitions.academy_assessment_sessions);
+  for (const column of ["mode", "session_id", "learning_level", "course_version"]) {
+    assert.ok(schema.definitions.academy_assessment_attempts.properties[column], `Missing assessment provenance: ${column}`);
+  }
+  const denied = await fetch(target + "/rest/v1/academy_assessment_sessions?select=id&limit=0", {
+    headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY ?? "" }, signal: AbortSignal.timeout(15_000),
+  });
+  assert.ok([401, 403].includes(denied.status), "Canonical question snapshots must be private");
+});
+
 test("approved OAuth server publishes compatible discovery and signing metadata", async () => {
   assert.equal(process.env.SUPABASE_URL, target, "Only the new OVU project may be inspected");
   const headers = { apikey: process.env.SUPABASE_PUBLISHABLE_KEY ?? "" };
