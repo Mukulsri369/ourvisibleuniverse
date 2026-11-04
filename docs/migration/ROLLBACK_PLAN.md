@@ -1,6 +1,6 @@
 # OVU rollback
 
-No production cutover or database migration was performed in this phase, so the live Lovable application remains the operational fallback.
+No production cutover was performed; the live Lovable application remains the operational fallback. The explicitly approved new-project admin/OAuth schema and selected Google administrator role are now applied. Preserve their private preflight and pre-role metadata backups; a code revert alone does not reverse those changes.
 
 - Preserve `origin/main` baseline `ba30dc9035a229eb475c5d36ec7ef1b6bf2db263`, migration checkpoint `399ab9d`, and historical `migration/mariadb-hostinger` head `3d8be60`.
 - For local diagnosis, make a separate checkout/worktree at the desired preserved commit and stop the owned preview process. Do not hard-reset a dirty checkout, delete private backups or change the Store.
@@ -11,7 +11,7 @@ No production cutover or database migration was performed in this phase, so the 
 
 Current Supabase Google configuration and the approved local redirect are intentionally retained. The user also explicitly approved OAuth-server enablement, consent `/oauth/consent`, dynamic registration off, and local Site URL `http://127.0.0.1:31751`; those settings are now saved and verified. The preceding Site URL was `http://localhost:3000` and OAuth server was off. Do not silently undo approved authentication settings or register/authorize clients during a code rollback; any authentication rollback is a separate configuration decision.
 
-## Pending admin/OAuth candidate
+## Approved new-project admin/OAuth changes
 
 Before approved application, preserve the private policy/function snapshot and the selected user's complete preceding app metadata. Apply only the generated 0006/0007 transaction; failure rolls back DDL and record hashes must remain unchanged. After application, verify hashes against the preflight and verify ordinary website access before testing a delegated client.
 

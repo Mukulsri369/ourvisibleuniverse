@@ -1,3 +1,11 @@
+# Latest OVU checkpoint — approved admin/OAuth phase, 4 November 2026
+
+Migrations 0006/0007 are installed in the new project after explicit approval. The confirmed recent Google account is administrator; metadata backup is encrypted privately. Four functions, 18 restrictive policies and unchanged target access/certificate integrity hashes verified. Actual certificate/subscriber admin screens work; no entitlement was granted. Public loopback-only MCP client manually created, user consent complete, real PKCE/all four tools/authorization restrictions pass. Three actual read-only project tests pass. QA token process was stopped after testing.
+
+Production, Store, payments, DNS and deployments remain unchanged. Razorpay provider testing is deferred. Remaining engineering includes reconciling process-memory official assessment sessions with durable PostgreSQL state and proving restart/atomic issuance. Customer history/signing keys need approved reconciliation; Cloudflare hosted staging and production cutover remain separately gated. FINAL_MIGRATION_REPORT.md and MIGRATION_MASTER_CHECKLIST.md describe current status. Older chronology below is historical and is superseded where it refers to pending administrator/local OAuth work.
+
+---
+
 # OVU Supabase / Cloudflare checkpoint — 4 November 2026
 
 ## Subsequent verified dependency-removal phase

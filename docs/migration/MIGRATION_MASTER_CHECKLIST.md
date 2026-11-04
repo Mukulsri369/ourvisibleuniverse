@@ -12,11 +12,11 @@
 - [x] Measure assets, upload dry run and local startup; document actual Cloudflare limits/pricing.
 - [x] Prepare deployment and rollback procedures.
 - [x] Save approved local Supabase OAuth server/Site URL settings and verify discovery/signing compatibility; keep dynamic registration off.
-- [ ] Review OAuth token scope/RLS and test actual MCP client consent/token exchange after explicit client registration approval.
+- [x] Review OAuth token scope/RLS and verify real PKCE consent, four MCP tools and delegated-token restrictions.
 - [x] Confirm intended administrator identity and locally verify reviewed admin/OAuth migration.
-- [ ] Apply reviewed schema, provision the confirmed administrator and register local QA client after action-time approval.
+- [x] Apply approved schema, provision the confirmed administrator and register local QA client; verify both actual admin screens without entitlement changes.
 - [ ] Reconcile historical certificate keys and all customer identities, entitlements and records.
-- [ ] Complete independent database concurrency/atomic issuance evidence beyond user-reported Academy UI testing.
+- [ ] Reconcile process-memory official assessment sessions with durable PostgreSQL state, then prove restart/concurrency/atomic issuance beyond user-reported UI checks.
 - [ ] Run actual Razorpay provider tests when authorized; currently deferred.
 - [ ] Obtain staging approval; validate actual Cloudflare CPU/memory/startup and full hosted workflows.
 - [ ] Obtain separate production cutover, live payment and DNS approvals.

@@ -24,7 +24,7 @@ The browser caught an intermediate text-encoding regression caused by a file edi
 
 The existing certificate-admin suite initially failed its minor-privacy assertion because its fixture still used the nonexistent `academy_student_profiles` name. Both production lookup and fixture/emulator now use `student_profiles`; the original privacy checks pass. The emulator is explicitly test-only. These 60 acceptance checks are not real-database concurrency or persistence evidence.
 
-Certificate-admin authority now uses only trusted app metadata or explicitly configured server-side IDs/verified emails. User-editable metadata and old hardcoded default emails no longer grant admin authority. No real user's role/access was modified. The UUID lookup branch no longer misclassifies a UUID as a JWT merely because it is long.
+Certificate-admin authority now uses only trusted app metadata or explicitly configured server-side IDs/verified emails. User-editable metadata and old hardcoded default emails no longer grant admin authority. At that checkpoint no real role/access was modified. Subsequent hardening now rejects bare UUIDs as authentication entirely and ignores request-body admin tokens.
 
 The final native preview was restarted after the release-candidate build. The original built preview suite passed again; the browser retained the signed-in account without an active paid pass. A Windows rebuild initially encountered locked simulator SQLite files; preview state now uses a per-process temporary directory outside the build output, and the clean rebuild passed. Neither the failed attempt nor test-only fixture runs are counted as platform/production success.
 
@@ -39,10 +39,10 @@ Subsequent approved configuration check: **2 read-only project/OAuth-discovery t
 ## Explicitly not verified
 
 - Actual Razorpay Test Mode checkout, authentic webhook delivery, refunds and recovery against the provider; all remain deferred by the user.
-- Actual third-party MCP OAuth consent/client flow: discovery is verified, but no client was registered/authorized and no real code/token exchange was performed.
+- Cloudflare-hosted MCP client flow remains unverified; actual local consent/PKCE/tools and restrictions passed in the subsequent approved phase below.
 - Platform-hosted Worker CPU/memory/startup, SSL and custom domains: no deployment authorized.
 - Migration/reconciliation of existing customer identities, transactions, entitlements, storage or historical certificates.
-- Admin database RPCs absent from the target; database changes were not applied in this phase.
+- Customer history is not imported. Admin RPCs were subsequently installed and verified with explicit approval, as recorded below.
 - Full automated browser regression for every 3D simulation and concurrent official Academy award/certificate issuance. Astronomy invariants and sampled UI checks do not substitute for those workflows.
 
 Evidence logs and screenshots are kept in the workspace's private `work/evidence` and `outputs` directories, outside Git. Never publish raw credentials or customer exports as test evidence.
@@ -52,3 +52,14 @@ Evidence logs and screenshots are kept in the workspace's private `work/evidence
 Local candidate checks: 8 PostgreSQL tests passed, 14 MCP/runtime security tests passed, 34 existing certificate-admin checks passed, and TypeScript passed. The PostgreSQL suite exercises the exact generated review transaction twice and proves its integrity guard rolls back a deliberately injected record deletion. The native Worker rejected a forged website token with HTTP 401. These checks do not grant roles or create OAuth clients. Target installation, actual delegated token exchange and first-party administrator UI verification are pending action-time approval. See ADMIN_OAUTH_REVIEW.md.
 
 Final rebuilt Worker checks: **3 session-boundary tests passed**: forged header, body-only administrator UUID, and body-only token all return HTTP 401. The first POST test attempt used plain JSON rather than TanStack's Seroval wire format and failed in deserialization (HTTP 500); the harness now uses the same Seroval serializer as TanStack, and the retained 401 assertions pass against actual handlers. No production behavior was weakened to accommodate that harness error. TypeScript and the final Cloudflare build passed; original subscription-admin PostgreSQL regression also passed. Browser `/account` retained the Google session, student ID and “No active pass” after restart.
+
+## Approved target application and actual OAuth — latest verified phase
+
+- Actual SQL transaction succeeded; separate target verification matched preflight access/certificate record counts and hashes. Four functions, 18 restrictive policies, audit RLS and zero audit rows verified.
+- Confirmed Google owner promoted to trusted administrator with previous app metadata encrypted privately; unrelated metadata preserved. No access pass created.
+- Actual built certificate registry and sandbox subscriber dashboard load successfully for that account and show empty records. No grant, revoke, correction or issuance was performed. The account had been visibly restricted before provisioning.
+- Three actual read-only target project tests passed: existing schema/Google settings, installed audit schema plus anonymous RPC denials, OAuth discovery/JWKS. No purchase or mutation RPC invoked.
+- User completed local client consent. Actual PKCE token exchange and all four MCP tools passed. Delegated token raw profile/pass reads return no rows, administrator RPC returns 403, and website admin function returns 403. Summary exposes only its four intended fields. No provider credentials configured or payment requests made.
+- Initial OAuth QA failed due to reconnecting an already started SDK transport. The runner now uses a fresh connection after code exchange, preserves SDK discovery/issuer binding with PKCE state, and passes the retained assertions. Tokens and verifiers are memory-only; QA process stopped after evidence capture.
+
+These results supersede earlier pending-administrator/local-OAuth notes above. They do not prove historical customer migration, official Academy restart/concurrency safety, actual provider payments or hosted Cloudflare behavior.

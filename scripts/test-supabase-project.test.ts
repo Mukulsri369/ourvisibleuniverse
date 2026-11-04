@@ -25,7 +25,28 @@ test("OVU target project is reachable with separate public/server keys and its e
   assert.equal(settings.status, 200, "Public authentication connection failed");
   const auth = await settings.json() as { external?: { email?: boolean; google?: boolean } };
   assert.equal(auth.external?.email, true, "Email authentication is disabled in the target project");
+  assert.equal(auth.external?.google, true, "Approved Google sign-in must remain enabled");
   console.log("Verified read-only schema access and public authentication settings; Google OAuth configured: " + Boolean(auth.external?.google));
+});
+
+test("approved administrator and scoped-summary schema is present and denies anonymous execution", async () => {
+  assert.equal(process.env.SUPABASE_URL, target);
+  const response = await fetch(target + "/rest/v1/", {
+    headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "", accept: "application/openapi+json" },
+    signal: AbortSignal.timeout(15_000),
+  });
+  assert.equal(response.status, 200);
+  const schema = await response.json() as { definitions: Record<string, unknown> };
+  assert.ok(schema.definitions?.access_admin_audit, "Approved audit schema must be installed");
+  // Both RPCs are read-only; no grant/payment/certificate RPC is ever invoked here.
+  for (const name of ["is_subscription_admin", "admin_list_subscribers", "get_my_access_summary"]) {
+    const anonymous = await fetch(target + "/rest/v1/rpc/" + name, {
+      method: "POST",
+      headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY ?? "", "Content-Type": "application/json" },
+      body: "{}", signal: AbortSignal.timeout(15_000),
+    });
+    assert.ok([401, 403].includes(anonymous.status), `Anonymous execution must be denied: ${name}`);
+  }
 });
 
 test("approved OAuth server publishes compatible discovery and signing metadata", async () => {

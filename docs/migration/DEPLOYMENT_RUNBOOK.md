@@ -21,6 +21,8 @@ This is a prepared procedure, **not authorization to deploy**. Keep Lovable and 
 
 New signing requires a private key of at least 32 characters. Do not replace an existing production key blindly. If earlier certificates were issued using the removed public fallback, identify them privately and obtain approval for reconciliation/reissue; never silently mark them secure or alter customer records.
 
-## Reviewed local administrator/OAuth installation (pending approval)
+## Reviewed local administrator/OAuth installation (approved and applied)
 
 Use the generated transaction from `scripts/admin-oauth-migration-bundle.mjs`, containing only 0006/0007, after reviewing ADMIN_OAUTH_REVIEW.md and obtaining the specific database/role/client approval. Preserve the private preflight snapshot and selected account metadata. Verify target integrity hashes and first-party session/RPC behavior after application. Create only the approved public loopback client with dynamic registration off, then hand off actual consent to the user before running `scripts/mcp-oauth-local-qa.mjs --client-id <public-client-id>`. Tokens stay in process memory. Run `npm run test:admin-oauth-db`, `npm run test:independence`, `npm run test:mcp` and `npm run test:built-session` against the rebuilt local Worker. No payment or customer entitlement changes are part of this procedure.
+
+The reviewed 0006/0007 transaction, confirmed owner role and public loopback client have now been applied with explicit user approval; real local OAuth and both admin screens pass. Do not re-provision or replay role updates. Preserve the pre-grant encrypted metadata backup and actual schema verification evidence. Hosted staging still requires its own approval and current release checks.

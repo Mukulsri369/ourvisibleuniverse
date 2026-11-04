@@ -13,7 +13,7 @@ const clientId = process.argv[process.argv.indexOf("--client-id") + 1];
 if (!process.argv.includes("--client-id") || !/^[\w.-]{8,128}$/.test(clientId ?? "")) throw new Error("Supply the approved public client ID using --client-id");
 const publicKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 if (!publicKey?.startsWith("sb_publishable_")) throw new Error("The approved project's publishable key is required");
-let tokenSet, verifier, authorizationUrl, consumed = false;
+let tokenSet, verifier, discovery, authorizationUrl, consumed = false;
 let status = { phase: "starting", clientRegisteredByThisScript: false, grantsOrPaymentsPerformed: false };
 const state = randomBytes(32).toString("base64url");
 const assertIssuer = ctx => { if (ctx?.issuer && ctx.issuer !== issuer) throw new Error("Unexpected issuer"); };
@@ -25,17 +25,23 @@ const provider = {
   tokens(ctx) { assertIssuer(ctx); return tokenSet; },
   saveTokens(value, ctx) { assertIssuer(ctx); if (value.issuer !== issuer) throw new Error("Unexpected token issuer stamp"); tokenSet = value; },
   saveCodeVerifier(value) { verifier = value; },
+  saveDiscoveryState(value) {
+    if (value.authorizationServerUrl !== issuer || value.authorizationServerMetadata?.issuer !== issuer) throw new Error("Unexpected discovery issuer");
+    discovery = value;
+  },
+  discoveryState() { return discovery; },
   codeVerifier() { if (!verifier) throw new Error("Missing PKCE verifier"); return verifier; },
   redirectToAuthorization(url) { if (url.origin !== project || url.pathname !== "/auth/v1/oauth/authorize") throw new Error("Unexpected authorization destination"); authorizationUrl = url.href; },
-  invalidateCredentials(scope) { if (["all", "tokens"].includes(scope)) tokenSet = undefined; if (["all", "verifier"].includes(scope)) verifier = undefined; },
+  invalidateCredentials(scope) { if (["all", "tokens"].includes(scope)) tokenSet = undefined; if (["all", "verifier"].includes(scope)) verifier = undefined; if (["all", "discovery"].includes(scope)) discovery = undefined; },
 };
 const safeFetch = (input, init) => {
   const url = new URL(typeof input === "string" || input instanceof URL ? input : input.url);
   if (![base, project].includes(url.origin)) throw new Error("Unexpected QA network destination");
   return fetch(input, { ...init, redirect: "error" });
 };
-const client = new Client({ name: "ovu-local-mcp-qa", version: "1.0.0" });
-const transport = new StreamableHTTPClientTransport(new URL(base + "/mcp"), { authProvider: provider, fetch: safeFetch });
+const newClient = () => new Client({ name: "ovu-local-mcp-qa", version: "1.0.0" });
+const newTransport = () => new StreamableHTTPClientTransport(new URL(base + "/mcp"), { authProvider: provider, fetch: safeFetch });
+let client = newClient(), transport = newTransport();
 
 async function checkBoundaries() {
   const headers = { apikey: publicKey, Authorization: `Bearer ${tokenSet.access_token}` };
@@ -78,16 +84,30 @@ const server = createServer(async (request, response) => {
     try {
       const code = url.searchParams.get("code");
       if (url.searchParams.has("error") || !code) throw new Error("Authorization denied");
-      await transport.finishAuth(code); await client.connect(transport);
+      status.step = "token-exchange";
+      await transport.finishAuth(url.searchParams);
+      status.step = "mcp-connect";
+      // The initial unauthorized connection already started its transport. Reconnect
+      // using a fresh protocol instance and the same memory-only authorized provider.
+      await client.close();
+      client = newClient(); transport = newTransport();
+      await client.connect(transport);
+      status.step = "list-tools";
       const tools = await client.listTools();
       assert.deepEqual(tools.tools.map(tool => tool.name).sort(), ["get_catalog_entry", "get_my_access", "list_access_plans", "search_catalog"]);
       for (const [name, args] of [["search_catalog", { query: "Sirius", kind: "star" }], ["get_catalog_entry", { name: "Sirius" }], ["list_access_plans", {}], ["get_my_access", {}]]) {
+        status.step = name;
         const result = await client.callTool({ name, arguments: args }); assert.ok(!result.isError, `Tool failed: ${name}`);
       }
+      status.step = "authorization-boundaries";
       await checkBoundaries();
       status = { ...status, phase: "passed", toolsVerified: 4, privateTablesDenied: true, adminApiDenied: true, websiteApiDenied: true, tokenPersistence: "memory-only" };
       console.log("PASS: actual OAuth PKCE exchange, all four MCP tools, private-table/admin/website boundaries");
-    } catch (error) { status = { ...status, phase: "failed", errorType: error?.name ?? "Error" }; console.error("Local MCP OAuth QA failed; no tokens or callback details were logged."); }
+    } catch (error) {
+      const safeReasons = ["Unexpected issuer", "Unexpected token issuer stamp", "Unexpected discovery issuer", "Missing PKCE verifier", "Unexpected authorization destination", "Unexpected QA network destination", "Authorization denied"];
+      status = { ...status, phase: "failed", errorType: error?.name ?? "Error", reason: safeReasons.includes(error?.message) ? error.message : "Protocol or assertion failure; credential details withheld", ...(typeof error?.actual === "number" ? { actual: error.actual, expected: error.expected } : {}) };
+      console.error("Local MCP OAuth QA failed; no tokens or callback details were logged.");
+    }
     response.writeHead(303, { Location: "/status" }).end(); return;
   }
   if (url.pathname === "/status") { response.end(JSON.stringify(status)); return; }
@@ -99,5 +119,5 @@ try { await client.connect(transport); } catch (error) {
 }
 status.phase = "awaiting-user-consent";
 console.log("Local MCP OAuth QA ready: http://127.0.0.1:31752/start");
-async function stop() { tokenSet = undefined; verifier = undefined; await client.close().catch(() => {}); server.close(() => process.exit(0)); }
+async function stop() { tokenSet = undefined; verifier = undefined; discovery = undefined; await client.close().catch(() => {}); server.close(() => process.exit(0)); }
 process.once("SIGINT", stop); process.once("SIGTERM", stop);
