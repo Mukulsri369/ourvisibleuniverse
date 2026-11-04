@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { lovable } from "@/integrations/lovable";
+import { signInWithGoogle } from "@/integrations/supabase/oauth";
 import { supabase } from "@/integrations/supabase/client";
 import { oauthReturnPath } from "@/lib/oauth-return-path";
 import {
@@ -107,9 +107,7 @@ function AuthPage() {
     saveAuthNext(destination);
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: googleAuthCallback(window.location.origin, destination),
-      });
+      const result = await signInWithGoogle(googleAuthCallback(window.location.origin, destination));
       if (result.error) {
         toast.error(result.error.message || "Google sign-in failed. Please try again.");
         return;

@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ovu-supabase-preview",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-11-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "SUPABASE_URL": "https://pdvwkdggyyrfkoqrpbji.supabase.co",
+    "RAZORPAY_MODE": "test"
+  }
+}

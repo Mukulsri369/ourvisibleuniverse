@@ -35,18 +35,27 @@ claim that all prior migration improvements have been ported.
 
 ## Google setup status
 
-The Google client is enabled but Google currently restricts OAuth access to
-listed test users. The Supabase Google provider was disabled at inspection.
-Its configuration form is open for the user's private entry and submission
-of the newly created credentials. Provider enablement and an actual sign-in
-must be verified afterward. Creation of the Google client alone does not
-establish working Google authentication.
+The user privately saved the Google credentials in Supabase. Both the public
+Auth settings API and dashboard now confirm Google is enabled. After the
+user's explicit approval, the local redirect `http://127.0.0.1:31751/auth**`
+was saved and verified; the default Site URL remains `http://localhost:3000`.
+The actual built application button reaches Google's account chooser with
+the correct client ID, Supabase callback and local Academy return destination.
+The user completed account selection/consent and confirmed success. The browser
+returned to `/learn`; fresh navigation to `/account` retained the signed-in
+session and showed no active paid pass. The signed-in `/universe` route required
+an active pass, including after a built-Worker restart. Google currently
+restricts OAuth access to listed test users; no audience or publishing settings
+were changed. Token refresh, logout and further authorization cases remain
+to be tested.
 
 ## Actual checks
 
 - TypeScript: passed at this checkpoint.
 - Independent Cloudflare client/Worker build: passed.
 - Read-only target Supabase API/schema/auth-settings test: 1 passed.
+- Repeated read-only check after private configuration: 1 passed; Google
+  provider enabled. The test never invokes payment-access RPCs or writes data.
 - Auth navigation validation: passed.
 - Voice validation: 61 checks passed on an idle retry. A run concurrent with
   the build failed its timing benchmark; thresholds were not changed.
@@ -54,6 +63,20 @@ establish working Google authentication.
   Google sign-in UI on `127.0.0.1:31751`.
 - Scanned 618 generated build files for the actual server key, certificate
   signing secret and Google client secret: zero matches.
+- Built browser Academy sign-in screen renders; no browser warning/error logs
+  were reported before OAuth navigation. Google account chooser reached.
+- Actual user-completed Google callback and signed-in account navigation pass.
+  Initial browser integration exposed invalid API-key errors in student profile
+  reads: the Worker middleware had only Node environment fallbacks. It now
+  accepts the same Vite public project configuration as the browser SDK.
+  The rebuilt Worker no longer logs those errors and loads a student profile;
+  do not count the original fallback profile as successful persistence.
+- A full reload retained both the signed-in session and the same student
+  public ID after that fix. The account continued to show no active paid pass.
+- Rebuilt client/Worker after middleware configuration fix: passed (45.84s
+  client, 42.28s server). Built local application restarted successfully.
+- Dependency lock comparison: 85 package paths added, one removed, zero
+  pre-existing package versions changed. Most diff size is lock formatting.
 
 These checks do not establish complete browser, mobile, Google sign-in,
 Academy, storage, payment or deployment compatibility.

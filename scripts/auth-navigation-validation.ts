@@ -23,6 +23,7 @@ for (const origin of [
   "https://ourvisibleuniverse.in",
   "https://example.lovable.app",
   "http://localhost:3000",
+  "http://127.0.0.1:31751",
 ]) {
   const callback = new URL(googleAuthCallback(origin, "/checkout?plan=year"));
   assert.equal(callback.origin, origin);
@@ -50,5 +51,5 @@ assert.doesNotThrow(() => saveAuthNext("/learn"));
 assert.doesNotThrow(clearAuthNext);
 delete (globalThis as { sessionStorage?: unknown }).sessionStorage;
 console.log(
-  "Auth navigation checks passed: destinations, redirect safety, three hosting origins, blocked storage.",
+  "Auth navigation checks passed: destinations, redirect safety, four hosting origins, blocked storage.",
 );

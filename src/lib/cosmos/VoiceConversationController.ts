@@ -21,6 +21,7 @@ import type {
   StudentQuestionContext,
 } from "./cosmos-types";
 import { LearningPreferenceManager } from "./LearningPreferenceManager";
+import { converseWithoutRequestContext } from './provider-request-context';
 import { NarrationController } from "./NarrationController";
 import { StudentQuestionContextManager } from "./StudentQuestionContext";
 import { VisualizationActionController } from "./VisualizationActionController";
@@ -383,9 +384,8 @@ export class VoiceConversationController {
         });
       } catch (fnErr: any) {
         // Fallback for Node.js test environments or non-browser contexts where TanStack Start serverFn lacks AsyncLocalStorage
-        if (typeof window === "undefined" || fnErr?.message?.includes("No Start context")) {
-          const { AIServiceProviderServer } = await import("./AIServiceProvider.server");
-          answer = await AIServiceProviderServer.answerConversationalTurn(trimmed, context);
+        if (typeof window === "undefined") {
+          answer = await converseWithoutRequestContext(trimmed, context);
         } else {
           throw fnErr;
         }
