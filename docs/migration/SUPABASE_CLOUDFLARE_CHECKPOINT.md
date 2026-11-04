@@ -1,5 +1,16 @@
 # OVU Supabase / Cloudflare checkpoint — 4 November 2026
 
+## Subsequent verified dependency-removal phase
+
+See `LOVABLE_DEPENDENCY_INVENTORY.md`, `TEST_RESULTS.md` and
+`CLOUDFLARE_READINESS_REPORT.md` for the subsequent work. All remaining vendor
+runtime/build packages have been replaced; the historical consent URL is only
+a compatibility redirect. This older checkpoint's remaining-work list is
+superseded by `MIGRATION_MASTER_CHECKLIST.md`. The user's successful Academy
+UI testing is recorded separately from automated/backend evidence. Production
+completion, external MCP OAuth, absent admin RPCs, historical records and actual
+provider payment tests remain separate release gates.
+
 ## Scope and preserved history
 
 The user canceled the Hostinger/MariaDB target and selected Supabase project

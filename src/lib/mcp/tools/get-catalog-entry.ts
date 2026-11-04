@@ -1,4 +1,4 @@
-import { defineTool, ToolError } from "@lovable.dev/mcp-js";
+import { defineTool, ToolError } from "../tool";
 import { z } from "zod";
 import { NAMED_STARS } from "@/stars/data";
 import { NEARBY_GALAXIES } from "@/stars/galaxy-catalog";

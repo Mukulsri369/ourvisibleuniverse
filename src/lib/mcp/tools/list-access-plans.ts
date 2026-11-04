@@ -1,4 +1,4 @@
-import { defineTool } from "@lovable.dev/mcp-js";
+import { defineTool } from "../tool";
 import { ACCESS_PLANS } from "@/lib/plans";
 
 export default defineTool({

@@ -9,6 +9,8 @@ import {
   LEARNING_LEVEL_LABELS,
 } from "./certificate-types";
 import { sanitizeStudentName } from "./student-types";
+import { requireCertificateSigningSecret } from "./certificate-signing.server";
+import { isConfiguredCertificateAdmin } from "./admin-authorization";
 
 /**
  * Computes an HMAC-SHA256 verification digest to ensure the certificate
@@ -22,7 +24,7 @@ export function computeCertificateHash(payload: {
   finalScorePercentage: number;
   issueDate: string;
 }): string {
-  const secret = process.env.CERTIFICATE_SIGNING_SECRET || "ovu_academy_verifiable_cert_v1";
+  const secret = requireCertificateSigningSecret();
   const canonicalString = [
     payload.certificateNumber,
     payload.userId,
@@ -207,7 +209,7 @@ export async function issueOfficialCertificateServer(
 
   try {
     const { data: profile } = await supabaseAdmin
-      .from("academy_student_profiles")
+      .from("student_profiles")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
@@ -457,7 +459,7 @@ export async function verifyCertificatePublicServer(
 
     try {
       const { data: profile } = await supabaseAdmin
-        .from("academy_student_profiles")
+        .from("student_profiles")
         .select(
           "age_bracket, guardian_consent_status, profile_visibility, certificate_name, display_name",
         )
@@ -542,26 +544,16 @@ export async function verifyAdminAuthorizationServer(
   }
 
   // If token is JWT:
-  if (adminTokenOrUserId.length > 25) {
+  if (adminTokenOrUserId.split(".").length === 3) {
     const { data: userData, error } = await supabaseAdmin.auth.getUser(adminTokenOrUserId);
     if (error || !userData?.user) {
       throw new Error("Access denied: Invalid administrator session.");
     }
 
     const user = userData.user;
-    const role = user.app_metadata?.role || user.user_metadata?.role;
-    const adminEmails = (
-      process.env.ADMIN_EMAILS || "admin@ourvisibleuniverse.in,crc1970@gmail.com"
-    )
-      .split(",")
-      .map((e) => e.trim().toLowerCase());
-    const adminUserIds = (process.env.ADMIN_USER_IDS || "").split(",").map((id) => id.trim());
-
-    const isExplicitAdmin =
-      role === "admin" ||
-      role === "service_role" ||
-      (user.email && adminEmails.includes(user.email.toLowerCase())) ||
-      adminUserIds.includes(user.id);
+    const isExplicitAdmin = isConfiguredCertificateAdmin(user, {
+      emails: process.env.ADMIN_EMAILS, userIds: process.env.ADMIN_USER_IDS,
+    });
 
     if (!isExplicitAdmin) {
       throw new Error("Access denied: You do not possess administrator privileges.");
@@ -571,6 +563,9 @@ export async function verifyAdminAuthorizationServer(
   }
 
   // If passed as a user UUID, verify via database that this user ID exists and has admin credentials
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(adminTokenOrUserId)) {
+    throw new Error("Access denied: Invalid administrator identity.");
+  }
   try {
     const { data: adminUser, error } =
       await supabaseAdmin.auth.admin.getUserById(adminTokenOrUserId);
@@ -578,16 +573,9 @@ export async function verifyAdminAuthorizationServer(
       throw new Error("Access denied: User not found or unauthorized.");
     }
 
-    const role = adminUser.user.app_metadata?.role || adminUser.user.user_metadata?.role;
-    const adminEmails = (
-      process.env.ADMIN_EMAILS || "admin@ourvisibleuniverse.in,crc1970@gmail.com"
-    )
-      .split(",")
-      .map((e) => e.trim().toLowerCase());
-    const isExplicitAdmin =
-      role === "admin" ||
-      role === "service_role" ||
-      (adminUser.user.email && adminEmails.includes(adminUser.user.email.toLowerCase()));
+    const isExplicitAdmin = isConfiguredCertificateAdmin(adminUser.user, {
+      emails: process.env.ADMIN_EMAILS, userIds: process.env.ADMIN_USER_IDS,
+    });
 
     if (!isExplicitAdmin) {
       throw new Error("Access denied: User does not possess administrator privileges.");

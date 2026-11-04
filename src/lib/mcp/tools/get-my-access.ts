@@ -1,4 +1,4 @@
-import { defineTool, ToolError } from "@lovable.dev/mcp-js";
+import { defineTool, ToolError } from "../tool";
 import { supabaseForUser } from "../supabase";
 
 export default defineTool({
@@ -14,7 +14,7 @@ export default defineTool({
       .select("access_days, starts_at, expires_at, status")
       .eq("user_id", ctx.getUserId()!)
       .order("expires_at", { ascending: false });
-    if (error) throw new ToolError(error.message);
+    if (error) throw new ToolError("Access status is unavailable. Please try again.");
     const now = Date.now();
     const passes = (data ?? []).map((p) => ({
       days: p.access_days,
@@ -23,7 +23,7 @@ export default defineTool({
       status: p.status,
     }));
     const active = passes.find(
-      (p) => p.status === "active" && new Date(p.expiresAt).getTime() > now,
+      (p) => p.status === "active" && new Date(p.startsAt).getTime() <= now && new Date(p.expiresAt).getTime() > now,
     );
     const text = active
       ? `Active pass until ${active.expiresAt} (${Math.ceil((new Date(active.expiresAt).getTime() - now) / 86400000)} days left).`

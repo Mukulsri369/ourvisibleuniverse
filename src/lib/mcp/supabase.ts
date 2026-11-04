@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { ToolContext } from "@lovable.dev/mcp-js";
+import type { ToolContext } from "./tool";
 
 type RuntimeGlobals = typeof globalThis & {
   Deno?: { env?: { get?: (name: string) => string | undefined } };
@@ -20,14 +20,21 @@ function configuredEnv(names: readonly string[]): string | undefined {
 }
 
 function supabaseProjectUrl(): string {
-  const url = configuredEnv(["SUPABASE_URL", "VITE_SUPABASE_URL"]);
+  const url = import.meta.env?.VITE_SUPABASE_URL || configuredEnv(["SUPABASE_URL", "VITE_SUPABASE_URL"]);
   if (!url) throw new Error("SUPABASE_URL (or VITE_SUPABASE_URL) is required");
   return url;
 }
 
 function supabasePublishableKey(): string {
-  const direct = configuredEnv(["SUPABASE_PUBLISHABLE_KEY", "VITE_SUPABASE_PUBLISHABLE_KEY"]);
-  if (direct) return direct;
+  const direct = import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY || configuredEnv(["SUPABASE_PUBLISHABLE_KEY", "VITE_SUPABASE_PUBLISHABLE_KEY"]);
+  if (direct) {
+    if (direct.startsWith("sb_secret_")) throw new Error("MCP requires a public Supabase key");
+    if (direct.split(".").length === 3) {
+      const claims = JSON.parse(atob(direct.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));
+      if (claims.role !== "anon") throw new Error("MCP requires an anon key");
+    }
+    return direct;
+  }
   const keyset = runtimeEnv("SUPABASE_PUBLISHABLE_KEYS");
   if (keyset) {
     try {
@@ -44,7 +51,11 @@ function supabasePublishableKey(): string {
     }
   }
   const legacy = configuredEnv(["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"]);
-  if (legacy) return legacy;
+  if (legacy) {
+    const claims = JSON.parse(atob(legacy.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    if (claims.role !== "anon") throw new Error("MCP requires an anon key");
+    return legacy;
+  }
   throw new Error(
     "SUPABASE_PUBLISHABLE_KEY, SUPABASE_PUBLISHABLE_KEYS, or SUPABASE_ANON_KEY is required",
   );

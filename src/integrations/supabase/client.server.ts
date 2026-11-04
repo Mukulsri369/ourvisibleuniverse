@@ -84,7 +84,7 @@ function handlePlaceholderFetch(urlStr: string, init?: RequestInit): Response {
               row.certificate_number && r.certificate_number === row.certificate_number,
             );
           }
-          if (tableName === "academy_student_profiles") {
+          if (tableName === "student_profiles") {
             return Boolean(row.user_id && r.user_id === row.user_id);
           }
           if (tableName === "academy_module_completions") {
@@ -200,6 +200,7 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
     const urlStr =
       typeof input === "string" ? input : input instanceof Request ? input.url : input.toString();
     if (urlStr.includes("placeholder-project")) {
+      if (process.env.NODE_ENV !== "test") throw new Error("Test database emulation is disabled outside automated tests");
       return handlePlaceholderFetch(urlStr, init);
     }
 
@@ -231,6 +232,10 @@ function createSupabaseAdminClient() {
     "https://placeholder-project.supabase.co";
   const SUPABASE_SERVICE_ROLE_KEY =
     process.env["SUPABASE_SERVICE_ROLE_KEY"] || "sb_secret_placeholder_service_role_key";
+
+  if (process.env.NODE_ENV !== "test" && (SUPABASE_URL.includes("placeholder-project") || SUPABASE_SERVICE_ROLE_KEY.includes("placeholder"))) {
+    throw new Error("Private Supabase server configuration is required");
+  }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     global: {

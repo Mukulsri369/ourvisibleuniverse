@@ -34,6 +34,11 @@ function assert(condition: boolean, msg: string) {
 }
 
 async function runPrompt11ValidationSuite() {
+  // Isolated acceptance fixtures; never send these tests to a real customer database.
+  process.env.NODE_ENV = "test";
+  process.env.SUPABASE_URL = "https://placeholder-project.supabase.co";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "sb_secret_placeholder_service_role_key";
+  process.env.CERTIFICATE_SIGNING_SECRET = "synthetic-certificate-validation-key-only-over-32-characters";
   console.log("======================================================================");
   console.log("OUR VISIBLE UNIVERSE ACADEMY");
   console.log("PROMPT 11: CERTIFICATE VERIFICATION & ADMINISTRATION TEST SUITE");
@@ -81,7 +86,7 @@ async function runPrompt11ValidationSuite() {
   await supabaseAdmin.from("academy_certificates").upsert(validPayload);
 
   // Seed minor student profile
-  await supabaseAdmin.from("academy_student_profiles").upsert({
+  await supabaseAdmin.from("student_profiles").upsert({
     user_id: minorUserId,
     student_public_id: "STU-KID7X99Y",
     display_name: "Junior Astronomer Leo",

@@ -1,50 +1,29 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),
-//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
-//     error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
-import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
+import { defineConfig, loadEnv } from "vite";
+import { cloudflare } from "@cloudflare/vite-plugin";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import react from "@vitejs/plugin-react";
+import tailwind from "@tailwindcss/vite";
+import paths from "vite-tsconfig-paths";
 
-export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
-  vite: {
-    plugins: [mcpPlugin()],
-    server: {
-      allowedHosts: true,
-    },
-    preview: {
-      allowedHosts: true,
-    },
-    build: {
-      rolldownOptions: {
-        checks: {
-          moduleLevelDirective: false,
-        },
-        onLog(level, log, defaultHandler) {
-          if (
-            log.code === "MODULE_LEVEL_DIRECTIVE" ||
-            (typeof log.message === "string" && log.message.includes('"use client"'))
-          ) {
-            return;
-          }
-          defaultHandler(level, log);
-        },
-        onwarn(warning, defaultHandler) {
-          if (
-            warning.code === "MODULE_LEVEL_DIRECTIVE" ||
-            (typeof warning.message === "string" && warning.message.includes('"use client"'))
-          ) {
-            return;
-          }
-          defaultHandler(warning);
-        },
-      },
-    },
-  },
+// Official Cloudflare Worker adapter; production deployment requires separate approval.
+export default defineConfig(({ mode }) => {
+  const publicEnv = loadEnv(mode, process.cwd(), "VITE_");
+  const value = (name: string) => process.env[name] || publicEnv[name];
+  if (value("VITE_SUPABASE_PROJECT_ID") !== "pdvwkdggyyrfkoqrpbji" || value("VITE_SUPABASE_URL") !== "https://pdvwkdggyyrfkoqrpbji.supabase.co") {
+    throw new Error("Configure the approved OVU Supabase project before building or running the app");
+  }
+  const publicKey = value("VITE_SUPABASE_PUBLISHABLE_KEY");
+  if (!publicKey || publicKey.startsWith("sb_secret_") || publicKey.startsWith("replace_")) throw new Error("A public Supabase publishable/anon key is required; never use a server key");
+  return {
+  plugins: [
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    tanstackStart(),
+    react(),
+    tailwind(),
+    paths(),
+  ],
+  server: { host: "127.0.0.1", port: 31751, strictPort: true },
+  preview: { host: "127.0.0.1", port: 31751, strictPort: true },
+  resolve: { dedupe: ["react", "react-dom", "@tanstack/react-router", "@tanstack/react-start"] },
+  };
 });

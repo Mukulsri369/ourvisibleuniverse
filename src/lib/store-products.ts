@@ -34,8 +34,7 @@ export function formatProductPrice(price: number, currency = "INR"): string {
   }
 }
 
-// Authentic Seed Catalog directly from ourvisibleuniverse.store live database
-// Ensures 100% genuine products and prices are immediately rendered with zero SSR/Hydration mismatch.
+// Existing repository catalogue snapshot; it is not a live price/availability feed.
 export const AUTHENTIC_STORE_SEED: StoreProduct[] = [
   {
     id: "7a93672e-0c63-41d6-8bd8-0401da2bb3d5",
@@ -181,100 +180,7 @@ export function getRandomStoreProducts(count = 6): StoreProduct[] {
   return shuffled.slice(0, count);
 }
 
-// Live client-side fetcher directly accessing ourvisibleuniverse.store backend
-export async function fetchLiveStoreProducts(): Promise<StoreProduct[]> {
-  try {
-    const endpoint =
-      "https://c--e5dc52fc-4129-47cd-9ba2-1c20a9af2f78-prod.lovable.cloud/rest/v1/products?select=id,name,slug,price,currency,featured,short_description,affiliate_url,amazon_url,product_images(image_url,alt_text,sort_order),categories(name,slug)&active=eq.true&order=featured.desc,created_at.desc&limit=30";
-
-    const response = await fetch(endpoint, {
-      headers: {
-        apikey: "sb_publishable_LnvKmEnYxmXbvplWO-pkgw_6cxxCkYL",
-        Authorization: "Bearer sb_publishable_LnvKmEnYxmXbvplWO-pkgw_6cxxCkYL",
-      },
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Store API returned status ${response.status}`);
-    }
-
-    const rawData = await response.json();
-    if (!Array.isArray(rawData) || rawData.length === 0) {
-      return AUTHENTIC_STORE_SEED;
-    }
-
-    // Map into StoreProduct items
-    interface RawProductImage {
-      image_url?: string;
-      sort_order?: number;
-    }
-    interface RawProductItem {
-      id?: string;
-      title?: string;
-      slug?: string;
-      description?: string;
-      price?: number | string;
-      featured?: boolean;
-      product_images?: RawProductImage[];
-      categories?: { name?: string };
-      name?: string;
-      currency?: string;
-      short_description?: string;
-      affiliate_url?: string;
-      amazon_url?: string;
-    }
-
-    const parsed: StoreProduct[] = (rawData as RawProductItem[]).map((item) => {
-      const sortedImages = [...(item.product_images || [])].sort(
-        (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-      );
-      const primaryImg =
-        sortedImages[0]?.image_url ||
-        "https://m.media-amazon.com/images/I/719Fv954wTL._SL1500_.jpg";
-      const allImgs = sortedImages
-        .map((img) => img.image_url)
-        .filter((url): url is string => Boolean(url));
-
-      const priceNum =
-        typeof item.price === "number" ? item.price : parseFloat(item.price ?? "") || 999;
-      const originalPriceNum = Math.round(priceNum * 1.3 + 99);
-
-      let badge = "Authentic Store Item";
-      const catName = item.categories?.name || "Space Decor";
-      if (item.featured) {
-        badge = "Featured Authentic";
-      } else if (catName.toLowerCase().includes("projector")) {
-        badge = "Galaxy Projector";
-      } else if (catName.toLowerCase().includes("light")) {
-        badge = "Cosmic Lighting";
-      } else if (catName.toLowerCase().includes("clock")) {
-        badge = "Celestial Decor";
-      }
-
-      return {
-        id: item.id ?? item.slug ?? "",
-        name: item.name ?? item.title ?? "",
-        slug: item.slug ?? "",
-        category: catName,
-        price: formatProductPrice(priceNum, item.currency || "INR"),
-        rawPrice: priceNum,
-        currency: item.currency || "INR",
-        originalPrice: formatProductPrice(originalPriceNum, item.currency || "INR"),
-        image: primaryImg,
-        images: allImgs,
-        badge,
-        description:
-          item.short_description?.replace(/\\n/g, " ").trim() ||
-          "Authentic astronomy and space decor item from the official Our Visible Universe store.",
-        url: getProductStoreUrl(item.slug ?? ""),
-        affiliateUrl: item.affiliate_url || item.amazon_url || undefined,
-      };
-    });
-
-    return parsed;
-  } catch (err) {
-    console.warn("[Store] Falling back to authentic seed catalog:", err);
-    return AUTHENTIC_STORE_SEED;
-  }
+/** Repository catalogue snapshot. Current prices/availability are on the Store. */
+export async function loadStoreRecommendations(): Promise<StoreProduct[]> {
+  return AUTHENTIC_STORE_SEED.map((product) => ({ ...product }));
 }

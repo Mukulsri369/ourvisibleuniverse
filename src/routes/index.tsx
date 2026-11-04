@@ -5,7 +5,7 @@ import { PublicLayout } from "@/components/site/PublicLayout";
 import { LandingPlans } from "@/components/site/LandingPlans";
 import {
   AUTHENTIC_STORE_SEED,
-  fetchLiveStoreProducts,
+  loadStoreRecommendations,
   type StoreProduct,
 } from "@/lib/store-products";
 import galaxy from "@/assets/images/deep_space_galaxy_1791934612897.jpg";
@@ -107,7 +107,7 @@ function Index() {
     root.current?.setAttribute("data-hydrated", "true");
 
     let active = true;
-    fetchLiveStoreProducts()
+    loadStoreRecommendations()
       .then((items) => {
         if (active && items.length) setProducts(items);
       })
@@ -303,6 +303,7 @@ function Index() {
           <p className="ovu-product-count sr-only" role="status">
             {filtered.length} {filtered.length === 1 ? "object" : "objects"} in this collection
           </p>
+          <p className="text-sm text-muted-foreground">Catalogue prices are a snapshot. Check the Store for current prices and availability.</p>
           <div className="ovu-product-grid">
             {shown.map((product, index) => (
               <article

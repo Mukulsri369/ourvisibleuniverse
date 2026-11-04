@@ -29,6 +29,11 @@ function assert(condition: boolean, msg: string) {
 }
 
 async function runCertificateValidationSuite() {
+  // Isolated acceptance fixtures; never send these tests to a real customer database.
+  process.env.NODE_ENV = "test";
+  process.env.SUPABASE_URL = "https://placeholder-project.supabase.co";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "sb_secret_placeholder_service_role_key";
+  process.env.CERTIFICATE_SIGNING_SECRET = "synthetic-certificate-validation-key-only-over-32-characters";
   console.log("======================================================================");
   console.log("OUR VISIBLE UNIVERSE ACADEMY");
   console.log("PROMPT 10: AUTOMATED CERTIFICATE ISSUANCE & PDF ENGINE VALIDATION");
