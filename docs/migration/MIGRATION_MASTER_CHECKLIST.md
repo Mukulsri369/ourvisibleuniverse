@@ -11,7 +11,8 @@
 - [x] Pass local security/scientific checks and built Worker route/asset tests.
 - [x] Measure assets, upload dry run and local startup; document actual Cloudflare limits/pricing.
 - [x] Prepare deployment and rollback procedures.
-- [ ] Enable/configure/test actual MCP OAuth server/client consent with approval.
+- [x] Save approved local Supabase OAuth server/Site URL settings and verify discovery/signing compatibility; keep dynamic registration off.
+- [ ] Review OAuth token scope/RLS and test actual MCP client consent/token exchange after explicit client registration approval.
 - [ ] Resolve absent subscriber-admin schema and approve administrator identity/permissions.
 - [ ] Reconcile historical certificate keys and all customer identities, entitlements and records.
 - [ ] Complete independent database concurrency/atomic issuance evidence beyond user-reported Academy UI testing.

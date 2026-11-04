@@ -32,10 +32,14 @@ The MCP tests cover signed OAuth JWTs, missing client claims, incorrect roles/is
 
 Google website sign-in was separately verified with the user's private account selection/consent: callback to Academy, signed-in account view, persistent session and stable student ID after reload, no paid pass and a blocked protected universe. The user subsequently reported Academy completion/certification/admin/offline checks working. That report is recorded as user testing rather than an agent-run production integration suite.
 
+## Approved local OAuth configuration
+
+Subsequent approved configuration check: **2 read-only project/OAuth-discovery tests passed**. OAuth discovery changed from `404 feature_disabled` to HTTP 200, with the correct issuer, same-project endpoints, S256 PKCE and ES256 signing keys. Saved dashboard settings persisted after reload: OAuth enabled, dynamic registration off, consent `/oauth/consent`, Site URL `http://127.0.0.1:31751`. The built consent page rejected a deliberately invalid authorization ID with “Authorization unavailable”; no client or authorization was created. Google remains enabled. These checks do not establish a successful real client consent/token exchange.
+
 ## Explicitly not verified
 
 - Actual Razorpay Test Mode checkout, authentic webhook delivery, refunds and recovery against the provider; all remain deferred by the user.
-- Actual third-party MCP OAuth consent/client flow: Supabase discovery returns `404 feature_disabled`.
+- Actual third-party MCP OAuth consent/client flow: discovery is verified, but no client was registered/authorized and no real code/token exchange was performed.
 - Platform-hosted Worker CPU/memory/startup, SSL and custom domains: no deployment authorized.
 - Migration/reconciliation of existing customer identities, transactions, entitlements, storage or historical certificates.
 - Admin database RPCs absent from the target; database changes were not applied in this phase.

@@ -11,6 +11,12 @@ UI testing is recorded separately from automated/backend evidence. Production
 completion, external MCP OAuth, absent admin RPCs, historical records and actual
 provider payment tests remain separate release gates.
 
+Subsequent approved configuration: OAuth server enabled, consent `/oauth/consent`,
+Site URL `http://127.0.0.1:31751`, dynamic registration off. Settings persist after
+reload; 2 read-only project/discovery checks pass with S256 PKCE and ES256 keys.
+No client was registered or granted access. Earlier statements below about the
+default Site URL describe the preceding checkpoint, not the current saved value.
+
 ## Scope and preserved history
 
 The user canceled the Hostinger/MariaDB target and selected Supabase project

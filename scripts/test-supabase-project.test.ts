@@ -27,3 +27,22 @@ test("OVU target project is reachable with separate public/server keys and its e
   assert.equal(auth.external?.email, true, "Email authentication is disabled in the target project");
   console.log("Verified read-only schema access and public authentication settings; Google OAuth configured: " + Boolean(auth.external?.google));
 });
+
+test("approved OAuth server publishes compatible discovery and signing metadata", async () => {
+  assert.equal(process.env.SUPABASE_URL, target, "Only the new OVU project may be inspected");
+  const headers = { apikey: process.env.SUPABASE_PUBLISHABLE_KEY ?? "" };
+  const response = await fetch(target + "/.well-known/oauth-authorization-server/auth/v1", { headers, signal: AbortSignal.timeout(15_000) });
+  assert.equal(response.status, 200, "Approved OAuth server is not enabled");
+  const metadata = await response.json() as {
+    issuer: string; authorization_endpoint: string; token_endpoint: string; jwks_uri: string; code_challenge_methods_supported?: string[];
+  };
+  assert.equal(metadata.issuer, target + "/auth/v1");
+  assert.ok(metadata.code_challenge_methods_supported?.includes("S256"), "PKCE S256 must be supported");
+  for (const endpoint of [metadata.authorization_endpoint, metadata.token_endpoint, metadata.jwks_uri]) {
+    assert.equal(new URL(endpoint).origin, target, "OAuth endpoints must belong to the approved project");
+  }
+  const jwksResponse = await fetch(metadata.jwks_uri, { headers, signal: AbortSignal.timeout(15_000) });
+  assert.equal(jwksResponse.status, 200);
+  const jwks = await jwksResponse.json() as { keys: { alg?: string }[] };
+  assert.ok(jwks.keys.some(key => key.alg === "ES256" || key.alg === "RS256"), "MCP requires a compatible asymmetric signing key");
+});
