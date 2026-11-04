@@ -132,17 +132,14 @@ export const generateCertificatePdfPayload = createServerFn({ method: "POST" })
   });
 
 async function extractAdminToken(): Promise<string> {
-  try {
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const request = getRequest();
-    const authHeader = request?.headers?.get("authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      return authHeader.substring(7);
-    }
-  } catch {
-    // Unauthenticated
+  const { getRequest, setResponseStatus } = await import("@tanstack/react-start/server");
+  const authorization = getRequest()?.headers?.get("authorization");
+  const match = /^Bearer ([^\s,]+)$/.exec(authorization ?? "");
+  if (!match) {
+    setResponseStatus(401);
+    throw Object.assign(new Error("Administrator authentication required"), { statusCode: 401 });
   }
-  return "";
+  return match[1];
 }
 
 /**
@@ -162,7 +159,7 @@ export const adminListCertificates = createServerFn({ method: "POST" })
     ) => input,
   )
   .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
+    const token = await extractAdminToken();
     const { adminListCertificatesServer } = await import("./certificate.server");
     return adminListCertificatesServer(data, token);
   });
@@ -173,7 +170,7 @@ export const adminListCertificates = createServerFn({ method: "POST" })
 export const adminGetCertificateDetails = createServerFn({ method: "POST" })
   .inputValidator((input: { certificateNumber: string; adminToken?: string }) => input)
   .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
+    const token = await extractAdminToken();
     const { adminGetCertificateDetailsServer } = await import("./certificate.server");
     return adminGetCertificateDetailsServer(data.certificateNumber, token);
   });
@@ -186,7 +183,7 @@ export const adminRevokeCertificate = createServerFn({ method: "POST" })
     (input: { certificateNumber: string; reason: string; adminToken?: string }) => input,
   )
   .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
+    const token = await extractAdminToken();
     const { adminRevokeCertificateServer } = await import("./certificate.server");
     return adminRevokeCertificateServer(data.certificateNumber, data.reason, token);
   });
@@ -205,7 +202,7 @@ export const adminCorrectCertificate = createServerFn({ method: "POST" })
     }) => input,
   )
   .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
+    const token = await extractAdminToken();
     const { adminCorrectCertificateServer } = await import("./certificate.server");
     return adminCorrectCertificateServer(
       data.certificateNumber,
@@ -232,7 +229,7 @@ export const adminReissueCertificate = createServerFn({ method: "POST" })
     }) => input,
   )
   .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
+    const token = await extractAdminToken();
     const { adminReissueCertificateServer } = await import("./certificate.server");
     return adminReissueCertificateServer(data.certificateNumber, data.reason, token, {
       updatedCertificateName: data.updatedCertificateName,
@@ -246,7 +243,7 @@ export const adminReissueCertificate = createServerFn({ method: "POST" })
 export const adminGetCertificateStats = createServerFn({ method: "POST" })
   .inputValidator((input: { adminToken?: string } = {}) => input)
   .handler(async ({ data }) => {
-    const token = data?.adminToken || (await extractAdminToken());
+    const token = await extractAdminToken();
     const { adminGetCertificateStatsServer } = await import("./certificate.server");
     return adminGetCertificateStatsServer(token);
   });

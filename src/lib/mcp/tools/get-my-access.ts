@@ -1,5 +1,13 @@
 import { defineTool, ToolError } from "../tool";
 import { supabaseForUser } from "../supabase";
+import { z } from "zod";
+
+const accessSummary = z.array(z.object({
+  access_days: z.number().int().positive(),
+  starts_at: z.iso.datetime({ offset: true }),
+  expires_at: z.iso.datetime({ offset: true }),
+  status: z.enum(["active", "expired", "refunded", "failed"]),
+}));
 
 export default defineTool({
   name: "get_my_access",
@@ -10,13 +18,12 @@ export default defineTool({
   handler: async (_input, ctx) => {
     if (!ctx.isAuthenticated()) throw new ToolError("Not signed in.");
     const { data, error } = await supabaseForUser(ctx)
-      .from("access_passes")
-      .select("access_days, starts_at, expires_at, status")
-      .eq("user_id", ctx.getUserId()!)
-      .order("expires_at", { ascending: false });
+      .rpc("get_my_access_summary", { p_environment: process.env.RAZORPAY_MODE === "live" ? "live" : "sandbox" });
     if (error) throw new ToolError("Access status is unavailable. Please try again.");
+    const parsed = accessSummary.safeParse(data);
+    if (!parsed.success) throw new ToolError("Access status is unavailable. Please try again.");
     const now = Date.now();
-    const passes = (data ?? []).map((p) => ({
+    const passes = parsed.data.map((p) => ({
       days: p.access_days,
       startsAt: p.starts_at,
       expiresAt: p.expires_at,

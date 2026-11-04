@@ -11,6 +11,7 @@ import {
 import { sanitizeStudentName } from "./student-types";
 import { requireCertificateSigningSecret } from "./certificate-signing.server";
 import { isConfiguredCertificateAdmin } from "./admin-authorization";
+import { assertWebsiteSession } from "@/integrations/supabase/website-session";
 
 /**
  * Computes an HMAC-SHA256 verification digest to ensure the certificate
@@ -543,48 +544,25 @@ export async function verifyAdminAuthorizationServer(
     return { authorized: true, adminUserId: "test-admin-uuid-001" };
   }
 
-  // If token is JWT:
-  if (adminTokenOrUserId.split(".").length === 3) {
-    const { data: userData, error } = await supabaseAdmin.auth.getUser(adminTokenOrUserId);
-    if (error || !userData?.user) {
-      throw new Error("Access denied: Invalid administrator session.");
-    }
-
-    const user = userData.user;
-    const isExplicitAdmin = isConfiguredCertificateAdmin(user, {
-      emails: process.env.ADMIN_EMAILS, userIds: process.env.ADMIN_USER_IDS,
-    });
-
-    if (!isExplicitAdmin) {
-      throw new Error("Access denied: You do not possess administrator privileges.");
-    }
-
-    return { authorized: true, adminUserId: user.id };
+  // An identity or body parameter is not proof of a signed-in administrator.
+  if (adminTokenOrUserId.split(".").length !== 3) {
+    throw new Error("Access denied: A signed administrator session is required.");
   }
-
-  // If passed as a user UUID, verify via database that this user ID exists and has admin credentials
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(adminTokenOrUserId)) {
-    throw new Error("Access denied: Invalid administrator identity.");
+  const { data: claimData, error: claimError } = await supabaseAdmin.auth.getClaims(adminTokenOrUserId);
+  if (claimError || !claimData?.claims?.sub) {
+    throw new Error("Access denied: Invalid administrator session.");
   }
-  try {
-    const { data: adminUser, error } =
-      await supabaseAdmin.auth.admin.getUserById(adminTokenOrUserId);
-    if (error || !adminUser?.user) {
-      throw new Error("Access denied: User not found or unauthorized.");
-    }
-
-    const isExplicitAdmin = isConfiguredCertificateAdmin(adminUser.user, {
-      emails: process.env.ADMIN_EMAILS, userIds: process.env.ADMIN_USER_IDS,
-    });
-
-    if (!isExplicitAdmin) {
-      throw new Error("Access denied: User does not possess administrator privileges.");
-    }
-
-    return { authorized: true, adminUserId: adminTokenOrUserId };
-  } catch (err: any) {
-    throw new Error(err.message || "Access denied: Unauthorized administrator request.");
+  assertWebsiteSession(claimData.claims);
+  const { data: userData, error } = await supabaseAdmin.auth.getUser(adminTokenOrUserId);
+  if (error || !userData?.user || userData.user.id !== claimData.claims.sub) {
+    throw new Error("Access denied: Invalid administrator session.");
   }
+  if (!isConfiguredCertificateAdmin(userData.user, {
+    emails: process.env.ADMIN_EMAILS, userIds: process.env.ADMIN_USER_IDS,
+  })) {
+    throw new Error("Access denied: You do not possess administrator privileges.");
+  }
+  return { authorized: true, adminUserId: userData.user.id };
 }
 
 /**

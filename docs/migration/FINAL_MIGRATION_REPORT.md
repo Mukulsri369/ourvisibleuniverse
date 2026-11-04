@@ -13,3 +13,5 @@ Read-only discovery confirms the subscriber-admin table/RPCs remain absent. Cert
 Razorpay provider tests remain deferred and unverified. No hosting purchase, deployment, production data change, live payment setting, DNS change or Lovable cancellation occurred.
 
 See `CLOUDFLARE_READINESS_REPORT.md` for measured sizes, plan/limits and release conditions; `TEST_RESULTS.md` for actual evidence boundaries; and `DEPLOYMENT_RUNBOOK.md` / `ROLLBACK_PLAN.md` for the prepared next stages. Do not interpret this report's filename as authorization or confirmation of production cutover.
+
+Local administrator/OAuth hardening is implemented and tested; new-project installation, selected-account promotion and public QA-client registration remain pending approval. Actual MCP code/token exchange is not yet verified. No paid access or historical customer records were changed. See ADMIN_OAUTH_REVIEW.md.

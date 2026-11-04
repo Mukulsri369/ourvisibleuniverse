@@ -13,7 +13,8 @@
 - [x] Prepare deployment and rollback procedures.
 - [x] Save approved local Supabase OAuth server/Site URL settings and verify discovery/signing compatibility; keep dynamic registration off.
 - [ ] Review OAuth token scope/RLS and test actual MCP client consent/token exchange after explicit client registration approval.
-- [ ] Resolve absent subscriber-admin schema and approve administrator identity/permissions.
+- [x] Confirm intended administrator identity and locally verify reviewed admin/OAuth migration.
+- [ ] Apply reviewed schema, provision the confirmed administrator and register local QA client after action-time approval.
 - [ ] Reconcile historical certificate keys and all customer identities, entitlements and records.
 - [ ] Complete independent database concurrency/atomic issuance evidence beyond user-reported Academy UI testing.
 - [ ] Run actual Razorpay provider tests when authorized; currently deferred.

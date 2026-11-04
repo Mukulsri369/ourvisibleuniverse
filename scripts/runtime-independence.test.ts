@@ -7,6 +7,7 @@ import { authenticateCronRequest } from "../src/integrations/supabase/cron-auth"
 import { requireCertificateSigningSecret } from "../src/lib/academy/certificate-signing.server";
 import { isConfiguredCertificateAdmin } from "../src/lib/academy/admin-authorization";
 import { supabaseAdmin } from "../src/integrations/supabase/client.server";
+import { assertWebsiteSession } from "../src/integrations/supabase/website-session";
 
 test("all package paths and runtime source are independent of the former vendor", async () => {
   const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
@@ -91,4 +92,22 @@ test("certificate admin authority excludes editable profile roles and unconfigur
   assert.equal(isConfiguredCertificateAdmin({ ...user, app_metadata: { role: "admin" } }, {}), true);
   assert.equal(isConfiguredCertificateAdmin(user, { userIds: "user-bob" }), false);
   assert.equal(isConfiguredCertificateAdmin(user, { userIds: "user-alice" }), true);
+});
+
+test("external OAuth clients cannot reuse website/Academy/admin server functions", () => {
+  assert.doesNotThrow(() => assertWebsiteSession({ sub: "alice", role: "authenticated" }));
+  for (const client_id of ["third-party-client", "", null]) {
+    assert.throws(() => assertWebsiteSession({ sub: "alice", role: "authenticated", client_id }), error => (error as Error & { statusCode: number }).statusCode === 403);
+  }
+});
+
+
+test("certificate admin rejects identity-only claims before querying any user", async () => {
+  const { verifyAdminAuthorizationServer } = await import("../src/lib/academy/certificate.server");
+  for (const identity of ["", "owner@example.test", "10442617-e1fa-4405-95b0-25d3bd450c86"]) {
+    await assert.rejects(() => verifyAdminAuthorizationServer(identity), /authentication required|signed administrator session/);
+  }
+  const functions = await readFile("src/lib/academy/certificate.functions.ts", "utf8");
+  assert.doesNotMatch(functions, /data\?\.adminToken\s*\|\|/);
+  assert.equal((functions.match(/const token = await extractAdminToken\(\);/g) ?? []).length, 6);
 });

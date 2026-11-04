@@ -1,21 +1,17 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-const { PGlite } = await import(
-  process.env.PGLITE_MODULE ||
-    new URL(
-      "../.taste-skill/sql-test/node_modules/@electric-sql/pglite/dist/index.js",
-      import.meta.url,
-    ).href
-);
+const { PGlite } = await import(process.env.PGLITE_MODULE || "@electric-sql/pglite");
 const db = new PGlite();
 try {
   await db.exec(
-    "CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb DEFAULT '{}'::jsonb); CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS 'SELECT nullif(current_setting(''request.jwt.claim.sub'',true),'''')::uuid'; GRANT USAGE ON SCHEMA auth TO anon,authenticated,service_role;",
+    "CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role; CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,email_confirmed_at timestamptz,raw_user_meta_data jsonb DEFAULT '{}'::jsonb,raw_app_meta_data jsonb DEFAULT '{}'::jsonb); CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS 'SELECT nullif(current_setting(''request.jwt.claim.sub'',true),'''')::uuid'; CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE AS 'SELECT jsonb_build_object(''sub'',nullif(current_setting(''request.jwt.claim.sub'',true),''''))'; GRANT USAGE ON SCHEMA auth TO anon,authenticated,service_role;",
   );
   for (const name of [
     "0000_create_paid_access_passes.sql",
     "0001_add_atomic_access_activation.sql",
     "0005_subscription_administration.sql",
+    "0006_independent_administration.sql",
+    "0007_scoped_oauth_access.sql",
   ])
     await db.exec(
       await readFile(new URL("../drizzle/migrations/" + name, import.meta.url), "utf8"),
@@ -72,6 +68,8 @@ try {
     /permission denied/,
   );
   await db.query("UPDATE auth.users SET email_confirmed_at=now() WHERE id=$1", [owner]);
+  assert.equal(await actor(owner, "authenticated", adminStatus), false, "Verified owner email alone cannot grant admin");
+  await db.query("UPDATE auth.users SET raw_app_meta_data='{\"role\":\"admin\"}' WHERE id=$1", [owner]);
   assert.equal(await actor(owner, "authenticated", adminStatus), true);
   const grant = async (email, days, id, reason = "Support access") =>
     actor(
@@ -164,7 +162,7 @@ try {
     /permission denied/,
   );
   console.log(
-    "PASS: real PostgreSQL migrations, verified-owner authorization, forged metadata rejection, subscriber privacy, atomic access extension, idempotency, audit, effective access and environment isolation",
+    "PASS: real PostgreSQL migrations, trusted-role authorization, forged metadata rejection, subscriber privacy, atomic access extension, idempotency, audit, effective access and environment isolation",
   );
 } finally {
   await db.close();

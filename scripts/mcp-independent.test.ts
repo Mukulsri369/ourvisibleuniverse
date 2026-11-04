@@ -74,14 +74,14 @@ test("official HTTP SDK retains all four tools and scientific catalogue results"
   assert.ok(invalid.error || invalid.result.isError, "SDK must reject invalid tool inputs");
 });
 
-test("private access uses each caller's JWT and user filter; future passes are inactive", async () => {
+test("private access uses each caller's JWT and a scoped summary RPC; future passes are inactive", async () => {
   const previousFetch = globalThis.fetch;
   process.env.SUPABASE_URL = issuer.replace(/\/auth\/v1$/, "");
   process.env.SUPABASE_PUBLISHABLE_KEY = "sb_publishable_synthetic_test_only";
-  const seen: Array<{ url: string; bearer: string | null; key: string | null }> = [];
+  const seen: Array<{ url: string; bearer: string | null; key: string | null; body: unknown }> = [];
   globalThis.fetch = async (input, init) => {
     const headers = new Headers(init?.headers);
-    seen.push({ url: String(input), bearer: headers.get("authorization"), key: headers.get("apikey") });
+    seen.push({ url: String(input), bearer: headers.get("authorization"), key: headers.get("apikey"), body: JSON.parse(String(init?.body ?? "{}")) });
     return new Response(JSON.stringify([{ access_days: 30, starts_at: "2099-01-01T00:00:00Z", expires_at: "2099-02-01T00:00:00Z", status: "active" }]), { headers: { "Content-Type": "application/json" } });
   };
   try {
@@ -92,7 +92,8 @@ test("private access uses each caller's JWT and user filter; future passes are i
     assert.equal(seen.length, 2);
     for (let i = 0; i < seen.length; i++) {
       const user = ["alice", "bob"][i];
-      assert.equal(new URL(seen[i].url).searchParams.get("user_id"), `eq.${user}`);
+      assert.equal(new URL(seen[i].url).pathname, "/rest/v1/rpc/get_my_access_summary");
+      assert.deepEqual(seen[i].body, { p_environment: process.env.RAZORPAY_MODE === "live" ? "live" : "sandbox" }, "No caller-supplied user ID or payment identifiers");
       assert.equal(seen[i].bearer, `Bearer jwt-${user}`);
       assert.equal(seen[i].key, "sb_publishable_synthetic_test_only");
     }

@@ -65,7 +65,9 @@
     "test:solar-controls": "tsx scripts/solar-controls-validation.ts",
     "test:nearby-catalog": "tsx scripts/nearby-catalog-validation.ts",
     "test:mcp": "node --import tsx --test scripts/mcp-independent.test.ts",
-    "test:independence": "node --import tsx --test scripts/runtime-independence.test.ts"
+    "test:independence": "node --import tsx --test scripts/runtime-independence.test.ts",
+    "test:admin-oauth-db": "node --test scripts/admin-oauth-database.test.mjs",
+    "test:built-session": "node --test scripts/built-session-boundary.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.30.0",
@@ -137,7 +139,9 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.67.0",
+    "@electric-sql/pglite": "0.5.15",
     "@eslint/js": "^9.32.0",
+    "@modelcontextprotocol/client": "2.4.0",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

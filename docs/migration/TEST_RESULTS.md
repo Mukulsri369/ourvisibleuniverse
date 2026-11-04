@@ -46,3 +46,9 @@ Subsequent approved configuration check: **2 read-only project/OAuth-discovery t
 - Full automated browser regression for every 3D simulation and concurrent official Academy award/certificate issuance. Astronomy invariants and sampled UI checks do not substitute for those workflows.
 
 Evidence logs and screenshots are kept in the workspace's private `work/evidence` and `outputs` directories, outside Git. Never publish raw credentials or customer exports as test evidence.
+
+## Administrator and scoped OAuth candidate
+
+Local candidate checks: 8 PostgreSQL tests passed, 14 MCP/runtime security tests passed, 34 existing certificate-admin checks passed, and TypeScript passed. The PostgreSQL suite exercises the exact generated review transaction twice and proves its integrity guard rolls back a deliberately injected record deletion. The native Worker rejected a forged website token with HTTP 401. These checks do not grant roles or create OAuth clients. Target installation, actual delegated token exchange and first-party administrator UI verification are pending action-time approval. See ADMIN_OAUTH_REVIEW.md.
+
+Final rebuilt Worker checks: **3 session-boundary tests passed**: forged header, body-only administrator UUID, and body-only token all return HTTP 401. The first POST test attempt used plain JSON rather than TanStack's Seroval wire format and failed in deserialization (HTTP 500); the harness now uses the same Seroval serializer as TanStack, and the retained 401 assertions pass against actual handlers. No production behavior was weakened to accommodate that harness error. TypeScript and the final Cloudflare build passed; original subscription-admin PostgreSQL regression also passed. Browser `/account` retained the Google session, student ID and “No active pass” after restart.
