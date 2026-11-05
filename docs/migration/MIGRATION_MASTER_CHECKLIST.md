@@ -1,5 +1,15 @@
 # OVU migration checklist — Supabase / Cloudflare
 
+## Live staging payment setup enabled — 6 November 2026
+
+The user completed private webhook-secret entry. Razorpay's saved webhook is **Enabled** at the exact staging `/api/public/payments/razorpay?mode=live` endpoint, confirms that a secret was provided, and lists `payment.failed`, `payment.captured`, `order.paid`, `refund.processed`. Both original and staging websites remain approved. A private fingerprint comparison also confirmed that the provisioned Live Key ID matches the signed-in merchant; no key values were displayed.
+
+Live checkout is now enabled under the recorded approval. Active Worker version **`7714f66b-0a87-4d6d-ac22-2569fc0cd0f0`**, application commit `73344ef`: `RAZORPAY_MODE=live`, `RAZORPAY_LIVE_CHECKOUT_ENABLED=true`, historical-read override absent, correct owned Supabase/staging origin and all five private bindings verified. Upload 15,925.06 KiB raw / 3,546.72 KiB gzip; reported startup 2 ms. The approved temporary Worker alone was deployed; original production, Store, DNS and billing were not changed.
+
+After activation, nine hosted privacy/SSR checks passed. Two further actual webhook-boundary probes passed (Live invalid signature 401; wrong Test mode 400), without provider calls or customer writes. The previously recorded signed setup/replay/cleanup probe used the same application with checkout held off and does not represent Razorpay-origin event delivery. No agent-initiated payable order, charge, capture or refund was performed.
+
+**Setup is ready for owner testing; end-to-end financial acceptance remains unverified.** Successful checkout, provider capture, authentic Razorpay-origin webhook delivery, paid-access activation and financial refund behavior still require the actual owner-performed workflow. Gemini, email delivery/human recovery, broader acceptance/capacity, complete historical financial reconciliation and final old-site data synchronization remain open before any production cutover. See [LIVE_PAYMENT_TEST_HANDOFF.md](LIVE_PAYMENT_TEST_HANDOFF.md). Earlier pending-activation entries below are historical.
+
 ## Current hosted payment-backend checkpoint — 6 November 2026
 
 Application commit `b0f19ea` is deployed as Worker version `baed6c52-3612-4dc7-8217-fc8ddb3495e6`. Upload 15,924.84 KiB raw / 3,546.64 KiB gzip; reported startup 2 ms. The deployment retained test payment mode, historical live-entitlement reads and the two existing private Supabase/certificate bindings; Cloudflare secret-name inspection confirms no Razorpay bindings. Nine hosted privacy/route postflight checks passed after deployment. The existing administrator account page loaded correctly with its expected no-live-pass status and no recovery error; no pass or customer data was modified. Actual checkout, recovery with a provider payment, webhook delivery, and refund acceptance remain unverified.

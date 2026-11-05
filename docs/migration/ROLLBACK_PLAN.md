@@ -1,5 +1,10 @@
 # OVU rollback
 
+## Live checkout hold — 6 November 2026
+
+Live staging checkout is enabled at version `7714f66b-0a87-4d6d-ac22-2569fc0cd0f0`. Prefer the explicit Live checkout hold over a mode rollback: keep Live event verification/recovery and all ledger records intact. See [LIVE_PAYMENT_TEST_HANDOFF.md](LIVE_PAYMENT_TEST_HANDOFF.md) for exact held-config commands and financial rollback limits. DNS and original production remain unchanged.
+
+
 ## Payment backend verified; Live activation pending — 6 November 2026
 
 The existing Live Razorpay pair is encrypted locally only; no upload, provider request, key rotation or checkout activation occurred. Migration 0012 is installed in the owned Supabase project with all six original entitlements preserved. 49 combined regressions, 2 real-HMAC unit tests, 27 rolled-back PostgreSQL assertions, 9 real Supabase/built-app checks (including restart and concurrent replay), TypeScript, build and 2 built SSR checks passed. Disposable fixtures were removed; existing customers and access records matched pre-test snapshots. Private-value artifact scans found zero matches. Provider payments remain unverified.
