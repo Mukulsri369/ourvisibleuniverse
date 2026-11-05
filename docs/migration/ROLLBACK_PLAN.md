@@ -32,3 +32,5 @@ Keep 0010 with this application release. Save certificate/profile/assessment/acc
 ## Tested staging rollback — 5 November 2026
 
 Known tested staging version: `e6abed40-270b-4c68-8547-828770f43554` (includes the two private server bindings). Initial version `26e36932-cd28-4129-a311-221e2226415b` lacks those bindings and is not the recovery target. If staging needs application rollback, use Wrangler rollback against the dedicated `ovu-supabase-staging` configuration and that tested version. Preserve Supabase privacy/authorization migrations and issued certificate signing material. Do not change production or revert database protections as part of staging rollback. No rollback was executed.
+
+Recovery UI deployment: active version `f655e3f6-66cc-49c2-b2a6-9fc9ec303648`, application `89fc844`. For a recovery-UI regression, the preceding fully tested application version `e6abed40-270b-4c68-8547-828770f43554` remains the staging rollback target. No rollback performed.

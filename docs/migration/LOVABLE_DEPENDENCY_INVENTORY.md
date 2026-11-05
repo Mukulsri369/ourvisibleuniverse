@@ -1,5 +1,7 @@
 # OVU dependency removal — 4 November 2026
 
+Hosted follow-up: dedicated Cloudflare staging, owned Supabase Google auth, all four hosted MCP tools and full hosted Academy API/certification QA are now verified; see HOSTED_STAGING_REPORT.md. Actual Gemini and Razorpay provider testing remains deferred. Historical pre-deployment notes below remain for traceability.
+
 Scope is OVU only. No Store repository, database, deployment or configuration was changed.
 
 | Former dependency | Replacement and verification |

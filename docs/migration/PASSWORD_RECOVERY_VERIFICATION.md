@@ -21,3 +21,7 @@ Actual email delivery, spam handling, sender/SMTP setup, email confirmation and 
 Rollback is an application-only staging rollback to the preceding verified Worker version; retain all Supabase privacy/authorization protections and private signing material. No destructive schema changes or customer imports were made.
 
 Official API contracts: [PKCE email recovery](https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail), [authenticated user update](https://supabase.com/docs/reference/javascript/auth-updateuser), [server password security and reauthentication](https://supabase.com/docs/guides/auth/password-security).
+
+## Actual staging deployment
+
+Commit `89fc844` deployed as `f655e3f6-66cc-49c2-b2a6-9fc9ec303648`. Both existing private binding names remained present. Hosted recovery and expired-link routes, Academy and certificate verification returned HTTP 200 with no-index headers. Browser expired-link/request UI and actual 390×844 layout passed without email or credential submission. Earlier full Academy/MCP hosted QA remains recorded at its original version.

@@ -1,5 +1,14 @@
 # OVU hosted staging — 5 November 2026
 
+## Latest staging deployment — 5 November 2026
+
+Application commit `89fc844` is deployed as Worker version `f655e3f6-66cc-49c2-b2a6-9fc9ec303648` at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev. Upload: 15,907.16 KiB raw / 3,541.03 KiB gzip; Cloudflare reported 1 ms startup. Both existing private server bindings were retained (names verified, no secret values read). Hosted recovery, expired-link handling, four SSR/no-index smoke routes and actual 390×844 recovery layout passed; no real password or email request was submitted. The earlier full 24-module hosted API and MCP runs are recorded separately and were not repeated for this auth UI change.
+
+Eight recovery unit tests, five disposable-account provider recovery checks, 24 combined recovery/runtime/MCP regressions, seven staging checks, three actual-built authorization checks, auth navigation, TypeScript and build passed. The initial built-boundary rerun hit a stopped preview server; starting the actual built server and rerunning all three passed. Credential scan: zero private-value matches across 641 built and 999 source files at the scan snapshot.
+
+Gemini and Razorpay provider testing remain explicitly deferred and unverified. Actual email delivery/human recovery, historical data reconciliation, broader browser/offline testing and sustained production CPU headroom remain open. Production, Store, DNS, live payments, customer entitlements and billing remain unchanged. See [PASSWORD_RECOVERY_VERIFICATION.md](PASSWORD_RECOVERY_VERIFICATION.md) and [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md). Prior checkpoints below are historical.
+
+
 Staging: https://ovu-supabase-staging.mukul-srivastava-025.workers.dev
 
 OVU is deployed to the separately approved `ovu-supabase-staging` Worker using the owned Supabase project `pdvwkdggyyrfkoqrpbji`. The account was verified as Workers Free with no pre-existing applications. No plan was purchased/upgraded. Production domains, DNS, Lovable hosting, live payments, Store and existing customer access remain unchanged. Cloudflare calls the new Worker's default environment “Production”; this is not a cutover of the existing production website.
