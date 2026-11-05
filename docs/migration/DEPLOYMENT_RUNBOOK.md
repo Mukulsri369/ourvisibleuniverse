@@ -34,3 +34,8 @@ The reviewed 0006/0007 transaction, confirmed owner role and public loopback cli
 ## Atomic certificate and complete Academy API checkpoint
 
 Keep 0010 with this application release. Save certificate/profile/assessment/access record hashes and prior function/policy/index definitions privately before applying elsewhere. Never drop existing certificates or remove the privacy restriction as a routine rollback. v2 records require v2 verification code; rolling code back to a v1-only verifier would invalidate their verification. Prefer restoring the last tested v2-capable build; preserve immutable historical rows, audit and lineage. Restore approved function definitions transactionally only when necessary. No production rollback or customer reissue has been performed.
+
+
+## External provider and staging prerequisites
+
+Cloudflare CLI was not authenticated at the 5 November follow-up; no login or deployment was attempted. Obtain the separately approved staging destination and complete private Cloudflare authentication before an upload. Recheck the account plan/limits before any recommendation or paid change. Supply GEMINI_API_KEY only as an approved private Worker secret if provider-backed COSMOS chat, Gemini TTS or Live sessions are required; never use a VITE variable. The loopback preview allowlist now accepts this binding in memory. No Gemini credential has been provisioned or live provider behavior verified. Validate email delivery/reset using an approved test recipient and sender configuration; do not infer email delivery from a generated development magic link. Preserve existing Google/admin/OAuth approvals and request only the exact new staging redirect/settings changes once its origin is known.

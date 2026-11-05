@@ -17,8 +17,10 @@
 - [x] Apply approved schema, provision the confirmed administrator and register local QA client; verify both actual admin screens without entitlement changes.
 - [ ] Reconcile historical certificate keys and all customer identities, entitlements and records.
 - [x] Persist official assessment sessions/results in PostgreSQL; verify process/Worker restart, retries, grading and practice separation.
-- [ ] Make module completion, progress and stage awards atomic and retry-safe.
-- [ ] Make certificate issuance atomic under concurrency and complete offline-sync/business-workflow tests.
+- [x] Make module completion, progress and stage awards atomic and retry-safe.
+- [x] Make certificate issuance/admin changes atomic; verify complete official certification through actual built APIs.
+- [x] Preserve offline events across concurrent browser tabs and isolate owners; verify anonymous practice through the real UI.
+- [ ] Complete the full browser/network-fault/scientific workflow matrix and external email/Gemini provider validation.
 - [ ] Run actual Razorpay provider tests when authorized; currently deferred.
 - [ ] Obtain staging approval; validate actual Cloudflare CPU/memory/startup and full hosted workflows.
 - [ ] Obtain separate production cutover, live payment and DNS approvals.

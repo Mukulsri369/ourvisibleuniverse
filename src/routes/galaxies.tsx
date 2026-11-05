@@ -753,7 +753,7 @@ function GalaxiesRouteComponent() {
                           </div>
                         </div>
                         <span className="text-xs font-mono text-cyan-400">
-                          {g.distanceLy.split(" ")[0]} ly
+                          {g.distanceLy.replace("Million Light-Years", "Mly").replace("Light-Years", "ly")}
                         </span>
                       </button>
                     );
