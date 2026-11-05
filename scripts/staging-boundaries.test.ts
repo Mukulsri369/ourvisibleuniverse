@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { stagingConfiguration } from "./prepare-staging-config.mjs";
 import { deploymentHeaders } from "../src/lib/deployment-headers";
+import { stagingSecretPayload } from "./configure-staging-secrets.mjs";
 const built = { main: "index.js", assets: { directory: "../client" }, workers_dev: false,
   vars: { SUPABASE_URL: "https://pdvwkdggyyrfkoqrpbji.supabase.co", RAZORPAY_LIVE_KEY_SECRET: "synthetic-forbidden-value" } };
 const input = { accountId: "1".repeat(32), origin: "https://ovu-supabase-staging.synthetic-qa.workers.dev", publishableKey: "sb_publishable_synthetic_qa", plan: "free" };
@@ -39,4 +40,17 @@ test("staging HTML, redirects and errors deny indexing while retaining status, c
     assert.equal(response.headers.get("Set-Cookie"), "synthetic=qa"); assert.equal(response.headers.get("Location"), "/auth");
     assert.equal(await response.text(), "synthetic-page");
   }
+});
+
+test("private provisioning selects only two bindings for the exact approved destination", () => {
+  const config = stagingConfiguration(built, { ...input, accountId: "bd0819150e88cf64f97548038790d560", origin: "https://ovu-supabase-staging.mukul-srivastava-025.workers.dev" });
+  const environment = { SUPABASE_URL: config.vars.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: "sb_secret_synthetic_qa",
+    CERTIFICATE_SIGNING_SECRET: "synthetic-private-signing-key-with-32-characters", RAZORPAY_LIVE_KEY_SECRET: "forbidden-synthetic-live-key" };
+  const payload = stagingSecretPayload(config, environment);
+  assert.deepEqual(Object.keys(payload).sort(), ["CERTIFICATE_SIGNING_SECRET", "SUPABASE_SERVICE_ROLE_KEY"]);
+  for (const changed of [{ name: "production" }, { account_id: "1".repeat(32) }, { routes: ["ourvisibleuniverse.in/*"] },
+    { vars: { ...config.vars, PUBLIC_APP_ORIGIN: "https://ourvisibleuniverse.in" } }, { vars: { ...config.vars, RAZORPAY_MODE: "live" } }])
+    assert.throws(() => stagingSecretPayload({ ...config, ...changed }, environment));
+  assert.throws(() => stagingSecretPayload(config, { ...environment, SUPABASE_URL: "https://wrong.supabase.co" }));
+  assert.throws(() => stagingSecretPayload(config, { ...environment, SUPABASE_SERVICE_ROLE_KEY: undefined }));
 });

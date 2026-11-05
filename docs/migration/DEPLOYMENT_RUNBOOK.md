@@ -1,5 +1,12 @@
 # OVU staging/deployment runbook
 
+## Current hosted staging checkpoint — 5 November 2026
+
+OVU is deployed at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev on the existing Workers Free plan. Active tested version: `e6abed40-270b-4c68-8547-828770f43554`; application build: `7f215f7`. Approved Supabase staging Site URL and auth redirect are saved; local auth redirect is retained. Actual hosted 24-module assessment/certificate API QA, Google sign-in, all four MCP tools, sampled admin/mobile/galaxy and paid-access-denial journeys passed. Seven staging checks, 21 security checks and TypeScript passed. Hosted retry testing does not constitute a forced platform restart.
+
+Observed CPU P50 10.06 ms / P99 105 ms exceeds the nominal Free 10 ms budget despite zero observed resource errors; sustained production capacity is not verified. No purchase or upgrade occurred. Gemini and Razorpay provider testing are explicitly deferred and unverified. Email recovery, broader workflow testing and approved historical reconciliation remain outstanding. Production, Store, DNS, live payments and customer entitlements remain unchanged. See [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md) for evidence and limits. Earlier checkpoint entries below describe historical state.
+
+
 This is a prepared procedure, **not authorization to deploy**. Keep Lovable and production services running. The Store is out of scope.
 
 1. Pin the reviewed commit on `migration/supabase-cloudflare`; preserve the production baseline and customer backup privately. Resolve the release gates in `CLOUDFLARE_READINESS_REPORT.md` before declaring complete migration.

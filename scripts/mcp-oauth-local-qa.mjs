@@ -7,14 +7,15 @@ import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { Client, StreamableHTTPClientTransport, UnauthorizedError } from "@modelcontextprotocol/client";
 
-const base = "http://127.0.0.1:31751", callbackOrigin = "http://127.0.0.1:31752";
+const hostedStaging = process.argv.includes("--approved-hosted-staging");
+const base = hostedStaging ? "https://ovu-supabase-staging.mukul-srivastava-025.workers.dev" : "http://127.0.0.1:31751", callbackOrigin = "http://127.0.0.1:31752";
 const project = "https://pdvwkdggyyrfkoqrpbji.supabase.co", issuer = project + "/auth/v1";
 const clientId = process.argv[process.argv.indexOf("--client-id") + 1];
 if (!process.argv.includes("--client-id") || !/^[\w.-]{8,128}$/.test(clientId ?? "")) throw new Error("Supply the approved public client ID using --client-id");
 const publicKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 if (!publicKey?.startsWith("sb_publishable_")) throw new Error("The approved project's publishable key is required");
 let tokenSet, verifier, discovery, authorizationUrl, consumed = false;
-let status = { phase: "starting", clientRegisteredByThisScript: false, grantsOrPaymentsPerformed: false };
+let status = { phase: "starting", hostedStaging, clientRegisteredByThisScript: false, grantsOrPaymentsPerformed: false };
 const state = randomBytes(32).toString("base64url");
 const assertIssuer = ctx => { if (ctx?.issuer && ctx.issuer !== issuer) throw new Error("Unexpected issuer"); };
 const provider = {

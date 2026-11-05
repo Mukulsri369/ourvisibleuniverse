@@ -1,5 +1,12 @@
 # Independent OVU authentication checkpoint
 
+## Current hosted staging checkpoint — 5 November 2026
+
+OVU is deployed at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev on the existing Workers Free plan. Active tested version: `e6abed40-270b-4c68-8547-828770f43554`; application build: `7f215f7`. Approved Supabase staging Site URL and auth redirect are saved; local auth redirect is retained. Actual hosted 24-module assessment/certificate API QA, Google sign-in, all four MCP tools, sampled admin/mobile/galaxy and paid-access-denial journeys passed. Seven staging checks, 21 security checks and TypeScript passed. Hosted retry testing does not constitute a forced platform restart.
+
+Observed CPU P50 10.06 ms / P99 105 ms exceeds the nominal Free 10 ms budget despite zero observed resource errors; sustained production capacity is not verified. No purchase or upgrade occurred. Gemini and Razorpay provider testing are explicitly deferred and unverified. Email recovery, broader workflow testing and approved historical reconciliation remain outstanding. Production, Store, DNS, live payments and customer entitlements remain unchanged. See [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md) for evidence and limits. Earlier checkpoint entries below describe historical state.
+
+
 OVU uses the user-owned Supabase project pdvwkdggyyrfkoqrpbji. Google PKCE sign-in, callback, session persistence and the approved recent Google owner's trusted app-metadata admin role were verified. Website server functions verify signed claims and reject third-party OAuth client sessions. Administrator operations also fetch current user authority; stale role claims do not authorize certificate mutations. No default admin email or editable user-metadata role grants authority.
 
 The approved local MCP client uses PKCE, explicit consent and limited per-user tools. OAuth discovery/JWKS and actual local exchange/tools were verified at earlier checkpoints. Restrictive RLS and the own-summary RPC prevent delegated access to raw private profile/payment records and admin APIs. Dynamic registration remains off. No hosted OAuth client/origin has been configured.

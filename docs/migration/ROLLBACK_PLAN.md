@@ -28,3 +28,7 @@ If a later rollback is required, first revoke/delete the test client's authoriza
 ## Atomic certificate and complete Academy API checkpoint
 
 Keep 0010 with this application release. Save certificate/profile/assessment/access record hashes and prior function/policy/index definitions privately before applying elsewhere. Never drop existing certificates or remove the privacy restriction as a routine rollback. v2 records require v2 verification code; rolling code back to a v1-only verifier would invalidate their verification. Prefer restoring the last tested v2-capable build; preserve immutable historical rows, audit and lineage. Restore approved function definitions transactionally only when necessary. No production rollback or customer reissue has been performed.
+
+## Tested staging rollback — 5 November 2026
+
+Known tested staging version: `e6abed40-270b-4c68-8547-828770f43554` (includes the two private server bindings). Initial version `26e36932-cd28-4129-a311-221e2226415b` lacks those bindings and is not the recovery target. If staging needs application rollback, use Wrangler rollback against the dedicated `ovu-supabase-staging` configuration and that tested version. Preserve Supabase privacy/authorization migrations and issued certificate signing material. Do not change production or revert database protections as part of staging rollback. No rollback was executed.

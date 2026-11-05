@@ -13,6 +13,7 @@ import { runWithStartContext } from "@tanstack/start-storage-context";
 
 if (!process.argv.includes("--disposable-development-fixture")) throw new Error("Explicit disposable development fixture flag required");
 const project = "https://pdvwkdggyyrfkoqrpbji.supabase.co";
+const hostedStaging = process.argv.includes("--approved-hosted-staging");
 assert.equal(process.env.SUPABASE_URL, project);
 const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY, publicKey = process.env.SUPABASE_PUBLISHABLE_KEY;
 assert.ok(serverKey?.startsWith("sb_secret_") && publicKey?.startsWith("sb_publishable_"));
@@ -21,10 +22,10 @@ const runId = crypto.randomUUID(), email = `ovu.qa.${runId}@example.test`;
 const certificationFixtures = process.argv.includes("--with-certification-fixtures");
 const completionFixtures = process.argv.includes("--with-completion-fixtures") || certificationFixtures;
 let userId, accessToken, worker, stage = "preflight", lastRpc, cleanupComplete = false, precedingIds = [];
-const report = { disposableFixture: true, paymentsPerformed: false, completed: false };
+const report = { disposableFixture: true, paymentsPerformed: false, completed: false, hostedStaging };
 const heartbeat = setInterval(() => console.log("Academy QA stage: " + stage), 15_000);
 heartbeat.unref();
-const evidence = resolve(import.meta.dirname, "../../../evidence/ovu-academy-built-supabase-results.json");
+const evidence = resolve(import.meta.dirname, hostedStaging ? "../../../evidence/ovu-academy-hosted-staging-results.json" : "../../../evidence/ovu-academy-built-supabase-results.json");
 
 async function api(path, { method = "GET", body, user = false, publicOnly = false, prefer } = {}) {
   const headers = { apikey: publicOnly || user ? publicKey : serverKey, "User-Agent": "OVU-Development-QA/1.0" };
@@ -45,8 +46,11 @@ for (const file of await readdir(resolve(root, "dist/server/assets"))) {
 const { serverFnFetcher } = await import(new URL("./serverFnFetcher.js", import.meta.resolve("@tanstack/start-client-core/client-rpc")));
 const probe = createServer(); probe.listen(0, "127.0.0.1"); await once(probe, "listening");
 const port = probe.address().port; await new Promise(done => probe.close(done));
-const origin = `http://127.0.0.1:${port}`;
+const origin = hostedStaging ? "https://ovu-supabase-staging.mukul-srivastava-025.workers.dev" : `http://127.0.0.1:${port}`;
 async function startWorker() {
+  // Hosted QA makes requests to the already-approved fixed staging origin. It
+  // does not restart/deploy the platform; report those checks as retries only.
+  if (hostedStaging) return { stop: async () => {} };
   const vars = Object.fromEntries(["SUPABASE_URL", "SUPABASE_PUBLISHABLE_KEY", "SUPABASE_SERVICE_ROLE_KEY", "CERTIFICATE_SIGNING_SECRET"].map(key => [key, process.env[key]]));
   vars.RAZORPAY_MODE = "test"; vars.PUBLIC_APP_ORIGIN = origin;
   return unstable_dev(resolve(dirname(config), built.main), { config, ip: "127.0.0.1", port, local: true, bundle: false, vars,
@@ -111,10 +115,10 @@ try {
   assert.equal(privateSessions.status, 403);
   const directGrade = await api("/rest/v1/rpc/academy_commit_official_attempt", { method: "POST", user: true, body: { p_session_id: session.attemptId, p_user_id: userId, p_answers: {}, p_result: null } });
   assert.equal(directGrade.status, 403);
-  stage = "cold-restart-worker"; await worker.stop(); worker = undefined;
+  stage = hostedStaging ? "hosted-request-retry" : "cold-restart-worker"; await worker.stop(); worker = undefined;
   // The database enforces five actual seconds independently of this reported duration.
   await new Promise(done => setTimeout(done, 5500)); worker = await startWorker();
-  stage = "submit-after-restart";
+  stage = hostedStaging ? "submit-hosted-persisted-attempt" : "submit-after-restart";
   const answers = Object.fromEntries(session.questions.map(q => [q.id, -1]));
   const submission = { attemptId: session.attemptId, moduleId: "01", level: "explorer", mode: "official", answers, clientDurationSeconds: 10, clientScore: 100 };
   const result = await rpc("submitAssessmentAttempt", submission);
@@ -153,7 +157,7 @@ try {
   const practiceRetry = await rpc("submitAssessmentAttempt", practiceInput, true);
   assert.equal(practiceResult.attemptId, practiceRetry.attemptId);
   assert.equal(practiceRetry.certificateEligible, false); assert.equal(practiceRetry.verifiedCompletionAwarded, false);
-  report.completed = true; report.checks = { actualSupabase: true, builtWorkerColdRestart: true, serverGrading: true, originalAttemptOnRetry: true, concurrentIdenticalRetries: true, concurrentConflictingSubmissions: true, changedAnswersRejected: true, rawSnapshotDenied: true, directGradingDenied: true, noAwardsOrAccess: true, anonymousPracticeRetry: true, anonymousOfficialDenied: true };
+  report.completed = true; report.checks = { actualSupabase: true, builtWorkerColdRestart: !hostedStaging, hostedWorkerRequests: hostedStaging, serverGrading: true, originalAttemptOnRetry: true, concurrentIdenticalRetries: true, concurrentConflictingSubmissions: true, changedAnswersRejected: true, rawSnapshotDenied: true, directGradingDenied: true, noAwardsOrAccess: true, anonymousPracticeRetry: true, anonymousOfficialDenied: true };
   if (completionFixtures) {
     report.completed = false; stage = "prepare-controlled-stage-fixture";
     const { getCanonicalQuestionsForModule } = await import("../src/lib/academy/assessment-bank.server.ts");
@@ -300,7 +304,7 @@ try {
       await assert.rejects(() => rpc("getCertificateOpenBadgePayload", { certificateNumber: number }, true, "GET"), /download is private/);
       const resetProfile = await api(`/rest/v1/student_profiles?user_id=eq.${userId}`, { method: "PATCH", body: { profile_visibility: "private", age_bracket: "18_plus", guardian_consent_status: "not_required" } });
       assert.ok([200, 204].includes(resetProfile.status));
-      stage = "certificate-recovery-after-worker-restart";
+      stage = hostedStaging ? "hosted-certificate-retry" : "certificate-recovery-after-worker-restart";
       await worker.stop(); worker = await startWorker();
       assert.equal((await rpc("getActiveCertificate", {}, false, "GET")).certificateNumber, number);
       assert.equal((await rpc("issueOfficialCertificate", {})).isExisting, true);
@@ -335,7 +339,7 @@ try {
       await assert.rejects(() => rpc("adminRevokeCertificate", { certificateNumber: replacement, reason: "Synthetic stale-role request" }), /Access denied/);
       assert.deepEqual(await success(await api(`/rest/v1/access_passes?select=*&user_id=eq.${userId}`)), []);
       Object.assign(report.checks, { all24Modules: true, sixStageAwards: true, officialFinalAt80: true, concurrentCertificateIssuance: true,
-        certificateRestartRecovery: true, privatePublicRedaction: true, privateAnonymousExportsDenied: true, ownerPdfBothThemes: true,
+        certificateRestartRecovery: !hostedStaging, hostedCertificateRetry: hostedStaging, privatePublicRedaction: true, privateAnonymousExportsDenied: true, ownerPdfBothThemes: true,
         ownerOpenBadges: true, rawCertificateRls: true, regularStudentAdminDenied: true, correction: true, reissueLineageRetry: true,
         revocationRetry: true, atomicAdminAuditCounts: true, staleAdminClaimsDenied: true, temporaryFixtureAdminRemoved: true,
         explicitPublicSharing: true, minorPublicSharingDeniedWithoutConsent: true });
@@ -378,6 +382,6 @@ try {
   await writeFile(evidence, JSON.stringify(report, null, 2), "utf8");
 }
 if (!report.completed || !cleanupComplete) { console.error(`FAIL: actual built/Supabase Academy QA at ${report.failure?.stage ?? stage}; credential details withheld; inspect private evidence.`); process.exitCode = 1; }
-else console.log("PASS: actual Supabase + built Worker restart/retries/permissions" +
+else console.log((hostedStaging ? "PASS: actual Supabase + hosted staging retries/permissions (no forced platform restart)" : "PASS: actual Supabase + built Worker restart/retries/permissions") +
   (certificationFixtures ? ", all 24 modules and certification/admin/privacy workflows" : completionFixtures ? ", concurrent controlled stage fixtures" : ", no awards") +
   "; no paid access; owned synthetic fixture removed");

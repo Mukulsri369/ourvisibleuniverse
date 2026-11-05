@@ -1,5 +1,12 @@
 # OVU migration status — 4 November 2026
 
+## Current hosted staging checkpoint — 5 November 2026
+
+OVU is deployed at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev on the existing Workers Free plan. Active tested version: `e6abed40-270b-4c68-8547-828770f43554`; application build: `7f215f7`. Approved Supabase staging Site URL and auth redirect are saved; local auth redirect is retained. Actual hosted 24-module assessment/certificate API QA, Google sign-in, all four MCP tools, sampled admin/mobile/galaxy and paid-access-denial journeys passed. Seven staging checks, 21 security checks and TypeScript passed. Hosted retry testing does not constitute a forced platform restart.
+
+Observed CPU P50 10.06 ms / P99 105 ms exceeds the nominal Free 10 ms budget despite zero observed resource errors; sustained production capacity is not verified. No purchase or upgrade occurred. Gemini and Razorpay provider testing are explicitly deferred and unverified. Email recovery, broader workflow testing and approved historical reconciliation remain outstanding. Production, Store, DNS, live payments and customer entitlements remain unchanged. See [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md) for evidence and limits. Earlier checkpoint entries below describe historical state.
+
+
 **OVU runs locally with the new Supabase project and independent Cloudflare Worker build. Production migration is not complete.** The Store remains unchanged.
 
 Lovable runtime/build packages, telemetry and outbound OVU runtime endpoints were replaced on `migration/supabase-cloudflare`. The historical consent URL is only an owned compatibility redirect. Google sign-in, callback, session persistence and no-paid-pass protection have been verified. Original scientific data/calculations and the existing embedded recommendation catalogue remain preserved.

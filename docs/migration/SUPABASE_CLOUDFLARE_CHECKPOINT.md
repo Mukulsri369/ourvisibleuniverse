@@ -1,5 +1,12 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Current hosted staging checkpoint — 5 November 2026
+
+OVU is deployed at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev on the existing Workers Free plan. Active tested version: `e6abed40-270b-4c68-8547-828770f43554`; application build: `7f215f7`. Approved Supabase staging Site URL and auth redirect are saved; local auth redirect is retained. Actual hosted 24-module assessment/certificate API QA, Google sign-in, all four MCP tools, sampled admin/mobile/galaxy and paid-access-denial journeys passed. Seven staging checks, 21 security checks and TypeScript passed. Hosted retry testing does not constitute a forced platform restart.
+
+Observed CPU P50 10.06 ms / P99 105 ms exceeds the nominal Free 10 ms budget despite zero observed resource errors; sustained production capacity is not verified. No purchase or upgrade occurred. Gemini and Razorpay provider testing are explicitly deferred and unverified. Email recovery, broader workflow testing and approved historical reconciliation remain outstanding. Production, Store, DNS, live payments and customer entitlements remain unchanged. See [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md) for evidence and limits. Earlier checkpoint entries below describe historical state.
+
+
 Latest authorization: the user explicitly approved temporary Cloudflare staging preparation and deployment, with no purchases. Production, DNS, live payments, historical customer import/access changes and Lovable cancellation remain unauthorized. Cloudflare authentication and actual account-plan verification must precede upload; exact hosted auth redirects require review once the staging origin is known. Do not ask for the same staging approval again.
 
 OVU only. Target: pdvwkdggyyrfkoqrpbji. Branch: migration/supabase-cloudflare. Store remains paused and untouched; MariaDB/Hostinger is superseded. Preserve 4e8e5d3, b1483e6, 9122acf and 35e0964 plus previous history. Temporary staging deployment is approved as described above. No production/purchase/DNS/customer-access change or Lovable cancellation is authorized. Provider payment tests remain deferred.
