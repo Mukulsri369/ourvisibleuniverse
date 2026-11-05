@@ -1,5 +1,19 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Approved staging website and signed Live endpoint — 6 November 2026
+
+Razorpay's persisted dashboard now shows both the original `.in` domain and the exact Workers staging address as **Approved**. The owner created a dedicated reviewer login privately and submitted it to Razorpay. Independent verification found 79 identities (78 historical accounts plus this reviewer), a normal authenticated role, no administrator app role and zero access passes for the reviewer. No personal administrator login/password or API secret was supplied to the website-review form.
+
+The approved original Live pair plus a distinct 256-bit webhook secret are now provisioned only to `ovu-supabase-staging`; both Supabase/certificate bindings were retained. The new secret is Windows-encrypted outside Git. Binding-only version `796ddbab-7a83-4fa9-9034-6c848d3159ed` was checked to retain test mode and historical Live entitlement reads before endpoint deployment.
+
+Application commit `73344ef` adds an explicit server-only `RAZORPAY_LIVE_CHECKOUT_ENABLED` hold on new Live order creation. The configuration generator defaults it to false; activation requires both verified merchant approval and configured webhook. Capture verification, webhook handling and interrupted-payment recovery remain available during a checkout hold. Thirty-six payment tests, the amended eight-test gate/signature/config subset, TypeScript and client/Worker build passed. Scans found zero actual Live payment values across 1,683 files and zero Supabase server/signing values in 652 build + 1,031 source files at that snapshot.
+
+Current endpoint deployment: `7004f3a3-0404-4ef9-8e97-4198b88af51b` (15,925.06 KiB raw / 3,546.72 KiB gzip, reported startup 2 ms). It uses `RAZORPAY_MODE=live`, removes the historical-read override, and keeps **new Live checkout disabled** with the explicit hold. Existing Live pass reads therefore follow the ordinary Live environment path. No custom domain routes, DNS or billing changes were made.
+
+The actual hosted signed readiness probe passed: wrong mode 400, invalid HMAC 401, valid setup event 200, identical retry 200 and exactly one ignored setup event. That exact disposable setup record was removed and complete entitlement snapshots matched. It used `ovu.setup.check`, not a fabricated payment/refund, and made zero Razorpay API calls. This verifies the signed endpoint and storage/deduplication path; **it does not verify provider-origin webhook delivery or financial processing**.
+
+The separate Razorpay webhook form has the exact Live endpoint and four events selected. The owner must privately paste its separate secret and click Create Webhook. The private helper is open with the encrypted secret masked; its value has not been inspected or displayed. Final webhook confirmation and checkout activation are pending that credential handoff. Charges/refunds remain unperformed; historical financial-ledger reconciliation and final old-site synchronization remain required before cutover.
+
 ## Live staging setup authorized; merchant verification pending — 6 November 2026
 
 The owner explicitly approved the exact additional Workers staging website, provision of the existing Live pair only to `ovu-supabase-staging`, a separate signed webhook for capture/order-paid/failure/refund, and Live checkout activation only after website approval. This supersedes the earlier configuration-approval gates; do not request the same permission again. Charges/refunds, key rotation, replacement of the original merchant website, production/DNS changes and purchases remain excluded.
