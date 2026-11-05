@@ -816,7 +816,7 @@ export function StudentProfileModal({
             </Button>
             <Button
               size="sm"
-              disabled={isSaving}
+              disabled={isSaving || (isLoggedIn && !profile.student_public_id.startsWith("STU-"))}
               onClick={handleSave}
               className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-5"
             >

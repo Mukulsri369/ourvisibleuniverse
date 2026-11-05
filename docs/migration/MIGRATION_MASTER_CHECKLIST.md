@@ -75,3 +75,13 @@ Twenty focused queue/activity/cache/journal checks passed, including concurrent 
 Two real browser tabs used the exact production journal and flush modules in a separate key-free loopback QA harness: both appends survived, a third event added during held receipts remained pending, simulated delivery failure retained it, reconnect acknowledged it, and one account could not clear another account's work. Synthetic events were removed, both QA tabs closed and their server stopped. The real rebuilt Academy also retained the signed-in owner, cloud-sync status and zero official awards. The harness deliberately does not claim a full 24-module offline browser journey or real network-fault testing of the product UI.
 
 Preserve the verified certificate commit 591c39a and earlier checkpoints. Remaining technical work includes broader profile-data/legacy synchronization authorization review, complete browser/mobile/scientific and email-delivery checks, comprehensive schema typings and historical data reconciliation. Hosted Cloudflare validation/deployment requires separate approval. Razorpay provider testing remains deferred and unverified; production, Store and customer access remain unchanged.
+
+
+## Profile privacy and navigation checkpoint
+
+- [x] Owner-only raw profile reads; committed public IDs under concurrent initialization.
+- [x] Account-bound monotonic navigation RPC preserving canonical awards; direct browser progress writes denied.
+- [x] Stale guest-default profile editor fixed and verified on desktop/mobile without saving owner changes.
+- [x] Record-preserving 0011 installed; PostgreSQL and actual Supabase/built Worker workflows passed.
+- [ ] Hosted staging, historical reconciliation, complete scientific/browser and email-delivery validation.
+- [ ] Actual Razorpay provider testing (deferred at user request).

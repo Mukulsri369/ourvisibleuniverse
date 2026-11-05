@@ -355,7 +355,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
     resetProgress,
   } = useAcademyProgress();
 
-  const { profile, isLoggedIn, updateProfile, changeLearningLevel, signOut } = useStudentAuth();
+  const { profile, isLoggedIn, isProfileSynced, updateProfile, changeLearningLevel, signOut } = useStudentAuth();
 
   const [showProfileModal, setShowProfileModal] = useState(false);
 
@@ -673,7 +673,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
                     </span>
                     <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-400">
                       <Shield className="size-3" />
-                      VERIFIED
+                      {isProfileSynced ? "VERIFIED" : "SYNC PENDING"}
                     </span>
                   </div>
                   <h3
@@ -1055,7 +1055,8 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
       )}
 
       {/* Student Profile Modal */}
-      <StudentProfileModal
+      {showProfileModal && <StudentProfileModal
+        key={profile.user_id + ":" + profile.student_public_id}
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
         profile={profile}
@@ -1063,7 +1064,7 @@ export function AcademyDashboard({ initialModuleId }: AcademyDashboardProps) {
         onSaveProfile={updateProfile}
         onSignOut={signOut}
         onSelectLevel={handleLevelSelect}
-      />
+      />}
     </div>
   );
 }

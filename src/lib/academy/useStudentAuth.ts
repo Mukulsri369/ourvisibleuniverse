@@ -15,6 +15,7 @@ import {
   syncStudentProgress,
 } from "./student.functions";
 import { toast } from "sonner";
+import { progressStorageKey } from "./local-progress";
 
 const LOCAL_PROFILE_KEY = "cosmic_academy_guest_profile_v1";
 
@@ -79,6 +80,19 @@ function loadGuestProfile(): StudentProfile {
   return initialGuest;
 }
 
+function pendingProfile(userId: string): StudentProfile {
+  return { ...loadGuestProfileDefaults(), user_id: userId, student_public_id: "GUEST-SYNC-PENDING",
+    display_name: "Cosmic Explorer", certificate_name: "Cosmic Explorer" };
+}
+
+function loadGuestProfileDefaults(): StudentProfile {
+  return { user_id: "guest-user", student_public_id: "GUEST-EXPLORER", display_name: "Guest Explorer", certificate_name: "Guest Explorer",
+    selected_level: "explorer", preferred_language: "en", age_bracket: "13_to_17", guardian_consent_status: "not_required",
+    guardian_email: null, guardian_consent_date: null, profile_visibility: "private",
+    accessibility_settings: { ...DEFAULT_ACCESSIBILITY_SETTINGS }, learning_settings: { ...DEFAULT_LEARNING_SETTINGS },
+    created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+}
+
 function saveGuestProfile(profile: StudentProfile) {
   if (typeof window === "undefined") return;
   try {
@@ -92,98 +106,72 @@ export function useStudentAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<StudentProfile>(loadGuestProfile);
   const [isLoading, setIsLoading] = useState(true);
-  const syncedRef = useRef(false);
+  const syncedRef = useRef<string | null>(null);
+  const currentUserRef = useRef<string | null>(null);
+  const profileRequestRef = useRef(0);
 
   const fetchAuthenticatedProfile = useCallback(async (activeUser: User) => {
+    const request = ++profileRequestRef.current;
+    const current = () => currentUserRef.current === activeUser.id && profileRequestRef.current === request;
     try {
       const res = await getMyStudentProfile();
-      if (res?.profile) {
-        setProfile(res.profile);
-
-        // Perform initial synchronization of guest local progress if not done yet
-        if (!syncedRef.current && typeof window !== "undefined") {
-          syncedRef.current = true;
-          try {
-            const rawProgress = localStorage.getItem("cosmic_academy_user_progress_v1");
-            if (rawProgress) {
-              const parsed = JSON.parse(rawProgress);
-              if (parsed.moduleProgress && Object.keys(parsed.moduleProgress).length > 0) {
-                await syncStudentProgress({
-                  data: {
-                    moduleProgress: parsed.moduleProgress,
-                    selectedLevel: res.profile.selected_level,
-                  },
-                });
-              }
-            }
-          } catch (syncErr) {
-            console.warn("Could not sync local progress on login:", syncErr);
+      if (!current()) return;
+      if (!res?.profile || res.profile.user_id !== activeUser.id) throw new Error("Student profile identity was not confirmed.");
+      setProfile(res.profile);
+      if (syncedRef.current !== activeUser.id && typeof window !== "undefined") {
+        // Only this account's navigation may be synchronized. Unowned legacy and
+        // guest practice stay local, regardless of which account signs in next.
+        const raw = localStorage.getItem(progressStorageKey(activeUser.id));
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed.moduleProgress && Object.keys(parsed.moduleProgress).length > 0) {
+            const ack = await syncStudentProgress({ data: { moduleProgress: parsed.moduleProgress,
+              selectedLevel: res.profile.selected_level, expectedUserId: activeUser.id } });
+            if (ack?.success !== true) throw new Error("Navigation synchronization is pending.");
           }
         }
+        if (current()) syncedRef.current = activeUser.id;
       }
     } catch (err) {
-      console.error("Failed to load authenticated student profile:", err);
-      // Fallback: derive safe profile for authenticated user
-      setProfile((prev) => ({
-        ...prev,
-        user_id: activeUser.id,
-        student_public_id: prev.student_public_id.startsWith("GUEST")
-          ? generateStudentPublicId()
-          : prev.student_public_id,
-        display_name: activeUser.user_metadata?.full_name || prev.display_name || "Cosmic Explorer",
-      }));
+      if (!current()) return;
+      console.warn("Student profile or navigation synchronization is pending.");
+      // Keep an already confirmed profile for this owner, but never invent a
+      // persisted STU identity or carry a previous account's name across login.
+      setProfile(previous => previous.user_id === activeUser.id ? previous : pendingProfile(activeUser.id));
     } finally {
-      setIsLoading(false);
+      if (current()) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     let mounted = true;
-
-    void supabase.auth
-      .getUser()
-      .then(({ data }) => {
-        if (!mounted) return;
-        if (data?.user) {
-          setUser(data.user);
-          void fetchAuthenticatedProfile(data.user);
-        } else {
-          setUser(null);
-          setProfile(loadGuestProfile());
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        if (!mounted) return;
-        setUser(null);
-        setProfile(loadGuestProfile());
-        setIsLoading(false);
-      });
-
-    let unsubscribe = () => {};
-    try {
-      const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
-        if (!mounted) return;
-        if (session?.user) {
-          setUser(session.user);
-          await fetchAuthenticatedProfile(session.user);
-        } else {
-          setUser(null);
-          setProfile(loadGuestProfile());
-          setIsLoading(false);
-        }
-      });
-      if (sub?.subscription) {
-        unsubscribe = () => sub.subscription.unsubscribe();
+    let authEvent = 0;
+    const accept = (active: User | null) => {
+      if (!mounted) return;
+      const changed = currentUserRef.current !== (active?.id ?? null);
+      currentUserRef.current = active?.id ?? null;
+      setUser(active);
+      if (changed) {
+        syncedRef.current = null;
+        ++profileRequestRef.current;
+        setProfile(active ? pendingProfile(active.id) : loadGuestProfile());
       }
-    } catch (err) {
-      console.warn("[StudentAuth] Auth listener fallback:", err);
-    }
-
-    return () => {
-      mounted = false;
-      unsubscribe();
+      if (active) {
+        // Defer API calls until Supabase releases its auth callback lock.
+        setTimeout(() => { if (mounted && currentUserRef.current === active.id) void fetchAuthenticatedProfile(active); }, 0);
+      } else { setProfile(loadGuestProfile()); setIsLoading(false); }
     };
+    const initialEvent = authEvent;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (authEvent === initialEvent) accept(data?.user ?? null);
+    }).catch(() => { if (authEvent === initialEvent) accept(null); });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      ++authEvent;
+      accept(session?.user ?? null);
+    });
+    const retry = () => { void supabase.auth.getUser().then(({ data }) => { if (mounted) accept(data?.user ?? null); }).catch(() => {}); };
+    window.addEventListener("online", retry);
+    return () => { mounted = false; ++profileRequestRef.current; sub.subscription.unsubscribe(); window.removeEventListener("online", retry); };
   }, [fetchAuthenticatedProfile]);
 
   const updateProfile = useCallback(
@@ -192,12 +180,14 @@ export function useStudentAuth() {
 
       if (user) {
         try {
-          const res = await updateMyStudentProfile({ data: sanitized as any });
+          const res = await updateMyStudentProfile({ data: { ...sanitized, expectedUserId: user.id } as any });
+          if (currentUserRef.current !== user.id) throw new Error("Account changed before the profile response arrived.");
           if (res?.profile) {
             setProfile(res.profile);
             toast.success("Student profile updated successfully.");
             return res.profile;
           }
+          throw new Error("Profile update was not confirmed. Please retry.");
         } catch (err: any) {
           toast.error(err?.message || "Failed to save profile changes.");
           throw err;
@@ -246,6 +236,7 @@ export function useStudentAuth() {
     user,
     profile,
     isLoggedIn: Boolean(user),
+    isProfileSynced: Boolean(user && profile.user_id === user.id && profile.student_public_id.startsWith("STU-")),
     isLoading,
     isMinor,
     updateProfile,

@@ -33,6 +33,7 @@ export function ProgressTracker({
   reducedMotion = false,
   onSelectModule,
 }: ProgressTrackerProps) {
+  const profileSynced = Boolean(isLoggedIn && profile?.student_public_id.startsWith("STU-"));
   const [showConfirmReset, setShowConfirmReset] = useState(false);
   const currentLevelInfo = LEARNING_LEVELS[progress.selectedLevel];
 
@@ -98,7 +99,7 @@ export function ProgressTracker({
               >
                 {profile ? profile.display_name : "Scholar Telemetry"}
               </h3>
-              {isLoggedIn && (
+              {profileSynced && (
                 <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-300">
                   <ShieldCheck className="size-3" />
                   Verified
@@ -107,7 +108,7 @@ export function ProgressTracker({
             </div>
             <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">
               {isLoggedIn && profile
-                ? `ID: ${profile.student_public_id} · CLOUD SYNC`
+                ? profileSynced ? `ID: ${profile.student_public_id} · CLOUD SYNC` : "PROFILE SYNC PENDING"
                 : "LOCAL GUEST SESSION"}
             </p>
           </div>

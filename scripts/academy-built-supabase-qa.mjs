@@ -76,6 +76,28 @@ try {
   const signed = await success(await api("/auth/v1/verify", { method: "POST", publicOnly: true, body: { type: "magiclink", token_hash: link.hashed_token ?? link.properties.hashed_token } }));
   assert.equal(signed.user.id, userId); accessToken = signed.access_token; assert.ok(accessToken);
   stage = "start-built-worker"; worker = await startWorker();
+  stage = "profile-navigation-boundaries";
+  const initialized = await Promise.all(Array.from({ length: 3 }, () => rpc("getMyStudentProfile", undefined, false, "GET")));
+  assert.equal(new Set(initialized.map(item => item.profile.student_public_id)).size, 1);
+  assert.ok(initialized[0].profile.student_public_id.startsWith("STU-"));
+  await assert.rejects(() => rpc("updateMyStudentProfile", { expectedUserId: "00000000-0000-4000-8000-000000000000", display_name: "Wrong Account" }), /another account/);
+  await assert.rejects(() => rpc("syncStudentProgress", { expectedUserId: "00000000-0000-4000-8000-000000000000", moduleProgress: {} }), /another account/);
+  await rpc("updateMyStudentProfile", { expectedUserId: userId, age_bracket: "18_plus", profile_visibility: "public", guardian_email: "synthetic-guardian@example.invalid" });
+  const rawPublicProfile = await api(`/rest/v1/student_profiles?select=*&user_id=eq.${userId}`, { publicOnly: true });
+  assert.deepEqual(await success(rawPublicProfile), []);
+  const rawOwnProfile = await success(await api(`/rest/v1/student_profiles?select=user_id&user_id=eq.${userId}`, { user: true }));
+  assert.equal(rawOwnProfile.length, 1);
+  const forgedProgress = await api("/rest/v1/academy_module_progress", { method: "POST", user: true, body: { user_id: userId, module_id: "24", percent: 100, verified_quiz_passed: true } });
+  assert.equal(forgedProgress.status, 403);
+  const rawSync = await api("/rest/v1/rpc/academy_sync_navigation", { method: "POST", user: true, body: { p_user_id: userId, p_progress: {}, p_level: null } });
+  assert.ok([401,403,404].includes(rawSync.status));
+  const firstNavigation = await rpc("syncStudentProgress", { expectedUserId: userId, moduleProgress: { "02": { status: "in_progress", percent: 45, timeSpentSeconds: 30 } } });
+  assert.equal(firstNavigation.success, true);
+  const retriedNavigation = await rpc("syncStudentProgress", { expectedUserId: userId, moduleProgress: { "02": { status: "not_started", percent: 0, timeSpentSeconds: 1 } } });
+  const navigated = retriedNavigation.progress.find(item => item.module_id === "02");
+  assert.equal(navigated.percent, 45); assert.equal(navigated.time_spent_seconds, 30); assert.equal(navigated.verified_quiz_passed, false);
+  await rpc("updateMyStudentProfile", { expectedUserId: userId, profile_visibility: "private", guardian_email: null });
+  report.profileNavigationBoundaries = true;
   stage = "start-official-quiz";
   await assert.rejects(() => rpc("recordLessonProgress", { expectedUserId: "00000000-0000-4000-8000-000000000000",
     moduleId: "01", lessonId: "01-core", scrollDepthPercent: 50, timeSpentSeconds: 60 }), /another account/);
@@ -227,6 +249,12 @@ try {
       assert.equal(Object.keys(allProgress.verifiedCompletions).length, 24);
       assert.equal(Object.keys(allProgress.stageAchievements).length, 6);
       assert.equal(allProgress.isCertificateEligible, false);
+      const canonicalNavigation = await rpc("syncStudentProgress", { expectedUserId: userId,
+        moduleProgress: { "01": { status: "not_started", percent: 0, timeSpentSeconds: 0 } } });
+      const officialRow = canonicalNavigation.progress.find(row => row.module_id === "01");
+      assert.equal(officialRow.percent, 100); assert.equal(officialRow.verified_quiz_passed, true);
+      assert.equal(officialRow.status, "completed");
+      report.canonicalNavigationPreserved = true;
       await assert.rejects(() => rpc("issueOfficialCertificate", {}), /issuance denied/);
       stage = "official-final-at-exactly-80-percent";
       const final = await rpc("startAssessmentAttempt", { moduleId: "exam", level: "explorer", mode: "official" });

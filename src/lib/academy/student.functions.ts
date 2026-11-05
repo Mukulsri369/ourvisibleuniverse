@@ -1,16 +1,19 @@
-// @ts-nocheck
 import { createServerFn } from "@tanstack/react-start";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { getOrCreateStudentProfile } from "./student-profile.server";
+import { assertOfflineOwner } from "./offline-queue";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   type StudentProfile,
-  generateStudentPublicId,
   applyChildSafetyRules,
   DEFAULT_ACCESSIBILITY_SETTINGS,
   DEFAULT_LEARNING_SETTINGS,
 } from "./student-types";
 
 const updateProfileInput = z.object({
+  expectedUserId: z.string().uuid().optional(),
   display_name: z.string().min(2).max(40).optional(),
   certificate_name: z.string().min(2).max(40).optional(),
   selected_level: z.enum(["junior", "explorer", "astronomer"]).optional(),
@@ -44,12 +47,13 @@ const updateProfileInput = z.object({
 });
 
 const syncProgressInput = z.object({
+  expectedUserId: z.string().uuid().optional(),
   moduleProgress: z.record(
     z.string(),
     z.object({
       status: z.enum(["not_started", "in_progress", "completed"]),
       percent: z.number().min(0).max(100),
-      timeSpentSeconds: z.number().optional(),
+      timeSpentSeconds: z.number().min(0).max(2147483647).optional(),
       completedAt: z.string().optional(),
     }),
   ),
@@ -63,135 +67,7 @@ const syncProgressInput = z.object({
 export const getMyStudentProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ profile: StudentProfile; isNew: boolean }> => {
-    const { supabase, userId } = context;
-
-    try {
-      const { data, error } = await supabase
-        .from("student_profiles")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      if (error && error.code !== "PGRST116") {
-        console.warn("Could not query student_profiles table:", error.message);
-      }
-
-      if (data) {
-        const profile: StudentProfile = {
-          user_id: data.user_id,
-          student_public_id: data.student_public_id,
-          display_name: data.display_name,
-          certificate_name: data.certificate_name,
-          selected_level: data.selected_level as StudentProfile["selected_level"],
-          preferred_language: data.preferred_language,
-          age_bracket: data.age_bracket as StudentProfile["age_bracket"],
-          guardian_consent_status:
-            data.guardian_consent_status as StudentProfile["guardian_consent_status"],
-          guardian_email: data.guardian_email,
-          guardian_consent_date: data.guardian_consent_date,
-          profile_visibility: data.profile_visibility as StudentProfile["profile_visibility"],
-          accessibility_settings: {
-            ...DEFAULT_ACCESSIBILITY_SETTINGS,
-            ...((data.accessibility_settings as any) || {}),
-          },
-          learning_settings: {
-            ...DEFAULT_LEARNING_SETTINGS,
-            ...((data.learning_settings as any) || {}),
-          },
-          created_at: data.created_at,
-          updated_at: data.updated_at,
-        };
-        return { profile, isNew: false };
-      }
-
-      // Profile does not exist yet. Initialize default profile.
-      const newPublicId = generateStudentPublicId();
-      const initialProfileData = {
-        user_id: userId,
-        student_public_id: newPublicId,
-        display_name: "Cosmic Explorer",
-        certificate_name: "Cosmic Explorer",
-        selected_level: "explorer" as const,
-        preferred_language: "en",
-        age_bracket: "13_to_17" as const,
-        guardian_consent_status: "not_required" as const,
-        guardian_email: null,
-        guardian_consent_date: null,
-        profile_visibility: "private" as const,
-        accessibility_settings: DEFAULT_ACCESSIBILITY_SETTINGS,
-        learning_settings: DEFAULT_LEARNING_SETTINGS,
-      };
-
-      const { data: created, error: insertError } = await supabase
-        .from("student_profiles")
-        .insert(initialProfileData)
-        .select()
-        .single();
-
-      if (insertError) {
-        console.warn("Failed to insert student_profiles, returning fallback:", insertError.message);
-        // Fallback for transient DB states
-        return {
-          profile: {
-            ...initialProfileData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          },
-          isNew: true,
-        };
-      }
-
-      return {
-        profile: {
-          user_id: created.user_id,
-          student_public_id: created.student_public_id,
-          display_name: created.display_name,
-          certificate_name: created.certificate_name,
-          selected_level: created.selected_level as StudentProfile["selected_level"],
-          preferred_language: created.preferred_language,
-          age_bracket: created.age_bracket as StudentProfile["age_bracket"],
-          guardian_consent_status:
-            created.guardian_consent_status as StudentProfile["guardian_consent_status"],
-          guardian_email: created.guardian_email,
-          guardian_consent_date: created.guardian_consent_date,
-          profile_visibility: created.profile_visibility as StudentProfile["profile_visibility"],
-          accessibility_settings: {
-            ...DEFAULT_ACCESSIBILITY_SETTINGS,
-            ...((created.accessibility_settings as any) || {}),
-          },
-          learning_settings: {
-            ...DEFAULT_LEARNING_SETTINGS,
-            ...((created.learning_settings as any) || {}),
-          },
-          created_at: created.created_at,
-          updated_at: created.updated_at,
-        },
-        isNew: true,
-      };
-    } catch (err) {
-      console.error("Error in getMyStudentProfile:", err);
-      // Return safe client profile fallback
-      return {
-        profile: {
-          user_id: userId,
-          student_public_id: generateStudentPublicId(),
-          display_name: "Cosmic Explorer",
-          certificate_name: "Cosmic Explorer",
-          selected_level: "explorer",
-          preferred_language: "en",
-          age_bracket: "13_to_17",
-          guardian_consent_status: "not_required",
-          guardian_email: null,
-          guardian_consent_date: null,
-          profile_visibility: "private",
-          accessibility_settings: DEFAULT_ACCESSIBILITY_SETTINGS,
-          learning_settings: DEFAULT_LEARNING_SETTINGS,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        isNew: true,
-      };
-    }
+    return getOrCreateStudentProfile(context.supabase as unknown as SupabaseClient, context.userId);
   });
 
 /**
@@ -201,17 +77,26 @@ export const updateMyStudentProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => updateProfileInput.parse(input))
   .handler(async ({ data, context }): Promise<{ success: boolean; profile: StudentProfile }> => {
-    const { supabase, userId } = context;
+    // The legacy generated SDK schema predates Academy tables. Keep this narrow
+    // SDK boundary explicit while the validated API and domain types stay checked.
+    const supabase = context.supabase as unknown as SupabaseClient;
+    const { userId } = context;
 
-    // Apply Child Safety Rules (forces private profile for <13, sanitizes PII/emails)
-    const sanitized = applyChildSafetyRules(data);
+    assertOfflineOwner(data.expectedUserId, userId);
 
     // Fetch existing profile to merge jsonb fields
-    const { data: existing } = await supabase
+    const { data: existing, error: existingError } = await supabase
       .from("student_profiles")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
+
+    if (existingError || !existing) throw new Error("Student profile must be loaded before it can be updated.");
+    const sanitized = applyChildSafetyRules({ ...data, age_bracket: data.age_bracket ?? existing.age_bracket,
+      profile_visibility: data.profile_visibility ?? existing.profile_visibility,
+      guardian_consent_status: data.guardian_consent_status ?? existing.guardian_consent_status,
+      accessibility_settings: { ...DEFAULT_ACCESSIBILITY_SETTINGS, ...existing.accessibility_settings, ...data.accessibility_settings },
+      learning_settings: { ...DEFAULT_LEARNING_SETTINGS, ...existing.learning_settings, ...data.learning_settings } });
 
     const mergedAccessibility = {
       ...DEFAULT_ACCESSIBILITY_SETTINGS,
@@ -284,61 +169,21 @@ export const updateMyStudentProfile = createServerFn({ method: "POST" })
   });
 
 /**
- * Synchronizes local guest progress with the database profile upon login/registration.
+ * Synchronizes account-owned unverified navigation; never promotes guest practice to official awards.
  * Preserves all previous module completions when switching learning levels.
  */
 export const syncStudentProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => syncProgressInput.parse(input))
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    try {
-      // 1. If level is provided, optionally update student profile selected_level
-      if (data.selectedLevel) {
-        await supabase
-          .from("student_profiles")
-          .update({
-            selected_level: data.selectedLevel,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("user_id", userId);
-      }
-
-      // 2. Upsert module progress records
-      const moduleEntries = Object.entries(data.moduleProgress);
-      for (const [moduleId, info] of moduleEntries) {
-        // Module id must be 2 digits e.g. "01"
-        const formattedId = moduleId.padStart(2, "0");
-        if (!/^[0-2][0-9]$/.test(formattedId)) continue;
-
-        await supabase.from("academy_module_progress").upsert(
-          {
-            user_id: userId,
-            module_id: formattedId,
-            status: info.status,
-            percent: info.percent,
-            time_spent_seconds: info.timeSpentSeconds || 0,
-            completed_at:
-              info.status === "completed" ? info.completedAt || new Date().toISOString() : null,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id,module_id" },
-        );
-      }
-
-      // 3. Fetch current all module progresses for user
-      const { data: currentProgress } = await supabase
-        .from("academy_module_progress")
-        .select("*")
-        .eq("user_id", userId);
-
-      return {
-        success: true,
-        progress: currentProgress || [],
-      };
-    } catch (err) {
-      console.error("Failed to sync student progress:", err);
-      return { success: false, error: String(err) };
-    }
+  .handler(async ({ data, context }): Promise<{ success: true; progress: Array<{
+    module_id: string; user_id: string; status: string; percent: number;
+    time_spent_seconds: number; verified_quiz_passed: boolean; completed_at: string | null;
+  }> }> => {
+    assertOfflineOwner(data.expectedUserId, context.userId);
+    const db = supabaseAdmin as unknown as SupabaseClient;
+    const { data: result, error } = await db.rpc("academy_sync_navigation", {
+      p_user_id: context.userId, p_progress: data.moduleProgress, p_level: data.selectedLevel ?? null,
+    });
+    if (error || result?.success !== true) throw new Error("Navigation synchronization was not confirmed. Retry when connectivity is restored.");
+    return result;
   });

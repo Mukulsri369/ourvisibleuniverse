@@ -80,3 +80,16 @@ COMMIT;
 SELECT 'Atomic certificate functions and privacy policy installed; all existing records preserved' AS migration_result;
 `;
 }
+
+export async function profileNavigationMigrationBundle() {
+  const migration = await readFile(new URL("../drizzle/migrations/0011_profile_navigation_boundaries.sql", import.meta.url), "utf8");
+  // Reuse the complete certificate-phase record guard; policies/functions only.
+  const prior = await atomicCertificateMigrationBundle();
+  const old = await readFile(new URL("../drizzle/migrations/0010_atomic_certificates.sql", import.meta.url), "utf8");
+  return prior.replace(old, () => migration).replace("Atomic certificate functions and privacy policy installed", "Profile privacy and navigation boundaries installed");
+}
+export function profileNavigationPreflightQuery() {
+  return certificatePreflightQuery().replace("'academy_certificate_context','academy_insert_signed_certificate','academy_issue_certificate','academy_admin_certificate_change'", "'academy_sync_navigation'")
+    .replaceAll("tablename='academy_certificates'", "tablename IN ('student_profiles','academy_module_progress')")
+    .replace(" AS certificate_preflight", " AS profile_navigation_preflight");
+}
