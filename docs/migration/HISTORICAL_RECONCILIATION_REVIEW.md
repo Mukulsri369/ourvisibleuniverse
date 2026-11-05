@@ -1,5 +1,14 @@
 # Historical records: review before import
 
+## Customer transfer completed — 5 November 2026
+
+The authorized fresh snapshot (2026-11-05 14:15:21 UTC) is now imported into the owned Supabase project: 77 accounts created, one existing administrator account preserved (78 source users represented), nine supported password hashes transferred privately, and six exact historical access records inserted (five live / one sandbox). No existing accounts were patched/deleted and no emails/payments were sent. Repeat reconciliation finds zero missing accounts, zero access differences and zero conflicts.
+
+Cloudflare staging version `44441fc7-f935-4acc-ac16-6ffe65fdbb4a` reads these live historical entitlements while payment mode remains test and payment keys remain absent. Its actual admin dashboard shows five live subscribers with active access. Anonymous data privacy, hosted authorization and route smoke checks passed. See [CUSTOMER_TRANSFER_RESULTS.md](CUSTOMER_TRANSFER_RESULTS.md) for actual evidence, source limitations, rollback and testing instructions.
+
+Use the approved staging URL for owner testing. Original production/DNS/Store/live payment settings are unchanged. Later source writes are not automatically synchronized. Gemini, actual provider payments and email delivery/human recovery remain deferred; broader acceptance/capacity and final synchronization are still required before production cutover. Earlier no-import/no-authorization checkpoints below are historical.
+
+
 ## Current authorization and read-only comparison
 
 The user now explicitly authorizes transferring existing OVU users and their legitimate purchased access into the owned Supabase project, then testing the Cloudflare application. The prior statements below that import was not authorized describe the earlier checkpoint. Do not ask for that same general transfer authorization again. Production DNS, live payment settings and Lovable cancellation are not part of this authorization; use the approved staging URL for initial testing.

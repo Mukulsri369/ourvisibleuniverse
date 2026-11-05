@@ -1,5 +1,14 @@
 # Cloudflare readiness — OVU only — 5 November 2026
 
+## Customer transfer completed — 5 November 2026
+
+The authorized fresh snapshot (2026-11-05 14:15:21 UTC) is now imported into the owned Supabase project: 77 accounts created, one existing administrator account preserved (78 source users represented), nine supported password hashes transferred privately, and six exact historical access records inserted (five live / one sandbox). No existing accounts were patched/deleted and no emails/payments were sent. Repeat reconciliation finds zero missing accounts, zero access differences and zero conflicts.
+
+Cloudflare staging version `44441fc7-f935-4acc-ac16-6ffe65fdbb4a` reads these live historical entitlements while payment mode remains test and payment keys remain absent. Its actual admin dashboard shows five live subscribers with active access. Anonymous data privacy, hosted authorization and route smoke checks passed. See [CUSTOMER_TRANSFER_RESULTS.md](CUSTOMER_TRANSFER_RESULTS.md) for actual evidence, source limitations, rollback and testing instructions.
+
+Use the approved staging URL for owner testing. Original production/DNS/Store/live payment settings are unchanged. Later source writes are not automatically synchronized. Gemini, actual provider payments and email delivery/human recovery remain deferred; broader acceptance/capacity and final synchronization are still required before production cutover. Earlier no-import/no-authorization checkpoints below are historical.
+
+
 ## Latest staging deployment — 5 November 2026
 
 Application commit `89fc844` is deployed as Worker version `f655e3f6-66cc-49c2-b2a6-9fc9ec303648` at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev. Upload: 15,907.16 KiB raw / 3,541.03 KiB gzip; Cloudflare reported 1 ms startup. Both existing private server bindings were retained (names verified, no secret values read). Hosted recovery, expired-link handling, four SSR/no-index smoke routes and actual 390×844 recovery layout passed; no real password or email request was submitted. The earlier full 24-module hosted API and MCP runs are recorded separately and were not repeated for this auth UI change.

@@ -37,3 +37,7 @@ Supabase automatically links a verified OAuth email to an existing eligible same
 Historical transfer is a snapshot while the original site remains writable. A final write/payment synchronization is required before any later DNS cutover. Actual Razorpay provider tests, Gemini provider tests and email delivery/human recovery remain explicitly deferred and unverified.
 
 The fresh storage inventory contains one object, matching the original OVU database export filename inside a database-export bucket. It is a credential-bearing backup artifact, not an application asset. Both source archives are retained encrypted locally; do not publish or copy these backups into application/public storage. The target preflight was recaptured after disposable QA cleanup and contains only the existing administrator and zero access rows. An earlier comparison taken while QA fixtures were active is superseded; the preflight and importer now reject active disposable fixtures.
+
+## Execution completed
+
+Actual import and Cloudflare deployment succeeded. See CUSTOMER_TRANSFER_RESULTS.md for counts, source timestamp, active Worker version and release gates. The current source has nine supported password hashes, versus eight in the older archive. A repeat read-only reconciliation reports zero remaining creations/conflicts. Do not rerun the original snapshot to overwrite newer user changes.
