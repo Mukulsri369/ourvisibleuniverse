@@ -1,5 +1,15 @@
 # Razorpay migration — 6 November 2026
 
+## Live staging setup authorized; merchant verification pending — 6 November 2026
+
+The owner explicitly approved the exact additional Workers staging website, provision of the existing Live pair only to `ovu-supabase-staging`, a separate signed webhook for capture/order-paid/failure/refund, and Live checkout activation only after website approval. This supersedes the earlier configuration-approval gates; do not request the same permission again. Charges/refunds, key rotation, replacement of the original merchant website, production/DNS changes and purchases remain excluded.
+
+The additional-website flow is open at Razorpay's private two-step prompt; the owner must complete it before the URL form can be submitted. No website has been submitted yet. The signed webhook still lacks its privately entered separate secret. No Live credentials have been uploaded and no checkout mode changed.
+
+The existing encrypted Live pair passed one private, read-only authenticated `GET /v1/orders?count=1&receipt=<random nonexistent probe>` request (HTTP 200, empty collection). No order was created or changed, no original customer records were returned/imported, and neither credential nor response records were logged. This verifies API authentication only: checkout, capture, webhook delivery/retries and refund acceptance remain unverified. See [Razorpay's documented read-only orders API](https://razorpay.com/docs/api/orders/fetch-all).
+
+The staging-only provisioning helper passed four combined configuration/binding tests. It uses Wrangler secret bulk with stdin, only the exact three Live payment variables and the fixed approved Worker/account/project; it has no deploy or provider-payment operation. It is prepared but has not been invoked with real credentials.
+
 ## Current hosted payment-backend checkpoint — 6 November 2026
 
 Application commit `b0f19ea` is deployed as Worker version `baed6c52-3612-4dc7-8217-fc8ddb3495e6`. Upload 15,924.84 KiB raw / 3,546.64 KiB gzip; reported startup 2 ms. The deployment retained test payment mode, historical live-entitlement reads and the two existing private Supabase/certificate bindings; Cloudflare secret-name inspection confirms no Razorpay bindings. Nine hosted privacy/route postflight checks passed after deployment. The existing administrator account page loaded correctly with its expected no-live-pass status and no recovery error; no pass or customer data was modified. Actual checkout, recovery with a provider payment, webhook delivery, and refund acceptance remain unverified.

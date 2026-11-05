@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { livePaymentConfiguration,livePaymentSecretPayload } from './prepare-live-payment-config.mjs';
+import { liveProvisioningRequest } from './provision-live-payment-secrets.mjs';
 const initial={name:'ovu-supabase-staging',account_id:'bd0819150e88cf64f97548038790d560',workers_dev:true,preview_urls:false,routes:[],triggers:{},
  vars:{SUPABASE_URL:'https://pdvwkdggyyrfkoqrpbji.supabase.co',SUPABASE_PUBLISHABLE_KEY:'sb_publishable_synthetic',
  PUBLIC_APP_ORIGIN:'https://ovu-supabase-staging.mukul-srivastava-025.workers.dev',OVU_DEPLOYMENT_STAGE:'staging',RAZORPAY_MODE:'test',OVU_ACCESS_ENVIRONMENT:'live'}};
@@ -25,4 +26,11 @@ test('Live payload refuses Test keys, missing secrets, shared webhook secrets an
  for(const value of [{...environment,RAZORPAY_LIVE_KEY_ID:'rzp_test_Synthetic'},
  {...environment,RAZORPAY_LIVE_KEY_SECRET:undefined},{...environment,RAZORPAY_LIVE_WEBHOOK_SECRET:'short'},
  {...environment,RAZORPAY_LIVE_WEBHOOK_SECRET:environment.RAZORPAY_LIVE_KEY_SECRET}]) assert.throws(()=>livePaymentSecretPayload(config,value));
+});
+test('provisioning targets only staging secret bulk and never includes a deploy, routes or unrelated credentials',()=>{
+ const request=liveProvisioningRequest(livePaymentConfiguration(initial),environment);
+ assert.equal(request.worker,'ovu-supabase-staging');assert.deepEqual(request.operation,['secret','bulk']);
+ assert.deepEqual(Object.keys(request.payload).sort(),['RAZORPAY_LIVE_KEY_ID','RAZORPAY_LIVE_KEY_SECRET','RAZORPAY_LIVE_WEBHOOK_SECRET']);
+ assert.ok(!JSON.stringify(request).includes(environment.SUPABASE_SERVICE_ROLE_KEY));
+ assert.throws(()=>liveProvisioningRequest({...livePaymentConfiguration(initial),name:'production'},environment));
 });
