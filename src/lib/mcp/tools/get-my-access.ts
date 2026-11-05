@@ -1,6 +1,7 @@
 import { defineTool, ToolError } from "../tool";
 import { supabaseForUser } from "../supabase";
 import { z } from "zod";
+import { getAccessEnvironment } from "../../access-environment.server";
 
 const accessSummary = z.array(z.object({
   access_days: z.number().int().positive(),
@@ -18,7 +19,7 @@ export default defineTool({
   handler: async (_input, ctx) => {
     if (!ctx.isAuthenticated()) throw new ToolError("Not signed in.");
     const { data, error } = await supabaseForUser(ctx)
-      .rpc("get_my_access_summary", { p_environment: process.env.RAZORPAY_MODE === "live" ? "live" : "sandbox" });
+      .rpc("get_my_access_summary", { p_environment: getAccessEnvironment() });
     if (error) throw new ToolError("Access status is unavailable. Please try again.");
     const parsed = accessSummary.safeParse(data);
     if (!parsed.success) throw new ToolError("Access status is unavailable. Please try again.");

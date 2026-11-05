@@ -12,9 +12,8 @@ const query = z.object({
 export const getSubscriptionAdminStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { getRazorpayMode } = await import("@/lib/razorpay.server");
-    const currentEnvironment =
-      getRazorpayMode() === "live" ? ("live" as const) : ("sandbox" as const);
+    const { getAccessEnvironment } = await import("@/lib/access-environment.server");
+    const currentEnvironment = getAccessEnvironment();
     const db = context.supabase as unknown as SupabaseClient;
     const { data, error } = await db.rpc("is_subscription_admin");
     if (error) {

@@ -1,5 +1,21 @@
 # Historical records: review before import
 
+## Current authorization and read-only comparison
+
+The user now explicitly authorizes transferring existing OVU users and their legitimate purchased access into the owned Supabase project, then testing the Cloudflare application. The prior statements below that import was not authorized describe the earlier checkpoint. Do not ask for that same general transfer authorization again. Production DNS, live payment settings and Lovable cancellation are not part of this authorization; use the approved staging URL for initial testing.
+
+The actual read-only comparison of the October 29 archive with the owned target found 71 source users and one target user: 70 original-ID account creations and one verified-email mapping preserving the existing administrator account. Six historical access records map without identity/reference conflicts: five live records belonging to five distinct users, and one sandbox record. All five live records are within their archived periods as of this comparison. No target users, access records or roles were written. The private per-user plan is encrypted with Windows DPAPI outside Git; customer email addresses, payment references and password hashes are not in these documents.
+
+Nine reconciliation tests passed. They cover COPY escaping/nulls/truncation, identity collisions and verification, preserving existing accounts without copying admin claims, banned/deleted/SSO quarantine, exact reference/date preservation, duplicate import detection, expired/sandbox isolation and detecting newly available public tables. Exported SQL is parsed as data and never executed.
+
+The user has been asked for a fresh OVU-only archive because the available archive is from October 29 and the old live site remains writable. Accounts, passwords, bans, purchases, refunds and expiry may have changed since that snapshot. A zero-conflict comparison against an older snapshot is not a verified current transfer. Fresh data must be inventoried and compared before writes; any newly discovered Academy or storage data needs its own mapping rather than silently dropping it.
+
+Keep original access dates and references; do not call `apply_access_purchase` to recreate old purchases, extend them from today or relabel live history as sandbox. Existing staging currently reads sandbox access because Razorpay mode is test. Before customer paid-content testing, separate the server's historical live-entitlement read selection from provider payment mode; do not configure live keys or change payment settings. Actual Razorpay provider, Gemini provider and human email-recovery tests remain deferred.
+
+For account creation, the installed official Supabase Admin API supports original IDs and `password_hash`, allowing supported source password hashes to be preserved privately without plaintext passwords. Existing verified target accounts must retain their credentials, metadata, admin roles and new-project records. Do not restore old sessions, refresh tokens, one-time tokens or provider secrets. Google identities require verified-email linking and actual provider sign-in verification; creating an email identity alone does not prove every customer's Google login. [Official Admin API](https://supabase.com/docs/reference/javascript/auth-admin-createuser), [auth migration guidance](https://supabase.com/kb/troubleshooting/migrating-auth-users-between-projects).
+
+## Earlier archive review
+
 The existing verified October 29 OVU archive and extracted schema/data are preserved encrypted outside Git. This review uses its already-generated private inventory; no production database was queried or changed and no customer was imported or activated.
 
 The inventory records 38 COPY tables and 692 rows, including 71 auth users, 72 identities and six `public.access_passes` records. Five access records are in the live environment and one is sandbox. All six had the stored status `active` in that archive, all link to an original user and all have unique access references. Stored status is not evidence that the access period remains valid now; expiry, refunds and purchases since the snapshot must be reconciled as of cutover.

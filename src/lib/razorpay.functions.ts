@@ -78,8 +78,8 @@ export const confirmRazorpayPayment = createServerFn({ method: "POST" })
 export const getMyAccess = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { getRazorpayMode } = await import("@/lib/razorpay.server");
-    const environment = getRazorpayMode() === "live" ? "live" : "sandbox";
+    const { getAccessEnvironment } = await import("@/lib/access-environment.server");
+    const environment = getAccessEnvironment();
     const now = new Date().toISOString();
     const { data: active, error: activeError } = await context.supabase
       .from("access_passes")
