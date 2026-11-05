@@ -1,5 +1,5 @@
 import type { Currency, PlanId } from "@/lib/plans";
-import { ACCESS_PLANS, isCurrency, isPlanId } from "@/lib/plans";
+import { ACCESS_PLANS } from "@/lib/plans";
 
 export type RazorpayMode = "test" | "live";
 
@@ -9,15 +9,6 @@ type RazorpayOrder = {
   amount_paid: number;
   currency: string;
   notes?: Record<string, string>;
-  status: string;
-};
-
-type RazorpayPayment = {
-  id: string;
-  amount: number;
-  captured: boolean;
-  currency: string;
-  order_id: string;
   status: string;
 };
 
@@ -41,10 +32,12 @@ function authHeader(keyId: string, keySecret: string) {
   return `Basic ${btoa(`${keyId}:${keySecret}`)}`;
 }
 
-async function razorpayRequest<T>(path: string, init: RequestInit, mode: RazorpayMode): Promise<T> {
+export async function razorpayRequest<T>(path: string, init: RequestInit, mode: RazorpayMode): Promise<T> {
   const { keyId, keySecret } = getRazorpayConfig(mode);
   const response = await fetch(`https://api.razorpay.com/v1${path}`, {
     ...init,
+    signal: init.signal ?? AbortSignal.timeout(15000),
+    redirect: "error",
     headers: {
       Authorization: authHeader(keyId, keySecret),
       "Content-Type": "application/json",
@@ -53,7 +46,7 @@ async function razorpayRequest<T>(path: string, init: RequestInit, mode: Razorpa
   });
   const body = await response.text();
   if (!response.ok) {
-    console.error(`Razorpay request failed [${response.status}]: ${body}`);
+    console.error(`Razorpay request failed [${response.status}]`);
     throw new Error(`Razorpay request failed with status ${response.status}`);
   }
   return JSON.parse(body) as T;
@@ -92,6 +85,7 @@ export async function verifyRazorpaySignature(options: {
   signature: string;
   mode?: RazorpayMode;
 }) {
+  if (!/^[a-fA-F0-9]{64}$/.test(options.signature)) return false;
   const mode = options.mode ?? getRazorpayMode();
   const { keySecret } = getRazorpayConfig(mode);
   const key = await crypto.subtle.importKey(
@@ -122,6 +116,7 @@ export async function verifyRazorpayWebhook(
   signature: string,
   mode: RazorpayMode,
 ) {
+  if (!/^[a-fA-F0-9]{64}$/.test(signature)) return false;
   const secret =
     process.env[mode === "live" ? "RAZORPAY_LIVE_WEBHOOK_SECRET" : "RAZORPAY_TEST_WEBHOOK_SECRET"];
   if (!secret) throw new Error(`Razorpay ${mode} webhook secret is not configured`);
@@ -150,43 +145,7 @@ export async function fulfillRazorpayPayment(options: {
   expectedUserId?: string;
   mode: RazorpayMode;
 }) {
-  const payment = await razorpayRequest<RazorpayPayment>(
-    `/payments/${encodeURIComponent(options.paymentId)}`,
-    { method: "GET" },
-    options.mode,
-  );
-  const order = await razorpayRequest<RazorpayOrder>(
-    `/orders/${encodeURIComponent(options.orderId)}`,
-    { method: "GET" },
-    options.mode,
-  );
-  if (payment.order_id !== order.id || payment.id !== options.paymentId)
-    throw new Error("Payment does not match the order");
-  if (!payment.captured || payment.status !== "captured")
-    throw new Error("Payment has not been captured");
-  if (
-    !isCurrency(order.currency) ||
-    payment.amount !== order.amount ||
-    payment.currency !== order.currency
-  )
-    throw new Error("Payment amount or currency does not match");
-  const userId = order.notes?.userId;
-  const planId = order.notes?.planId;
-  if (!userId || !isPlanId(planId)) throw new Error("Order is missing access details");
-  if (options.expectedUserId && userId !== options.expectedUserId)
-    throw new Error("Payment belongs to a different account");
-  const plan = ACCESS_PLANS[planId];
-  if (order.amount !== plan.prices[order.currency].amount)
-    throw new Error("Payment amount does not match the selected pass");
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: expiresAt, error } = await supabaseAdmin.rpc("apply_access_purchase", {
-    p_user_id: userId,
-    p_payment_session_id: payment.id,
-    p_payment_customer_id: order.id,
-    p_price_id: planId,
-    p_access_days: plan.days,
-    p_environment: options.mode === "live" ? "live" : "sandbox",
-  });
-  if (error) throw error;
-  return { expiresAt, planId };
+  if (options.mode !== getRazorpayMode()) throw new Error("Payment environment mismatch");
+  const { paymentRuntime } = await import("./payment-runtime.server");
+  return paymentRuntime().fulfillVerified(options.orderId, options.paymentId, options.expectedUserId);
 }

@@ -42,8 +42,15 @@ function loadCheckout() {
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.async = true;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error("Payment window could not be loaded"));
+      script.onload = () => {
+        if (window.Razorpay) resolve();
+        else { checkoutScript = undefined; script.remove(); reject(new Error("Payment window is unavailable")); }
+      };
+      script.onerror = () => {
+        checkoutScript = undefined;
+        script.remove();
+        reject(new Error("Payment window could not be loaded. Please retry."));
+      };
       document.head.appendChild(script);
     });
   }
@@ -79,11 +86,12 @@ export function RazorpayCheckout({
         theme: { color: "#3b82f6" },
         handler: async (response) => {
           try {
-            await confirmRazorpayPayment({ data: response });
-            toast.success("Payment confirmed. Your universe access is active.");
+            const result = await confirmRazorpayPayment({ data: response });
+            if (result.status === "active") toast.success("Payment confirmed. Your universe access is active.");
+            else toast.info(`Payment verified. Pass status: ${result.status}. Check your account for details.`);
             await navigate({ to: "/account" });
           } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Payment confirmation failed");
+            toast.error(error instanceof Error ? error.message : "Payment confirmation failed. Check your account to recover this checkout before paying again.");
           } finally {
             setBusy(false);
           }
@@ -91,7 +99,7 @@ export function RazorpayCheckout({
         modal: {
           ondismiss: () => {
             setBusy(false);
-            toast.info("Payment was cancelled. You have not been charged.");
+            toast.info("Checkout closed. If a payment was made, check your account to recover it before paying again.");
           },
         },
       });

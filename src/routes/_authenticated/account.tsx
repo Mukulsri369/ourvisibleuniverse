@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMyAccess } from "@/lib/razorpay.functions";
 import { useStudentAuth } from "@/lib/academy/useStudentAuth";
 import { StudentProfileModal } from "@/components/academy/StudentProfileModal";
+import { PaymentRecovery } from "@/components/payments/PaymentRecovery";
 import { LEARNING_LEVELS } from "@/lib/academy/registry";
 import { GraduationCap, Shield, User, Award, ExternalLink } from "lucide-react";
 
@@ -39,7 +40,7 @@ function AccountPage() {
   const navigate = useNavigate();
   const [access, setAccess] = useState<Access>();
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const { profile, updateProfile, changeLearningLevel, signOut } = useStudentAuth();
+  const { user, profile, updateProfile, changeLearningLevel, signOut } = useStudentAuth();
 
   useEffect(() => {
     void getMyAccess()
@@ -202,6 +203,9 @@ function AccountPage() {
               Sign out
             </Button>
           </div>
+          <PaymentRecovery key={user?.id} userId={user?.id} onRecovered={async () => {
+            const result = await getMyAccess(); setAccess(result.access);
+          }} />
         </section>
 
         {/* Student Profile Modal */}

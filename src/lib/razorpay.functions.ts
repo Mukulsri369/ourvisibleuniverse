@@ -19,25 +19,17 @@ export const createRazorpayCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!isPlanId(data.planId)) throw new Error("Invalid access pass");
     try {
-      const { createRazorpayOrder, getRazorpayConfig, getRazorpayMode } =
-        await import("@/lib/razorpay.server");
-      const mode = getRazorpayMode();
-      const order = await createRazorpayOrder({
-        planId: data.planId,
-        currency: data.currency,
-        userId: context.userId,
-        mode,
-      });
-      const { keyId } = getRazorpayConfig(mode);
+      const { paymentRuntime } = await import("@/lib/payment-runtime.server");
+      const order = await paymentRuntime().checkout(context.userId, data.planId, data.currency);
       const { data: userData } = await context.supabase.auth.getUser();
       return {
-        keyId,
-        orderId: order.id,
+        keyId: order.keyId,
+        orderId: order.orderId,
         amount: order.amount,
         currency: order.currency,
         customerEmail: userData.user?.email ?? "",
         planName: ACCESS_PLANS[data.planId].name,
-        mode,
+        mode: order.mode,
       };
     } catch (error) {
       console.error("Unable to create Razorpay order", error);
@@ -50,29 +42,44 @@ export const confirmRazorpayPayment = createServerFn({ method: "POST" })
   .inputValidator((input) => verificationInput.parse(input))
   .handler(async ({ data, context }) => {
     try {
-      const { fulfillRazorpayPayment, getRazorpayMode, verifyRazorpaySignature } =
-        await import("@/lib/razorpay.server");
-      const mode = getRazorpayMode();
-      const valid = await verifyRazorpaySignature({
-        orderId: data.razorpay_order_id,
-        paymentId: data.razorpay_payment_id,
-        signature: data.razorpay_signature,
-        mode,
-      });
-      if (!valid) throw new Error("Invalid payment signature");
-      const result = await fulfillRazorpayPayment({
-        paymentId: data.razorpay_payment_id,
-        orderId: data.razorpay_order_id,
-        expectedUserId: context.userId,
-        mode,
-      });
-      return { success: true as const, expiresAt: result.expiresAt };
+      const { paymentRuntime } = await import("@/lib/payment-runtime.server");
+      const result = await paymentRuntime().confirm(context.userId, { orderId: data.razorpay_order_id,
+        paymentId: data.razorpay_payment_id, signature: data.razorpay_signature });
+      return { success: true as const, ...result };
     } catch (error) {
       console.error("Unable to confirm Razorpay payment", error);
       throw new Error(
         "We could not confirm this payment. If you were charged, contact support before trying again.",
       );
     }
+  });
+
+export const recoverRazorpayPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ orderId: z.string().regex(/^order_[A-Za-z0-9]+$/).max(100) }).parse(input))
+  .handler(async ({ data, context }) => {
+    try {
+      const { paymentRuntime } = await import("@/lib/payment-runtime.server");
+      return await paymentRuntime().recover(context.userId, data.orderId);
+    } catch {
+      throw new Error("No confirmed payment could be recovered yet. Check your account or retry later before starting another payment.");
+    }
+  });
+
+// Recoverable order references come from the authenticated server, not browser storage.
+export const getMyPendingPayments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { getRazorpayMode } = await import("@/lib/razorpay.server");
+    const db = supabaseAdmin as unknown as import("@supabase/supabase-js").SupabaseClient;
+    const { data, error } = await db.from("payment_orders").select("order_id,created_at,amount_minor,currency")
+      .eq("user_id", context.userId).eq("environment", getRazorpayMode() === "live" ? "live" : "sandbox")
+      .eq("state", "created").gte("created_at", new Date(Date.now() - 30 * 86400000).toISOString())
+      .order("created_at", { ascending: false }).limit(5);
+    if (error) throw new Error("Pending checkout history is temporarily unavailable.");
+    return z.array(z.object({ order_id: z.string().regex(/^order_[A-Za-z0-9]+$/), created_at: z.string(),
+      amount_minor: z.number().int().positive(), currency: z.enum(["INR", "USD"]) })).parse(data);
   });
 
 export const getMyAccess = createServerFn({ method: "GET" })

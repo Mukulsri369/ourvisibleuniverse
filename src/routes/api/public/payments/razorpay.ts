@@ -1,14 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
-
-const webhookSchema = z.object({
-  event: z.string(),
-  payload: z.object({
-    payment: z.object({
-      entity: z.object({ id: z.string(), order_id: z.string().nullable(), status: z.string() }),
-    }),
-  }),
-});
 
 export const Route = createFileRoute("/api/public/payments/razorpay")({
   server: {
@@ -17,28 +7,21 @@ export const Route = createFileRoute("/api/public/payments/razorpay")({
         const modeParam = new URL(request.url).searchParams.get("mode");
         if (modeParam !== "test" && modeParam !== "live")
           return new Response("Invalid mode", { status: 400 });
-        const signature = request.headers.get("x-razorpay-signature") ?? "";
-        const rawBody = await request.text();
+        const { PaymentRequestError } = await import("@/lib/payment-service.server");
         try {
-          const { fulfillRazorpayPayment, verifyRazorpayWebhook } =
-            await import("@/lib/razorpay.server");
-          if (!(await verifyRazorpayWebhook(rawBody, signature, modeParam)))
-            return new Response("Invalid signature", { status: 401 });
-          const event = webhookSchema.parse(JSON.parse(rawBody));
-          if (event.event === "payment.captured") {
-            const payment = event.payload.payment.entity;
-            if (!payment.order_id || payment.status !== "captured")
-              return new Response("Invalid payment", { status: 400 });
-            await fulfillRazorpayPayment({
-              paymentId: payment.id,
-              orderId: payment.order_id,
-              mode: modeParam,
-            });
-          }
+          const { getRazorpayMode } = await import("@/lib/razorpay.server");
+          if (modeParam !== getRazorpayMode()) return new Response("Webhook environment mismatch", { status: 400 });
+          const { paymentWebhookBody } = await import("@/lib/payment-webhook-body.server");
+          const rawBody = await paymentWebhookBody(request);
+          const { paymentRuntime } = await import("@/lib/payment-runtime.server");
+          await paymentRuntime().webhook(rawBody, request.headers.get("x-razorpay-signature") ?? "",
+            request.headers.get("x-razorpay-event-id") ?? "", modeParam);
           return Response.json({ received: true });
         } catch (error) {
-          console.error("Razorpay payment notification error", error);
-          return new Response("Invalid payment notification", { status: 400 });
+          if (error instanceof PaymentRequestError) return new Response(error.message, { status: error.status });
+          // A failed durable reconciliation must remain retryable. Never log bodies or signatures.
+          console.error("Payment notification requires retry");
+          return new Response("Payment notification could not be processed; retry later", { status: 503 });
         }
       },
     },
