@@ -15,6 +15,7 @@ import {
 } from "./learning.functions";
 import { toast } from "sonner";
 import { flushAcknowledgedOfflineActions, isPersistedAcknowledgement } from "./offline-queue";
+import { clearCachedVerification, isOfficialAchievement, mergeCachedNavigation, progressStorageKey } from "./local-progress";
 
 const STORAGE_KEY = "cosmic_academy_user_progress_v1";
 const OFFLINE_QUEUE_KEY = "cosmic_academy_offline_queue_v1";
@@ -170,36 +171,44 @@ const DEFAULT_PROGRESS: UserProgress = {
   lastUpdated: "2026-01-01T00:00:00.000Z",
 };
 
-function loadStoredProgress(): UserProgress {
+function loadStoredProgress(ownerId: string | null = null): UserProgress {
   if (typeof window === "undefined") return DEFAULT_PROGRESS;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    // The legacy shared cache is readable only as guest practice. Never assign
+    // its awards or offline actions to a newly signed-in account.
+    const raw = localStorage.getItem(progressStorageKey(ownerId)) ??
+      (ownerId === null ? localStorage.getItem(STORAGE_KEY) : null);
     if (!raw) return DEFAULT_PROGRESS;
     const parsed = JSON.parse(raw);
     const defaults = buildDefaultModuleProgress();
 
-    return {
+    return clearCachedVerification({
       ...DEFAULT_PROGRESS,
       ...parsed,
       moduleProgress: {
         ...defaults,
-        ...(parsed.moduleProgress || {}),
+        ...Object.fromEntries(Object.entries(parsed.moduleProgress || {}).map(([id, value]) => [id, {
+          ...(value as ModuleProgressItem), isVerified: false, verifiedAt: undefined, qualifyingAttemptId: undefined,
+        }])),
       },
       achievements: Array.from(new Set([...(parsed.achievements || []), "welcome_explorer"])),
-      verifiedModules: parsed.verifiedModules || [],
-      stageBadges: parsed.stageBadges || {},
-      pendingOfflineCount: getOfflineQueue().length,
-    };
+      verifiedModules: [],
+      stageBadges: {},
+      quizScores: Object.fromEntries(Object.entries(parsed.quizScores || {}).map(([id, value]) => [id, {
+        ...(value as UserProgress["quizScores"][string]), verified: false,
+      }])),
+      pendingOfflineCount: ownerId ? getOfflineQueue().filter(action => action.ownerId === ownerId).length : 0,
+    });
   } catch (err) {
     console.error("Failed to parse academy progress from localStorage", err);
     return DEFAULT_PROGRESS;
   }
 }
 
-function saveStoredProgress(progress: UserProgress) {
+function saveStoredProgress(progress: UserProgress, ownerId: string | null) {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    localStorage.setItem(progressStorageKey(ownerId), JSON.stringify(progress));
   } catch (err) {
     console.error("Failed to save academy progress to localStorage", err);
   }
@@ -210,6 +219,7 @@ interface OfflineAction {
   type: "activity_evidence" | "lesson_progress";
   payload: any;
   timestamp: string;
+  ownerId?: string | null;
 }
 
 function getOfflineQueue(): OfflineAction[] {
@@ -235,6 +245,9 @@ export function useAcademyProgress() {
   const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
   const [isSyncing, setIsSyncing] = useState(false);
   const syncingRef = useRef(false);
+  const ownerRef = useRef<string | null>(null);
+  const syncSequenceRef = useRef(0);
+  const persistProgress = useCallback((value: UserProgress) => saveStoredProgress(value, ownerRef.current), []);
 
   // 1. Initial client-side hydration
   useEffect(() => {
@@ -246,17 +259,11 @@ export function useAcademyProgress() {
     if (typeof window === "undefined") return;
 
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && e.newValue) {
+      if (e.key === progressStorageKey(ownerRef.current) && e.newValue) {
         try {
-          const remoteProgress = JSON.parse(e.newValue);
-          setProgress((prev) => ({
-            ...prev,
-            ...remoteProgress,
-            moduleProgress: {
-              ...prev.moduleProgress,
-              ...(remoteProgress.moduleProgress || {}),
-            },
-          }));
+          const ownerId = ownerRef.current;
+          const remoteProgress = loadStoredProgress(ownerId);
+          setProgress(prev => ownerRef.current === ownerId ? mergeCachedNavigation(prev, remoteProgress) : prev);
         } catch {
           // ignore parse error
         }
@@ -270,15 +277,20 @@ export function useAcademyProgress() {
   // 3. Offline Queue Flush Handler
   const flushOfflineQueue = useCallback(async () => {
     if (typeof window === "undefined" || !navigator.onLine) return;
+    const { data } = await supabase.auth.getSession();
+    const ownerId = data.session?.user.id;
+    if (!ownerId) return;
     const queue = getOfflineQueue();
     if (queue.length === 0) return;
 
     const pendingOfflineCount = await flushAcknowledgedOfflineActions({
+      ownerId,
       read: getOfflineQueue, write: saveOfflineQueue,
       send: async (item: OfflineAction) => item.type === "activity_evidence"
-        ? recordEvidenceRpc({ data: { ...item.payload, clientEventId: item.payload.clientEventId || item.id } })
-        : recordLessonProgress({ data: item.payload }),
+        ? recordEvidenceRpc({ data: { ...item.payload, expectedUserId: ownerId, clientEventId: item.payload.clientEventId || item.id } })
+        : recordLessonProgress({ data: { ...item.payload, expectedUserId: ownerId } }),
     });
+    if (ownerRef.current !== ownerId) return;
     setProgress((prev) => ({
       ...prev,
       pendingOfflineCount,
@@ -289,6 +301,10 @@ export function useAcademyProgress() {
     if (typeof window === "undefined") return;
 
     const handleOnline = () => {
+      if (!ownerRef.current) {
+        toast.info("Guest practice stays on this device. Sign in to record new official learning activity.");
+        return;
+      }
       toast.info("Connection restored. Synchronizing offline learning evidence...");
       void flushOfflineQueue();
     };
@@ -300,6 +316,7 @@ export function useAcademyProgress() {
   // 4. Authoritative Server State Sync
   const syncWithServer = useCallback(async () => {
     if (syncingRef.current || typeof window === "undefined" || !navigator.onLine) return;
+    const sequence = ++syncSequenceRef.current;
     try {
       const { data: userSession } = await supabase.auth.getSession();
       if (!userSession?.session) return;
@@ -308,10 +325,24 @@ export function useAcademyProgress() {
       setIsSyncing(true);
 
       const serverState = await getAuthoritativeProgress();
+      if (ownerRef.current !== userSession.session.user.id || syncSequenceRef.current !== sequence) return;
       if (serverState) {
         setProgress((prev) => {
-          const updatedModules = { ...prev.moduleProgress };
+          if (ownerRef.current !== userSession.session.user.id || syncSequenceRef.current !== sequence) return prev;
+          // Only a successful authoritative read can invalidate cached official
+          // flags. Network errors leave the current view unchanged.
+          const updatedModules: Record<string, ModuleProgressItem> = Object.fromEntries(Object.entries(prev.moduleProgress).map(([id, item]) => [id, {
+            ...item, isVerified: false, verifiedAt: undefined, qualifyingAttemptId: undefined,
+          }]));
           const verifiedList: string[] = [];
+
+          for (const [modId, reading] of Object.entries(serverState.unverifiedProgress || {})) {
+            const current = updatedModules[modId];
+            if (!current) continue;
+            const percent = Math.min(100, Math.max(current.percent, reading.percent));
+            updatedModules[modId] = { ...current, percent,
+              status: percent >= 100 ? "completed" : percent > 0 ? "in_progress" : "not_started" };
+          }
 
           // Merge verified completions (Authoritative State C)
           for (const [modId, comp] of Object.entries(serverState.verifiedCompletions)) {
@@ -319,6 +350,7 @@ export function useAcademyProgress() {
             updatedModules[modId] = {
               ...(updatedModules[modId] || { percent: 100, lastOpenedAt: comp.verifiedAt }),
               status: "completed",
+              percent: 100,
               isVerified: true,
               verifiedAt: comp.verifiedAt,
               qualifyingAttemptId: comp.qualifyingAttemptId || undefined,
@@ -336,7 +368,8 @@ export function useAcademyProgress() {
             (b: any) => b.badgeId,
           );
           const mergedAchievements = Array.from(
-            new Set([...(prev.achievements || []), ...stageBadgeIds]),
+            new Set([...(prev.achievements || []).filter(id => !isOfficialAchievement(id)), ...stageBadgeIds,
+              ...verifiedList.map(id => `module_${id}_verified`)]),
           );
 
           const next: UserProgress = {
@@ -348,24 +381,44 @@ export function useAcademyProgress() {
             lastUpdated: new Date().toISOString(),
           };
 
-          saveStoredProgress(next);
+          persistProgress(next);
           return next;
         });
       }
     } catch (err) {
       console.warn("Could not sync authoritative learning progress with server:", err);
     } finally {
-      syncingRef.current = false;
-      setIsSyncing(false);
+      if (syncSequenceRef.current === sequence) {
+        syncingRef.current = false;
+        setIsSyncing(false);
+      }
     }
   }, []);
 
   // Sync on initial login state and auth change
   useEffect(() => {
-    void syncWithServer();
+    let disposed = false;
+    let authRevision = 0;
+    const bindOwner = (ownerId: string | null) => {
+      if (disposed) return;
+      if (ownerRef.current !== ownerId) {
+        ownerRef.current = ownerId;
+        syncSequenceRef.current++;
+        syncingRef.current = false;
+        setIsSyncing(false);
+        setProgress(loadStoredProgress(ownerId));
+      }
+    };
+    void supabase.auth.getSession().then(({ data }) => {
+      if (authRevision !== 0) return;
+      bindOwner(data.session?.user.id ?? null);
+      if (!disposed) { void syncWithServer(); void flushOfflineQueue(); }
+    });
     let unsubscribe = () => {};
     try {
       const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+        authRevision++;
+        bindOwner(session?.user.id ?? null);
         if (session?.user) {
           void syncWithServer();
           void flushOfflineQueue();
@@ -377,7 +430,7 @@ export function useAcademyProgress() {
     } catch (err) {
       console.warn("[Academy] Could not bind auth listener:", err);
     }
-    return () => unsubscribe();
+    return () => { disposed = true; unsubscribe(); };
   }, [syncWithServer, flushOfflineQueue]);
 
   // 5. Change Learning Level (preserves all module progress & past records)
@@ -388,7 +441,7 @@ export function useAcademyProgress() {
         selectedLevel: level,
         lastUpdated: new Date().toISOString(),
       };
-      saveStoredProgress(next);
+      persistProgress(next);
       return next;
     });
   }, []);
@@ -397,8 +450,10 @@ export function useAcademyProgress() {
   // CRITICAL: Does NOT directly set isVerified = true. Only updates reading percentage.
   const setModuleProgress = useCallback(
     (moduleId: string, percent: number, status?: ModuleStatus) => {
+      const ownerId = ownerRef.current;
       const formattedModId = moduleId.padStart(2, "0");
       setProgress((prev) => {
+        if (ownerRef.current !== ownerId) return prev;
         const current = prev.moduleProgress[formattedModId] || {
           status: "not_started",
           percent: 0,
@@ -427,21 +482,22 @@ export function useAcademyProgress() {
           lastUpdated: new Date().toISOString(),
         };
 
-        saveStoredProgress(next);
+        persistProgress(next);
         return next;
       });
 
       // Persist offline reading locally and require a positive server acknowledgement.
       if (typeof window !== "undefined") {
         const payload = { moduleId: formattedModId, lessonId: formattedModId + "-core",
-          scrollDepthPercent: percent, timeSpentSeconds: 60 };
+          scrollDepthPercent: percent, timeSpentSeconds: 60, ...(ownerId ? { expectedUserId: ownerId } : {}) };
         const enqueue = () => {
           const queue = getOfflineQueue();
-          queue.push({ id: "lp_" + crypto.randomUUID(), type: "lesson_progress", payload, timestamp: new Date().toISOString() });
+          queue.push({ id: "lp_" + crypto.randomUUID(), type: "lesson_progress", payload, ownerId, timestamp: new Date().toISOString() });
           saveOfflineQueue(queue);
-          setProgress(previous => ({ ...previous, pendingOfflineCount: queue.length }));
+          if (ownerRef.current === ownerId)
+            setProgress(previous => ({ ...previous, pendingOfflineCount: ownerId ? queue.filter(action => action.ownerId === ownerId).length : 0 }));
         };
-        if (navigator.onLine) {
+        if (navigator.onLine && ownerId) {
           void recordLessonProgress({ data: payload }).then(saved => {
             if (!isPersistedAcknowledgement(saved)) throw new Error("Reading progress was not acknowledged");
           }).catch(enqueue);
@@ -457,8 +513,9 @@ export function useAcademyProgress() {
       const formattedModId = moduleId.padStart(2, "0");
       const clientTimestamp = new Date().toISOString();
       const clientEventId = "ev_" + crypto.randomUUID();
+      const ownerId = ownerRef.current;
 
-      if (typeof window !== "undefined" && navigator.onLine) {
+      if (typeof window !== "undefined" && navigator.onLine && ownerId) {
         try {
           const saved = await recordEvidenceRpc({
             data: {
@@ -467,11 +524,14 @@ export function useAcademyProgress() {
               evidencePayload,
               clientTimestamp,
               clientEventId,
+              expectedUserId: ownerId,
             },
           });
           if (!isPersistedAcknowledgement(saved)) throw new Error("Activity evidence was not acknowledged");
+          if (ownerRef.current !== ownerId) return true;
 
           setProgress((prev) => {
+            if (ownerRef.current !== ownerId) return prev;
             const current = prev.moduleProgress[formattedModId];
             if (!current) return prev;
             const updated = {
@@ -484,7 +544,7 @@ export function useAcademyProgress() {
                 },
               },
             };
-            saveStoredProgress(updated);
+            persistProgress(updated);
             return updated;
           });
           return true;
@@ -506,12 +566,13 @@ export function useAcademyProgress() {
           clientEventId,
         },
         timestamp: clientTimestamp,
+        ownerId,
       });
       saveOfflineQueue(queue);
 
       setProgress((prev) => ({
         ...prev,
-        pendingOfflineCount: queue.length,
+        pendingOfflineCount: ownerRef.current ? queue.filter(action => action.ownerId === ownerRef.current).length : 0,
       }));
       return false;
     },
@@ -527,6 +588,7 @@ export function useAcademyProgress() {
       clientDurationSeconds?: number,
       idempotencyKey?: string,
     ) => {
+      const ownerId = ownerRef.current;
       const formattedModId = moduleId.padStart(2, "0");
       const submissionKey =
         idempotencyKey ||
@@ -546,6 +608,7 @@ export function useAcademyProgress() {
 
         // Update local state with authoritative server verdict
         setProgress((prev) => {
+          if (ownerRef.current !== ownerId) return prev;
           const current = prev.moduleProgress[formattedModId] || {
             status: "not_started",
             percent: 0,
@@ -589,7 +652,7 @@ export function useAcademyProgress() {
             lastUpdated: new Date().toISOString(),
           };
 
-          saveStoredProgress(next);
+          persistProgress(next);
           return next;
         });
 
@@ -639,7 +702,7 @@ export function useAcademyProgress() {
         },
         lastUpdated: new Date().toISOString(),
       };
-      saveStoredProgress(next);
+      persistProgress(next);
       return next;
     });
   }, []);
@@ -654,7 +717,7 @@ export function useAcademyProgress() {
         bookmarks,
         lastUpdated: new Date().toISOString(),
       };
-      saveStoredProgress(next);
+      persistProgress(next);
       return next;
     });
   }, []);
@@ -667,7 +730,7 @@ export function useAcademyProgress() {
         achievements: [...prev.achievements, achievementId],
         lastUpdated: new Date().toISOString(),
       };
-      saveStoredProgress(next);
+      persistProgress(next);
       return next;
     });
   }, []);
@@ -687,7 +750,7 @@ export function useAcademyProgress() {
   }, [progress]);
 
   const resetProgress = useCallback(() => {
-    saveStoredProgress(DEFAULT_PROGRESS);
+    persistProgress(DEFAULT_PROGRESS);
     setProgress(DEFAULT_PROGRESS);
   }, []);
 

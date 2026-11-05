@@ -2,6 +2,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertOfflineOwner } from "./offline-queue";
 
 const activityEvidenceInput = z.object({
   moduleId: z.string().min(1).max(5),
@@ -9,6 +10,7 @@ const activityEvidenceInput = z.object({
   evidencePayload: z.record(z.string(), z.unknown()),
   clientTimestamp: z.string(),
   clientEventId: z.string().min(3).max(120).optional(),
+  expectedUserId: z.string().uuid().optional(),
 });
 
 const submitAssessmentInput = z.object({
@@ -24,6 +26,7 @@ const lessonProgressInput = z.object({
   scrollDepthPercent: z.number().min(0).max(100),
   timeSpentSeconds: z.number().min(0),
   isBookmarked: z.boolean().optional(),
+  expectedUserId: z.string().uuid().optional(),
 });
 
 /**
@@ -33,6 +36,7 @@ export const recordActivityEvidence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => activityEvidenceInput.parse(input))
   .handler(async ({ data, context }) => {
+    assertOfflineOwner(data.expectedUserId, context.userId);
     const { recordActivityEvidenceServer } = await import("./learning.server");
     return recordActivityEvidenceServer({
       userId: context.userId,
@@ -89,6 +93,7 @@ export const recordLessonProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => lessonProgressInput.parse(input))
   .handler(async ({ data, context }) => {
+    assertOfflineOwner(data.expectedUserId, context.userId);
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const formattedModId = data.moduleId.padStart(2, "0");

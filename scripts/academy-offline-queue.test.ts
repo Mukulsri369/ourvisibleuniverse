@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { flushAcknowledgedOfflineActions, isPersistedAcknowledgement, type OfflineAction } from "../src/lib/academy/offline-queue";
+import { assertOfflineOwner, flushAcknowledgedOfflineActions, isPersistedAcknowledgement, type OfflineAction } from "../src/lib/academy/offline-queue";
 
-const action = (id: string, type: OfflineAction["type"] = "lesson_progress"): OfflineAction => ({ id, type, payload: {}, timestamp: "2026-11-04T00:00:00Z" });
+const ownerId = "11111111-1111-4111-8111-111111111111";
+const action = (id: string, type: OfflineAction["type"] = "lesson_progress"): OfflineAction => ({ id, type, payload: {}, ownerId, timestamp: "2026-11-04T00:00:00Z" });
 function fixture(initial: OfflineAction[]) {
   let value = structuredClone(initial);
-  return { read: () => structuredClone(value), write: (next: OfflineAction[]) => { value = structuredClone(next); } };
+  return { ownerId, read: () => structuredClone(value), write: (next: OfflineAction[]) => { value = structuredClone(next); } };
 }
 test("only positively acknowledged reading/activity events are removed", async () => {
   const storage = fixture([action("reading"), action("activity", "activity_evidence")]);
@@ -39,4 +40,20 @@ test("only a boolean true in the acknowledgement object confirms persistence", (
     assert.equal(isPersistedAcknowledgement(value), false);
   }
   assert.equal(isPersistedAcknowledgement({ success: true }), true);
+});
+
+test("another account, anonymous practice and legacy unowned actions are never uploaded", async () => {
+  const own = action("own"), other = { ...action("other"), ownerId: "other-user" },
+    guest = { ...action("guest"), ownerId: null }, legacy = { ...action("legacy"), ownerId: undefined };
+  const storage = fixture([own, other, guest, legacy]);
+  const sent: string[] = [];
+  await flushAcknowledgedOfflineActions({ ...storage, send: async event => { sent.push(event.id); return { success: true }; } });
+  assert.deepEqual(sent, ["own"]);
+  assert.deepEqual(storage.read().map(event => event.id), ["other", "guest", "legacy"]);
+});
+
+test("server ownership binding rejects an account switch even if the browser changes its bearer token", () => {
+  assert.doesNotThrow(() => assertOfflineOwner(ownerId, ownerId));
+  assert.doesNotThrow(() => assertOfflineOwner(undefined, ownerId));
+  assert.throws(() => assertOfflineOwner(ownerId, "different-user"), /another account/);
 });

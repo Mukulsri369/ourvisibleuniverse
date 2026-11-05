@@ -3,6 +3,13 @@ export interface OfflineAction {
   type: "activity_evidence" | "lesson_progress";
   payload: Record<string, unknown>;
   timestamp: string;
+  ownerId?: string | null;
+}
+
+/** A queued action cannot be reassigned by the auth middleware during sign-in. */
+export function assertOfflineOwner(expected: string | undefined, authenticated: string) {
+  if (expected !== undefined && expected !== authenticated)
+    throw new Error("Queued learning activity belongs to another account. Sign in to its original account to synchronize it.");
 }
 
 export function isPersistedAcknowledgement(value: unknown): value is { success: true } {
@@ -11,12 +18,16 @@ export function isPersistedAcknowledgement(value: unknown): value is { success: 
 
 /** A successful HTTP promise is not an acknowledgement of a persisted event. */
 export async function flushAcknowledgedOfflineActions(storage: {
+  ownerId: string;
   read(): OfflineAction[];
   write(actions: OfflineAction[]): void;
   send(action: OfflineAction): Promise<unknown>;
 }) {
   const snapshot = [...new Map(storage.read().map(action => [action.id, action])).values()], remaining: OfflineAction[] = [];
   for (const action of snapshot) {
+    // Legacy/unowned and anonymous actions remain local practice. Never guess
+    // their identity or replay them into the next account that signs in.
+    if (action.ownerId !== storage.ownerId) { remaining.push(action); continue; }
     if (!["activity_evidence", "lesson_progress"].includes(action.type)) { remaining.push(action); continue; }
     try {
       const saved = await storage.send(action);
@@ -29,5 +40,5 @@ export async function flushAcknowledgedOfflineActions(storage: {
   const appended = storage.read().filter(action => !originalIds.has(action.id));
   const retained = [...new Map([...remaining, ...appended].map(action => [action.id, action])).values()];
   storage.write(retained);
-  return retained.length;
+  return retained.filter(action => action.ownerId === storage.ownerId).length;
 }

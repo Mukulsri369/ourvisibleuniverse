@@ -19,7 +19,7 @@ assert.ok(serverKey?.startsWith("sb_secret_") && publicKey?.startsWith("sb_publi
 assert.ok(!process.env.RAZORPAY_TEST_KEY_SECRET && !process.env.RAZORPAY_LIVE_KEY_SECRET);
 const runId = crypto.randomUUID(), email = `ovu.qa.${runId}@example.test`;
 const completionFixtures = process.argv.includes("--with-completion-fixtures");
-let userId, accessToken, worker, stage = "preflight", cleanupComplete = false, precedingIds = [];
+let userId, accessToken, worker, stage = "preflight", lastRpc, cleanupComplete = false, precedingIds = [];
 const report = { disposableFixture: true, paymentsPerformed: false, completed: false };
 const heartbeat = setInterval(() => console.log("Academy QA stage: " + stage), 15_000);
 heartbeat.unref();
@@ -52,6 +52,7 @@ async function startWorker() {
     experimental: { disableExperimentalWarning: true, disableDevRegistry: true } });
 }
 async function rpc(name, data, anonymous = false, method = "POST") {
+  lastRpc = name;
   const id = manifest.match(new RegExp(`"([a-f0-9]{64})":\\s*\\{\\s*functionName:\\s*"${name}_createServerFn_handler"`))?.[1];
   assert.ok(id, `Missing built function ${name}`);
   const envelope = await runWithStartContext({ startOptions: { serializationAdapters: [] } }, () =>
@@ -74,6 +75,11 @@ try {
   assert.equal(signed.user.id, userId); accessToken = signed.access_token; assert.ok(accessToken);
   stage = "start-built-worker"; worker = await startWorker();
   stage = "start-official-quiz";
+  await assert.rejects(() => rpc("recordLessonProgress", { expectedUserId: "00000000-0000-4000-8000-000000000000",
+    moduleId: "01", lessonId: "01-core", scrollDepthPercent: 50, timeSpentSeconds: 60 }), /another account/);
+  await assert.rejects(() => rpc("recordActivityEvidence", { expectedUserId: "00000000-0000-4000-8000-000000000000",
+    moduleId: "01", activityType: "act_01_cosmic_zoom", evidencePayload: {}, clientTimestamp: new Date().toISOString() }), /another account/);
+  report.accountSwitchDenials = true;
   const session = await rpc("startAssessmentAttempt", { moduleId: "01", level: "explorer", mode: "official" });
   assert.ok(session.attemptId); assert.ok(session.questions.length > 0);
   assert.ok(session.questions.every(q => !("correctAnswer" in q) && !("explanation" in q)));
@@ -197,7 +203,7 @@ try {
   report.precedingIdentityCount = precedingIds.length;
 } catch (error) {
   const categories = ["No Start context", "Official assessment could not be saved", "Official assessment storage is unavailable", "Official assessment was not confirmed", "Invalid authentication", "Attempt ownership mismatch"];
-  report.failure = { stage, type: error?.name ?? "Error", category: categories.find(value => String(error?.message).includes(value)) ?? "Protocol or assertion failure",
+  report.failure = { stage, lastRpc, type: error?.name ?? "Error", category: categories.find(value => String(error?.message).includes(value)) ?? "Protocol or assertion failure",
     sourceLine: String(error?.stack).match(/academy-built-supabase-qa\.mjs:(\d+):/)?.[1],
     ...(typeof error?.actual === "number" ? { actual: error.actual, expected: error.expected } : {}) };
 } finally {
