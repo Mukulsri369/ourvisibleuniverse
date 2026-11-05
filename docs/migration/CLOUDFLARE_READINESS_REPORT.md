@@ -1,4 +1,4 @@
-# Cloudflare readiness — OVU only — 4 November 2026
+# Cloudflare readiness — OVU only — 5 November 2026
 
 The application builds with Cloudflare's official TanStack Start Vite integration and runs locally in `workerd`. Cloudflare **Workers with Static Assets** is the target, rather than a static-only Pages upload. React, Three.js, SSR, server functions, HTTP APIs and webhook routes remain in the application. Supabase supplies database/auth/storage services over HTTPS. No deployment has been performed.
 
@@ -8,11 +8,11 @@ The application builds with Cloudflare's official TanStack Start Vite integratio
 | --- | --- |
 | Native Worker build and restart | Passed; no Lovable or Nitro build adapter |
 | Wrangler deployment dry run | Passed, explicitly `--dry-run`; no upload |
-| Worker upload size | 15,889.66 KiB uncompressed, 3,536.45 KiB gzip at the measured checkpoint; approximately 15.5 MiB |
+| Worker upload size | 15,894.08 KiB uncompressed, 3,538.02 KiB gzip at commit 95fac1f; approximately 15.5 MiB |
 | Static files | 249 |
 | Largest static file | 18,385,556 bytes, existing black-hole MP4; no files above 25 MiB |
 | Local startup profile | 59.9 ms active CPU; local measurement, not Cloudflare platform validation |
-| Private build credential scan | Zero actual server-key/certificate-key matches across 626 build files and 968 repository files; local simulator state excluded; prior Google-secret scan remains recorded at its earlier checkpoint |
+| Private build credential scan | Zero actual server-key/certificate-key matches across 634 build files and 986 repository files; local simulator state excluded; prior Google-secret scan remains recorded at its earlier checkpoint |
 | Production dependency audit | Zero known vulnerabilities |
 | Development dependency audit | 14 moderate findings, primarily ESLint/Drizzle tooling chains |
 
