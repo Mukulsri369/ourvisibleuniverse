@@ -25,3 +25,7 @@ Official API contracts: [PKCE email recovery](https://supabase.com/docs/referenc
 ## Actual staging deployment
 
 Commit `89fc844` deployed as `f655e3f6-66cc-49c2-b2a6-9fc9ec303648`. Both existing private binding names remained present. Hosted recovery and expired-link routes, Academy and certificate verification returned HTTP 200 with no-index headers. Browser expired-link/request UI and actual 390×844 layout passed without email or credential submission. Earlier full Academy/MCP hosted QA remains recorded at its original version.
+
+## Additional anonymous browser QA
+
+The actual built application was opened at the separate localhost origin, without the signed-in 127.0.0.1 or staging session. Module 13 practice accepted four answers and displayed 100% (4/4), explicitly describing practice as non-certifying. Its official assessment control requested a student account, and the verified checklist remained incomplete with no official attempt. Local exploration/navigation progress is not canonical certified completion. The anonymous sign-in screen displayed Forgot password; following it displayed the labeled email-request form. No email or password was submitted. The hosted owner still showed the same public student ID and CLOUD SYNC after the deployment. These are sampled browser checks, not a complete offline/network-fault matrix.
