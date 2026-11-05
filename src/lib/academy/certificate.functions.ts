@@ -23,6 +23,15 @@ async function resolveCertAuthenticatedUserId(): Promise<string> {
   return "";
 }
 
+async function readAuthorizedCertificateExport(number: string) {
+  const requesterId = await resolveCertAuthenticatedUserId();
+  const { getRequest, setResponseStatus } = await import("@tanstack/react-start/server");
+  const token = /^Bearer ([^\s,]+)$/.exec(getRequest()?.headers.get("authorization") ?? "")?.[1];
+  const { certificateForExport } = await import("./certificate-access.server");
+  try { return await certificateForExport(number, requesterId, token); }
+  catch (error) { if (error?.statusCode === 403) setResponseStatus(403); throw error; }
+}
+
 /**
  * Server function to issue an authoritative certificate.
  * Enforces authentication and evaluates eligibility server-side.
@@ -73,21 +82,8 @@ export const verifyCertificatePublic = createServerFn({ method: "GET" })
 export const generateCertificatePdfPayload = createServerFn({ method: "POST" })
   .inputValidator((input: { certificateNumber: string; theme?: CertificateTheme }) => input)
   .handler(async ({ data }) => {
-    const { verifyCertificatePublicServer } = await import("./certificate.server");
     const { generateCertificatePdf } = await import("./certificate-pdf");
-    const { getStudentActiveCertificateServer } = await import("./certificate.server");
-
-    // Fetch full certificate details
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
-      .from("academy_certificates")
-      .select("*")
-      .eq("certificate_number", data.certificateNumber)
-      .maybeSingle();
-
-    if (error || !row) {
-      throw new Error("Certificate not found.");
-    }
+    const row = await readAuthorizedCertificateExport(data.certificateNumber);
 
     const { LEARNING_LEVEL_LABELS, CERTIFICATE_CONSTANTS } = await import("./certificate-types");
     const { formatCertificateDate } = await import("./certificate.server");
@@ -254,16 +250,7 @@ export const adminGetCertificateStats = createServerFn({ method: "POST" })
 export const getCertificateOpenBadgePayload = createServerFn({ method: "GET" })
   .inputValidator((input: { certificateNumber: string }) => input)
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
-      .from("academy_certificates")
-      .select("*")
-      .eq("certificate_number", data.certificateNumber.trim().toUpperCase())
-      .maybeSingle();
-
-    if (error || !row) {
-      throw new Error("Certificate not found.");
-    }
+    const row = await readAuthorizedCertificateExport(data.certificateNumber);
 
     const { LEARNING_LEVEL_LABELS, CERTIFICATE_CONSTANTS } = await import("./certificate-types");
     const { formatCertificateDate, generateOpenBadge3Metadata } =

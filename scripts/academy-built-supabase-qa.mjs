@@ -18,17 +18,19 @@ const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY, publicKey = process.env
 assert.ok(serverKey?.startsWith("sb_secret_") && publicKey?.startsWith("sb_publishable_"));
 assert.ok(!process.env.RAZORPAY_TEST_KEY_SECRET && !process.env.RAZORPAY_LIVE_KEY_SECRET);
 const runId = crypto.randomUUID(), email = `ovu.qa.${runId}@example.test`;
-const completionFixtures = process.argv.includes("--with-completion-fixtures");
+const certificationFixtures = process.argv.includes("--with-certification-fixtures");
+const completionFixtures = process.argv.includes("--with-completion-fixtures") || certificationFixtures;
 let userId, accessToken, worker, stage = "preflight", lastRpc, cleanupComplete = false, precedingIds = [];
 const report = { disposableFixture: true, paymentsPerformed: false, completed: false };
 const heartbeat = setInterval(() => console.log("Academy QA stage: " + stage), 15_000);
 heartbeat.unref();
 const evidence = resolve(import.meta.dirname, "../../../evidence/ovu-academy-built-supabase-results.json");
 
-async function api(path, { method = "GET", body, user = false, publicOnly = false } = {}) {
+async function api(path, { method = "GET", body, user = false, publicOnly = false, prefer } = {}) {
   const headers = { apikey: publicOnly || user ? publicKey : serverKey, "User-Agent": "OVU-Development-QA/1.0" };
   if (user) headers.Authorization = `Bearer ${accessToken}`;
   if (body !== undefined) headers["Content-Type"] = "application/json";
+  if (prefer) headers.Prefer = prefer;
   const response = await fetch(project + path, { method, headers, ...(body !== undefined ? { body: JSON.stringify(body) } : {}), signal: AbortSignal.timeout(15_000), redirect: "error" });
   return response;
 }
@@ -199,6 +201,118 @@ try {
       activityRetryDeduplication: true, monotonicReading: true, preservedBookmark: true, noPaidAccess: true,
       noCertificateEligibilityFromFirstStage: true, anonymousActivityPracticeOnly: true });
     report.completed = true;
+    if (certificationFixtures) {
+      report.completed = false;
+      const { academyActivityFixtures } = await import("./helpers/academy-activity-fixtures.mjs");
+      const { FINAL_EXAM_QUESTION_BANK } = await import("../src/lib/academy/final-exam-bank.server.ts");
+      const sessions = [];
+      for (let index = 5; index <= 24; index++) {
+        const moduleId = String(index).padStart(2, "0"); stage = "certification-module-" + moduleId;
+        assert.equal((await rpc("recordLessonProgress", { moduleId, lessonId: moduleId + "-core", scrollDepthPercent: 90, timeSpentSeconds: 120, expectedUserId: userId })).success, true);
+        for (const activity of MODULE_COMPLETION_RULES[moduleId].requiredActivities) {
+          const outcome = await rpc("submitActivityOutcome", { moduleId, activityId: activity.id, payload: academyActivityFixtures[moduleId], clientEventId: "full-qa:" + runId + ":" + activity.id });
+          assert.equal(outcome.success, true); assert.ok(outcome.evidenceId);
+        }
+        const session = await rpc("startAssessmentAttempt", { moduleId, level: "explorer", mode: "official" });
+        const canonical = getCanonicalQuestionsForModule(moduleId, "explorer");
+        sessions.push({ attemptId: session.attemptId, moduleId, level: "explorer", mode: "official", clientDurationSeconds: 10,
+          answers: Object.fromEntries(session.questions.map(question => [question.id, canonical.find(q => q.id === question.id).correctAnswer])) });
+      }
+      stage = "complete-all-24-modules"; await new Promise(done => setTimeout(done, 5500));
+      for (let index = 0; index < sessions.length; index += 4) {
+        const results = await Promise.all(sessions.slice(index, index + 4).map(session => rpc("submitAssessmentAttempt", session)));
+        assert.ok(results.every(result => result.passed && result.percentage === 100 && result.verifiedCompletionAwarded));
+      }
+      const allProgress = await rpc("getAuthoritativeProgress", {}, false, "GET");
+      assert.equal(Object.keys(allProgress.verifiedCompletions).length, 24);
+      assert.equal(Object.keys(allProgress.stageAchievements).length, 6);
+      assert.equal(allProgress.isCertificateEligible, false);
+      await assert.rejects(() => rpc("issueOfficialCertificate", {}), /issuance denied/);
+      stage = "official-final-at-exactly-80-percent";
+      const final = await rpc("startAssessmentAttempt", { moduleId: "exam", level: "explorer", mode: "official" });
+      assert.equal(final.questions.length, 20);
+      await new Promise(done => setTimeout(done, 5500));
+      const finalResult = await rpc("submitAssessmentAttempt", { attemptId: final.attemptId, moduleId: "exam", level: "explorer", mode: "official", clientDurationSeconds: 10,
+        answers: Object.fromEntries(final.questions.map((question, index) => [question.id, index < 16 ? FINAL_EXAM_QUESTION_BANK.find(q => q.id === question.id).correctAnswer : -1])) });
+      assert.equal(finalResult.percentage, 80); assert.equal(finalResult.passed, true); assert.equal(finalResult.certificateEligible, true);
+      stage = "private-synthetic-certificate-profile";
+      const profile = await api("/rest/v1/student_profiles?on_conflict=user_id", { method: "POST", prefer: "resolution=merge-duplicates,return=representation",
+        body: { user_id: userId, student_public_id: "STU-QA-" + runId.slice(0, 8).toUpperCase(), display_name: "Synthetic QA Alias",
+          certificate_name: "Synthetic QA Certificate Learner", selected_level: "explorer", age_bracket: "18_plus", profile_visibility: "private" } });
+      assert.ok([200, 201].includes(profile.status));
+      stage = "concurrent-certificate-issuance";
+      const issued = await Promise.all(Array.from({ length: 4 }, () => rpc("issueOfficialCertificate", { level: "astronomer", userId: "00000000-0000-4000-8000-000000000000" })));
+      assert.ok(issued.every(result => result.success)); assert.equal(new Set(issued.map(result => result.certificate.id)).size, 1);
+      assert.equal(issued.filter(result => !result.isExisting).length, 1);
+      const certificate = issued[0].certificate;
+      assert.equal(certificate.userId, userId); assert.equal(certificate.learningLevel, "explorer");
+      assert.equal(certificate.finalScorePercentage, 80); assert.equal(certificate.metadata.signatureVersion, 2);
+      const number = certificate.certificateNumber;
+      const rawAnonymous = await api("/rest/v1/academy_certificates?select=certificate_number", { publicOnly: true });
+      assert.deepEqual(await success(rawAnonymous), []);
+      const verified = await rpc("verifyCertificatePublic", { certificateId: number }, true, "GET");
+      assert.equal(verified.isValid, true); assert.equal(verified.studentName, "Verified Explorer");
+      await assert.rejects(() => rpc("generateCertificatePdfPayload", { certificateNumber: number }, true), /download is private/);
+      await assert.rejects(() => rpc("getCertificateOpenBadgePayload", { certificateNumber: number }, true, "GET"), /download is private/);
+      stage = "owner-pdf-and-open-badges";
+      for (const theme of ["cosmic_dark", "print_light"]) {
+        const pdf = await rpc("generateCertificatePdfPayload", { certificateNumber: number, theme });
+        assert.equal(Buffer.from(pdf.base64, "base64").subarray(0, 4).toString(), "%PDF");
+      }
+      const badge = await rpc("getCertificateOpenBadgePayload", { certificateNumber: number }, false, "GET");
+      assert.ok(JSON.stringify(badge).includes("OpenBadgeCredential"));
+      stage = "public-sharing-and-minor-consent-boundaries";
+      const publicOptIn = await api(`/rest/v1/student_profiles?user_id=eq.${userId}`, { method: "PATCH", body: { profile_visibility: "public" } });
+      assert.ok([200, 204].includes(publicOptIn.status));
+      assert.equal((await rpc("verifyCertificatePublic", { certificateId: number }, true, "GET")).studentName, certificate.certificateName);
+      assert.ok(JSON.stringify(await rpc("getCertificateOpenBadgePayload", { certificateNumber: number }, true, "GET")).includes("OpenBadgeCredential"));
+      const minorProfile = await api(`/rest/v1/student_profiles?user_id=eq.${userId}`, { method: "PATCH", body: { age_bracket: "under_13", guardian_consent_status: "pending_guardian" } });
+      assert.ok([200, 204].includes(minorProfile.status));
+      assert.equal((await rpc("verifyCertificatePublic", { certificateId: number }, true, "GET")).studentName, "Verified Student");
+      await assert.rejects(() => rpc("getCertificateOpenBadgePayload", { certificateNumber: number }, true, "GET"), /download is private/);
+      const resetProfile = await api(`/rest/v1/student_profiles?user_id=eq.${userId}`, { method: "PATCH", body: { profile_visibility: "private", age_bracket: "18_plus", guardian_consent_status: "not_required" } });
+      assert.ok([200, 204].includes(resetProfile.status));
+      stage = "certificate-recovery-after-worker-restart";
+      await worker.stop(); worker = await startWorker();
+      assert.equal((await rpc("getActiveCertificate", {}, false, "GET")).certificateNumber, number);
+      assert.equal((await rpc("issueOfficialCertificate", {})).isExisting, true);
+      stage = "regular-student-denied-admin-mutation";
+      await assert.rejects(() => rpc("adminRevokeCertificate", { certificateNumber: number, reason: "Synthetic unauthorized request" }), /Access denied/);
+      // Temporary administrator authority is confined to this freshly created,
+      // marked development fixture and is removed below before fixture cleanup.
+      stage = "temporary-fixture-admin";
+      await success(await api("/auth/v1/admin/users/" + userId, { method: "PUT", body: { app_metadata: { ovu_migration_fixture: runId, role: "admin" } } }));
+      const refreshed = await success(await api("/auth/v1/token?grant_type=refresh_token", { method: "POST", publicOnly: true, body: { refresh_token: signed.refresh_token } }));
+      accessToken = refreshed.access_token;
+      stage = "audited-certificate-admin-workflow";
+      const corrected = await rpc("adminCorrectCertificate", { certificateNumber: number, reason: "Synthetic QA correction", updatedCertificateName: "Corrected Synthetic QA Learner" });
+      assert.equal(corrected.certificate.certificateName, "Corrected Synthetic QA Learner");
+      assert.equal((await rpc("verifyCertificatePublic", { certificateId: number }, true, "GET")).isValid, true);
+      const reissued = await rpc("adminReissueCertificate", { certificateNumber: number, reason: "Synthetic QA reissue" });
+      const replacement = reissued.newCertificate.certificateNumber;
+      assert.notEqual(replacement, number);
+      assert.equal((await rpc("adminReissueCertificate", { certificateNumber: number, reason: "Synthetic QA retry" })).newCertificate.certificateNumber, replacement);
+      const details = await rpc("adminGetCertificateDetails", { certificateNumber: replacement });
+      assert.equal(details.assessmentEvidence.totalModulesCompleted, 24); assert.equal(details.assessmentEvidence.examPassed, true);
+      assert.equal((await rpc("verifyCertificatePublic", { certificateId: number }, true, "GET")).status, "superseded");
+      await rpc("adminRevokeCertificate", { certificateNumber: replacement, reason: "Synthetic QA revocation" });
+      await rpc("adminRevokeCertificate", { certificateNumber: replacement, reason: "Synthetic QA retry" });
+      assert.equal((await rpc("verifyCertificatePublic", { certificateId: replacement }, true, "GET")).status, "revoked");
+      for (const action of ["issue_certificate", "correct_certificate", "reissue_certificate", "revoke_certificate"]) {
+        const rows = await success(await api(`/rest/v1/academy_audit_log?select=id&actor_id=eq.${userId}&action=eq.${action}`));
+        assert.equal(rows.length, 1);
+      }
+      stage = "stale-admin-claims-denied-after-role-removal";
+      await success(await api("/auth/v1/admin/users/" + userId, { method: "PUT", body: { app_metadata: { ovu_migration_fixture: runId, role: null } } }));
+      await assert.rejects(() => rpc("adminRevokeCertificate", { certificateNumber: replacement, reason: "Synthetic stale-role request" }), /Access denied/);
+      assert.deepEqual(await success(await api(`/rest/v1/access_passes?select=*&user_id=eq.${userId}`)), []);
+      Object.assign(report.checks, { all24Modules: true, sixStageAwards: true, officialFinalAt80: true, concurrentCertificateIssuance: true,
+        certificateRestartRecovery: true, privatePublicRedaction: true, privateAnonymousExportsDenied: true, ownerPdfBothThemes: true,
+        ownerOpenBadges: true, rawCertificateRls: true, regularStudentAdminDenied: true, correction: true, reissueLineageRetry: true,
+        revocationRetry: true, atomicAdminAuditCounts: true, staleAdminClaimsDenied: true, temporaryFixtureAdminRemoved: true,
+        explicitPublicSharing: true, minorPublicSharingDeniedWithoutConsent: true });
+      report.completed = true;
+    }
   }
   report.precedingIdentityCount = precedingIds.length;
 } catch (error) {
@@ -236,4 +350,6 @@ try {
   await writeFile(evidence, JSON.stringify(report, null, 2), "utf8");
 }
 if (!report.completed || !cleanupComplete) { console.error(`FAIL: actual built/Supabase Academy QA at ${report.failure?.stage ?? stage}; credential details withheld; inspect private evidence.`); process.exitCode = 1; }
-else console.log("PASS: actual Supabase + built Worker restart/retries/permissions" + (completionFixtures ? ", concurrent controlled stage fixtures" : ", no awards") + "; no paid access; owned synthetic fixture removed");
+else console.log("PASS: actual Supabase + built Worker restart/retries/permissions" +
+  (certificationFixtures ? ", all 24 modules and certification/admin/privacy workflows" : completionFixtures ? ", concurrent controlled stage fixtures" : ", no awards") +
+  "; no paid access; owned synthetic fixture removed");

@@ -1,0 +1,28 @@
+// Synthetic physical telemetry from the original 01–12 and 13–24 security suites.
+// These are QA inputs, not seeded customer evidence or a client grading fallback.
+export const academyActivityFixtures = {
+  "01": { stepCount: 15, minScaleMeters: 1, maxScaleMeters: 1e26, powersOfTenStepsCompleted: 15 },
+  "02": { alignedCount: 3, polarisLocated: true, constellationsIdentified: 3 },
+  "03": { parallaxArcsec: 0.772, distanceParsecs: 1.295 },
+  "04": { benchmarkCount: 4, lookbackTimeGyr: 13.4, benchmarksCompleted: 4 },
+  "05": { nodesAligned: true, predictedCount: 2, eclipsePredicted: true },
+  "06": { classifiedCount: 4, worldsClassified: 4 },
+  "07": { coreTempK: 15600000, cmeTraced: true },
+  "08": { eccentricity: 0.045, semiMajorAxisAU: 1.0, periapsisKm: 1250 },
+  "09": { placedCount: 5, accuracyPct: 95, starsClassified: 5 },
+  "10": { correctPredictions: 2, solarMass1Fate: "white_dwarf", solarMass20Fate: "black_hole" },
+  "11": { cloudMassSolar: 100, jeansMassSolar: 25, collapseTriggered: true },
+  "12": { transitDepthPpm: 120, radiusRatio: 0.011 },
+  "13": { classifiedCount: 5, galaxyTypesIdentified: 5 },
+  "14": { massSolar: 10, radiusKm: 29.5 },
+  "15": { inspectedNodes: 4, structuresVisited: 4 },
+  "16": { darkMatterRatio: 5.2, nfwFitted: true },
+  "17": { peaksAnalyzed: 3, baryonDensity: 0.022, coldDarkMatterDensity: 0.12 },
+  "18": { redshift: 1.5, velocityKmS: 450000 },
+  "19": { modelsCompared: 2, retrogradeDemonstrated: true },
+  "20": { erasOrderedCount: 4, erasMapped: 4 },
+  "21": { apertureMeters: 6.5, wavelengthNm: 550 },
+  "22": { deltaVKmS: 7.2, flybySuccessful: true },
+  "23": { biosignaturesAnalyzed: 3, methaneOxygenDetected: true },
+  "24": { experimentsCompleted: 3, domainsSynthesized: 3, synthesisCalibrated: true },
+};

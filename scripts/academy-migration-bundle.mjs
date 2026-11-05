@@ -53,3 +53,30 @@ COMMIT;
 SELECT 'Atomic completion, achievements and reading schema installed; existing records preserved' AS migration_result;
 `;
 }
+
+export const certificateIntegrityTables = [...completionIntegrityTables, "student_profiles", "academy_assessment_attempts", "academy_assessment_sessions"];
+const certificateRowOrder = table => table === "student_profiles" ? "r.user_id" : "r.id";
+export function certificatePreflightQuery() {
+  return `SELECT jsonb_build_object('captured_at',now(),'digests',jsonb_build_object(${certificateIntegrityTables.map(table => `'${table}',(SELECT md5(coalesce(jsonb_agg(to_jsonb(r) ORDER BY ${certificateRowOrder(table)})::text,'[]')) FROM public.${table} r)`).join(",")}),
+ 'counts',jsonb_build_object(${certificateIntegrityTables.map(table => `'${table}',(SELECT count(*) FROM public.${table})`).join(",")}),
+ 'functions',(SELECT coalesce(jsonb_agg(jsonb_build_object('name',p.proname,'arguments',pg_get_function_identity_arguments(p.oid),'definition',pg_get_functiondef(p.oid),'privileges',p.proacl::text)),'[]') FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace WHERE n.nspname='public' AND p.proname IN ('academy_certificate_context','academy_insert_signed_certificate','academy_issue_certificate','academy_admin_certificate_change')),
+ 'policies',(SELECT coalesce(jsonb_agg(to_jsonb(p)),'[]') FROM pg_policies p WHERE schemaname='public' AND tablename='academy_certificates'),
+ 'indexes',(SELECT coalesce(jsonb_agg(to_jsonb(i)),'[]') FROM pg_indexes i WHERE schemaname='public' AND tablename='academy_certificates')) AS certificate_preflight;`;
+}
+export async function atomicCertificateMigrationBundle() {
+  const migration = await readFile(new URL("../drizzle/migrations/0010_atomic_certificates.sql", import.meta.url), "utf8");
+  const digest = table => `(SELECT md5(coalesce(jsonb_agg(to_jsonb(r) ORDER BY ${certificateRowOrder(table)})::text,'[]')) FROM public.${table} r)`;
+  return `-- New OVU development project pdvwkdggyyrfkoqrpbji only; no certificate issuance/customer import.
+BEGIN;
+SET LOCAL lock_timeout='5s'; SET LOCAL statement_timeout='30s';
+DO $before$ BEGIN
+${certificateIntegrityTables.map(table => `PERFORM set_config('ovu_certificate.${table}',${digest(table)},true);`).join("\n")}
+END $before$;
+${migration}
+DO $after$ BEGIN
+${certificateIntegrityTables.map(table => `IF ${digest(table)}<>current_setting('ovu_certificate.${table}') THEN RAISE EXCEPTION 'Existing ${table} records changed; rolling back'; END IF;`).join("\n")}
+END $after$;
+COMMIT;
+SELECT 'Atomic certificate functions and privacy policy installed; all existing records preserved' AS migration_result;
+`;
+}

@@ -1,0 +1,9 @@
+# Independent OVU authentication checkpoint
+
+OVU uses the user-owned Supabase project pdvwkdggyyrfkoqrpbji. Google PKCE sign-in, callback, session persistence and the approved recent Google owner's trusted app-metadata admin role were verified. Website server functions verify signed claims and reject third-party OAuth client sessions. Administrator operations also fetch current user authority; stale role claims do not authorize certificate mutations. No default admin email or editable user-metadata role grants authority.
+
+The approved local MCP client uses PKCE, explicit consent and limited per-user tools. OAuth discovery/JWKS and actual local exchange/tools were verified at earlier checkpoints. Restrictive RLS and the own-summary RPC prevent delegated access to raw private profile/payment records and admin APIs. Dynamic registration remains off. No hosted OAuth client/origin has been configured.
+
+Account-scoped local progress and owner-bound offline delivery prevent assigning guest/legacy work to the next signed-in account. Configured profile sharing/minor-consent flags control public certificate identity and exports. The test-only administrator token and registry seeding now require both NODE_ENV=test and the isolated placeholder database; NODE_ENV alone cannot enable these against the real project.
+
+Secrets are encrypted outside Git and supplied in process memory. Current typed database generation is incomplete (legacy access_passes-only); new Academy boundaries have explicit local SDK contracts and real database tests, pending complete schema typing. No customer accounts were imported. Production/staging origins, email delivery/password-reset workflows, full browser account transitions, historical identity reconciliation and payment provider testing remain separate gates.

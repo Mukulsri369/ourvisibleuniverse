@@ -5,10 +5,23 @@ export function academyPostgresFetch(database, control = {}) {
     control.calls = (control.calls ?? 0) + 1;
     if (control.unavailable) return Response.json({ message: "Synthetic storage outage" }, { status: 503 });
     const url = new URL(typeof input === "string" ? input : input instanceof Request ? input.url : String(input));
+    if (control.failProfile && url.pathname === "/rest/v1/student_profiles") return Response.json({ message: "Synthetic profile outage" }, { status: 503 });
     if (url.origin !== "http://127.0.0.1:37999") throw new Error("Unexpected test network destination");
     const headers = new Headers(init.headers), method = init.method ?? "GET";
     const db = database();
     try {
+      const certificateRpc = {
+        academy_certificate_context: ["p_user_id"],
+        academy_issue_certificate: ["p_user_id", "p_attempt_id", "p_payload"],
+        academy_admin_certificate_change: ["p_actor_id", "p_number", "p_action", "p_reason", "p_expected_updated_at", "p_payload"],
+      };
+      const rpcName = url.pathname.split("/").at(-1);
+      if (url.pathname.startsWith("/rest/v1/rpc/") && certificateRpc[rpcName]) {
+        const value = JSON.parse(init.body), keys = certificateRpc[rpcName];
+        const args = keys.map(key => key === "p_payload" && value[key] !== null ? JSON.stringify(value[key]) : value[key]);
+        const result = await db.query(`SELECT public.${rpcName}(${args.map((_, index) => "$" + (index + 1)).join(",")}) AS result`, args);
+        return Response.json(result.rows[0].result);
+      }
       if (url.pathname === "/rest/v1/rpc/academy_commit_official_attempt") {
         const value = JSON.parse(init.body);
         const result = await db.query("SELECT public.academy_commit_official_attempt($1,$2,$3,$4) AS result", [value.p_session_id, value.p_user_id, JSON.stringify(value.p_answers), value.p_result === null ? null : JSON.stringify(value.p_result)]);
@@ -25,7 +38,7 @@ export function academyPostgresFetch(database, control = {}) {
         return Response.json(result.rows[0].result);
       }
       const table = url.pathname.split("/").at(-1);
-      if (!/^academy_[a-z_]+$/.test(table)) throw new Error("Unexpected fixture table");
+      if (!/^academy_[a-z_]+$/.test(table) && table !== "student_profiles") throw new Error("Unexpected fixture table");
       const quote = name => { if (!/^[a-z_]+$/.test(name)) throw new Error("Invalid fixture identifier"); return `"${name}"`; };
       let rows;
       if (method === "POST") {

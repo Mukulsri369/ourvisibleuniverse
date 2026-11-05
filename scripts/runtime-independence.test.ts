@@ -127,3 +127,17 @@ test("the legacy certificate hash helper also requires the protected signing key
     else process.env.CERTIFICATE_SIGNING_SECRET = previous;
   }
 });
+
+test("certificate fixture authority cannot be enabled against a real project by NODE_ENV alone", async () => {
+  const { verifyAdminAuthorizationServer, seedLocalCertificate } = await import("../src/lib/academy/certificate.server");
+  const oldMode = process.env.NODE_ENV, oldUrl = process.env.SUPABASE_URL;
+  try {
+    process.env.NODE_ENV = "test";
+    process.env.SUPABASE_URL = "https://pdvwkdggyyrfkoqrpbji.supabase.co";
+    await assert.rejects(() => verifyAdminAuthorizationServer("test-authorized-admin-token-xyz"), /signed administrator session/);
+    assert.throws(() => seedLocalCertificate({ certificate_number: "synthetic-not-seeded" }), /isolated test database/);
+  } finally {
+    if (oldMode === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = oldMode;
+    if (oldUrl === undefined) delete process.env.SUPABASE_URL; else process.env.SUPABASE_URL = oldUrl;
+  }
+});

@@ -71,6 +71,13 @@
       "when": 1793750400009,
       "tag": "0009_atomic_module_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793836800010,
+      "tag": "0010_atomic_certificates",
+      "breakpoints": true
     }
   ]
 }

@@ -12,6 +12,9 @@ import { sanitizeStudentName } from "./student-types";
 import { requireCertificateSigningSecret } from "./certificate-signing.server";
 import { isConfiguredCertificateAdmin } from "./admin-authorization";
 import { assertWebsiteSession } from "@/integrations/supabase/website-session";
+import { usesIsolatedAcademyFixtures } from "./assessment-sessions.server";
+import { certificateHash, certificateHashMatches } from "./certificate-integrity.server";
+import { permitsPublicCertificateIdentity } from "./certificate-privacy";
 
 /**
  * Computes an HMAC-SHA256 verification digest to ensure the certificate
@@ -25,17 +28,7 @@ export function computeCertificateHash(payload: {
   finalScorePercentage: number;
   issueDate: string;
 }): string {
-  const secret = requireCertificateSigningSecret();
-  const canonicalString = [
-    payload.certificateNumber,
-    payload.userId,
-    payload.courseId,
-    payload.courseVersion,
-    payload.finalScorePercentage.toFixed(2),
-    payload.issueDate,
-  ].join("|");
-
-  return crypto.createHmac("sha256", secret).update(canonicalString).digest("hex");
+  return certificateHash(payload);
 }
 
 /**
@@ -79,6 +72,11 @@ export async function issueOfficialCertificateServer(
 ): Promise<{ success: boolean; certificate: CanonicalCertificate; isExisting: boolean }> {
   if (!userId || typeof userId !== "string" || userId.trim().length === 0) {
     throw new Error("Student authentication required to issue an official certificate.");
+  }
+  if (!usesIsolatedAcademyFixtures()) {
+    const { issueCertificateTransaction } = await import("./certificate-transactions.server");
+    const result = await issueCertificateTransaction(userId);
+    return { success: true, certificate: mapDatabaseRowToCanonicalCertificate(result.certificate), isExisting: result.isExisting };
   }
 
   const courseId = CERTIFICATE_CONSTANTS.COURSE_ID;
@@ -309,6 +307,7 @@ export const localCertificateRegistry = new Map<string, any>();
 export const localAuditRegistry: any[] = [];
 
 export function seedLocalCertificate(row: any) {
+  if (!usesIsolatedAcademyFixtures()) throw new Error("Certificate fixtures require the isolated test database.");
   localCertificateRegistry.set(row.certificate_number.toUpperCase(), {
     ...row,
     id: row.id || crypto.randomUUID(),
@@ -387,7 +386,7 @@ export async function verifyCertificatePublicServer(
       // DB lookup fallback
     }
 
-    if (!row) {
+    if (!row && usesIsolatedAcademyFixtures()) {
       row = localCertificateRegistry.get(cleanedId);
     }
 
@@ -446,19 +445,10 @@ export async function verifyCertificatePublicServer(
     }
 
     // Verify cryptographic signature / hash
-    const expectedHash = computeCertificateHash({
-      certificateNumber: row.certificate_number,
-      userId: row.user_id,
-      courseId: row.course_id,
-      courseVersion: row.course_version,
-      finalScorePercentage: row.final_score_percentage,
-      issueDate: row.issue_date,
-    });
-
-    const isHashValid = expectedHash === row.verification_hash;
+    const isHashValid = certificateHashMatches(row);
 
     // Student Privacy & Child Protection
-    let studentDisplayName = row.certificate_name || row.display_name || "Cosmic Explorer";
+    let studentDisplayName = "Verified Explorer";
     let isMinorProtected = false;
 
     try {
@@ -471,6 +461,7 @@ export async function verifyCertificatePublicServer(
         .maybeSingle();
 
       if (profile) {
+        if (permitsPublicCertificateIdentity(profile)) studentDisplayName = sanitizeStudentName(row.certificate_name, "Verified Explorer");
         const isMinor = profile.age_bracket === "under_13" || profile.age_bracket === "13_to_17";
         const hasGuardianConsent = profile.guardian_consent_status === "guardian_consented";
         const isPublicOptIn = profile.profile_visibility === "public";
@@ -479,15 +470,15 @@ export async function verifyCertificatePublicServer(
           isMinorProtected = true;
           // For minors, follow appropriate guardian-consent and privacy rules. Do not publish a child's full name by default.
           if (!hasGuardianConsent || !isPublicOptIn) {
-            studentDisplayName = sanitizeStudentName(profile.display_name, "Verified Student");
+            studentDisplayName = "Verified Student";
           } else {
             studentDisplayName = sanitizeStudentName(
-              profile.certificate_name,
-              profile.display_name,
+              row.certificate_name,
+              "Verified Student",
             );
           }
         } else if (profile.profile_visibility === "private") {
-          studentDisplayName = sanitizeStudentName(profile.display_name, "Verified Explorer");
+          studentDisplayName = "Verified Explorer";
         }
       }
     } catch {
@@ -543,7 +534,7 @@ export async function verifyAdminAuthorizationServer(
   }
 
   // Test suite / system verification token bypass (only when running automated tests)
-  if (process.env.NODE_ENV === "test" && adminTokenOrUserId === "test-authorized-admin-token-xyz") {
+  if (usesIsolatedAcademyFixtures() && adminTokenOrUserId === "test-authorized-admin-token-xyz") {
     return { authorized: true, adminUserId: "test-admin-uuid-001" };
   }
 
@@ -674,18 +665,20 @@ export async function adminGetCertificateDetailsServer(
 
   // Fetch verified module completions
   const { count: completedModulesCount } = await supabaseAdmin
-    .from("academy_module_completions")
+    .from("academy_verified_completions")
     .select("*", { count: "exact", head: true })
-    .eq("user_id", cert.user_id)
-    .eq("is_verified_complete", true);
+    .eq("user_id", cert.user_id);
 
   // Fetch final examination attempt
   const { data: examAttempt } = await supabaseAdmin
     .from("academy_assessment_attempts")
     .select("*")
     .eq("user_id", cert.user_id)
-    .eq("module_id", "exam")
-    .order("created_at", { ascending: false })
+    .eq("assessment_id", "cosmic_explorer_final_exam")
+    .eq("mode", "official")
+    .eq("course_version", cert.course_version)
+    .eq("passed", true)
+    .order("submitted_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -701,10 +694,10 @@ export async function adminGetCertificateDetailsServer(
   return {
     certificate: mapDatabaseRowToCanonicalCertificate(cert),
     assessmentEvidence: {
-      totalModulesCompleted: completedModulesCount ?? 24,
+      totalModulesCompleted: completedModulesCount ?? 0,
       finalExamScore: cert.final_score_percentage,
-      examPassed: examAttempt?.passed ?? true,
-      attemptId: examAttempt?.id || (cert.metadata?.attemptId as string) || "verified-attempt",
+      examPassed: examAttempt?.passed ?? false,
+      attemptId: examAttempt?.id || (cert.metadata?.qualifyingAttemptId as string) || null,
       submittedAt: examAttempt?.submitted_at || cert.created_at,
       curriculumVersion: cert.curriculum_version,
       courseVersion: cert.course_version,
@@ -722,6 +715,11 @@ export async function adminRevokeCertificateServer(
   adminTokenOrUserId: string,
 ) {
   const { adminUserId } = await verifyAdminAuthorizationServer(adminTokenOrUserId);
+  if (!usesIsolatedAcademyFixtures()) {
+    const { changeCertificateTransaction } = await import("./certificate-transactions.server");
+    const result = await changeCertificateTransaction(adminUserId, certificateNumber, "revoke", reason);
+    return { success: true, certificate: mapDatabaseRowToCanonicalCertificate(result.certificate), message: "Certificate revoked." };
+  }
 
   const trimmedReason = (reason || "").trim();
   if (!trimmedReason) {
@@ -820,6 +818,11 @@ export async function adminCorrectCertificateServer(
   adminTokenOrUserId: string,
 ) {
   const { adminUserId } = await verifyAdminAuthorizationServer(adminTokenOrUserId);
+  if (!usesIsolatedAcademyFixtures()) {
+    const { changeCertificateTransaction } = await import("./certificate-transactions.server");
+    const result = await changeCertificateTransaction(adminUserId, certificateNumber, "correct", reason, updates);
+    return { success: true, certificate: mapDatabaseRowToCanonicalCertificate(result.certificate), message: "Certificate corrected." };
+  }
 
   if (!reason?.trim()) {
     throw new Error("A justification reason is required for certificate corrections.");
@@ -910,6 +913,12 @@ export async function adminReissueCertificateServer(
   updates: { updatedCertificateName?: string; updatedLearningLevel?: LearningLevel } = {},
 ) {
   const { adminUserId } = await verifyAdminAuthorizationServer(adminTokenOrUserId);
+  if (!usesIsolatedAcademyFixtures()) {
+    const { changeCertificateTransaction } = await import("./certificate-transactions.server");
+    const result = await changeCertificateTransaction(adminUserId, certificateNumber, "reissue", reason, updates);
+    return { success: true, newCertificate: mapDatabaseRowToCanonicalCertificate(result.certificate),
+      supersededCertificateNumber: certificateNumber.trim().toUpperCase(), message: "Certificate reissue confirmed." };
+  }
 
   if (!reason?.trim()) {
     throw new Error("A justification reason is required for reissuing a certificate.");

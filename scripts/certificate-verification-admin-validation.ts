@@ -85,6 +85,14 @@ async function runPrompt11ValidationSuite() {
   seedLocalCertificate(validPayload);
   await supabaseAdmin.from("academy_certificates").upsert(validPayload);
 
+  // Public name/reissue assertions require an explicit adult sharing opt-in.
+  // A missing profile now fails closed instead of disclosing a certificate name.
+  await supabaseAdmin.from("student_profiles").upsert({
+    user_id: testUserId, student_public_id: "STU-A1B2C3D4", display_name: "Starlight Pilot",
+    certificate_name: "Elena Rostova", selected_level: "explorer", age_bracket: "18_plus",
+    guardian_consent_status: "verified_adult", profile_visibility: "public",
+  });
+
   // Seed minor student profile
   await supabaseAdmin.from("student_profiles").upsert({
     user_id: minorUserId,

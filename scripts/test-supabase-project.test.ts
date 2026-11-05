@@ -106,3 +106,31 @@ test("atomic Academy RPCs are installed and unavailable to anonymous clients", a
     assert.ok([401, 403, 404].includes(denied.status), `Anonymous RPC must be hidden or denied: ${name}`);
   }
 });
+
+test("certificate transactions are installed without allowing direct internal insertion", async () => {
+  assert.equal(process.env.SUPABASE_URL, target);
+  const response = await fetch(target + "/rest/v1/", {
+    headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "", accept: "application/openapi+json" },
+    signal: AbortSignal.timeout(15_000),
+  });
+  assert.equal(response.status, 200);
+  const schema = await response.json() as { paths: Record<string, unknown> };
+  for (const name of ["academy_certificate_context", "academy_issue_certificate", "academy_admin_certificate_change"]) {
+    assert.ok(schema.paths["/rpc/" + name]);
+    const denied = await fetch(target + "/rest/v1/rpc/" + name, {
+      method: "POST", headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY ?? "", "Content-Type": "application/json" },
+      body: "{}", signal: AbortSignal.timeout(15_000),
+    });
+    assert.ok([401, 403, 404].includes(denied.status), `Anonymous certificate RPC must be hidden or denied: ${name}`);
+  }
+  // This target's OpenAPI includes function metadata even without EXECUTE.
+  // Verify the actual boundary, including the server role, rather than relying
+  // on discovery output to stand in for a permission check.
+  for (const key of [process.env.SUPABASE_PUBLISHABLE_KEY, process.env.SUPABASE_SERVICE_ROLE_KEY]) {
+    const denied = await fetch(target + "/rest/v1/rpc/academy_insert_signed_certificate", {
+      method: "POST", headers: { apikey: key ?? "", "Content-Type": "application/json" }, body: '{"p_payload":{}}',
+      signal: AbortSignal.timeout(15_000),
+    });
+    assert.ok([401, 403, 404].includes(denied.status), "The private insertion helper must reject direct execution");
+  }
+});
