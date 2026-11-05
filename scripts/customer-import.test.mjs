@@ -191,3 +191,10 @@ test("active disposable QA accounts cannot become a customer-import baseline", a
   const f = setup(); f.state.users[0].app_metadata.ovu_import_read_fixture = "synthetic-fixture";
   await assert.rejects(importCustomers(f.input)); assert.equal(f.state.creates, 0); assert.equal(f.state.inserts, 0);
 });
+test("MFA or passkey credentials cannot silently be omitted during an account import", async () => {
+  for (const table of ["auth.mfa_factors", "auth.webauthn_credentials"]) {
+    const f = setup(); f.input.sql += `COPY ${table} (id) FROM stdin;\nsynthetic-factor\n\\.\n`;
+    f.input.expectedSqlSha256 = reconciliationPlan(f.input.sql, f.state.users, f.state.passes, now).sourceSqlSha256;
+    await assert.rejects(importCustomers(f.input)); assert.equal(f.state.creates, 0);
+  }
+});

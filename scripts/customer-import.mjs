@@ -61,11 +61,10 @@ export async function importCustomers({
     0,
     "Additional public data requires a migration mapping",
   );
-  const sourceUsers = new Map(
-    readCopyTables(sql)
-      .get("auth.users")
-      .rows.map((user) => [user.id, user]),
-  );
+  const sourceTables = readCopyTables(sql);
+  for (const table of ["auth.mfa_factors", "auth.webauthn_credentials"])
+    assert.equal(sourceTables.get(table)?.rows.length ?? 0, 0, "MFA/passkey credentials require a dedicated migration; do not weaken account security");
+  const sourceUsers = new Map(sourceTables.get("auth.users").rows.map((user) => [user.id, user]));
   const provenance = { runId, sourceCapturedAt, sourceSqlSha256: expectedSqlSha256 };
   // Validate every account payload before creating the first account.
   const creations = plan.mappings
