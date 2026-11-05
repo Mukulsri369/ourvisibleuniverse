@@ -9,9 +9,16 @@ const environment={RAZORPAY_LIVE_KEY_ID:'rzp_live_SyntheticOnly',RAZORPAY_LIVE_K
  RAZORPAY_LIVE_WEBHOOK_SECRET:'synthetic-separate-webhook-secret-for-tests',SUPABASE_SERVICE_ROLE_KEY:'forbidden-extra-value'};
 test('local Live configuration removes historical-read exception without changing account, routes or limits',()=>{
  const config=livePaymentConfiguration(initial);assert.equal(config.vars.RAZORPAY_MODE,'live');assert.ok(!('OVU_ACCESS_ENVIRONMENT'in config.vars));
+ assert.equal(config.vars.RAZORPAY_LIVE_CHECKOUT_ENABLED,'false');
  assert.equal(initial.vars.RAZORPAY_MODE,'test');assert.equal(initial.vars.OVU_ACCESS_ENVIRONMENT,'live');
  assert.deepEqual({...config,vars:initial.vars},initial);assert.deepEqual(Object.keys(livePaymentSecretPayload(config,environment)).sort(),
  ['RAZORPAY_LIVE_KEY_ID','RAZORPAY_LIVE_KEY_SECRET','RAZORPAY_LIVE_WEBHOOK_SECRET']);
+});
+test('checkout activation requires both verified website approval and configured webhook',()=>{
+ assert.throws(()=>livePaymentConfiguration(initial,{enableCheckout:true}));
+ assert.throws(()=>livePaymentConfiguration(initial,{enableCheckout:true,websiteApproved:true}));
+ assert.throws(()=>livePaymentConfiguration(initial,{enableCheckout:true,webhookConfigured:true}));
+ assert.equal(livePaymentConfiguration(initial,{enableCheckout:true,websiteApproved:true,webhookConfigured:true}).vars.RAZORPAY_LIVE_CHECKOUT_ENABLED,'true');
 });
 test('wrong destinations, production routes, jobs and private/public configuration confusion fail closed',()=>{
  for(const config of [{...initial,name:'production'},{...initial,account_id:'0'.repeat(32)},{...initial,routes:['ourvisibleuniverse.in/*']},

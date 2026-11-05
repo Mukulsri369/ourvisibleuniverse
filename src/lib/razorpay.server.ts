@@ -16,6 +16,13 @@ export function getRazorpayMode(): RazorpayMode {
   return process.env["RAZORPAY_MODE"] === "live" ? "live" : "test";
 }
 
+// Receiving authentic events and recovering existing payments must remain possible
+// while creation of new payable orders is held during setup or incident response.
+export function assertRazorpayCheckoutEnabled(mode: RazorpayMode) {
+  if (mode === "live" && process.env["RAZORPAY_LIVE_CHECKOUT_ENABLED"] !== "true")
+    throw new Error("Live checkout is not enabled");
+}
+
 export function getRazorpayConfig(mode: RazorpayMode = getRazorpayMode()) {
   const keyId = process.env[mode === "live" ? "RAZORPAY_LIVE_KEY_ID" : "RAZORPAY_TEST_KEY_ID"];
   const keySecret =
@@ -59,6 +66,7 @@ export async function createRazorpayOrder(options: {
   mode?: RazorpayMode;
 }) {
   const mode = options.mode ?? getRazorpayMode();
+  assertRazorpayCheckoutEnabled(mode);
   const price = ACCESS_PLANS[options.planId].prices[options.currency];
   const receipt = `ovu_${crypto.randomUUID().replaceAll("-", "").slice(0, 28)}`;
   const order = await razorpayRequest<RazorpayOrder>(
