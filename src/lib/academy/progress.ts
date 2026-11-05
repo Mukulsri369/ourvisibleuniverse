@@ -16,9 +16,9 @@ import {
 import { toast } from "sonner";
 import { flushAcknowledgedOfflineActions, isPersistedAcknowledgement } from "./offline-queue";
 import { clearCachedVerification, isOfficialAchievement, mergeCachedNavigation, progressStorageKey } from "./local-progress";
+import { acknowledgeOfflineActions, appendOfflineAction, isOfflineJournalKey, readOfflineActions } from "./offline-journal";
 
 const STORAGE_KEY = "cosmic_academy_user_progress_v1";
-const OFFLINE_QUEUE_KEY = "cosmic_academy_offline_queue_v1";
 
 export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   {
@@ -225,19 +225,20 @@ interface OfflineAction {
 function getOfflineQueue(): OfflineAction[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem(OFFLINE_QUEUE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    return readOfflineActions(localStorage);
   } catch {
     return [];
   }
 }
 
-function saveOfflineQueue(queue: OfflineAction[]) {
-  if (typeof window === "undefined") return;
+function queueOfflineEvent(action: OfflineAction) {
+  if (typeof window === "undefined") return false;
   try {
-    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-  } catch (e) {
-    console.error("Failed to save offline queue:", e);
+    appendOfflineAction(localStorage, action);
+    return true;
+  } catch {
+    toast.error("This device could not save offline learning activity. Keep this page open and retry when storage is available.");
+    return false;
   }
 }
 
@@ -259,6 +260,9 @@ export function useAcademyProgress() {
     if (typeof window === "undefined") return;
 
     const handleStorageChange = (e: StorageEvent) => {
+      if (isOfflineJournalKey(e.key)) {
+        setProgress(previous => ({ ...previous, pendingOfflineCount: ownerRef.current ? getOfflineQueue().filter(action => action.ownerId === ownerRef.current).length : 0 }));
+      }
       if (e.key === progressStorageKey(ownerRef.current) && e.newValue) {
         try {
           const ownerId = ownerRef.current;
@@ -283,13 +287,17 @@ export function useAcademyProgress() {
     const queue = getOfflineQueue();
     if (queue.length === 0) return;
 
-    const pendingOfflineCount = await flushAcknowledgedOfflineActions({
+    let pendingOfflineCount: number;
+    try { pendingOfflineCount = await flushAcknowledgedOfflineActions({
       ownerId,
-      read: getOfflineQueue, write: saveOfflineQueue,
+      read: getOfflineQueue, acknowledge: actions => acknowledgeOfflineActions(localStorage, actions),
       send: async (item: OfflineAction) => item.type === "activity_evidence"
         ? recordEvidenceRpc({ data: { ...item.payload, expectedUserId: ownerId, clientEventId: item.payload.clientEventId || item.id } })
         : recordLessonProgress({ data: { ...item.payload, expectedUserId: ownerId } }),
-    });
+    }); } catch {
+      toast.error("The local learning queue could not be updated. Saved server progress is preserved; retry when device storage is available.");
+      return;
+    }
     if (ownerRef.current !== ownerId) return;
     setProgress((prev) => ({
       ...prev,
@@ -491,9 +499,8 @@ export function useAcademyProgress() {
         const payload = { moduleId: formattedModId, lessonId: formattedModId + "-core",
           scrollDepthPercent: percent, timeSpentSeconds: 60, ...(ownerId ? { expectedUserId: ownerId } : {}) };
         const enqueue = () => {
+          if (!queueOfflineEvent({ id: "lp_" + crypto.randomUUID(), type: "lesson_progress", payload, ownerId, timestamp: new Date().toISOString() })) return;
           const queue = getOfflineQueue();
-          queue.push({ id: "lp_" + crypto.randomUUID(), type: "lesson_progress", payload, ownerId, timestamp: new Date().toISOString() });
-          saveOfflineQueue(queue);
           if (ownerRef.current === ownerId)
             setProgress(previous => ({ ...previous, pendingOfflineCount: ownerId ? queue.filter(action => action.ownerId === ownerId).length : 0 }));
         };
@@ -554,8 +561,7 @@ export function useAcademyProgress() {
       }
 
       // Offline queueing
-      const queue = getOfflineQueue();
-      queue.push({
+      const queued = queueOfflineEvent({
         id: clientEventId,
         type: "activity_evidence",
         payload: {
@@ -568,7 +574,8 @@ export function useAcademyProgress() {
         timestamp: clientTimestamp,
         ownerId,
       });
-      saveOfflineQueue(queue);
+      if (!queued) return false;
+      const queue = getOfflineQueue();
 
       setProgress((prev) => ({
         ...prev,

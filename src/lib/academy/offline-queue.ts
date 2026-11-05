@@ -20,10 +20,11 @@ export function isPersistedAcknowledgement(value: unknown): value is { success: 
 export async function flushAcknowledgedOfflineActions(storage: {
   ownerId: string;
   read(): OfflineAction[];
-  write(actions: OfflineAction[]): void;
+  write?(actions: OfflineAction[]): void;
   send(action: OfflineAction): Promise<unknown>;
+  acknowledge?(actions: OfflineAction[]): void;
 }) {
-  const snapshot = [...new Map(storage.read().map(action => [action.id, action])).values()], remaining: OfflineAction[] = [];
+  const snapshot = [...new Map(storage.read().map(action => [String(action.ownerId) + ":" + action.id, action])).values()], remaining: OfflineAction[] = [], acknowledged: OfflineAction[] = [];
   for (const action of snapshot) {
     // Legacy/unowned and anonymous actions remain local practice. Never guess
     // their identity or replay them into the next account that signs in.
@@ -32,13 +33,20 @@ export async function flushAcknowledgedOfflineActions(storage: {
     try {
       const saved = await storage.send(action);
       if (!isPersistedAcknowledgement(saved)) remaining.push(action);
+      else acknowledged.push(action);
     } catch { remaining.push(action); }
+  }
+  if (storage.acknowledge) {
+    storage.acknowledge(acknowledged);
+    return storage.read().filter(action => action.ownerId === storage.ownerId).length;
   }
   // UI events can be appended while a network request is pending. Retain those
   // alongside unacknowledged events rather than overwriting the newer queue.
-  const originalIds = new Set(snapshot.map(action => action.id));
-  const appended = storage.read().filter(action => !originalIds.has(action.id));
-  const retained = [...new Map([...remaining, ...appended].map(action => [action.id, action])).values()];
+  const key = (action: OfflineAction) => String(action.ownerId) + ":" + action.id;
+  const originalIds = new Set(snapshot.map(key));
+  const appended = storage.read().filter(action => !originalIds.has(key(action)));
+  const retained = [...new Map([...remaining, ...appended].map(action => [key(action), action])).values()];
+  if (!storage.write) throw new Error("Offline storage requires acknowledgement or snapshot persistence");
   storage.write(retained);
   return retained.filter(action => action.ownerId === storage.ownerId).length;
 }

@@ -70,7 +70,7 @@
     "test:built-session": "node --test scripts/built-session-boundary.test.mjs",
     "test:academy-durable": "node --import tsx --test scripts/academy-durable-postgres.test.ts",
     "test:academy-built": "node --import tsx scripts/academy-built-supabase-qa.mjs",
-    "test:academy-offline": "node --import tsx --test scripts/academy-offline-queue.test.ts scripts/academy-local-progress.test.ts scripts/academy-activity-contracts.test.ts scripts/academy-activity-events.test.ts",
+    "test:academy-offline": "node --import tsx --test scripts/academy-offline-queue.test.ts scripts/academy-offline-journal.test.ts scripts/academy-local-progress.test.ts scripts/academy-activity-contracts.test.ts scripts/academy-activity-events.test.ts",
     "test:academy-certificates": "node --import tsx --test scripts/academy-certificates-postgres.test.ts"
   },
   "dependencies": {
