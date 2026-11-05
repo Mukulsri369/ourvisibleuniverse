@@ -1,5 +1,7 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+Latest authorization: the user explicitly approved temporary Cloudflare staging preparation and deployment, with no purchases. Production, DNS, live payments, historical customer import/access changes and Lovable cancellation remain unauthorized. Cloudflare authentication and actual account-plan verification must precede upload; exact hosted auth redirects require review once the staging origin is known. Do not ask for the same staging approval again.
+
 OVU only. Target: pdvwkdggyyrfkoqrpbji. Branch: migration/supabase-cloudflare. Store remains paused and untouched; MariaDB/Hostinger is superseded. Preserve 4e8e5d3, b1483e6, 9122acf and 35e0964 plus previous history. No production/deployment/purchase/DNS/customer-access change or Lovable cancellation is authorized. Provider payment tests remain deferred.
 
 0008/0009 are installed and verified: durable official sessions, atomic completion/progress/badges, owner-bound idempotent evidence, monotonic reading, anonymous practice exclusion, account-scoped caches and stale-response guards. Earlier Google sign-in/admin/local OAuth checks are complete and must not be repeated as approval requests. No paid pass was created.
