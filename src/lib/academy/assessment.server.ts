@@ -31,13 +31,7 @@ async function finishOfficialCompletion(result: AssessmentResult, userId: string
     const { evaluateModuleCompletionServer } = await import("./completion.server");
     const completion = await evaluateModuleCompletionServer(userId, moduleId);
     result.verifiedCompletionAwarded = completion.isVerifiedComplete;
-    if (completion.isVerifiedComplete) {
-      const stageId = Math.ceil(Number(moduleId) / 4);
-      const { data: achievement, error } = await supabaseAdmin.from("academy_stage_achievements")
-        .select("badge_id").eq("user_id", userId).eq("stage_id", stageId).maybeSingle();
-      if (error) throw new Error("Official stage status is unavailable. Retry the same assessment.");
-      result.newStageBadgeAwarded = achievement && STAGE_BADGES[stageId] ? STAGE_BADGES[stageId].title : null;
-    }
+    result.newStageBadgeAwarded = completion.newStageBadgeAwarded ?? null;
   }
   return result;
 }

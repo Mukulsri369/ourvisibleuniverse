@@ -1,138 +1,21 @@
-# Latest OVU checkpoint — approved admin/OAuth phase, 4 November 2026
+# Current OVU Supabase/Cloudflare checkpoint
 
-Migrations 0006/0007 are installed in the new project after explicit approval. The confirmed recent Google account is administrator; metadata backup is encrypted privately. Four functions, 18 restrictive policies and unchanged target access/certificate integrity hashes verified. Actual certificate/subscriber admin screens work; no entitlement was granted. Public loopback-only MCP client manually created, user consent complete, real PKCE/all four tools/authorization restrictions pass. Three actual read-only project tests pass. QA token process was stopped after testing.
+Only OVU is in scope. Target: pdvwkdggyyrfkoqrpbji. Branch: migration/supabase-cloudflare. Store is paused and untouched. The MariaDB/Hostinger plan is superseded. No production deployment, live payment change, customer access change, DNS change, purchase or Lovable cancellation is authorized.
 
-Production, Store, payments, DNS and deployments remain unchanged. Razorpay provider testing is deferred. Remaining engineering includes reconciling process-memory official assessment sessions with durable PostgreSQL state and proving restart/atomic issuance. Customer history/signing keys need approved reconciliation; Cloudflare hosted staging and production cutover remain separately gated. FINAL_MIGRATION_REPORT.md and MIGRATION_MASTER_CHECKLIST.md describe current status. Older chronology below is historical and is superseded where it refers to pending administrator/local OAuth work.
+Preserve commits 4e8e5d3 (approved admin/OAuth application) and b1483e6 (durable official assessments), plus all previous migration history. Google sign-in/session persistence and trusted owner administration were verified; no paid pass was created. The user completed local MCP consent; PKCE and all four tools passed, with delegated tokens excluded from raw private tables, admin RPCs and website functions. Dynamic OAuth registration remains disabled. Do not repeat those approvals or expose private credentials.
 
----
+## Atomic Academy completion checkpoint
 
-# OVU Supabase / Cloudflare checkpoint — 4 November 2026
+Migration 0009 is installed in the new OVU Supabase project. The exact transaction passed PostgreSQL rollback/integrity tests and preserved all nine preflight record digests on the target, including 24 existing unverified progress rows. No customer records, certificates or entitlements were imported or changed. The three new RPCs are executable only by the service role, not anon/authenticated callers.
 
-## Subsequent verified dependency-removal phase
+Official module completion now atomically persists canonical completion, module progress, both badge representations, preliminary all-module eligibility and its audit record under the same user lock. Original instructional/activity/scoring rules are preserved. Durable grading remains a preceding recoverable transaction; retrying the saved result completes interrupted awards. Stage revalidation is transactional and fails closed on database/query errors; an outage cannot revoke badges by being mistaken for an empty module list. Previously earned badge dates are retained, and retries do not announce the same badge again.
 
-See `LOVABLE_DEPENDENCY_INVENTORY.md`, `TEST_RESULTS.md` and
-`CLOUDFLARE_READINESS_REPORT.md` for the subsequent work. All remaining vendor
-runtime/build packages have been replaced; the historical consent URL is only
-a compatibility redirect. This older checkpoint's remaining-work list is
-superseded by `MIGRATION_MASTER_CHECKLIST.md`. The user's successful Academy
-UI testing is recorded separately from automated/backend evidence. Production
-completion, external MCP OAuth, absent admin RPCs, historical records and actual
-provider payment tests remain separate release gates.
+Validated activities have content-bound event IDs and database uniqueness. Duplicate delivery returns the original record; changed content under the same ID is rejected. Reading updates use monotonic upserts and preserve omitted bookmarks. Legacy quiz compatibility remains practice-only. Anonymous practice never creates official completion, certificate eligibility or paid access. Offline retries require a positive persistence acknowledgement and preserve events appended during an in-flight flush.
 
-Subsequent approved configuration: OAuth server enabled, consent `/oauth/consent`,
-Site URL `http://127.0.0.1:31751`, dynamic registration off. Settings persist after
-reload; 2 read-only project/discovery checks pass with S256 PKCE and ES256 keys.
-No client was registered or granted access. Earlier statements below about the
-default Site URL describe the preceding checkpoint, not the current saved value.
+Verification: 23 real PostgreSQL checks, eight offline/activity checks, 15 MCP/runtime security checks, five actual target read-only checks, TypeScript, Cloudflare build and deployment dry run passed. Existing suites passed: nine completion, eight achievement, 12 final-exam, 26 certificate-generation and 34 certificate-admin assertions (10 grouped contracts). Assertions were retained. Secret scan: zero private server/certificate-key matches across 626 generated build files and 968 repository files.
 
-## Scope and preserved history
+Actual built Worker + actual Supabase QA passed: cold restart, independent server grading, concurrent identical/conflicting submissions, immutable retries, raw snapshot/RPC denials, anonymous practice, four successful first-stage module assessments, four canonical completions and audits, one stage award in each representation, preserved award date on retry, monotonic reading/bookmarks, and no certificate eligibility or paid access from first-stage completion. The marked synthetic account and its rows were removed; preceding identities were preserved. The test initially called an unused tree-shaken achievement wrapper; it now calls the same progress endpoint as the rendered Academy, retaining the achievement assertions. A separately interrupted local run required recovery of its exact marked fixture; it was removed without changing original identities. Request bounds and safe stage logging were added; this is not a hosted performance measurement.
 
-The user canceled the Hostinger/MariaDB target and selected Supabase project
-`pdvwkdggyyrfkoqrpbji` with Cloudflare hosting for OVU only. The Store is outside
-the current scope. Do not change its code, data or services.
+Still open: account-isolated offline queues and cross-tab/account transitions; stale local verified flags; atomic certificate issuance/reissue/revocation and private/public certificate access review; the complete 24-module official certificate journey; full browser/mobile/scientific workflows; historical data and identity/entitlement reconciliation; hosted Cloudflare startup/CPU/memory and staging. Actual Razorpay provider testing remains deferred and unverified. Store and live production remain untouched.
 
-Development branch: `migration/supabase-cloudflare`, based on original
-Supabase-compatible `origin/main` commit
-`ba30dc9035a229eb475c5d36ec7ef1b6bf2db263`. The MariaDB migration branch and
-its verified work remain preserved at `3d8be60`; applicable security and Academy
-improvements still need reconciliation with PostgreSQL. This branch is not a
-claim that all prior migration improvements have been ported.
-
-## Verified preparation
-
-- Read-only project inspection found 22 public tables, all with RLS enabled,
-  28 policies, no authentication users and no storage buckets.
-- `apply_access_purchase` execution is restricted to postgres/service_role.
-- The target is missing the repository's subscription-administration table
-  and functions. No schema changes or customer imports have been made.
-- Separate public/server project keys are stored outside Git with Windows
-  DPAPI encryption and restricted Windows file permissions.
-- The independent Cloudflare Vite configuration builds both client and Worker
-  outputs. Provider request-context boundaries were carried over from the
-  previously verified voice implementation.
-- Google sign-in now uses the Supabase SDK directly with PKCE, replacing the
-  Lovable auth bridge and preview token storage broker.
-- The user approved creation of the Google web client named
-  **OVU Supabase Sign-in** with only this redirect URI:
-  `https://pdvwkdggyyrfkoqrpbji.supabase.co/auth/v1/callback`.
-  Creation was verified. Its credential backup is encrypted outside Git;
-  no credential values belong in this document.
-
-## Google setup status
-
-The user privately saved the Google credentials in Supabase. Both the public
-Auth settings API and dashboard now confirm Google is enabled. After the
-user's explicit approval, the local redirect `http://127.0.0.1:31751/auth**`
-was saved and verified; the default Site URL remains `http://localhost:3000`.
-The actual built application button reaches Google's account chooser with
-the correct client ID, Supabase callback and local Academy return destination.
-The user completed account selection/consent and confirmed success. The browser
-returned to `/learn`; fresh navigation to `/account` retained the signed-in
-session and showed no active paid pass. The signed-in `/universe` route required
-an active pass, including after a built-Worker restart. Google currently
-restricts OAuth access to listed test users; no audience or publishing settings
-were changed. Token refresh, logout and further authorization cases remain
-to be tested.
-
-## Actual checks
-
-- TypeScript: passed at this checkpoint.
-- Independent Cloudflare client/Worker build: passed.
-- Read-only target Supabase API/schema/auth-settings test: 1 passed.
-- Repeated read-only check after private configuration: 1 passed; Google
-  provider enabled. The test never invokes payment-access RPCs or writes data.
-- Auth navigation validation: passed.
-- Voice validation: 61 checks passed on an idle retry. A run concurrent with
-  the build failed its timing benchmark; thresholds were not changed.
-- Built Cloudflare local preview: `/auth` returned HTTP 200 with HTML and the
-  Google sign-in UI on `127.0.0.1:31751`.
-- Scanned 618 generated build files for the actual server key, certificate
-  signing secret and Google client secret: zero matches.
-- Built browser Academy sign-in screen renders; no browser warning/error logs
-  were reported before OAuth navigation. Google account chooser reached.
-- Actual user-completed Google callback and signed-in account navigation pass.
-  Initial browser integration exposed invalid API-key errors in student profile
-  reads: the Worker middleware had only Node environment fallbacks. It now
-  accepts the same Vite public project configuration as the browser SDK.
-  The rebuilt Worker no longer logs those errors and loads a student profile;
-  do not count the original fallback profile as successful persistence.
-- A full reload retained both the signed-in session and the same student
-  public ID after that fix. The account continued to show no active paid pass.
-- Rebuilt client/Worker after middleware configuration fix: passed (45.84s
-  client, 42.28s server). Built local application restarted successfully.
-- Dependency lock comparison: 85 package paths added, one removed, zero
-  pre-existing package versions changed. Most diff size is lock formatting.
-
-These checks do not establish complete browser, mobile, Google sign-in,
-Academy, storage, payment or deployment compatibility.
-
-## Remaining work and restrictions
-
-1. Finish private Google provider configuration; verify callback allowlists,
-   test-user eligibility and the actual local sign-in/session/logout flow.
-2. Reconcile admin schema, atomic Academy assessment/certification and offline
-   synchronization with the target PostgreSQL schema and authorization.
-3. Replace remaining Lovable MCP runtime dependencies while preserving its
-   authenticated per-user tools. The OVU embedded Store feed is still an
-   external dependency; do not silently remove it or migrate the Store.
-4. Address the dependency audit (18 findings: 15 moderate, 3 high), including
-   the Lovable MCP dependency chain, before release.
-5. Verify missing storage/data, certificate signing and historical certificate
-   compatibility. No identities or entitlements have been reconciled/imported.
-6. Complete real Worker browser/mobile/security testing and Cloudflare
-   resource/plan assessment. Check generated assets for credential leakage.
-
-Razorpay provider checkout/webhook testing remains deferred and explicitly
-unverified. Production services, live payments, customer access, deployment,
-hosting purchases, domains/DNS and Lovable cancellation remain unauthorized.
-
-References: [Cloudflare TanStack Start guide](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/),
-[Cloudflare local environment variables](https://developers.cloudflare.com/workers/local-development/environment-variables/).
-
-## Administrator/OAuth local candidate — 4 November
-
-Owner identity confirmed as the recent Google sign-in account; stored privately, no role granted. Additive admin schema and OAuth-restrictive policies are locally tested (8 PostgreSQL checks), with 14 security tests and 34 original certificate-admin checks passing. The exact generated SQL is staged for review but not executed. Public loopback-only MCP client form is prepared but not submitted. See ADMIN_OAUTH_REVIEW.md and TEST_RESULTS.md for evidence and remaining approval gates. Production, Store, paid entitlements and payment provider settings are unchanged.
-
-## Subsequent durable assessment checkpoint
-
-0008 is applied and official runtime assessments use PostgreSQL sessions/results, not process memory. Eleven PostgreSQL tests and actual built Worker/Supabase cold-restart QA passed, including anonymous practice retries and exclusion from official eligibility. Disposable QA identity/rows were removed; original identities and record hashes are unchanged. See DATABASE_MIGRATION_PLAN.md for exact scope. Completion/progress/stage awards and concurrent certificate issuance still need atomic transactions; payment provider tests remain deferred. Production and Store remain unchanged.
+Private evidence and encrypted local credentials live outside Git. Never publish raw backups, user details, tokens or keys. The current target contains no imported customers. Existing owner progress was not promoted to official completion by this migration.

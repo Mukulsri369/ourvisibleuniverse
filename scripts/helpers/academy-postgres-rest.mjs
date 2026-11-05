@@ -14,13 +14,24 @@ export function academyPostgresFetch(database, control = {}) {
         const result = await db.query("SELECT public.academy_commit_official_attempt($1,$2,$3,$4) AS result", [value.p_session_id, value.p_user_id, JSON.stringify(value.p_answers), value.p_result === null ? null : JSON.stringify(value.p_result)]);
         return Response.json(result.rows[0].result);
       }
+      if (url.pathname === "/rest/v1/rpc/academy_apply_verified_completion") {
+        const value = JSON.parse(init.body);
+        const result = await db.query("SELECT public.academy_apply_verified_completion($1,$2,$3,$4) AS result", [value.p_user_id, value.p_module_id, JSON.stringify(value.p_rule), value.p_badge_id]);
+        return Response.json(result.rows[0].result);
+      }
+      if (url.pathname === "/rest/v1/rpc/academy_sync_stage_achievements") {
+        const value = JSON.parse(init.body);
+        const result = await db.query("SELECT public.academy_sync_stage_achievements($1,$2) AS result", [value.p_user_id, JSON.stringify(value.p_badges)]);
+        return Response.json(result.rows[0].result);
+      }
       const table = url.pathname.split("/").at(-1);
       if (!/^academy_[a-z_]+$/.test(table)) throw new Error("Unexpected fixture table");
       const quote = name => { if (!/^[a-z_]+$/.test(name)) throw new Error("Invalid fixture identifier"); return `"${name}"`; };
       let rows;
       if (method === "POST") {
         const data = JSON.parse(init.body), columns = Object.keys(data);
-        rows = (await db.query(`INSERT INTO public.${quote(table)}(${columns.map(quote).join(",")}) VALUES(${columns.map((_, i) => "$" + (i + 1)).join(",")}) RETURNING *`, columns.map(key => typeof data[key] === "object" && data[key] !== null ? JSON.stringify(data[key]) : data[key]))).rows;
+        const arrayColumns = ["assigned_question_ids", "qualifying_evidence_ids", "qualifying_module_ids"];
+        rows = (await db.query(`INSERT INTO public.${quote(table)}(${columns.map(quote).join(",")}) VALUES(${columns.map((_, i) => "$" + (i + 1)).join(",")}) RETURNING *`, columns.map(key => typeof data[key] === "object" && data[key] !== null && !arrayColumns.includes(key) ? JSON.stringify(data[key]) : data[key]))).rows;
       } else if (method === "GET" || method === "HEAD") {
         const values = [], where = [];
         for (const [key, value] of url.searchParams) {
@@ -43,8 +54,8 @@ export function academyPostgresFetch(database, control = {}) {
       return new Response(method === "HEAD" ? null : JSON.stringify(headers.get("Accept")?.includes("vnd.pgrst.object") ? rows[0] ?? null : rows), {
         status: 200, headers: { "Content-Type": "application/json", "Content-Range": `0-${Math.max(0, rows.length - 1)}/${rows.length}` },
       });
-    } catch {
-      return Response.json({ message: "Synthetic PostgreSQL constraint or permission rejection" }, { status: 400 });
+    } catch (error) {
+      return Response.json({ message: "Synthetic PostgreSQL constraint or permission rejection", code: error.code ?? "XX000" }, { status: error.code === "23505" ? 409 : 400 });
     }
   };
 }

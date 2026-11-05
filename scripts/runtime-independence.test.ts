@@ -111,3 +111,19 @@ test("certificate admin rejects identity-only claims before querying any user", 
   assert.doesNotMatch(functions, /data\?\.adminToken\s*\|\|/);
   assert.equal((functions.match(/const token = await extractAdminToken\(\);/g) ?? []).length, 6);
 });
+
+test("the legacy certificate hash helper also requires the protected signing key", async () => {
+  const { generateCertificateVerificationHash } = await import("../src/lib/academy/learning.server");
+  const previous = process.env.CERTIFICATE_SIGNING_SECRET;
+  const payload = { certificateNumber: "synthetic", userId: "fixture", studentPublicId: "STU-QA",
+    courseVersion: "1.0.0", issueDate: "2026-11-04", finalScore: 80 };
+  try {
+    delete process.env.CERTIFICATE_SIGNING_SECRET;
+    assert.throws(() => generateCertificateVerificationHash(payload), /private|signing|secret/i);
+    process.env.CERTIFICATE_SIGNING_SECRET = "synthetic-private-key-for-legacy-hash-regression-only";
+    assert.match(generateCertificateVerificationHash(payload), /^[a-f0-9]{64}$/);
+  } finally {
+    if (previous === undefined) delete process.env.CERTIFICATE_SIGNING_SECRET;
+    else process.env.CERTIFICATE_SIGNING_SECRET = previous;
+  }
+});

@@ -11,6 +11,7 @@ const submitActivitySchema = z.object({
   activityId: z.string().min(2).max(100),
   payload: z.record(z.string(), z.unknown()),
   isAccessibleAlternative: z.boolean().optional(),
+  clientEventId: z.string().min(3).max(120).optional(),
 });
 
 /**
@@ -80,6 +81,8 @@ export const submitActivityOutcome = createServerFn({ method: "POST" })
       data.activityId,
       data.payload,
       data.isAccessibleAlternative,
+      undefined,
+      data.clientEventId,
     );
   });
 

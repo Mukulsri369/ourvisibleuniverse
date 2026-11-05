@@ -14,6 +14,7 @@ import {
   recordLessonProgress,
 } from "./learning.functions";
 import { toast } from "sonner";
+import { flushAcknowledgedOfflineActions, isPersistedAcknowledgement } from "./offline-queue";
 
 const STORAGE_KEY = "cosmic_academy_user_progress_v1";
 const OFFLINE_QUEUE_KEY = "cosmic_academy_offline_queue_v1";
@@ -272,24 +273,15 @@ export function useAcademyProgress() {
     const queue = getOfflineQueue();
     if (queue.length === 0) return;
 
-    const remaining: OfflineAction[] = [];
-    for (const item of queue) {
-      try {
-        if (item.type === "activity_evidence") {
-          await recordEvidenceRpc({ data: item.payload });
-        } else if (item.type === "lesson_progress") {
-          await recordLessonProgress({ data: item.payload });
-        }
-      } catch (err) {
-        // Keep in queue for next retry if network failed
-        remaining.push(item);
-      }
-    }
-
-    saveOfflineQueue(remaining);
+    const pendingOfflineCount = await flushAcknowledgedOfflineActions({
+      read: getOfflineQueue, write: saveOfflineQueue,
+      send: async (item: OfflineAction) => item.type === "activity_evidence"
+        ? recordEvidenceRpc({ data: { ...item.payload, clientEventId: item.payload.clientEventId || item.id } })
+        : recordLessonProgress({ data: item.payload }),
+    });
     setProgress((prev) => ({
       ...prev,
-      pendingOfflineCount: remaining.length,
+      pendingOfflineCount,
     }));
   }, []);
 
@@ -439,31 +431,21 @@ export function useAcademyProgress() {
         return next;
       });
 
-      // Send unverified reading telemetry to server in background
-      if (typeof window !== "undefined" && navigator.onLine) {
-        void recordLessonProgress({
-          data: {
-            moduleId: formattedModId,
-            lessonId: `${formattedModId}-core`,
-            scrollDepthPercent: percent,
-            timeSpentSeconds: 60,
-          },
-        }).catch(() => {
-          // Enqueue offline action if network failed
+      // Persist offline reading locally and require a positive server acknowledgement.
+      if (typeof window !== "undefined") {
+        const payload = { moduleId: formattedModId, lessonId: formattedModId + "-core",
+          scrollDepthPercent: percent, timeSpentSeconds: 60 };
+        const enqueue = () => {
           const queue = getOfflineQueue();
-          queue.push({
-            id: `lp_${Date.now()}_${Math.random()}`,
-            type: "lesson_progress",
-            payload: {
-              moduleId: formattedModId,
-              lessonId: `${formattedModId}-core`,
-              scrollDepthPercent: percent,
-              timeSpentSeconds: 60,
-            },
-            timestamp: new Date().toISOString(),
-          });
+          queue.push({ id: "lp_" + crypto.randomUUID(), type: "lesson_progress", payload, timestamp: new Date().toISOString() });
           saveOfflineQueue(queue);
-        });
+          setProgress(previous => ({ ...previous, pendingOfflineCount: queue.length }));
+        };
+        if (navigator.onLine) {
+          void recordLessonProgress({ data: payload }).then(saved => {
+            if (!isPersistedAcknowledgement(saved)) throw new Error("Reading progress was not acknowledged");
+          }).catch(enqueue);
+        } else enqueue();
       }
     },
     [],
@@ -474,17 +456,20 @@ export function useAcademyProgress() {
     async (moduleId: string, activityType: string, evidencePayload: Record<string, unknown>) => {
       const formattedModId = moduleId.padStart(2, "0");
       const clientTimestamp = new Date().toISOString();
+      const clientEventId = "ev_" + crypto.randomUUID();
 
       if (typeof window !== "undefined" && navigator.onLine) {
         try {
-          await recordEvidenceRpc({
+          const saved = await recordEvidenceRpc({
             data: {
               moduleId: formattedModId,
               activityType,
               evidencePayload,
               clientTimestamp,
+              clientEventId,
             },
           });
+          if (!isPersistedAcknowledgement(saved)) throw new Error("Activity evidence was not acknowledged");
 
           setProgress((prev) => {
             const current = prev.moduleProgress[formattedModId];
@@ -511,13 +496,14 @@ export function useAcademyProgress() {
       // Offline queueing
       const queue = getOfflineQueue();
       queue.push({
-        id: `ev_${Date.now()}_${Math.random()}`,
+        id: clientEventId,
         type: "activity_evidence",
         payload: {
           moduleId: formattedModId,
           activityType,
           evidencePayload,
           clientTimestamp,
+          clientEventId,
         },
         timestamp: clientTimestamp,
       });
@@ -532,8 +518,8 @@ export function useAcademyProgress() {
     [],
   );
 
-  // 8. Authoritative Server-Graded Assessment Submission (State C)
-  // Grades against server question bank, requires >= 80%, and issues official verified completion.
+  // 8. Compatibility server-graded practice; official sessions use UnifiedAssessmentEngine.
+  // Preserve the legacy 80% practice threshold without manufacturing official progress.
   const submitAuthoritativeAssessment = useCallback(
     async (
       moduleId: string,
@@ -567,12 +553,12 @@ export function useAcademyProgress() {
             isVerified: false,
           };
 
-          const newVerifiedList = result.passed
+          const newVerifiedList = result.verifiedCompletionAwarded
             ? Array.from(new Set([...prev.verifiedModules, formattedModId]))
             : prev.verifiedModules;
 
           const newAchievements = [...prev.achievements];
-          if (result.passed && !newAchievements.includes(`module_${formattedModId}_verified`)) {
+          if (result.verifiedCompletionAwarded && !newAchievements.includes(`module_${formattedModId}_verified`)) {
             newAchievements.push(`module_${formattedModId}_verified`);
           }
 
@@ -586,17 +572,17 @@ export function useAcademyProgress() {
                 score: result.score,
                 total: result.totalPoints,
                 attempts: (prev.quizScores[`module_${formattedModId}_quiz`]?.attempts || 0) + 1,
-                verified: result.passed,
+                verified: result.verifiedCompletionAwarded,
               },
             },
             moduleProgress: {
               ...prev.moduleProgress,
               [formattedModId]: {
                 ...current,
-                status: result.passed ? "completed" : current.status,
-                percent: result.passed ? 100 : current.percent,
-                isVerified: result.passed ? true : current.isVerified,
-                verifiedAt: result.passed ? new Date().toISOString() : current.verifiedAt,
+                status: result.verifiedCompletionAwarded ? "completed" : current.status,
+                percent: result.verifiedCompletionAwarded ? 100 : current.percent,
+                isVerified: result.verifiedCompletionAwarded ? true : current.isVerified,
+                verifiedAt: result.verifiedCompletionAwarded ? new Date().toISOString() : current.verifiedAt,
                 qualifyingAttemptId: result.attemptId,
               },
             },
@@ -607,7 +593,7 @@ export function useAcademyProgress() {
           return next;
         });
 
-        if (result.passed) {
+        if (result.verifiedCompletionAwarded) {
           toast.success(
             `Module ${formattedModId} Verified! Official score: ${result.percentage}% (${result.score}/${result.totalPoints})`,
           );
@@ -615,9 +601,7 @@ export function useAcademyProgress() {
             toast.success(`Stage Achievement Unlocked: ${result.newStageBadgeAwarded}!`);
           }
         } else {
-          toast.error(
-            `Score: ${result.percentage}%. 80% is required for official verification. Review concepts and try again!`,
-          );
+          toast.info(`Practice score: ${result.percentage}%. Complete the online official assessment for verified module credit.`);
         }
 
         return result;

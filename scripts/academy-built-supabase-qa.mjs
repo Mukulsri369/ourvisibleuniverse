@@ -1,6 +1,7 @@
 // Explicit nonproduction integration QA. Creates and removes only its own marked
 // synthetic identity in the approved development project. No email is sent, no
-// passwords are set, and no completion, certificate or paid access is granted.
+// passwords are set. Optional completion fixtures belong only to that disposable
+// identity; no existing student's progress or paid access is modified.
 import assert from "node:assert/strict";
 import { createServer } from "node:net";
 import { once } from "node:events";
@@ -17,8 +18,11 @@ const serverKey = process.env.SUPABASE_SERVICE_ROLE_KEY, publicKey = process.env
 assert.ok(serverKey?.startsWith("sb_secret_") && publicKey?.startsWith("sb_publishable_"));
 assert.ok(!process.env.RAZORPAY_TEST_KEY_SECRET && !process.env.RAZORPAY_LIVE_KEY_SECRET);
 const runId = crypto.randomUUID(), email = `ovu.qa.${runId}@example.test`;
+const completionFixtures = process.argv.includes("--with-completion-fixtures");
 let userId, accessToken, worker, stage = "preflight", cleanupComplete = false, precedingIds = [];
 const report = { disposableFixture: true, paymentsPerformed: false, completed: false };
+const heartbeat = setInterval(() => console.log("Academy QA stage: " + stage), 15_000);
+heartbeat.unref();
 const evidence = resolve(import.meta.dirname, "../../../evidence/ovu-academy-built-supabase-results.json");
 
 async function api(path, { method = "GET", body, user = false, publicOnly = false } = {}) {
@@ -47,11 +51,12 @@ async function startWorker() {
     persistTo: resolve(tmpdir(), "ovu-academy-integration", runId), logLevel: "error",
     experimental: { disableExperimentalWarning: true, disableDevRegistry: true } });
 }
-async function rpc(name, data, anonymous = false) {
+async function rpc(name, data, anonymous = false, method = "POST") {
   const id = manifest.match(new RegExp(`"([a-f0-9]{64})":\\s*\\{\\s*functionName:\\s*"${name}_createServerFn_handler"`))?.[1];
   assert.ok(id, `Missing built function ${name}`);
   const envelope = await runWithStartContext({ startOptions: { serializationAdapters: [] } }, () =>
-    serverFnFetcher(`${origin}/_serverFn/${id}`, [{ method: "POST", data, headers: anonymous ? {} : { Authorization: `Bearer ${accessToken}` } }], fetch));
+    serverFnFetcher(`${origin}/_serverFn/${id}`, [{ method, data, headers: anonymous ? {} : { Authorization: `Bearer ${accessToken}` } }],
+      (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(120_000) })));
   if (envelope?.error) throw envelope.error;
   return envelope?.result ?? envelope;
 }
@@ -119,17 +124,96 @@ try {
   assert.equal(practiceResult.attemptId, practiceRetry.attemptId);
   assert.equal(practiceRetry.certificateEligible, false); assert.equal(practiceRetry.verifiedCompletionAwarded, false);
   report.completed = true; report.checks = { actualSupabase: true, builtWorkerColdRestart: true, serverGrading: true, originalAttemptOnRetry: true, concurrentIdenticalRetries: true, concurrentConflictingSubmissions: true, changedAnswersRejected: true, rawSnapshotDenied: true, directGradingDenied: true, noAwardsOrAccess: true, anonymousPracticeRetry: true, anonymousOfficialDenied: true };
+  if (completionFixtures) {
+    report.completed = false; stage = "prepare-controlled-stage-fixture";
+    const { getCanonicalQuestionsForModule } = await import("../src/lib/academy/assessment-bank.server.ts");
+    const { MODULE_COMPLETION_RULES } = await import("../src/lib/academy/completion-rules.ts");
+    const payloads = {
+      "01": { stepCount: 15, minScaleMeters: 1, maxScaleMeters: 1e26, powersOfTenStepsCompleted: 15 },
+      "02": { alignedCount: 3, polarisLocated: true, constellationsIdentified: 3 },
+      "03": { parallaxArcsec: 0.772, distanceParsecs: 1.295 },
+      "04": { benchmarkCount: 4, lookbackTimeGyr: 13.4, benchmarksCompleted: 4 },
+    };
+    const forbiddenEvidence = await api("/rest/v1/academy_activity_evidence", { method: "POST", user: true,
+      body: { user_id: userId, module_id: "01", activity_type: "act_01_cosmic_zoom", evidence_payload: {}, client_timestamp: new Date().toISOString(), verification_status: "verified" } });
+    assert.equal(forbiddenEvidence.status, 403);
+    const successfulSessions = [];
+    for (const moduleId of ["01", "02", "03", "04"]) {
+      stage = "reading-and-activity-" + moduleId;
+      const reading = await rpc("recordLessonProgress", { moduleId, lessonId: moduleId + "-core", scrollDepthPercent: 90, timeSpentSeconds: 120, isBookmarked: true });
+      assert.equal(reading.success, true);
+      assert.equal((await rpc("recordLessonProgress", { moduleId, lessonId: moduleId + "-core", scrollDepthPercent: 10, timeSpentSeconds: 5 })).success, true);
+      const activities = MODULE_COMPLETION_RULES[moduleId].requiredActivities;
+      assert.equal(activities.length, 1, "Update first-stage fixtures when the curriculum changes");
+      const event = { moduleId, activityId: activities[0].id, payload: payloads[moduleId], clientEventId: "qa:" + runId + ":" + moduleId };
+      const outcome = await rpc("submitActivityOutcome", event), duplicate = await rpc("submitActivityOutcome", event);
+      assert.equal(outcome.success, true); assert.ok(outcome.evidenceId);
+      assert.equal(duplicate.evidenceId, outcome.evidenceId);
+      if (moduleId === "01") await assert.rejects(() => rpc("submitActivityOutcome", { ...event, payload: { ...event.payload, stepCount: 16 } }), /different or unverified evidence/);
+      const official = await rpc("startAssessmentAttempt", { moduleId, level: "explorer", mode: "official" });
+      const canonical = getCanonicalQuestionsForModule(moduleId, "explorer");
+      successfulSessions.push({ attemptId: official.attemptId, moduleId, level: "explorer", mode: "official",
+        answers: Object.fromEntries(official.questions.map(q => [q.id, canonical.find(item => item.id === q.id).correctAnswer])), clientDurationSeconds: 10 });
+    }
+    stage = "concurrent-positive-completions";
+    await new Promise(done => setTimeout(done, 5500));
+    const successful = await Promise.all(successfulSessions.map(input => rpc("submitAssessmentAttempt", input)));
+    report.controlledResults = successful.map(result => ({ percentage: result.percentage, passed: result.passed,
+      verifiedCompletionAwarded: result.verifiedCompletionAwarded, newStageBadgeAwarded: result.newStageBadgeAwarded }));
+    assert.ok(successful.every(result => result.passed && result.percentage === 100 && result.verifiedCompletionAwarded));
+    assert.equal(successful.filter(result => result.newStageBadgeAwarded === "First Stargazer").length, 1);
+    // The rendered Academy consumes this endpoint, which includes canonical
+    // achievement revalidation. The unused standalone wrapper is tree-shaken.
+    const award = (await rpc("getAuthoritativeProgress", {}, false, "GET")).achievementsDetail;
+    assert.equal(award.totalEarnedCount, 1); assert.equal(award.stages[1].isUnlocked, true);
+    for (const input of successfulSessions) assert.equal((await rpc("submitAssessmentAttempt", input)).newStageBadgeAwarded, null);
+    const afterRetry = (await rpc("getAuthoritativeProgress", {}, false, "GET")).achievementsDetail;
+    assert.equal(afterRetry.stages[1].awardedAt, award.stages[1].awardedAt);
+    stage = "verify-controlled-stage-records";
+    for (const table of ["academy_stage_achievements", "academy_stage_badges"]) {
+      const rows = await success(await api(`/rest/v1/${table}?select=*&user_id=eq.${userId}`));
+      assert.equal(rows.length, 1); assert.equal(rows[0].stage_id, 1);
+    }
+    const completions = await success(await api(`/rest/v1/academy_verified_completions?select=module_id&user_id=eq.${userId}`));
+    assert.deepEqual(completions.map(row => row.module_id).sort(), ["01", "02", "03", "04"]);
+    const evidenceRows = await success(await api(`/rest/v1/academy_activity_evidence?select=id&user_id=eq.${userId}`));
+    assert.equal(evidenceRows.length, 4);
+    const audit = await success(await api(`/rest/v1/academy_audit_log?select=id&actor_id=eq.${userId}&action=eq.verified_completion_awarded`));
+    assert.equal(audit.length, 4);
+    const readingRows = await success(await api(`/rest/v1/academy_lesson_progress?select=scroll_depth_percent,time_spent_seconds,is_bookmarked&user_id=eq.${userId}`));
+    assert.equal(readingRows.length, 4);
+    assert.ok(readingRows.every(row => row.scroll_depth_percent === 90 && row.time_spent_seconds === 120 && row.is_bookmarked));
+    for (const table of ["academy_certificate_eligibility", "academy_certificates", "access_passes"]) assert.deepEqual(await success(await api(`/rest/v1/${table}?select=*&user_id=eq.${userId}`)), []);
+    const progress = await rpc("getAuthoritativeProgress", {}, false, "GET");
+    assert.equal(Object.keys(progress.verifiedCompletions).length, 4); assert.equal(progress.isCertificateEligible, false);
+    const guestActivity = await rpc("submitActivityOutcome", { moduleId: "01", activityId: "act_01_cosmic_zoom", payload: payloads["01"] }, true);
+    assert.equal(guestActivity.practiceOnly, true); assert.equal(guestActivity.evaluation.isVerifiedComplete, false);
+    report.checks.failedAssessmentsDidNotAward = true; delete report.checks.noAwardsOrAccess;
+    Object.assign(report.checks, { controlledFirstStageFixture: true, concurrentModuleAwards: true, oneStageAward: true,
+      activityRetryDeduplication: true, monotonicReading: true, preservedBookmark: true, noPaidAccess: true,
+      noCertificateEligibilityFromFirstStage: true, anonymousActivityPracticeOnly: true });
+    report.completed = true;
+  }
   report.precedingIdentityCount = precedingIds.length;
 } catch (error) {
   const categories = ["No Start context", "Official assessment could not be saved", "Official assessment storage is unavailable", "Official assessment was not confirmed", "Invalid authentication", "Attempt ownership mismatch"];
-  report.failure = { stage, type: error?.name ?? "Error", category: categories.find(value => String(error?.message).includes(value)) ?? "Protocol or assertion failure", ...(typeof error?.actual === "number" ? { actual: error.actual, expected: error.expected } : {}) };
+  report.failure = { stage, type: error?.name ?? "Error", category: categories.find(value => String(error?.message).includes(value)) ?? "Protocol or assertion failure",
+    sourceLine: String(error?.stack).match(/academy-built-supabase-qa\.mjs:(\d+):/)?.[1],
+    ...(typeof error?.actual === "number" ? { actual: error.actual, expected: error.expected } : {}) };
 } finally {
+  clearInterval(heartbeat);
   if (worker) await worker.stop();
   if (userId) {
     stage = "remove-owned-disposable-fixture";
     try {
       const owned = await success(await api("/auth/v1/admin/users/" + userId));
       assert.equal(owned.email, email); assert.equal(owned.app_metadata.ovu_migration_fixture, runId);
+      // Explicitly remove only this run's child/audit rows before auth CASCADE;
+      // assessment qualification FKs use RESTRICT, and audit actors use SET NULL.
+      for (const [table, key] of [["academy_audit_log", "actor_id"], ["academy_verified_completions", "user_id"]]) {
+        const removedRows = await api(`/rest/v1/${table}?${key}=eq.${userId}`, { method: "DELETE" });
+        assert.ok([200, 204].includes(removedRows.status));
+      }
       const removed = await api("/auth/v1/admin/users/" + userId, { method: "DELETE" });
       assert.equal(removed.status, 200);
       const remaining = await success(await api(`/rest/v1/academy_assessment_sessions?select=id&user_id=eq.${userId}`));
@@ -146,4 +230,4 @@ try {
   await writeFile(evidence, JSON.stringify(report, null, 2), "utf8");
 }
 if (!report.completed || !cleanupComplete) { console.error(`FAIL: actual built/Supabase Academy QA at ${report.failure?.stage ?? stage}; credential details withheld; inspect private evidence.`); process.exitCode = 1; }
-else console.log("PASS: actual Supabase + built Worker cold restart, grading/retries, privilege denials, no awards/access, owned synthetic fixture removed");
+else console.log("PASS: actual Supabase + built Worker restart/retries/permissions" + (completionFixtures ? ", concurrent controlled stage fixtures" : ", no awards") + "; no paid access; owned synthetic fixture removed");

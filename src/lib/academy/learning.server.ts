@@ -26,6 +26,7 @@ import { MODULE_22_QUIZ } from "@/lib/academy/lessons/module-22-space-missions";
 import { MODULE_23_QUIZ } from "@/lib/academy/lessons/module-23-astrobiology";
 import { MODULE_24_QUIZ } from "@/lib/academy/lessons/module-24-cosmic-lab";
 import { STAGE_BADGES } from "./stage-badges";
+import { requireCertificateSigningSecret } from "./certificate-signing.server";
 
 const MODULE_QUIZZES: Record<string, any[]> = {
   "01": (MODULE_01_LESSON as any).gradeLevelContent.explorer.quizQuestions,
@@ -61,9 +62,6 @@ function getQuestionCorrectIndex(q: any): number {
   return 0;
 }
 
-const HMAC_SECRET =
-  process.env.CERTIFICATE_HMAC_SECRET || "cosmic_academy_authoritative_signature_salt_2026";
-
 export function generateCertificateVerificationHash(data: {
   certificateNumber: string;
   userId: string;
@@ -80,7 +78,7 @@ export function generateCertificateVerificationHash(data: {
     data.issueDate,
     data.finalScore.toFixed(2),
   ].join("::");
-  return crypto.createHmac("sha256", HMAC_SECRET).update(payload).digest("hex");
+  return crypto.createHmac("sha256", requireCertificateSigningSecret()).update(payload).digest("hex");
 }
 
 export interface ActivityEvidenceInput {
@@ -89,6 +87,7 @@ export interface ActivityEvidenceInput {
   activityType: string;
   evidencePayload: Record<string, unknown>;
   clientTimestamp: string;
+  clientEventId?: string;
 }
 
 /**
@@ -96,42 +95,14 @@ export interface ActivityEvidenceInput {
  * Students can log telemetry from 3D simulations and labs.
  */
 export async function recordActivityEvidenceServer(input: ActivityEvidenceInput) {
-  const formattedModuleId = input.moduleId.padStart(2, "0");
-  const { validateActivityOutcomeServer } = await import("./activity-validator.server");
-  const validation = validateActivityOutcomeServer(input.activityType, input.evidencePayload);
-
-  if (!validation.isValid) {
-    console.warn(`Activity evidence rejected for ${input.activityType}:`, validation.reason);
-    return null;
-  }
-
-  const { data: evidence, error } = await supabaseAdmin
-    .from("academy_activity_evidence")
-    .insert({
-      user_id: input.userId,
-      module_id: formattedModuleId,
-      activity_type: input.activityType,
-      evidence_payload: {
-        ...input.evidencePayload,
-        validationReason: validation.reason,
-      } as any,
-      client_timestamp: input.clientTimestamp,
-      verification_status: "verified",
-      verified_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.warn("Could not insert activity evidence:", error.message);
-    return null;
-  }
-
-  // Trigger server-authoritative completion recheck
-  const { evaluateModuleCompletionServer } = await import("./completion.server");
-  await evaluateModuleCompletionServer(input.userId, formattedModuleId);
-
-  return evidence;
+  const { getModuleCompletionRule } = await import("./completion-rules");
+  const { recordValidatedActivityOutcomeServer } = await import("./completion.server");
+  const moduleId = input.moduleId.padStart(2, "0");
+  const rule = getModuleCompletionRule(moduleId);
+  const accessible = Boolean(rule?.requiredActivities.some(activity => activity.accessibleAlternativeId === input.activityType));
+  const result = await recordValidatedActivityOutcomeServer(input.userId, moduleId, input.activityType,
+    input.evidencePayload, accessible, input.clientTimestamp, input.clientEventId);
+  return { id: result.evidenceId, ...result };
 }
 
 export interface SubmitAssessmentInput {
@@ -146,6 +117,7 @@ export interface SubmitAssessmentInput {
 export interface GradedAssessmentResult {
   attemptId: string;
   moduleId: string;
+  mode: "practice";
   score: number;
   totalPoints: number;
   percentage: number;
@@ -165,161 +137,38 @@ export interface GradedAssessmentResult {
  * 2. Authoritative Server Grading & Verification Engine
  * Strictly computes score from server-side questions and issues verified completions and badges.
  */
-export async function gradeAssessmentAndVerifyServer(
-  input: SubmitAssessmentInput,
-): Promise<GradedAssessmentResult> {
-  const formattedModuleId = input.moduleId.padStart(2, "0");
-  const questions = MODULE_QUIZZES[formattedModuleId] || [];
-
-  if (questions.length === 0) {
-    throw new Error(`No canonical assessment found for module ${formattedModuleId}`);
+// Compatibility grading remains practice. Official assessments require a server-issued
+// durable session through assessment.functions; an offline score is never an award.
+export async function gradeAssessmentAndVerifyServer(input: SubmitAssessmentInput): Promise<GradedAssessmentResult> {
+  const moduleId = input.moduleId.padStart(2, "0"), questions = MODULE_QUIZZES[moduleId] || [];
+  if (!questions.length) throw new Error("No practice assessment exists for this module");
+  const key = "legacy-practice:" + input.userId + ":" + (input.idempotencyKey || crypto.randomUUID());
+  const loadExisting = async () => supabaseAdmin.from("academy_assessment_attempts").select("*")
+    .eq("user_id", input.userId).eq("idempotency_key", key).eq("mode", "practice").maybeSingle();
+  const previous = await loadExisting();
+  if (previous.error) throw new Error("Practice grading storage is unavailable");
+  let attempt = previous.data;
+  if (!attempt) {
+    const score = questions.reduce((total, question, index) => total + (input.answers[index] === getQuestionCorrectIndex(question) ? 1 : 0), 0);
+    const percentage = Math.round(score / questions.length * 10000) / 100;
+    const recorded = await supabaseAdmin.from("academy_assessment_attempts").insert({
+      user_id: input.userId, mode: "practice", learning_level: "explorer", course_version: input.courseVersion || "1.0.0",
+      assessment_id: "quiz_module_" + moduleId, assessment_version: "1.0.0", question_set_version: "1.0.0",
+      assigned_question_ids: questions.map((q, index) => q.id || "q_" + index), answers_payload: input.answers,
+      score, total_points: questions.length, percentage, passed: percentage >= 80,
+      client_duration_seconds: input.clientDurationSeconds ?? null, idempotency_key: key,
+    }).select().single();
+    if (recorded.error?.code === "23505") attempt = (await loadExisting()).data;
+    else if (recorded.error) throw new Error("Practice assessment was not saved. Retry when storage is available.");
+    else attempt = recorded.data;
   }
-
-  // Idempotency check: if this idempotency key was already submitted, return the existing attempt
-  if (input.idempotencyKey) {
-    const { data: existingAttempt } = await supabaseAdmin
-      .from("academy_assessment_attempts")
-      .select("*")
-      .eq("idempotency_key", input.idempotencyKey)
-      .maybeSingle();
-
-    if (existingAttempt) {
-      const feedback = questions.map((q, idx) => {
-        const correctIndex = getQuestionCorrectIndex(q);
-        const userChoice = (existingAttempt.answers_payload as any)?.[idx];
-        return {
-          questionIndex: idx,
-          isCorrect: userChoice === correctIndex,
-          correctOptionIndex: correctIndex,
-          explanation: q.explanation || "Correct astronomical principle verified.",
-        };
-      });
-
-      return {
-        attemptId: existingAttempt.id,
-        moduleId: formattedModuleId,
-        score: existingAttempt.score,
-        totalPoints: existingAttempt.total_points,
-        percentage: existingAttempt.percentage,
-        passed: existingAttempt.passed,
-        verifiedCompletionAwarded: false,
-        newStageBadgeAwarded: null,
-        certificateEligible: false,
-        feedback,
-      };
-    }
-  }
-
-  // Grade on server
-  let score = 0;
-  const feedback = questions.map((q, idx) => {
-    const correctIndex = getQuestionCorrectIndex(q);
-    const userChoice = input.answers[idx];
-    const isCorrect = userChoice === correctIndex;
-    if (isCorrect) score++;
-
-    return {
-      questionIndex: idx,
-      isCorrect,
-      correctOptionIndex: correctIndex,
-      explanation: q.explanation || "Correct astronomical principle verified.",
-    };
-  });
-
-  const totalPoints = questions.length;
-  const percentage = Math.round((score / totalPoints) * 10000) / 100;
-  const passed = percentage >= 80.0;
-
-  // Record attempt in database
-  const idempotencyKey =
-    input.idempotencyKey ||
-    `attempt_${input.userId}_${formattedModuleId}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-
-  const { data: attempt, error: attemptError } = await supabaseAdmin
-    .from("academy_assessment_attempts")
-    .insert({
-      user_id: input.userId,
-      assessment_id: `quiz_module_${formattedModuleId}`,
-      assessment_version: "1.0.0",
-      question_set_version: "1.0.0",
-      assigned_question_ids: questions.map((q, i) => q.id || `q_${i}`),
-      answers_payload: input.answers as any,
-      score,
-      total_points: totalPoints,
-      percentage,
-      passed,
-      client_duration_seconds: input.clientDurationSeconds ?? null,
-      idempotency_key: idempotencyKey,
-    })
-    .select()
-    .single();
-
-  if (attemptError || !attempt) {
-    throw new Error(
-      `Failed to record assessment attempt: ${attemptError?.message || "Unknown error"}`,
-    );
-  }
-
-  let verifiedCompletionAwarded = false;
-  let newStageBadgeAwarded: string | null = null;
-  let certificateEligible = false;
-
-  // If passed, evaluate whether all module criteria (reading + activities + assessment) are met
-  if (passed) {
-    const { evaluateModuleCompletionServer } = await import("./completion.server");
-    const evaluation = await evaluateModuleCompletionServer(input.userId, formattedModuleId);
-    verifiedCompletionAwarded = evaluation.isVerifiedComplete;
-
-    // Check if stage badge was unlocked
-    const moduleNum = parseInt(formattedModuleId, 10);
-    if (!isNaN(moduleNum) && moduleNum >= 1 && moduleNum <= 24) {
-      const stageId = Math.ceil(moduleNum / 4);
-      const { data: stageBadge } = await supabaseAdmin
-        .from("academy_stage_badges")
-        .select("badge_id")
-        .eq("user_id", input.userId)
-        .eq("stage_id", stageId)
-        .maybeSingle();
-
-      if (stageBadge && STAGE_BADGES[stageId]) {
-        newStageBadgeAwarded = STAGE_BADGES[stageId].title;
-      }
-    }
-
-    // Check total verified completions for certificate eligibility
-    const { count: totalVerifiedCount } = await supabaseAdmin
-      .from("academy_verified_completions")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", input.userId);
-
-    if (totalVerifiedCount && totalVerifiedCount >= 24) {
-      certificateEligible = true;
-      await supabaseAdmin.from("academy_certificate_eligibility").upsert(
-        {
-          user_id: input.userId,
-          course_id: "cosmic_journey",
-          course_version: input.courseVersion || "1.0.0",
-          all_stages_completed: true,
-          eligible_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,course_id,course_version" },
-      );
-    }
-  }
-
-  return {
-    attemptId: attempt.id,
-    moduleId: formattedModuleId,
-    score,
-    totalPoints,
-    percentage,
-    passed,
-    verifiedCompletionAwarded,
-    newStageBadgeAwarded,
-    certificateEligible,
-    feedback,
-  };
+  if (!attempt) throw new Error("Practice assessment was not confirmed");
+  return { attemptId: attempt.id, moduleId, mode: "practice", score: attempt.score,
+    totalPoints: attempt.total_points, percentage: attempt.percentage, passed: attempt.passed,
+    verifiedCompletionAwarded: false, newStageBadgeAwarded: null, certificateEligible: false,
+    feedback: questions.map((question, index) => ({ questionIndex: index,
+      isCorrect: attempt.answers_payload?.[index] === getQuestionCorrectIndex(question),
+      correctOptionIndex: getQuestionCorrectIndex(question), explanation: question.explanation || "Correct astronomical principle verified." })) };
 }
 
 export interface AuthoritativeProgressData {
@@ -346,11 +195,11 @@ export async function getAuthoritativeProgressServer(
   userId: string,
 ): Promise<AuthoritativeProgressData> {
   const [
-    { data: moduleProgressRows },
-    { data: evidenceRows },
-    { data: verifiedRows },
-    { data: stageRows },
-    { data: eligibilityRow },
+    { data: moduleProgressRows, error: moduleError },
+    { data: evidenceRows, error: evidenceError },
+    { data: verifiedRows, error: verifiedError },
+    { data: stageRows, error: stageError },
+    { data: eligibilityRow, error: eligibilityError },
   ] = await Promise.all([
     supabaseAdmin.from("academy_module_progress").select("*").eq("user_id", userId),
     supabaseAdmin.from("academy_activity_evidence").select("module_id").eq("user_id", userId),
@@ -360,8 +209,12 @@ export async function getAuthoritativeProgressServer(
       .from("academy_certificate_eligibility")
       .select("*")
       .eq("user_id", userId)
+      .eq("course_id", "cosmic_journey")
+      .eq("course_version", "1.0.0")
       .maybeSingle(),
   ]);
+
+  if ([moduleError, evidenceError, verifiedError, stageError, eligibilityError].some(Boolean)) throw new Error("Authoritative learning progress is unavailable. Retry when storage is available.");
 
   const unverifiedProgress: Record<string, { percent: number; status: string }> = {};
   for (const row of moduleProgressRows || []) {
@@ -413,6 +266,6 @@ export async function getAuthoritativeProgressServer(
     stageAchievements,
     achievementsDetail: achievementsPayload,
     isCertificateEligible:
-      Boolean(eligibilityRow?.all_stages_completed) || achievementsPayload.allStagesUnlocked,
+      achievementsPayload.allStagesUnlocked && eligibilityRow?.final_exam_passed === true && (eligibilityRow?.final_exam_score_pct ?? 0) >= 80,
   };
 }

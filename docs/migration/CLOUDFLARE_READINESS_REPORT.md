@@ -8,11 +8,11 @@ The application builds with Cloudflare's official TanStack Start Vite integratio
 | --- | --- |
 | Native Worker build and restart | Passed; no Lovable or Nitro build adapter |
 | Wrangler deployment dry run | Passed, explicitly `--dry-run`; no upload |
-| Worker upload size | 15,863.67 KiB uncompressed, 3,531.46 KiB gzip at the measured checkpoint; approximately 15.5 MiB |
+| Worker upload size | 15,873.76 KiB uncompressed, 3,532.94 KiB gzip at the measured checkpoint; approximately 15.5 MiB |
 | Static files | 249 |
 | Largest static file | 18,385,556 bytes, existing black-hole MP4; no files above 25 MiB |
 | Local startup profile | 59.9 ms active CPU; local measurement, not Cloudflare platform validation |
-| Private build credential scan | Zero server-key, certificate-key or Google-secret matches across 624 build files; local simulator state excluded |
+| Private build credential scan | Zero actual server-key/certificate-key matches across 626 build files and 968 repository files; local simulator state excluded; prior Google-secret scan remains recorded at its earlier checkpoint |
 | Production dependency audit | Zero known vulnerabilities |
 | Development dependency audit | 14 moderate findings, primarily ESLint/Drizzle tooling chains |
 
@@ -43,4 +43,6 @@ Use Node 22.12+ or a supported newer LTS version for build tooling; local checks
 
 References: [official TanStack Start adapter](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/), [local secrets](https://developers.cloudflare.com/workers/vite-plugin/reference/secrets/), [Supabase OAuth server setup](https://supabase.com/docs/guides/auth/oauth-server/getting-started).
 
-Official assessment sessions/results now use PostgreSQL; fresh-process and actual built Worker/Supabase cold-restart tests pass. Anonymous practice remains nonauthoritative and cannot grant certification. Atomic completion/progress/stage awards and concurrent certificate issuance remain release gates; do not infer full Academy readiness from the passing failing-quiz workflow.
+Official assessment sessions/results now use PostgreSQL; fresh-process and actual built Worker/Supabase cold-restart tests pass. Anonymous practice remains nonauthoritative and cannot grant certification. Atomic completion/progress/stage awards now pass real PostgreSQL and actual built Worker/Supabase first-stage QA. Concurrent certificate issuance, complete official certification and offline account isolation remain release gates.
+
+Official Cloudflare documentation was rechecked on 5 November 2026: TanStack Start adapter, 64 MiB uncompressed Worker limit (no compressed-size limit), 128 MB isolate memory, one-second startup, 25 MiB asset limit, and Workers Paid minimum/usage pricing remain as stated above. The latest dry run performed no upload; local bundle size is not platform CPU/memory proof.

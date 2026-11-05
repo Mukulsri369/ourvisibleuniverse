@@ -85,3 +85,24 @@ test("approved OAuth server publishes compatible discovery and signing metadata"
   const jwks = await jwksResponse.json() as { keys: { alg?: string }[] };
   assert.ok(jwks.keys.some(key => key.alg === "ES256" || key.alg === "RS256"), "MCP requires a compatible asymmetric signing key");
 });
+
+test("atomic Academy RPCs are installed and unavailable to anonymous clients", async () => {
+  assert.equal(process.env.SUPABASE_URL, target);
+  const response = await fetch(target + "/rest/v1/", {
+    headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? "", accept: "application/openapi+json" },
+    signal: AbortSignal.timeout(15_000),
+  });
+  assert.equal(response.status, 200);
+  const schema = await response.json() as { definitions: Record<string, { properties: Record<string, unknown> }>; paths: Record<string, unknown> };
+  for (const column of ["client_event_id", "payload_fingerprint"])
+    assert.ok(schema.definitions.academy_activity_evidence.properties[column]);
+  for (const name of ["academy_apply_verified_completion", "academy_sync_stage_achievements", "academy_record_lesson_progress"]) {
+    assert.ok(schema.paths["/rpc/" + name], `Missing server-only RPC: ${name}`);
+    // Empty arguments cannot create awards even if permissions regress.
+    const denied = await fetch(target + "/rest/v1/rpc/" + name, {
+      method: "POST", headers: { apikey: process.env.SUPABASE_PUBLISHABLE_KEY ?? "", "Content-Type": "application/json" },
+      body: "{}", signal: AbortSignal.timeout(15_000),
+    });
+    assert.ok([401, 403, 404].includes(denied.status), `Anonymous RPC must be hidden or denied: ${name}`);
+  }
+});

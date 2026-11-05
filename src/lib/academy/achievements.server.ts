@@ -36,131 +36,29 @@ export interface AuthoritativeAchievementsPayload {
 export async function syncAndEvaluateStageAchievementsServer(
   userId: string,
 ): Promise<AuthoritativeAchievementsPayload> {
-  if (!userId || userId.startsWith("anon_")) {
-    return buildAnonymousAchievementState(userId || "guest");
+  if (!userId || userId.startsWith("anon_")) return buildAnonymousAchievementState(userId || "guest");
+  const { data, error } = await supabaseAdmin.rpc("academy_sync_stage_achievements", {
+    p_user_id: userId, p_badges: STAGE_BADGES,
+  });
+  if (error || !data) throw new Error("Achievement revalidation is unavailable. Existing awards have not been assumed revoked.");
+  const verified = new Set<string>(data.verifiedModuleIds);
+  const existing = new Map(data.achievements.map(row => [row.stageId, row]));
+  const stages: Record<number, StageAchievementStatus> = {};
+  let totalEarned = 0, nextMilestone: StageAchievementStatus | null = null;
+  for (let stageId = 1; stageId <= 6; stageId++) {
+    const badge = STAGE_BADGES[stageId], row = existing.get(stageId);
+    const completed = badge.requiredModuleIds.filter(id => verified.has(id));
+    const missing = badge.requiredModuleIds.filter(id => !verified.has(id));
+    const unlocked = completed.length === 4 && Boolean(row);
+    const status: StageAchievementStatus = { stageId, badge, isUnlocked: unlocked,
+      awardedAt: unlocked ? row.awardedAt : null, version: row?.version || badge.version,
+      completedModuleIds: completed, missingModuleIds: missing, progressPercent: Math.round(completed.length / 4 * 100) };
+    stages[stageId] = status;
+    if (unlocked) totalEarned++;
+    else if (!nextMilestone) nextMilestone = status;
   }
-
-  // 1. Fetch all authoritative verified completions for this student
-  const { data: verifiedRows, error: verifiedErr } = await supabaseAdmin
-    .from("academy_verified_completions")
-    .select("module_id, verified_at")
-    .eq("user_id", userId);
-
-  if (verifiedErr) {
-    console.error("Error fetching verified completions for achievements:", verifiedErr.message);
-  }
-
-  const verifiedModuleSet = new Set((verifiedRows || []).map((r) => r.module_id));
-
-  // 2. Fetch existing stage achievement rows
-  const { data: existingAchievements, error: achErr } = await supabaseAdmin
-    .from("academy_stage_achievements")
-    .select("stage_id, badge_id, awarded_at, stage_rule_version")
-    .eq("user_id", userId);
-
-  if (achErr) {
-    console.error("Error fetching existing stage achievements:", achErr.message);
-  }
-
-  const existingMap = new Map<number, { badge_id: string; awarded_at: string; version: string }>();
-  for (const row of existingAchievements || []) {
-    existingMap.set(row.stage_id, {
-      badge_id: row.badge_id,
-      awarded_at: row.awarded_at,
-      version: row.stage_rule_version || "1.0.0",
-    });
-  }
-
-  const stagesResult: Record<number, StageAchievementStatus> = {};
-  let totalEarned = 0;
-  let nextMilestone: StageAchievementStatus | null = null;
-
-  for (let s = 1; s <= 6; s++) {
-    const badgeDef = STAGE_BADGES[s];
-    const required = badgeDef.requiredModuleIds;
-    const completed = required.filter((id) => verifiedModuleSet.has(id));
-    const missing = required.filter((id) => !verifiedModuleSet.has(id));
-    const isEligible = completed.length === 4;
-
-    let awardedAt: string | null = null;
-    let version = badgeDef.version;
-
-    if (isEligible) {
-      const existing = existingMap.get(s);
-      // Preserve already earned date or use current timestamp
-      awardedAt = existing?.awarded_at || new Date().toISOString();
-      version = existing?.version || badgeDef.version;
-
-      // Idempotently upsert server-side award
-      await supabaseAdmin.from("academy_stage_achievements").upsert(
-        {
-          user_id: userId,
-          stage_id: s,
-          badge_id: badgeDef.badgeId,
-          stage_rule_version: version,
-          qualifying_module_ids: required,
-          awarded_at: awardedAt,
-        },
-        { onConflict: "user_id,stage_id" },
-      );
-
-      await supabaseAdmin.from("academy_stage_badges").upsert(
-        {
-          user_id: userId,
-          stage_id: s,
-          badge_id: badgeDef.badgeId,
-          awarded_at: awardedAt,
-        },
-        { onConflict: "user_id,stage_id" },
-      );
-
-      totalEarned++;
-    } else {
-      // If student previously had a badge record, but now has < 4 verified modules (revoked/invalidated)
-      if (existingMap.has(s)) {
-        console.warn(
-          `[ACHIEVEMENT REVALIDATION] Stage ${s} missing required modules for user ${userId}. Revoking unearned badge.`,
-        );
-        await supabaseAdmin
-          .from("academy_stage_achievements")
-          .delete()
-          .eq("user_id", userId)
-          .eq("stage_id", s);
-
-        await supabaseAdmin
-          .from("academy_stage_badges")
-          .delete()
-          .eq("user_id", userId)
-          .eq("stage_id", s);
-      }
-    }
-
-    const status: StageAchievementStatus = {
-      stageId: s,
-      badge: badgeDef,
-      isUnlocked: isEligible,
-      awardedAt,
-      version,
-      completedModuleIds: completed,
-      missingModuleIds: missing,
-      progressPercent: Math.round((completed.length / 4) * 100),
-    };
-
-    stagesResult[s] = status;
-
-    if (!isEligible && !nextMilestone) {
-      nextMilestone = status;
-    }
-  }
-
-  return {
-    userId,
-    stages: stagesResult,
-    totalEarnedCount: totalEarned,
-    nextMilestone,
-    allStagesUnlocked: totalEarned === 6,
-    totalVerifiedModules: verifiedModuleSet.size,
-  };
+  return { userId, stages, totalEarnedCount: totalEarned, nextMilestone,
+    allStagesUnlocked: totalEarned === 6, totalVerifiedModules: verified.size };
 }
 
 /**

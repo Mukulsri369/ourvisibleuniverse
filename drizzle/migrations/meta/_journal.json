@@ -64,6 +64,13 @@
       "when": 1793750400008,
       "tag": "0008_durable_official_assessments",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793750400009,
+      "tag": "0009_atomic_module_completion",
+      "breakpoints": true
     }
   ]
 }

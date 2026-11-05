@@ -13,6 +13,8 @@ import {
 } from "./completion-rules";
 import { validateActivityOutcomeServer } from "./activity-validator.server";
 import { STAGE_BADGES } from "./stage-badges";
+import { usesIsolatedAcademyFixtures } from "./assessment-sessions.server";
+import { activityEventIdentity } from "./activity-event.server";
 
 export interface RequirementItemStatus {
   id: string;
@@ -30,6 +32,8 @@ export interface ModuleCompletionEvaluation {
   moduleTitle: string;
   stageId: number;
   isVerifiedComplete: boolean;
+  completionCreated?: boolean;
+  newStageBadgeAwarded?: string | null;
   verifiedAt?: string;
   allCriteriaSatisfied: boolean;
   missingRequirements: string[];
@@ -182,6 +186,14 @@ export async function evaluateModuleCompletionServer(
     throw new Error(`No completion rule registered for module ${formattedModId}`);
   }
 
+  if (userId.startsWith("anon_")) {
+    const evaluation = evaluateCompletionCriteria(rule, {});
+    return { moduleId: formattedModId, moduleTitle: rule.title, stageId: rule.stageId,
+      isVerifiedComplete: false, allCriteriaSatisfied: false, missingRequirements: evaluation.missingRequirements,
+      checklist: evaluation.checklist, recommendedAction: evaluation.recommendedAction,
+      recommendedActionText: evaluation.recommendedActionText };
+  }
+
   let existingCompletion: any = null;
   let lessonProgressRows: any[] = [];
   let activityEvidenceRows: any[] = [];
@@ -246,9 +258,21 @@ export async function evaluateModuleCompletionServer(
 
   let isVerifiedComplete = Boolean(existingCompletion);
   let verifiedAt = existingCompletion?.verified_at;
+  let completionCreated = false;
+  let newStageBadgeAwarded: string | null = null;
 
-  // If all criteria satisfied and not already officially verified, execute privileged completion!
-  if (allCriteriaSatisfied && !isVerifiedComplete) {
+  if (!usesIsolatedAcademyFixtures() && (allCriteriaSatisfied || isVerifiedComplete)) {
+    const { data, error } = await supabaseAdmin.rpc("academy_apply_verified_completion", {
+      p_user_id: userId, p_module_id: formattedModId, p_rule: rule, p_badge_id: STAGE_BADGES[rule.stageId].badgeId,
+    });
+    if (error || !data?.verified) throw new Error("Official completion was not confirmed. Retry when storage is available.");
+    isVerifiedComplete = true; verifiedAt = data.verifiedAt;
+    completionCreated = data.completionCreated === true;
+    newStageBadgeAwarded = data.stageCreated ? STAGE_BADGES[rule.stageId].title : null;
+  }
+
+  // Only the explicitly isolated legacy fixture harness uses its old table emulator.
+  if (usesIsolatedAcademyFixtures() && allCriteriaSatisfied && !isVerifiedComplete) {
     const completionIdempotencyKey = `comp_${userId}_${formattedModId}`;
 
     const { error: compError } = await supabaseAdmin.from("academy_verified_completions").upsert(
@@ -368,6 +392,8 @@ export async function evaluateModuleCompletionServer(
     moduleTitle: rule.title,
     stageId: rule.stageId,
     isVerifiedComplete,
+    completionCreated,
+    newStageBadgeAwarded,
     verifiedAt,
     allCriteriaSatisfied,
     missingRequirements,
@@ -386,6 +412,8 @@ export async function recordValidatedActivityOutcomeServer(
   activityId: string,
   outcomePayload: Record<string, unknown>,
   isAccessibleAlternative: boolean = false,
+  clientTimestamp?: string,
+  clientEventId?: string,
 ) {
   const formattedModId = moduleId.padStart(2, "0");
   const rule = getModuleCompletionRule(formattedModId);
@@ -395,8 +423,9 @@ export async function recordValidatedActivityOutcomeServer(
   }
 
   const activityReq = rule.requiredActivities.find(
-    (a) => a.id === activityId || a.accessibleAlternativeId === activityId,
+    (a) => a.id === activityId || a.validationKey === activityId || a.accessibleAlternativeId === activityId,
   );
+  if (!activityReq) throw new Error("Unknown activity for this module.");
 
   const validationKey = activityReq?.validationKey || activityId;
 
@@ -416,8 +445,15 @@ export async function recordValidatedActivityOutcomeServer(
     };
   }
 
-  // Insert validated evidence
-  const { data: evidence, error: evError } = await supabaseAdmin
+  if (userId.startsWith("anon_")) {
+    return { success: true, practiceOnly: true, reason: validation.reason, metrics: validation.metrics,
+      evaluation: await evaluateModuleCompletionServer(userId, formattedModId) };
+  }
+
+  const identity = activityEventIdentity({ userId, moduleId: formattedModId, activityId,
+    payload: outcomePayload, accessible: isAccessibleAlternative, clientTimestamp, clientEventId });
+  // A lost response can be retried without counting a second experiment.
+  let { data: evidence, error: evError } = await supabaseAdmin
     .from("academy_activity_evidence")
     .insert({
       user_id: userId,
@@ -429,15 +465,27 @@ export async function recordValidatedActivityOutcomeServer(
         validatedAt: new Date().toISOString(),
         isAccessibleAlternative,
       } as any,
-      client_timestamp: new Date().toISOString(),
+      client_timestamp: clientTimestamp || new Date().toISOString(),
       verification_status: "verified",
       verified_at: new Date().toISOString(),
+      client_event_id: identity.eventId,
+      payload_fingerprint: identity.fingerprint,
     })
     .select()
     .single();
 
-  if (evError) {
-    console.warn("Could not insert activity evidence:", evError.message);
+  if (evError?.code === "23505") {
+    const existing = await supabaseAdmin.from("academy_activity_evidence").select("*")
+      .eq("user_id", userId).eq("client_event_id", identity.eventId).maybeSingle();
+    evidence = existing.data; evError = existing.error;
+    if (evidence?.payload_fingerprint !== identity.fingerprint || evidence?.module_id !== formattedModId
+      || evidence?.activity_type !== activityId || evidence?.verification_status !== "verified") {
+      throw new Error("Activity event ID is already associated with different or unverified evidence.");
+    }
+  }
+
+  if (evError || !evidence?.id) {
+    throw new Error("Verified activity evidence was not saved. Retry when storage is available.");
   }
 
   // Re-evaluate module completion automatically

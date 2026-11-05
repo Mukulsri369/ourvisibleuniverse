@@ -20,3 +20,7 @@ If a later rollback is required, first revoke/delete the test client's authoriza
 ## Durable assessment schema
 
 0008 was applied only to the new project with attempt/eligibility/certificate integrity guards. Preserve the private Academy preflight and verification evidence. Prefer a corrective forward migration; never drop snapshots, attempts or provenance after users create records. If official grading must be suspended, fail closed and retain sessions/results for recovery. Reverting to the old unclassified practice/official query behavior could incorrectly count practice passes; do not perform that rollback. Customer reconciliation and historical signing keys remain separate approvals.
+
+## Atomic Academy completion checkpoint
+
+0009 is additive and already installed in the development target. Keep 0008/0009 together when validating a release. Save table hashes and function/policy definitions privately before applying to any other environment. No data backfill or customer import is included. For a local code rollback preserve schema/evidence; do not drop provenance columns, unique indexes or existing award records. Restore reviewed function definitions/policies transactionally only if necessary, retaining the restrictive client-evidence policy. Production rollback remains unused because no production cutover occurred. Full offline account isolation and atomic certificates are outstanding release gates.

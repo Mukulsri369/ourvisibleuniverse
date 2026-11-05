@@ -8,6 +8,7 @@ const activityEvidenceInput = z.object({
   activityType: z.string().min(2).max(100),
   evidencePayload: z.record(z.string(), z.unknown()),
   clientTimestamp: z.string(),
+  clientEventId: z.string().min(3).max(120).optional(),
 });
 
 const submitAssessmentInput = z.object({
@@ -39,13 +40,13 @@ export const recordActivityEvidence = createServerFn({ method: "POST" })
       activityType: data.activityType,
       evidencePayload: data.evidencePayload,
       clientTimestamp: data.clientTimestamp,
+      clientEventId: data.clientEventId,
     });
   });
 
 /**
- * Authoritatively grades a module knowledge assessment on the server.
- * Evaluates canonical question answers on the server, creates attempt records,
- * and if >= 80%, issues verified completion and stage badges.
+ * Compatibility server-graded practice. Retains its original 80% score rule;
+ * official verification requires the durable assessment-session API.
  */
 export const submitAssessmentForGrading = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -88,25 +89,17 @@ export const recordLessonProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => lessonProgressInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const formattedModId = data.moduleId.padStart(2, "0");
 
-    const { error } = await supabase.from("academy_lesson_progress").upsert(
-      {
-        user_id: userId,
-        module_id: formattedModId,
-        lesson_id: data.lessonId,
-        scroll_depth_percent: data.scrollDepthPercent,
-        time_spent_seconds: data.timeSpentSeconds,
-        is_bookmarked: data.isBookmarked ?? false,
-        last_accessed_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id,lesson_id" },
-    );
-
-    if (error) {
-      console.warn("Could not save lesson progress:", error.message);
-      return { success: false, error: error.message };
-    }
-    return { success: true };
+    const { data: saved, error } = await supabaseAdmin.rpc("academy_record_lesson_progress", {
+      p_user_id: userId, p_module_id: formattedModId, p_lesson_id: data.lessonId,
+      p_scroll: Math.round(data.scrollDepthPercent), p_seconds: Math.round(data.timeSpentSeconds),
+      p_bookmarked: data.isBookmarked ?? null,
+    });
+    if (error || !saved?.success) throw new Error("Reading progress was not saved. Retry when storage is available.");
+    const { evaluateModuleCompletionServer } = await import("./completion.server");
+    const evaluation = await evaluateModuleCompletionServer(userId, formattedModId);
+    return { success: true, evaluation };
   });
