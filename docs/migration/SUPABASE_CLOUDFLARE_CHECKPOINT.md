@@ -81,3 +81,7 @@ Temporary staging deployment is approved, with no purchases or production/DNS/pa
 The official CLI login uses the installed Windows keyring adapter and limited account/user read, Worker-script write and log-read scopes. Authorization timed out before a code was received. The user must finish private Cloudflare sign-in, then a fresh authorization attempt can proceed. No hosted account/plan/origin verification, secret upload or deployment has occurred. Do not repeat the granted staging approval. Actual provider payments remain deferred and unverified; external AI/email and historical reconciliation remain outstanding.
 
 The user has been asked to privately verify actual recovery email delivery and new-password submission for an account they control. This is an outstanding human verification, not a completed test. Gemini and Razorpay remain deferred.
+
+## Explicit email verification deferral — 5 November 2026
+
+The user explicitly chose to leave actual recovery email delivery and the human-completed password-reset workflow unverified for now. Do not repeat the recovery handoff request unless the user resumes this testing. Automated recovery/provider-token checks remain passed; they are not email-delivery verification. Gemini and Razorpay provider testing also remain explicitly deferred. This deferral does not mark production readiness complete or authorize production, DNS, billing, customer entitlement or Store changes.

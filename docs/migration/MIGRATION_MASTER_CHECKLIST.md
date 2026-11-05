@@ -99,3 +99,7 @@ Preserve the verified certificate commit 591c39a and earlier checkpoints. Remain
 - [x] Record-preserving 0011 installed; PostgreSQL and actual Supabase/built Worker workflows passed.
 - [ ] Hosted staging, historical reconciliation, complete scientific/browser and email-delivery validation.
 - [ ] Actual Razorpay provider testing (deferred at user request).
+
+## Explicit email verification deferral — 5 November 2026
+
+The user explicitly chose to leave actual recovery email delivery and the human-completed password-reset workflow unverified for now. Do not repeat the recovery handoff request unless the user resumes this testing. Automated recovery/provider-token checks remain passed; they are not email-delivery verification. Gemini and Razorpay provider testing also remain explicitly deferred. This deferral does not mark production readiness complete or authorize production, DNS, billing, customer entitlement or Store changes.

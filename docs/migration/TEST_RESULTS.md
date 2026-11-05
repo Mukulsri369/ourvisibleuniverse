@@ -177,3 +177,7 @@ The official CLI login uses the installed Windows keyring adapter and limited ac
 ## Additional anonymous browser QA
 
 The actual built application was opened at the separate localhost origin, without the signed-in 127.0.0.1 or staging session. Module 13 practice accepted four answers and displayed 100% (4/4), explicitly describing practice as non-certifying. Its official assessment control requested a student account, and the verified checklist remained incomplete with no official attempt. Local exploration/navigation progress is not canonical certified completion. The anonymous sign-in screen displayed Forgot password; following it displayed the labeled email-request form. No email or password was submitted. The hosted owner still showed the same public student ID and CLOUD SYNC after the deployment. These are sampled browser checks, not a complete offline/network-fault matrix.
+
+## Explicit email verification deferral — 5 November 2026
+
+The user explicitly chose to leave actual recovery email delivery and the human-completed password-reset workflow unverified for now. Do not repeat the recovery handoff request unless the user resumes this testing. Automated recovery/provider-token checks remain passed; they are not email-delivery verification. Gemini and Razorpay provider testing also remain explicitly deferred. This deferral does not mark production readiness complete or authorize production, DNS, billing, customer entitlement or Store changes.
