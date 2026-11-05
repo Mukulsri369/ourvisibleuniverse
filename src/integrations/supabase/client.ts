@@ -29,7 +29,7 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
-function createSupabaseClient() {
+export function createSupabaseClient(isolated = false) {
   // Use import.meta.env for client-side (Vite build-time replacement)
   // Fall back to process.env for SSR (server-side rendering)
   const SUPABASE_URL =
@@ -45,7 +45,9 @@ function createSupabaseClient() {
   }
   if (SUPABASE_PUBLISHABLE_KEY.split(".").length === 3) {
     try {
-      const claims = JSON.parse(atob(SUPABASE_PUBLISHABLE_KEY.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+      const claims = JSON.parse(
+        atob(SUPABASE_PUBLISHABLE_KEY.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+      );
       if (claims.role !== "anon") throw new Error("Invalid public key role");
     } catch {
       throw new Error("Only a publishable or anon key is allowed in browser configuration");
@@ -58,8 +60,9 @@ function createSupabaseClient() {
     },
     auth: {
       // The SDK handles unavailable browser storage; SSR must not retain user sessions.
-      persistSession: typeof window !== "undefined",
-      autoRefreshToken: typeof window !== "undefined",
+      persistSession: !isolated && typeof window !== "undefined",
+      autoRefreshToken: !isolated && typeof window !== "undefined",
+      detectSessionInUrl: !isolated,
       flowType: "pkce",
     },
   });

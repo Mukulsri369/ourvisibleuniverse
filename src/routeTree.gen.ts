@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminCertificatesRouteImport } from './routes/admin-certificates'
 import { Route as AstrophysicsLabRouteImport } from './routes/astrophysics-lab'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthResetRouteImport } from './routes/auth-reset'
 import { Route as CatalogStatusRouteImport } from './routes/catalog-status'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CosmicEvolutionRouteImport } from './routes/cosmic-evolution'
@@ -74,6 +75,11 @@ const AstrophysicsLabRoute = AstrophysicsLabRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthResetRoute = AuthResetRouteImport.update({
+  id: '/auth-reset',
+  path: '/auth-reset',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CatalogStatusRoute = CatalogStatusRouteImport.update({
@@ -240,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/admin-certificates': typeof AdminCertificatesRoute
   '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
+  '/auth-reset': typeof AuthResetRoute
   '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
   '/cosmic-evolution': typeof CosmicEvolutionRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/admin-certificates': typeof AdminCertificatesRoute
   '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
+  '/auth-reset': typeof AuthResetRoute
   '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
   '/cosmic-evolution': typeof CosmicEvolutionRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/admin-certificates': typeof AdminCertificatesRoute
   '/astrophysics-lab': typeof AstrophysicsLabRoute
   '/auth': typeof AuthRoute
+  '/auth-reset': typeof AuthResetRoute
   '/catalog-status': typeof CatalogStatusRoute
   '/contact': typeof ContactRoute
   '/cosmic-evolution': typeof CosmicEvolutionRoute
@@ -358,6 +367,7 @@ export interface FileRouteTypes {
     | '/admin-certificates'
     | '/astrophysics-lab'
     | '/auth'
+    | '/auth-reset'
     | '/catalog-status'
     | '/contact'
     | '/cosmic-evolution'
@@ -396,6 +406,7 @@ export interface FileRouteTypes {
     | '/admin-certificates'
     | '/astrophysics-lab'
     | '/auth'
+    | '/auth-reset'
     | '/catalog-status'
     | '/contact'
     | '/cosmic-evolution'
@@ -435,6 +446,7 @@ export interface FileRouteTypes {
     | '/admin-certificates'
     | '/astrophysics-lab'
     | '/auth'
+    | '/auth-reset'
     | '/catalog-status'
     | '/contact'
     | '/cosmic-evolution'
@@ -475,6 +487,7 @@ export interface RootRouteChildren {
   AdminCertificatesRoute: typeof AdminCertificatesRoute
   AstrophysicsLabRoute: typeof AstrophysicsLabRoute
   AuthRoute: typeof AuthRoute
+  AuthResetRoute: typeof AuthResetRoute
   CatalogStatusRoute: typeof CatalogStatusRoute
   ContactRoute: typeof ContactRoute
   CosmicEvolutionRoute: typeof CosmicEvolutionRoute
@@ -547,6 +560,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth-reset': {
+      id: '/auth-reset'
+      path: '/auth-reset'
+      fullPath: '/auth-reset'
+      preLoaderRoute: typeof AuthResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/catalog-status': {
@@ -791,6 +811,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCertificatesRoute: AdminCertificatesRoute,
   AstrophysicsLabRoute: AstrophysicsLabRoute,
   AuthRoute: AuthRoute,
+  AuthResetRoute: AuthResetRoute,
   CatalogStatusRoute: CatalogStatusRoute,
   ContactRoute: ContactRoute,
   CosmicEvolutionRoute: CosmicEvolutionRoute,

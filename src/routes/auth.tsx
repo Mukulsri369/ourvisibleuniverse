@@ -84,9 +84,12 @@ function AuthPage() {
       ? await supabase.auth.signUp({
           email,
           password,
-          options: next
-            ? { emailRedirectTo: new URL(next, window.location.origin).href }
-            : undefined,
+          options: {
+            emailRedirectTo: googleAuthCallback(
+              window.location.origin,
+              authDestination(next, undefined, isStudentFlow),
+            ),
+          },
         })
       : await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
@@ -107,7 +110,9 @@ function AuthPage() {
     saveAuthNext(destination);
     setBusy(true);
     try {
-      const result = await signInWithGoogle(googleAuthCallback(window.location.origin, destination));
+      const result = await signInWithGoogle(
+        googleAuthCallback(window.location.origin, destination),
+      );
       if (result.error) {
         toast.error(result.error.message || "Google sign-in failed. Please try again.");
         return;
@@ -200,6 +205,14 @@ function AuthPage() {
                 : "Sign in"}
           </Button>
         </form>
+        {!signup && (
+          <Link
+            to="/auth-reset"
+            className="mt-4 inline-flex min-h-11 items-center text-sm text-primary underline"
+          >
+            Forgot password?
+          </Link>
+        )}
         <button onClick={() => setSignup((v) => !v)} className="mt-6 text-sm text-primary">
           {signup ? "Already registered? Sign in" : "New here? Create an account"}
         </button>

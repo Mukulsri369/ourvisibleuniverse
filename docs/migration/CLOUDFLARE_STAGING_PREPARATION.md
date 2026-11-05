@@ -1,5 +1,7 @@
 # Approved staging preparation — 5 November 2026
 
+Current status: staging deployment and private bindings are now verified. The preparation notes below record the earlier pre-deployment state; see [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md) for actual results and remaining gates.
+
 The user explicitly approved temporary Cloudflare staging preparation and deployment, without purchases. No production domain, DNS, live payment, customer import/access or Lovable cancellation change is authorized. This approval persists; do not ask for it again.
 
 The existing source `wrangler.jsonc` still disables `workers_dev` and preview URLs. `scripts/prepare-staging-config.mjs` prepares a separate ignored `dist/server/wrangler.staging.json` beside the generated build, preserving module/asset-relative paths. It performs no network or billing action. Before preparation, verify the intended account ID, existing plan and actual account subdomain.

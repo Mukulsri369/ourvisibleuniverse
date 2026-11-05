@@ -20,7 +20,7 @@ before(async () => {
 });
 after(async () => { await worker?.stop(); });
 test("actual built staging SSR pages deny indexing without credentials or deployment", async () => {
-  for (const path of ["/auth", "/learn", "/pricing", "/verify-certificate"]) {
+  for (const path of ["/auth", "/auth-reset", "/learn", "/pricing", "/verify-certificate"]) {
     const response = await fetch(origin + path, { signal: AbortSignal.timeout(30000) });
     assert.equal(response.status, 200, path);
     assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow, noarchive", path);

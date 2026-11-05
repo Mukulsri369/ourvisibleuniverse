@@ -1,5 +1,10 @@
 # OVU migration checklist — Supabase / Cloudflare
 
+## Password recovery follow-up — 5 November 2026
+
+The missing recovery UI is implemented using Supabase PKCE and the normal Auth API, with an identity-pinned memory-only update client. Eight recovery tests, five actual disposable-account Supabase checks, existing auth navigation, and the combined 24-test security/recovery regression passed. The fixture was removed and existing identities preserved; no email was sent. Browser expired-link handling and actual 390×844 layout passed without entering a real password. Actual email delivery and a private human-completed recovery remain unverified. See [PASSWORD_RECOVERY_VERIFICATION.md](PASSWORD_RECOVERY_VERIFICATION.md). Gemini and Razorpay provider testing remain explicitly deferred.
+
+
 ## Current hosted staging checkpoint — 5 November 2026
 
 OVU is deployed at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev on the existing Workers Free plan. Active tested version: `e6abed40-270b-4c68-8547-828770f43554`; application build: `7f215f7`. Approved Supabase staging Site URL and auth redirect are saved; local auth redirect is retained. Actual hosted 24-module assessment/certificate API QA, Google sign-in, all four MCP tools, sampled admin/mobile/galaxy and paid-access-denial journeys passed. Seven staging checks, 21 security checks and TypeScript passed. Hosted retry testing does not constitute a forced platform restart.
