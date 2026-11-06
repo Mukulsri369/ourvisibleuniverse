@@ -1,5 +1,11 @@
 # OVU verification — 4 November 2026
 
+## Merchant delivery-log inspection and timestamp regression — 6 November 2026
+
+Correct merchant Owner/Live session verified; exact existing enabled webhook/four events confirmed. Actual developer View logs reports no requests in its selected past-three-hours window. Numeric Unix creation-time checks place both unmatched purchases about five days before this inspection and before webhook setup. The earlier post-snapshot chronology was wrong, not a delivery failure. Three new tests passed for explicit-offset timestamps, UTC/IST equivalence, second boundaries and rejection of locale dates/Date-object/millisecond coercion. No financial provider write, replay or Support message occurred; real new-checkout/provider-origin delivery remains unverified.
+
+Fresh 14:21:37 IST read-only snapshots and reconciliation: 79 source users/seven passes with unchanged data hash; zero missing accounts/conflicts. Encrypted target backup: 80 users/eight passes, 34 tables/281 rows; inventory/hash round-trip passed. Source/target prior snapshots retained, fresh plaintext downloads removed.
+
 ## Pending-order transition and production drain preparation — 6 November 2026
 
 Forty-seven payment-service, scoped recovery, pending-registration, production/staging/Live-configuration checks passed with zero failures/skips. These include preserving historical provider prices, mapped ownership, optional absent/null currency-note compatibility with conflicting-currency denial, complete prevalidation before append, immutable binding refusal and no duplicate registration. Existing tests were retained. An initial real registration attempt stopped before writes at the optional note representation mismatch; it was corrected and tested rather than bypassed.

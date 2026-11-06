@@ -1,5 +1,11 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Merchant verified; ready for held domain attachment — 6 November 2026
+
+Owner logged into the correct existing merchant account. Owner role/Live mode, enabled exact endpoint and four events are verified. The new developer view exposes actual logs; it reports no requests in the past-three-hours window. The two unmatched historical purchases are approximately five days old, preceding webhook setup and both source snapshots. Earlier claims that they postdated the source snapshot were incorrect and are corrected. No absence-of-delivery defect is established. Three timezone/Unix-unit regression tests passed. Actual new-checkout and provider-origin webhook acceptance remain unverified for owner testing; no new charge/provider write was made.
+
+Fresh 14:21:37 IST source/target snapshots repeat 79 source users/seven passes, zero reconciliation conflicts and identical source hash; target 80 users/eight passes, 34 tables/281 rows, encrypted/integrity verified. Pending ownership registration and specifically approved recovery remain verified. Proceed with the already authorized held domain attachment, then the source drain/postflight before reopening checkout. No further generic go-live approval is needed.
+
 ## Legacy-order transition ready; merchant delivery logs pending — 6 November 2026
 
 All 12 unpaid scoped original orders are registered against freshly verified owner/price/currency; actual rerun added zero duplicates and left all eight passes unchanged. The final source snapshot at 11:54:20.170626 IST remains 79 users/seven passes with the same data hash and zero reconciliation conflicts. The new encrypted target backup at 11:54:20.872017 IST includes all 34 tables/281 rows, 80 users/eight passes and the recovery/pending-order delta.
@@ -20,7 +26,7 @@ Approved production Site URL and apex/www `/auth**` redirects are saved and veri
 
 The encrypted logical target backup covers 28 public plus six auth/storage tables, 266 rows, 80 users/seven passes, 18 function definitions and 49 policies, plus schema metadata. Inventory and encryption round-trip checks and two new helper tests passed. Target storage objects: zero. No full restore rehearsal/platform/session backup is claimed.
 
-Read-only provider audit verifies the six imported Live purchases without refunds. Wider order pagination discovered 12 unpaid original OVU orders plus two later paid orders absent from source history: one fully refunded and one unrefunded captured 30-day purchase. Current owned Live order/transaction counts are both zero; the latter payment is not already fulfilled in the new backend. Source still has 79 users/seven passes. A private identity/period recovery review is prepared outside Git; recovery requires the owner's per-account access confirmation. No customer grant or financial write was made. Resolve the missing purchase and protect pending-order late captures before app cutover. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+Read-only provider audit verifies the six imported Live purchases without refunds. Wider order pagination discovered 12 unpaid original OVU orders plus two additional paid orders absent from source history: one fully refunded and one unrefunded captured 30-day purchase. Current owned Live order/transaction counts are both zero; the latter payment is not already fulfilled in the new backend. Source still has 79 users/seven passes. A private identity/period recovery review is prepared outside Git; recovery requires the owner's per-account access confirmation. No customer grant or financial write was made. Resolve the missing purchase and protect pending-order late captures before app cutover. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
 
 ## Nameserver delegation saved — 6 November 2026
 

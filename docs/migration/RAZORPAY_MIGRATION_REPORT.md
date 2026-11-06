@@ -1,5 +1,11 @@
 # Razorpay migration — 6 November 2026
 
+## Delivery visibility and timestamp correction
+
+The correct merchant Owner session is authenticated and in Live mode. The existing webhook URL, Enabled state and four events are verified. Actual logs at `/app/developers/webhooks` show no requests in the past-three-hours range. The two additional purchases missing source pass history are about five days old, preceding webhook creation and the source snapshot; earlier post-snapshot chronology was incorrect. Three timestamp regression checks passed. No failed-delivery diagnosis follows from the empty recent window. The approved recovery remains correct and idempotent; the refunded purchase remains excluded from active access.
+
+No new checkout/charge/refund or provider-origin test event was initiated. End-to-end checkout and authentic webhook delivery remain explicitly unverified for owner acceptance after cutover. Existing configuration and signed endpoint tests, actual provider-backed recovery and immutable legacy bindings support the authorized phased release without fabricating financial events or contacting Support.
+
 ## Legacy pending ownership registered; authentic delivery still unverified
 
 All 12 scoped unpaid original orders now have durable ownership/price/currency in the owned project, after fresh provider GETs and source-to-target identity validation. Original creation times and historical provider prices are retained. No access was granted by registration; the actual retry inserted zero duplicates and preserved all eight existing passes. Unknown arbitrary merchant orders remain rejected by the ordinary runtime. Future eligible captures/recovery can use these fixed bindings without a runtime Lovable lookup.
@@ -18,7 +24,7 @@ This verifies actual provider-backed recovery and atomic access/replay on the ow
 
 All six imported Live access purchases now have independent authenticated, read-only provider verification: matching payment/order/owner/plan, amount/currency and captured state; zero refunds on those six. Minimized proof is encrypted outside Git. No provider financial action was performed.
 
-A wider bounded, paginated read-only audit found 12 unpaid scoped OVU orders and two additional paid orders created after the source snapshot. One is fully refunded; one is an unrefunded captured 30-day purchase missing a pass in both source history and the current owned payment ledger. Owned Live order/transaction counts were independently verified as zero using successful Node API reads. Do not label these as purchases already handled by the new backend, or infer provider checkout/webhook acceptance from earlier owner reports. Source remains 79 users/seven passes.
+A wider bounded, paginated read-only audit found 12 unpaid scoped OVU orders and two additional paid orders absent from the source snapshot (both predate that snapshot and webhook setup). One is fully refunded; one is an unrefunded captured 30-day purchase missing a pass in both source history and the current owned payment ledger. Owned Live order/transaction counts were independently verified as zero using successful Node API reads. Do not label these as purchases already handled by the new backend, or infer provider checkout/webhook acceptance from earlier owner reports. Source remains 79 users/seven passes.
 
 A private per-account recovery review is prepared outside Git. Its proposal registers/reconciles the authentic existing purchase through the backend and applies the purchased 30 days using the established later-of-now/current-expiry rule, without another charge. The owner's per-identity/access-period confirmation is required before this access change. No customer pass, role, refund or financial transaction has been modified by this audit. Before application traffic moves, resolve this payment, preserve the refunded history without active access, and establish controlled handling of late captures for the 12 pending original orders. Never permit arbitrary unknown merchant orders to bypass durable ownership registration. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
 
