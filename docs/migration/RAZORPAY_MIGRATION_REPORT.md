@@ -1,5 +1,11 @@
 # Razorpay migration — 6 November 2026
 
+## Legacy pending ownership registered; authentic delivery still unverified
+
+All 12 scoped unpaid original orders now have durable ownership/price/currency in the owned project, after fresh provider GETs and source-to-target identity validation. Original creation times and historical provider prices are retained. No access was granted by registration; the actual retry inserted zero duplicates and preserved all eight existing passes. Unknown arbitrary merchant orders remain rejected by the ordinary runtime. Future eligible captures/recovery can use these fixed bindings without a runtime Lovable lookup.
+
+The refreshed target snapshot contains 13 Live orders (12 pending plus the specifically approved recovery) and one transaction. Actual provider-backed recovery/replay is verified, but newly created owned-backend checkout and authentic provider webhook delivery remain distinct and unverified. The target had no provider webhook events in the captured data. The existing Razorpay delivery-log page requires renewed private sign-in; automatic default-Google authentication did not reach the merchant account. No merchant account was created, keys rotated or provider settings changed. Inspect logs before enabling production checkout; do not diagnose a specific webhook defect without evidence.
+
 ## Specifically approved purchase recovered
 
 The owner reviewed and approved the identified unrefunded 30-day purchase. A narrowly scoped maintenance command re-fetched the original order/payment, checked the exact reviewed references, verified source-to-target identity mapping and current confirmed account, and validated the INR amount, plan, captured state and zero refunds before registering its original order. It then used the existing independent payment service's recovery path and atomic database capture function. No provider write/charge/refund or fabricated webhook was made.

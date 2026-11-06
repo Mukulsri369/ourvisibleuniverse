@@ -1,5 +1,13 @@
 # OVU verification — 4 November 2026
 
+## Pending-order transition and production drain preparation — 6 November 2026
+
+Forty-seven payment-service, scoped recovery, pending-registration, production/staging/Live-configuration checks passed with zero failures/skips. These include preserving historical provider prices, mapped ownership, optional absent/null currency-note compatibility with conflicting-currency denial, complete prevalidation before append, immutable binding refusal and no duplicate registration. Existing tests were retained. An initial real registration attempt stopped before writes at the optional note representation mismatch; it was corrected and tested rather than bypassed.
+
+Actual MariaDB-free owned Supabase operation: 12 pending orders inserted; zero active-access grants/provider writes; eight existing passes unchanged. Actual rerun inserted zero, preserved 12 bindings and the same eight passes. Fresh source snapshot remains 79 users/seven passes with identical data hash; final read-only reconciliation has zero missing users/conflicts. Refreshed logical target backup covers 34 tables/281 rows, 80 users/eight passes and all recovery/registration changes; encryption/inventory integrity checks passed.
+
+Production dry run passed (15,925.26 KiB raw/3,546.81 KiB gzip); all five existing private binding names verified without reading values. Drain-only config forces new checkout off; final activation still fails without verified drain. No production deployment occurred. Razorpay authentic webhook delivery remains unverified; delivery logs require the owner's renewed private merchant sign-in. Do not infer an actual provider delivery success or defect from local tests or provider-backed recovery.
+
 ## Approved 30-day recovery — 6 November 2026
 
 Twenty-seven scoped legacy recovery and existing payment-service tests passed (zero failures/skips). Actual approved recovery revalidated the original provider references, owner, plan, INR amount, captured/refund state and mapped target identity before mutation, using only GET at Razorpay. The existing backend recovery/atomic capture created one 30-day pass, preserved all seven preceding pass rows and verified a repeated recovery returns one pass and the same expiry. Twelve provider reads; zero charges/refunds/provider writes, emails or role changes. Private approval/result journal is encrypted outside Git. No public recovery bypass or provider-origin webhook event was added/fabricated. Ordinary new-checkout/webhook acceptance remains distinct.

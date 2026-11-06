@@ -1,5 +1,13 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Legacy-order transition ready; merchant delivery logs pending — 6 November 2026
+
+All 12 unpaid scoped original orders are registered against freshly verified owner/price/currency; actual rerun added zero duplicates and left all eight passes unchanged. The final source snapshot at 11:54:20.170626 IST remains 79 users/seven passes with the same data hash and zero reconciliation conflicts. The new encrypted target backup at 11:54:20.872017 IST includes all 34 tables/281 rows, 80 users/eight passes and the recovery/pending-order delta.
+
+Forty-seven combined tests and the production dry run passed. A tested drain-only deployment phase attaches exact OVU domains while holding new checkout creation; final activation still requires verified source drain. Existing five private bindings were verified by name only. No production Worker/custom-domain deployment has occurred. Current application deployment remains `7714f66b-0a87-4d6d-ac22-2569fc0cd0f0`.
+
+Razorpay delivery remains unverified: the target had no provider webhook events despite provider-backed recovery now working. Inspect authentic delivery logs before enabling production checkout. Its browser session expired; the correct existing merchant account needs private owner sign-in. The login tab is prepared; do not create an account or rotate credentials. Production approval remains valid, as do the active Cloudflare zone and saved Supabase auth settings. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+
 ## Approved captured purchase recovered — 6 November 2026
 
 The specifically reviewed 30-day purchase has been recovered under the owner's approval through the existing payment service/atomic RPC after fresh provider and identity verification. One pass created; seven preceding access rows unchanged; duplicate replay kept the same expiry and one pass. Provider writes, emails and role changes: zero. Actual provider reads: 12. Twenty-seven scoped recovery/service tests passed. Evidence is encrypted outside Git. This is provider-backed recovery, not a new checkout or authentic webhook delivery test.

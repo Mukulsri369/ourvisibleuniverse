@@ -42,3 +42,15 @@ test('promotion rejects wrong destinations, inherited routes/jobs and secret or 
     assert.throws(() => productionConfiguration({...config,...change}, ready));
   }
 });
+
+test('domain attachment during drain explicitly holds new checkout; final activation still requires completed drain', () => {
+  const draining={...ready,sourceWriteDrainVerified:false,legacyPendingOrdersRegistered:true,approvedRecoveryReconciled:true};
+  assert.throws(()=>productionConfiguration(config,draining));
+  const held=productionConfiguration(config,draining,{drainOnly:true});
+  assert.equal(held.vars.RAZORPAY_MODE,'live');assert.equal(held.vars.RAZORPAY_LIVE_CHECKOUT_ENABLED,'false');
+  assert.equal(held.vars.PUBLIC_APP_ORIGIN,'https://ourvisibleuniverse.in');
+  assert.equal(held.workers_dev,true);assert.equal(held.routes.length,2);
+  assert.equal(productionConfiguration(config,{...draining,sourceWriteDrainVerified:true}).vars.RAZORPAY_LIVE_CHECKOUT_ENABLED,'true');
+  for(const key of ['dnsInventoryVerified','zoneActive','sourceDeltaReconciled','targetBackupVerified','productionAuthConfigured','legacyPendingOrdersRegistered','approvedRecoveryReconciled'])
+    assert.throws(()=>productionConfiguration(config,{...draining,[key]:false},{drainOnly:true}));
+});
