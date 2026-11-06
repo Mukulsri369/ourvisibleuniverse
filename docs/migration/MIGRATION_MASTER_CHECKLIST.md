@@ -1,5 +1,12 @@
 # OVU migration checklist — Supabase / Cloudflare
 
+## Verified payment initialization fix — 6 November 2026
+
+Version d11ae3b4-01dc-4ee9-8813-d398cae5c94c fixes a reproduced Cloudflare-specific Fetch redirect error in the Razorpay adapter. Workers does not support redirect error; manual mode now stops redirects and the existing non-2xx rejection fails safely. Thirty-two payment/security tests, TypeScript and production client/Worker builds passed. Deployed Live checkout remains enabled with the same five secret bindings.
+
+Actual signed-in production browser verification: Pay ₹179 successfully opens Razorpay's contact-details/payment dialog. Exactly one new unpaid Live order was registered (14 Live orders total); transactions remain 1. No charge, refund or entitlement activation was performed. A completed payment and authentic webhook-driven access activation remain unverified. Earlier generic-unavailability status is resolved for order initialization. Details and provider documentation: PAYMENT_WORKER_REDIRECT_FIX.md.
+
+
 ## Checkout activation completed — 6 November 2026, 09:36 UTC
 
 Cloudflare's earlier API 503 blocker has cleared. The authorized final deployment succeeded: version **2fbe3dac-7c22-4227-b6cf-3690e22b929e**, verified as the latest deployment receiving 100% of traffic. Version inspection confirms production origin https://ourvisibleuniverse.in, owned Supabase pdvwkdggyyrfkoqrpbji, Live mode, and **RAZORPAY_LIVE_CHECKOUT_ENABLED=true**. All five exact existing secret binding names remain present; values were not displayed or rotated. Apex/www Custom Domains and the retained signed-webhook Workers hostname remain attached. Startup 2 ms; no plan purchase. Earlier checkout-held/blocker sections below are historical.

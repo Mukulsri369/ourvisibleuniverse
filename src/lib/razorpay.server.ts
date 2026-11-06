@@ -44,7 +44,9 @@ export async function razorpayRequest<T>(path: string, init: RequestInit, mode: 
   const response = await fetch(`https://api.razorpay.com/v1${path}`, {
     ...init,
     signal: init.signal ?? AbortSignal.timeout(15000),
-    redirect: "error",
+    // Workers rejects redirect: "error" before sending the request. Manual
+    // keeps merchant authorization on this origin; non-2xx still fails below.
+    redirect: "manual",
     headers: {
       Authorization: authHeader(keyId, keySecret),
       "Content-Type": "application/json",
