@@ -1,5 +1,14 @@
 # OVU staging/deployment runbook
 
+## Checkout activation completed — 6 November 2026, 09:36 UTC
+
+Cloudflare's earlier API 503 blocker has cleared. The authorized final deployment succeeded: version **2fbe3dac-7c22-4227-b6cf-3690e22b929e**, verified as the latest deployment receiving 100% of traffic. Version inspection confirms production origin https://ourvisibleuniverse.in, owned Supabase pdvwkdggyyrfkoqrpbji, Live mode, and **RAZORPAY_LIVE_CHECKOUT_ENABLED=true**. All five exact existing secret binding names remain present; values were not displayed or rotated. Apex/www Custom Domains and the retained signed-webhook Workers hostname remain attached. Startup 2 ms; no plan purchase. Earlier checkout-held/blocker sections below are historical.
+
+Post-activation: 12 production HTTP checks passed (both hosts' home, pricing, checkout, Academy and certificate pages; unsigned Live webhook 401; wrong-mode webhook 400). Browser checkout correctly requires sign-in, and the production passes page renders its original plans/prices. No charge, refund, customer-access change or original-service write was performed. Actual paid checkout, authentic provider event delivery and paid-access activation from a new purchase remain **unverified** until the owner completes a real transaction privately. Do not equate enabled configuration with end-to-end provider verification. Gemini, human email recovery and the other previously documented acceptance/capacity limitations remain pending. Store and Lovable resources remain unchanged.
+
+The final configuration, deployed-version metadata and postflight results are retained outside Git under work/evidence/ovu-checkout-activation-*. No credentials, customer exports or private provider identifiers are included in this report. If checkout must be held again, redeploy the verified configuration with only its checkout flag false; retain the signed webhook/recovery services and all target data/journals.
+
+
 ## Current production state — 6 November 2026, DNS cutover completed
 
 The owner explicitly approved replacement of the two backed-up A records. Only apex/www A records pointing to 185.158.133.1 were removed; triggers-only deployment successfully attached both hostnames to the existing OVU Worker. Cloudflare now lists four unchanged CNAME/TXT records and two managed Worker records. Both production domains serve the new application over HTTPS using owned Supabase. Store is unchanged; Lovable resources remain intact for rollback. Earlier approval-pending and unattached-domain statements below are historical.
