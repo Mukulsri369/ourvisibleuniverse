@@ -2,6 +2,18 @@
 
 The owner reports the new application/payment workflow works and explicitly authorized going live with owned Supabase and Cloudflare. This supersedes the old production-approval gate. Store, purchases and Lovable cancellation remain outside scope. Owner acceptance is recorded separately from independently verified financial-ledger reconciliation.
 
+## Latest reconciliation and prepared delegation
+
+Browser access recovered after refresh. GoDaddy's actual zone was downloaded to Downloads and retained outside Git: nine records total (six application records plus the registrar's two NS and SOA). DNSSEC is off; domain and subdomain forwarding are both not configured. Cloudflare now preserves all six application record values, including the two verification TXT records missed by its scan. Apex/www retain the original `185.158.133.1` origin, DNS-only with their original 600-second TTL, pending application cutover; `_domainconnect` is DNS-only. No mail records were invented. Cloudflare manages its own NS/SOA rather than copying GoDaddy's authority records.
+
+A legitimate read-only SQL-editor snapshot at **6 November 2026 10:42:14.589379 IST** captured all source application data (the source has only `public.access_passes`), users/identities, MFA/passkey presence and storage metadata in one query. It contains 79 users, 80 identities and seven access records; MFA factors/passkeys are empty. Two storage objects are database-export artifacts, not application images. The earlier full archive remains retained. This scoped snapshot is not claimed to be a complete physical backup, session transfer, new historical payment ledger or storage-object content export. Snapshot JSON and converted data-only reconciliation input are Windows-encrypted outside Git; the newly generated plaintext CSV was removed after encryption. No source database writes or export-limit bypass occurred.
+
+Reconciliation found exactly one new account and one new Live access record, with zero conflicts/unmapped public tables. The approved append-only importer created that original-ID account and inserted that exact historical entitlement, preserving all 79 existing target accounts and six prior access rows. No existing identities/entitlements were updated, no records deleted, no email sent and no provider payments made. Postflight finds 80 target identities, all 79 source users represented, seven exact source access rows (six Live / one sandbox), zero missing accounts and zero conflicts. New source writes after this timestamp still need draining/final reconciliation.
+
+Twenty conversion/reconciliation/import tests passed with zero failures or skips. The converter rejects an unexpected source, incomplete table inventory, unmapped public tables and invalid identifiers, and verifies null/JSON/escape/microsecond preservation through the existing data-only parser. Existing importer controls and tests remain intact; no exported SQL is executed.
+
+Cloudflare assigned `candy.ns.cloudflare.com` and `sullivan.ns.cloudflare.com`. GoDaddy's Edit nameservers form is filled with exactly that pair, **not saved**. The current authority remains `ns45.domaincontrol.com` / `ns46.domaincontrol.com`. Browser policy requires action-time confirmation before delegating control of the domain to Cloudflare. Application custom domains, production auth origin, full target backup and final source-write drain/postflight remain pending. No purchase or application traffic switch has occurred. The older preflight observations below are historical where superseded here.
+
 ## Actual state
 
 - Migration branch `migration/supabase-cloudflare`; deployed application remains `73344ef`, Worker version `7714f66b-0a87-4d6d-ac22-2569fc0cd0f0`.

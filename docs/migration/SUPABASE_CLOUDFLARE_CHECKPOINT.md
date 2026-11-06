@@ -1,5 +1,11 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Source delta imported; DNS delegation prepared — 6 November 2026
+
+The actual source now has 79 users/seven access rows. A read-only SQL-editor scoped snapshot captured at 10:42:14.589379 IST was encrypted outside Git, converted into the existing data-only reconciliation format and compared without conflicts. Append-only import created one new original-ID account and inserted one exact historical Live pass, preserving all 79 preceding target accounts and six existing passes. Postflight: 80 target identities, all 79 source accounts represented, seven matching access rows, zero missing users/conflicts, no emails/provider payments/deletions/updates. Twenty source-conversion/import/reconciliation tests passed; no tests were weakened. The earlier full archive remains retained; the query snapshot is not a complete database backup or financial ledger.
+
+GoDaddy's nine-record zone backup is downloaded outside Git; DNSSEC is off and forwarding unset. Pending Cloudflare DNS now has all six application records, with the original apex/www origin and 600-second TTL kept DNS-only until application cutover. Both missed verification TXT records are preserved. Assigned Cloudflare nameservers are `candy.ns.cloudflare.com` / `sullivan.ns.cloudflare.com`; GoDaddy's form is prepared but **not saved**. Action-time confirmation is required for this delegation of domain control. Production auth, final write drain/late-event reconciliation, full target backup and domain attachment remain pending. Existing deployment remains unchanged. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+
 ## Production cutover authorized; final reconciliation pending — 6 November 2026
 
 The owner reports successful application/payment acceptance and authorized production go-live. Preserve this authorization; no generic repeat approval is needed. Cloudflare Free ($0) domain onboarding has reached DNS review, but nameservers and application traffic remain unchanged. GoDaddy is signed in; its full DNS inventory and the source database panel are intermittently timing out under browser control. User refresh requested.

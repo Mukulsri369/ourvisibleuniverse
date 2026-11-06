@@ -1,5 +1,13 @@
 # OVU verification — 4 November 2026
 
+## Fresh source delta and DNS inventory — 6 November 2026
+
+Twenty source-query conversion, customer-import and reconciliation tests passed: zero failures/skips. Read-only source SQL verifies 79 users, seven access rows and only one public application table. The one-query scoped snapshot includes identities and MFA/passkey/storage metadata; raw data stays encrypted outside Git. Conversion preserves JSON/null/escapes and entitlement microseconds through the existing parser, and rejects mismatched source/incomplete inventory/unmapped data.
+
+Actual approved delta import: one original-ID account created, one exact historical Live pass inserted; all 79 preceding target identities and six passes preserved. No existing account/access updates, deletions, emails or provider payments. Independent postflight reconciliation: 80 target identities, 79 source users represented, seven exact source passes, zero new/missing accounts/conflicts/unhandled public tables. This does not prove no later source writes or recover a complete historical financial ledger.
+
+Actual GoDaddy zone export contains nine DNS records. DNSSEC is off and forwarding unset. Cloudflare's pending zone now preserves all six application record values; apex/www still point directly at the original origin with 600-second TTL. Nameserver change is prepared, not submitted. No production DNS or Worker deployment changed in this step.
+
 ## Production preparation — 6 November 2026
 
 Fourteen focused production/staging/Live-configuration checks passed (zero failures/skips), including rejection of each missing cutover prerequisite, exact account/project/domain restrictions, retained payment settings and Workers-host noindex after promotion. TypeScript and the public-only client/Worker build passed; existing deprecation/chunk/sourcemap warnings remain. Credential scan found zero private Supabase/certificate values in 650 build files plus 1,035 source files. No actual credentials were written into the configuration or tests.
