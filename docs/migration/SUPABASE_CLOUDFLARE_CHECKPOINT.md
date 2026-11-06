@@ -1,5 +1,11 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Approved captured purchase recovered — 6 November 2026
+
+The specifically reviewed 30-day purchase has been recovered under the owner's approval through the existing payment service/atomic RPC after fresh provider and identity verification. One pass created; seven preceding access rows unchanged; duplicate replay kept the same expiry and one pass. Provider writes, emails and role changes: zero. Actual provider reads: 12. Twenty-seven scoped recovery/service tests passed. Evidence is encrypted outside Git. This is provider-backed recovery, not a new checkout or authentic webhook delivery test.
+
+Target now has eight pass records, including the approved recovery. The fully refunded unmatched purchase received no active access. Original 12 unpaid orders still need a controlled transition; final source drain/delta and production application attachment remain pending. Active Cloudflare zone and saved production auth settings remain verified. See [RAZORPAY_MIGRATION_REPORT.md](RAZORPAY_MIGRATION_REPORT.md).
+
 ## Production auth saved; zone active; payment reconciliation gate — 6 November 2026
 
 Approved production Site URL and apex/www `/auth**` redirects are saved and verified after reload; existing two returns remain. Cloudflare has activated the zone. Application A records still use the old Lovable origin and the Worker remains on its prior tested deployment; no application traffic cutover occurred.

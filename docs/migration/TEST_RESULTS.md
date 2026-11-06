@@ -1,5 +1,9 @@
 # OVU verification — 4 November 2026
 
+## Approved 30-day recovery — 6 November 2026
+
+Twenty-seven scoped legacy recovery and existing payment-service tests passed (zero failures/skips). Actual approved recovery revalidated the original provider references, owner, plan, INR amount, captured/refund state and mapped target identity before mutation, using only GET at Razorpay. The existing backend recovery/atomic capture created one 30-day pass, preserved all seven preceding pass rows and verified a repeated recovery returns one pass and the same expiry. Twelve provider reads; zero charges/refunds/provider writes, emails or role changes. Private approval/result journal is encrypted outside Git. No public recovery bypass or provider-origin webhook event was added/fabricated. Ordinary new-checkout/webhook acceptance remains distinct.
+
 ## Production auth, logical backup and financial preflight — 6 November 2026
 
 Production Supabase Site URL and two additional return patterns persist after reload; the two preceding returns remain. Cloudflare overview now shows active zone; this does not mean the new application is attached to production domains.

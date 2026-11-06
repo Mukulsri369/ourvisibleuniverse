@@ -4,6 +4,10 @@ The owner reports the new application/payment workflow works and explicitly auth
 
 ## Latest reconciliation and prepared delegation
 
+### Approved purchase recovery completed
+
+The owner approved the exact identity and 30-day period in the private review. Fresh read-only provider verification and current target identity validation preceded durable order registration; the existing independent payment service then recovered the captured purchase through its atomic RPC. One active 30-day pass was created, all seven earlier rows were preserved unchanged, and replay returned the identical expiry/one pass. No financial provider write, email or role change occurred. Twenty-seven scoped tests passed. The encrypted before-cutover backup plus separate encrypted recovery journal preserve this delta. The other unmatched fully refunded order remains excluded from active access. The 12 unpaid original orders and final source transition still require handling before switching application traffic. Earlier approval-pending statements below are historical.
+
 ### Production auth saved; active zone; payment transition issue discovered
 
 The owner approved the precise production auth changes. They are now saved and verified after reload: Site URL `https://ourvisibleuniverse.in`, apex/www `/auth**` returns plus the two preceding local/Workers returns. Cloudflare's overview now shows the zone activated. The public application A records still point to the original Lovable origin; no Worker custom domain or production application deployment has been made. Do not describe DNS propagation as the remaining sole gate.

@@ -1,5 +1,13 @@
 # Razorpay migration — 6 November 2026
 
+## Specifically approved purchase recovered
+
+The owner reviewed and approved the identified unrefunded 30-day purchase. A narrowly scoped maintenance command re-fetched the original order/payment, checked the exact reviewed references, verified source-to-target identity mapping and current confirmed account, and validated the INR amount, plan, captured state and zero refunds before registering its original order. It then used the existing independent payment service's recovery path and atomic database capture function. No provider write/charge/refund or fabricated webhook was made.
+
+Actual result: one active 30-day purchase record created; all seven preceding access rows preserved unchanged. Replaying recovery returned the same expiry and exactly one pass (`duplicate=true`). Twelve read-only provider requests, zero emails and zero role changes. The original order creation timestamp is retained; private approval/result evidence is encrypted outside Git. Twenty-seven scoped recovery/payment-service checks passed with zero failures/skips, including refusal of a different identity, plan, amount, currency, reference or refunded state and refusal to overwrite conflicting durable ownership.
+
+This verifies actual provider-backed recovery and atomic access/replay on the owned database. It does not prove a newly created owned-backend checkout or authentic Razorpay-origin webhook delivery. The fully refunded unmatched order was not granted access. Twelve unpaid original orders still require controlled registration/transition before application cutover; no generic unknown-order acceptance was added. Earlier pending-approval paragraphs below are historical.
+
 ## Production preflight: verified history and unresolved later payments
 
 All six imported Live access purchases now have independent authenticated, read-only provider verification: matching payment/order/owner/plan, amount/currency and captured state; zero refunds on those six. Minimized proof is encrypted outside Git. No provider financial action was performed.
