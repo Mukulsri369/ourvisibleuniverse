@@ -200,7 +200,9 @@ export function createTargetFromObservedObject(obj: ObservedObject): UniversalTa
           ? "quasar"
           : catLower.includes("cluster")
             ? "cluster"
-            : "pulsar";
+            : obj.visual === "star"
+              ? "star"
+              : "pulsar";
 
   const sizeLy = obj.diameterLy ?? (obj as any).size ?? 1;
   const distLy = obj.distance ?? 0;
@@ -221,22 +223,39 @@ export function createTargetFromObservedObject(obj: ObservedObject): UniversalTa
     description: {
       explorer: `${obj.name} is an extraordinary deep-space landmark located ${formatDistance(distLy)} away. ${obj.description}`,
       standard: `${obj.name}${obj.aliases?.length ? ` (${obj.aliases.join(", ")})` : ""} is a ${obj.subtype.toLowerCase()} in the ${obj.category.toLowerCase()} category${obj.extentBasis === "illustrative" ? "; its physical extent is not catalogued" : ` spanning ${formatDistance(sizeLy)} across`}.`,
-      advanced: `Astrophysical high-energy compact or volumetric structure with emission profiles characterized by multi-wavelength space observatory datasets (${obj.observed}).`,
+      advanced:
+        obj.hostGalaxy === "Andromeda (M31)"
+          ? obj.description + " " + obj.visualNote
+          : `Astrophysical high-energy compact or volumetric structure with emission profiles characterized by multi-wavelength space observatory datasets (${obj.observed}).`,
     },
     formationAndEvolution:
-      obj.nebulaClass === "emission"
-        ? "Young hot stars ionize the surrounding hydrogen gas. Stellar radiation and winds shape cavities and compressed star-forming ridges."
-        : `Formed through stellar evolution, mass ejection, or accretion; see the object-specific observed properties for its classification.`,
-    telescopeObservations: `Observed extensively across ${obj.observed || "multi-wavelength spectra"} (${obj.source || "NASA / ESA"}).`,
+      obj.hostGalaxy === "Andromeda (M31)"
+        ? obj.visual === "cluster"
+          ? "Clusters and associations are stellar populations formed from gas. This artistic population does not reconstruct this object's individual formation history."
+          : obj.visual === "star"
+            ? "Stellar variability is linked to stellar structure and evolution. No calibrated evolutionary track or light curve is encoded in this reconstruction."
+            : "Central black holes grow through accretion and mergers; this visualization does not establish M31's individual growth history."
+        : obj.nebulaClass === "emission"
+          ? "Young hot stars ionize the surrounding hydrogen gas. Stellar radiation and winds shape cavities and compressed star-forming ridges."
+          : `Formed through stellar evolution, mass ejection, or accretion; see the object-specific observed properties for its classification.`,
+    telescopeObservations:
+      obj.hostGalaxy === "Andromeda (M31)"
+        ? `Catalogue and observational provenance: ${obj.source}. ${obj.visualNote}`
+        : `Observed extensively across ${obj.observed || "multi-wavelength spectra"} (${obj.source || "NASA / ESA"}).`,
     isSimulatedOrModelled: true,
     modelledDetailsNote:
       obj.visualNote ||
       `Volumetric ray-marched shaders simulate gas emission lines (H-alpha, [O III]), dust extinction, and synchrotron relativistic geometries.`,
-    citations: [
-      obj.compactPhysics?.publishedCitation || obj.source || "NASA Astrophysics Data System (ADS)",
-      "Chandra X-Ray Observatory & Hubble Space Telescope Archive",
-      "Messier / New General Catalogue (NGC) Database",
-    ],
+    citations:
+      obj.hostGalaxy === "Andromeda (M31)"
+        ? [obj.source]
+        : [
+            obj.compactPhysics?.publishedCitation ||
+              obj.source ||
+              "NASA Astrophysics Data System (ADS)",
+            "Chandra X-Ray Observatory & Hubble Space Telescope Archive",
+            "Messier / New General Catalogue (NGC) Database",
+          ],
     rawEntity: obj,
   };
 }

@@ -22,7 +22,15 @@ for (const model of GALAXY_MODELS) {
   }
   assert(!/Hoag Ring OB|GC-42|AGN-Rim|GC-Sgr|Cen A HST/.test(model.system?.star.name ?? ""));
 }
-assert(M31_PLANETS.every((p) => p.confirmed && !p.moons?.length));
+assert.equal(
+  M31_PLANETS.length,
+  1,
+  "Preserve the existing microlensing exhibit without adding worlds",
+);
+assert.equal(M31_PLANETS[0].name, "PA-99-N2 b");
+assert(M31_PLANETS.every((p) => !p.confirmed && !p.moons?.length));
+assert(M31_PLANETS[0].description.includes("unconfirmed"));
+assert(M31_PLANETS[0].description.includes("hypothetical"));
 const get = (name: string) => GALAXY_MODELS.find((m) => m.name === name)!;
 for (const name of ["Cartwheel Galaxy", "Hoag's Object", "Malin 1"]) {
   const data = makeGalaxyStarData(get(name), 100000);

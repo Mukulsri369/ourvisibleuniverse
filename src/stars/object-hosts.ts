@@ -1,3 +1,4 @@
+import { M31_TARGETS, M31_HOST } from "./andromeda-catalog";
 import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 /** Catalogue membership, independent of camera distance. Unknown hosts stay unassigned. */
 export const MILKY_WAY = "Milky Way";
@@ -46,6 +47,7 @@ export const OBJECT_HOSTS: Record<string, string | null> = Object.fromEntries(
   mwIds.map((id) => [id, MILKY_WAY]),
 );
 Object.assign(OBJECT_HOSTS, {
+  ...Object.fromEntries(M31_TARGETS.map((t) => [t.id, M31_HOST])),
   ...Object.fromEntries(EXTRAGALACTIC_HII_TARGETS.map((t) => [t.id, t.host])),
   "3c273": "3C 273 (Quasar Host)",
   m87star: "M87 (Virgo A)",

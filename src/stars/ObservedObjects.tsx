@@ -1,4 +1,10 @@
 // @ts-nocheck
+import {
+  clusterPopulation,
+  capClusterPointShader,
+  clusterPointProgramKey,
+} from "./andromeda-cluster-model";
+import { M31_QUAT } from "./andromeda-data";
 import { useExploration } from "./exploration-scope";
 import { objectHost } from "./object-hosts";
 import { SelectedObjectRadiance } from "./SelectedObjectRadiance";
@@ -8,7 +14,7 @@ import { NeutronSurface, PlasmaJets } from "./CompactObjectMaterials";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OBSERVED_OBJECTS, objectPosition, type ObservedObject } from "./observed-objects";
 import { OBSERVED_VISUAL_PROFILES, type ObservedVisualProfile } from "./observed-object-visuals";
@@ -302,12 +308,13 @@ function StarDetail({
 }) {
   const star = useRef<THREE.Mesh>(null);
   const dwarf = profile.morphology === "white-dwarf";
+  const m31Variable = item.hostGalaxy === "Andromeda (M31)";
   const dustProfile =
     profile.morphology === "dusty-supergiant"
       ? profile
       : { ...profile, morphology: "dusty-supergiant" as const, particleCount: 900 };
   const material = useMemo(() => {
-    const cool = new THREE.Color(item.color).multiplyScalar(dwarf ? 0.9 : 0.72);
+    const cool = new THREE.Color(item.color).multiplyScalar(m31Variable ? 1.4 : dwarf ? 0.9 : 0.72);
     const hot = new THREE.Color(item.color).lerp(new THREE.Color(item.accent), 0.35);
     return new THREE.ShaderMaterial({
       vertexShader: STAR_VERT,
@@ -315,14 +322,21 @@ function StarDetail({
       uniforms: {
         uTime: { value: 0 },
         uCool: { value: cool },
-        uHot: { value: hot.multiplyScalar(dwarf ? 1.35 : 1.15) },
+        uHot: { value: hot.multiplyScalar(m31Variable ? 2.4 : dwarf ? 1.35 : 1.15) },
         uGran: { value: dwarf ? 16 : 6.5 },
-        uSpots: { value: dwarf ? 0.15 : 0.75 },
+        uSpots: { value: m31Variable ? 0.15 : dwarf ? 0.15 : 0.75 },
         uActivity: { value: dwarf ? 0.25 : 0.6 },
       },
     });
-  }, [item.color, item.accent, dwarf]);
+  }, [item.color, item.accent, dwarf, m31Variable]);
   const corona = useMemo(makeGlowTexture, []);
+  useEffect(
+    () => () => {
+      material.dispose();
+      corona.dispose();
+    },
+    [material, corona],
+  );
   useFrame(() => {
     const t = motionTimeSeconds();
     material.uniforms.uTime.value = t;
@@ -358,18 +372,55 @@ function StarDetail({
           color={item.accent}
           transparent
           opacity={dwarf ? 0.5 : 0.38}
+          toneMapped={!m31Variable}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
       </sprite>
-      {!dwarf && (
+      {!dwarf && item.hostGalaxy !== "Andromeda (M31)" && (
         <NebulaDetail item={item} profile={dustProfile} scale={0.72} sizeScale={scale * 0.72} />
       )}
     </group>
   );
 }
 
+const CLUSTER_DISPLAY_LUMINANCE = new THREE.Color(4, 4, 4);
+function AndromedaCluster({ item, scale }: { item: ObservedObject; scale: number }) {
+  const kind = item.id === "m31-g1" ? "globular" : "association";
+  const { positions, colors } = useMemo(() => clusterPopulation(kind), [kind]);
+  const glow = useMemo(makeGlowTexture, []);
+  useEffect(() => () => glow.dispose(), [glow]);
+  return (
+    <group
+      scale={scale}
+      quaternion={kind === "association" ? M31_QUAT : undefined}
+      name={"cluster-reconstruction:" + item.id}
+    >
+      <points>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+          <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+        </bufferGeometry>
+        <pointsMaterial
+          size={scale * 0.024}
+          color={CLUSTER_DISPLAY_LUMINANCE}
+          onBeforeCompile={capClusterPointShader}
+          customProgramCacheKey={clusterPointProgramKey}
+          vertexColors
+          map={glow}
+          transparent
+          opacity={0.85}
+          toneMapped={false}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+    </group>
+  );
+}
+
 function Detail({ item, scale }: { item: ObservedObject; scale: number }) {
+  if (item.visual === "cluster") return <AndromedaCluster item={item} scale={scale} />;
   const profile = OBSERVED_VISUAL_PROFILES[item.id];
   if (!profile) return null;
   if (profile.morphology === "dormant-blackhole")
@@ -386,7 +437,11 @@ function Detail({ item, scale }: { item: ObservedObject; scale: number }) {
     ["quasar-jet", "blazar", "disturbed-quasar", "unresolved-quasar"].includes(profile.morphology)
   )
     return <QuasarDetail item={item} profile={profile} scale={scale} />;
-  if (["white-dwarf", "red-supergiant", "dusty-supergiant"].includes(profile.morphology))
+  if (
+    ["white-dwarf", "red-supergiant", "dusty-supergiant", "variable-star"].includes(
+      profile.morphology,
+    )
+  )
     return <StarDetail item={item} profile={profile} scale={scale} />;
   return <NebulaDetail item={item} profile={profile} scale={scale} />;
 }

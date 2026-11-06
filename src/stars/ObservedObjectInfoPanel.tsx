@@ -98,7 +98,9 @@ export function ObservedObjectInfoPanel() {
                 ✕
               </button>
               <div className="text-[10px] uppercase tracking-[0.25em] text-white/40">
-                NASA-observed object
+                {item.hostGalaxy === "Andromeda (M31)"
+                  ? "Observed catalogue object"
+                  : "NASA-observed object"}
               </div>
               <h2 className="mt-1 pr-10 text-3xl font-light">{item.name}</h2>
               <div className="mt-1 text-xs uppercase tracking-[0.18em] text-white/45">
@@ -125,11 +127,22 @@ export function ObservedObjectInfoPanel() {
               </button>
 
               <SelectedObjectViewControls key={item.id} id={item.id} />
-              <NasaResources
-                name={item.name}
-                query={item.aliases[0]}
-                alt={[...item.aliases, item.subtype]}
-              />
+              {item.hostGalaxy === "Andromeda (M31)" ? (
+                <a
+                  href={item.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 block rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-xs text-cyan-200 hover:bg-white/10"
+                >
+                  View scientific source ↗
+                </a>
+              ) : (
+                <NasaResources
+                  name={item.name}
+                  query={item.aliases[0]}
+                  alt={[...item.aliases, item.subtype]}
+                />
+              )}
               <div className="mt-6 grid grid-cols-2 gap-y-4">
                 <Stat label="Category" value={item.category} />
                 <Stat label="Distance" value={distanceLabel(item.distance)} />

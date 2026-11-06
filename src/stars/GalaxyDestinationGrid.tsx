@@ -65,7 +65,12 @@ export function galaxyDestinations(name: string, descriptor?: VisitGalaxy): Gala
         id: p.name,
         name: p.name,
         type: "Planet",
-        note: p.confirmed ? "Observed candidate" : "Modelled world",
+        note:
+          name === ANDROMEDA_NAME
+            ? "Unconfirmed microlensing planet candidate; hypothetical orbit"
+            : p.confirmed
+              ? "Observed candidate"
+              : "Modelled world",
         action: "body",
       });
       for (const m of p.moons ?? [])

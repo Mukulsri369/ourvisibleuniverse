@@ -1,5 +1,9 @@
+import { M31_TARGETS } from "./andromeda-catalog";
 import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 export type ObservedMorphology =
+  | "variable-star"
+  | "globular-cluster"
+  | "stellar-association"
   | "filament-remnant"
   | "orion-cloud"
   | "pillars"
@@ -445,6 +449,27 @@ Object.assign(
         tilt: [0, 0, 0],
         stretch: [1, 1, 1],
         particleCount: 5200,
+      },
+    ]),
+  ),
+);
+
+Object.assign(
+  OBSERVED_VISUAL_PROFILES,
+  Object.fromEntries(
+    M31_TARGETS.map((t, i) => [
+      t.id,
+      {
+        morphology:
+          t.visual === "blackhole"
+            ? "dormant-blackhole"
+            : t.visual === "cluster"
+              ? t.id === "m31-g1"
+                ? "globular-cluster"
+                : "stellar-association"
+              : "variable-star",
+        seed: 3100 + i,
+        tilt: [0, 0, 0],
       },
     ]),
   ),

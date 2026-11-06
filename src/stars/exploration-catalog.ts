@@ -146,3 +146,16 @@ export function searchExplorer(
     .sort((a, b) => score(b) - score(a))
     .slice(0, 80);
 }
+
+/** Observed stars and clusters retain object navigation while filtering by scientific class. */
+export function matchesExplorerCategory(d: ExplorerEntry, category: string) {
+  const observedStar =
+    d.kind === "object" &&
+    ["Variable star", "Unusual star", "Supergiant", "Dwarf star"].includes(d.type);
+  const cluster = d.kind === "object" && d.type === "Star cluster";
+  if (category === "all") return true;
+  if (category === "star") return observedStar || d.kind === "star" || d.kind === "host";
+  if (category === "cluster") return cluster;
+  if (category === "object") return d.kind === "object" && !observedStar && !cluster;
+  return d.kind === category || (category === "planet" && d.kind === "exo");
+}

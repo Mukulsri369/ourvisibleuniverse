@@ -1,9 +1,12 @@
 // @ts-nocheck
+import { M31_CENTER } from "./andromeda-data";
+import { ANDROMEDA_OBJECTS } from "./andromeda-catalog";
 import { EXTRAGALACTIC_HII_OBJECTS } from "./extragalactic-hii";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 
 import { blackHoleModel, isBlackHoleTarget } from "./black-hole-model";
 export type ObjectCategory =
+  | "Star cluster"
   | "Nebula"
   | "Quasar"
   | "Neutron star"
@@ -15,7 +18,7 @@ export type ObjectCategory =
   | "Variable star"
   | "Dwarf star";
 export type ObjectVisual =
-  "cloud" | "shell" | "bipolar" | "jet" | "pulsar" | "blackhole" | "star" | "remnant";
+  "cluster" | "cloud" | "shell" | "bipolar" | "jet" | "pulsar" | "blackhole" | "star" | "remnant";
 
 export type CompactPhysics = {
   compactClass:
@@ -2036,10 +2039,11 @@ export const OBSERVED_OBJECTS: ObservedObject[] = [
   }),
 ];
 
-OBSERVED_OBJECTS.push(...EXTRAGALACTIC_HII_OBJECTS);
+OBSERVED_OBJECTS.push(...EXTRAGALACTIC_HII_OBJECTS, ...ANDROMEDA_OBJECTS);
 
 export const OBJECT_BY_ID = new Map(OBSERVED_OBJECTS.map((item) => [item.id, item]));
 export const OBJECT_CATEGORIES: ObjectCategory[] = [
+  "Star cluster",
   "Black hole",
   "Neutron star",
   "Quasar",
@@ -2053,8 +2057,10 @@ export const OBJECT_CATEGORIES: ObjectCategory[] = [
 ];
 
 export function objectPosition(
-  item: Pick<ObservedObject, "l" | "b" | "distance">,
+  item: Pick<ObservedObject, "l" | "b" | "distance"> & { id?: string },
 ): [number, number, number] {
+  // Nuclear exhibit aligns with the existing coarse galaxy centre, not a new disk orientation.
+  if (item.id === "m31-nucleus") return M31_CENTER.toArray();
   const lr = (item.l * Math.PI) / 180,
     br = (item.b * Math.PI) / 180,
     c = Math.cos(br);

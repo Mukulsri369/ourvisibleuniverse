@@ -22,6 +22,7 @@ import { useExploration, type ExploreTarget } from "./exploration-scope";
 import { EXPLORER_GALAXIES, explorerGalaxy } from "./exploration-galaxies";
 import {
   galaxyEntries,
+  matchesExplorerCategory,
   outsideEntries,
   searchExplorer,
   type ExplorerEntry,
@@ -95,13 +96,7 @@ export function GalaxyExplorer() {
         : tab === "beyond"
           ? outsideEntries()
           : [];
-    return rows.filter(
-      (d) =>
-        category === "all" ||
-        d.kind === category ||
-        (category === "star" && d.kind === "host") ||
-        (category === "planet" && d.kind === "exo"),
-    );
+    return rows.filter((d) => matchesExplorerCategory(d, category));
   }, [query, inside, active, tab, category, selected, journeyGalaxy]);
   const galaxies = useMemo(
     () =>
@@ -303,6 +298,7 @@ export function GalaxyExplorer() {
                     <option value="all">All objects</option>
                     <option value="solar">Solar system</option>
                     <option value="star">Stars</option>
+                    <option value="cluster">Clusters & associations</option>
                     <option value="planet">Planets & moons</option>
                     <option value="object">Nebulae & compact objects</option>
                     <option value="region">Regions</option>

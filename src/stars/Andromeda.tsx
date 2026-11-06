@@ -867,7 +867,7 @@ function PA99N2System() {
               textShadow: "0 0 12px rgba(255,180,90,0.8)",
             }}
           >
-            PA-99-N2
+            PA-99-N2 · reconstructed system
           </div>
         </Html>
       </Billboard>

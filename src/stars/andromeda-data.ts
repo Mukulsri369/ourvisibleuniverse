@@ -103,11 +103,11 @@ export const PA99N2_STAR = {
   name: "PA-99-N2",
   radius: 0.5 * SOLAR_RADIUS_AU * EXO_STAR_MAGNIFY * M31_AU,
   color: "#ffd39a",
-  spectral: "K-type main sequence (lens star)",
-  mass: "≈ 0.5 M☉",
+  spectral: "Microlensing event; lens-star type uncertain",
+  mass: "Model-dependent; not independently measured",
   distance: M31_DISTANCE,
   description:
-    "The lensing star of microlensing event PA-99-N2, detected by the POINT-AGAPE survey toward M31 in 1999. Roughly half the Sun's mass, it hosts one of the few planet candidates ever found in another galaxy.",
+    "The lensing star of microlensing event PA-99-N2, detected by the POINT-AGAPE survey toward M31 in 1999. A planetary interpretation has been proposed but is unconfirmed. The displayed stellar surface, surrounding belt and exact 3D disk location are hypothetical educational reconstructions.",
 };
 
 export const M31_PLANETS: M31PlanetDef[] = [
@@ -129,9 +129,9 @@ export const M31_PLANETS: M31PlanetDef[] = [
       color: "#a08a68",
     },
 
-    confirmed: true,
+    confirmed: false,
     description:
-      "An unconfirmed microlensing candidate: a gas giant of about 6.3 Jupiter masses orbiting roughly 2.5 AU from its star. The host and orbital interpretation are uncertain.",
+      "An unconfirmed microlensing candidate: a gas giant of about 6.3 Jupiter masses orbiting roughly 2.5 AU from its star. The host and orbital interpretation are uncertain. The displayed eccentricity, inclination, period, spin, rings, colors and exact disk placement are hypothetical educational choices, not observed orbital measurements.",
   },
 ];
 
