@@ -1,5 +1,9 @@
 # OVU verification — 4 November 2026
 
+## Actual held upload and domain conflict — 6 November 2026
+
+Worker upload passed: version `b6e783bf-c8f7-46de-baff-9c5e803a9f4e`, 15,925.26 KiB raw/3,546.81 KiB gzip, startup 1 ms; current production-origin/checkout-hold variables and five secret binding names independently verified. Domain triggers only partially updated: both CLI and actual dashboard Add Domain returned 100117 for the existing A records. Public NS uses Cloudflare; apex A still uses 185.158.133.1. No domain attachment, DNS deletion or complete application cutover is claimed. Triggers-only CLI dry run passed; two-record deletion confirmation awaits approval. Three timestamp regression tests passed in addition to the prior 47-check release set.
+
 ## Merchant delivery-log inspection and timestamp regression — 6 November 2026
 
 Correct merchant Owner/Live session verified; exact existing enabled webhook/four events confirmed. Actual developer View logs reports no requests in its selected past-three-hours window. Numeric Unix creation-time checks place both unmatched purchases about five days before this inspection and before webhook setup. The earlier post-snapshot chronology was wrong, not a delivery failure. Three new tests passed for explicit-offset timestamps, UTC/IST equivalence, second boundaries and rejection of locale dates/Date-object/millisecond coercion. No financial provider write, replay or Support message occurred; real new-checkout/provider-origin delivery remains unverified.

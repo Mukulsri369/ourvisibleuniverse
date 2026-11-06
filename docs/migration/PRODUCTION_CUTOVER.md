@@ -4,6 +4,16 @@ The owner reports the new application/payment workflow works and explicitly auth
 
 ## Latest reconciliation and prepared delegation
 
+### Held release uploaded; conflicting A-record removal awaiting confirmation
+
+Actual held Worker deployment is now **`b6e783bf-c8f7-46de-baff-9c5e803a9f4e`** (6 November 2026 08:59:41 UTC). Production origin/Live mode/new-checkout hold and the five required private binding names are verified; no secret values were read. Upload 15,925.26 KiB raw/3,546.81 KiB gzip, reported startup 1 ms. This updates the existing Workers hostname; **it has not switched the apex/www application traffic**.
+
+Both Wrangler and Cloudflare's Add Domain workflow reject attachment with API error **100117** because apex/www already have externally managed A records. The exact conflicting records are `ourvisibleuniverse.in A 185.158.133.1` and `www.ourvisibleuniverse.in A 185.158.133.1`, both DNS-only/TTL 600, preserved in the registrar zone backup. The remaining four CNAME/TXT records are unaffected. Public DNS delegation now returns the Cloudflare pair, but the apex A still returns the original IP.
+
+Only those two A records are selected in the actual DNS UI. Its final confirmation explicitly says permanently delete two records and requires typing DELETE; **no deletion has been submitted**. Computer Use requires action-time confirmation for that step. Once approved, remove only these two backed-up routing records and immediately run the installed, verified triggers-only command `node node_modules/wrangler/bin/wrangler.js triggers deploy --config dist/server/wrangler.production.json` to create the two managed Custom Domains without another code upload. The command's dry run passed; it is marked experimental by the installed Wrangler version, so verify both domain results explicitly. Do not delete a zone, domain registration, database, customer record, CNAME or TXT record.
+
+If managed attachment fails after removal, promptly restore the two exact A records/600-second TTL using the normal DNS controls and retained backup; preserve all target data and journals. The already uploaded Worker remains in checkout hold. After successful domain/TLS verification, observe the previous A-record TTL, reconcile source/provider deltas and then reopen checkout using the tested final phase. No purchase, Store change, Lovable cancellation, provider charge/refund or original database write is included.
+
 ### Merchant session verified; event chronology corrected
 
 The correct existing merchant email is `ourvisibleuniverse@gmail.com`; the owner completed private login. Its role is Owner and Test Mode is off. The existing exact webhook is Enabled with four intended events. Delivery history is exposed at `/app/developers/webhooks`, not the legacy `/app/webhooks` configuration page. Actual View logs reports no requests in the selected past-three-hours range.

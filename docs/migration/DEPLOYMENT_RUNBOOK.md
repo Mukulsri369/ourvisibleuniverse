@@ -1,5 +1,9 @@
 # OVU staging/deployment runbook
 
+## Current held release and domain conflict — 6 November 2026
+
+Held Worker version `b6e783bf-c8f7-46de-baff-9c5e803a9f4e` is uploaded with production origin, Live mode and new checkout disabled. Five existing private bindings are retained/verified. CLI and dashboard attachment both fail with 100117 until the exact two backed-up apex/www A records to `185.158.133.1` (TTL 600) are removed. The final two-record deletion dialog is prepared, not submitted, pending required action-time confirmation. Follow [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md) for triggers-only attachment, immediate DNS rollback if needed and post-cutover drain/activation. The old public origin still serves traffic. No further general go-live approval is needed; the narrow deletion confirmation is separate.
+
 ## Production authorization — 6 November 2026
 
 Production cutover is now explicitly authorized following owner-reported acceptance. Follow [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md): reconcile the seventh source access record and later writes, preserve the complete registrar zone and target backup, establish a write drain, configure production auth and verify the active zone before domain attachment. Cloudflare Free onboarding is at DNS review; traffic remains on the original origin. Retain the same Worker and existing signed Live webhook. Purchases, Store changes and Lovable cancellation remain excluded. Earlier no-production-approval entries below are historical.

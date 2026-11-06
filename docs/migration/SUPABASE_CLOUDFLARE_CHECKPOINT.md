@@ -1,5 +1,11 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Held Worker uploaded; exact A-record replacement approval pending — 6 November 2026
+
+Current actual Worker version `b6e783bf-c8f7-46de-baff-9c5e803a9f4e`: production origin, Live mode, new-checkout hold, all five private bindings verified by name. Upload 15,925.26 KiB raw/3,546.81 KiB gzip; startup 1 ms. Domain attachment failed with Cloudflare 100117 in both CLI and dashboard because of the two existing DNS-only A records to 185.158.133.1 (apex/www, TTL 600). The primary website still serves the old origin; do not report a completed application switch.
+
+Only those two backed-up A records are selected in Cloudflare's final permanent-deletion confirmation; no deletion submitted. Action-time confirmation is required. Then use the verified triggers-only command in [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md) to attach managed domains immediately, retain all four other records, verify TLS/app/drain/source deltas and only then reopen checkout. Provider delivery remains unverified rather than defective: the inspected old purchases predate webhook setup; correct merchant Owner/Live configuration and empty recent log history are verified.
+
 ## Merchant verified; ready for held domain attachment — 6 November 2026
 
 Owner logged into the correct existing merchant account. Owner role/Live mode, enabled exact endpoint and four events are verified. The new developer view exposes actual logs; it reports no requests in the past-three-hours window. The two unmatched historical purchases are approximately five days old, preceding webhook setup and both source snapshots. Earlier claims that they postdated the source snapshot were incorrect and are corrected. No absence-of-delivery defect is established. Three timezone/Unix-unit regression tests passed. Actual new-checkout and provider-origin webhook acceptance remain unverified for owner testing; no new charge/provider write was made.

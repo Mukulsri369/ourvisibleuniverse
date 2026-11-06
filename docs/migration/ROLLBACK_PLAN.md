@@ -1,5 +1,9 @@
 # OVU rollback
 
+## Held domain-attachment checkpoint — 6 November 2026
+
+Current Worker version is `b6e783bf-c8f7-46de-baff-9c5e803a9f4e` with new checkout held; the primary apex/www still point at the original `185.158.133.1` because domain attachment was rejected (100117). The two A records (TTL 600) are backed up and selected but not deleted. After the approved routing-record removal, if managed domain attachment fails, restore those exact two A records promptly and verify DNS/SSL; leave the four CNAME/TXT records and all databases unchanged. Do not revert customer data to the old seven-row source snapshot: the owned target now includes the specifically approved recovery and durable legacy-order ownership. The prior tested Worker `7714f66b-0a87-4d6d-ac22-2569fc0cd0f0` remains a code/variable rollback reference, not a database restore instruction. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+
 ## Live checkout hold — 6 November 2026
 
 Live staging checkout is enabled at version `7714f66b-0a87-4d6d-ac22-2569fc0cd0f0`. Prefer the explicit Live checkout hold over a mode rollback: keep Live event verification/recovery and all ledger records intact. See [LIVE_PAYMENT_TEST_HANDOFF.md](LIVE_PAYMENT_TEST_HANDOFF.md) for exact held-config commands and financial rollback limits. DNS and original production remain unchanged.
