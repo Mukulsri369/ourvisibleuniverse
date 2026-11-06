@@ -1,5 +1,13 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Production auth saved; zone active; payment reconciliation gate — 6 November 2026
+
+Approved production Site URL and apex/www `/auth**` redirects are saved and verified after reload; existing two returns remain. Cloudflare has activated the zone. Application A records still use the old Lovable origin and the Worker remains on its prior tested deployment; no application traffic cutover occurred.
+
+The encrypted logical target backup covers 28 public plus six auth/storage tables, 266 rows, 80 users/seven passes, 18 function definitions and 49 policies, plus schema metadata. Inventory and encryption round-trip checks and two new helper tests passed. Target storage objects: zero. No full restore rehearsal/platform/session backup is claimed.
+
+Read-only provider audit verifies the six imported Live purchases without refunds. Wider order pagination discovered 12 unpaid original OVU orders plus two later paid orders absent from source history: one fully refunded and one unrefunded captured 30-day purchase. Current owned Live order/transaction counts are both zero; the latter payment is not already fulfilled in the new backend. Source still has 79 users/seven passes. A private identity/period recovery review is prepared outside Git; recovery requires the owner's per-account access confirmation. No customer grant or financial write was made. Resolve the missing purchase and protect pending-order late captures before app cutover. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+
 ## Nameserver delegation saved — 6 November 2026
 
 The owner approved the exact nameserver change. GoDaddy now confirms custom nameservers `candy.ns.cloudflare.com` and `sullivan.ns.cloudflare.com`. Cloudflare awaits registrar propagation; active-zone status is not yet verified. All six actual DNS checks against Cloudflare's assigned authority passed, retaining the original apex/www origin, CNAME and three TXT values. No Worker custom domain or application cutover has occurred.

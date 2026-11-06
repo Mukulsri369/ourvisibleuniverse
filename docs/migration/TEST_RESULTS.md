@@ -1,5 +1,13 @@
 # OVU verification — 4 November 2026
 
+## Production auth, logical backup and financial preflight — 6 November 2026
+
+Production Supabase Site URL and two additional return patterns persist after reload; the two preceding returns remain. Cloudflare overview now shows active zone; this does not mean the new application is attached to production domains.
+
+Two backup query/integrity tests passed. Actual read-only backup capture: 28 public + six auth/storage tables, 266 rows, 80 users, seven passes, 18 functions/49 policies and schema metadata. Inventory/count validation and encrypted decrypt/hash round-trip passed; zero target storage objects. Plaintext download removed; private backup stays outside Git. Restore rehearsal not performed.
+
+Twelve authenticated read-only provider GETs verified all six imported Live pass purchases and found no refunds on those six. A complete scoped order audit (one order page plus two payment-detail reads) found 12 unpaid orders and two additional paid orders absent from source history: one fully refunded, one unrefunded captured payment. Current owned-project Node API reads confirm zero Live orders and transactions. A first PowerShell API probe was rejected because its default user agent was classified as a browser; its empty output was not treated as evidence. The independent Node read then succeeded. The source remains 79 users/seven passes. No financial/customer writes were made by these audits; no new-backend provider checkout acceptance is claimed. A private recovery plan is prepared for owner confirmation, without exposing its customer identifiers in Git.
+
 ## Approved DNS delegation postflight — 6 November 2026
 
 GoDaddy's saved state confirms the exact approved Cloudflare pair. Six authoritative DNS queries against `candy.ns.cloudflare.com` passed for apex/www A, `_domainconnect` CNAME, `_dmarc`, `_lovable` and `_lovable.www` TXT. Both A values remain the original origin. Cloudflare still reports registrar propagation pending; an immediate public-resolver NS check returned the old pair. No active-zone, production application routing or production-auth acceptance is claimed. Production auth settings are prepared but unsaved pending action-time confirmation. No code changed in this DNS step; the prior 20-test reconciliation run and TypeScript/build results are retained rather than rerun without cause.

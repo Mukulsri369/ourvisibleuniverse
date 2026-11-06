@@ -1,5 +1,13 @@
 # Razorpay migration — 6 November 2026
 
+## Production preflight: verified history and unresolved later payments
+
+All six imported Live access purchases now have independent authenticated, read-only provider verification: matching payment/order/owner/plan, amount/currency and captured state; zero refunds on those six. Minimized proof is encrypted outside Git. No provider financial action was performed.
+
+A wider bounded, paginated read-only audit found 12 unpaid scoped OVU orders and two additional paid orders created after the source snapshot. One is fully refunded; one is an unrefunded captured 30-day purchase missing a pass in both source history and the current owned payment ledger. Owned Live order/transaction counts were independently verified as zero using successful Node API reads. Do not label these as purchases already handled by the new backend, or infer provider checkout/webhook acceptance from earlier owner reports. Source remains 79 users/seven passes.
+
+A private per-account recovery review is prepared outside Git. Its proposal registers/reconciles the authentic existing purchase through the backend and applies the purchased 30 days using the established later-of-now/current-expiry rule, without another charge. The owner's per-identity/access-period confirmation is required before this access change. No customer pass, role, refund or financial transaction has been modified by this audit. Before application traffic moves, resolve this payment, preserve the refunded history without active access, and establish controlled handling of late captures for the 12 pending original orders. Never permit arbitrary unknown merchant orders to bypass durable ownership registration. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+
 ## Live staging payment setup enabled — 6 November 2026
 
 The user completed private webhook-secret entry. Razorpay's saved webhook is **Enabled** at the exact staging `/api/public/payments/razorpay?mode=live` endpoint, confirms that a secret was provided, and lists `payment.failed`, `payment.captured`, `order.paid`, `refund.processed`. Both original and staging websites remain approved. A private fingerprint comparison also confirmed that the provisioned Live Key ID matches the signed-in merchant; no key values were displayed.
