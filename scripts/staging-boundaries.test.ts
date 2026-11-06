@@ -42,6 +42,20 @@ test("staging HTML, redirects and errors deny indexing while retaining status, c
   }
 });
 
+test("retained Workers webhook hostname stays noindex after promotion while production remains crawlable", async () => {
+  const environment = { OVU_DEPLOYMENT_STAGE: "production" };
+  for (const host of ["ourvisibleuniverse.in", "www.ourvisibleuniverse.in"]) {
+    const response = new Response("production", { headers: { "Cache-Control": "private" } });
+    assert.equal(deploymentHeaders(response, environment, new Request(`https://${host}/academy`)), response);
+    assert.equal(response.headers.get("X-Robots-Tag"), null);
+  }
+  const response = deploymentHeaders(new Response("retained", { headers: { "Set-Cookie": "synthetic=qa" } }),
+    environment, new Request("https://ovu-supabase-staging.mukul-srivastava-025.workers.dev/academy"));
+  assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow, noarchive");
+  assert.equal(response.headers.get("Set-Cookie"), "synthetic=qa");
+  assert.equal(await response.text(), "retained");
+});
+
 test("private provisioning selects only two bindings for the exact approved destination", () => {
   const config = stagingConfiguration(built, { ...input, accountId: "bd0819150e88cf64f97548038790d560", origin: "https://ovu-supabase-staging.mukul-srivastava-025.workers.dev" });
   const environment = { SUPABASE_URL: config.vars.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: "sb_secret_synthetic_qa",

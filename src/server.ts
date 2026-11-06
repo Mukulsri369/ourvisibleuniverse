@@ -43,13 +43,13 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return deploymentHeaders(await normalizeCatastrophicSsrResponse(response), env);
+      return deploymentHeaders(await normalizeCatastrophicSsrResponse(response), env, request);
     } catch (error) {
       console.error(error);
       return deploymentHeaders(new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
-      }), env);
+      }), env, request);
     }
   },
 };

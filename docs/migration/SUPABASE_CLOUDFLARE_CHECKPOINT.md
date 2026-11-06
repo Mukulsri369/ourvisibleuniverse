@@ -1,5 +1,11 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Production cutover authorized; final reconciliation pending — 6 November 2026
+
+The owner reports successful application/payment acceptance and authorized production go-live. Preserve this authorization; no generic repeat approval is needed. Cloudflare Free ($0) domain onboarding has reached DNS review, but nameservers and application traffic remain unchanged. GoDaddy is signed in; its full DNS inventory and the source database panel are intermittently timing out under browser control. User refresh requested.
+
+The original database now shows seven access records versus six in the imported 5 November snapshot. Reconcile the difference and preserve newer target writes before cutover. Lovable's full export control was disabled under its 24-hour restriction; do not bypass it. The new production configuration utility gates generation on verified DNS, active zone, source delta, target backup, write drain and production auth. It preserves the existing Worker/secrets/webhook and targets only OVU apex/www. The retained Workers hostname now keeps noindex even under production configuration. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md) for actual state, execution order and rollback. No production deployment, DNS switch, purchase or Store change has been made.
+
 ## Live staging payment setup enabled — 6 November 2026
 
 The user completed private webhook-secret entry. Razorpay's saved webhook is **Enabled** at the exact staging `/api/public/payments/razorpay?mode=live` endpoint, confirms that a secret was provided, and lists `payment.failed`, `payment.captured`, `order.paid`, `refund.processed`. Both original and staging websites remain approved. A private fingerprint comparison also confirmed that the provisioned Live Key ID matches the signed-in merchant; no key values were displayed.

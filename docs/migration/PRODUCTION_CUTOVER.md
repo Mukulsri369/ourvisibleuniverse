@@ -1,0 +1,37 @@
+# OVU production cutover — 6 November 2026
+
+The owner reports the new application/payment workflow works and explicitly authorized going live with owned Supabase and Cloudflare. This supersedes the old production-approval gate. Store, purchases and Lovable cancellation remain outside scope. Owner acceptance is recorded separately from independently verified financial-ledger reconciliation.
+
+## Actual state
+
+- Migration branch `migration/supabase-cloudflare`; deployed application remains `73344ef`, Worker version `7714f66b-0a87-4d6d-ac22-2569fc0cd0f0`.
+- Owned database `pdvwkdggyyrfkoqrpbji`; existing Worker `ovu-supabase-staging` already has the five required private bindings and enabled Live checkout. Retain the Worker and the existing signed Razorpay webhook URL; changing the public application hostname does not require rotating keys or creating another merchant integration.
+- Public authoritative nameservers observed: `ns45.domaincontrol.com`, `ns46.domaincontrol.com`. Existing apex A record: `185.158.133.1`, TTL 600. No nameservers, production routes or production traffic changed.
+- Cloudflare Free ($0) was selected. Onboarding is at **Review your DNS records**, not activated. Its scan found apex/www A records to the existing origin, `_domainconnect` CNAME and `_dmarc` TXT. This is an incomplete-until-compared scan, not a registrar zone backup. The scan defaults `_domainconnect` to proxied; preserve that service as DNS-only after comparison. Do not apply speculative mail records.
+- GoDaddy is authenticated; OVU's DNS Records panel is open. Browser control repeatedly timed out reading its complete inventory and Lovable's database panel. User refresh requested. Do not change nameservers based solely on Cloudflare's scan.
+- Previous verified source snapshot: 5 November 2026 14:15:21 UTC, 78 users and six access records. Source database UI subsequently shows **seven** access records. Determine the actual difference privately: a count alone cannot identify a payment, its owner, refund or entitlement duration.
+- Lovable's full export Start control was disabled under its one-export-per-24-hours restriction. Do not bypass that restriction. Use a legitimate complete read-only delta/export with the existing verified snapshot, or obtain a fresh full export when available. Existing target users, new purchases, Academy records and reviewer account must be preserved.
+
+## Ordered execution
+
+1. Export and privately preserve the full GoDaddy zone, forwarding and DNSSEC state. Compare every actual record with pending Cloudflare; preserve mail, TXT, verification and subdomain records. Confirm DNSSEC/DS compatibility before a nameserver change. No registrar transfer or paid plan is needed as part of this preparation.
+2. Back up the owned target's current identities and application records privately outside Git. Record counts/digests and capture a fresh complete source snapshot or verified delta. Reconcile original IDs/verified identities and all entitlement fields; never overwrite a newer target purchase or copy an aggregate expiry without reconciling its allocation lineage. Resolve each conflict explicitly.
+3. Arrange a bounded old-site registration/payment/write drain before the final source snapshot. Preserve original code and original webhook/merchant settings. Inspect pending original checkout orders and reconcile any late captures/refunds; do not globally disable the merchant account. DNS propagation alone does not prevent late source writes.
+4. Activate the verified Cloudflare zone while preserving the existing origin records; verify authoritative DNS and certificate readiness before attaching the Worker. Nameserver delegation and application cutover are separate steps. Keep the registrar zone backup and old nameserver values.
+5. Configure the new Supabase Site URL as `https://ourvisibleuniverse.in` and its exact production auth return path. Retain necessary local/Workers redirects during transition. The Google provider callback remains the owned Supabase `/auth/v1/callback`; no Google secret rotation is required. Complete any exact browser-policy confirmation at the action itself.
+6. Generate a reviewed readiness JSON outside Git with all six checks true **only after** actual evidence exists: `dnsInventoryVerified`, `zoneActive`, `sourceDeltaReconciled`, `targetBackupVerified`, `sourceWriteDrainVerified`, `productionAuthConfigured`. The local `prepare-production-config.mjs --prepare-only --readiness-file <path>` utility refuses generation when any check is unverified. These flags are operator attestations, not automatic verification.
+7. Promote the existing Worker to production origin, retaining its current private bindings and Live settings; attach exact custom domains `ourvisibleuniverse.in` and `www.ourvisibleuniverse.in`. Do not include Store routes. The utility preserves the Workers hostname so Razorpay's existing webhook continues to reach the same payment service. That hostname remains noindex after promotion; it is a retained callback/QA alias, not an isolated staging environment. Production MCP metadata uses the configured production origin.
+8. Verify apex/www SSL, SSR, routing, sign-in/logout, the owned Supabase issuer, imported owner access, paid-content denial, Academy progress/certificates, mobile/scientific rendering and hosted signed-webhook boundary. Verify owner-performed payment results read-only; do not initiate a charge or refund. Check authentic provider delivery/idempotency and database allocations, not only the checkout dialog.
+9. Monitor errors, pending payments and any old-source writes through propagation. Record final source/target counts, exact deployed version and postflight results. Retain Lovable until separately authorized cancellation. Do not declare full migration complete while source differences or provider features remain unresolved.
+
+Cloudflare requires an active owned zone for a Worker Custom Domain, supports exact `routes` with `custom_domain: true`, and manages its DNS/certificate. [Official Custom Domains documentation](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/).
+
+## Rollback
+
+Before application cutover, the old public website remains unchanged. Remove unused pending configuration only through normal reversible controls; keep all evidence.
+
+After cutover, prefer a known-good owned-Worker version with the current schema. Do not restore the old database over new payments, users or Academy records. If traffic must return to Lovable, first hold new writes, export/reconcile all post-cutover transactions and assess schema compatibility; a DNS reversal alone can strand paid access. Restore the recorded original origin records or nameservers only with a reconciled write plan, and retain both databases and the signed new webhook for late events. Never drop customer data or rotate keys as a rollback shortcut.
+
+## Remaining limits
+
+Gemini provider features and human email recovery remain deferred. Workers Free production CPU headroom is not proven: earlier observed P90 34–47 ms/P99 105 ms exceeded the nominal Free budget although observed errors were zero. No paid upgrade is authorized or made. Financial acceptance is currently owner-reported; agent-side full provider ledger/delivery reconciliation remains outstanding. Complete historical financial-ledger recovery and final source synchronization must not be inferred from importing the earlier six pass records.

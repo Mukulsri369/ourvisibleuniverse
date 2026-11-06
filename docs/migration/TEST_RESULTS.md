@@ -1,5 +1,13 @@
 # OVU verification — 4 November 2026
 
+## Production preparation — 6 November 2026
+
+Fourteen focused production/staging/Live-configuration checks passed (zero failures/skips), including rejection of each missing cutover prerequisite, exact account/project/domain restrictions, retained payment settings and Workers-host noindex after promotion. TypeScript and the public-only client/Worker build passed; existing deprecation/chunk/sourcemap warnings remain. Credential scan found zero private Supabase/certificate values in 650 build files plus 1,035 source files. No actual credentials were written into the configuration or tests.
+
+Read-only reconciliation against the verified 5 November source snapshot again found 78 source users represented in the 79-identity target, six source access records, zero conflicts/unhandled public tables and zero writes. Private identity/access evidence was saved encrypted outside Git. This verifies the previous import only: the source UI's later seventh access record is not yet reconciled, and no fresh complete source export or full target backup was verified in this step.
+
+The owner reports successful application/payment acceptance. No agent-performed financial transaction or independent full provider ledger acceptance is claimed. Cloudflare Free onboarding reached DNS review; no production domain routing, nameserver change or application deployment occurred. Browser timeouts prevented the full registrar inventory and source-delta inspection; refresh requested. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+
 ## Live staging payment setup enabled — 6 November 2026
 
 The user completed private webhook-secret entry. Razorpay's saved webhook is **Enabled** at the exact staging `/api/public/payments/razorpay?mode=live` endpoint, confirms that a secret was provided, and lists `payment.failed`, `payment.captured`, `order.paid`, `refund.processed`. Both original and staging websites remain approved. A private fingerprint comparison also confirmed that the provisioned Live Key ID matches the signed-in merchant; no key values were displayed.

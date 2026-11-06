@@ -1,5 +1,9 @@
 # OVU staging/deployment runbook
 
+## Production authorization — 6 November 2026
+
+Production cutover is now explicitly authorized following owner-reported acceptance. Follow [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md): reconcile the seventh source access record and later writes, preserve the complete registrar zone and target backup, establish a write drain, configure production auth and verify the active zone before domain attachment. Cloudflare Free onboarding is at DNS review; traffic remains on the original origin. Retain the same Worker and existing signed Live webhook. Purchases, Store changes and Lovable cancellation remain excluded. Earlier no-production-approval entries below are historical.
+
 ## Live staging payment setup enabled — 6 November 2026
 
 The user completed private webhook-secret entry. Razorpay's saved webhook is **Enabled** at the exact staging `/api/public/payments/razorpay?mode=live` endpoint, confirms that a secret was provided, and lists `payment.failed`, `payment.captured`, `order.paid`, `refund.processed`. Both original and staging websites remain approved. A private fingerprint comparison also confirmed that the provisioned Live Key ID matches the signed-in merchant; no key values were displayed.
