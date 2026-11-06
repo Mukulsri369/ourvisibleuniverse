@@ -1,5 +1,9 @@
 # OVU verification — 4 November 2026
 
+## Approved DNS delegation postflight — 6 November 2026
+
+GoDaddy's saved state confirms the exact approved Cloudflare pair. Six authoritative DNS queries against `candy.ns.cloudflare.com` passed for apex/www A, `_domainconnect` CNAME, `_dmarc`, `_lovable` and `_lovable.www` TXT. Both A values remain the original origin. Cloudflare still reports registrar propagation pending; an immediate public-resolver NS check returned the old pair. No active-zone, production application routing or production-auth acceptance is claimed. Production auth settings are prepared but unsaved pending action-time confirmation. No code changed in this DNS step; the prior 20-test reconciliation run and TypeScript/build results are retained rather than rerun without cause.
+
 ## Fresh source delta and DNS inventory — 6 November 2026
 
 Twenty source-query conversion, customer-import and reconciliation tests passed: zero failures/skips. Read-only source SQL verifies 79 users, seven access rows and only one public application table. The one-query scoped snapshot includes identities and MFA/passkey/storage metadata; raw data stays encrypted outside Git. Conversion preserves JSON/null/escapes and entitlement microseconds through the existing parser, and rejects mismatched source/incomplete inventory/unmapped data.

@@ -1,5 +1,11 @@
 # Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
 
+## Nameserver delegation saved — 6 November 2026
+
+The owner approved the exact nameserver change. GoDaddy now confirms custom nameservers `candy.ns.cloudflare.com` and `sullivan.ns.cloudflare.com`. Cloudflare awaits registrar propagation; active-zone status is not yet verified. All six actual DNS checks against Cloudflare's assigned authority passed, retaining the original apex/www origin, CNAME and three TXT values. No Worker custom domain or application cutover has occurred.
+
+Production auth is prepared but unsaved in the owned Supabase URL Configuration: Site URL `https://ourvisibleuniverse.in`, plus apex/www `/auth**` redirects, retaining local/Workers returns. Exact action-time confirmation is pending for expanded auth redirects. The source-delta import/postflight below remains valid at its snapshot time; final source-write drain/late-event reconciliation and full target backup remain outstanding. No purchase, Store change or cancellation occurred. See [PRODUCTION_CUTOVER.md](PRODUCTION_CUTOVER.md).
+
 ## Source delta imported; DNS delegation prepared — 6 November 2026
 
 The actual source now has 79 users/seven access rows. A read-only SQL-editor scoped snapshot captured at 10:42:14.589379 IST was encrypted outside Git, converted into the existing data-only reconciliation format and compared without conflicts. Append-only import created one new original-ID account and inserted one exact historical Live pass, preserving all 79 preceding target accounts and six existing passes. Postflight: 80 target identities, all 79 source accounts represented, seven matching access rows, zero missing users/conflicts, no emails/provider payments/deletions/updates. Twenty source-conversion/import/reconciliation tests passed; no tests were weakened. The earlier full archive remains retained; the query snapshot is not a complete database backup or financial ledger.
