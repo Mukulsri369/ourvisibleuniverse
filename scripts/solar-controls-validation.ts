@@ -2,6 +2,7 @@ import { jplEphemerisManager } from "../src/lib/astronomy/jpl/ephemeris-cache";
 import assert from "node:assert/strict";
 import * as THREE from "three";
 import { useStore } from "../src/stars/store";
+import { formatTimeRate } from "../src/stars/scene-controls";
 import { SOLAR_ORBIT_NAMES } from "../src/stars/planet-orbit-controls";
 import {
   getPlanetSimulationJd,
@@ -20,6 +21,17 @@ import {
   computePlanetStateVector,
   computeMoonRelativeState,
 } from "../src/lib/astronomy/jpl/horizons-ephemeris";
+// Verify the startup settings through elapsed simulation time, not just a label.
+assert.equal(useStore.getState().uiHidden, false, "Startup toolbar must be visible");
+assert.equal(useStore.getState().galacticTravelSpeed, 3090);
+assert.equal(formatTimeRate(useStore.getState().systemSpeed), "7.0 days / s");
+setSimulationDate(2451545);
+setSimPaused(false);
+setTimeMultiplier(1);
+for (let frame = 0; frame < 10; frame++) tickSim(0.1);
+assert(Math.abs(getSimulationJd() - 2451545 - 7) < 1e-7, "One real second must advance seven simulation days");
+assert(Math.abs(getGalacticTimeYears() * 365.25 - 7 * 3090) < 1e-7, "Galactic travel retains its independent 3090 multiplier");
+
 const expectedDefaults: Record<string, number> = {
   Mercury: 1,
   Venus: 1,

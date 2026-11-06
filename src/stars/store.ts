@@ -9,7 +9,7 @@ import { requireGalaxy, useExploration } from "./exploration-scope";
 import { objectHost, starHost, ANDROMEDA, MILKY_WAY } from "./object-hosts";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 
-import { clampTimeRate } from "./scene-controls";
+import { clampTimeRate, DEFAULT_SIMULATION_SPEED } from "./scene-controls";
 import { stellarDisplayRadius } from "./camera-navigation";
 import { create } from "zustand";
 import { NAMED_STARS, type NamedStar } from "./data";
@@ -800,7 +800,7 @@ export const useStore = create<State>((set, get) => ({
     view: "overview",
   },
   selectedObjectId: null,
-  uiHidden: true,
+  uiHidden: false,
   cameraFree: false,
   zoomSpeed: 50,
   freeLookSpeed: 1,
@@ -814,9 +814,9 @@ export const useStore = create<State>((set, get) => ({
   },
   resetPlanetOrbitSpeeds: () =>
     set({ planetOrbitSpeeds: defaultPlanetOrbitSpeeds(), outerOrbitSpeed: 1 }),
-  galacticTravelSpeed: 1,
+  galacticTravelSpeed: 3090,
   navigationSettingsOpen: false,
-  systemSpeed: 1,
+  systemSpeed: DEFAULT_SIMULATION_SPEED,
   trailSize: 50,
   scaleMode: "enhanced",
   properMotionYears: 0,

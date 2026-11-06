@@ -1,4 +1,5 @@
 export const SIM_SECONDS_PER_REAL_SECOND = (365.25 * 86400) / (25 * 31.5);
+export const DEFAULT_SIMULATION_SPEED = (7 * 86400) / SIM_SECONDS_PER_REAL_SECOND;
 export function clampTimeRate(value: number) {
   return Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 1;
 }

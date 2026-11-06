@@ -4,7 +4,7 @@ import { GalaxyExplorer } from "./GalaxyExplorer";
 import { useExploration } from "./exploration-scope";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
-import { formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
+import { DEFAULT_SIMULATION_SPEED, formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
 
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
@@ -855,7 +855,7 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
                 { label: "Slow motion", rate: 1e-6 },
                 { label: "Real time", rate: 1 / SIM_SECONDS_PER_REAL_SECOND },
                 { label: "Slow", rate: 0.01 },
-                { label: "Default", rate: 1 },
+                { label: "Default", rate: DEFAULT_SIMULATION_SPEED },
               ].map((p) => (
                 <button
                   key={p.label}
