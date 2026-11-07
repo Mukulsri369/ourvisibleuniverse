@@ -1,0 +1,76 @@
+{
+  "phase": "before",
+  "browser": "156.0.8078.80",
+  "kind": "actual Universe, DetailedGalaxies and CameraRig; mouse drag; isolated local QA, not full authenticated app",
+  "dpr": 1,
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 3600000,
+      "frames": 623,
+      "fps": 118.87724922243218,
+      "p95FrameMs": 8.5,
+      "framesOver33ms": 0,
+      "pointerMoves": 120,
+      "calls": 6,
+      "points": 83467,
+      "catalogueFields": 1,
+      "selected": "Milky Way",
+      "angularRange": 2.411277224618579
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 326000000,
+      "frames": 762,
+      "fps": 109.30999856548564,
+      "p95FrameMs": 16.399999999997817,
+      "framesOver33ms": 5,
+      "pointerMoves": 120,
+      "calls": 2,
+      "points": 43371,
+      "catalogueFields": 1,
+      "selected": "2MRS field source 250",
+      "angularRange": 2.4174290743035534
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 3600000,
+      "frames": 563,
+      "fps": 119.79233158857826,
+      "p95FrameMs": 8.5,
+      "framesOver33ms": 0,
+      "pointerMoves": 120,
+      "calls": 6,
+      "points": 83467,
+      "catalogueFields": 1,
+      "selected": "Milky Way",
+      "angularRange": 0.7321889078474856
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 326000000,
+      "frames": 665,
+      "fps": 115.69040204589346,
+      "p95FrameMs": 8.5,
+      "framesOver33ms": 3,
+      "pointerMoves": 120,
+      "calls": 4,
+      "points": 79371,
+      "catalogueFields": 1,
+      "selected": "Milky Way",
+      "angularRange": 0.7383643404102473
+    }
+  ]
+}

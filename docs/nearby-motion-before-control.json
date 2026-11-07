@@ -1,0 +1,80 @@
+{
+  "phase": "before-control",
+  "browser": "156.0.8078.80",
+  "kind": "actual Universe, DetailedGalaxies and CameraRig; mouse drag; isolated local QA, not full authenticated app",
+  "dpr": 1,
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 3600000,
+      "frames": 537,
+      "fps": 57.7941366395454,
+      "p95FrameMs": 33,
+      "framesOver33ms": 11,
+      "pointerMoves": 120,
+      "calls": 6,
+      "points": 83467,
+      "catalogueFields": 1,
+      "overviewKind": "original-volume",
+      "selected": "Milky Way",
+      "angularRange": 2.4400159930186596
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 326000000,
+      "frames": 537,
+      "fps": 43.356101341859244,
+      "p95FrameMs": 33.60000000000582,
+      "framesOver33ms": 63,
+      "pointerMoves": 120,
+      "calls": 2,
+      "points": 43371,
+      "catalogueFields": 1,
+      "overviewKind": "original-volume",
+      "selected": "2MRS field source 892",
+      "angularRange": 2.448634177947606
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 3600000,
+      "frames": 494,
+      "fps": 68.10223606937055,
+      "p95FrameMs": 25.299999999999272,
+      "framesOver33ms": 6,
+      "pointerMoves": 120,
+      "calls": 6,
+      "points": 83467,
+      "catalogueFields": 1,
+      "overviewKind": "original-volume",
+      "selected": "Milky Way",
+      "angularRange": 0.7408309511508865
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 326000000,
+      "frames": 471,
+      "fps": 64.56300032898343,
+      "p95FrameMs": 25.399999999997817,
+      "framesOver33ms": 6,
+      "pointerMoves": 120,
+      "calls": 2,
+      "points": 43371,
+      "catalogueFields": 1,
+      "overviewKind": "original-volume",
+      "selected": "2MRS field source 1635",
+      "angularRange": 0.7414340191392615
+    }
+  ]
+}

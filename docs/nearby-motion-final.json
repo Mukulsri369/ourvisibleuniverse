@@ -1,0 +1,80 @@
+{
+  "phase": "final",
+  "browser": "156.0.8078.80",
+  "kind": "actual Universe, DetailedGalaxies and CameraRig; mouse drag; isolated local QA, not full authenticated app",
+  "dpr": 1,
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 3600000,
+      "frames": 513,
+      "fps": 71.4594157879341,
+      "p95FrameMs": 25.19999999999709,
+      "framesOver33ms": 3,
+      "pointerMoves": 120,
+      "calls": 6,
+      "points": 83467,
+      "catalogueFields": 1,
+      "selected": "Milky Way",
+      "angularRange": 2.4576000976562504,
+      "manualStepErrorRadians": 6.938893903907228e-17
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 326000000,
+      "frames": 446,
+      "fps": 64.83312013024774,
+      "p95FrameMs": 26.19999999999709,
+      "framesOver33ms": 13,
+      "pointerMoves": 120,
+      "calls": 4,
+      "points": 79371,
+      "catalogueFields": 1,
+      "selected": "Milky Way",
+      "angularRange": 2.4576000976562504,
+      "manualStepErrorRadians": 4.163336342344337e-17
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 3600000,
+      "frames": 500,
+      "fps": 82.67879288962381,
+      "p95FrameMs": 25,
+      "framesOver33ms": 4,
+      "pointerMoves": 120,
+      "calls": 6,
+      "points": 83467,
+      "catalogueFields": 1,
+      "selected": "Milky Way",
+      "angularRange": 0.7488000183105464,
+      "manualStepErrorRadians": 1.3877787807814457e-17
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 326000000,
+      "frames": 506,
+      "fps": 92.86789266967656,
+      "p95FrameMs": 24.900000000001455,
+      "framesOver33ms": 0,
+      "pointerMoves": 120,
+      "calls": 4,
+      "points": 79371,
+      "catalogueFields": 1,
+      "selected": "Milky Way",
+      "angularRange": 0.7488000183105468,
+      "manualStepErrorRadians": 4.163336342344337e-17
+    }
+  ]
+}

@@ -1,0 +1,238 @@
+{
+  "results": [
+    {
+      "name": "M51 (Whirlpool)",
+      "dpr": 1.5,
+      "buffer": {
+        "width": 2160,
+        "height": 1350
+      },
+      "profiles": 830,
+      "programs": [
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        }
+      ]
+    },
+    {
+      "name": "M104 (Sombrero)",
+      "dpr": 1.5,
+      "buffer": {
+        "width": 2160,
+        "height": 1350
+      },
+      "profiles": 830,
+      "programs": [
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        }
+      ]
+    },
+    {
+      "name": "M82 (Cigar Galaxy)",
+      "dpr": 1.5,
+      "buffer": {
+        "width": 2160,
+        "height": 1350
+      },
+      "profiles": 830,
+      "programs": [
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        }
+      ]
+    },
+    {
+      "name": "Hoag's Object",
+      "dpr": 1.5,
+      "buffer": {
+        "width": 2160,
+        "height": 1350
+      },
+      "profiles": 830,
+      "programs": [
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        }
+      ]
+    },
+    {
+      "name": "Sculptor Dwarf",
+      "dpr": 1.5,
+      "buffer": {
+        "width": 2160,
+        "height": 1350
+      },
+      "profiles": 830,
+      "programs": [
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        }
+      ]
+    },
+    {
+      "name": "Triangulum (M33)",
+      "dpr": 1.5,
+      "buffer": {
+        "width": 2160,
+        "height": 1350
+      },
+      "profiles": 830,
+      "programs": [
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        },
+        {
+          "name": "",
+          "linked": true
+        }
+      ]
+    }
+  ],
+  "errors": {
+    "page": [],
+    "console": [],
+    "responses": [],
+    "failures": []
+  },
+  "batchedMarkerClick": "Triangulum (M33)",
+  "kind": "isolated actual components, not authenticated full app; desktop DPR1.5"
+}

@@ -1,0 +1,84 @@
+{
+  "phase": "optimized",
+  "browser": "156.0.8078.80",
+  "kind": "actual Universe, DetailedGalaxies and CameraRig; mouse drag; isolated local QA, not full authenticated app",
+  "dpr": 1,
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 3600000,
+      "frames": 412,
+      "fps": 67.0191134607564,
+      "p95FrameMs": 25.200000000000728,
+      "framesOver33ms": 1,
+      "pointerMoves": 120,
+      "calls": 8,
+      "points": 87563,
+      "catalogueFields": 1,
+      "overviewKind": "analytic",
+      "selected": "Milky Way",
+      "angularRange": 2.4576000976562504,
+      "manualStepErrorRadians": 1.3877787807814457e-17
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "radius": 326000000,
+      "frames": 505,
+      "fps": 94.70762537039126,
+      "p95FrameMs": 24.80000000000291,
+      "framesOver33ms": 2,
+      "pointerMoves": 120,
+      "calls": 3,
+      "points": 47467,
+      "catalogueFields": 1,
+      "overviewKind": "analytic",
+      "selected": "Milky Way",
+      "angularRange": 2.4576000976562504,
+      "manualStepErrorRadians": 4.163336342344337e-17
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 3600000,
+      "frames": 573,
+      "fps": 84.72821908085407,
+      "p95FrameMs": 25,
+      "framesOver33ms": 1,
+      "pointerMoves": 120,
+      "calls": 8,
+      "points": 87563,
+      "catalogueFields": 1,
+      "overviewKind": "analytic",
+      "selected": "Milky Way",
+      "angularRange": 0.7488000183105464,
+      "manualStepErrorRadians": 1.3877787807814457e-17
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "radius": 326000000,
+      "frames": 737,
+      "fps": 92.67176340408406,
+      "p95FrameMs": 24.900000000001455,
+      "framesOver33ms": 4,
+      "pointerMoves": 120,
+      "calls": 3,
+      "points": 47467,
+      "catalogueFields": 1,
+      "overviewKind": "analytic",
+      "selected": "Milky Way",
+      "angularRange": 0.7488000183105464,
+      "manualStepErrorRadians": 1.3877787807814457e-17
+    }
+  ]
+}
