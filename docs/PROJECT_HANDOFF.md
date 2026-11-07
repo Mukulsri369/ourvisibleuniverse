@@ -22,7 +22,7 @@ Latest local continuation: the grouped P1/P2/P3 stellar destination is implement
 - A specifically authorized seven-day gift was applied to the fixed cohort of 82 accounts on 6 November. See [campaign record](migration/SEVEN_DAY_PROMOTION_20261106.md). That count is historical, not today's user/access count. Do not apply the campaign again or infer permission to send another email.
 - Keep former service resources and backups until separately authorized for retirement. Deployment does not prove old subscriptions/resources were cancelled.
 
-## Latest completed source work — not published
+## Previously pushed source work — not deployed
 
 - `89fa2bc`: first sourced Andromeda batch, pushed.
 - `bf947ab`: seven further destinations, rendering/navigation fixes, tests and measured QA, pushed to `origin/migration/supabase-cloudflare`. Working tree was clean at that checkpoint.
@@ -45,7 +45,7 @@ Latest local continuation: the grouped P1/P2/P3 stellar destination is implement
 
 ## Still deferred or unverified
 
-When the owner asked whether the entire original prompt was finished, the answer was **no**: the curated expansion and available QA are complete, not an exhaustive survey implementation.
+The entire original prompt is not signed off. The prior curated expansion and its recorded QA are complete; the new nuclear destination still needs authenticated app-level visual acceptance, broader performance optimization remains open, and scientific coverage/property enrichment is partial. An exhaustive M31 census is not required by the original specification.
 
 1. Reconcile further red supergiants, PHAT/PHAST clusters, compact-source candidates and nuclear P1/P2 structures individually. Verify canonical identifiers/aliases, membership, coordinate frame/epoch, measured properties and uncertainty before adding them. Do not pad the catalogue or duplicate sources.
 2. Broader performance optimization remains. The desktop baseline itself is around 21 FPS; the expansion did not establish a general performance fix. Preserve scientific/visual behavior and use measurements.
@@ -58,7 +58,7 @@ When the owner asked whether the entire original prompt was finished, the answer
 - Check `git status --short --branch` and recent commits first. Preserve newer work: this handoff may be older than the checkout. Its own documentation commit is later than `bf947ab`.
 - For Andromeda work, compare the original request, report and real code. Implement scientifically defensible additions in focused batches, run relevant checks, and record actual results/deferrals.
 - Use `vite.cloudflare.config.ts`. In this Windows workspace the secure helper `../../run-ovu-supabase.ps1`, evidence in `../../evidence/`, and private configuration are outside Git. A fresh clone will not have them. Check availability; never synthesize credentials or pretend a cloud environment can access the owner's local database.
-- The built preview was left at http://127.0.0.1:31751/universe. Verify that it still runs and which build it serves. Reacquire browser/tool handles; old session identifiers are not durable. Keep the tab selected, match camera/DPR/viewport and avoid running builds during frame measurements.
+- The earlier checkpoint left a preview at http://127.0.0.1:31751/universe; the continuation's QA servers were subsequently stopped. Start a fresh preview and verify which build it serves. Reacquire browser/tool handles; old session identifiers are not durable. Keep the tab selected, match camera/DPR/viewport and avoid running builds during frame measurements.
 - Keep passwords, API secrets, private keys, private links and customer exports out of chat/Git. Private evidence stays outside the source repository.
 - This handoff does not authorize production deployments, domain/DNS changes, purchases, payment/provider changes, customer access/import operations or Lovable cancellation. Obtain the applicable explicit approval for a new consequential action. Do not rerun live financial tests without authorization.
 - Update this handoff and relevant reports after meaningful work, including commits, source/deployment distinction, executed checks and next actions. Never mark an unexecuted check as passed.
@@ -76,3 +76,7 @@ When the owner asked whether the entire original prompt was finished, the answer
 - Built application reached its normal sign-in screen on loopback 31752; the new destination still needs authenticated built-app visual acceptance. Isolated shared-geometry/material WebGL checks passed at desktop and 390x844, with no captured error-level console logs; these do not establish React-scene/navigation acceptance, physical-phone performance, VRAM or general FPS improvement.
 - Resume with the current Git state and newest commits. Do not repeat the earlier expansion/QA or historical migration/campaign operations. Next: authenticated local acceptance of this batch, then individually sourced survey candidates and measured performance work. Deployment still requires the owner's explicit approval.
 - Local implementation checkpoint: `6a8f2f2`; working branch is ahead of origin, with no push. All recorded final source checks passed. QA servers were stopped. Rebuilding replaced asset hashes beneath the earlier running previews, so start a fresh Worker preview for pending authenticated acceptance; see the report's cleanup caveats and isolated-harness warning.
+
+## Prompt-accuracy audit follow-up
+
+The full nine-phase request was compared with current source and evidence; see the final audit section of the expansion report. Both Andromeda suites passed again. Do not equate curated coverage with an exhaustive-census obligation, or isolated GPU QA with authenticated full-scene acceptance. Current app-level QA/performance/scientific-enrichment gaps remain open; physical-device/VRAM/exhaustive-outage checks are additional confidence work. Passing TypeScript does not type-check the existing `@ts-nocheck` renderer module. No fresh production inspection, push or deployment was performed.
