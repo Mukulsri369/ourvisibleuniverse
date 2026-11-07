@@ -1,0 +1,121 @@
+{
+  "kind": "Isolated actual React/camera/render components; not authenticated full app",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "visits": [
+        {
+          "alias": "UGC12894",
+          "name": "UGC 12894",
+          "host": "UGC 12894",
+          "camera": [
+            9702725.57416185,
+            -10492817.93454636,
+            23641770.30300504
+          ],
+          "previews": 3,
+          "volumes": 1
+        },
+        {
+          "alias": "And IX",
+          "name": "Andromeda IX",
+          "host": "Andromeda IX",
+          "camera": [
+            1286968.090039746,
+            -842476.8465906802,
+            1967573.7420226508
+          ],
+          "previews": 3,
+          "volumes": 1
+        },
+        {
+          "alias": "NGC1311",
+          "name": "NGC 1311",
+          "host": "NGC 1311",
+          "camera": [
+            844819.7869374169,
+            -13487951.522164144,
+            -10257766.846237106
+          ],
+          "previews": 2,
+          "volumes": 1
+        }
+      ],
+      "groups": 164,
+      "errors": {
+        "page": [],
+        "console": [
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "responses": [],
+        "failures": [
+          {
+            "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=UGC12894",
+            "error": "net::ERR_FAILED"
+          }
+        ]
+      }
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "visits": [
+        {
+          "alias": "UGC12894",
+          "name": "UGC 12894",
+          "host": "UGC 12894",
+          "camera": [
+            9702725.57416185,
+            -10492817.93454636,
+            23641770.30300504
+          ],
+          "previews": 2,
+          "volumes": 1
+        },
+        {
+          "alias": "And IX",
+          "name": "Andromeda IX",
+          "host": "Andromeda IX",
+          "camera": [
+            1286968.090039746,
+            -842476.8465906802,
+            1967573.7420226508
+          ],
+          "previews": 3,
+          "volumes": 1
+        },
+        {
+          "alias": "NGC1311",
+          "name": "NGC 1311",
+          "host": "NGC 1311",
+          "camera": [
+            844819.7869374169,
+            -13487951.522164144,
+            -10257766.846237106
+          ],
+          "previews": 2,
+          "volumes": 1
+        }
+      ],
+      "groups": 164,
+      "errors": {
+        "page": [],
+        "console": [
+          "Failed to load resource: net::ERR_FAILED"
+        ],
+        "responses": [],
+        "failures": [
+          {
+            "url": "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?TARGET=UGC12894",
+            "error": "net::ERR_FAILED"
+          }
+        ]
+      }
+    }
+  ]
+}

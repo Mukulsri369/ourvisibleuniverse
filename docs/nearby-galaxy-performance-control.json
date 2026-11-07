@@ -1,0 +1,27 @@
+{
+  "reason": "Independent repeat of the first expanded sample with no concurrent build, type check or test process; original sample retained.",
+  "sample": {
+    "scenario": "local-group",
+    "frames": 1190,
+    "elapsedMs": 10007.20000000298,
+    "fps": 118.91438164518003,
+    "p95Ms": 10.900000005960464,
+    "hidden": false,
+    "calls": 2,
+    "points": 43371,
+    "geometries": 2,
+    "textures": 0,
+    "heap": 82470818,
+    "viewport": [
+      1280,
+      720
+    ],
+    "galaxies": 831
+  },
+  "errors": {
+    "page": [],
+    "console": [],
+    "responses": [],
+    "failures": []
+  }
+}

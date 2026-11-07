@@ -1,0 +1,125 @@
+{
+  "kind": "Geometric centre counts inside camera frustum, not brightness-detected pixels or an observational census. Named count excludes separately rendered M31/Milky Way; 2MRS depths are velocity estimates.",
+  "results": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scenario": "local-group",
+      "namedCentresInFrustum": 147,
+      "surveyCentresInFrustum": 2136,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scenario": "mw-m31",
+      "namedCentresInFrustum": 69,
+      "surveyCentresInFrustum": 2083,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scenario": "11-mpc",
+      "namedCentresInFrustum": 384,
+      "surveyCentresInFrustum": 2657,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scenario": "30-mpc",
+      "namedCentresInFrustum": 743,
+      "surveyCentresInFrustum": 4040,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scenario": "100-mpc",
+      "namedCentresInFrustum": 815,
+      "surveyCentresInFrustum": 11087,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "scenario": "inside-mw",
+      "namedCentresInFrustum": 22,
+      "surveyCentresInFrustum": 2041,
+      "surveyGain": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "local-group",
+      "namedCentresInFrustum": 79,
+      "surveyCentresInFrustum": 722,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "mw-m31",
+      "namedCentresInFrustum": 47,
+      "surveyCentresInFrustum": 691,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "11-mpc",
+      "namedCentresInFrustum": 219,
+      "surveyCentresInFrustum": 940,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "30-mpc",
+      "namedCentresInFrustum": 670,
+      "surveyCentresInFrustum": 1481,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "100-mpc",
+      "namedCentresInFrustum": 811,
+      "surveyCentresInFrustum": 4293,
+      "surveyGain": 0.95
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "scenario": "inside-mw",
+      "namedCentresInFrustum": 12,
+      "surveyCentresInFrustum": 679,
+      "surveyGain": 0
+    }
+  ]
+}

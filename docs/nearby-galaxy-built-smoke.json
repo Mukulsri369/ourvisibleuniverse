@@ -1,0 +1,13 @@
+{
+  "builtGuard": {
+    "url": "http://127.0.0.1:31757/auth?next=%2Funiverse",
+    "status": 200,
+    "signInVisible": true,
+    "pageErrors": []
+  },
+  "ned": {
+    "success": true,
+    "source": "Local atlas fallback; live NED unavailable",
+    "tableCount": 0
+  }
+}

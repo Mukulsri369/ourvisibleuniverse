@@ -1,0 +1,72 @@
+{
+  "kind": "Isolated scene on warmed local Vite dev servers; fresh contexts; first rendered frame plus 2MRS geometry present. Polling includes test overhead. Not production load/LCP or total VRAM.",
+  "browser": "156.0.8078.80",
+  "results": [
+    {
+      "phase": "baseline",
+      "trial": 0,
+      "readyMs": 4659.800000011921,
+      "domInteractive": 80.70000000298023,
+      "geometryCount": 569,
+      "geometryAttributeBytes": 26787716,
+      "renderedFrames": 4,
+      "heap": 109348120,
+      "hidden": false
+    },
+    {
+      "phase": "expanded",
+      "trial": 0,
+      "readyMs": 3291.7000000029802,
+      "domInteractive": 115.09999999403954,
+      "geometryCount": 3,
+      "geometryAttributeBytes": 973540,
+      "renderedFrames": 5,
+      "heap": 89864388,
+      "hidden": false
+    },
+    {
+      "phase": "baseline",
+      "trial": 1,
+      "readyMs": 4180.9000000059605,
+      "domInteractive": 143.70000000298023,
+      "geometryCount": 569,
+      "geometryAttributeBytes": 26787716,
+      "renderedFrames": 4,
+      "heap": 101449648,
+      "hidden": false
+    },
+    {
+      "phase": "expanded",
+      "trial": 1,
+      "readyMs": 3176.8999999910593,
+      "domInteractive": 81.69999998807907,
+      "geometryCount": 3,
+      "geometryAttributeBytes": 973540,
+      "renderedFrames": 5,
+      "heap": 84445739,
+      "hidden": false
+    },
+    {
+      "phase": "baseline",
+      "trial": 2,
+      "readyMs": 4021.2999999970198,
+      "domInteractive": 93.59999999403954,
+      "geometryCount": 569,
+      "geometryAttributeBytes": 26787716,
+      "renderedFrames": 4,
+      "heap": 100847675,
+      "hidden": false
+    },
+    {
+      "phase": "expanded",
+      "trial": 2,
+      "readyMs": 3373.3999999910593,
+      "domInteractive": 101.3999999910593,
+      "geometryCount": 3,
+      "geometryAttributeBytes": 973540,
+      "renderedFrames": 5,
+      "heap": 88047840,
+      "hidden": false
+    }
+  ]
+}

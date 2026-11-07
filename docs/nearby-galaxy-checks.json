@@ -1,0 +1,109 @@
+{
+  "checks": [
+    {
+      "command": "node --import tsx scripts/nearby-expansion-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 5633.8227
+    },
+    {
+      "command": "node --import tsx scripts/nearby-catalog-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 4881.657399999999
+    },
+    {
+      "command": "node --import tsx scripts/nearby-source-crosscheck.ts",
+      "exitCode": 0,
+      "elapsedMs": 919.9611999999997
+    },
+    {
+      "command": "node --import tsx scripts/astronomy-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 1213.865600000001
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-explorer-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 7651.216400000001
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-entry-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 6258.7382
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-experience-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 20845.320400000004
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-rendering-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 8444.062599999997
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-populations-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 4882.940499999997
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-landmarks-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 9408.869799999993
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-empty-space-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 3986.549100000004
+    },
+    {
+      "command": "node --import tsx scripts/galaxy-clarity-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 9929.877699999997
+    },
+    {
+      "command": "node --import tsx scripts/exploration-camera-ownership-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 5495.793300000005
+    },
+    {
+      "command": "node --import tsx scripts/navigation-flight-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 1653.0728999999992
+    },
+    {
+      "command": "node --import tsx scripts/andromeda-expansion-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 9044.804600000003
+    },
+    {
+      "command": "node --import tsx scripts/andromeda-remaining-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 4481.081099999996
+    },
+    {
+      "command": "node --import tsx scripts/nebula-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 625.8687999999966
+    },
+    {
+      "command": "node --import tsx scripts/nebula-journey-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 1032.1676000000007
+    },
+    {
+      "command": "node --import tsx scripts/compact-objects-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 1225.6290000000008
+    },
+    {
+      "command": "node --import tsx scripts/black-hole-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 1110.1571000000113
+    },
+    {
+      "command": "node --import tsx scripts/extragalactic-atlas-validation.ts",
+      "exitCode": 0,
+      "elapsedMs": 1025.4061999999976
+    }
+  ]
+}

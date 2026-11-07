@@ -1,0 +1,226 @@
+{
+  "phase": "baseline",
+  "kind": "isolated actual Universe/DetailedGalaxies component scene; not full authenticated app",
+  "dpr": 1,
+  "results": [
+    {
+      "scenario": "local-group",
+      "frames": 769,
+      "elapsedMs": 10009.70000000298,
+      "fps": 76.82547928507059,
+      "p95Ms": 15.800000011920929,
+      "hidden": false,
+      "calls": 67,
+      "points": 304685,
+      "geometries": 67,
+      "textures": 1,
+      "heap": 107123099,
+      "viewport": [
+        1280,
+        720
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "mw-m31",
+      "frames": 995,
+      "elapsedMs": 10008.199999988079,
+      "fps": 99.41847684910225,
+      "p95Ms": 13.100000008940697,
+      "hidden": false,
+      "calls": 35,
+      "points": 177709,
+      "geometries": 68,
+      "textures": 1,
+      "heap": 99604098,
+      "viewport": [
+        1280,
+        720
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "11-mpc",
+      "frames": 509,
+      "elapsedMs": 10013.59999999404,
+      "fps": 50.83087001680744,
+      "p95Ms": 24.799999997019768,
+      "hidden": false,
+      "calls": 110,
+      "points": 484909,
+      "geometries": 126,
+      "textures": 1,
+      "heap": 101120841,
+      "viewport": [
+        1280,
+        720
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "30-mpc",
+      "frames": 428,
+      "elapsedMs": 10025.20000000298,
+      "fps": 42.692415113900246,
+      "p95Ms": 27.399999991059303,
+      "hidden": false,
+      "calls": 144,
+      "points": 628269,
+      "geometries": 165,
+      "textures": 1,
+      "heap": 103402352,
+      "viewport": [
+        1280,
+        720
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "100-mpc",
+      "frames": 319,
+      "elapsedMs": 10004.29999999702,
+      "fps": 31.886288895784315,
+      "p95Ms": 37.8999999910593,
+      "hidden": false,
+      "calls": 175,
+      "points": 755245,
+      "geometries": 196,
+      "textures": 1,
+      "heap": 113382750,
+      "viewport": [
+        1280,
+        720
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "inside-mw",
+      "frames": 349,
+      "elapsedMs": 10006.800000011921,
+      "fps": 34.87628412675223,
+      "p95Ms": 33.599999994039536,
+      "hidden": false,
+      "calls": 11,
+      "points": 56480,
+      "geometries": 202,
+      "textures": 2,
+      "heap": 101679291,
+      "viewport": [
+        1280,
+        720
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "local-group",
+      "frames": 1007,
+      "elapsedMs": 10005.59999999404,
+      "fps": 100.64363956190532,
+      "p95Ms": 13.800000011920929,
+      "hidden": false,
+      "calls": 48,
+      "points": 235053,
+      "geometries": 222,
+      "textures": 1,
+      "heap": 102364766,
+      "viewport": [
+        390,
+        844
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "mw-m31",
+      "frames": 1203,
+      "elapsedMs": 10007.39999999106,
+      "fps": 120.211043827675,
+      "p95Ms": 9.100000008940697,
+      "hidden": false,
+      "calls": 30,
+      "points": 153133,
+      "geometries": 222,
+      "textures": 1,
+      "heap": 110277994,
+      "viewport": [
+        390,
+        844
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "11-mpc",
+      "frames": 665,
+      "elapsedMs": 10000.59999999404,
+      "fps": 66.49601023942527,
+      "p95Ms": 17.599999994039536,
+      "hidden": false,
+      "calls": 90,
+      "points": 402989,
+      "geometries": 223,
+      "textures": 1,
+      "heap": 100563036,
+      "viewport": [
+        390,
+        844
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "30-mpc",
+      "frames": 391,
+      "elapsedMs": 10024.29999999702,
+      "fps": 39.00521732191936,
+      "p95Ms": 35.29999999701977,
+      "hidden": false,
+      "calls": 134,
+      "points": 587309,
+      "geometries": 223,
+      "textures": 1,
+      "heap": 101426101,
+      "viewport": [
+        390,
+        844
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "100-mpc",
+      "frames": 367,
+      "elapsedMs": 10023,
+      "fps": 36.61578369749576,
+      "p95Ms": 32.400000005960464,
+      "hidden": false,
+      "calls": 173,
+      "points": 747053,
+      "geometries": 223,
+      "textures": 1,
+      "heap": 103134311,
+      "viewport": [
+        390,
+        844
+      ],
+      "galaxies": 190
+    },
+    {
+      "scenario": "inside-mw",
+      "frames": 706,
+      "elapsedMs": 10000.40000000596,
+      "fps": 70.5971761129134,
+      "p95Ms": 17.80000001192093,
+      "hidden": false,
+      "calls": 8,
+      "points": 48288,
+      "geometries": 226,
+      "textures": 2,
+      "heap": 101383496,
+      "viewport": [
+        390,
+        844
+      ],
+      "galaxies": 190
+    }
+  ],
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}
