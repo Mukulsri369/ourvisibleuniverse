@@ -1,11 +1,12 @@
 # OVU migration checklist — Supabase / Cloudflare
 
+> **Current continuation entry point (7 November 2026):** Start with [PROJECT_HANDOFF.md](../PROJECT_HANDOFF.md). This checklist contains historical migration snapshots; compare them with the handoff, later dated records and the current checkout. The latest Andromeda expansion is pushed but unpublished, and further scientific coverage/performance work remains deferred. Do not repeat completed customer or production operations from earlier entries.
+
 ## Verified payment initialization fix — 6 November 2026
 
 Version d11ae3b4-01dc-4ee9-8813-d398cae5c94c fixes a reproduced Cloudflare-specific Fetch redirect error in the Razorpay adapter. Workers does not support redirect error; manual mode now stops redirects and the existing non-2xx rejection fails safely. Thirty-two payment/security tests, TypeScript and production client/Worker builds passed. Deployed Live checkout remains enabled with the same five secret bindings.
 
 Actual signed-in production browser verification: Pay ₹179 successfully opens Razorpay's contact-details/payment dialog. Exactly one new unpaid Live order was registered (14 Live orders total); transactions remain 1. No charge, refund or entitlement activation was performed. A completed payment and authentic webhook-driven access activation remain unverified. Earlier generic-unavailability status is resolved for order initialization. Details and provider documentation: PAYMENT_WORKER_REDIRECT_FIX.md.
-
 
 ## Checkout activation completed — 6 November 2026, 09:36 UTC
 
@@ -14,7 +15,6 @@ Cloudflare's earlier API 503 blocker has cleared. The authorized final deploymen
 Post-activation: 12 production HTTP checks passed (both hosts' home, pricing, checkout, Academy and certificate pages; unsigned Live webhook 401; wrong-mode webhook 400). Browser checkout correctly requires sign-in, and the production passes page renders its original plans/prices. No charge, refund, customer-access change or original-service write was performed. Actual paid checkout, authentic provider event delivery and paid-access activation from a new purchase remain **unverified** until the owner completes a real transaction privately. Do not equate enabled configuration with end-to-end provider verification. Gemini, human email recovery and the other previously documented acceptance/capacity limitations remain pending. Store and Lovable resources remain unchanged.
 
 The final configuration, deployed-version metadata and postflight results are retained outside Git under work/evidence/ovu-checkout-activation-*. No credentials, customer exports or private provider identifiers are included in this report. If checkout must be held again, redeploy the verified configuration with only its checkout flag false; retain the signed webhook/recovery services and all target data/journals.
-
 
 ## Current production state — 6 November 2026, DNS cutover completed
 
@@ -27,7 +27,6 @@ The old 600-second A-record TTL elapsed after the first proven domain attachment
 Production checks: nine public SSR routes returned 200, absent route 404, www 200, Vega catalogue search returned Vega, anonymous MCP 401, unsigned Live webhook 401, wrong-mode webhook 400. Workers hostname retains noindex; production has no global noindex header. Browser: homepage renders; anonymous 3D Atlas returns sign-in; subscriber admin exposes no customer records and offers sign-in; synthetic nonexistent certificate lookup returns not found; no captured browser console errors. A requested 390px viewport override still reported 1280px actual width: **production mobile verification is not established** by that attempt. Authenticated production Google/paid 3D journeys, actual new checkout/authentic Razorpay delivery, Gemini and human email recovery remain pending owner/provider testing. Existing staging and backend results remain historical evidence, not substitutes. Seven production-configuration/time-regression checks passed, zero failures/skips.
 
 Rollback: retain the zone backup, encrypted source/target snapshots, recovery and pending-order journals. To revert routing, remove the two managed Worker domain attachments and restore only the two original A records/TTL 600; preserve target writes and reconcile them before any database rollback. Do not restore an old seven-pass snapshot over the approved recovery. No cancellation, purchase or Store migration was performed.
-
 
 ## Live staging payment setup enabled — 6 November 2026
 
@@ -59,18 +58,15 @@ Cloudflare staging version `44441fc7-f935-4acc-ac16-6ffe65fdbb4a` reads these li
 
 Use the approved staging URL for owner testing. Original production/DNS/Store/live payment settings are unchanged. Later source writes are not automatically synchronized. Gemini, actual provider payments and email delivery/human recovery remain deferred; broader acceptance/capacity and final synchronization are still required before production cutover. Earlier no-import/no-authorization checkpoints below are historical.
 
-
 ## Password recovery follow-up — 5 November 2026
 
 The missing recovery UI is implemented using Supabase PKCE and the normal Auth API, with an identity-pinned memory-only update client. Eight recovery tests, five actual disposable-account Supabase checks, existing auth navigation, and the combined 24-test security/recovery regression passed. The fixture was removed and existing identities preserved; no email was sent. Browser expired-link handling and actual 390×844 layout passed without entering a real password. Actual email delivery and a private human-completed recovery remain unverified. See [PASSWORD_RECOVERY_VERIFICATION.md](PASSWORD_RECOVERY_VERIFICATION.md). Gemini and Razorpay provider testing remain explicitly deferred.
-
 
 ## Current hosted staging checkpoint — 5 November 2026
 
 OVU is deployed at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev on the existing Workers Free plan. Active tested version: `e6abed40-270b-4c68-8547-828770f43554`; application build: `7f215f7`. Approved Supabase staging Site URL and auth redirect are saved; local auth redirect is retained. Actual hosted 24-module assessment/certificate API QA, Google sign-in, all four MCP tools, sampled admin/mobile/galaxy and paid-access-denial journeys passed. Seven staging checks, 21 security checks and TypeScript passed. Hosted retry testing does not constitute a forced platform restart.
 
 Observed CPU P50 10.06 ms / P99 105 ms exceeds the nominal Free 10 ms budget despite zero observed resource errors; sustained production capacity is not verified. No purchase or upgrade occurred. Gemini and Razorpay provider testing are explicitly deferred and unverified. Email recovery, broader workflow testing and approved historical reconciliation remain outstanding. Production, Store, DNS, live payments and customer entitlements remain unchanged. See [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md) for evidence and limits. Earlier checkpoint entries below describe historical state.
-
 
 - [x] Preserve historical branches and production baseline.
 - [x] Isolate OVU work on `migration/supabase-cloudflare`; leave the Store unchanged.
@@ -149,7 +145,6 @@ Twenty focused queue/activity/cache/journal checks passed, including concurrent 
 Two real browser tabs used the exact production journal and flush modules in a separate key-free loopback QA harness: both appends survived, a third event added during held receipts remained pending, simulated delivery failure retained it, reconnect acknowledged it, and one account could not clear another account's work. Synthetic events were removed, both QA tabs closed and their server stopped. The real rebuilt Academy also retained the signed-in owner, cloud-sync status and zero official awards. The harness deliberately does not claim a full 24-module offline browser journey or real network-fault testing of the product UI.
 
 Preserve the verified certificate commit 591c39a and earlier checkpoints. Remaining technical work includes broader profile-data/legacy synchronization authorization review, complete browser/mobile/scientific and email-delivery checks, comprehensive schema typings and historical data reconciliation. Hosted Cloudflare validation/deployment requires separate approval. Razorpay provider testing remains deferred and unverified; production, Store and customer access remain unchanged.
-
 
 ## Profile privacy and navigation checkpoint
 

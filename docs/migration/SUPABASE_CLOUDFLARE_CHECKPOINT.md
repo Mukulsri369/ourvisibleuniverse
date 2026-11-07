@@ -1,11 +1,12 @@
-# Current OVU Supabase / Cloudflare checkpoint — 5 November 2026
+> **Continuation entry point — 7 November 2026:** Read [PROJECT_HANDOFF.md](../PROJECT_HANDOFF.md) first. OVU already uses Cloudflare and owned Supabase; Hostinger/MariaDB is superseded and the Store is out of scope. Andromeda commits `89fa2bc` and `bf947ab` are pushed but not deployed. See the handoff and [Andromeda report](../ANDROMEDA_EXPANSION_REPORT.md) for QA, scientific deferrals and approval boundaries. Entries below are historical snapshots, not instructions to reapply old checkout holds, campaigns or migrations.
+
+# OVU Supabase / Cloudflare checkpoint history — 5–6 November 2026
 
 ## Verified payment initialization fix — 6 November 2026
 
 Version d11ae3b4-01dc-4ee9-8813-d398cae5c94c fixes a reproduced Cloudflare-specific Fetch redirect error in the Razorpay adapter. Workers does not support redirect error; manual mode now stops redirects and the existing non-2xx rejection fails safely. Thirty-two payment/security tests, TypeScript and production client/Worker builds passed. Deployed Live checkout remains enabled with the same five secret bindings.
 
 Actual signed-in production browser verification: Pay ₹179 successfully opens Razorpay's contact-details/payment dialog. Exactly one new unpaid Live order was registered (14 Live orders total); transactions remain 1. No charge, refund or entitlement activation was performed. A completed payment and authentic webhook-driven access activation remain unverified. Earlier generic-unavailability status is resolved for order initialization. Details and provider documentation: PAYMENT_WORKER_REDIRECT_FIX.md.
-
 
 ## Checkout activation completed — 6 November 2026, 09:36 UTC
 
@@ -14,7 +15,6 @@ Cloudflare's earlier API 503 blocker has cleared. The authorized final deploymen
 Post-activation: 12 production HTTP checks passed (both hosts' home, pricing, checkout, Academy and certificate pages; unsigned Live webhook 401; wrong-mode webhook 400). Browser checkout correctly requires sign-in, and the production passes page renders its original plans/prices. No charge, refund, customer-access change or original-service write was performed. Actual paid checkout, authentic provider event delivery and paid-access activation from a new purchase remain **unverified** until the owner completes a real transaction privately. Do not equate enabled configuration with end-to-end provider verification. Gemini, human email recovery and the other previously documented acceptance/capacity limitations remain pending. Store and Lovable resources remain unchanged.
 
 The final configuration, deployed-version metadata and postflight results are retained outside Git under work/evidence/ovu-checkout-activation-*. No credentials, customer exports or private provider identifiers are included in this report. If checkout must be held again, redeploy the verified configuration with only its checkout flag false; retain the signed webhook/recovery services and all target data/journals.
-
 
 ## Current production state — 6 November 2026, DNS cutover completed
 
@@ -27,7 +27,6 @@ The old 600-second A-record TTL elapsed after the first proven domain attachment
 Production checks: nine public SSR routes returned 200, absent route 404, www 200, Vega catalogue search returned Vega, anonymous MCP 401, unsigned Live webhook 401, wrong-mode webhook 400. Workers hostname retains noindex; production has no global noindex header. Browser: homepage renders; anonymous 3D Atlas returns sign-in; subscriber admin exposes no customer records and offers sign-in; synthetic nonexistent certificate lookup returns not found; no captured browser console errors. A requested 390px viewport override still reported 1280px actual width: **production mobile verification is not established** by that attempt. Authenticated production Google/paid 3D journeys, actual new checkout/authentic Razorpay delivery, Gemini and human email recovery remain pending owner/provider testing. Existing staging and backend results remain historical evidence, not substitutes. Seven production-configuration/time-regression checks passed, zero failures/skips.
 
 Rollback: retain the zone backup, encrypted source/target snapshots, recovery and pending-order journals. To revert routing, remove the two managed Worker domain attachments and restore only the two original A records/TTL 600; preserve target writes and reconcile them before any database rollback. Do not restore an old seven-pass snapshot over the approved recovery. No cancellation, purchase or Store migration was performed.
-
 
 ## Held Worker uploaded; exact A-record replacement approval pending — 6 November 2026
 
@@ -135,7 +134,6 @@ Cloudflare staging version `44441fc7-f935-4acc-ac16-6ffe65fdbb4a` reads these li
 
 Use the approved staging URL for owner testing. Original production/DNS/Store/live payment settings are unchanged. Later source writes are not automatically synchronized. Gemini, actual provider payments and email delivery/human recovery remain deferred; broader acceptance/capacity and final synchronization are still required before production cutover. Earlier no-import/no-authorization checkpoints below are historical.
 
-
 ## Latest staging deployment — 5 November 2026
 
 Application commit `89fc844` is deployed as Worker version `f655e3f6-66cc-49c2-b2a6-9fc9ec303648` at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev. Upload: 15,907.16 KiB raw / 3,541.03 KiB gzip; Cloudflare reported 1 ms startup. Both existing private server bindings were retained (names verified, no secret values read). Hosted recovery, expired-link handling, four SSR/no-index smoke routes and actual 390×844 recovery layout passed; no real password or email request was submitted. The earlier full 24-module hosted API and MCP runs are recorded separately and were not repeated for this auth UI change.
@@ -144,18 +142,15 @@ Eight recovery unit tests, five disposable-account provider recovery checks, 24 
 
 Gemini and Razorpay provider testing remain explicitly deferred and unverified. Actual email delivery/human recovery, historical data reconciliation, broader browser/offline testing and sustained production CPU headroom remain open. Production, Store, DNS, live payments, customer entitlements and billing remain unchanged. See [PASSWORD_RECOVERY_VERIFICATION.md](PASSWORD_RECOVERY_VERIFICATION.md) and [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md). Prior checkpoints below are historical.
 
-
 ## Password recovery follow-up — 5 November 2026
 
 The missing recovery UI is implemented using Supabase PKCE and the normal Auth API, with an identity-pinned memory-only update client. Eight recovery tests, five actual disposable-account Supabase checks, existing auth navigation, and the combined 24-test security/recovery regression passed. The fixture was removed and existing identities preserved; no email was sent. Browser expired-link handling and actual 390×844 layout passed without entering a real password. Actual email delivery and a private human-completed recovery remain unverified. See [PASSWORD_RECOVERY_VERIFICATION.md](PASSWORD_RECOVERY_VERIFICATION.md). Gemini and Razorpay provider testing remain explicitly deferred.
-
 
 ## Initial hosted staging checkpoint — 5 November 2026
 
 OVU is deployed at https://ovu-supabase-staging.mukul-srivastava-025.workers.dev on the existing Workers Free plan. Active tested version: `e6abed40-270b-4c68-8547-828770f43554`; application build: `7f215f7`. Approved Supabase staging Site URL and auth redirect are saved; local auth redirect is retained. Actual hosted 24-module assessment/certificate API QA, Google sign-in, all four MCP tools, sampled admin/mobile/galaxy and paid-access-denial journeys passed. Seven staging checks, 21 security checks and TypeScript passed. Hosted retry testing does not constitute a forced platform restart.
 
 Observed CPU P50 10.06 ms / P99 105 ms exceeds the nominal Free 10 ms budget despite zero observed resource errors; sustained production capacity is not verified. No purchase or upgrade occurred. Gemini and Razorpay provider testing are explicitly deferred and unverified. Email recovery, broader workflow testing and approved historical reconciliation remain outstanding. Production, Store, DNS, live payments and customer entitlements remain unchanged. See [HOSTED_STAGING_REPORT.md](HOSTED_STAGING_REPORT.md) for evidence and limits. Earlier checkpoint entries below describe historical state.
-
 
 Latest authorization: the user explicitly approved temporary Cloudflare staging preparation and deployment, with no purchases. Production, DNS, live payments, historical customer import/access changes and Lovable cancellation remain unauthorized. Cloudflare authentication and actual account-plan verification must precede upload; exact hosted auth redirects require review once the staging origin is known. Do not ask for the same staging approval again.
 
@@ -189,7 +184,6 @@ Two real browser tabs used the exact production journal and flush modules in a s
 
 Preserve the verified certificate commit 591c39a and earlier checkpoints. Remaining technical work includes broader profile-data/legacy synchronization authorization review, complete browser/mobile/scientific and email-delivery checks, comprehensive schema typings and historical data reconciliation. Hosted Cloudflare validation/deployment requires separate approval. Razorpay provider testing remains deferred and unverified; production, Store and customer access remain unchanged.
 
-
 ## Profile privacy and navigation checkpoint
 
 Migration 0011 is installed in the new OVU Supabase project; all 12 pre/post record digests matched. Raw student profiles are owner-only, browser progress writes are denied and service-only navigation synchronization preserves canonical completion/date and monotonic reading without awarding official access. Login uses only account-owned caches and rejects stale identity responses. Concurrent profile creation returns one committed public ID; outages cannot fabricate persisted identities. The actual browser exposed a stale guest-default editor bug, now fixed by initializing the editor from the current profile when opened. No account settings were saved during UI QA.
@@ -197,7 +191,6 @@ Migration 0011 is installed in the new OVU Supabase project; all 12 pre/post rec
 Verification: eight new PostgreSQL checks, 19 runtime/offline/cache checks, eight original student checks, 63 astronomy checks and three built session-boundary checks passed. TypeScript and the final Worker build passed. Actual Supabase/built Worker QA passed the full 24-module official assessment/certificate/admin/privacy/restart journey plus profile creation/privacy/account-switch and canonical-navigation replay checks. Its marked synthetic identity and rows were removed; preceding identities were preserved. No paid pass or provider payment was created. Final deployment dry run passed without upload (15,894.03 KiB raw / 3,538.06 KiB gzip). Desktop/mobile editor fields match the persisted profile; 390×844 document overflow was false, viewport restored. Public galaxy rendering/selection worked; a legacy distance-unit abbreviation error was found separately.
 
 See PROFILE_NAVIGATION_MIGRATION.md for contracts, evidence boundaries and rollback. Broad legacy SDK typing, complete browser/scientific and email-delivery checks, approved historical data reconciliation and hosted staging remain outstanding. Provider payments remain deferred/unverified. Store, production, live access, DNS, purchases, deployments and Lovable cancellation remain unchanged.
-
 
 ## Scientific UI and provider-readiness follow-up — 5 November 2026
 
@@ -208,7 +201,6 @@ Anonymous browser QA used separate loopback origin 31753, with no account sessio
 The original preview test passed all public routes, stylesheet MIME/HEAD, rejected asset writes and missing-asset checks. An initial run occurred while the build was replacing its output and correctly failed for missing build configuration; rerunning after build completion passed without changing any assertion or timeout. All 131 COSMOS foundation checks passed. Provider-backed Gemini chat/TTS/Live calls remain unverified; the local preview now accepts GEMINI_API_KEY as a private memory-only binding when explicitly configured, matching the existing server contract. No Gemini key was entered and no provider-backed request was intentionally invoked during these checks. Grounded/browser-speech fallbacks are not proof of working Gemini service.
 
 Read-only Cloudflare CLI identity check: not authenticated. No login, upload, purchase, account setting, production/DNS/payment/customer-access change was performed. Hosted validation requires private Cloudflare authentication and separate staging-deployment approval. Email delivery/reset, external AI service checks, historical records/storage/signing-key reconciliation and actual payment-provider tests (deferred by user) remain release gates. Existing instructional placeholders, including the galaxy collision sandbox, were preserved and are not claimed to have been implemented by migration.
-
 
 ## Approved staging preparation checkpoint
 
