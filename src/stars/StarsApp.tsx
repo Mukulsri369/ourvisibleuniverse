@@ -31,6 +31,7 @@ import { GalaxyInfoPanel } from "./GalaxyInfoPanel";
 import { ExoPlanetPanel } from "./ExoPlanetPanel";
 import { SolarBodyPanel } from "./SolarBodyPanel";
 import { ObservedObjects } from "./ObservedObjects";
+import { LOCAL_SCENE_QA, LocalSceneQASampler, LocalSceneQAPanel } from "./AndromedaLocalQA";
 import { ObservedObjectInfoPanel } from "./ObservedObjectInfoPanel";
 import { OpticsPostProcessing } from "./OpticsPostProcessing";
 import { OpticsControlModal } from "./OpticsControlModal";
@@ -126,6 +127,7 @@ export function StarsApp() {
           <CameraRig />
           <ObjectAudioRuntime />
           <OpticsPostProcessing />
+          {LOCAL_SCENE_QA && <LocalSceneQASampler />}
         </Suspense>
       </Canvas>
 
@@ -134,6 +136,7 @@ export function StarsApp() {
       {/* Hide toggle stays visible so users can bring the UI back */}
       <SiteMap />
       <UIHideToggle />
+      {LOCAL_SCENE_QA && <LocalSceneQAPanel />}
       <ObjectAudioControl />
       <BlackHoleJourneyControls />
       <NebulaJourneyControls />

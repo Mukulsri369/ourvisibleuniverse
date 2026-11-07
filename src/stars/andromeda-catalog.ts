@@ -1,14 +1,16 @@
 import type { ObservedObject } from "./observed-objects";
 import { icrsToGalactic } from "@/lib/astronomy/coordinates";
-import { M31_DISTANCE } from "./andromeda-data";
+import { M31_DISTANCE, M31_CENTER } from "./andromeda-data";
+import { M31_EXTENDED_TARGETS } from "./andromeda-extended-catalog";
+import type { M31ScientificTarget } from "./andromeda-target-types";
 export const M31_HOST = "Andromeda (M31)";
 export const M31_PLACEMENT =
-  "Measured sky direction; adopted M31 distance, unknown individual line-of-sight depth. Not a deprojected disk measurement.";
+  "Adopted M31 distance, unknown individual line-of-sight depth. Sky projections are translated to register the catalogue nucleus with the existing scene centre; not a deprojected disk measurement.";
 const h = (a: number, b: number, c: number) => (a + b / 60 + c / 3600) * 15;
 const d = (a: number, b: number, c: number) => a + b / 60 + c / 3600;
 const simbad = (id: string) =>
   "https://simbad.cds.unistra.fr/simbad/sim-id?Ident=" + encodeURIComponent(id);
-export const M31_TARGETS = [
+const M31_CORE_TARGETS = [
   {
     id: "m31-v1",
     name: "M31-V1 (Hubble's Cepheid)",
@@ -100,6 +102,21 @@ export const M31_TARGETS = [
       "Stellar dynamics establish a central supermassive black hole, with a published mass estimate around 140 million solar masses. The position is the approximate nuclear centre, not a separately measured event-horizon location. No bright accretion disk or jet is asserted.",
   },
 ] as const;
+export const M31_TARGETS: readonly M31ScientificTarget[] = [
+  ...M31_CORE_TARGETS,
+  ...M31_EXTENDED_TARGETS,
+];
+const nuclearDirection = icrsToGalactic(h(0, 42, 44.33), d(41, 16, 7.5));
+const lr = (nuclearDirection.l * Math.PI) / 180,
+  br = (nuclearDirection.b * Math.PI) / 180;
+const nuclearSkyPosition = [
+  -M31_DISTANCE * Math.cos(br) * Math.cos(lr),
+  M31_DISTANCE * Math.sin(br),
+  M31_DISTANCE * Math.cos(br) * Math.sin(lr),
+];
+export const M31_REGISTRATION_OFFSET = M31_CENTER.toArray().map(
+  (v, i) => v - nuclearSkyPosition[i],
+);
 export function validateM31Coordinates(ra: number, dec: number) {
   if (!Number.isFinite(ra) || !Number.isFinite(dec) || ra < 0 || ra >= 360 || dec < -90 || dec > 90)
     throw new Error("Invalid ICRS coordinates");
@@ -119,15 +136,25 @@ export const ANDROMEDA_OBJECTS: ObservedObject[] = M31_TARGETS.map((t) => ({
   visual: t.visual,
   color: t.color,
   accent: t.color,
-  observed: "Optical catalogue / published observations",
+  observed:
+    t.model === "xray-pulsar" || t.model === "ulx-candidate"
+      ? "X-ray timing and spectroscopy"
+      : t.model === "molecular-cloud"
+        ? "CO millimetre spectroscopy and dust extinction"
+        : "Optical catalogue / published observations",
   properties: [
     "Host: Andromeda (M31)",
     t.id === "m31-v1"
       ? "NASA equatorial image position; J2000 assumed for scene conversion"
       : t.id === "m31-nucleus"
         ? "Approximate J2000 nuclear centre; scene aligned to the existing M31 centre"
-        : "ICRS / J2000 sky position",
+        : t.model
+          ? "J2000 equatorial reference position; treated as ICRS for scene conversion"
+          : "ICRS / J2000 sky position",
     "RA " + t.ra.toFixed(6) + "°, Dec " + t.dec.toFixed(6) + "°",
+    t.positionNote ??
+      "Published equatorial direction; individual depth not measured by this viewer.",
+    ...(t.facts ?? []),
     M31_PLACEMENT,
   ],
   description: t.description,
@@ -135,6 +162,7 @@ export const ANDROMEDA_OBJECTS: ObservedObject[] = M31_TARGETS.map((t) => ({
     "Artistic 3D reconstruction; presentation size and stellar colors are illustrative. " +
     M31_PLACEMENT,
   source: t.source,
+  sourceReferences: [t.source, ...(t.references ?? [])],
   ...(t.id === "m31-nucleus"
     ? {
         compactPhysics: {

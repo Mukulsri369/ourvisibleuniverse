@@ -192,7 +192,7 @@ export function createTargetFromGalaxy(galaxy: ObservationalGalaxy): UniversalTa
 export function createTargetFromObservedObject(obj: ObservedObject): UniversalTarget {
   const catLower = (obj.category || "").toLowerCase();
   const type: any =
-    catLower.includes("black hole") || catLower.includes("gravitational")
+    obj.id === "m31-ulx1" || catLower.includes("black hole") || catLower.includes("gravitational")
       ? "black_hole"
       : catLower.includes("nebula") || catLower.includes("remnant")
         ? "nebula"
@@ -234,7 +234,10 @@ export function createTargetFromObservedObject(obj: ObservedObject): UniversalTa
           ? "Clusters and associations are stellar populations formed from gas. This artistic population does not reconstruct this object's individual formation history."
           : obj.visual === "star"
             ? "Stellar variability is linked to stellar structure and evolution. No calibrated evolutionary track or light curve is encoded in this reconstruction."
-            : "Central black holes grow through accretion and mergers; this visualization does not establish M31's individual growth history."
+            : obj.id === "m31-nucleus"
+              ? "Central black holes grow through accretion and mergers; this visualization does not establish M31's individual growth history."
+              : obj.description +
+                " Individual geometry, depth and viewing extent are not independently measured by this reconstruction."
         : obj.nebulaClass === "emission"
           ? "Young hot stars ionize the surrounding hydrogen gas. Stellar radiation and winds shape cavities and compressed star-forming ridges."
           : `Formed through stellar evolution, mass ejection, or accretion; see the object-specific observed properties for its classification.`,
@@ -248,7 +251,7 @@ export function createTargetFromObservedObject(obj: ObservedObject): UniversalTa
       `Volumetric ray-marched shaders simulate gas emission lines (H-alpha, [O III]), dust extinction, and synchrotron relativistic geometries.`,
     citations:
       obj.hostGalaxy === "Andromeda (M31)"
-        ? [obj.source]
+        ? (obj.sourceReferences ?? [obj.source])
         : [
             obj.compactPhysics?.publishedCitation ||
               obj.source ||

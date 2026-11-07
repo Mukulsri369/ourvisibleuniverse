@@ -17,7 +17,15 @@ import {
 } from "../src/stars/black-hole-journey";
 import { descentSoundProfile } from "../src/stars/black-hole-audio";
 const holes = OBSERVED_OBJECTS.filter(isBlackHoleTarget);
-assert.equal(holes.length, 13, "Review new black-hole and quasar catalogue entries");
+assert.equal(holes.length, 14, "Review new black-hole and quasar catalogue entries");
+const m31 = holes.find((item) => item.id === "m31-nucleus")!;
+assert.equal(m31.compactPhysics?.massSolar, 140_000_000);
+assert.equal(m31.compactPhysics?.hasAccretionDisk, false);
+assert.equal(m31.compactPhysics?.hasRelativisticJet, false);
+assert(
+  !holes.some((item) => item.id === "m31-ulx1"),
+  "An uncertain ULX is not assigned a measured-mass lens model",
+);
 for (const item of holes) {
   const model = blackHoleModel(item);
   assert.ok(model.radiusLy > 0 && Number.isFinite(model.radiusLy));
@@ -70,7 +78,7 @@ useBlackHoleJourney.getState().reset();
 assert.equal(useBlackHoleJourney.getState().mode, "idle");
 assert.equal(descentMotion.elapsed, 0);
 console.log(
-  "PASS: 13 black-hole/quasar cores, dormant emission, physical scales, ISCO references and descent lifecycle",
+  "PASS: 14 reviewed black-hole/quasar cores, dormant emission, physical scales, ISCO references and descent lifecycle",
 );
 
 const pass = new BlackHoleLensPass(new THREE.Scene()),

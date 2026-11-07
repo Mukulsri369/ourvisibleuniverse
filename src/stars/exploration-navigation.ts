@@ -11,9 +11,43 @@ import {
 } from "./galaxy-models";
 import { galaxyAppearance } from "./galaxy-appearance";
 import { galaxyStructure } from "./galaxy-structure";
+import { useNebulaJourney } from "./nebula-journey";
+import { useBlackHoleJourney } from "./black-hole-journey";
 import { motionTimeSeconds } from "./sim-clock";
 import { PA99N2_WORLD, M31_PLANETS } from "./andromeda-data";
 import { explorerGalaxy } from "./exploration-galaxies";
+export function galaxyOverviewDistance(size: number, width: number, height: number) {
+  const w = Number.isFinite(width) && width > 0 ? width : 1280,
+    h = Number.isFinite(height) && height > 0 ? height : 720;
+  const halfVertical = (21 * Math.PI) / 180,
+    visibleWidth = Math.max(w * 0.6, w - (w >= 768 ? 350 : 0));
+  const halfHorizontal = Math.atan((Math.tan(halfVertical) * visibleWidth) / h);
+  const extent = Math.max(size * 0.55, 1);
+  return extent / Math.tan(Math.min(halfVertical, halfHorizontal)) + extent;
+}
+/** Same-host overview: retain entry scope and the existing exit journey. */
+export function returnToGalaxyOverview(host: string, width = 1280, height = 720) {
+  const scope = useExploration.getState(),
+    g = explorerGalaxy(host);
+  if (scope.phase !== "inside" || scope.galaxy !== host || !g) return false;
+  useNebulaJourney.getState().reset();
+  useBlackHoleJourney.getState().reset();
+  const distance = galaxyOverviewDistance(g.size, width, height);
+  useStore.setState({
+    selectedObjectId: null,
+    selectedStar: null,
+    visitPlanet: null,
+    visitGalaxy: { ...g, view: undefined, focus: { x: g.x, y: g.y, z: g.z, distance } },
+    exoVisit: null,
+    cameraFree: false,
+    tourActive: false,
+    guidedJourneyActive: false,
+    isAutoOrbiting: false,
+    flyTo: { x: g.x, y: g.y, z: g.z, distance },
+  });
+  useExploration.setState({ destinationName: host, pending: null, mapOpen: false });
+  return true;
+}
 export function navigateExplorationTarget(target: ExploreTarget) {
   const state = useStore.getState();
   if (target.kind === "galaxy") {

@@ -74,7 +74,7 @@ for (const t of M31_TARGETS) {
   const detail = createTargetFromObservedObject(o);
   assert.equal(detail.parentName, M31_HOST);
   assert.equal(detail.radiusKm, undefined);
-  assert.deepEqual(detail.citations, [o.source]);
+  assert.deepEqual(detail.citations, o.sourceReferences ?? [o.source]);
   assert(detail.telescopeObservations.includes(o.source));
   if (o.visual === "star") assert.equal(detail.type, "star");
   if (o.visual === "cluster") assert.equal(detail.type, "cluster");

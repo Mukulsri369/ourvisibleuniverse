@@ -156,6 +156,14 @@ export function matchesExplorerCategory(d: ExplorerEntry, category: string) {
   if (category === "all") return true;
   if (category === "star") return observedStar || d.kind === "star" || d.kind === "host";
   if (category === "cluster") return cluster;
+  const blackHole =
+    d.kind === "object" && (d.type === "Black hole" || /black.hole candidate/i.test(d.detail));
+  if (category === "black_hole") return blackHole;
+  if (category === "nebula") return d.kind === "object" && d.type === "Nebula";
+  if (category === "remnant")
+    return (
+      d.kind === "object" && !blackHole && ["Neutron star", "Stellar remnant"].includes(d.type)
+    );
   if (category === "object") return d.kind === "object" && !observedStar && !cluster;
   return d.kind === category || (category === "planet" && d.kind === "exo");
 }

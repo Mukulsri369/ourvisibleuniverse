@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { M31_CENTER } from "./andromeda-data";
-import { ANDROMEDA_OBJECTS } from "./andromeda-catalog";
+import { ANDROMEDA_OBJECTS, M31_REGISTRATION_OFFSET } from "./andromeda-catalog";
 import { EXTRAGALACTIC_HII_OBJECTS } from "./extragalactic-hii";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 
@@ -75,6 +75,7 @@ export type ObservedObject = {
   description: string;
   visualNote: string;
   source: string;
+  sourceReferences?: string[];
   nebulaClass?: "emission" | "reflection" | "dark" | "planetary" | "supernova_remnant";
   filterPalette?: string;
   compactPhysics?: CompactPhysics;
@@ -2057,18 +2058,21 @@ export const OBJECT_CATEGORIES: ObjectCategory[] = [
 ];
 
 export function objectPosition(
-  item: Pick<ObservedObject, "l" | "b" | "distance"> & { id?: string },
+  item: Pick<ObservedObject, "l" | "b" | "distance"> & { id?: string; hostGalaxy?: string },
 ): [number, number, number] {
   // Nuclear exhibit aligns with the existing coarse galaxy centre, not a new disk orientation.
   if (item.id === "m31-nucleus") return M31_CENTER.toArray();
   const lr = (item.l * Math.PI) / 180,
     br = (item.b * Math.PI) / 180,
     c = Math.cos(br);
-  return [
+  const position: [number, number, number] = [
     -item.distance * c * Math.cos(lr),
     item.distance * Math.sin(br),
     item.distance * c * Math.sin(lr),
   ];
+  return item.hostGalaxy === "Andromeda (M31)"
+    ? (position.map((v, i) => v + M31_REGISTRATION_OFFSET[i]) as [number, number, number])
+    : position;
 }
 
 export function objectVisitDistance(item: ObservedObject): number {

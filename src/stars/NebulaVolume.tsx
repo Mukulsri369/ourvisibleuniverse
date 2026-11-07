@@ -1,4 +1,5 @@
 import { NebulaDensityCache } from "./nebula-density-cache";
+import { referenceImageURL, noteReferenceFallback } from "./local-scene-qa-flags";
 import { objectView, viewGain } from "./object-view-settings";
 import { NEBULA_BALANCE } from "./nebula-appearance";
 import { NEBULA_STELLAR_PROFILES } from "./nebula-stellar-profiles";
@@ -115,7 +116,7 @@ export function NebulaVolume({
       const ratio = Math.min(1, max / Math.max(reference.width, reference.height));
       // Resize while decoding, off the main thread. Never allocate a 9K GPU map
       // or paint a multi-megapixel canvas during an orbit/zoom gesture.
-      void fetch(reference.url, { signal: controller.signal })
+      void fetch(referenceImageURL(reference.url), { signal: controller.signal })
         .then((r) => {
           if (!r.ok) throw Error("Nebula image " + r.status);
           return r.blob();
@@ -145,6 +146,7 @@ export function NebulaVolume({
           referenceReady.current = true;
         })
         .catch((error) => {
+          if (error.name !== "AbortError") noteReferenceFallback(item.id);
           if (error.name !== "AbortError")
             console.warn("Nebula image unavailable; using reconstructed volume", item.id, error);
         });

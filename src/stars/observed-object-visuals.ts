@@ -1,6 +1,8 @@
+import type { M31Model } from "./andromeda-target-types";
 import { M31_TARGETS } from "./andromeda-catalog";
 import { EXTRAGALACTIC_HII_TARGETS } from "./extragalactic-hii";
 export type ObservedMorphology =
+  | `m31-${M31Model}`
   | "variable-star"
   | "globular-cluster"
   | "stellar-association"
@@ -460,8 +462,9 @@ Object.assign(
     M31_TARGETS.map((t, i) => [
       t.id,
       {
-        morphology:
-          t.visual === "blackhole"
+        morphology: t.model
+          ? `m31-${t.model}`
+          : t.visual === "blackhole"
             ? "dormant-blackhole"
             : t.visual === "cluster"
               ? t.id === "m31-g1"

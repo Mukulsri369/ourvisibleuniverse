@@ -5,6 +5,9 @@ import {
   clusterPointProgramKey,
 } from "./andromeda-cluster-model";
 import { M31_QUAT } from "./andromeda-data";
+import { M31_TARGETS } from "./andromeda-catalog";
+import { AndromedaExtendedDetail } from "./AndromedaExtendedDetail";
+import { makeGlowTexture } from "./object-glow-texture";
 import { useExploration } from "./exploration-scope";
 import { objectHost } from "./object-hosts";
 import { SelectedObjectRadiance } from "./SelectedObjectRadiance";
@@ -20,21 +23,6 @@ import { OBSERVED_OBJECTS, objectPosition, type ObservedObject } from "./observe
 import { OBSERVED_VISUAL_PROFILES, type ObservedVisualProfile } from "./observed-object-visuals";
 import { NebulaVolume } from "./NebulaVolume";
 import { useStore } from "./store";
-
-function makeGlowTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 64;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return new THREE.Texture();
-  const glow = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-  glow.addColorStop(0, "rgba(255,255,255,1)");
-  glow.addColorStop(0.18, "rgba(255,255,255,.82)");
-  glow.addColorStop(0.55, "rgba(255,255,255,.22)");
-  glow.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, 64, 64);
-  return new THREE.CanvasTexture(canvas);
-}
 
 function NebulaDetail({
   item,
@@ -420,6 +408,8 @@ function AndromedaCluster({ item, scale }: { item: ObservedObject; scale: number
 }
 
 function Detail({ item, scale }: { item: ObservedObject; scale: number }) {
+  const model = M31_TARGETS.find((t) => t.id === item.id)?.model;
+  if (model) return <AndromedaExtendedDetail model={model} scale={scale} />;
   if (item.visual === "cluster") return <AndromedaCluster item={item} scale={scale} />;
   const profile = OBSERVED_VISUAL_PROFILES[item.id];
   if (!profile) return null;

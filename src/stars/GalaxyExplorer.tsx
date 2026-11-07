@@ -27,7 +27,7 @@ import {
   searchExplorer,
   type ExplorerEntry,
 } from "./exploration-catalog";
-import { navigateExplorationTarget } from "./exploration-navigation";
+import { navigateExplorationTarget, returnToGalaxyOverview } from "./exploration-navigation";
 import { useGalaxyJourney, galaxyMotion } from "./galaxy-journey";
 
 export function GalaxyExplorer() {
@@ -214,6 +214,16 @@ export function GalaxyExplorer() {
                   : "Choose a galaxy, visit it, then discover what lives inside."}
               </p>
             )}
+            {inside && active && (
+              <button
+                onClick={() =>
+                  returnToGalaxyOverview(active, window.innerWidth, window.innerHeight)
+                }
+                className="mt-2 min-h-11 w-full rounded-xl bg-neutral-800 text-sm"
+              >
+                Galaxy overview
+              </button>
+            )}
             {inside && !freeLook && (
               <button
                 onClick={() => {
@@ -299,6 +309,9 @@ export function GalaxyExplorer() {
                     <option value="solar">Solar system</option>
                     <option value="star">Stars</option>
                     <option value="cluster">Clusters & associations</option>
+                    <option value="nebula">Nebulae</option>
+                    <option value="black_hole">Black holes & candidates</option>
+                    <option value="remnant">Pulsars & remnants</option>
                     <option value="planet">Planets & moons</option>
                     <option value="object">Nebulae & compact objects</option>
                     <option value="region">Regions</option>

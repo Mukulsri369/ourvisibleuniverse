@@ -1,10 +1,15 @@
 // @ts-nocheck
 import { PlanetOrbitSettings } from "./PlanetOrbitSettings";
+import { contextualScaleIndicator } from "./scale-context";
 import { GalaxyExplorer } from "./GalaxyExplorer";
 import { useExploration } from "./exploration-scope";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
-import { DEFAULT_SIMULATION_SPEED, formatTimeRate, SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
+import {
+  DEFAULT_SIMULATION_SPEED,
+  formatTimeRate,
+  SIM_SECONDS_PER_REAL_SECOND,
+} from "./scene-controls";
 
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
@@ -1029,7 +1034,15 @@ export function ScaleIndicator() {
   const d = useStore((s) => s.cameraDistance);
   const cosmicJourneyOpen = useStore((s) => s.cosmicJourneyOpen);
   const isMobile = useIsMobile();
-  const info = scaleManager.formatIndicator(d, "enhanced");
+  const galaxy = useExploration((s) => s.galaxy);
+  const phase = useExploration((s) => s.phase);
+  const destination = useExploration((s) => s.destinationName);
+  const info = contextualScaleIndicator(
+    scaleManager.formatIndicator(d, "enhanced"),
+    galaxy,
+    phase,
+    destination,
+  );
 
   return (
     <div
