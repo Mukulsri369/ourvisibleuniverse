@@ -2,6 +2,7 @@ import { useGalaxyJourney } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
 
 import { GalaxyCatalogCloud } from "./GalaxyCatalogCloud";
+import { CatalogueGalaxyField } from "./CatalogueGalaxyField";
 import { SurveyGalaxyField } from "./SurveyGalaxyField";
 import { MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
 
@@ -11,9 +12,9 @@ import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Billboard } from "@react-three/drei";
 import { SafeHtml as Html } from "./SafeHtml";
 import { useStore } from "./store";
-import { GALAXY_BY_NAME, galaxyOrientation } from "./galaxy-models";
-import { NEARBY_GALAXIES, type NamedGalaxy, type ObservationalGalaxy } from "./galaxy-catalog";
+import { NEARBY_GALAXIES, type NamedGalaxy } from "./galaxy-catalog";
 import { LargeScaleStructure3D } from "./LargeScaleStructure3D";
+import { exploreGalaxyAssociation } from "./exploration-navigation";
 
 // ---------------------------------------------------------------
 // OBSERVATIONAL UNIVERSE ATLAS — HIERARCHICAL RENDERING
@@ -59,122 +60,6 @@ function makeDotTexture(): THREE.Texture {
 // Hierarchical Galaxy Node Component
 // -----------------------------------------------------------------------------
 
-function ObservationalGalaxyNode({ g }: { g: ObservationalGalaxy }) {
-  const pos = useMemo(() => toXYZ(g.l, g.b, g.distance), [g]);
-  const model = GALAXY_BY_NAME.get(g.name)!;
-  const orientation = useMemo(() => galaxyOrientation(model), [model]);
-  const pickRef = useRef<THREE.Mesh>(null!);
-  const [hovered, setHovered] = useState(false);
-  const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
-  const hasDetail = Boolean(model);
-  useFrame(({ camera, size }) => {
-    const distance = camera.position.distanceTo(pos);
-    const minDiameter =
-      (distance *
-        2 *
-        Math.tan(THREE.MathUtils.degToRad((camera as THREE.PerspectiveCamera).fov * 0.5)) *
-        7) /
-      size.height;
-    if (pickRef.current) pickRef.current.scale.setScalar(Math.max(g.size, minDiameter) * 0.5);
-  });
-  const onOver = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    setHovered(true);
-    document.body.style.cursor = "pointer";
-  };
-  const onOut = (e: ThreeEvent<PointerEvent>) => {
-    e.stopPropagation();
-    setHovered(false);
-    document.body.style.cursor = "";
-  };
-  const onClick = (e: ThreeEvent<MouseEvent>) => {
-    if (e.delta > 4) return;
-    e.stopPropagation();
-    setVisitGalaxy({
-      name: g.name,
-      x: pos.x,
-      y: pos.y,
-      z: pos.z,
-      size: g.size,
-      distance: g.distance,
-      type: g.type,
-      view: "overview",
-    });
-  };
-
-  const distLabel =
-    g.distance >= 1_000_000_000
-      ? (g.distance / 1_000_000_000).toFixed(2) + " Gly"
-      : g.distance >= 1_000_000
-        ? (g.distance / 1_000_000).toFixed(2) + " Mly"
-        : (g.distance / 1000).toFixed(0) + " kly";
-
-  return (
-    <group position={pos}>
-      <group quaternion={orientation}>
-        <GalaxyCatalogCloud model={model} />
-      </group>
-
-      {/* Invisible pick target */}
-      <mesh
-        ref={pickRef}
-        visible={false}
-        onPointerOver={onOver}
-        onPointerOut={onOut}
-        onClick={onClick}
-      >
-        <sphereGeometry args={[1, 10, 10]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
-
-      {/* Mount the tooltip only while hovered; hidden roots must not track the camera. */}
-      {hovered && (
-        <Billboard>
-          <Html center zIndexRange={[15, 0]} style={{ pointerEvents: "none" }}>
-            <div
-              style={{
-                opacity: hovered ? 1 : 0,
-                transform: "translate(12px, -12px)",
-                color: "#ffffff",
-                fontSize: 13,
-                fontFamily: "Inter, system-ui, sans-serif",
-                letterSpacing: 0.5,
-                whiteSpace: "nowrap",
-                padding: "5px 10px",
-                borderLeft: "2px solid rgba(120,180,255,0.9)",
-                background: "rgba(6,9,22,0.85)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
-                transition: "opacity 150ms ease-out",
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-white">{g.name}</span>
-                {hasDetail && (
-                  <span className="rounded bg-sky-500/20 px-1 py-0.5 text-[9px] uppercase tracking-wider text-sky-300">
-                    ✦ 3D Model
-                  </span>
-                )}
-              </div>
-              <div style={{ fontSize: 10, opacity: 0.75, marginTop: 3 }}>
-                {g.morphologyClass ? `${g.morphologyClass} · ` : ""}
-                {g.type} · {distLabel}
-              </div>
-              <div style={{ fontSize: 9, opacity: 0.55, marginTop: 1 }}>
-                {g.redshift < 0
-                  ? `z = ${g.redshift.toFixed(6)} (Blueshifted)`
-                  : `z = ${g.redshift.toFixed(g.redshift > 1 ? 3 : 5)}`}
-                {g.hostGroup ? ` · ${g.hostGroup}` : ""}
-              </div>
-            </div>
-          </Html>
-        </Billboard>
-      )}
-    </group>
-  );
-}
-
 // -----------------------------------------------------------------------------
 // Large-Scale Spatial Cluster Aggregators
 // -----------------------------------------------------------------------------
@@ -190,15 +75,16 @@ function ClusterAggregateBillboard({
   count: number;
   color: string;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
-
   return (
     <group position={position}>
       <Billboard>
         <Html center zIndexRange={[12, 0]} style={{ pointerEvents: "none" }}>
-          <div
+          <button
+            type="button"
+            aria-label={`Browse ${name} members`}
+            title="Catalogued members only; coverage is incomplete. Cluster centres and viewing envelopes are approximate."
             style={{
+              minHeight: 44,
               padding: "2px 8px",
               borderRadius: "4px",
               background: "rgba(10,15,35,0.65)",
@@ -214,19 +100,11 @@ function ClusterAggregateBillboard({
             }}
             onClick={(e) => {
               e.stopPropagation();
-              setVisitGalaxy({
-                name,
-                x: position.x,
-                y: position.y,
-                z: position.z,
-                size: 250_000,
-                distance: position.length(),
-                type: "Galaxy Cluster",
-              });
+              exploreGalaxyAssociation(name, position.toArray() as [number, number, number]);
             }}
           >
-            {name} ({count})
-          </div>
+            {name} · {count} in atlas
+          </button>
         </Html>
       </Billboard>
     </group>
@@ -333,25 +211,25 @@ export function Universe() {
       {
         name: "Virgo Cluster",
         position: toXYZ(283.8, 74.5, 54_000_000),
-        count: 16,
+        count: NEARBY_GALAXIES.filter((g) => g.hostGroup === "Virgo Cluster").length,
         color: "#8ab4f8",
       },
       {
         name: "Coma Cluster",
         position: toXYZ(58.1, 87.9, 321_000_000),
-        count: 8,
+        count: NEARBY_GALAXIES.filter((g) => g.hostGroup === "Coma Cluster").length,
         color: "#f28b82",
       },
       {
         name: "Perseus Cluster",
         position: toXYZ(150.6, -13.3, 237_000_000),
-        count: 6,
+        count: NEARBY_GALAXIES.filter((g) => g.hostGroup === "Perseus Cluster").length,
         color: "#fdd663",
       },
       {
         name: "Fornax Cluster",
         position: toXYZ(238.0, -54.6, 58_000_000),
-        count: 5,
+        count: NEARBY_GALAXIES.filter((g) => g.hostGroup === "Fornax Cluster").length,
         color: "#81c995",
       },
     ],
@@ -368,9 +246,7 @@ export function Universe() {
       {/* Observed Extragalactic Catalog Nodes */}
       {showObservedGalaxies && (
         <group>
-          {NEARBY_GALAXIES.filter((g) => g.name !== "Andromeda (M31)").map((g) => (
-            <ObservationalGalaxyNode key={g.id ?? g.name} g={g} />
-          ))}
+          <CatalogueGalaxyField />
 
           {/* Spatial cluster aggregate labels for large scales */}
           {clusters.map((c) => (

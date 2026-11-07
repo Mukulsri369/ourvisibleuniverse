@@ -1,0 +1,4338 @@
+{
+  "schemaVersion": 1,
+  "note": "Canonical IDs and verified historical names survive catalogue-edition and preferred-name changes. Never recycle these IDs.",
+  "identities": [
+    {
+      "id": "mcconnachie-2021-andromeda9",
+      "names": [
+        "AndromedaIX",
+        "Andromeda IX",
+        "And IX"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda19",
+      "names": [
+        "AndromedaXIX",
+        "Andromeda XIX",
+        "And XIX"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda17",
+      "names": [
+        "AndromedaXVII",
+        "Andromeda XVII",
+        "And XVII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda18",
+      "names": [
+        "AndromedaXVIII",
+        "Andromeda XVIII",
+        "And XVIII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda20",
+      "names": [
+        "AndromedaXX",
+        "Andromeda XX",
+        "And XX"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda21",
+      "names": [
+        "AndromedaXXI",
+        "Andromeda XXI",
+        "And XXI"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda22",
+      "names": [
+        "AndromedaXXII",
+        "Andromeda XXII",
+        "And XXII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda23",
+      "names": [
+        "AndromedaXXIII",
+        "Andromeda XXIII",
+        "And XXIII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda24",
+      "names": [
+        "AndromedaXXIV",
+        "Andromeda XXIV",
+        "And XXIV"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda29",
+      "names": [
+        "AndromedaXXIX",
+        "Andromeda XXIX",
+        "And XXIX"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda25",
+      "names": [
+        "AndromedaXXV",
+        "Andromeda XXV",
+        "And XXV"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda26",
+      "names": [
+        "AndromedaXXVI",
+        "Andromeda XXVI",
+        "And XXVI"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda27",
+      "names": [
+        "AndromedaXXVII",
+        "Andromeda XXVII",
+        "And XXVII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda28",
+      "names": [
+        "AndromedaXXVIII",
+        "Andromeda XXVIII",
+        "And XXVIII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda30",
+      "names": [
+        "AndromedaXXX",
+        "Andromeda XXX",
+        "And XXX"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda31",
+      "names": [
+        "AndromedaXXXI",
+        "Andromeda XXXI"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda32",
+      "names": [
+        "AndromedaXXXII",
+        "Andromeda XXXII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-andromeda33",
+      "names": [
+        "AndromedaXXXIII",
+        "Andromeda XXXIII"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-antlia2",
+      "names": [
+        "Antlia2",
+        "Antlia 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-antliab",
+      "names": [
+        "AntliaB",
+        "Antlia B"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-aquarius2",
+      "names": [
+        "Aquarius2",
+        "Aquarius 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-bootes4",
+      "names": [
+        "Bootes4",
+        "Bootes 4"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-carina2",
+      "names": [
+        "Carina2",
+        "Carina 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-carina3",
+      "names": [
+        "Carina3",
+        "Carina 3"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-cetus3",
+      "names": [
+        "Cetus3",
+        "Cetus 3"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-crater2",
+      "names": [
+        "Crater2",
+        "Crater 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-eso410005",
+      "names": [
+        "ESO410-G005",
+        "ESO410-005"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-eridanus2",
+      "names": [
+        "Eridanus2",
+        "Eridanus 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-hydra2",
+      "names": [
+        "Hydra2",
+        "Hydra 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-hydrus1",
+      "names": [
+        "Hydrus1",
+        "Hydrus 1"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-kks3",
+      "names": [
+        "KKs3",
+        "KKs 3",
+        "[KK2000] 03"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-pictor2",
+      "names": [
+        "Pictor2",
+        "Pictor 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-pisces2",
+      "names": [
+        "Pisces2",
+        "Pisces 2",
+        "PiscesII",
+        "PISCES II"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-tucana2",
+      "names": [
+        "Tucana2",
+        "Tucana 2"
+      ]
+    },
+    {
+      "id": "mcconnachie-2021-virgo1",
+      "names": [
+        "Virgo1",
+        "Virgo 1"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc12894",
+      "names": [
+        "UGC12894",
+        "UGC 12894"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso409015",
+      "names": [
+        "ESO409-015"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc64",
+      "names": [
+        "UGC00064",
+        "UGC 64"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso349031",
+      "names": [
+        "ESO349-031"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc45",
+      "names": [
+        "NGC0045",
+        "NGC 45"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc59",
+      "names": [
+        "NGC0059",
+        "NGC 59"
+      ]
+    },
+    {
+      "id": "ungc-2013-sc22",
+      "names": [
+        "Sc22",
+        "[CFC97] Sc 22"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc288",
+      "names": [
+        "UGC00288",
+        "UGC 288"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso473024",
+      "names": [
+        "ESO473-024"
+      ]
+    },
+    {
+      "id": "ungc-2013-andromeda4",
+      "names": [
+        "And IV"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo226",
+      "names": [
+        "DDO226",
+        "DDO 226"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc247",
+      "names": [
+        "NGC0247",
+        "NGC 247"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg2",
+      "names": [
+        "KDG002"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo6",
+      "names": [
+        "DDO006",
+        "DDO 6"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso540032",
+      "names": [
+        "ESO540-032"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc685",
+      "names": [
+        "UGC00685",
+        "UGC 685"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh5",
+      "names": [
+        "KKH5",
+        "[KKH2001] 5"
+      ]
+    },
+    {
+      "id": "ungc-2013-am0106382",
+      "names": [
+        "AM0106-382"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc404",
+      "names": [
+        "NGC0404",
+        "NGC 404"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc1056",
+      "names": [
+        "UGC01056",
+        "UGC 1056"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc1104",
+      "names": [
+        "UGC01104",
+        "UGC 1104"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh6",
+      "names": [
+        "KKH6",
+        "[KKH2001] 6"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc625",
+      "names": [
+        "NGC0625",
+        "NGC 625"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc1171",
+      "names": [
+        "UGC01171",
+        "UGC 1171"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo13",
+      "names": [
+        "DDO013",
+        "DDO 13"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk13",
+      "names": [
+        "KK13",
+        "[KK98a] 13"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg10",
+      "names": [
+        "KDG010"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk14",
+      "names": [
+        "KK14",
+        "[KK98a] 14"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso245005",
+      "names": [
+        "ESO245-005"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk15",
+      "names": [
+        "KK15",
+        "[KK98a] 15"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic1727",
+      "names": [
+        "IC1727",
+        "IC 1727"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc672",
+      "names": [
+        "NGC0672",
+        "NGC 672"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc1281",
+      "names": [
+        "UGC01281",
+        "UGC 1281"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk16",
+      "names": [
+        "KK16",
+        "[KK98a] 16"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk17",
+      "names": [
+        "KK17",
+        "[KK98a] 17"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc784",
+      "names": [
+        "NGC0784",
+        "NGC 784"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc1561",
+      "names": [
+        "UGC1561",
+        "UGC 1561"
+      ]
+    },
+    {
+      "id": "ungc-2013-cas1",
+      "names": [
+        "Cas1"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc1703",
+      "names": [
+        "UGC01703",
+        "UGC 1703"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh11",
+      "names": [
+        "KKH11",
+        "[KKH2001] 11"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo19",
+      "names": [
+        "DDO019",
+        "DDO 19"
+      ]
+    },
+    {
+      "id": "ungc-2013-d02263325",
+      "names": [
+        "d0226+3325",
+        "[KKH2007] dJ0226+3325"
+      ]
+    },
+    {
+      "id": "ungc-2013-halogas",
+      "names": [
+        "Halogas"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh12",
+      "names": [
+        "KKH12",
+        "[KKH2001] 12"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo22",
+      "names": [
+        "DDO022",
+        "DDO 22"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo25",
+      "names": [
+        "DDO025",
+        "DDO 25"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo24",
+      "names": [
+        "DDO024",
+        "DDO 24"
+      ]
+    },
+    {
+      "id": "ungc-2013-mb1",
+      "names": [
+        "MB1",
+        "[MB95] 1"
+      ]
+    },
+    {
+      "id": "ungc-2013-maffei1",
+      "names": [
+        "Maffei1"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso115021",
+      "names": [
+        "ESO115-021"
+      ]
+    },
+    {
+      "id": "ungc-2013-maffei2",
+      "names": [
+        "Maffei2"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc2172",
+      "names": [
+        "UGC02172",
+        "UGC 2172"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc122226",
+      "names": [
+        "AGC122226"
+      ]
+    },
+    {
+      "id": "ungc-2013-dw2",
+      "names": [
+        "Dw2",
+        "Dwingeloo 2"
+      ]
+    },
+    {
+      "id": "ungc-2013-mb3",
+      "names": [
+        "MB3",
+        "[MB95] 3"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso154023",
+      "names": [
+        "ESO154-023"
+      ]
+    },
+    {
+      "id": "ungc-2013-dw1",
+      "names": [
+        "Dw1",
+        "Dwingeloo 1"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1156",
+      "names": [
+        "NGC1156",
+        "NGC 1156"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj0300plus2546",
+      "names": [
+        "LV J0300+2546",
+        "[KMK2013] LV J0300+2546"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh18",
+      "names": [
+        "KKH18",
+        "[KKH2001] 18"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso300014",
+      "names": [
+        "ESO300-014"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso300016",
+      "names": [
+        "ESO300-016"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1313",
+      "names": [
+        "NGC1313",
+        "NGC 1313"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1311",
+      "names": [
+        "NGC1311",
+        "NGC 1311"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc2684",
+      "names": [
+        "UGC02684",
+        "UGC 2684"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk27",
+      "names": [
+        "KK27",
+        "[KK98a] 27"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic1959",
+      "names": [
+        "IC1959",
+        "IC 1959"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1400",
+      "names": [
+        "NGC1400",
+        "NGC 1400"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh22",
+      "names": [
+        "KKH22",
+        "[KKH2001] 22"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk35",
+      "names": [
+        "KK35",
+        "[KK98a] 35"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc2905",
+      "names": [
+        "UGC02905",
+        "UGC 2905"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic2038",
+      "names": [
+        "IC2038",
+        "IC 2038"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1533",
+      "names": [
+        "NGC1533",
+        "NGC 1533"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso483013",
+      "names": [
+        "ESO483-013"
+      ]
+    },
+    {
+      "id": "ungc-2013-cama",
+      "names": [
+        "CamA",
+        "CAMEL GALAXY"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1592",
+      "names": [
+        "NGC1592",
+        "NGC 1592"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1569",
+      "names": [
+        "NGC1569",
+        "NGC 1569"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca92",
+      "names": [
+        "UGCA092"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1560",
+      "names": [
+        "NGC1560",
+        "NGC 1560"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1637",
+      "names": [
+        "NGC1637",
+        "NGC 1637"
+      ]
+    },
+    {
+      "id": "ungc-2013-camb",
+      "names": [
+        "CamB",
+        "CAM B"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj0457minus42",
+      "names": [
+        "HIPASS J0457-42"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1744",
+      "names": [
+        "NGC1744",
+        "NGC 1744"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso486021",
+      "names": [
+        "ESO486-021"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc1800",
+      "names": [
+        "NGC1800",
+        "NGC 1800"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca105",
+      "names": [
+        "UGCA105"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3303",
+      "names": [
+        "UGC03303",
+        "UGC 3303"
+      ]
+    },
+    {
+      "id": "ungc-2013-orion",
+      "names": [
+        "Orion"
+      ]
+    },
+    {
+      "id": "ungc-2013-a055407",
+      "names": [
+        "A0554+07",
+        "Anon 0554+07"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh34",
+      "names": [
+        "KKH34",
+        "[KKH2001] 34"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj0607minus34",
+      "names": [
+        "HIPASS J0607-34"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2188",
+      "names": [
+        "NGC2188",
+        "NGC 2188"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso121020",
+      "names": [
+        "ESO121-020"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj0616minus5745",
+      "names": [
+        "LV J0616-5745",
+        "[KMK2013] LV J0616-5745"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca127sat",
+      "names": [
+        "UGCA127sat",
+        "NAME UGCA 127 sat"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca127",
+      "names": [
+        "UGCA127"
+      ]
+    },
+    {
+      "id": "ungc-2013-whib061907",
+      "names": [
+        "WHI B0619-07"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso489056",
+      "names": [
+        "ESO489-056"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3475",
+      "names": [
+        "UGC03475",
+        "UGC 3475"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3476",
+      "names": [
+        "UGC03476",
+        "UGC 3476"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso490017",
+      "names": [
+        "ESO490-017"
+      ]
+    },
+    {
+      "id": "ungc-2013-cgmw1260",
+      "names": [
+        "CGMW1-260"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3501",
+      "names": [
+        "UGC03501",
+        "UGC 3501"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic2171",
+      "names": [
+        "IC2171",
+        "IC 2171"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2283",
+      "names": [
+        "NGC2283",
+        "NGC 2283"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg9",
+      "names": [
+        "KKSG9",
+        "[KKS2000] 9"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh37",
+      "names": [
+        "KKH37",
+        "[KKH2001] 37"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh38",
+      "names": [
+        "KKH38",
+        "[KKH2001] 38"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3600",
+      "names": [
+        "UGC03600",
+        "UGC 3600"
+      ]
+    },
+    {
+      "id": "ungc-2013-hizss003",
+      "names": [
+        "HIZSS003"
+      ]
+    },
+    {
+      "id": "ungc-2013-fg202",
+      "names": [
+        "FG202",
+        "ARGO DWARF IRREGULAR"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso558011",
+      "names": [
+        "ESO558-011"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3698",
+      "names": [
+        "UGC03698",
+        "UGC 3698"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2337",
+      "names": [
+        "NGC2337",
+        "NGC 2337"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3755",
+      "names": [
+        "UGC03755",
+        "UGC 3755"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc3817",
+      "names": [
+        "UGC03817",
+        "UGC 3817"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo43",
+      "names": [
+        "DDO043",
+        "DDO 43"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2366",
+      "names": [
+        "NGC2366",
+        "NGC 2366"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso59001",
+      "names": [
+        "ESO059-001"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo44",
+      "names": [
+        "DDO044",
+        "DDO 44"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj0737plus4724",
+      "names": [
+        "LV J0737+4724",
+        "[KMK2013] LV J0737+4724"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo46",
+      "names": [
+        "DDO046",
+        "DDO 46"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo47",
+      "names": [
+        "DDO047",
+        "DDO 47"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk65",
+      "names": [
+        "KK65",
+        "[KK98a] 65"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc4115",
+      "names": [
+        "UGC04115",
+        "UGC 4115"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2500",
+      "names": [
+        "NGC2500",
+        "NGC 2500"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj0812plus4836",
+      "names": [
+        "LV J0812+4836",
+        "[KMK2013] LV J0812+4836"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2537",
+      "names": [
+        "NGC2537",
+        "NGC 2537"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic2233",
+      "names": [
+        "IC2233",
+        "IC 2233"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2541",
+      "names": [
+        "NGC2541",
+        "NGC 2541"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2552",
+      "names": [
+        "NGC2552",
+        "NGC 2552"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso495008",
+      "names": [
+        "ESO495-008"
+      ]
+    },
+    {
+      "id": "ungc-2013-cgmw23473",
+      "names": [
+        "CGMW2-3473"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo52",
+      "names": [
+        "DDO052",
+        "DDO 52"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc4483",
+      "names": [
+        "UGC04483",
+        "UGC 4483"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso496010",
+      "names": [
+        "ESO496-010"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2683",
+      "names": [
+        "NGC2683",
+        "NGC 2683"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk69",
+      "names": [
+        "KK69",
+        "[KK98a] 69"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk70",
+      "names": [
+        "KK70",
+        "[KK98a] 70"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc4704",
+      "names": [
+        "UGC04704",
+        "UGC 4704"
+      ]
+    },
+    {
+      "id": "ungc-2013-lsbcd56408",
+      "names": [
+        "LSBC D564-08",
+        "ESDO 564-08"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso497004",
+      "names": [
+        "ESO497-004"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc4787",
+      "names": [
+        "UGC04787",
+        "UGC 4787"
+      ]
+    },
+    {
+      "id": "ungc-2013-lsbcd63403",
+      "names": [
+        "LSBC D634-03",
+        "ESDO 634-03"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk71",
+      "names": [
+        "KK71",
+        "[KK98a] 71"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo56",
+      "names": [
+        "DDO056",
+        "DDO 56"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk72",
+      "names": [
+        "KK72",
+        "[KK98a] 72"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2784dw01",
+      "names": [
+        "NGC2784 dw01",
+        "NGC 2784 dw01",
+        "NAME NGC 2784 DW1"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2784",
+      "names": [
+        "NGC2784",
+        "NGC 2784"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk73",
+      "names": [
+        "KK73",
+        "[KK98a] 73"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca153",
+      "names": [
+        "UGCA153"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc198507",
+      "names": [
+        "AGC198507"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj0916minus23b",
+      "names": [
+        "HIPASS J0916-23b"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2835",
+      "names": [
+        "NGC2835",
+        "NGC 2835"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2787",
+      "names": [
+        "NGC2787",
+        "NGC 2787"
+      ]
+    },
+    {
+      "id": "ungc-2013-lsbcd56506",
+      "names": [
+        "LSBC D565-06",
+        "ESDO 565-06"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc4932",
+      "names": [
+        "UGC04932",
+        "UGC 4932"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo62",
+      "names": [
+        "DDO062",
+        "DDO 62"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc198508",
+      "names": [
+        "AGC198508"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc4998",
+      "names": [
+        "UGC04998",
+        "UGC 4998"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj0926plus3343",
+      "names": [
+        "LV J0926+3343",
+        "[KMK2013] LV J0926+3343"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d092670",
+      "names": [
+        "[CKT2009]d0926+70",
+        "[CKT2009] dJ0926+70"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5047",
+      "names": [
+        "UGC05047",
+        "UGC 5047"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg56",
+      "names": [
+        "KDG056"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2903hi1",
+      "names": [
+        "NGC2903-HI-1",
+        "NGC 2903-HI-1",
+        "[IHS2009] N2903-HI-1"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc2903",
+      "names": [
+        "NGC2903",
+        "NGC 2903"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso373007",
+      "names": [
+        "ESO373-007"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5086",
+      "names": [
+        "UGC05086",
+        "UGC 5086"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d093470",
+      "names": [
+        "[CKT2009]d0934+70",
+        "[CKT2009] dJ0934+70"
+      ]
+    },
+    {
+      "id": "ungc-2013-cgcg035007",
+      "names": [
+        "CGCG 035-007",
+        "MCG+01-25-003"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d093971",
+      "names": [
+        "[CKT2009]d0939+71",
+        "[CKT2009] dJ0939+71"
+      ]
+    },
+    {
+      "id": "ungc-2013-kissb023",
+      "names": [
+        "KISSB023"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5186",
+      "names": [
+        "UGC05186",
+        "UGC 5186"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d094469",
+      "names": [
+        "[CKT2009]d0944+69",
+        "[CKT2009] dJ0944+69"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d094471",
+      "names": [
+        "[CKT2009]d0944+71",
+        "[CKT2009] dJ0944+71"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic559",
+      "names": [
+        "IC0559",
+        "IC 559"
+      ]
+    },
+    {
+      "id": "ungc-2013-f8d1",
+      "names": [
+        "F8D1",
+        "NAME F8D1"
+      ]
+    },
+    {
+      "id": "ungc-2013-fm1",
+      "names": [
+        "FM1",
+        "[FM2000b] cand 1"
+      ]
+    },
+    {
+      "id": "ungc-2013-rkk1610",
+      "names": [
+        "RKK1610"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc191803",
+      "names": [
+        "AGC191803"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk77",
+      "names": [
+        "KK77",
+        "[KK98a] 77"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk78",
+      "names": [
+        "KK78",
+        "[KK98a] 78"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo64",
+      "names": [
+        "DDO064",
+        "DDO 64"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5288",
+      "names": [
+        "UGC05288",
+        "UGC 5288"
+      ]
+    },
+    {
+      "id": "ungc-2013-bk3n",
+      "names": [
+        "BK3N"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj0954plus3620",
+      "names": [
+        "LV J0954+3620",
+        "[KMK2013] LV J0954+3620"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg15",
+      "names": [
+        "KKSG15",
+        "[KKS2000] 15"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d095570",
+      "names": [
+        "[CKT2009]d0955+70",
+        "[CKT2009] dJ0955+70"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo68",
+      "names": [
+        "DDO068",
+        "DDO 68"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg61",
+      "names": [
+        "KDG061"
+      ]
+    },
+    {
+      "id": "ungc-2013-clumpi",
+      "names": [
+        "ClumpI",
+        "[MI2009] Clump I"
+      ]
+    },
+    {
+      "id": "ungc-2013-a095269",
+      "names": [
+        "A0952+69",
+        "Anon 0952+69"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d095866",
+      "names": [
+        "[CKT2009]d0958+66",
+        "[CKT2009] dJ0958+66"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d095968",
+      "names": [
+        "[CKT2009]d0959+68",
+        "[CKT2009] dJ0959+68"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg16",
+      "names": [
+        "KKSG16",
+        "[KKS2000] 16"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh57",
+      "names": [
+        "KKH57",
+        "[KKH2001] 57"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1000plus3032",
+      "names": [
+        "LV J1000+3032",
+        "[KMK2013] LV J1000+3032"
+      ]
+    },
+    {
+      "id": "ungc-2013-clumpiii",
+      "names": [
+        "ClumpIII",
+        "[MI2009] Clump III"
+      ]
+    },
+    {
+      "id": "ungc-2013-mcg0126009",
+      "names": [
+        "MCG -01-26-009"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg17",
+      "names": [
+        "KKSG17",
+        "[KKS2000] 17"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca193",
+      "names": [
+        "UGCA193"
+      ]
+    },
+    {
+      "id": "ungc-2013-garland",
+      "names": [
+        "GARLAND"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso499038",
+      "names": [
+        "ESO499-038"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3104",
+      "names": [
+        "NGC3104",
+        "NGC 3104"
+      ]
+    },
+    {
+      "id": "ungc-2013-bk5n",
+      "names": [
+        "BK5N"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5427",
+      "names": [
+        "UGC05427",
+        "UGC 5427"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg63",
+      "names": [
+        "KDG063"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3115",
+      "names": [
+        "NGC3115",
+        "NGC 3115"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg65",
+      "names": [
+        "KDG065"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg18",
+      "names": [
+        "KKSG18",
+        "[KKS2000] 18"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d100667",
+      "names": [
+        "[CKT2009]d1006+67",
+        "[CKT2009] dJ1006+67"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg64",
+      "names": [
+        "KDG064"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5456",
+      "names": [
+        "UGC05456",
+        "UGC 5456"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh58",
+      "names": [
+        "KKH58",
+        "[KKH2001] 58"
+      ]
+    },
+    {
+      "id": "ungc-2013-ikn",
+      "names": [
+        "IKN"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d100970",
+      "names": [
+        "[CKT2009]d1009+70",
+        "[CKT2009] dJ1009+70"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5497",
+      "names": [
+        "UGC05497",
+        "UGC 5497"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d101468",
+      "names": [
+        "[CKT2009]d1014+68",
+        "[CKT2009] dJ1014+68"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d101569",
+      "names": [
+        "[CKT2009]d1015+69",
+        "[CKT2009] dJ1015+69"
+      ]
+    },
+    {
+      "id": "ungc-2013-kug1013414",
+      "names": [
+        "KUG 1013+414"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1018plus4109",
+      "names": [
+        "LV J1018+4109",
+        "[KMK2013] LV J1018+4109"
+      ]
+    },
+    {
+      "id": "ungc-2013-hs117",
+      "names": [
+        "HS117",
+        "[LSK86] 117"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc731448",
+      "names": [
+        "AGC731448"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3239",
+      "names": [
+        "NGC3239",
+        "NGC 3239"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo78",
+      "names": [
+        "DDO078",
+        "DDO 78"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5672",
+      "names": [
+        "UGC05672",
+        "UGC 5672"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d102870",
+      "names": [
+        "[CKT2009]d1028+70",
+        "[CKT2009] dJ1028+70"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc749315",
+      "names": [
+        "AGC749315"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo82",
+      "names": [
+        "DDO082",
+        "DDO 82"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1030plus0607",
+      "names": [
+        "LV J1030+0607",
+        "[KMK2013] LV J1030+0607"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc205156",
+      "names": [
+        "AGC205156"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc731457",
+      "names": [
+        "AGC731457"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3274",
+      "names": [
+        "NGC3274",
+        "NGC 3274"
+      ]
+    },
+    {
+      "id": "ungc-2013-bk6n",
+      "names": [
+        "BK6N"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc202248",
+      "names": [
+        "AGC202248"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso501023",
+      "names": [
+        "ESO501-023"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg03",
+      "names": [
+        "LeG03",
+        "[KK2004] LeG 3"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3299",
+      "names": [
+        "NGC3299",
+        "NGC 3299"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc205165",
+      "names": [
+        "AGC205165"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc200499",
+      "names": [
+        "AGC200499"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc208397",
+      "names": [
+        "AGC208397"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg04",
+      "names": [
+        "LeG04",
+        "[KK2004] LeG 4"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg05",
+      "names": [
+        "LeG05",
+        "[KK2004] LeG 5"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg06",
+      "names": [
+        "LeG06",
+        "[KK2004] LeG 6"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc208399",
+      "names": [
+        "AGC208399"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5812",
+      "names": [
+        "UGC05812",
+        "UGC 5812"
+      ]
+    },
+    {
+      "id": "ungc-2013-ckt2009d104170",
+      "names": [
+        "[CKT2009]d1041+70",
+        "[CKT2009] dJ1041+70"
+      ]
+    },
+    {
+      "id": "ungc-2013-fs04",
+      "names": [
+        "FS04"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg09",
+      "names": [
+        "LeG09",
+        "[KK2004] LeG 9"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc205268",
+      "names": [
+        "AGC205268",
+        "LEDA 1439163"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso376016",
+      "names": [
+        "ESO376-016"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg10",
+      "names": [
+        "LeG10",
+        "[KK2004] LeG 10"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg11",
+      "names": [
+        "LeG11",
+        "[KK2004] LeG 11"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg12",
+      "names": [
+        "LeG12",
+        "[KK2004] LeG 12"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc205445",
+      "names": [
+        "AGC205445",
+        "SDSS J104435.27+135622.7"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg13",
+      "names": [
+        "LeG13",
+        "[KK2004] LeG 13"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg14",
+      "names": [
+        "LeG14",
+        "[KK2004] LeG 14"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk93",
+      "names": [
+        "KK93",
+        "[KK98a] 93"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg16",
+      "names": [
+        "LeG16",
+        "[KK2004] LeG 16"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg17",
+      "names": [
+        "LeG17",
+        "[KK2004] LeG 17"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3368",
+      "names": [
+        "NGC3368",
+        "NGC 3368"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg18",
+      "names": [
+        "LeG18",
+        "[KK2004] LeG 18"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg19",
+      "names": [
+        "LeG19",
+        "[KK2004] LeG 19"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk94",
+      "names": [
+        "KK94",
+        "[KK98a] 94"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg21",
+      "names": [
+        "LeG21",
+        "[KK2004] LeG 21"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo88",
+      "names": [
+        "DDO088",
+        "DDO 88"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso318013",
+      "names": [
+        "ESO318-013"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3377",
+      "names": [
+        "NGC3377",
+        "NGC 3377"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3379",
+      "names": [
+        "NGC3379",
+        "NGC 3379"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3384",
+      "names": [
+        "NGC3384",
+        "NGC 3384"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5923",
+      "names": [
+        "UGC05923",
+        "UGC 5923"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo87",
+      "names": [
+        "DDO087",
+        "DDO 87"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg22",
+      "names": [
+        "LeG22",
+        "[KK2004] LeG 22"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg23",
+      "names": [
+        "LeG23",
+        "[KK2004] LeG 23"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5944",
+      "names": [
+        "UGC05944",
+        "UGC 5944"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk96",
+      "names": [
+        "KK96",
+        "[KK98a] 96"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3412",
+      "names": [
+        "NGC3412",
+        "NGC 3412"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3413",
+      "names": [
+        "NGC3413",
+        "NGC 3413"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg26",
+      "names": [
+        "LeG26",
+        "[KK2004] LeG 26"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc205540",
+      "names": [
+        "AGC205540",
+        "SDSS J105131.35+140653.2"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc205544",
+      "names": [
+        "AGC205544",
+        "SDSS J105204.79+150149.7"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1052plus3628",
+      "names": [
+        "LV J1052+3628",
+        "[KMK2013] LV J1052+3628"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc5983",
+      "names": [
+        "UGC05983",
+        "UGC 5983"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc202456",
+      "names": [
+        "AGC202456",
+        "SDSS J105219.51+110235.6"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg27",
+      "names": [
+        "LeG27",
+        "[KK2004] LeG 27"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3432",
+      "names": [
+        "NGC3432",
+        "NGC 3432"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1052plus3639",
+      "names": [
+        "LV J1052+3639",
+        "[KMK2013] LV J1052+3639"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg73",
+      "names": [
+        "KDG073"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg28",
+      "names": [
+        "LeG28",
+        "[KK2004] LeG 28"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc6014",
+      "names": [
+        "UGC06014",
+        "UGC 6014"
+      ]
+    },
+    {
+      "id": "ungc-2013-lsbcd64012",
+      "names": [
+        "LSBC D640-12",
+        "ESDO 640-12"
+      ]
+    },
+    {
+      "id": "ungc-2013-lsbcd64013",
+      "names": [
+        "LSBC D640-13",
+        "ESDO 640-13"
+      ]
+    },
+    {
+      "id": "ungc-2013-hs10533624",
+      "names": [
+        "HS1053+3624"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso215009",
+      "names": [
+        "ESO215-009"
+      ]
+    },
+    {
+      "id": "ungc-2013-vv747",
+      "names": [
+        "VV747"
+      ]
+    },
+    {
+      "id": "ungc-2013-lsbcd64014",
+      "names": [
+        "LSBC D640-14",
+        "ESDO 640-14"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc205278",
+      "names": [
+        "AGC205278"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3489",
+      "names": [
+        "NGC3489",
+        "NGC 3489"
+      ]
+    },
+    {
+      "id": "ungc-2013-leg33",
+      "names": [
+        "LeG33",
+        "[KK2004] LeG 33"
+      ]
+    },
+    {
+      "id": "ungc-2013-lsbcd64008",
+      "names": [
+        "LSBC D640-08",
+        "ESDO 640-08"
+      ]
+    },
+    {
+      "id": "ungc-2013-cgcg066109",
+      "names": [
+        "CGCG 066-109",
+        "LEDA 33447"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg20",
+      "names": [
+        "KKSG20",
+        "[KKS2000] 20"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc6145",
+      "names": [
+        "UGC06145",
+        "UGC 6145"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3521sat",
+      "names": [
+        "NGC3521sat",
+        "NGC 3521sat"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg22",
+      "names": [
+        "KKSG22",
+        "[KKS2000] 22"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3556",
+      "names": [
+        "NGC3556",
+        "NGC 3556"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo92",
+      "names": [
+        "DDO092",
+        "DDO 92"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3593",
+      "names": [
+        "NGC3593",
+        "NGC 3593"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc202256",
+      "names": [
+        "AGC202256"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic2684",
+      "names": [
+        "IC2684",
+        "IC 2684"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc215354",
+      "names": [
+        "AGC215354"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc213436",
+      "names": [
+        "AGC213436",
+        "SDSS J112224.02+125846.4"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic2787",
+      "names": [
+        "IC2787",
+        "IC 2787"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic2791",
+      "names": [
+        "IC2791",
+        "IC 2791",
+        "AGC 213440"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc6456",
+      "names": [
+        "UGC06456",
+        "UGC 6456"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj1131minus31",
+      "names": [
+        "HIPASS J1131-31"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj1133minus32",
+      "names": [
+        "HIPASS J1133-32",
+        "HIPASS J1132-32"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc6541",
+      "names": [
+        "UGC06541",
+        "UGC 6541"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3738",
+      "names": [
+        "NGC3738",
+        "NGC 3738"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3741",
+      "names": [
+        "NGC3741",
+        "NGC 3741"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso320014",
+      "names": [
+        "ESO320-014"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk109",
+      "names": [
+        "KK109",
+        "[KK98a] 109"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo97",
+      "names": [
+        "DDO097",
+        "DDO 97"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso379007",
+      "names": [
+        "ESO379-007"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc6881",
+      "names": [
+        "UGC06881",
+        "UGC 6881"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg82",
+      "names": [
+        "KDG082"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc3990",
+      "names": [
+        "NGC3990",
+        "NGC 3990"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso572034",
+      "names": [
+        "ESO572-034"
+      ]
+    },
+    {
+      "id": "ungc-2013-kug1157315",
+      "names": [
+        "KUG 1157+315"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4068",
+      "names": [
+        "NGC4068",
+        "NGC 4068"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4080",
+      "names": [
+        "NGC4080",
+        "NGC 4080"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic2992",
+      "names": [
+        "IC2992",
+        "IC 2992"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7131",
+      "names": [
+        "UGC07131",
+        "UGC 7131"
+      ]
+    },
+    {
+      "id": "ungc-2013-mcg0627017",
+      "names": [
+        "MCG +06-27-017"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4144",
+      "names": [
+        "NGC4144",
+        "NGC 4144"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3023",
+      "names": [
+        "IC3023",
+        "IC 3023"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4150",
+      "names": [
+        "NGC4150",
+        "NGC 4150"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk127",
+      "names": [
+        "KK127",
+        "[KK98a] 127"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4190",
+      "names": [
+        "NGC4190",
+        "NGC 4190"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso321014",
+      "names": [
+        "ESO321-014"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7242",
+      "names": [
+        "UGC07242",
+        "UGC 7242"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc0114",
+      "names": [
+        "VCC0114"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7257",
+      "names": [
+        "UGC7257",
+        "UGC 7257"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7267",
+      "names": [
+        "UGC07267",
+        "UGC 7267"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7271",
+      "names": [
+        "UGC07271",
+        "UGC 7271"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4214",
+      "names": [
+        "NGC4214",
+        "NGC 4214"
+      ]
+    },
+    {
+      "id": "ungc-2013-mcg0920131",
+      "names": [
+        "MCG +09-20-131"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc0169",
+      "names": [
+        "VCC0169"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3077",
+      "names": [
+        "IC3077",
+        "IC 3077"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7298",
+      "names": [
+        "UGC07298",
+        "UGC 7298"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1217plus4703",
+      "names": [
+        "LV J1217+4703",
+        "[KMK2013] LV J1217+4703"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7320",
+      "names": [
+        "UGC07320",
+        "UGC 7320"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4244",
+      "names": [
+        "NGC4244",
+        "NGC 4244"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4242",
+      "names": [
+        "NGC4242",
+        "NGC 4242"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7321",
+      "names": [
+        "UGC7321",
+        "UGC 7321"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh78",
+      "names": [
+        "KKH78",
+        "[KKH2001] 78"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4248",
+      "names": [
+        "NGC4248",
+        "NGC 4248"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc229053",
+      "names": [
+        "AGC229053"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk132",
+      "names": [
+        "KK132",
+        "[KK98a] 132"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg101",
+      "names": [
+        "KDG101"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk134",
+      "names": [
+        "KK134",
+        "[KK98a] 134"
+      ]
+    },
+    {
+      "id": "ungc-2013-d12194705",
+      "names": [
+        "d1219+4705"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic779",
+      "names": [
+        "IC 779"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh2011s11",
+      "names": [
+        "[KKH2011]S11"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk136",
+      "names": [
+        "KK136",
+        "[KK98a] 136"
+      ]
+    },
+    {
+      "id": "ungc-2013-d12204649",
+      "names": [
+        "d1220+4649"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg104",
+      "names": [
+        "KDG104"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg105",
+      "names": [
+        "KDG105"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7427",
+      "names": [
+        "UGC7427",
+        "UGC 7427"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk138",
+      "names": [
+        "KK138",
+        "[KK98a] 138"
+      ]
+    },
+    {
+      "id": "ungc-2013-gr34",
+      "names": [
+        "GR34",
+        "GRDG 34"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc0565",
+      "names": [
+        "VCC0565"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3247",
+      "names": [
+        "IC3247",
+        "IC 3247"
+      ]
+    },
+    {
+      "id": "ungc-2013-bts132",
+      "names": [
+        "BTS132"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3308",
+      "names": [
+        "IC3308",
+        "IC 3308"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7512",
+      "names": [
+        "UGC07512",
+        "UGC 7512"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc749236",
+      "names": [
+        "AGC749236"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc0841",
+      "names": [
+        "VCC0841"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4395",
+      "names": [
+        "NGC4395",
+        "NGC 4395"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo123",
+      "names": [
+        "DDO123",
+        "DDO 123"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca281",
+      "names": [
+        "UGCA281"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3341",
+      "names": [
+        "IC3341",
+        "IC 3341"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo126",
+      "names": [
+        "DDO126",
+        "DDO 126"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7584",
+      "names": [
+        "UGC07584",
+        "UGC 7584"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4449",
+      "names": [
+        "NGC4449",
+        "NGC 4449"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo127",
+      "names": [
+        "DDO127",
+        "DDO 127"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7596",
+      "names": [
+        "UGC07596",
+        "UGC 7596"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7605",
+      "names": [
+        "UGC07605",
+        "UGC 7605"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4455",
+      "names": [
+        "NGC4455",
+        "NGC 4455"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo129",
+      "names": [
+        "DDO129",
+        "DDO 129"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1228plus4358",
+      "names": [
+        "LV J1228+4358",
+        "[KMK2013] LV J1228+4358"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4460",
+      "names": [
+        "NGC4460",
+        "NGC 4460"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk149",
+      "names": [
+        "KK149",
+        "[KK98a] 149"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7639",
+      "names": [
+        "UGC07639",
+        "UGC 7639"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7636",
+      "names": [
+        "UGC07636",
+        "UGC 7636"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4485",
+      "names": [
+        "NGC4485",
+        "NGC 4485"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4490",
+      "names": [
+        "NGC4490",
+        "NGC 4490"
+      ]
+    },
+    {
+      "id": "ungc-2013-cgcg014054",
+      "names": [
+        "CGCG 014-054",
+        "MCG+00-32-016"
+      ]
+    },
+    {
+      "id": "ungc-2013-maps123142",
+      "names": [
+        "MAPS1231+42",
+        "SDSS J123109.09+420533.9"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo131",
+      "names": [
+        "DDO131",
+        "DDO 131"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7678",
+      "names": [
+        "UGC7678",
+        "UGC 7678"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7690",
+      "names": [
+        "UGC07690",
+        "UGC 7690"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4517",
+      "names": [
+        "NGC4517",
+        "NGC 4517"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7699",
+      "names": [
+        "UGC07699",
+        "UGC 7699"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo133",
+      "names": [
+        "DDO133",
+        "DDO 133"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4509",
+      "names": [
+        "NGC4509",
+        "NGC 4509"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk152",
+      "names": [
+        "KK152",
+        "[KK98a] 152"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7719",
+      "names": [
+        "UGC7719",
+        "UGC 7719"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4534",
+      "names": [
+        "NGC4534",
+        "NGC 4534"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7751",
+      "names": [
+        "UGC7751",
+        "UGC 7751"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1235minus1104",
+      "names": [
+        "LV J1235-1104",
+        "[KMK2013] LV J1235-1104"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7774",
+      "names": [
+        "UGC07774",
+        "UGC 7774"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc1675",
+      "names": [
+        "VCC1675"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3583",
+      "names": [
+        "IC3583",
+        "IC 3583"
+      ]
+    },
+    {
+      "id": "ungc-2013-maps123633",
+      "names": [
+        "MAPS1236+33",
+        "NGP9 F268-1529654"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3591",
+      "names": [
+        "IC3591",
+        "IC 3591"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg29",
+      "names": [
+        "KKSG29",
+        "[KKS2000] 29"
+      ]
+    },
+    {
+      "id": "ungc-2013-arp211",
+      "names": [
+        "Arp211"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc1713",
+      "names": [
+        "VCC1713"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg30",
+      "names": [
+        "KKSG30",
+        "[KKS2000] 30"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc1725",
+      "names": [
+        "VCC1725"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg31",
+      "names": [
+        "KKSG31",
+        "[KKS2000] 31"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca292",
+      "names": [
+        "UGCA292"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7827",
+      "names": [
+        "UGC07827",
+        "UGC 7827"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg32",
+      "names": [
+        "KKSG32",
+        "[KKS2000] 32"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg177",
+      "names": [
+        "KDG177"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4605",
+      "names": [
+        "NGC4605",
+        "NGC 4605"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc749241",
+      "names": [
+        "AGC749241"
+      ]
+    },
+    {
+      "id": "ungc-2013-bts146",
+      "names": [
+        "BTS146"
+      ]
+    },
+    {
+      "id": "ungc-2013-sucd1",
+      "names": [
+        "SUCD1",
+        "NAME SOMBRERO UCD 1"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg33",
+      "names": [
+        "KKSG33",
+        "[KKS2000] 33"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc1822",
+      "names": [
+        "VCC1822"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4597",
+      "names": [
+        "NGC4597",
+        "NGC 4597"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4600",
+      "names": [
+        "NGC4600",
+        "NGC 4600"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg34",
+      "names": [
+        "KKSG34",
+        "[KKS2000] 34"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4618",
+      "names": [
+        "NGC4618",
+        "NGC 4618"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1241plus3251",
+      "names": [
+        "LV J1241+3251",
+        "[KMK2013] LV J1241+3251"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4627",
+      "names": [
+        "NGC4627",
+        "NGC 4627"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3687",
+      "names": [
+        "IC3687",
+        "IC 3687"
+      ]
+    },
+    {
+      "id": "ungc-2013-bts151",
+      "names": [
+        "BTS151"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1243plus3232",
+      "names": [
+        "LV J1243+3232",
+        "[KMK2013] LV J1243+3232"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk160",
+      "names": [
+        "KK160",
+        "[KK98a] 160"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4656",
+      "names": [
+        "NGC4656",
+        "NGC 4656"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200051",
+      "names": [
+        "[KK2000] 51"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo143",
+      "names": [
+        "DDO143",
+        "DDO 143"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca294",
+      "names": [
+        "UGCA294"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso381018",
+      "names": [
+        "ESO381-018"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3718",
+      "names": [
+        "IC3718",
+        "IC 3718"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso381020",
+      "names": [
+        "ESO381-020"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc2033",
+      "names": [
+        "VCC2033"
+      ]
+    },
+    {
+      "id": "ungc-2013-vcc2037",
+      "names": [
+        "VCC2037"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca298",
+      "names": [
+        "UGCA298"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7950",
+      "names": [
+        "UGC07950",
+        "UGC 7950"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo147",
+      "names": [
+        "DDO147",
+        "DDO 147"
+      ]
+    },
+    {
+      "id": "ungc-2013-fgc1497",
+      "names": [
+        "FGC1497"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj1247minus77",
+      "names": [
+        "HIPASS J1247-77"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4707",
+      "names": [
+        "NGC4707",
+        "NGC 4707"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo148",
+      "names": [
+        "DDO148",
+        "DDO 148"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk165",
+      "names": [
+        "KK165",
+        "[KK98a] 165"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4700",
+      "names": [
+        "NGC4700",
+        "NGC 4700"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk166",
+      "names": [
+        "KK166",
+        "[KK98a] 166"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7983",
+      "names": [
+        "UGC07983",
+        "UGC 7983"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc7990",
+      "names": [
+        "UGC07990",
+        "UGC 7990"
+      ]
+    },
+    {
+      "id": "ungc-2013-bts157",
+      "names": [
+        "BTS157"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk167",
+      "names": [
+        "KK167",
+        "[KK98a] 167"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic3840",
+      "names": [
+        "IC3840",
+        "IC 3840"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4765",
+      "names": [
+        "NGC4765",
+        "NGC 4765"
+      ]
+    },
+    {
+      "id": "ungc-2013-kksg38",
+      "names": [
+        "KKSG38",
+        "[KKS2000] 38"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo153",
+      "names": [
+        "DDO153",
+        "DDO 153"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc8030",
+      "names": [
+        "UGC08030",
+        "UGC 8030"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso443009",
+      "names": [
+        "ESO443-009"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg215",
+      "names": [
+        "KDG215"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso219010",
+      "names": [
+        "ESO219-010"
+      ]
+    },
+    {
+      "id": "ungc-2013-mcg0233075",
+      "names": [
+        "MCG-02-33-075"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj1258minus04",
+      "names": [
+        "HIPASS J1258-04"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4861",
+      "names": [
+        "NGC4861",
+        "NGC 4861"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk176",
+      "names": [
+        "KK176",
+        "[KK98a] 176"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca319",
+      "names": [
+        "UGCA319"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk177",
+      "names": [
+        "KK177",
+        "[KK98a] 177"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo161",
+      "names": [
+        "DDO161",
+        "DDO 161"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso269037",
+      "names": [
+        "ESO269-037"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk180",
+      "names": [
+        "KK180",
+        "[KK98a] 180"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk182",
+      "names": [
+        "KK182",
+        "[KK98a] 182"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc4945",
+      "names": [
+        "NGC4945",
+        "NGC 4945"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic4182",
+      "names": [
+        "IC4182",
+        "IC 4182"
+      ]
+    },
+    {
+      "id": "ungc-2013-mcg0334002",
+      "names": [
+        "MCG -03-34-002"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc8215",
+      "names": [
+        "UGC08215",
+        "UGC 8215"
+      ]
+    },
+    {
+      "id": "ungc-2013-mcg0431038",
+      "names": [
+        "MCG -04-31-038"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso269058",
+      "names": [
+        "ESO269-058"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200053",
+      "names": [
+        "[KK2000] 53"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5023",
+      "names": [
+        "NGC5023",
+        "NGC 5023"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk189",
+      "names": [
+        "KK189",
+        "[KK98a] 189"
+      ]
+    },
+    {
+      "id": "ungc-2013-cgcg217018",
+      "names": [
+        "CGCG 217-018",
+        "MCG+07-27-045"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso269066",
+      "names": [
+        "ESO269-066"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5011c",
+      "names": [
+        "NGC5011C",
+        "NGC 5011C"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo167",
+      "names": [
+        "DDO167",
+        "DDO 167"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo168",
+      "names": [
+        "DDO168",
+        "DDO 168"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo169nw",
+      "names": [
+        "DDO169NW",
+        "DDO 169NW"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo169",
+      "names": [
+        "DDO169",
+        "DDO 169"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk193",
+      "names": [
+        "KK193",
+        "[KK98a] 193"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5068",
+      "names": [
+        "NGC5068",
+        "NGC 5068"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc732602",
+      "names": [
+        "AGC732602"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk195",
+      "names": [
+        "KK195",
+        "[KK98a] 195"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200054",
+      "names": [
+        "[KK2000] 54"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk196",
+      "names": [
+        "KK196",
+        "[KK98a] 196"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5102",
+      "names": [
+        "NGC5102",
+        "NGC 5102"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk197",
+      "names": [
+        "KK197",
+        "[KK98a] 197"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200055",
+      "names": [
+        "[KK2000] 55"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk198",
+      "names": [
+        "KK198",
+        "[KK98a] 198"
+      ]
+    },
+    {
+      "id": "ungc-2013-am1320230",
+      "names": [
+        "AM1320-230"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200",
+      "names": [
+        "KK200",
+        "[KK98a] 200"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic4247",
+      "names": [
+        "IC4247",
+        "IC 4247"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk203",
+      "names": [
+        "KK203",
+        "[KK98a] 203"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso324024",
+      "names": [
+        "ESO324-024"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj1328plus4937",
+      "names": [
+        "LV J1328+4937",
+        "[KMK2013] LV J1328+4937"
+      ]
+    },
+    {
+      "id": "ungc-2013-pgc170257",
+      "names": [
+        "PGC170257"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5204",
+      "names": [
+        "NGC5204",
+        "NGC 5204"
+      ]
+    },
+    {
+      "id": "ungc-2013-agc238890",
+      "names": [
+        "AGC238890"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca361",
+      "names": [
+        "UGCA361"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5206",
+      "names": [
+        "NGC5206",
+        "NGC 5206"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5229",
+      "names": [
+        "NGC5229",
+        "NGC 5229"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5238",
+      "names": [
+        "NGC5238",
+        "NGC 5238"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso270017",
+      "names": [
+        "ESO270-017"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca365",
+      "names": [
+        "UGCA365"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk208",
+      "names": [
+        "KK208",
+        "[KK98a] 208"
+      ]
+    },
+    {
+      "id": "ungc-2013-hideepj1337minus33",
+      "names": [
+        "HIDEEP J1337-33",
+        "HIDEEP J1337-3320"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso444084",
+      "names": [
+        "ESO444-084"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj1337minus39",
+      "names": [
+        "HIPASS J1337-39"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5237",
+      "names": [
+        "NGC5237",
+        "NGC 5237"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc8638",
+      "names": [
+        "UGC08638",
+        "UGC 8638"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo181",
+      "names": [
+        "DDO181",
+        "DDO 181"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5253",
+      "names": [
+        "NGC5253",
+        "NGC 5253"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic4316",
+      "names": [
+        "IC4316",
+        "IC 4316"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5264",
+      "names": [
+        "NGC5264",
+        "NGC 5264"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200057",
+      "names": [
+        "[KK2000] 57"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk211",
+      "names": [
+        "KK211",
+        "[KK98a] 211"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo182",
+      "names": [
+        "DDO182",
+        "DDO 182"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk213",
+      "names": [
+        "KK213",
+        "[KK98a] 213"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso325011",
+      "names": [
+        "ESO325-011"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200058",
+      "names": [
+        "[KK2000] 58"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk217",
+      "names": [
+        "KK217",
+        "[KK98a] 217"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk218",
+      "names": [
+        "KK218",
+        "[KK98a] 218"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso174001",
+      "names": [
+        "ESO174-001"
+      ]
+    },
+    {
+      "id": "ungc-2013-cenn",
+      "names": [
+        "CenN",
+        "Cen N"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj1348minus37",
+      "names": [
+        "HIPASS J1348-37"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk221",
+      "names": [
+        "KK221",
+        "[KK98a] 221"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso383087",
+      "names": [
+        "ESO383-087"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo183",
+      "names": [
+        "DDO183",
+        "DDO 183"
+      ]
+    },
+    {
+      "id": "ungc-2013-hipassj1351minus47",
+      "names": [
+        "HIPASS J1351-47"
+      ]
+    },
+    {
+      "id": "ungc-2013-holmiv",
+      "names": [
+        "HolmIV",
+        "Holmberg IV"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc8833",
+      "names": [
+        "UGC08833",
+        "UGC 8833"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso384016",
+      "names": [
+        "ESO384-016"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc8882",
+      "names": [
+        "UGC08882",
+        "UGC 8882"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5477",
+      "names": [
+        "NGC5477",
+        "NGC 5477"
+      ]
+    },
+    {
+      "id": "ungc-2013-circinus",
+      "names": [
+        "CIRCINUS",
+        "CIRCINUS GALAXY"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkh87",
+      "names": [
+        "KKH87",
+        "[KKH2001] 87"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc5585",
+      "names": [
+        "NGC5585",
+        "NGC 5585"
+      ]
+    },
+    {
+      "id": "ungc-2013-pgc51659",
+      "names": [
+        "PGC051659"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso222010",
+      "names": [
+        "ESO222-010"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo194",
+      "names": [
+        "DDO194",
+        "DDO 194"
+      ]
+    },
+    {
+      "id": "ungc-2013-mrk0475",
+      "names": [
+        "MRK0475"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso273014",
+      "names": [
+        "ESO273-014"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso223009",
+      "names": [
+        "ESO223-009"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc9660",
+      "names": [
+        "UGC09660",
+        "UGC 9660"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso274001",
+      "names": [
+        "ESO274-001"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc9992",
+      "names": [
+        "UGC09992",
+        "UGC 9992"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso137018",
+      "names": [
+        "ESO137-018"
+      ]
+    },
+    {
+      "id": "ungc-2013-kdg235",
+      "names": [
+        "KDG235"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc6503",
+      "names": [
+        "NGC6503",
+        "NGC 6503"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc6684",
+      "names": [
+        "NGC6684",
+        "NGC 6684"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso104022",
+      "names": [
+        "ESO104-022"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200070",
+      "names": [
+        "[KK2000] 70"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200071",
+      "names": [
+        "[KK2000] 71"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc6744",
+      "names": [
+        "NGC6744",
+        "NGC 6744"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso104044",
+      "names": [
+        "ESO104-044"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk200072",
+      "names": [
+        "[KK2000] 72"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc6789",
+      "names": [
+        "NGC6789",
+        "NGC 6789"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic4870",
+      "names": [
+        "IC4870",
+        "IC 4870"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk246",
+      "names": [
+        "KK246",
+        "[KK98a] 246"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic4951",
+      "names": [
+        "IC4951",
+        "IC 4951"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc11583",
+      "names": [
+        "UGC11583",
+        "UGC 11583"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk251",
+      "names": [
+        "KK251",
+        "[KK98a] 251"
+      ]
+    },
+    {
+      "id": "ungc-2013-kk252",
+      "names": [
+        "KK252",
+        "[KK98a] 252"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkr55",
+      "names": [
+        "KKR55",
+        "[KKR99] 55"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkr56",
+      "names": [
+        "KKR56",
+        "[KKR99] 56"
+      ]
+    },
+    {
+      "id": "ungc-2013-cepheus1",
+      "names": [
+        "Cepheus1"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic5052",
+      "names": [
+        "IC5052",
+        "IC 5052"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkr59",
+      "names": [
+        "KKR59",
+        "[KKR99] 59"
+      ]
+    },
+    {
+      "id": "ungc-2013-kkr60",
+      "names": [
+        "KKR60",
+        "[KKR99] 60"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc7090",
+      "names": [
+        "NGC7090",
+        "NGC 7090"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic5201",
+      "names": [
+        "IC5201",
+        "IC 5201"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso238005",
+      "names": [
+        "ESO238-005"
+      ]
+    },
+    {
+      "id": "ungc-2013-am2220460",
+      "names": [
+        "AM2220-460"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc7462",
+      "names": [
+        "NGC7462",
+        "NGC 7462"
+      ]
+    },
+    {
+      "id": "ungc-2013-applesi",
+      "names": [
+        "ApplesI",
+        "NAME APPLES 1"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc7640",
+      "names": [
+        "NGC7640",
+        "NGC 7640"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc12588",
+      "names": [
+        "UGC12588",
+        "UGC 12588"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso347017",
+      "names": [
+        "ESO347-017"
+      ]
+    },
+    {
+      "id": "ungc-2013-ddo217",
+      "names": [
+        "DDO217",
+        "DDO 217"
+      ]
+    },
+    {
+      "id": "ungc-2013-ic5332",
+      "names": [
+        "IC5332",
+        "IC 5332"
+      ]
+    },
+    {
+      "id": "ungc-2013-lvj2335minus3713",
+      "names": [
+        "LV J2335-3713",
+        "[KMK2013] LV J2335-3713"
+      ]
+    },
+    {
+      "id": "ungc-2013-ngc7713",
+      "names": [
+        "NGC7713",
+        "NGC 7713"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugc12713",
+      "names": [
+        "UGC12713",
+        "UGC 12713"
+      ]
+    },
+    {
+      "id": "ungc-2013-ugca442",
+      "names": [
+        "UGCA442"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso348009",
+      "names": [
+        "ESO348-009"
+      ]
+    },
+    {
+      "id": "ungc-2013-eso149003",
+      "names": [
+        "ESO149-003"
+      ]
+    }
+  ]
+}

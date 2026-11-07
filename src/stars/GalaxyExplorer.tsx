@@ -29,6 +29,24 @@ import {
 } from "./exploration-catalog";
 import { navigateExplorationTarget, returnToGalaxyOverview } from "./exploration-navigation";
 import { useGalaxyJourney, galaxyMotion } from "./galaxy-journey";
+import { getGalaxyByAnyName } from "./galaxy-catalog";
+import { filterNearbyGalaxies, galaxyDistanceLabel } from "./galaxy-measurement-format";
+
+const discoverableGalaxies = EXPLORER_GALAXIES.map((descriptor) => ({
+  ...descriptor,
+  ...getGalaxyByAnyName(descriptor.name),
+  ...(descriptor.name === "Milky Way" ? { hostGroup: "Local Group" } : {}),
+  descriptor,
+}));
+const galaxyAssociations = [
+  ...new Set([
+    ...discoverableGalaxies.map((g) => g.hostGroup).filter((g): g is string => !!g),
+    "Virgo Cluster",
+    "Fornax Cluster",
+    "Perseus Cluster",
+    "Coma Cluster",
+  ]),
+].sort();
 
 export function GalaxyExplorer() {
   const phase = useExploration((s) => s.phase),
@@ -45,11 +63,27 @@ export function GalaxyExplorer() {
     [tab, setTab] = useState<"galaxies" | "beyond">("galaxies"),
     [category, setCategory] = useState("all"),
     [limit, setLimit] = useState(25);
+  const [range, setRange] = useState("all"),
+    [galaxyType, setGalaxyType] = useState("all"),
+    [association, setAssociation] = useState("all"),
+    [featured, setFeatured] = useState(false);
   const input = useRef<HTMLInputElement>(null),
     veil = useRef<HTMLDivElement>(null);
   const inside = phase === "inside",
     travelling = phase === "entering" || phase === "exiting";
   const reduced = useGalaxyJourney((s) => s.reducedMotion);
+  const requestedAssociation = useExploration((s) => s.requestedGalaxyAssociation);
+  useEffect(() => {
+    if (!requestedAssociation || phase !== "outside") return;
+    setAssociation(requestedAssociation);
+    setRange("all");
+    setGalaxyType("all");
+    setFeatured(false);
+    setQuery("");
+    setTab("galaxies");
+    setLimit(25);
+    useExploration.setState({ requestedGalaxyAssociation: null, mapOpen: true });
+  }, [requestedAssociation, phase]);
   useEffect(() => {
     setQuery("");
     setLimit(25);
@@ -100,18 +134,13 @@ export function GalaxyExplorer() {
   }, [query, inside, active, tab, category, selected, journeyGalaxy]);
   const galaxies = useMemo(
     () =>
-      EXPLORER_GALAXIES.slice().sort((a, b) =>
-        a.name === "Milky Way"
-          ? -1
-          : b.name === "Milky Way"
-            ? 1
-            : a.name === "Andromeda (M31)"
-              ? -1
-              : b.name === "Andromeda (M31)"
-                ? 1
-                : a.distance - b.distance,
-      ),
-    [],
+      filterNearbyGalaxies(discoverableGalaxies, {
+        range,
+        type: galaxyType,
+        group: association,
+        featured,
+      }),
+    [range, galaxyType, association, featured],
   );
   const visit = (name: string) => {
     const g = explorerGalaxy(name) ?? (selected?.name === name ? selected : null);
@@ -140,7 +169,7 @@ export function GalaxyExplorer() {
       )}
       {!open ? (
         !travelling && (
-          <div className="pointer-events-auto fixed left-4 top-20 z-40 flex gap-2">
+          <div className="galaxy-explorer-shortcuts pointer-events-auto fixed left-4 top-20 z-40 flex gap-2">
             <button
               aria-label="Open explorer map"
               onClick={() => useExploration.setState({ mapOpen: true })}
@@ -318,23 +347,6 @@ export function GalaxyExplorer() {
                   </select>
                 </div>
               )}
-              {phase === "outside" && selectedGalaxy && !query && tab === "galaxies" && (
-                <div className="mx-4 mt-3 shrink-0 rounded-xl bg-neutral-800 p-3">
-                  <p className="text-xs text-neutral-400">Ready to explore</p>
-                  <p className="mt-1 text-sm font-medium">{selectedGalaxy.name}</p>
-                  {selectedGalaxy.note && (
-                    <p className="mt-1 text-xs leading-relaxed text-neutral-400">
-                      {selectedGalaxy.note}
-                    </p>
-                  )}
-                  <button
-                    onClick={() => visit(selectedGalaxy.name)}
-                    className="mt-3 min-h-11 w-full rounded-xl bg-white text-sm font-medium text-black"
-                  >
-                    Visit galaxy <ArrowUpRight className="ml-1 inline" size={15} />
-                  </button>
-                </div>
-              )}
               <div
                 className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pb-3 pt-2"
                 aria-label={
@@ -347,26 +359,141 @@ export function GalaxyExplorer() {
                         : "Objects beyond individual galaxies"
                 }
               >
-                {phase === "outside" && !query && tab === "galaxies" ? (
-                  galaxies.slice(0, limit).map((g) => (
+                {phase === "outside" && !query && tab === "galaxies" && (
+                  <details className="mx-4 mt-3 shrink-0 rounded-xl bg-neutral-900">
+                    <summary className="min-h-11 cursor-pointer px-3 py-3 text-sm focus-visible:outline focus-visible:outline-sky-300">
+                      Nearby galaxies · filters
+                    </summary>
+                    <div className="grid grid-cols-2 gap-3 px-3 pb-3 text-xs text-neutral-300">
+                      <label>
+                        Distance
+                        <select
+                          aria-label="Galaxy distance range"
+                          value={range}
+                          onChange={(e) => {
+                            setRange(e.target.value);
+                            setLimit(25);
+                          }}
+                          className="mt-1 min-h-11 w-full rounded-lg bg-neutral-800 px-2 text-base sm:text-sm"
+                        >
+                          <option value="all">All distances</option>
+                          <option value="0-11">0–11 Mpc</option>
+                          <option value="11-30">11–30 Mpc</option>
+                          <option value="30-100">30–100 Mpc</option>
+                        </select>
+                      </label>
+                      <label>
+                        Galaxy type
+                        <select
+                          aria-label="Galaxy morphology"
+                          value={galaxyType}
+                          onChange={(e) => {
+                            setGalaxyType(e.target.value);
+                            setLimit(25);
+                          }}
+                          className="mt-1 min-h-11 w-full rounded-lg bg-neutral-800 px-2 text-base sm:text-sm"
+                        >
+                          <option value="all">All types</option>
+                          <option value="spiral">Spiral</option>
+                          <option value="barred">Barred spiral</option>
+                          <option value="elliptical">Elliptical</option>
+                          <option value="lenticular">Lenticular</option>
+                          <option value="irregular">Irregular</option>
+                          <option value="dwarf">Dwarf</option>
+                          <option value="blue compact">Blue compact dwarf</option>
+                        </select>
+                      </label>
+                      <label className="col-span-2">
+                        Galaxy association
+                        <select
+                          aria-label="Galaxy association"
+                          value={association}
+                          onChange={(e) => {
+                            setAssociation(e.target.value);
+                            setLimit(25);
+                          }}
+                          className="mt-1 min-h-11 w-full rounded-lg bg-neutral-800 px-2 text-base sm:text-sm"
+                        >
+                          <option value="all">All associations</option>
+                          {galaxyAssociations.map((group) => (
+                            <option key={group} value={group}>
+                              {group}
+                            </option>
+                          ))}
+                          <option value="unassigned">Membership unassigned</option>
+                        </select>
+                      </label>
+                      <label className="col-span-2 flex min-h-11 cursor-pointer items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={featured}
+                          onChange={(e) => {
+                            setFeatured(e.target.checked);
+                            setLimit(25);
+                          }}
+                          className="size-5 accent-sky-300"
+                        />
+                        Featured destinations
+                      </label>
+                      <p className="col-span-2 leading-relaxed text-neutral-400">
+                        Associations follow cited catalogues. Distances are adopted estimates;
+                        coverage is incomplete.
+                      </p>
+                    </div>
+                  </details>
+                )}
+                {phase === "outside" && selectedGalaxy && !query && tab === "galaxies" && (
+                  <div className="mx-4 mt-3 shrink-0 rounded-xl bg-neutral-800 p-3">
+                    <p className="text-xs text-neutral-400">Ready to explore</p>
+                    <p className="mt-1 text-sm font-medium">{selectedGalaxy.name}</p>
+                    {selectedGalaxy.note && (
+                      <p className="mt-1 text-xs leading-relaxed text-neutral-400">
+                        {selectedGalaxy.note}
+                      </p>
+                    )}
                     <button
-                      key={g.name}
-                      onClick={() => useStore.getState().setVisitGalaxy(g)}
-                      className={
-                        "flex min-h-16 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-neutral-800 " +
-                        (selected?.name === g.name ? "bg-neutral-900" : "")
-                      }
+                      onClick={() => visit(selectedGalaxy.name)}
+                      className="mt-3 min-h-11 w-full rounded-xl bg-white text-sm font-medium text-black"
                     >
-                      <Orbit size={21} className="shrink-0 text-neutral-400" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-medium">{g.name}</span>
-                        <span className="mt-1 block text-xs text-neutral-400">
-                          {g.name === "Milky Way" ? "Our home galaxy" : g.type}
-                        </span>
-                      </span>
-                      <ChevronRight size={16} className="shrink-0 text-neutral-500" />
+                      Visit galaxy <ArrowUpRight className="ml-1 inline" size={15} />
                     </button>
-                  ))
+                  </div>
+                )}
+                {phase === "outside" && !query && tab === "galaxies" ? (
+                  <>
+                    <p role="status" className="px-3 py-2 text-xs text-neutral-400">
+                      {galaxies.length} galaxies · nearest first
+                    </p>
+                    {!galaxies.length && (
+                      <p className="px-3 py-4 text-sm text-neutral-300">
+                        No galaxies match these filters.
+                      </p>
+                    )}
+                    {galaxies.slice(0, limit).map((g) => (
+                      <button
+                        key={g.name}
+                        onClick={() => useStore.getState().setVisitGalaxy(g.descriptor)}
+                        className={
+                          "flex min-h-16 w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-neutral-800 " +
+                          (selected?.name === g.name ? "bg-neutral-900" : "")
+                        }
+                      >
+                        <Orbit size={21} className="shrink-0 text-neutral-400" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-medium">{g.name}</span>
+                          <span className="mt-1 block text-xs text-neutral-400">
+                            {g.name === "Milky Way" ? "Our home galaxy" : g.type}
+                          </span>
+                          <span className="mt-1 block text-xs leading-relaxed text-neutral-300">
+                            {g.name === "Milky Way"
+                              ? "Sun is inside this galaxy"
+                              : galaxyDistanceLabel(g)}
+                          </span>
+                        </span>
+                        <ChevronRight size={16} className="shrink-0 text-neutral-500" />
+                      </button>
+                    ))}
+                  </>
                 ) : (
                   <>
                     {phase === "outside" && !query && tab === "beyond" && (

@@ -64,5 +64,5 @@ for (let i = 0; i < buffer.length; i += 12) {
   assert(l >= 0 && l <= 360 && b >= -90 && b <= 90 && cz > 1500 && Number.isFinite(cz));
 }
 console.log(
-  "PASS: 63 catalogue approaches at four viewport sizes; 16 observed guide/portrait pairs; 42,541 valid survey records.",
+  `PASS: ${GALAXY_MODELS.length} catalogue approaches at four viewport sizes; 16 observed guide/portrait pairs; 42,541 valid survey records.`,
 );

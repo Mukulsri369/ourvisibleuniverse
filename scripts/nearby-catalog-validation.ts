@@ -1,3 +1,4 @@
+import coverage from "../docs/nearby-galaxy-coverage.json";
 import assert from "node:assert/strict";
 import * as THREE from "three";
 import { icrsToGalactic, galacticToIcrs } from "../src/lib/astronomy/coordinates";
@@ -41,7 +42,7 @@ for (const [ra, dec, l, b] of [
   close(Math.min(Math.abs(p.l - l), 360 - Math.abs(p.l - l)), 0, 0.06);
   close(p.b, b, 0.06);
 }
-assert.equal(galaxies.length, 190, "Review the declared coverage if source rows change");
+assert.equal(galaxies.length, coverage.totalCount, "Versioned catalogue coverage drift");
 assert.equal(new Set(galaxies.map((g) => g.id)).size, galaxies.length);
 assert.equal(new Set(galaxies.map((g) => g.name)).size, galaxies.length);
 for (const [name] of sings)
@@ -64,7 +65,11 @@ for (const alias of [
 ])
   assert(getGalaxyByAnyName(alias), alias);
 const added = galaxies.filter((g) => g.measurements);
-assert.equal(added.length, 126);
+assert.equal(
+  added.length,
+  coverage.previousAdditionCount,
+  "Preserve the previous sourced additions",
+);
 for (const g of added) {
   const m = g.measurements!,
     model = GALAXY_BY_NAME.get(g.name)!;
@@ -110,7 +115,7 @@ const existing = getGalaxyByAnyName("M31")!;
 assert.equal(existing.distance, 2537000, "Do not overwrite established curated records");
 assert.equal(getGalaxyByAnyName("M90")!.distanceTier, "virgo_cluster");
 close(getGalaxyByAnyName("M90")!.distance, 59e6, 1e-6);
-assert.equal(EXTRAGALACTIC_HII_TARGETS.length, 46);
+assert.equal(EXTRAGALACTIC_HII_TARGETS.length, coverage.expectedHiiCount);
 for (const t of EXTRAGALACTIC_HII_TARGETS) {
   const o = OBJECT_BY_ID.get(t.id)!,
     host = getGalaxyByAnyName(t.host)!;
@@ -145,7 +150,10 @@ for (const t of EXTRAGALACTIC_HII_TARGETS) {
   useExploration.setState({ phase: "outside", galaxy: null });
   assert(!galaxyContentsLoaded(t.host));
 }
-assert.equal(OBSERVED_OBJECTS.filter((o) => EXTRAGALACTIC_HII_IDS.has(o.id)).length, 46);
+assert.equal(
+  OBSERVED_OBJECTS.filter((o) => EXTRAGALACTIC_HII_IDS.has(o.id)).length,
+  coverage.expectedHiiCount,
+);
 console.log(
-  "PASS: 126 new galaxies, all 75 SINGS identities, 59 local dwarfs, 46 real H II targets, sky transforms, units, source provenance, unknown sizes and galaxy-scoped load/unload",
+  `PASS: ${coverage.totalCount} versioned galaxies, preserved ${coverage.previousAdditionCount} earlier additions, all SINGS/local-dwarf identities, ${coverage.expectedHiiCount} H II targets, sky transforms, units, provenance and host load/unload`,
 );

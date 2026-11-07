@@ -86,6 +86,8 @@ export type Morphology =
   | "ring";
 
 export type GalaxyModel = {
+  /** Observed projected flattening, distinct from an unknown intrinsic depth. */
+  projectedAxisRatio?: number;
   skyOrientation?: SkyOrientation;
   key: string;
   /** Must match the name used in Universe.tsx / the site map. */
@@ -875,6 +877,7 @@ const MORPHOLOGY_OVERRIDES: Record<string, Partial<GalaxyModel>> = {
 function morphologyFor(type: string, name?: string): Morphology {
   const n = (name || "").toLowerCase();
   const t = (type || "").toLowerCase();
+  if (t.startsWith("early type")) return "elliptical";
   if (t.includes("ring") || n.includes("cartwheel") || n.includes("hoag") || n.includes("mayall"))
     return "ring";
   if (
@@ -929,7 +932,16 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
     l: g.l,
     b: g.b,
     distance: g.distance,
-    inclination: g.inclination ?? (morphology === "elliptical" ? 32 : 48),
+    inclination:
+      g.inclination ??
+      (obs.catalogueEvidence && /spheroidal|elliptical|irregular|compact dwarf/i.test(g.type)
+        ? 0
+        : morphology === "elliptical"
+          ? 32
+          : 48),
+    ...(obs.catalogueEvidence?.axisRatio !== undefined
+      ? { projectedAxisRatio: obs.catalogueEvidence.axisRatio }
+      : {}),
     posAngle: g.posAngle ?? Math.abs(g.l * 13 + g.b * 7) % 180,
     diskRadius: radius,
     bulgeRadius:
@@ -960,14 +972,14 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
     dustLanes: /spiral|lenticular|interacting/i.test(g.type),
     description: `${g.name} is a real ${g.type.toLowerCase()} galaxy about ${g.distance.toLocaleString()} light-years away${obs.hostGroup ? ` in the ${obs.hostGroup}` : ""}. Its observational model reflects catalogued physical diameter, sky position, and morphological class from NASA/IPAC NED. In accordance with strict scientific integrity, no fictional internal exoplanets or speculative star catalogs are invented for unresolved galaxies.`,
   };
-  if (obs.measurements)
+  if (obs.measurements || obs.catalogueEvidence)
     base.skyOrientation = {
       ra: obs.ra!,
       dec: obs.dec!,
       inclination: base.inclination,
       pa: obs.posAngle ?? 0,
     };
-  if (obs.measurements) base.description = obs.uncertaintyNotes!;
+  if (obs.measurements || obs.catalogueEvidence) base.description = obs.uncertaintyNotes!;
   const merged = { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
   // Only curated models carry visitable planetary systems; others retain purely observational reconstruction
   return merged;

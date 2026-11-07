@@ -1,0 +1,4 @@
+# Preserve deterministic catalogue hashes across Windows and Unix checkouts.
+src/stars/catalog-data/nearby-v2/*.json text eol=lf
+src/stars/galaxy-catalogue-data.ts text eol=lf
+docs/nearby-galaxy-coverage.json text eol=lf

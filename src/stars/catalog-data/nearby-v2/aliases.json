@@ -1,0 +1,619 @@
+{
+  "nearby-andromedai": [
+    "AndromedaI",
+    "Andromeda I",
+    "And I"
+  ],
+  "nearby-andromedaii": [
+    "AndromedaII",
+    "Andromeda II",
+    "And II"
+  ],
+  "nearby-andromedaiii": [
+    "AndromedaIII",
+    "Andromeda III",
+    "And III"
+  ],
+  "nearby-andromedav": [
+    "AndromedaV",
+    "Andromeda V",
+    "And V"
+  ],
+  "nearby-andromedavi": [
+    "AndromedaVI",
+    "Andromeda VI"
+  ],
+  "nearby-andromedavii": [
+    "AndromedaVII",
+    "Andromeda VII"
+  ],
+  "nearby-andromedax": [
+    "AndromedaX",
+    "Andromeda X",
+    "And X"
+  ],
+  "nearby-andromedaxi": [
+    "AndromedaXI",
+    "Andromeda XI",
+    "And XI"
+  ],
+  "nearby-andromedaxii": [
+    "AndromedaXII",
+    "Andromeda XII",
+    "And XII"
+  ],
+  "nearby-andromedaxiii": [
+    "AndromedaXIII",
+    "Andromeda XIII",
+    "And XIII"
+  ],
+  "nearby-andromedaxiv": [
+    "AndromedaXIV",
+    "Andromeda XIV",
+    "And XIV"
+  ],
+  "nearby-andromedaxv": [
+    "AndromedaXV",
+    "Andromeda XV",
+    "And XV"
+  ],
+  "nearby-andromedaxvi": [
+    "AndromedaXVI",
+    "Andromeda XVI",
+    "And XVI"
+  ],
+  "nearby-antliadwarf": [
+    "Antlia",
+    "ANTLIA DWARF GALAXY"
+  ],
+  "nearby-aquariusdwarf": [
+    "Aquarius",
+    "DDO210",
+    "DDO 210"
+  ],
+  "nearby-bootesi": [
+    "Bootes(1)",
+    "Bootes 1",
+    "BootesI",
+    "Bootes I"
+  ],
+  "nearby-bootesii": [
+    "Bootes2",
+    "Bootes 2",
+    "BootesII",
+    "Bootes II"
+  ],
+  "nearby-canesvenaticii": [
+    "CanesVenatici(1)",
+    "Canes Venatici 1",
+    "CVnI",
+    "CVn DWARF GALAXY"
+  ],
+  "nearby-canesvenaticiii": [
+    "CanesVenatici2",
+    "Canes Venatici 2",
+    "CVnII",
+    "CVN II DWARF GALAXY"
+  ],
+  "CARINA-DWARF": [
+    "Carina",
+    "CARINA dSph"
+  ],
+  "nearby-cetusdwarf": [
+    "Cetus",
+    "CETUS DWARF GALAXY"
+  ],
+  "nearby-comaberenicesdwarf": [
+    "ComaBerenices",
+    "Coma Berenices",
+    "ComaI",
+    "COMA DWARF GALAXY"
+  ],
+  "nearby-ddo113": [
+    "DDO113",
+    "KDG090"
+  ],
+  "nearby-ddo125": [
+    "DDO125",
+    "DDO 125"
+  ],
+  "nearby-ddo190": [
+    "DDO190",
+    "DDO 190"
+  ],
+  "nearby-ddo99": [
+    "DDO99",
+    "DDO099",
+    "DDO 99"
+  ],
+  "DRACO-DWARF": [
+    "Draco",
+    "DRACO DWARF SPHEROIDAL GALAXY"
+  ],
+  "nearby-eso294g010": [
+    "ESO294-G010",
+    "ESO294-010"
+  ],
+  "FORNAX-DWARF": [
+    "Fornax"
+  ],
+  "nearby-gr8": [
+    "GR8",
+    "GRDG 8"
+  ],
+  "nearby-herculesdwarf": [
+    "Hercules",
+    "HERCULES DWARF GALAXY"
+  ],
+  "IC-0010": [
+    "IC10",
+    "IC0010",
+    "IC 10"
+  ],
+  "IC-1613": [
+    "IC1613",
+    "IC 1613"
+  ],
+  "nearby-ic3104": [
+    "IC3104",
+    "IC 3104"
+  ],
+  "nearby-ic4662": [
+    "IC4662",
+    "IC 4662"
+  ],
+  "nearby-ic5152": [
+    "IC5152",
+    "IC 5152"
+  ],
+  "nearby-kkh86": [
+    "KKH86",
+    "[KKH2001] 86"
+  ],
+  "nearby-kkh98": [
+    "KKH98",
+    "[KKH2001] 98"
+  ],
+  "nearby-kkr25": [
+    "KKR25",
+    "[KKR99] 25"
+  ],
+  "nearby-kkr3": [
+    "KKR3",
+    "KK230",
+    "[KK98a] 230"
+  ],
+  "nearby-lgs3": [
+    "LGS3",
+    "LGS 3"
+  ],
+  "LARGE-MAGELLANIC-CLOUD": [
+    "LMC"
+  ],
+  "LEO-I": [
+    "Leo1",
+    "Leo 1",
+    "LeoI",
+    "LEO I dSph"
+  ],
+  "LEO-II": [
+    "Leo2",
+    "Leo 2",
+    "LeoII",
+    "Leo II dSph"
+  ],
+  "nearby-leoiv": [
+    "Leo4",
+    "Leo 4",
+    "LeoIV",
+    "LEO IV"
+  ],
+  "nearby-leov": [
+    "Leo5",
+    "Leo 5",
+    "LeoV",
+    "LEO V"
+  ],
+  "nearby-leoa": [
+    "LeoA",
+    "Leo A",
+    "LEO DWARF GALAXY"
+  ],
+  "nearby-leot": [
+    "LeoT",
+    "Leo T",
+    "LEO T"
+  ],
+  "MESSIER-032": [
+    "M32",
+    "MESSIER032"
+  ],
+  "NGC-0147": [
+    "NGC147",
+    "NGC0147",
+    "NGC 147"
+  ],
+  "NGC-0185": [
+    "NGC185",
+    "NGC0185",
+    "NGC 185"
+  ],
+  "NGC-0205": [
+    "NGC205",
+    "NGC0205",
+    "NGC 205"
+  ],
+  "nearby-ngc300": [
+    "NGC300",
+    "NGC0300",
+    "NGC 300"
+  ],
+  "nearby-ngc3109": [
+    "NGC3109",
+    "NGC 3109"
+  ],
+  "nearby-ngc4163": [
+    "NGC4163",
+    "NGC 4163"
+  ],
+  "nearby-ngc55": [
+    "NGC55",
+    "NGC0055",
+    "NGC 55"
+  ],
+  "NGC-6822": [
+    "NGC6822",
+    "NGC 6822"
+  ],
+  "nearby-pegasusdwarfirregular": [
+    "PegasusdIrr",
+    "Pegasusd Irr",
+    "Pegasus",
+    "PEG GALAXY"
+  ],
+  "nearby-phoenixdwarf": [
+    "Phoenix"
+  ],
+  "SMALL-MAGELLANIC-CLOUD": [
+    "SMC"
+  ],
+  "nearby-sagittariusdwarfirregular": [
+    "SagittariusdIrr",
+    "Sagittariusd Irr",
+    "Sag dIr",
+    "SAG DIG"
+  ],
+  "SAGITTARIUS-DWARF-SPHEROIDAL": [
+    "SagittariusdSph",
+    "Sagittariusd Sph",
+    "Sag dSph",
+    "NAME Sgr dSph"
+  ],
+  "SCULPTOR-DWARF": [
+    "Sculptor",
+    "SCULPTOR DWARF GALAXY"
+  ],
+  "nearby-seguei": [
+    "Segue(1)",
+    "Segue 1",
+    "NAME Segue 1"
+  ],
+  "nearby-segueii": [
+    "Segue2",
+    "Segue 2",
+    "NAME Segue 2"
+  ],
+  "SEXTANS-DWARF": [
+    "Sextans(1)",
+    "Sextans 1",
+    "SexDSph",
+    "Sex dSph"
+  ],
+  "nearby-sextansa": [
+    "SextansA",
+    "Sextans A",
+    "SexA",
+    "SEX A"
+  ],
+  "nearby-sextansb": [
+    "SextansB",
+    "Sextans B",
+    "SexB",
+    "SEX B"
+  ],
+  "MESSIER-033": [
+    "Triangulum",
+    "MESSIER033"
+  ],
+  "nearby-tucanadwarf": [
+    "Tucana",
+    "TUC GALAXY"
+  ],
+  "nearby-ugc4879": [
+    "UGC4879",
+    "UGC04879",
+    "UGC 4879"
+  ],
+  "nearby-ugc8508": [
+    "UGC8508",
+    "UGC08508",
+    "UGC 8508"
+  ],
+  "nearby-ugc9128": [
+    "UGC9128",
+    "DDO187",
+    "DDO 187"
+  ],
+  "nearby-ugca86": [
+    "UGCA86",
+    "UGCA086"
+  ],
+  "nearby-uks2323326": [
+    "UKS2323-326",
+    "UGCA438"
+  ],
+  "nearby-ursamajori": [
+    "UrsaMajor(1)",
+    "Ursa Major 1",
+    "UMa I"
+  ],
+  "nearby-ursamajorii": [
+    "UrsaMajor2",
+    "Ursa Major 2",
+    "UMa II",
+    "UMA II GALAXY"
+  ],
+  "URSA-MINOR-DWARF": [
+    "UrsaMinor",
+    "Ursa Minor",
+    "UMin",
+    "UMI GALAXY"
+  ],
+  "WLM-GALAXY": [
+    "WLM",
+    "WLM GALAXY"
+  ],
+  "mcconnachie-2021-andromeda18": [
+    "And XVIII"
+  ],
+  "mcconnachie-2021-andromeda20": [
+    "And XX"
+  ],
+  "nearby-ngc24": [
+    "NGC0024",
+    "NGC 24"
+  ],
+  "mcconnachie-2021-eso410005": [
+    "ESO410-005"
+  ],
+  "mcconnachie-2021-andromeda19": [
+    "And XIX"
+  ],
+  "mcconnachie-2021-andromeda26": [
+    "And XXVI"
+  ],
+  "mcconnachie-2021-andromeda25": [
+    "And XXV"
+  ],
+  "mcconnachie-2021-andromeda30": [
+    "And XXX"
+  ],
+  "mcconnachie-2021-andromeda17": [
+    "And XVII"
+  ],
+  "mcconnachie-2021-andromeda27": [
+    "And XXVII"
+  ],
+  "MESSIER-031": [
+    "MESSIER031"
+  ],
+  "NGC-0253": [
+    "NGC0253",
+    "NGC 253"
+  ],
+  "mcconnachie-2021-andromeda9": [
+    "And IX"
+  ],
+  "mcconnachie-2021-andromeda24": [
+    "And XXIV"
+  ],
+  "mcconnachie-2021-andromeda22": [
+    "And XXII"
+  ],
+  "mcconnachie-2021-andromeda23": [
+    "And XXIII"
+  ],
+  "nearby-ngc628": [
+    "NGC0628",
+    "NGC 628"
+  ],
+  "nearby-ngc855": [
+    "NGC0855",
+    "NGC 855"
+  ],
+  "NGC-0891": [
+    "NGC0891",
+    "NGC 891"
+  ],
+  "mcconnachie-2021-kks3": [
+    "[KK2000] 03"
+  ],
+  "nearby-ngc925": [
+    "NGC0925",
+    "NGC 925"
+  ],
+  "nearby-ngc1291": [
+    "NGC1291",
+    "NGC 1291"
+  ],
+  "nearby-ic342": [
+    "IC0342",
+    "IC 342"
+  ],
+  "nearby-ngc1705": [
+    "NGC1705",
+    "NGC 1705"
+  ],
+  "nearby-ngc2403": [
+    "NGC2403",
+    "NGC 2403"
+  ],
+  "nearby-hoii": [
+    "HolmII",
+    "Holmberg II"
+  ],
+  "nearby-ddo53": [
+    "DDO053",
+    "DDO 53"
+  ],
+  "nearby-ngc2915": [
+    "NGC2915",
+    "NGC 2915"
+  ],
+  "nearby-hoi": [
+    "HolmI",
+    "Holmberg I"
+  ],
+  "nearby-ngc2976": [
+    "NGC2976",
+    "NGC 2976"
+  ],
+  "MESSIER-081": [
+    "MESSIER081"
+  ],
+  "MESSIER-082": [
+    "MESSIER082"
+  ],
+  "nearby-hoix": [
+    "HolmIX",
+    "Holmberg IX"
+  ],
+  "nearby-ngc3077": [
+    "NGC3077",
+    "NGC 3077"
+  ],
+  "nearby-ngc3184": [
+    "NGC3184",
+    "NGC 3184"
+  ],
+  "nearby-ic2574": [
+    "IC2574",
+    "IC 2574"
+  ],
+  "nearby-ngc3351": [
+    "NGC3351",
+    "NGC 3351"
+  ],
+  "nearby-ngc3521": [
+    "NGC3521",
+    "NGC 3521"
+  ],
+  "nearby-ngc3621": [
+    "NGC3621",
+    "NGC 3621"
+  ],
+  "MESSIER-066": [
+    "NGC3627",
+    "NGC 3627"
+  ],
+  "nearby-ngc4236": [
+    "NGC4236",
+    "NGC 4236"
+  ],
+  "MESSIER-106": [
+    "NGC4258",
+    "NGC 4258"
+  ],
+  "nearby-ngc4559": [
+    "NGC4559",
+    "NGC 4559"
+  ],
+  "MESSIER-104": [
+    "NGC4594",
+    "NGC 4594"
+  ],
+  "nearby-ngc4625": [
+    "NGC4625",
+    "NGC 4625"
+  ],
+  "NGC-4631": [
+    "NGC4631",
+    "NGC 4631"
+  ],
+  "MESSIER-094": [
+    "NGC4736",
+    "NGC 4736"
+  ],
+  "nearby-ddo154": [
+    "DDO154",
+    "DDO 154"
+  ],
+  "MESSIER-064": [
+    "NGC4826",
+    "NGC 4826"
+  ],
+  "nearby-ddo165": [
+    "DDO165",
+    "DDO 165"
+  ],
+  "nearby-ngc5055": [
+    "NGC5055",
+    "NGC 5055"
+  ],
+  "NGC-5128": [
+    "NGC5128",
+    "NGC 5128"
+  ],
+  "MESSIER-051A": [
+    "NGC5194",
+    "NGC 5194"
+  ],
+  "nearby-ngc5195": [
+    "NGC5195",
+    "NGC 5195"
+  ],
+  "MESSIER-083": [
+    "NGC5236",
+    "NGC 5236"
+  ],
+  "nearby-ngc5398": [
+    "NGC5398",
+    "NGC 5398"
+  ],
+  "MESSIER-101": [
+    "MESSIER101"
+  ],
+  "nearby-ngc5408": [
+    "NGC5408",
+    "NGC 5408"
+  ],
+  "nearby-ngc5474": [
+    "NGC5474",
+    "NGC 5474"
+  ],
+  "nearby-ic4710": [
+    "IC4710",
+    "IC 4710"
+  ],
+  "nearby-ngc6946": [
+    "NGC6946",
+    "NGC 6946"
+  ],
+  "mcconnachie-2021-andromeda28": [
+    "And XXVIII"
+  ],
+  "mcconnachie-2021-pisces2": [
+    "PiscesII",
+    "PISCES II"
+  ],
+  "mcconnachie-2021-andromeda21": [
+    "And XXI"
+  ],
+  "nearby-ngc7793": [
+    "NGC7793",
+    "NGC 7793"
+  ],
+  "mcconnachie-2021-andromeda29": [
+    "And XXIX"
+  ]
+}

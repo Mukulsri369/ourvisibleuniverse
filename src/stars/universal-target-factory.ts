@@ -147,6 +147,42 @@ export function createTargetFromStar(star: NamedStar): UniversalTarget {
 }
 
 export function createTargetFromGalaxy(galaxy: ObservationalGalaxy): UniversalTarget {
+  const evidence = galaxy.catalogueEvidence;
+  if (evidence) {
+    const error = evidence.distanceErrorMpc;
+    return {
+      id: `galaxy_${galaxy.name}`,
+      name: galaxy.name,
+      type: "galaxy",
+      subtitle: `${galaxy.type} · ${galaxy.hostGroup ?? "Group membership not assigned"}`,
+      category: `Galaxy (${evidence.morphology})`,
+      distanceLy: galaxy.distance,
+      radiusKm:
+        evidence.sizeDefinition === "Holmberg-B26.5"
+          ? (galaxy.size * 9.4607304725808e12) / 2
+          : undefined,
+      redshift: galaxy.redshift,
+      ra: galaxy.ra,
+      dec: galaxy.dec,
+      galacticL: galaxy.l,
+      galacticB: galaxy.b,
+      morphology: evidence.morphology,
+      parentName: galaxy.hostGroup ?? "Universe",
+      parentType: evidence.group ? "cluster" : undefined,
+      description: {
+        explorer: `${galaxy.name} is a ${galaxy.type.toLowerCase()} at an adopted distance of ${evidence.distanceMpc.toPrecision(3)} Mpc.`,
+        standard: galaxy.uncertaintyNotes ?? "",
+        advanced: `Source: ${evidence.edition}, row ${evidence.rowName}; ${evidence.coordinateFrame}. Distance method: ${evidence.distanceMethod} (${evidence.distanceBasis}). ${error ? `Distance error: −${error.minus.toPrecision(3)}/+${error.plus.toPrecision(3)} Mpc.` : "Distance uncertainty is not supplied."} ${evidence.velocityKmS === undefined ? "Radial velocity and redshift are not supplied." : `Heliocentric velocity ${evidence.velocityKmS} km/s; z=v/c is a velocity proxy, not a distance measurement.`} ${evidence.group?.basis ?? "No membership inferred from sky proximity or distance."}`,
+      },
+      formationAndEvolution:
+        "The displayed stellar population and internal geometry are morphology-informed reconstructions. This catalogue does not establish an individual formation history or identify its procedural star samples as observed stars.",
+      telescopeObservations: `Observational provenance: ${evidence.sourceUrl}. ${evidence.edition}; source row ${evidence.rowName}. Consult the cited measurements for actual observing facilities and methods.`,
+      isSimulatedOrModelled: true,
+      modelledDetailsNote: galaxy.uncertaintyNotes,
+      citations: [...new Set([evidence.sourceUrl, ...evidence.references])],
+      rawEntity: galaxy,
+    };
+  }
   const dist = galaxy.distance ?? 0;
   const size = galaxy.size ?? 50000;
   const z = galaxy.redshift ?? 0;

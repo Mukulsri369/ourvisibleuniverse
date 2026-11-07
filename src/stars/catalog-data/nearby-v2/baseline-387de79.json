@@ -1,0 +1,3668 @@
+{
+  "version": 1,
+  "commit": "387de79",
+  "count": 190,
+  "galaxies": [
+    {
+      "id": "MESSIER-031",
+      "name": "Andromeda (M31)",
+      "aliases": [
+        "M31",
+        "NGC 224",
+        "UGC 454",
+        "PGC 2557",
+        "2MASX J00424433+4116075",
+        "Andromeda Galaxy"
+      ],
+      "preferredName": "MESSIER 031",
+      "ra": 10.684708,
+      "dec": 41.26875,
+      "l": 121.174,
+      "b": -21.573,
+      "distance": 2537000,
+      "size": 220000,
+      "type": "Spiral",
+      "morphologyClass": "SA(s)b",
+      "inclination": 77,
+      "posAngle": 35,
+      "redshift": -0.001001
+    },
+    {
+      "id": "MESSIER-033",
+      "name": "Triangulum (M33)",
+      "aliases": [
+        "M33",
+        "NGC 598",
+        "UGC 1117",
+        "PGC 5818",
+        "Pinwheel Galaxy (Triangulum)"
+      ],
+      "preferredName": "MESSIER 033",
+      "ra": 23.4621,
+      "dec": 30.6599,
+      "l": 133.61,
+      "b": -31.33,
+      "distance": 2730000,
+      "size": 60000,
+      "type": "Spiral",
+      "morphologyClass": "SA(s)cd",
+      "inclination": 54,
+      "posAngle": 22,
+      "redshift": -0.000607
+    },
+    {
+      "id": "LARGE-MAGELLANIC-CLOUD",
+      "name": "Large Magellanic Cloud",
+      "aliases": [
+        "LMC",
+        "ESO 056-115",
+        "PGC 17223",
+        "Nubecula Major"
+      ],
+      "preferredName": "Large Magellanic Cloud",
+      "ra": 80.8942,
+      "dec": -69.7561,
+      "l": 280.47,
+      "b": -32.89,
+      "distance": 163000,
+      "size": 14000,
+      "type": "Irregular",
+      "morphologyClass": "SB(s)m",
+      "inclination": 35,
+      "posAngle": 170,
+      "redshift": 0.000927
+    },
+    {
+      "id": "SMALL-MAGELLANIC-CLOUD",
+      "name": "Small Magellanic Cloud",
+      "aliases": [
+        "SMC",
+        "NGC 292",
+        "ESO 029-021",
+        "PGC 3085",
+        "Nubecula Minor"
+      ],
+      "preferredName": "Small Magellanic Cloud",
+      "ra": 13.1867,
+      "dec": -72.8286,
+      "l": 302.81,
+      "b": -44.3,
+      "distance": 200000,
+      "size": 7000,
+      "type": "Irregular",
+      "morphologyClass": "SB(s)m pec",
+      "inclination": 40,
+      "posAngle": 45,
+      "redshift": 0.000527
+    },
+    {
+      "id": "SAGITTARIUS-DWARF-SPHEROIDAL",
+      "name": "Sagittarius Dwarf",
+      "aliases": [
+        "Sgr dSph",
+        "Sagittarius Dwarf Elliptical",
+        "PGC 61286"
+      ],
+      "preferredName": "Sagittarius dSph",
+      "ra": 283.83,
+      "dec": -30.55,
+      "l": 5.6,
+      "b": -14.1,
+      "distance": 65000,
+      "size": 10000,
+      "type": "Dwarf Elliptical",
+      "morphologyClass": "dSph",
+      "redshift": 0.00047
+    },
+    {
+      "id": "CANIS-MAJOR-DWARF",
+      "name": "Canis Major Dwarf",
+      "aliases": [
+        "CMa Dwarf",
+        "PGC 5065056"
+      ],
+      "preferredName": "Canis Major Overdensity",
+      "ra": 107,
+      "dec": -27.5,
+      "l": 240,
+      "b": -8,
+      "distance": 25000,
+      "size": 5000,
+      "type": "Dwarf Irregular",
+      "morphologyClass": "dIrr / Overdensity",
+      "redshift": 0.00036
+    },
+    {
+      "id": "NGC-0205",
+      "name": "NGC 205 (M110)",
+      "aliases": [
+        "M110",
+        "NGC 205",
+        "UGC 426",
+        "PGC 2422"
+      ],
+      "preferredName": "MESSIER 110",
+      "ra": 10.0919,
+      "dec": 41.6854,
+      "l": 120.72,
+      "b": -21.14,
+      "distance": 2690000,
+      "size": 17000,
+      "type": "Dwarf Elliptical",
+      "morphologyClass": "dE5 pec",
+      "redshift": -0.000804
+    },
+    {
+      "id": "MESSIER-032",
+      "name": "M32",
+      "aliases": [
+        "M32",
+        "NGC 221",
+        "UGC 452",
+        "PGC 2555"
+      ],
+      "preferredName": "MESSIER 032",
+      "ra": 10.6743,
+      "dec": 40.8652,
+      "l": 121.2,
+      "b": -21.98,
+      "distance": 2490000,
+      "size": 6500,
+      "type": "Compact Elliptical",
+      "morphologyClass": "cE2",
+      "redshift": -0.000667
+    },
+    {
+      "id": "IC-0010",
+      "name": "IC 10",
+      "aliases": [
+        "UGC 192",
+        "PGC 1305"
+      ],
+      "preferredName": "IC 0010",
+      "ra": 5.1004,
+      "dec": 59.2925,
+      "l": 118.96,
+      "b": -3.32,
+      "distance": 2200000,
+      "size": 5000,
+      "type": "Starburst Irregular",
+      "morphologyClass": "dIrr IV-V pec",
+      "redshift": -0.001161
+    },
+    {
+      "id": "NGC-6822",
+      "name": "NGC 6822 (Barnard)",
+      "aliases": [
+        "Barnard's Galaxy",
+        "IC 4895",
+        "PGC 63616",
+        "DDO 209"
+      ],
+      "preferredName": "NGC 6822",
+      "ra": 296.241,
+      "dec": -14.7978,
+      "l": 25.34,
+      "b": -18.39,
+      "distance": 1630000,
+      "size": 7000,
+      "type": "Irregular",
+      "morphologyClass": "IB(s)m",
+      "redshift": -0.00019
+    },
+    {
+      "id": "LEO-I",
+      "name": "Leo I",
+      "aliases": [
+        "UGC 5470",
+        "PGC 29488",
+        "DDO 74",
+        "Regulus Dwarf"
+      ],
+      "preferredName": "Leo I",
+      "ra": 152.1171,
+      "dec": 12.3064,
+      "l": 225.99,
+      "b": 49.11,
+      "distance": 820000,
+      "size": 3000,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": 0.00095
+    },
+    {
+      "id": "LEO-II",
+      "name": "Leo II",
+      "aliases": [
+        "UGC 6253",
+        "PGC 34176",
+        "DDO 93"
+      ],
+      "preferredName": "Leo II",
+      "ra": 168.37,
+      "dec": 22.1517,
+      "l": 220.17,
+      "b": 67.23,
+      "distance": 690000,
+      "size": 2000,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": 0.000253
+    },
+    {
+      "id": "DRACO-DWARF",
+      "name": "Draco Dwarf",
+      "aliases": [
+        "UGC 10822",
+        "PGC 60095",
+        "DDO 208"
+      ],
+      "preferredName": "Draco Dwarf",
+      "ra": 260.0517,
+      "dec": 57.9153,
+      "l": 86.37,
+      "b": 34.72,
+      "distance": 260000,
+      "size": 2500,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": -0.00097
+    },
+    {
+      "id": "SCULPTOR-DWARF",
+      "name": "Sculptor Dwarf",
+      "aliases": [
+        "ESO 351-030",
+        "PGC 3589"
+      ],
+      "preferredName": "Sculptor Dwarf",
+      "ra": 15.0392,
+      "dec": -33.7092,
+      "l": 287.53,
+      "b": -83.16,
+      "distance": 290000,
+      "size": 2800,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": 0.000367
+    },
+    {
+      "id": "FORNAX-DWARF",
+      "name": "Fornax Dwarf",
+      "aliases": [
+        "ESO 356-004",
+        "PGC 10074"
+      ],
+      "preferredName": "Fornax Dwarf",
+      "ra": 39.9971,
+      "dec": -34.4492,
+      "l": 237.11,
+      "b": -65.65,
+      "distance": 460000,
+      "size": 3000,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": 0.000177
+    },
+    {
+      "id": "CARINA-DWARF",
+      "name": "Carina Dwarf",
+      "aliases": [
+        "ESO 206-020",
+        "PGC 19441"
+      ],
+      "preferredName": "Carina Dwarf",
+      "ra": 100.4029,
+      "dec": -50.9661,
+      "l": 260.11,
+      "b": -22.22,
+      "distance": 330000,
+      "size": 1600,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": 0.000744
+    },
+    {
+      "id": "SEXTANS-DWARF",
+      "name": "Sextans Dwarf",
+      "aliases": [
+        "PGC 88608"
+      ],
+      "preferredName": "Sextans Dwarf",
+      "ra": 153.2625,
+      "dec": -1.6147,
+      "l": 243.5,
+      "b": 42.27,
+      "distance": 280000,
+      "size": 2200,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": 0.000747
+    },
+    {
+      "id": "URSA-MINOR-DWARF",
+      "name": "Ursa Minor Dwarf",
+      "aliases": [
+        "UGC 9749",
+        "PGC 54074",
+        "DDO 199"
+      ],
+      "preferredName": "Ursa Minor Dwarf",
+      "ra": 227.2854,
+      "dec": 67.2225,
+      "l": 104.95,
+      "b": 44.8,
+      "distance": 225000,
+      "size": 2000,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dSph",
+      "redshift": -0.000824
+    },
+    {
+      "id": "WLM-GALAXY",
+      "name": "WLM",
+      "aliases": [
+        "DDO 221",
+        "UGCA 444",
+        "PGC 143"
+      ],
+      "preferredName": "Wolf-Lundmark-Melotte",
+      "ra": 0.4925,
+      "dec": -15.4608,
+      "l": 75.86,
+      "b": -73.62,
+      "distance": 3040000,
+      "size": 8000,
+      "type": "Dwarf Irregular",
+      "morphologyClass": "IB(s)m",
+      "redshift": -0.000407
+    },
+    {
+      "id": "IC-1613",
+      "name": "IC 1613",
+      "aliases": [
+        "UGC 668",
+        "PGC 3844",
+        "DDO 8"
+      ],
+      "preferredName": "IC 1613",
+      "ra": 16.2083,
+      "dec": 2.1333,
+      "l": 129.74,
+      "b": -60.58,
+      "distance": 2380000,
+      "size": 10000,
+      "type": "Dwarf Irregular",
+      "morphologyClass": "IB(s)m",
+      "redshift": -0.00078
+    },
+    {
+      "id": "NGC-0185",
+      "name": "NGC 185",
+      "aliases": [
+        "UGC 396",
+        "PGC 2329"
+      ],
+      "preferredName": "NGC 0185",
+      "ra": 9.7417,
+      "dec": 48.3372,
+      "l": 120.78,
+      "b": -14.48,
+      "distance": 2050000,
+      "size": 8000,
+      "type": "Dwarf Elliptical",
+      "morphologyClass": "dE3 pec",
+      "redshift": -0.000674
+    },
+    {
+      "id": "NGC-0147",
+      "name": "NGC 147",
+      "aliases": [
+        "UGC 326",
+        "PGC 2004",
+        "DDO 3"
+      ],
+      "preferredName": "NGC 0147",
+      "ra": 8.3004,
+      "dec": 48.5086,
+      "l": 119.83,
+      "b": -14.25,
+      "distance": 2530000,
+      "size": 9000,
+      "type": "Dwarf Spheroidal",
+      "morphologyClass": "dE5 pec",
+      "redshift": -0.000644
+    },
+    {
+      "id": "MESSIER-081",
+      "name": "M81 (Bode's Galaxy)",
+      "aliases": [
+        "M81",
+        "NGC 3031",
+        "UGC 5318",
+        "PGC 28630",
+        "Bode's Galaxy"
+      ],
+      "preferredName": "MESSIER 081",
+      "ra": 148.8882,
+      "dec": 69.0653,
+      "l": 142.09,
+      "b": 40.9,
+      "distance": 12000000,
+      "size": 90000,
+      "type": "Spiral",
+      "morphologyClass": "SA(s)ab",
+      "inclination": 62,
+      "posAngle": 157,
+      "redshift": -0.000113
+    },
+    {
+      "id": "MESSIER-082",
+      "name": "M82 (Cigar Galaxy)",
+      "aliases": [
+        "M82",
+        "NGC 3034",
+        "UGC 5322",
+        "PGC 28655",
+        "3C 231",
+        "Cigar Galaxy"
+      ],
+      "preferredName": "MESSIER 082",
+      "ra": 148.9685,
+      "dec": 69.6797,
+      "l": 141.41,
+      "b": 40.57,
+      "distance": 12000000,
+      "size": 37000,
+      "type": "Starburst",
+      "morphologyClass": "I0 pec",
+      "inclination": 80,
+      "posAngle": 65,
+      "redshift": 0.000677
+    },
+    {
+      "id": "NGC-5128",
+      "name": "Centaurus A (NGC 5128)",
+      "aliases": [
+        "Centaurus A",
+        "Cen A",
+        "ESO 270-009",
+        "PGC 46957",
+        "Arp 153"
+      ],
+      "preferredName": "NGC 5128",
+      "ra": 201.365,
+      "dec": -43.0192,
+      "l": 309.52,
+      "b": 19.42,
+      "distance": 13000000,
+      "size": 97186,
+      "type": "Peculiar Elliptical",
+      "morphologyClass": "S0 pec / E(p)",
+      "inclination": 60,
+      "posAngle": 35,
+      "redshift": 0.001825
+    },
+    {
+      "id": "MESSIER-051A",
+      "name": "M51 (Whirlpool)",
+      "aliases": [
+        "M51",
+        "NGC 5194",
+        "UGC 8493",
+        "PGC 47404",
+        "Whirlpool Galaxy",
+        "Arp 85"
+      ],
+      "preferredName": "MESSIER 051A",
+      "ra": 202.4696,
+      "dec": 47.1953,
+      "l": 104.85,
+      "b": 68.56,
+      "distance": 23000000,
+      "size": 76000,
+      "type": "Spiral",
+      "morphologyClass": "SA(s)bc pec",
+      "inclination": 22,
+      "posAngle": 10,
+      "redshift": 0.001544
+    },
+    {
+      "id": "MESSIER-101",
+      "name": "M101 (Pinwheel)",
+      "aliases": [
+        "M101",
+        "NGC 5457",
+        "UGC 8981",
+        "PGC 50063",
+        "Pinwheel Galaxy",
+        "Arp 26"
+      ],
+      "preferredName": "MESSIER 101",
+      "ra": 210.8023,
+      "dec": 54.349,
+      "l": 102.04,
+      "b": 59.77,
+      "distance": 21000000,
+      "size": 170000,
+      "type": "Spiral",
+      "morphologyClass": "SAB(rs)cd",
+      "inclination": 18,
+      "posAngle": 40,
+      "redshift": 0.000804
+    },
+    {
+      "id": "MESSIER-104",
+      "name": "M104 (Sombrero)",
+      "aliases": [
+        "M104",
+        "NGC 4594",
+        "UGC 7824",
+        "PGC 42407",
+        "Sombrero Galaxy"
+      ],
+      "preferredName": "MESSIER 104",
+      "ra": 189.9976,
+      "dec": -11.6231,
+      "l": 298.46,
+      "b": 51.15,
+      "distance": 29000000,
+      "size": 50000,
+      "type": "Lenticular",
+      "morphologyClass": "SA(s)a",
+      "inclination": 84,
+      "posAngle": 90,
+      "redshift": 0.003416
+    },
+    {
+      "id": "NGC-0253",
+      "name": "NGC 253 (Sculptor Galaxy)",
+      "aliases": [
+        "Sculptor Galaxy",
+        "Silver Coin",
+        "UGCA 13",
+        "PGC 2789"
+      ],
+      "preferredName": "NGC 0253",
+      "ra": 11.8881,
+      "dec": -25.2883,
+      "l": 97.37,
+      "b": -87.96,
+      "distance": 11400000,
+      "size": 90000,
+      "type": "Spiral",
+      "morphologyClass": "SAB(s)c",
+      "inclination": 78,
+      "posAngle": 52,
+      "redshift": 0.000811
+    },
+    {
+      "id": "MESSIER-083",
+      "name": "M83",
+      "aliases": [
+        "M83",
+        "NGC 5236",
+        "Southern Pinwheel",
+        "UGCA 366",
+        "PGC 48082"
+      ],
+      "preferredName": "MESSIER 083",
+      "ra": 204.2538,
+      "dec": -29.8661,
+      "l": 314.58,
+      "b": 31.97,
+      "distance": 15000000,
+      "size": 55000,
+      "type": "Barred Spiral",
+      "morphologyClass": "SAB(s)c",
+      "inclination": 24,
+      "posAngle": 45,
+      "redshift": 0.001711
+    },
+    {
+      "id": "MESSIER-094",
+      "name": "M94",
+      "aliases": [
+        "M94",
+        "NGC 4736",
+        "UGC 7996",
+        "PGC 43495",
+        "Cat's Eye Galaxy"
+      ],
+      "preferredName": "MESSIER 094",
+      "ra": 192.7213,
+      "dec": 41.1203,
+      "l": 123.37,
+      "b": 76.01,
+      "distance": 16000000,
+      "size": 50000,
+      "type": "Spiral",
+      "morphologyClass": "(R)SA(r)ab",
+      "inclination": 35,
+      "posAngle": 115,
+      "redshift": 0.001027
+    },
+    {
+      "id": "MESSIER-064",
+      "name": "M64 (Black Eye)",
+      "aliases": [
+        "M64",
+        "NGC 4826",
+        "UGC 8062",
+        "PGC 44182",
+        "Black Eye Galaxy",
+        "Evil Eye"
+      ],
+      "preferredName": "MESSIER 064",
+      "ra": 194.1825,
+      "dec": 21.6828,
+      "l": 315.71,
+      "b": 84.42,
+      "distance": 17000000,
+      "size": 54000,
+      "type": "Spiral",
+      "morphologyClass": "(R)SA(rs)ab",
+      "inclination": 60,
+      "posAngle": 115,
+      "redshift": 0.001361
+    },
+    {
+      "id": "MESSIER-106",
+      "name": "M106",
+      "aliases": [
+        "M106",
+        "NGC 4258",
+        "UGC 7353",
+        "PGC 39600"
+      ],
+      "preferredName": "MESSIER 106",
+      "ra": 184.7401,
+      "dec": 47.304,
+      "l": 138.3,
+      "b": 68.84,
+      "distance": 23700000,
+      "size": 135000,
+      "type": "Spiral",
+      "morphologyClass": "SAB(s)bc",
+      "inclination": 67,
+      "posAngle": 150,
+      "redshift": 0.001494
+    },
+    {
+      "id": "MESSIER-065",
+      "name": "M65",
+      "aliases": [
+        "M65",
+        "NGC 3623",
+        "UGC 6328",
+        "PGC 34612"
+      ],
+      "preferredName": "MESSIER 065",
+      "ra": 169.7333,
+      "dec": 13.0922,
+      "l": 241.34,
+      "b": 64.42,
+      "distance": 35000000,
+      "size": 90000,
+      "type": "Spiral",
+      "morphologyClass": "SAB(rs)a",
+      "inclination": 74,
+      "posAngle": 175,
+      "redshift": 0.002692
+    },
+    {
+      "id": "MESSIER-066",
+      "name": "M66",
+      "aliases": [
+        "M66",
+        "NGC 3627",
+        "UGC 6346",
+        "PGC 34695",
+        "Arp 16"
+      ],
+      "preferredName": "MESSIER 066",
+      "ra": 170.0625,
+      "dec": 12.9917,
+      "l": 241.52,
+      "b": 64.43,
+      "distance": 36000000,
+      "size": 95000,
+      "type": "Barred Spiral",
+      "morphologyClass": "SAB(s)b",
+      "inclination": 60,
+      "posAngle": 173,
+      "redshift": 0.002425
+    },
+    {
+      "id": "NGC-3628",
+      "name": "NGC 3628",
+      "aliases": [
+        "Hamburger Galaxy",
+        "Sarah's Galaxy",
+        "UGC 6350",
+        "PGC 34697"
+      ],
+      "preferredName": "NGC 3628",
+      "ra": 170.2625,
+      "dec": 13.5894,
+      "l": 240.86,
+      "b": 64.78,
+      "distance": 35000000,
+      "size": 100000,
+      "type": "Spiral",
+      "morphologyClass": "SAb pec sp",
+      "inclination": 87,
+      "posAngle": 104,
+      "redshift": 0.002812
+    },
+    {
+      "id": "NGC-4631",
+      "name": "NGC 4631 (Whale)",
+      "aliases": [
+        "Whale Galaxy",
+        "Caldwell 32",
+        "UGC 7865",
+        "Arp 281"
+      ],
+      "preferredName": "NGC 4631",
+      "ra": 190.5333,
+      "dec": 32.5414,
+      "l": 142.84,
+      "b": 84.22,
+      "distance": 30000000,
+      "size": 140000,
+      "type": "Edge-on Spiral",
+      "morphologyClass": "SB(s)d",
+      "inclination": 86,
+      "posAngle": 86,
+      "redshift": 0.002021
+    },
+    {
+      "id": "NGC-0891",
+      "name": "NGC 891",
+      "aliases": [
+        "Outer Silver Sliver",
+        "Caldwell 23",
+        "UGC 1831",
+        "PGC 9031"
+      ],
+      "preferredName": "NGC 0891",
+      "ra": 35.6392,
+      "dec": 42.3492,
+      "l": 140.38,
+      "b": -17.41,
+      "distance": 30000000,
+      "size": 120000,
+      "type": "Edge-on Spiral",
+      "morphologyClass": "SA(s)b",
+      "inclination": 89,
+      "posAngle": 22,
+      "redshift": 0.001761
+    },
+    {
+      "id": "MESSIER-087",
+      "name": "M87 (Virgo A)",
+      "aliases": [
+        "M87",
+        "NGC 4486",
+        "UGC 7654",
+        "PGC 41361",
+        "Virgo A",
+        "3C 274"
+      ],
+      "preferredName": "MESSIER 087",
+      "ra": 187.7059,
+      "dec": 12.3911,
+      "l": 283.78,
+      "b": 74.49,
+      "distance": 53500000,
+      "size": 240000,
+      "type": "Elliptical",
+      "morphologyClass": "E+0-1 pec",
+      "inclination": 25,
+      "posAngle": 20,
+      "redshift": 0.00436
+    },
+    {
+      "id": "MESSIER-049",
+      "name": "M49",
+      "aliases": [
+        "M49",
+        "NGC 4472",
+        "UGC 7629",
+        "PGC 41220",
+        "Arp 134"
+      ],
+      "preferredName": "MESSIER 049",
+      "ra": 187.4442,
+      "dec": 8.0003,
+      "l": 286.92,
+      "b": 70.19,
+      "distance": 56000000,
+      "size": 160000,
+      "type": "Elliptical",
+      "morphologyClass": "E2 / S0_1(2)",
+      "redshift": 0.003326
+    },
+    {
+      "id": "MESSIER-060",
+      "name": "M60",
+      "aliases": [
+        "M60",
+        "NGC 4649",
+        "UGC 7898",
+        "PGC 42831",
+        "Arp 116"
+      ],
+      "preferredName": "MESSIER 060",
+      "ra": 190.9167,
+      "dec": 11.5528,
+      "l": 291.24,
+      "b": 74.32,
+      "distance": 55000000,
+      "size": 120000,
+      "type": "Elliptical",
+      "morphologyClass": "E2",
+      "redshift": 0.003726
+    },
+    {
+      "id": "MESSIER-086",
+      "name": "M86",
+      "aliases": [
+        "M86",
+        "NGC 4406",
+        "UGC 7532",
+        "PGC 40653"
+      ],
+      "preferredName": "MESSIER 086",
+      "ra": 186.5492,
+      "dec": 12.9461,
+      "l": 279.18,
+      "b": 74.52,
+      "distance": 52000000,
+      "size": 150000,
+      "type": "Lenticular",
+      "morphologyClass": "S0_1(3) / E3",
+      "redshift": -0.000814
+    },
+    {
+      "id": "MESSIER-084",
+      "name": "M84",
+      "aliases": [
+        "M84",
+        "NGC 4374",
+        "UGC 7494",
+        "PGC 40455"
+      ],
+      "preferredName": "MESSIER 084",
+      "ra": 186.2654,
+      "dec": 12.8872,
+      "l": 278.21,
+      "b": 74.46,
+      "distance": 60000000,
+      "size": 110000,
+      "type": "Lenticular",
+      "morphologyClass": "E1 / S0_1(1)",
+      "redshift": 0.003536
+    },
+    {
+      "id": "MESSIER-100",
+      "name": "M100",
+      "aliases": [
+        "M100",
+        "NGC 4321",
+        "UGC 7450",
+        "PGC 40153",
+        "Mirror Galaxy"
+      ],
+      "preferredName": "MESSIER 100",
+      "ra": 185.7288,
+      "dec": 15.8222,
+      "l": 271.12,
+      "b": 76.92,
+      "distance": 55000000,
+      "size": 107000,
+      "type": "Spiral",
+      "morphologyClass": "SAB(s)bc",
+      "inclination": 30,
+      "posAngle": 153,
+      "redshift": 0.00524
+    },
+    {
+      "id": "NGC-4565",
+      "name": "NGC 4565 (Needle)",
+      "aliases": [
+        "Needle Galaxy",
+        "Caldwell 38",
+        "UGC 7772",
+        "PGC 42038"
+      ],
+      "preferredName": "NGC 4565",
+      "ra": 189.0867,
+      "dec": 25.9878,
+      "l": 230.84,
+      "b": 86.43,
+      "distance": 46000000,
+      "size": 200000,
+      "type": "Edge-on Spiral",
+      "morphologyClass": "SA(s)b? sp",
+      "inclination": 88,
+      "posAngle": 45,
+      "redshift": 0.004103
+    },
+    {
+      "id": "NGC-4038-4039",
+      "name": "NGC 4038/4039 (Antennae)",
+      "aliases": [
+        "Antennae Galaxies",
+        "Ringtail Galaxy",
+        "Arp 244",
+        "Caldwell 60/61"
+      ],
+      "preferredName": "NGC 4038/4039",
+      "ra": 180.4708,
+      "dec": -18.8683,
+      "l": 286.21,
+      "b": 42.48,
+      "distance": 45000000,
+      "size": 90000,
+      "type": "Interacting",
+      "morphologyClass": "SB(s)m pec / SA(s)m pec",
+      "redshift": 0.00547
+    },
+    {
+      "id": "NGC-1365",
+      "name": "NGC 1365",
+      "aliases": [
+        "Great Barred Spiral",
+        "ESO 358-017",
+        "PGC 13179"
+      ],
+      "preferredName": "NGC 1365",
+      "ra": 53.4017,
+      "dec": -36.1406,
+      "l": 237.95,
+      "b": -54.61,
+      "distance": 56000000,
+      "size": 200000,
+      "type": "Barred Spiral",
+      "morphologyClass": "SB(s)b",
+      "inclination": 55,
+      "posAngle": 32,
+      "redshift": 0.005457
+    },
+    {
+      "id": "NGC-1316",
+      "name": "NGC 1316 (Fornax A)",
+      "aliases": [
+        "Fornax A",
+        "ESO 357-022",
+        "PGC 12651",
+        "Arp 154"
+      ],
+      "preferredName": "NGC 1316",
+      "ra": 50.6738,
+      "dec": -37.2083,
+      "l": 240.16,
+      "b": -56.69,
+      "distance": 62000000,
+      "size": 160000,
+      "type": "Lenticular",
+      "morphologyClass": "(R')SAB(s)0^0 pec",
+      "redshift": 0.005871
+    },
+    {
+      "id": "NGC-1300",
+      "name": "NGC 1300",
+      "aliases": [
+        "UGC 2670",
+        "PGC 12412",
+        "ESO 547-031"
+      ],
+      "preferredName": "NGC 1300",
+      "ra": 49.9208,
+      "dec": -19.4111,
+      "l": 209.61,
+      "b": -52.41,
+      "distance": 61000000,
+      "size": 110000,
+      "type": "Barred Spiral",
+      "morphologyClass": "(R')SB(s)bc",
+      "inclination": 45,
+      "posAngle": 86,
+      "redshift": 0.00526
+    },
+    {
+      "id": "NGC-1275",
+      "name": "Perseus Cluster (NGC 1275)",
+      "aliases": [
+        "Perseus A",
+        "3C 84",
+        "UGC 2669",
+        "PGC 12429"
+      ],
+      "preferredName": "NGC 1275",
+      "ra": 49.9507,
+      "dec": 41.5117,
+      "l": 150.58,
+      "b": -13.26,
+      "distance": 237000000,
+      "size": 200000,
+      "type": "Elliptical",
+      "morphologyClass": "cD / Seyfert 1.5",
+      "redshift": 0.017559
+    },
+    {
+      "id": "NGC-4889",
+      "name": "Coma Cluster (NGC 4889)",
+      "aliases": [
+        "Caldwell 35",
+        "UGC 8110",
+        "PGC 44715"
+      ],
+      "preferredName": "NGC 4889",
+      "ra": 195.034,
+      "dec": 27.977,
+      "l": 58.08,
+      "b": 87.94,
+      "distance": 321000000,
+      "size": 300000,
+      "type": "Elliptical",
+      "morphologyClass": "E4 / cD",
+      "redshift": 0.021665
+    },
+    {
+      "id": "CARTWHEEL-GALAXY",
+      "name": "Cartwheel Galaxy",
+      "aliases": [
+        "ESO 350-040",
+        "PGC 2248",
+        "A0035-33"
+      ],
+      "preferredName": "Cartwheel Galaxy",
+      "ra": 9.4442,
+      "dec": -33.7144,
+      "l": 316,
+      "b": -70,
+      "distance": 500000000,
+      "size": 150000,
+      "type": "Ring Galaxy",
+      "morphologyClass": "Ring Galaxy / S0_D",
+      "inclination": 30,
+      "posAngle": 145,
+      "redshift": 0.030198
+    },
+    {
+      "id": "HOAGS-OBJECT",
+      "name": "Hoag's Object",
+      "aliases": [
+        "PGC 54559",
+        "PRC D-51",
+        "A1515+21"
+      ],
+      "preferredName": "Hoag's Object",
+      "ra": 229.3175,
+      "dec": 21.5856,
+      "l": 31.71,
+      "b": 56.25,
+      "distance": 612800000,
+      "size": 120000,
+      "type": "Ring Galaxy",
+      "morphologyClass": "(R)E0 pec",
+      "inclination": 18,
+      "posAngle": 25,
+      "redshift": 0.04251
+    },
+    {
+      "id": "STEPHANS-QUINTET",
+      "name": "Stephan's Quintet (HCG 92)",
+      "aliases": [
+        "Hickson 92",
+        "Arp 319",
+        "NGC 7317-7320",
+        "JWST First Images"
+      ],
+      "preferredName": "Stephan's Quintet",
+      "ra": 339.014,
+      "dec": 33.965,
+      "l": 93.27,
+      "b": -21.01,
+      "distance": 290000000,
+      "size": 220000,
+      "type": "Interacting",
+      "morphologyClass": "Compact Interacting Group (E2 + SBb + SBc)",
+      "inclination": 42,
+      "posAngle": 112,
+      "redshift": 0.0215
+    },
+    {
+      "id": "TADPOLE-GALAXY",
+      "name": "Tadpole Galaxy (UGC 10214)",
+      "aliases": [
+        "UGC 10214",
+        "Arp 188",
+        "PGC 57129"
+      ],
+      "preferredName": "Tadpole Galaxy",
+      "ra": 241.5533,
+      "dec": 55.4294,
+      "l": 85.62,
+      "b": 44.51,
+      "distance": 420000000,
+      "size": 280000,
+      "type": "Interacting",
+      "morphologyClass": "SB(s)c pec (Tidal Tail)",
+      "inclination": 58,
+      "posAngle": 72,
+      "redshift": 0.031358
+    },
+    {
+      "id": "MAYALLS-OBJECT",
+      "name": "Mayall's Object (Arp 148)",
+      "aliases": [
+        "Arp 148",
+        "VV 32",
+        "PGC 33423"
+      ],
+      "preferredName": "Mayall's Object",
+      "ra": 165.9754,
+      "dec": 40.85,
+      "l": 177.26,
+      "b": 63.61,
+      "distance": 450000000,
+      "size": 140000,
+      "type": "Ring Galaxy",
+      "morphologyClass": "Collisional Ring + Tail Peculiar",
+      "inclination": 48,
+      "posAngle": 95,
+      "redshift": 0.034524
+    },
+    {
+      "id": "HERCULES-A",
+      "name": "Hercules A",
+      "aliases": [
+        "3C 348",
+        "PGC 59049"
+      ],
+      "preferredName": "Hercules A",
+      "ra": 252.7838,
+      "dec": 4.9925,
+      "l": 23.5,
+      "b": 27.9,
+      "distance": 2100000000,
+      "size": 500000,
+      "type": "Radio Elliptical",
+      "morphologyClass": "cD / E3 Radio",
+      "redshift": 0.15495
+    },
+    {
+      "id": "3C-273",
+      "name": "3C 273 (Quasar Host)",
+      "aliases": [
+        "PG 1226+023",
+        "PGC 41121",
+        "First Quasar Identified"
+      ],
+      "preferredName": "3C 273",
+      "ra": 187.2779,
+      "dec": 2.0524,
+      "l": 289.95,
+      "b": 64.36,
+      "distance": 2400000000,
+      "size": 200000,
+      "type": "Elliptical",
+      "morphologyClass": "Quasar Host (E4)",
+      "redshift": 0.158339
+    },
+    {
+      "id": "CYGNUS-A",
+      "name": "Cygnus A",
+      "aliases": [
+        "3C 405",
+        "PGC 63932"
+      ],
+      "preferredName": "Cygnus A",
+      "ra": 299.8681,
+      "dec": 40.7339,
+      "l": 76.19,
+      "b": 5.76,
+      "distance": 760000000,
+      "size": 300000,
+      "type": "Radio Elliptical",
+      "morphologyClass": "cD / E Radio",
+      "redshift": 0.056075
+    },
+    {
+      "id": "MALIN-1",
+      "name": "Malin 1",
+      "aliases": [
+        "PGC 42102",
+        "Giant Low Surface Brightness"
+      ],
+      "preferredName": "Malin 1",
+      "ra": 189.2471,
+      "dec": 14.3325,
+      "l": 316,
+      "b": 76,
+      "distance": 1190000000,
+      "size": 650000,
+      "type": "Spiral",
+      "morphologyClass": "SB(s)cd",
+      "inclination": 38,
+      "redshift": 0.08254
+    },
+    {
+      "id": "GN-Z11",
+      "name": "GN-z11",
+      "aliases": [
+        "GOODS-N-z11",
+        "HST/JWST Spectroscopic Frontier Benchmark"
+      ],
+      "preferredName": "GN-z11",
+      "ra": 189.106,
+      "dec": 62.242,
+      "l": 125.88,
+      "b": 54.81,
+      "distance": 32000000000,
+      "size": 4000,
+      "type": "Dwarf Starburst",
+      "morphologyClass": "Compact Proto-Galaxy",
+      "redshift": 10.603
+    },
+    {
+      "id": "JADES-GS-Z14-0",
+      "name": "JADES-GS-z14-0",
+      "aliases": [
+        "JWST Cosmic Dawn Record Galaxy",
+        "JADES-GS+53.16474-27.77463"
+      ],
+      "preferredName": "JADES-GS-z14-0",
+      "ra": 53.16474,
+      "dec": -27.77463,
+      "l": 223.57,
+      "b": -54.43,
+      "distance": 33800000000,
+      "size": 1600,
+      "type": "Dwarf Starburst",
+      "morphologyClass": "Early Universe Proto-Galaxy",
+      "redshift": 14.32
+    },
+    {
+      "id": "GLASS-Z12",
+      "name": "GLASS-z12",
+      "aliases": [
+        "GHZ2",
+        "JWST Early Release Science Benchmark"
+      ],
+      "preferredName": "GLASS-z12",
+      "ra": 3.595,
+      "dec": -30.402,
+      "l": 29.54,
+      "b": -81.25,
+      "distance": 32800000000,
+      "size": 2000,
+      "type": "Dwarf Starburst",
+      "morphologyClass": "Proto-Galaxy",
+      "redshift": 12.11
+    },
+    {
+      "id": "HUDF-JD2",
+      "name": "HUDF-JD2",
+      "aliases": [
+        "UDF033238.7-274839.8",
+        "Hubble Ultra Deep Field JD2",
+        "hudf-jd2"
+      ],
+      "preferredName": "HUDF-JD2",
+      "ra": 53.16125,
+      "dec": -27.81106,
+      "l": 223.64,
+      "b": -54.4,
+      "distance": 28500000000,
+      "size": 2500,
+      "type": "Dwarf Starburst",
+      "morphologyClass": "Early Galaxy",
+      "redshift": 6.5
+    },
+    {
+      "id": "nearby-ngc24",
+      "name": "NGC 24",
+      "aliases": [
+        "NGC 0024"
+      ],
+      "preferredName": "NGC 24",
+      "ra": 2.48625,
+      "dec": -24.96222222222222,
+      "l": 43.69776504847484,
+      "b": -80.43512645293528,
+      "distance": 26744822.972772952,
+      "size": 45122.58184804405,
+      "type": "Spiral",
+      "morphologyClass": "SAc",
+      "inclination": 77.04780940412591,
+      "redshift": 0.0018479450873977623
+    },
+    {
+      "id": "nearby-ngc337",
+      "name": "NGC 337",
+      "aliases": [
+        "NGC 0337"
+      ],
+      "preferredName": "NGC 337",
+      "ra": 14.959583333333333,
+      "dec": -7.578888888888889,
+      "l": 129.13312705893532,
+      "b": -70.3494286055704,
+      "distance": 62948180.89933147,
+      "size": 53101.56553267173,
+      "type": "Barred spiral",
+      "morphologyClass": "SBd",
+      "inclination": 51.63348574405511,
+      "redshift": 0.005503807570769509
+    },
+    {
+      "id": "nearby-ngc584",
+      "name": "NGC 584",
+      "aliases": [
+        "NGC 0584"
+      ],
+      "preferredName": "NGC 584",
+      "ra": 22.83625,
+      "dec": -6.868055555555556,
+      "l": 149.80491668910005,
+      "b": -67.63339434806134,
+      "distance": 67840526.56508262,
+      "size": 82882.84914873641,
+      "type": "Elliptical",
+      "morphologyClass": "E4",
+      "inclination": 0,
+      "redshift": 0.006184278324973739
+    },
+    {
+      "id": "nearby-ngc628",
+      "name": "M74 (Phantom Galaxy)",
+      "aliases": [
+        "NGC 0628",
+        "M74",
+        "Messier 74"
+      ],
+      "preferredName": "M74 (Phantom Galaxy)",
+      "ra": 24.174166666666668,
+      "dec": 15.783333333333333,
+      "l": 138.61721549076233,
+      "b": -45.70551648714937,
+      "distance": 31999999.999999993,
+      "size": 97738.51409449866,
+      "type": "Spiral",
+      "morphologyClass": "SAc",
+      "inclination": 25.208765296758365,
+      "redshift": 0.002191516105451859
+    },
+    {
+      "id": "nearby-ngc855",
+      "name": "NGC 855",
+      "aliases": [
+        "NGC 0855"
+      ],
+      "preferredName": "NGC 855",
+      "ra": 33.515,
+      "dec": 27.877222222222223,
+      "l": 144.38968352623505,
+      "b": -31.52881219314227,
+      "distance": 31735015.55183913,
+      "size": 24001.489891297257,
+      "type": "Elliptical",
+      "morphologyClass": "E",
+      "inclination": 0,
+      "redshift": 0.0020347409807087275
+    },
+    {
+      "id": "nearby-ngc925",
+      "name": "NGC 925",
+      "aliases": [
+        "NGC 0925"
+      ],
+      "preferredName": "NGC 925",
+      "ra": 36.820416666666674,
+      "dec": 33.57916666666667,
+      "l": 144.88525320803748,
+      "b": -25.174190209420342,
+      "distance": 29745461.647766996,
+      "size": 90852.41320336389,
+      "type": "Spiral",
+      "morphologyClass": "SABd",
+      "inclination": 55.812372662892805,
+      "redshift": 0.0018446094464457808
+    },
+    {
+      "id": "nearby-ngc1097",
+      "name": "NGC 1097",
+      "aliases": [
+        "NGC 1097"
+      ],
+      "preferredName": "NGC 1097",
+      "ra": 41.579166666666666,
+      "dec": -30.275,
+      "l": 226.91494404492732,
+      "b": -64.68075542723928,
+      "distance": 46314205.635777555,
+      "size": 125292.06012426523,
+      "type": "Barred spiral",
+      "morphologyClass": "SBb",
+      "inclination": 47.35769002006005,
+      "redshift": 0.004252942213776439
+    },
+    {
+      "id": "nearby-ngc1266",
+      "name": "NGC 1266",
+      "aliases": [
+        "NGC 1266"
+      ],
+      "preferredName": "NGC 1266",
+      "ra": 49.002916666666664,
+      "dec": -2.427222222222222,
+      "l": 183.6676807382234,
+      "b": -47.50785024347703,
+      "distance": 99803851.58132347,
+      "size": 43547.646097550874,
+      "type": "Lenticular",
+      "morphologyClass": "SB0",
+      "inclination": 0,
+      "redshift": 0.007318396248647456
+    },
+    {
+      "id": "nearby-ngc1291",
+      "name": "NGC 1291",
+      "aliases": [
+        "NGC 1291"
+      ],
+      "preferredName": "NGC 1291",
+      "ra": 49.3275,
+      "dec": -41.10805555555556,
+      "l": 247.52396953336574,
+      "b": -57.042442305610926,
+      "distance": 33920263.28254131,
+      "size": 96696.71079649012,
+      "type": "Barred spiral",
+      "morphologyClass": "SBa",
+      "inclination": 34.25601990530225,
+      "redshift": 0.002798602758712496
+    },
+    {
+      "id": "nearby-ngc1377",
+      "name": "NGC 1377",
+      "aliases": [
+        "NGC 1377"
+      ],
+      "preferredName": "NGC 1377",
+      "ra": 54.16291666666667,
+      "dec": -20.90222222222222,
+      "l": 212.70160424132325,
+      "b": -51.9306765886711,
+      "distance": 80234468.91831887,
+      "size": 42010.67064620018,
+      "type": "Lenticular",
+      "morphologyClass": "S0",
+      "inclination": 0,
+      "redshift": 0.005977468585950885
+    },
+    {
+      "id": "nearby-ngc1404",
+      "name": "NGC 1404",
+      "aliases": [
+        "NGC 1404"
+      ],
+      "preferredName": "NGC 1404",
+      "ra": 54.716249999999995,
+      "dec": -35.593611111111116,
+      "l": 236.95391953802647,
+      "b": -53.554841574284964,
+      "distance": 65883588.29878216,
+      "size": 63243.70949273838,
+      "type": "Elliptical",
+      "morphologyClass": "E1",
+      "inclination": 0,
+      "redshift": 0.006494492933508021
+    },
+    {
+      "id": "nearby-ngc1482",
+      "name": "NGC 1482",
+      "aliases": [
+        "NGC 1482"
+      ],
+      "preferredName": "NGC 1482",
+      "ra": 58.66375,
+      "dec": -20.5025,
+      "l": 214.12451796923767,
+      "b": -47.80209989826088,
+      "distance": 73711341.363984,
+      "size": 53604.40248168135,
+      "type": "Lenticular",
+      "morphologyClass": "SA0",
+      "inclination": 0,
+      "redshift": 0.005520485775529417
+    },
+    {
+      "id": "nearby-ngc1512",
+      "name": "NGC 1512",
+      "aliases": [
+        "NGC 1512"
+      ],
+      "preferredName": "NGC 1512",
+      "ra": 60.97624999999999,
+      "dec": -43.348888888888894,
+      "l": 248.66810385265669,
+      "b": -48.16574045928507,
+      "distance": 37834139.81514223,
+      "size": 97949.05060744887,
+      "type": "Barred spiral",
+      "morphologyClass": "SBab",
+      "inclination": 51.00788144166912,
+      "redshift": 0.0029887342929754424
+    },
+    {
+      "id": "nearby-ngc1566",
+      "name": "NGC 1566",
+      "aliases": [
+        "NGC 1566"
+      ],
+      "preferredName": "NGC 1566",
+      "ra": 65.00166666666667,
+      "dec": -54.937777777777775,
+      "l": 264.3100895006226,
+      "b": -43.393319510862355,
+      "distance": 58708147.989013806,
+      "size": 141743.38527576573,
+      "type": "Spiral",
+      "morphologyClass": "SABbc",
+      "inclination": 37.32767129042703,
+      "redshift": 0.004990118864164355
+    },
+    {
+      "id": "nearby-ngc1705",
+      "name": "NGC 1705",
+      "aliases": [
+        "NGC 1705"
+      ],
+      "preferredName": "NGC 1705",
+      "ra": 73.55625,
+      "dec": -53.361111111111114,
+      "l": 261.07855903023415,
+      "b": -38.74335419513306,
+      "distance": 18917069.907571115,
+      "size": 10455.230165514422,
+      "type": "Dwarf irregular",
+      "morphologyClass": "Am",
+      "inclination": 0,
+      "redshift": 0.002094782517844395
+    },
+    {
+      "id": "nearby-ngc2403",
+      "name": "NGC 2403",
+      "aliases": [
+        "NGC 2403"
+      ],
+      "preferredName": "NGC 2403",
+      "ra": 114.21416666666667,
+      "dec": 65.60249999999999,
+      "l": 150.56914340232362,
+      "b": 29.18581184951092,
+      "distance": 11415473.220086018,
+      "size": 72721.96751547932,
+      "type": "Spiral",
+      "morphologyClass": "SABcd",
+      "inclination": 55.83044367242731,
+      "redshift": 0.0004369689647095792
+    },
+    {
+      "id": "nearby-hoii",
+      "name": "Holmberg II",
+      "aliases": [
+        "Ho II",
+        "Ho II",
+        "DDO 50"
+      ],
+      "preferredName": "Holmberg II",
+      "ra": 124.77083333333331,
+      "dec": 70.72,
+      "l": 144.2767782172752,
+      "b": 32.68846953734708,
+      "distance": 9947769.520360673,
+      "size": 22860.15202252465,
+      "type": "Dwarf irregular",
+      "morphologyClass": "Im",
+      "inclination": 0,
+      "redshift": 0.0005236956294610987
+    },
+    {
+      "id": "nearby-m81dwa",
+      "name": "M81 DwA",
+      "aliases": [
+        "M81 DwA"
+      ],
+      "preferredName": "M81 DwA",
+      "ra": 125.98333333333333,
+      "dec": 71.02916666666667,
+      "l": 143.8194530626835,
+      "b": 33.01371180492023,
+      "distance": 11415473.220086018,
+      "size": 4316.814574323424,
+      "type": "Dwarf irregular",
+      "morphologyClass": "I?",
+      "inclination": 0,
+      "redshift": 0.0003769274275739118
+    },
+    {
+      "id": "nearby-ddo53",
+      "name": "DDO 53",
+      "aliases": [
+        "DDO 053"
+      ],
+      "preferredName": "DDO 53",
+      "ra": 128.53,
+      "dec": 66.18166666666667,
+      "l": 149.2950377723454,
+      "b": 34.94872106295077,
+      "distance": 11774245.235574435,
+      "size": 5137.483738959432,
+      "type": "Dwarf irregular",
+      "morphologyClass": "Im",
+      "inclination": 0,
+      "redshift": 0.00006337717808764889
+    },
+    {
+      "id": "nearby-ngc2798",
+      "name": "NGC 2798",
+      "aliases": [
+        "NGC 2798"
+      ],
+      "preferredName": "NGC 2798",
+      "ra": 139.34541666666667,
+      "dec": 41.999722222222225,
+      "l": 179.52897451559855,
+      "b": 44.29814654087298,
+      "distance": 84148345.45091979,
+      "size": 63642.1828566772,
+      "type": "Barred spiral",
+      "morphologyClass": "SBa",
+      "inclination": 67.38013505195958,
+      "redshift": 0.005757316283120105
+    },
+    {
+      "id": "nearby-ngc2841",
+      "name": "NGC 2841",
+      "aliases": [
+        "NGC 2841"
+      ],
+      "preferredName": "NGC 2841",
+      "ra": 140.51083333333335,
+      "dec": 50.97638888888889,
+      "l": 166.94222787754808,
+      "b": 44.1511892240722,
+      "distance": 45988049.25806081,
+      "size": 108356.83840650086,
+      "type": "Spiral",
+      "morphologyClass": "SAb",
+      "inclination": 64.39917301657891,
+      "redshift": 0.00212813892736421
+    },
+    {
+      "id": "nearby-ngc2915",
+      "name": "NGC 2915",
+      "aliases": [
+        "NGC 2915"
+      ],
+      "preferredName": "NGC 2915",
+      "ra": 141.54791666666668,
+      "dec": -76.62638888888888,
+      "l": 291.9661271843039,
+      "b": -18.357330470193805,
+      "distance": 12328711.0776929,
+      "size": 6813.925866490435,
+      "type": "Dwarf irregular",
+      "morphologyClass": "I0",
+      "inclination": 0,
+      "redshift": 0.0015610799655273516
+    },
+    {
+      "id": "nearby-hoi",
+      "name": "Holmberg I",
+      "aliases": [
+        "Ho I",
+        "Ho I",
+        "DDO 63"
+      ],
+      "preferredName": "Holmberg I",
+      "ra": 145.13458333333332,
+      "dec": 71.18222222222222,
+      "l": 140.72947214320587,
+      "b": 38.66187552072294,
+      "distance": 12720098.730952991,
+      "size": 13320.457459325959,
+      "type": "Dwarf irregular",
+      "morphologyClass": "IABm",
+      "inclination": 0,
+      "redshift": 0.00047699665613335743
+    },
+    {
+      "id": "nearby-ngc2976",
+      "name": "NGC 2976",
+      "aliases": [
+        "NGC 2976"
+      ],
+      "preferredName": "NGC 2976",
+      "ra": 146.81416666666667,
+      "dec": 67.91638888888889,
+      "l": 143.91447689002666,
+      "b": 40.90242518847325,
+      "distance": 11578551.408944389,
+      "size": 19871.582939536387,
+      "type": "Spiral",
+      "morphologyClass": "SAc",
+      "inclination": 62.76590451419834,
+      "redshift": 0.000010006922855944561
+    },
+    {
+      "id": "nearby-ngc3049",
+      "name": "NGC 3049",
+      "aliases": [
+        "NGC 3049"
+      ],
+      "preferredName": "NGC 3049",
+      "ra": 148.70666666666668,
+      "dec": 9.271666666666668,
+      "l": 227.56488158407672,
+      "b": 44.72271952119213,
+      "distance": 62622024.52161473,
+      "size": 40075.22014715397,
+      "type": "Barred spiral",
+      "morphologyClass": "SBab",
+      "inclination": 50.478803641357835,
+      "redshift": 0.004983447582260392
+    },
+    {
+      "id": "nearby-hoix",
+      "name": "Holmberg IX",
+      "aliases": [
+        "Ho IX",
+        "Ho IX",
+        "DDO 66"
+      ],
+      "preferredName": "Holmberg IX",
+      "ra": 149.38333333333333,
+      "dec": 69.04583333333333,
+      "l": 141.97691275948068,
+      "b": 41.05554228048949,
+      "distance": 11415473.220086018,
+      "size": 8301.566756012598,
+      "type": "Dwarf irregular",
+      "morphologyClass": "Im",
+      "inclination": 0,
+      "redshift": 0.00015343948379114994
+    },
+    {
+      "id": "nearby-m81dwb",
+      "name": "M81 DwB",
+      "aliases": [
+        "M81 DwB"
+      ],
+      "preferredName": "M81 DwB",
+      "ra": 151.3775,
+      "dec": 70.36444444444444,
+      "l": 140.03374208609333,
+      "b": 40.80744903313238,
+      "distance": 11741629.597802762,
+      "size": 3073.9514580262453,
+      "type": "Dwarf irregular",
+      "morphologyClass": "Im",
+      "inclination": 0,
+      "redshift": 0.0011674743331935322
+    },
+    {
+      "id": "nearby-ngc3190",
+      "name": "NGC 3190",
+      "aliases": [
+        "NGC 3190"
+      ],
+      "preferredName": "NGC 3190",
+      "ra": 154.52333333333334,
+      "dec": 21.831944444444446,
+      "l": 213.0355038770956,
+      "b": 54.84516167079428,
+      "distance": 62948180.89933147,
+      "size": 80567.89875314312,
+      "type": "Spiral",
+      "morphologyClass": "SAap",
+      "inclination": 70.06772952779893,
+      "redshift": 0.004239599649968513
+    },
+    {
+      "id": "nearby-ngc3184",
+      "name": "NGC 3184",
+      "aliases": [
+        "NGC 3184"
+      ],
+      "preferredName": "NGC 3184",
+      "ra": 154.57083333333335,
+      "dec": 41.42444444444444,
+      "l": 178.33478916262058,
+      "b": 55.6378979976103,
+      "distance": 38160296.19285897,
+      "size": 82142.84521042008,
+      "type": "Spiral",
+      "morphologyClass": "SABcd",
+      "inclination": 21.182781804863705,
+      "redshift": 0.00197469944357306
+    },
+    {
+      "id": "nearby-ngc3198",
+      "name": "NGC 3198",
+      "aliases": [
+        "NGC 3198"
+      ],
+      "preferredName": "NGC 3198",
+      "ra": 154.97875,
+      "dec": 45.54972222222222,
+      "l": 171.2185754724562,
+      "b": 54.82865548031445,
+      "distance": 45988049.25806081,
+      "size": 113707.79871343447,
+      "type": "Barred spiral",
+      "morphologyClass": "SBc",
+      "inclination": 67.1552612722227,
+      "redshift": 0.0022115299511637483
+    },
+    {
+      "id": "nearby-ic2574",
+      "name": "IC 2574",
+      "aliases": [
+        "IC 2574"
+      ],
+      "preferredName": "IC 2574",
+      "ra": 157.08833333333334,
+      "dec": 68.41194444444444,
+      "l": 140.21040084729063,
+      "b": 43.60481961365853,
+      "distance": 12361326.715464573,
+      "size": 47464.14555749386,
+      "type": "Dwarf irregular",
+      "morphologyClass": "SABm",
+      "inclination": 0,
+      "redshift": 0.00019013153426294667
+    },
+    {
+      "id": "nearby-ngc3265",
+      "name": "NGC 3265",
+      "aliases": [
+        "NGC 3265"
+      ],
+      "preferredName": "NGC 3265",
+      "ra": 157.77833333333334,
+      "dec": 28.79638888888889,
+      "l": 201.51604853638293,
+      "b": 59.08086276618878,
+      "distance": 63926650.0324817,
+      "size": 24174.161616211175,
+      "type": "Elliptical",
+      "morphologyClass": "E",
+      "inclination": 0,
+      "redshift": 0.004739945792765741
+    },
+    {
+      "id": "nearby-mrk33",
+      "name": "Mrk 33",
+      "aliases": [
+        "Mrk 33"
+      ],
+      "preferredName": "Mrk 33",
+      "ra": 158.13291666666666,
+      "dec": 54.40083333333333,
+      "l": 156.19645117837058,
+      "b": 52.80262632788141,
+      "distance": 70775933.96453331,
+      "size": 20587.88479275845,
+      "type": "Dwarf irregular",
+      "morphologyClass": "Im",
+      "inclination": 0,
+      "redshift": 0.004873371430845002
+    },
+    {
+      "id": "nearby-ngc3351",
+      "name": "M95",
+      "aliases": [
+        "NGC 3351",
+        "M95",
+        "Messier 95"
+      ],
+      "preferredName": "M95",
+      "ra": 160.99041666666668,
+      "dec": 11.70361111111111,
+      "l": 233.9516580644485,
+      "b": 56.36786376615777,
+      "distance": 30430390.04097216,
+      "size": 65503.65348830936,
+      "type": "Barred spiral",
+      "morphologyClass": "SBb",
+      "inclination": 47.493357697293675,
+      "redshift": 0.002595128660641623
+    },
+    {
+      "id": "nearby-ngc3521",
+      "name": "NGC 3521",
+      "aliases": [
+        "NGC 3521"
+      ],
+      "preferredName": "NGC 3521",
+      "ra": 166.45250000000001,
+      "dec": -0.035833333333333335,
+      "l": 255.53182171384572,
+      "b": 52.829324196798645,
+      "distance": 36529514.30427526,
+      "size": 116886.15450194404,
+      "type": "Spiral",
+      "morphologyClass": "SABbc",
+      "inclination": 62.377994507831986,
+      "redshift": 0.002685190966345124
+    },
+    {
+      "id": "nearby-ngc3621",
+      "name": "NGC 3621",
+      "aliases": [
+        "NGC 3621"
+      ],
+      "preferredName": "NGC 3621",
+      "ra": 169.5679166666667,
+      "dec": -32.8125,
+      "l": 281.21277003207734,
+      "b": 26.0999023116016,
+      "distance": 21363242.74044669,
+      "size": 76436.161110109,
+      "type": "Spiral",
+      "morphologyClass": "Sad",
+      "inclination": 54.743644472192116,
+      "redshift": 0.0024250109720905656
+    },
+    {
+      "id": "nearby-ngc3773",
+      "name": "NGC 3773",
+      "aliases": [
+        "NGC 3773"
+      ],
+      "preferredName": "NGC 3773",
+      "ra": 174.55416666666665,
+      "dec": 12.111944444444443,
+      "l": 250.53693569659217,
+      "b": 67.19332914702085,
+      "distance": 40443390.83687618,
+      "size": 14117.406758834817,
+      "type": "Lenticular",
+      "morphologyClass": "SA0",
+      "inclination": 0,
+      "redshift": 0.003292277619605761
+    },
+    {
+      "id": "nearby-ngc3938",
+      "name": "NGC 3938",
+      "aliases": [
+        "NGC 3938"
+      ],
+      "preferredName": "NGC 3938",
+      "ra": 178.20583333333335,
+      "dec": 44.12083333333334,
+      "l": 153.8771745803221,
+      "b": 69.31896288583044,
+      "distance": 58381991.61129706,
+      "size": 91706.23683033581,
+      "type": "Spiral",
+      "morphologyClass": "SAc",
+      "inclination": 24.850502340228427,
+      "redshift": 0.0026985335301530503
+    },
+    {
+      "id": "nearby-ngc4125",
+      "name": "NGC 4125",
+      "aliases": [
+        "NGC 4125"
+      ],
+      "preferredName": "NGC 4125",
+      "ra": 182.025,
+      "dec": 65.17416666666666,
+      "l": 130.18973070517842,
+      "b": 51.339031304665156,
+      "distance": 69797464.83138308,
+      "size": 117758.93311562718,
+      "type": "Elliptical",
+      "morphologyClass": "E6p",
+      "inclination": 0,
+      "redshift": 0.004523129130886942
+    },
+    {
+      "id": "nearby-ngc4236",
+      "name": "NGC 4236",
+      "aliases": [
+        "NGC 4236"
+      ],
+      "preferredName": "NGC 4236",
+      "ra": 184.17541666666668,
+      "dec": 69.4625,
+      "l": 127.41695764113949,
+      "b": 47.36210706880875,
+      "distance": 14513958.80839508,
+      "size": 92460.78726968085,
+      "type": "Dwarf irregular",
+      "morphologyClass": "SBdm",
+      "inclination": 0,
+      "redshift": 0
+    },
+    {
+      "id": "nearby-ngc4254",
+      "name": "M99",
+      "aliases": [
+        "NGC 4254",
+        "M99",
+        "Messier 99"
+      ],
+      "preferredName": "M99",
+      "ra": 184.70666666666668,
+      "dec": 14.41638888888889,
+      "l": 270.4308525907053,
+      "b": 75.18969950155275,
+      "distance": 46966518.39121105,
+      "size": 73774.84974060535,
+      "type": "Spiral",
+      "morphologyClass": "SAc",
+      "inclination": 29.498292516554795,
+      "redshift": 0.00802888777141952
+    },
+    {
+      "id": "nearby-ngc4450",
+      "name": "NGC 4450",
+      "aliases": [
+        "NGC 4450"
+      ],
+      "preferredName": "NGC 4450",
+      "ra": 187.12333333333333,
+      "dec": 17.084999999999997,
+      "l": 273.9116200197841,
+      "b": 78.64224098841505,
+      "distance": 65231275.54334868,
+      "size": 98670.06505049973,
+      "type": "Spiral",
+      "morphologyClass": "SAab",
+      "inclination": 41.40962210927086,
+      "redshift": 0.0065178424201718915
+    },
+    {
+      "id": "nearby-ngc4536",
+      "name": "NGC 4536",
+      "aliases": [
+        "NGC 4536"
+      ],
+      "preferredName": "NGC 4536",
+      "ra": 188.61291666666665,
+      "dec": 2.1877777777777774,
+      "l": 292.95011547974656,
+      "b": 64.72981514025362,
+      "distance": 47292674.76892779,
+      "size": 104552.34157631431,
+      "type": "Spiral",
+      "morphologyClass": "SABbc",
+      "inclination": 65.09893762963304,
+      "redshift": 0.006030838841182589
+    },
+    {
+      "id": "nearby-ngc4552",
+      "name": "M89",
+      "aliases": [
+        "NGC 4552",
+        "M89",
+        "Messier 89"
+      ],
+      "preferredName": "M89",
+      "ra": 188.91625000000002,
+      "dec": 12.556111111111111,
+      "l": 287.9340574579759,
+      "b": 74.96667578333626,
+      "distance": 65231275.54334868,
+      "size": 96772.56309668193,
+      "type": "Elliptical",
+      "morphologyClass": "E0",
+      "inclination": 0,
+      "redshift": 0.001134117923673717
+    },
+    {
+      "id": "nearby-ngc4559",
+      "name": "NGC 4559",
+      "aliases": [
+        "NGC 4559"
+      ],
+      "preferredName": "NGC 4559",
+      "ra": 188.99041666666668,
+      "dec": 27.959722222222222,
+      "l": 198.4178481873901,
+      "b": 86.47033422535026,
+      "distance": 22765715.16462869,
+      "size": 70858.43290908709,
+      "type": "Spiral",
+      "morphologyClass": "SABcd",
+      "inclination": 65.71882085645774,
+      "redshift": 0.0027218830168169207
+    },
+    {
+      "id": "nearby-ngc4569",
+      "name": "M90",
+      "aliases": [
+        "NGC 4569",
+        "M90",
+        "Messier 90"
+      ],
+      "preferredName": "M90",
+      "ra": 189.20749999999998,
+      "dec": 13.162777777777778,
+      "l": 288.46730744965686,
+      "b": 75.62268947617046,
+      "distance": 59000000,
+      "size": 163042.94471481987,
+      "type": "Spiral",
+      "morphologyClass": "SABab",
+      "inclination": 62.408930835616395,
+      "redshift": -0.0007838756237156573
+    },
+    {
+      "id": "nearby-ngc4579",
+      "name": "M58",
+      "aliases": [
+        "NGC 4579",
+        "M58",
+        "Messier 58"
+      ],
+      "preferredName": "M58",
+      "ra": 189.43166666666667,
+      "dec": 11.818055555555555,
+      "l": 290.3980509602609,
+      "b": 74.35518798183547,
+      "distance": 61999999.99999999,
+      "size": 106406.93284822408,
+      "type": "Spiral",
+      "morphologyClass": "SABb",
+      "inclination": 37.192394179241816,
+      "redshift": 0.00506683860605993
+    },
+    {
+      "id": "nearby-ngc4625",
+      "name": "NGC 4625",
+      "aliases": [
+        "NGC 4625"
+      ],
+      "preferredName": "NGC 4625",
+      "ra": 190.46958333333333,
+      "dec": 41.27361111111111,
+      "l": 130.23091728474412,
+      "b": 75.71887380404989,
+      "distance": 30332543.127657134,
+      "size": 19411.4347587777,
+      "type": "Dwarf irregular",
+      "morphologyClass": "SABmp",
+      "inclination": 0,
+      "redshift": 0.002031405339756746
+    },
+    {
+      "id": "nearby-ngc4725",
+      "name": "NGC 4725",
+      "aliases": [
+        "NGC 4725"
+      ],
+      "preferredName": "NGC 4725",
+      "ra": 192.61083333333335,
+      "dec": 25.500833333333333,
+      "l": 295.0781883440075,
+      "b": 88.35739387814591,
+      "distance": 38812608.948292464,
+      "size": 120804.49163583617,
+      "type": "Spiral",
+      "morphologyClass": "SABab",
+      "inclination": 44.74226810642241,
+      "redshift": 0.004022782988089714
+    },
+    {
+      "id": "nearby-ddo154",
+      "name": "DDO 154",
+      "aliases": [
+        "DDO 154"
+      ],
+      "preferredName": "DDO 154",
+      "ra": 193.52166666666668,
+      "dec": 27.149722222222223,
+      "l": 35.16974466974424,
+      "b": 89.41032796006849,
+      "distance": 14024724.241819965,
+      "size": 12238.881511904638,
+      "type": "Dwarf irregular",
+      "morphologyClass": "IBm",
+      "inclination": 0,
+      "redshift": 0.0012542009979450517
+    },
+    {
+      "id": "nearby-ddo165",
+      "name": "DDO 165",
+      "aliases": [
+        "DDO 165"
+      ],
+      "preferredName": "DDO 165",
+      "ra": 196.60333333333335,
+      "dec": 67.70694444444445,
+      "l": 120.75247853898831,
+      "b": 49.35788564600534,
+      "distance": 14905346.461655172,
+      "size": 15175.26467202579,
+      "type": "Dwarf irregular",
+      "morphologyClass": "Im",
+      "inclination": 0,
+      "redshift": 0.00012341871522331626
+    },
+    {
+      "id": "nearby-ngc5033",
+      "name": "NGC 5033",
+      "aliases": [
+        "NGC 5033"
+      ],
+      "preferredName": "NGC 5033",
+      "ra": 198.36458333333334,
+      "dec": 36.59388888888889,
+      "l": 98.05969258575492,
+      "b": 79.4478511301648,
+      "distance": 43378798.236326866,
+      "size": 135016.78476946393,
+      "type": "Spiral",
+      "morphologyClass": "SAc",
+      "inclination": 62.14149029284587,
+      "redshift": 0.0029186858329838306
+    },
+    {
+      "id": "nearby-ngc5055",
+      "name": "M63 (Sunflower Galaxy)",
+      "aliases": [
+        "NGC 5055",
+        "M63",
+        "Messier 63"
+      ],
+      "preferredName": "M63 (Sunflower Galaxy)",
+      "ra": 198.95541666666668,
+      "dec": 42.02916666666667,
+      "l": 105.9972009024716,
+      "b": 74.28774281114086,
+      "distance": 25896816.390709423,
+      "size": 94916.89573503369,
+      "type": "Spiral",
+      "morphologyClass": "SAbc",
+      "inclination": 55.15009542095351,
+      "redshift": 0.0016811630397986863
+    },
+    {
+      "id": "nearby-ngc5195",
+      "name": "NGC 5195",
+      "aliases": [
+        "NGC 5195"
+      ],
+      "preferredName": "NGC 5195",
+      "ra": 202.49458333333334,
+      "dec": 47.268055555555556,
+      "l": 104.890001090648,
+      "b": 68.48728346977867,
+      "distance": 26744822.972772952,
+      "size": 45122.58184804405,
+      "type": "Lenticular",
+      "morphologyClass": "SB0p",
+      "inclination": 0,
+      "redshift": 0.0018412738054937993
+    },
+    {
+      "id": "nearby-ngc5398",
+      "name": "NGC 5398",
+      "aliases": [
+        "NGC 5398"
+      ],
+      "preferredName": "NGC 5398",
+      "ra": 210.33875,
+      "dec": -33.06305555555555,
+      "l": 319.42750827554875,
+      "b": 27.55923931846851,
+      "distance": 24983578.533102542,
+      "size": 20348.800660480978,
+      "type": "Dwarf irregular",
+      "morphologyClass": "SBdm",
+      "inclination": 0,
+      "redshift": 0.004056139397609529
+    },
+    {
+      "id": "nearby-ngc5408",
+      "name": "NGC 5408",
+      "aliases": [
+        "NGC 5408"
+      ],
+      "preferredName": "NGC 5408",
+      "ra": 210.83708333333334,
+      "dec": -41.37777777777778,
+      "l": 317.15447330168996,
+      "b": 19.499498823826777,
+      "distance": 15655506.130403683,
+      "size": 7286.403545975165,
+      "type": "Dwarf irregular",
+      "morphologyClass": "IBm",
+      "inclination": 0,
+      "redshift": 0.001697841244558594
+    },
+    {
+      "id": "nearby-ngc5474",
+      "name": "NGC 5474",
+      "aliases": [
+        "NGC 5474"
+      ],
+      "preferredName": "NGC 5474",
+      "ra": 211.25666666666666,
+      "dec": 53.66222222222222,
+      "l": 100.83153273782354,
+      "b": 60.19443694353388,
+      "distance": 22178633.68473855,
+      "size": 30967.219542408686,
+      "type": "Spiral",
+      "morphologyClass": "SAcd",
+      "inclination": 26.38432974940796,
+      "redshift": 0.0009106299798909551
+    },
+    {
+      "id": "nearby-ngc5713",
+      "name": "NGC 5713",
+      "aliases": [
+        "NGC 5713"
+      ],
+      "preferredName": "NGC 5713",
+      "ra": 220.04791666666665,
+      "dec": -0.2891666666666667,
+      "l": 351.0233227482633,
+      "b": 52.12393975805856,
+      "distance": 69797464.83138308,
+      "size": 56849.12978254477,
+      "type": "Spiral",
+      "morphologyClass": "SABbcp",
+      "inclination": 26.765500576756093,
+      "redshift": 0.006281011912581204
+    },
+    {
+      "id": "nearby-ngc5866",
+      "name": "NGC 5866",
+      "aliases": [
+        "NGC 5866"
+      ],
+      "preferredName": "NGC 5866",
+      "ra": 226.62291666666667,
+      "dec": 55.763333333333335,
+      "l": 92.0341882861454,
+      "b": 52.48916171100998,
+      "distance": 49901925.79066174,
+      "size": 68224.65509734825,
+      "type": "Lenticular",
+      "morphologyClass": "S0",
+      "inclination": 0,
+      "redshift": 0.002308263538771212
+    },
+    {
+      "id": "nearby-ic4710",
+      "name": "IC 4710",
+      "aliases": [
+        "IC 4710"
+      ],
+      "preferredName": "IC 4710",
+      "ra": 277.1583333333333,
+      "dec": -66.98222222222222,
+      "l": 327.86758201027453,
+      "b": -22.65055393684087,
+      "distance": 27723292.105923187,
+      "size": 29031.766257505296,
+      "type": "Dwarf irregular",
+      "morphologyClass": "SBm",
+      "inclination": 0,
+      "redshift": 0.002471709945418307
+    },
+    {
+      "id": "nearby-ngc6946",
+      "name": "NGC 6946",
+      "aliases": [
+        "NGC 6946"
+      ],
+      "preferredName": "NGC 6946",
+      "ra": 308.71791666666667,
+      "dec": 60.153888888888886,
+      "l": 95.71889776125397,
+      "b": 11.672910363798954,
+      "distance": 22178633.68473855,
+      "size": 74192.35395410171,
+      "type": "Spiral",
+      "morphologyClass": "SABcd",
+      "inclination": 31.551090692888533,
+      "redshift": 0.00016011076569511298
+    },
+    {
+      "id": "nearby-ngc7331",
+      "name": "NGC 7331",
+      "aliases": [
+        "NGC 7331"
+      ],
+      "preferredName": "NGC 7331",
+      "ra": 339.26708333333335,
+      "dec": 34.41555555555556,
+      "l": 93.7219295420213,
+      "b": -20.724243851437492,
+      "distance": 47292674.76892779,
+      "size": 144447.36748341846,
+      "type": "Spiral",
+      "morphologyClass": "SAb",
+      "inclination": 69.36698587133557,
+      "redshift": 0.0027218830168169207
+    },
+    {
+      "id": "nearby-ngc7552",
+      "name": "NGC 7552",
+      "aliases": [
+        "NGC 7552"
+      ],
+      "preferredName": "NGC 7552",
+      "ra": 349.0458333333333,
+      "dec": -42.58305555555556,
+      "l": 348.14741079203367,
+      "b": -65.23744022499642,
+      "distance": 72732872.23083377,
+      "size": 71934.2645723602,
+      "type": "Spiral",
+      "morphologyClass": "SAc",
+      "inclination": 37.42800554304254,
+      "redshift": 0.00528699090889071
+    },
+    {
+      "id": "nearby-ngc7793",
+      "name": "NGC 7793",
+      "aliases": [
+        "NGC 7793"
+      ],
+      "preferredName": "NGC 7793",
+      "ra": 359.4575,
+      "dec": -32.59111111111111,
+      "l": 4.515389419003765,
+      "b": -77.1712816014604,
+      "distance": 12752714.368724667,
+      "size": 34499.43345675191,
+      "type": "Spiral",
+      "morphologyClass": "SAd",
+      "inclination": 47.35769002006005,
+      "redshift": 0.0007671974189557497
+    },
+    {
+      "id": "nearby-seguei",
+      "name": "Segue I",
+      "aliases": [
+        "Segue I"
+      ],
+      "preferredName": "Segue I",
+      "ra": 151.76666666666668,
+      "dec": 16.081944444444446,
+      "l": 220.47814814634407,
+      "b": 50.42582731117798,
+      "distance": 75015.96687485097,
+      "size": 384.0550188306368,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 85,
+      "redshift": 0.000695481138488147
+    },
+    {
+      "id": "nearby-ursamajorii",
+      "name": "Ursa Major II",
+      "aliases": [
+        "Ursa Major II"
+      ],
+      "preferredName": "Ursa Major II",
+      "ra": 132.875,
+      "dec": 63.13,
+      "l": 152.4642490552949,
+      "b": 37.44289813781247,
+      "distance": 104370.04086935788,
+      "size": 1943.0970318460134,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 98,
+      "redshift": -0.00038860217090584714
+    },
+    {
+      "id": "nearby-bootesii",
+      "name": "Boötes II",
+      "aliases": [
+        "Bootes II"
+      ],
+      "preferredName": "Boötes II",
+      "ra": 209.5,
+      "dec": 12.85,
+      "l": 353.69401582175993,
+      "b": 68.87087995411986,
+      "distance": 136985.67864103222,
+      "size": 669.439645999485,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 145,
+      "redshift": -0.0003902699913818379
+    },
+    {
+      "id": "nearby-segueii",
+      "name": "Segue II",
+      "aliases": [
+        "Segue II"
+      ],
+      "preferredName": "Segue II",
+      "ra": 34.81666666666666,
+      "dec": 20.17527777777778,
+      "l": 149.43285202225752,
+      "b": -38.135175455654576,
+      "distance": 114154.73220086018,
+      "size": 451.6058006151678,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 2,
+      "redshift": -0.00013075712531767562
+    },
+    {
+      "id": "nearby-comaberenicesdwarf",
+      "name": "Coma Berenices Dwarf",
+      "aliases": [
+        "Coma Berenices Dwarf"
+      ],
+      "preferredName": "Coma Berenices Dwarf",
+      "ra": 186.74583333333334,
+      "dec": 23.904166666666665,
+      "l": 241.88668737674374,
+      "b": 83.6111900538185,
+      "distance": 143508.8061953671,
+      "size": 1001.8845387093172,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 115,
+      "redshift": 0.00032722637738938717
+    },
+    {
+      "id": "nearby-bootesi",
+      "name": "Boötes I",
+      "aliases": [
+        "Bootes I"
+      ],
+      "preferredName": "Boötes I",
+      "ra": 210.025,
+      "dec": 14.5,
+      "l": 358.0818057186881,
+      "b": 69.62406696209727,
+      "distance": 215263.20929305063,
+      "size": 3155.9800074335703,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 14,
+      "redshift": 0.00033022845424617053
+    },
+    {
+      "id": "nearby-ursamajori",
+      "name": "Ursa Major I",
+      "aliases": [
+        "Ursa Major I"
+      ],
+      "preferredName": "Ursa Major I",
+      "ra": 158.72,
+      "dec": 51.919999999999995,
+      "l": 159.43107689540878,
+      "b": 54.41432661478072,
+      "distance": 316371.68638524105,
+      "size": 4159.761375565792,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 71,
+      "redshift": -0.0001844609446445781
+    },
+    {
+      "id": "nearby-herculesdwarf",
+      "name": "Hercules Dwarf",
+      "aliases": [
+        "Hercules Dwarf"
+      ],
+      "preferredName": "Hercules Dwarf",
+      "ra": 247.7583333333333,
+      "dec": 12.791666666666666,
+      "l": 28.72801886702491,
+      "b": 36.871265845400465,
+      "distance": 430526.41858610127,
+      "size": 4308.121966944393,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 102,
+      "redshift": 0.00015077097102956475
+    },
+    {
+      "id": "nearby-leoiv",
+      "name": "Leo IV",
+      "aliases": [
+        "Leo IV"
+      ],
+      "preferredName": "Leo IV",
+      "ra": 173.23749999999998,
+      "dec": -0.5333333333333333,
+      "l": 265.44133184617857,
+      "b": 56.51440623781906,
+      "distance": 502280.8216837848,
+      "size": 2688.3856777688875,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 121,
+      "redshift": 0.00044130529794715525
+    },
+    {
+      "id": "nearby-canesvenaticiii",
+      "name": "Canes Venatici II",
+      "aliases": [
+        "Canes Venatici II"
+      ],
+      "preferredName": "Canes Venatici II",
+      "ra": 194.29166666666666,
+      "dec": 34.32083333333334,
+      "l": 113.57856563771496,
+      "b": 82.70309138095264,
+      "distance": 521850.2043467894,
+      "size": 971.5207358563893,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 177,
+      "redshift": -0.00042996411871041803
+    },
+    {
+      "id": "nearby-leov",
+      "name": "Leo V",
+      "aliases": [
+        "Leo V"
+      ],
+      "preferredName": "Leo V",
+      "ra": 172.79000000000002,
+      "dec": 2.22,
+      "l": 261.8624300568809,
+      "b": 58.53743376828486,
+      "distance": 580558.3523358032,
+      "size": 1756.328162525699,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 96,
+      "redshift": 0.0005780665769783976
+    },
+    {
+      "id": "nearby-canesvenaticii",
+      "name": "Canes Venatici I",
+      "aliases": [
+        "Canes Venatici I"
+      ],
+      "preferredName": "Canes Venatici I",
+      "ra": 202.01458333333332,
+      "dec": 33.55583333333333,
+      "l": 74.30575874951187,
+      "b": 79.82286377178191,
+      "distance": 711020.9034225006,
+      "size": 7363.12825161542,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 70,
+      "redshift": 0.00010307130541622899
+    },
+    {
+      "id": "nearby-andromedai",
+      "name": "Andromeda I",
+      "aliases": [
+        "Andromeda I"
+      ],
+      "preferredName": "Andromeda I",
+      "ra": 11.415833333333333,
+      "dec": 38.04111111111111,
+      "l": 121.67930734855011,
+      "b": -24.816593871797448,
+      "distance": 2429865.013989738,
+      "size": 8764.566109768466,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 22,
+      "redshift": -0.0012535338697546555
+    },
+    {
+      "id": "nearby-andromedaii",
+      "name": "Andromeda II",
+      "aliases": [
+        "Andromeda II"
+      ],
+      "preferredName": "Andromeda II",
+      "ra": 19.124166666666667,
+      "dec": 33.41916666666666,
+      "l": 128.91873284848373,
+      "b": -29.161117469188213,
+      "distance": 2126539.5827131667,
+      "size": 15340.981720416588,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 34,
+      "redshift": -0.0006457800883036224
+    },
+    {
+      "id": "nearby-andromedaiii",
+      "name": "Andromeda III",
+      "aliases": [
+        "Andromeda III"
+      ],
+      "preferredName": "Andromeda III",
+      "ra": 8.890833333333333,
+      "dec": 36.49777777777778,
+      "l": 119.3748863080968,
+      "b": -26.264308733568544,
+      "distance": 2439649.7053212402,
+      "size": 6245.058336609479,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 136,
+      "redshift": -0.0011527975130048137
+    },
+    {
+      "id": "nearby-andromedav",
+      "name": "Andromeda V",
+      "aliases": [
+        "Andromeda V"
+      ],
+      "preferredName": "Andromeda V",
+      "ra": 17.571250000000003,
+      "dec": 47.628055555555555,
+      "l": 126.21939394247586,
+      "b": -15.123354975164375,
+      "distance": 2521188.7997504263,
+      "size": 4106.951832706895,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 32,
+      "redshift": -0.0013442633036485528
+    },
+    {
+      "id": "nearby-andromedavi",
+      "name": "Andromeda VI",
+      "aliases": [
+        "Andromeda VI"
+      ],
+      "preferredName": "Andromeda VI",
+      "ra": 357.9429166666667,
+      "dec": 24.5825,
+      "l": 106.04158971432108,
+      "b": -36.32458885676845,
+      "distance": 2553804.4375221008,
+      "size": 6834.422781594492,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 163,
+      "redshift": -0.0011808168970014583
+    },
+    {
+      "id": "nearby-andromedavii",
+      "name": "Andromeda VII",
+      "aliases": [
+        "Andromeda VII"
+      ],
+      "preferredName": "Andromeda VII",
+      "ra": 351.6320833333333,
+      "dec": 50.67583333333333,
+      "l": 109.46059372731332,
+      "b": -9.961635766371188,
+      "distance": 2485311.5982015845,
+      "size": 10121.283731108486,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 94,
+      "redshift": -0.0010320473105430825
+    },
+    {
+      "id": "nearby-andromedax",
+      "name": "Andromeda X",
+      "aliases": [
+        "Andromeda X"
+      ],
+      "preferredName": "Andromeda X",
+      "ra": 16.640416666666667,
+      "dec": 44.80444444444444,
+      "l": 125.75145309757727,
+      "b": -17.984493692905954,
+      "distance": 2286356.207794371,
+      "size": 3458.3857800200153,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 46,
+      "redshift": -0.0005463779879345731
+    },
+    {
+      "id": "nearby-andromedaxi",
+      "name": "Andromeda XI",
+      "aliases": [
+        "Andromeda XI"
+      ],
+      "preferredName": "Andromeda XI",
+      "ra": 11.583333333333334,
+      "dec": 33.80138888888889,
+      "l": 121.7187849934223,
+      "b": -29.058337023821707,
+      "distance": 2475526.906870082,
+      "size": 2045.0886246495177,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "redshift": -0.0013996349434514462
+    },
+    {
+      "id": "nearby-andromedaxii",
+      "name": "Andromeda XII",
+      "aliases": [
+        "Andromeda XII"
+      ],
+      "preferredName": "Andromeda XII",
+      "ra": 11.862499999999999,
+      "dec": 34.374722222222225,
+      "l": 121.99567800913672,
+      "b": -28.489778200705558,
+      "distance": 2840822.049912835,
+      "size": 3966.5365031526417,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "redshift": -0.001862621907586481
+    },
+    {
+      "id": "nearby-andromedaxiii",
+      "name": "Andromeda XIII",
+      "aliases": [
+        "Andromeda XIII"
+      ],
+      "preferredName": "Andromeda XIII",
+      "ra": 12.9625,
+      "dec": 33.004444444444445,
+      "l": 123.03154788794524,
+      "b": -29.86722584164658,
+      "distance": 2974546.1647766996,
+      "size": 2699.612650354659,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "redshift": -0.0006504499856363965
+    },
+    {
+      "id": "nearby-andromedaxiv",
+      "name": "Andromeda XIV",
+      "aliases": [
+        "Andromeda XIV"
+      ],
+      "preferredName": "Andromeda XIV",
+      "ra": 12.895833333333332,
+      "dec": 29.696944444444444,
+      "l": 122.969648098908,
+      "b": -33.174794903320624,
+      "distance": 2397249.3762180638,
+      "size": 4741.856268155765,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "redshift": -0.0016044432979031114
+    },
+    {
+      "id": "nearby-andromedaxv",
+      "name": "Andromeda XV",
+      "aliases": [
+        "Andromeda XV"
+      ],
+      "preferredName": "Andromeda XV",
+      "ra": 18.577916666666667,
+      "dec": 38.1175,
+      "l": 127.87532896734332,
+      "b": -24.534596359766173,
+      "distance": 2058046.7433926507,
+      "size": 2897.5222864107513,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "redshift": -0.0011307822827217354
+    },
+    {
+      "id": "nearby-andromedaxvi",
+      "name": "Andromeda XVI",
+      "aliases": [
+        "Andromeda XVI"
+      ],
+      "preferredName": "Andromeda XVI",
+      "ra": 14.874166666666667,
+      "dec": 32.376666666666665,
+      "l": 124.90591992603677,
+      "b": -30.4641936164717,
+      "distance": 1712320.9830129028,
+      "size": 1773.2147394019128,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "redshift": -0.0012842217665128854
+    },
+    {
+      "id": "nearby-lgs3",
+      "name": "LGS 3",
+      "aliases": [
+        "LGS 3"
+      ],
+      "preferredName": "LGS 3",
+      "ra": 15.979166666666666,
+      "dec": 21.884999999999998,
+      "l": 126.76245499591539,
+      "b": -40.893919496272105,
+      "distance": 2508142.5446417565,
+      "size": 6128.551421079372,
+      "type": "Transition dwarf irregular",
+      "morphologyClass": "dIrr/dSph",
+      "inclination": 0,
+      "redshift": -0.0009556611327427056
+    },
+    {
+      "id": "nearby-phoenixdwarf",
+      "name": "Phoenix Dwarf",
+      "aliases": [
+        "Phoenix Dwarf"
+      ],
+      "preferredName": "Phoenix Dwarf",
+      "ra": 27.77625,
+      "dec": -44.44472222222222,
+      "l": 272.1591171068346,
+      "b": -68.94934888536578,
+      "distance": 1353548.967524485,
+      "size": 5921.730220240825,
+      "type": "Transition dwarf irregular",
+      "morphologyClass": "dIrr/dSph",
+      "inclination": 0,
+      "posAngle": 5,
+      "redshift": -0.000043363332375759766
+    },
+    {
+      "id": "nearby-cetusdwarf",
+      "name": "Cetus Dwarf",
+      "aliases": [
+        "Cetus Dwarf"
+      ],
+      "preferredName": "Cetus Dwarf",
+      "ra": 6.545833333333333,
+      "dec": -11.044444444444444,
+      "l": 101.4548267664657,
+      "b": -72.85455859252983,
+      "distance": 2462480.6517614126,
+      "size": 9168.734889058478,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 63,
+      "redshift": -0.0002902007628223923
+    },
+    {
+      "id": "nearby-pegasusdwarfirregular",
+      "name": "Pegasus Dwarf Irregular",
+      "aliases": [
+        "Pegasus Dwarf Irregular",
+        "DDO 216"
+      ],
+      "preferredName": "Pegasus Dwarf Irregular",
+      "ra": 352.15125,
+      "dec": 14.743055555555555,
+      "l": 94.77689108740772,
+      "b": -43.55414328664,
+      "distance": 3000638.674994039,
+      "size": 7331.9470837360495,
+      "type": "Transition dwarf irregular",
+      "morphologyClass": "dIrr/dSph",
+      "inclination": 0,
+      "posAngle": 120,
+      "redshift": -0.0006114229864982128
+    },
+    {
+      "id": "nearby-leot",
+      "name": "Leo T",
+      "aliases": [
+        "Leo T"
+      ],
+      "preferredName": "Leo T",
+      "ra": 143.7225,
+      "dec": 17.05138888888889,
+      "l": 214.85240332536867,
+      "b": 43.660938897990924,
+      "distance": 1360072.09507882,
+      "size": 1566.6907573976976,
+      "type": "Transition dwarf irregular",
+      "morphologyClass": "dIrr/dSph",
+      "inclination": 0,
+      "redshift": 0.00012708792027049594
+    },
+    {
+      "id": "nearby-leoa",
+      "name": "Leo A",
+      "aliases": [
+        "Leo A"
+      ],
+      "preferredName": "Leo A",
+      "ra": 149.86041666666665,
+      "dec": 30.74638888888889,
+      "l": 196.90363813443997,
+      "b": 52.42261608973208,
+      "distance": 2602727.894179612,
+      "size": 6511.087946765913,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 114,
+      "redshift": 0.00007438479322918791
+    },
+    {
+      "id": "nearby-aquariusdwarf",
+      "name": "Aquarius Dwarf",
+      "aliases": [
+        "Aquarius Dwarf",
+        "DDO 210"
+      ],
+      "preferredName": "Aquarius Dwarf",
+      "ra": 311.7158333333333,
+      "dec": -12.848055555555556,
+      "l": 34.04908272613464,
+      "b": -31.34321722396407,
+      "distance": 3496396.369123489,
+      "size": 5980.317060380337,
+      "type": "Transition dwarf irregular",
+      "morphologyClass": "dIrr/dSph",
+      "inclination": 0,
+      "posAngle": 99,
+      "redshift": -0.0004693246819437999
+    },
+    {
+      "id": "nearby-tucanadwarf",
+      "name": "Tucana Dwarf",
+      "aliases": [
+        "Tucana Dwarf"
+      ],
+      "preferredName": "Tucana Dwarf",
+      "ra": 340.4566666666667,
+      "dec": -64.41944444444445,
+      "l": 322.9082629409113,
+      "b": -47.369360910936734,
+      "distance": 2893007.0703475135,
+      "size": 3702.7837406237277,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "posAngle": 97,
+      "redshift": 0.000647114344684415
+    },
+    {
+      "id": "nearby-sagittariusdwarfirregular",
+      "name": "Sagittarius Dwarf Irregular",
+      "aliases": [
+        "Sagittarius Dwarf Irregular",
+        "SagDIG"
+      ],
+      "preferredName": "Sagittarius Dwarf Irregular",
+      "ra": 292.4958333333334,
+      "dec": -17.678055555555556,
+      "l": 21.056006042582776,
+      "b": -16.284771625425446,
+      "distance": 3480088.550237652,
+      "size": 3684.833220995248,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 90,
+      "redshift": -0.00026184781473054936
+    },
+    {
+      "id": "nearby-ugc4879",
+      "name": "UGC 4879",
+      "aliases": [
+        "UGC 4879"
+      ],
+      "preferredName": "UGC 4879",
+      "ra": 139.00916666666666,
+      "dec": 52.84,
+      "l": 164.6652325628619,
+      "b": 42.88431473240017,
+      "distance": 4438988.300724877,
+      "size": 2117.648982502719,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 84,
+      "redshift": -0.00023349486663870643
+    },
+    {
+      "id": "nearby-ngc3109",
+      "name": "NGC 3109",
+      "aliases": [
+        "NGC 3109"
+      ],
+      "preferredName": "NGC 3109",
+      "ra": 150.77875,
+      "dec": -26.15972222222222,
+      "l": 262.1018146016731,
+      "b": 23.07011607585098,
+      "distance": 4240032.910317664,
+      "size": 21214.104195038777,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 92,
+      "redshift": 0.0013442633036485528
+    },
+    {
+      "id": "nearby-sextansb",
+      "name": "Sextans B",
+      "aliases": [
+        "Sextans B"
+      ],
+      "preferredName": "Sextans B",
+      "ra": 150.00041666666667,
+      "dec": 5.332222222222222,
+      "l": 233.20006677817375,
+      "b": 43.78378007072968,
+      "distance": 4650989.94624076,
+      "size": 5736.373615270258,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 110,
+      "redshift": 0.0010140348494023822
+    },
+    {
+      "id": "nearby-antliadwarf",
+      "name": "Antlia Dwarf",
+      "aliases": [
+        "Antlia Dwarf"
+      ],
+      "preferredName": "Antlia Dwarf",
+      "ra": 151.01708333333332,
+      "dec": -27.33111111111111,
+      "l": 263.0970633229452,
+      "b": 22.312255239710673,
+      "distance": 4399849.535398868,
+      "size": 6143.349876869016,
+      "type": "Transition dwarf irregular",
+      "morphologyClass": "dIrr/dSph",
+      "inclination": 0,
+      "posAngle": 135,
+      "redshift": 0.0012075020246173104
+    },
+    {
+      "id": "nearby-sextansa",
+      "name": "Sextans A",
+      "aliases": [
+        "Sextans A"
+      ],
+      "preferredName": "Sextans A",
+      "ra": 152.75333333333333,
+      "dec": -4.692777777777778,
+      "l": 246.14818581999037,
+      "b": 39.87554624008174,
+      "distance": 4670559.328903765,
+      "size": 13423.082329379753,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 0,
+      "redshift": 0.0010807476684420126
+    },
+    {
+      "id": "nearby-kkr25",
+      "name": "KKR 25",
+      "aliases": [
+        "KKR 25"
+      ],
+      "preferredName": "KKR 25",
+      "ra": 243.44999999999996,
+      "dec": 54.37111111111111,
+      "l": 83.87890668162743,
+      "b": 44.408352029488505,
+      "distance": 6213278.995503961,
+      "size": 2891.791407308893,
+      "type": "Dwarf spheroidal",
+      "morphologyClass": "dSph",
+      "inclination": 0,
+      "redshift": -0.0004653219128014221
+    },
+    {
+      "id": "nearby-ngc55",
+      "name": "NGC 55",
+      "aliases": [
+        "NGC 55"
+      ],
+      "preferredName": "NGC 55",
+      "ra": 3.7233333333333336,
+      "dec": -39.196666666666665,
+      "l": 332.88196804399354,
+      "b": -75.7308726580321,
+      "distance": 6301341.217487482,
+      "size": 37832.941776379135,
+      "type": "Magellanic irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 108,
+      "redshift": 0.00043029768280561614
+    },
+    {
+      "id": "nearby-eso294g010",
+      "name": "ESO 294-G010",
+      "aliases": [
+        "ESO 294-G010"
+      ],
+      "preferredName": "ESO 294-G010",
+      "ra": 6.639166666666667,
+      "dec": -41.85527777777778,
+      "l": 320.41566192125435,
+      "b": -74.41762361241447,
+      "distance": 6627497.595204226,
+      "size": 3238.806382178623,
+      "type": "Transition dwarf irregular",
+      "morphologyClass": "dIrr/dSph",
+      "inclination": 0,
+      "posAngle": 8,
+      "redshift": 0.0003902699913818379
+    },
+    {
+      "id": "nearby-ngc300",
+      "name": "NGC 300",
+      "aliases": [
+        "NGC 300"
+      ],
+      "preferredName": "NGC 300",
+      "ra": 13.722916666666666,
+      "dec": -37.68444444444444,
+      "l": 299.20825846358144,
+      "b": -79.41882271183219,
+      "distance": 6784052.656508262,
+      "size": 39468.12981608506,
+      "type": "Spiral",
+      "morphologyClass": "SA(s)d",
+      "inclination": 44.765084671328424,
+      "posAngle": 111,
+      "redshift": 0.00048700357898930204
+    },
+    {
+      "id": "nearby-ic5152",
+      "name": "IC 5152",
+      "aliases": [
+        "IC 5152"
+      ],
+      "preferredName": "IC 5152",
+      "ra": 330.6729166666667,
+      "dec": -51.296388888888885,
+      "l": 343.91906013047674,
+      "b": -50.19187498576575,
+      "distance": 6360049.365476496,
+      "size": 7178.24662575842,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 100,
+      "redshift": 0.0004069481961417455
+    },
+    {
+      "id": "nearby-kkh98",
+      "name": "KKH 98",
+      "aliases": [
+        "KKH 98"
+      ],
+      "preferredName": "KKH 98",
+      "ra": 356.39166666666665,
+      "dec": 38.717777777777776,
+      "l": 109.09313921721497,
+      "b": -22.377372963682454,
+      "distance": 8228925.409793436,
+      "size": 6127.865554726966,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 175,
+      "redshift": -0.0004566492463262702
+    },
+    {
+      "id": "nearby-uks2323326",
+      "name": "UKS 2323-326",
+      "aliases": [
+        "UKS 2323-326"
+      ],
+      "preferredName": "UKS 2323-326",
+      "ra": 351.6145833333333,
+      "dec": -32.388888888888886,
+      "l": 11.866997293768494,
+      "b": -70.85886804779427,
+      "distance": 7201532.819985693,
+      "size": 7541.428223126081,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 120,
+      "redshift": 0.00020680973902285427
+    },
+    {
+      "id": "nearby-kkr3",
+      "name": "KKR 3",
+      "aliases": [
+        "KKR 3"
+      ],
+      "preferredName": "KKR 3",
+      "ra": 211.79375,
+      "dec": 35.06027777777778,
+      "l": 63.709869555417754,
+      "b": 71.99221113830421,
+      "distance": 7136301.544442345,
+      "size": 2989.247044483892,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 0,
+      "redshift": 0.00021114607226043025
+    },
+    {
+      "id": "nearby-gr8",
+      "name": "GR 8",
+      "aliases": [
+        "GR 8"
+      ],
+      "preferredName": "GR 8",
+      "ra": 194.66833333333335,
+      "dec": 14.2175,
+      "l": 310.73747061273997,
+      "b": 76.97946737969191,
+      "distance": 7103685.906670671,
+      "size": 2644.96447000067,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 61,
+      "redshift": 0.0007134935996288473
+    },
+    {
+      "id": "nearby-ugc9128",
+      "name": "UGC 9128",
+      "aliases": [
+        "UGC 9128"
+      ],
+      "preferredName": "UGC 9128",
+      "ra": 213.98541666666665,
+      "dec": 23.05527777777778,
+      "l": 25.57323343774283,
+      "b": 70.4648199286582,
+      "distance": 7472242.613490591,
+      "size": 5564.38366463713,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 46,
+      "redshift": 0.0005070174247011911
+    },
+    {
+      "id": "nearby-ugc8508",
+      "name": "UGC 8508",
+      "aliases": [
+        "UGC 8508"
+      ],
+      "preferredName": "UGC 8508",
+      "ra": 202.685,
+      "dec": 54.91,
+      "l": 111.1410634561601,
+      "b": 61.30941052572255,
+      "distance": 8421357.672646314,
+      "size": 4115.4518104257895,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 120,
+      "redshift": 0.00018679589331096515
+    },
+    {
+      "id": "nearby-ic3104",
+      "name": "IC 3104",
+      "aliases": [
+        "IC 3104"
+      ],
+      "preferredName": "IC 3104",
+      "ra": 184.6916666666667,
+      "dec": -79.72611111111111,
+      "l": 301.4139721118787,
+      "b": -16.950781441876924,
+      "distance": 7403749.774170075,
+      "size": 17315.462506657106,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 45,
+      "redshift": 0.0014309899684000723
+    },
+    {
+      "id": "nearby-ddo125",
+      "name": "DDO 125",
+      "aliases": [
+        "DDO 125"
+      ],
+      "preferredName": "DDO 125",
+      "ra": 186.92041666666665,
+      "dec": 43.495555555555555,
+      "l": 137.75802203087625,
+      "b": 72.94224508161427,
+      "distance": 8421357.672646314,
+      "size": 10190.643618924983,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 112,
+      "redshift": 0.0006501164215411984
+    },
+    {
+      "id": "nearby-ugca86",
+      "name": "UGCA 86",
+      "aliases": [
+        "UGCA 86"
+      ],
+      "preferredName": "UGCA 86",
+      "ra": 59.95125,
+      "dec": 67.13861111111112,
+      "l": 139.7624620970796,
+      "b": 10.647170932302759,
+      "distance": 9670536.59930144,
+      "size": 10577.050510872921,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 25,
+      "redshift": 0.00022348794378276187
+    },
+    {
+      "id": "nearby-ddo99",
+      "name": "DDO 99",
+      "aliases": [
+        "DDO 99"
+      ],
+      "preferredName": "DDO 99",
+      "ra": 177.72083333333333,
+      "dec": 38.88027777777778,
+      "l": 166.19759090940082,
+      "b": 72.74520838272012,
+      "distance": 8460496.437972324,
+      "size": 8859.811961408088,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 70,
+      "redshift": 0.0008372458789473616
+    },
+    {
+      "id": "nearby-ic4662",
+      "name": "IC 4662",
+      "aliases": [
+        "IC 4662"
+      ],
+      "preferredName": "IC 4662",
+      "ra": 266.7866666666667,
+      "dec": -64.64166666666668,
+      "l": 328.5486104119706,
+      "b": -17.849647575322827,
+      "distance": 7968000.30762004,
+      "size": 4450.171001050336,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 111,
+      "redshift": 0.0010073635674984192
+    },
+    {
+      "id": "nearby-ddo190",
+      "name": "DDO 190",
+      "aliases": [
+        "DDO 190"
+      ],
+      "preferredName": "DDO 190",
+      "ra": 216.18083333333334,
+      "dec": 44.52583333333333,
+      "l": 82.00853451707701,
+      "b": 64.47712630646232,
+      "distance": 9109547.629628642,
+      "size": 6783.641892331516,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 82,
+      "redshift": 0.0005003461427972281
+    },
+    {
+      "id": "nearby-kkh86",
+      "name": "KKH 86",
+      "aliases": [
+        "KKH 86"
+      ],
+      "preferredName": "KKH 86",
+      "ra": 208.63958333333332,
+      "dec": 4.243055555555555,
+      "l": 339.04372575215876,
+      "b": 62.60261922200531,
+      "distance": 8421357.672646314,
+      "size": 2743.634509948908,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 177,
+      "redshift": 0.0009579960814090927
+    },
+    {
+      "id": "nearby-ngc4163",
+      "name": "NGC 4163",
+      "aliases": [
+        "NGC 4163"
+      ],
+      "preferredName": "NGC 4163",
+      "ra": 183.03791666666663,
+      "dec": 36.16916666666666,
+      "l": 163.20447941587145,
+      "b": 77.70020712204071,
+      "distance": 9321549.275144525,
+      "size": 4880.751898652037,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "posAngle": 11,
+      "redshift": 0.0005503807570769509
+    },
+    {
+      "id": "nearby-ddo113",
+      "name": "DDO 113",
+      "aliases": [
+        "DDO 113"
+      ],
+      "preferredName": "DDO 113",
+      "ra": 183.74124999999998,
+      "dec": 36.21888888888889,
+      "l": 161.1015899672821,
+      "b": 78.06045498063017,
+      "distance": 9624874.706421098,
+      "size": 7839.335606929422,
+      "type": "Dwarf irregular",
+      "morphologyClass": "dIrr",
+      "inclination": 0,
+      "redshift": 0.0009473220303627518
+    },
+    {
+      "id": "nearby-ic342",
+      "name": "IC 342",
+      "aliases": [
+        "IC 342"
+      ],
+      "preferredName": "IC 342",
+      "ra": 56.70214166666667,
+      "dec": 68.09610555555555,
+      "l": 138.17257605121674,
+      "b": 10.579851993424152,
+      "distance": 10697929.189109182,
+      "size": 66594.90625679634,
+      "type": "Spiral",
+      "morphologyClass": "SABcd",
+      "inclination": 20.83969366484445,
+      "redshift": 0.00010340486951142713
+    },
+    {
+      "id": "nearby-ngc2146",
+      "name": "NGC 2146",
+      "aliases": [
+        "NGC 2146"
+      ],
+      "preferredName": "NGC 2146",
+      "ra": 94.657125,
+      "dec": 78.35701944444443,
+      "l": 135.6534171372752,
+      "b": 24.896253261591934,
+      "distance": 56098896.96727986,
+      "size": 97911.07073612556,
+      "type": "Barred spiral",
+      "morphologyClass": "Sbab",
+      "inclination": 55.481892158938734,
+      "redshift": 0.002978727370119498
+    },
+    {
+      "id": "nearby-ngc3077",
+      "name": "NGC 3077",
+      "aliases": [
+        "NGC 3077"
+      ],
+      "preferredName": "NGC 3077",
+      "ra": 150.82945833333332,
+      "dec": 68.73394444444445,
+      "l": 141.89955125054055,
+      "b": 41.659817857315836,
+      "distance": 12491789.266551271,
+      "size": 19622.060729619338,
+      "type": "Dwarf irregular",
+      "morphologyClass": "I0pec",
+      "inclination": 0,
+      "redshift": 0.00004669897332774129
+    }
+  ]
+}

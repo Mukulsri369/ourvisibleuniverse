@@ -1,4 +1,4 @@
-import { NEARBY_GALAXIES } from "./galaxy-catalog";
+import { NEARBY_GALAXIES, getGalaxyByAnyName } from "./galaxy-catalog";
 import { gToXYZ } from "./galaxy-models";
 import { OBSERVED_OBJECTS, objectPosition } from "./observed-objects";
 import { EXTRA_HOSTS, MILKY_WAY } from "./object-hosts";
@@ -29,6 +29,12 @@ export const EXPLORER_GALAXIES: ExplorerGalaxy[] = [
         distance: g.distance,
         type: g.type,
         view: "overview" as const,
+        ...(g.catalogueEvidence
+          ? {
+              note: `${g.catalogueEvidence.edition}. Adopted distance; interior stars and intrinsic depth are reconstructed.`,
+              source: g.observationSource,
+            }
+          : {}),
       };
     },
   ),
@@ -55,5 +61,6 @@ export const EXPLORER_GALAXIES: ExplorerGalaxy[] = [
     }),
 ];
 export function explorerGalaxy(name: string) {
-  return EXPLORER_GALAXIES.find((g) => g.name === name);
+  const canonical = getGalaxyByAnyName(name)?.name ?? name;
+  return EXPLORER_GALAXIES.find((g) => g.name === canonical);
 }

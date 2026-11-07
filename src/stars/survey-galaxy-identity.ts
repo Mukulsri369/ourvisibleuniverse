@@ -8,7 +8,8 @@ const references = NEARBY_GALAXIES.map((g) => {
     x: Math.cos(b) * Math.cos(l),
     y: Math.cos(b) * Math.sin(l),
     z: Math.sin(b),
-    velocity: g.radialVelocityKmS ?? g.redshift * 299792.458,
+    velocity:
+      g.radialVelocityKmS ?? (g.redshift === undefined ? undefined : g.redshift * 299792.458),
   };
 });
 /** Conservative positional/velocity coincidence: prefer the named, independently measured node.
@@ -20,9 +21,13 @@ export function namedSurveyCounterpart(lDeg: number, bDeg: number, cz: number): 
     x = cosB * Math.cos(l),
     y = cosB * Math.sin(l),
     z = Math.sin(b);
+  let match: string | null = null;
   for (const g of references) {
-    if (Math.abs(cz - g.velocity) > 60) continue;
-    if (x * g.x + y * g.y + z * g.z > Math.cos(0.035 * radians)) return g.name;
+    if (g.velocity === undefined || Math.abs(cz - g.velocity) > 60) continue;
+    if (x * g.x + y * g.y + z * g.z > Math.cos((30 / 3600) * radians)) {
+      if (match) return null;
+      match = g.name;
+    }
   }
-  return null;
+  return match;
 }

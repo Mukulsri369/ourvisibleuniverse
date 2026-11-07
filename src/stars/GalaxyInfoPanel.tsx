@@ -1,3 +1,5 @@
+import { GalaxyCatalogueFacts } from "./GalaxyCatalogueFacts";
+import { formatGalaxyRedshift } from "./galaxy-measurement-format";
 import { GALAXY_REFERENCES } from "./galaxy-references";
 import { useState } from "react";
 import { HideablePanel, NasaResources } from "./NasaResources";
@@ -78,7 +80,7 @@ function overviewFor(name: string, type: string, distance: number, size: number)
   if (name === "Milky Way")
     return "Our home galaxy spans roughly 100,000 light-years. The Sun travels around its center within a barred spiral disk of stars, gas, and dust.";
   if (name === ANDROMEDA_NAME)
-    return "The Andromeda Galaxy is the largest member of the Local Group and our nearest large spiral, sweeping about 220,000 light-years across with roughly a trillion stars. It is approaching the Milky Way at some 110 km/s and will merge with it in about 4.5 billion years. Andromeda is the only galaxy beyond our own with a widely discussed planet candidate, PA-99-N2 b, found by gravitational microlensing.";
+    return "Andromeda is a major Local Group member and our nearest large spiral neighbour, with a displayed stellar extent of roughly 220,000 light-years. Its future merger with the Milky Way is uncertain: a 2025 Hubble/Gaia analysis found roughly equal chances of merger or no merger within the next 10 billion years. PA-99-N2 b remains an unconfirmed microlensing planet candidate.";
   const m = GALAXY_BY_NAME.get(name);
   if (m) return m.description;
   return `${name} is an observed ${type.toLowerCase()} galaxy about ${formatLy(distance)} away, spanning roughly ${formatLy(
@@ -120,7 +122,8 @@ export function GalaxyInfoPanel() {
       : (COSMOLOGICAL_MODELS[cosmologyModelKey] ?? COSMOLOGICAL_MODELS.planck2018);
 
   const z =
-    g?.redshift ?? (visit ? (visit.distance / 3.26156e6) * (cosmologyParams.h0 / 299792.458) : 0);
+    g?.redshift ??
+    (g ? 0 : visit ? (visit.distance / 3.26156e6) * (cosmologyParams.h0 / 299792.458) : 0);
   const cosmo = calculateCosmologicalDistances(Math.max(0, z), cosmologyParams);
 
   return (
@@ -134,7 +137,8 @@ export function GalaxyInfoPanel() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 440, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="pointer-events-auto fixed right-0 top-0 z-30 h-full w-full max-w-[420px] overflow-y-auto border-l border-white/10 p-6 text-white"
+              aria-label="Galaxy information"
+              className="galaxy-information-panel pointer-events-auto fixed right-0 top-0 z-30 h-full w-full max-w-[420px] overflow-y-auto border-l border-white/10 p-6 text-white"
               style={{
                 background: "rgba(8,10,24,0.85)",
                 backdropFilter: "blur(20px)",
@@ -230,7 +234,9 @@ export function GalaxyInfoPanel() {
                         : tab === "observation"
                           ? "Observation"
                           : tab === "cosmology"
-                            ? "Cosmology"
+                            ? g?.catalogueEvidence
+                              ? "Science"
+                              : "Cosmology"
                             : tab === "astrometry"
                               ? "Data"
                               : "Stars & Planets";
@@ -287,25 +293,37 @@ export function GalaxyInfoPanel() {
               {/* Tab 1: Overview */}
               {activeTab === "overview" && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4">
-                  <NasaResources
-                    name={visit.name}
-                    alt={[`${visit.type} galaxy Hubble`, "galaxy Hubble NASA"]}
-                  />
+                  {!g?.catalogueEvidence && (
+                    <NasaResources
+                      name={visit.name}
+                      alt={[`${visit.type} galaxy Hubble`, "galaxy Hubble NASA"]}
+                    />
+                  )}
 
                   <div className="mt-5 grid grid-cols-2 gap-y-3 gap-x-2 text-sm">
-                    <GStat label="Measured Distance" value={formatLy(visit.distance)} />
+                    <GStat
+                      label={g?.catalogueEvidence ? "Adopted distance" : "Measured Distance"}
+                      value={formatLy(visit.distance)}
+                    />
                     <GStat
                       label={
-                        visit.reconstructionNote || g?.measurements?.sizeDefinition === "half-light"
+                        visit.reconstructionNote ||
+                        g?.measurements?.sizeDefinition === "half-light" ||
+                        g?.catalogueEvidence?.sizeDefinition === "four-half-light-radii-envelope" ||
+                        g?.catalogueEvidence?.sizeDefinition === "Holmberg-or-profile-scale"
                           ? "Display envelope"
                           : "Physical Diameter"
                       }
                       value={formatLy(visit.size)}
                     />
                     <GStat
-                      label={g?.measurements ? "Light travel time (approx.)" : "Lookback Time"}
+                      label={
+                        g?.measurements || g?.catalogueEvidence
+                          ? "Light travel time (approx.)"
+                          : "Lookback Time"
+                      }
                       value={
-                        g?.measurements || z <= 0
+                        g?.measurements || g?.catalogueEvidence || z <= 0
                           ? `${formatLy(visit.distance).replace(" ly", " yr")}`
                           : `${cosmo.lookbackTimeGyr.toFixed(3)} Gyr`
                       }
@@ -316,13 +334,7 @@ export function GalaxyInfoPanel() {
                           ? "Velocity proxy (v/c)"
                           : "Redshift (z)"
                       }
-                      value={
-                        g
-                          ? g.redshift < 0
-                            ? `${g.redshift.toFixed(6)} (Blueshift)`
-                            : g.redshift.toFixed(g.redshift > 1 ? 3 : 5)
-                          : z.toFixed(4)
-                      }
+                      value={g ? formatGalaxyRedshift(g) : z.toFixed(4)}
                     />
                   </div>
 
@@ -330,10 +342,21 @@ export function GalaxyInfoPanel() {
 
                   <p className="text-xs leading-relaxed text-white/75">
                     {visit.reconstructionNote ??
+                      g?.uncertaintyNotes ??
                       overviewFor(visit.name, visit.type, visit.distance, visit.size)}
                   </p>
 
                   <div className="mt-4 rounded-lg border border-cyan-500/25 bg-cyan-950/30 p-3 text-[11px] leading-relaxed text-cyan-200/90">
+                    {visit.name === ANDROMEDA_NAME && (
+                      <a
+                        href="https://doi.org/10.1038/s41550-025-02563-1"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mb-2 inline-flex min-h-11 items-center underline underline-offset-4"
+                      >
+                        2025 study: a future Milky Way–Andromeda merger is uncertain ↗
+                      </a>
+                    )}
                     <strong className="text-cyan-300">Astrophysical Reconstruction:</strong> Stellar
                     depth, dust and unobserved viewing angles are reconstructed from the catalogue
                     morphology. Fine structures are illustrative; the most distant galaxies are
@@ -384,7 +407,9 @@ export function GalaxyInfoPanel() {
                   animate={{ opacity: 1 }}
                   className="mt-4 space-y-4"
                 >
-                  {g?.measurements ? (
+                  {g?.catalogueEvidence ? (
+                    <GalaxyCatalogueFacts galaxy={g} />
+                  ) : g?.measurements ? (
                     <div className="space-y-4 text-xs">
                       <div className="grid grid-cols-2 gap-4">
                         <GStat label="Adopted distance" value={formatLy(g.distance)} />
@@ -405,7 +430,7 @@ export function GalaxyInfoPanel() {
                               : "Not specified in this table"
                           }
                         />
-                        <GStat label="Velocity proxy (v/c)" value={g.redshift.toFixed(6)} />
+                        <GStat label="Velocity proxy (v/c)" value={formatGalaxyRedshift(g, 6)} />
                       </div>
                       <p className="leading-relaxed text-white/65">
                         Nearby galaxies have substantial local motions. Their velocity divided by
@@ -443,11 +468,7 @@ export function GalaxyInfoPanel() {
                           <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
                             <span className="text-white/60">Redshift (z)</span>
                             <span className="font-mono text-white font-medium">
-                              {g
-                                ? g.redshift < 0
-                                  ? `${g.redshift.toFixed(6)}`
-                                  : g.redshift.toFixed(5)
-                                : z.toFixed(4)}
+                              {g ? formatGalaxyRedshift(g) : z.toFixed(4)}
                             </span>
                           </div>
                           <div className="flex items-baseline justify-between rounded bg-white/[0.03] p-2">
@@ -583,13 +604,16 @@ export function GalaxyInfoPanel() {
                     {g?.angularDiameterArcmin && (
                       <div className="flex justify-between rounded bg-white/[0.03] p-2">
                         <span className="text-white/60">
-                          {g.measurements?.sizeDefinition === "half-light"
+                          {g.measurements?.sizeDefinition === "half-light" ||
+                          g.catalogueEvidence?.sizeDefinition === "four-half-light-radii-envelope"
                             ? "Display envelope (4rₕ)"
                             : "Angular Extent"}
                         </span>
                         <span className="text-white">
-                          {g.angularDiameterArcmin.major}&apos; × {g.angularDiameterArcmin.minor}
-                          &apos;
+                          {g.angularDiameterArcmin.major.toPrecision(3)}&apos;
+                          {g.angularDiameterArcmin.minor === undefined
+                            ? " (minor axis unknown)"
+                            : ` × ${g.angularDiameterArcmin.minor.toPrecision(3)}′`}
                         </span>
                       </div>
                     )}

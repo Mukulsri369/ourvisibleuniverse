@@ -665,7 +665,7 @@ export const GUIDED_JOURNEY_STEPS: GuidedJourneyStep[] = [
     redshiftText: "z ≈ -0.001 to +0.001",
     cosmicEpoch: "Present Epoch Bound Structure",
     scientificDescription:
-      "A gravitationally bound cluster of 80+ galaxies dominated by two behemoths: the Milky Way and Andromeda (M31, 2.537 Mly). M31 is approaching us at ~300 km/s (negative redshift) and will merge with the Milky Way in ~4.5 billion years.",
+      "The Local Group is a galaxy association dominated by the Milky Way and Andromeda (M31, about 2.54 million light-years away). M31 has a heliocentric radial velocity of about -300 km/s. A future merger is uncertain: a 2025 Hubble/Gaia analysis found roughly a 50% merger probability within the next 10 billion years.",
     keyPhenomena: [
       "Milky Way – Andromeda gravitational infall",
       "Triangulum (M33) and dwarf spheroidal satellites",

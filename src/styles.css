@@ -2,6 +2,13 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* The full-width mobile information panel owns its close/hide controls. */
+@media (max-width: 639px) {
+  body:has(.galaxy-information-panel) .galaxy-explorer-shortcuts {
+    display: none;
+  }
+}
+
 @utility bg-hero-overlay {
   background:
     linear-gradient(

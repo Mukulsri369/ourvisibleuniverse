@@ -1,0 +1,115 @@
+{
+  "source": "https://heasarc.gsfc.nasa.gov/W3Browse/galaxy-catalog/neargalcat.html",
+  "note": "Independent HEASARC Galactic coordinates and distances; Cartesian separations calculated directly from those published fields, without application coordinate functions.",
+  "galaxies": [
+    {
+      "name": "ESO409-015",
+      "sourceRow": "ESO409-015",
+      "ra": 1.3825,
+      "dec": -28.09805556,
+      "l": 24.83585145,
+      "b": -79.78801029,
+      "distanceMpc": 7.7
+    },
+    {
+      "name": "UGC 12894",
+      "sourceRow": "UGC12894",
+      "ra": 0.09375,
+      "dec": 39.49555556,
+      "l": 112.31019401,
+      "b": -22.32070429,
+      "distanceMpc": 8.47
+    },
+    {
+      "name": "HIPASS J0607-34",
+      "sourceRow": "HIPASS J0607-34",
+      "ra": 91.83208333,
+      "dec": -34.20444444,
+      "l": 240.74156537,
+      "b": -23.3983331,
+      "distanceMpc": 7.4
+    },
+    {
+      "name": "UGC 3475",
+      "sourceRow": "UGC03475",
+      "ra": 97.62,
+      "dec": 39.50388889,
+      "l": 175.02601258,
+      "b": 13.14150436,
+      "distanceMpc": 20
+    },
+    {
+      "name": "ESO321-014",
+      "sourceRow": "ESO321-014",
+      "ra": 183.45666667,
+      "dec": -38.23138889,
+      "l": 294.85323822,
+      "b": 24.04965027,
+      "distanceMpc": 3.18
+    },
+    {
+      "name": "KUG 1157+315",
+      "sourceRow": "KUG 1157+315",
+      "ra": 180.0675,
+      "dec": 31.225,
+      "l": 189.73998756,
+      "b": 78.11293959,
+      "distanceMpc": 23.2
+    },
+    {
+      "name": "NGC 6684",
+      "sourceRow": "NGC6684",
+      "ra": 282.24125,
+      "dec": -65.17333333,
+      "l": 330.33682752,
+      "b": -24.19294574,
+      "distanceMpc": 8.7
+    },
+    {
+      "name": "NGC 6789",
+      "sourceRow": "NGC6789",
+      "ra": 289.17416667,
+      "dec": 63.97277778,
+      "l": 94.97486788,
+      "b": 21.51759974,
+      "distanceMpc": 3.63
+    }
+  ],
+  "pairs": [
+    {
+      "a": "ESO409-015",
+      "b": "UGC 12894",
+      "separationLy": 29414505.794295486
+    },
+    {
+      "a": "UGC 12894",
+      "b": "HIPASS J0607-34",
+      "separationLy": 42991701.20130883
+    },
+    {
+      "a": "HIPASS J0607-34",
+      "b": "UGC 3475",
+      "separationLy": 62964817.23868203
+    },
+    {
+      "a": "UGC 3475",
+      "b": "ESO321-014",
+      "separationLy": 69540116.9855084
+    },
+    {
+      "a": "ESO321-014",
+      "b": "KUG 1157+315",
+      "separationLy": 72693135.13159798
+    },
+    {
+      "a": "KUG 1157+315",
+      "b": "NGC 6684",
+      "separationLy": 94214748.36150905
+    },
+    {
+      "a": "NGC 6684",
+      "b": "NGC 6789",
+      "separationLy": 37019275.93401913
+    }
+  ]
+}

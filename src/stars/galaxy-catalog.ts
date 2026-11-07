@@ -1,4 +1,8 @@
+import { parseNedOverview } from "./ned-votable";
 import { makeNearbyGalaxyAdditions, type NearbyMeasurement } from "./nearby-galaxy-data";
+import { IMPORTED_GALAXIES, RECONCILED_GALAXY_ALIASES } from "./galaxy-catalogue-data";
+import { galaxyIdentityKey } from "./galaxy-ingestion";
+import type { GalaxyCatalogueEvidence } from "./galaxy-catalogue-types";
 /**
  * LARGE-SCALE OBSERVATIONAL EXTRAGALACTIC ATLAS
  *
@@ -53,7 +57,8 @@ export interface ObservationalGalaxy extends NamedGalaxy {
   aliases: string[]; // Cross-catalog designations
   ra: number; // J2000 Right Ascension in decimal degrees
   dec: number; // J2000 Declination in decimal degrees
-  redshift: number;
+  redshift?: number;
+  catalogueEvidence?: GalaxyCatalogueEvidence;
   measurements?: NearbyMeasurement; // Heliocentric / CMB redshift z
   redshiftMethod?:
     "spectroscopic" | "photometric" | "optical" | "hi_21cm" | "ned_consensus" | "velocity_proxy";
@@ -75,7 +80,7 @@ export interface ObservationalGalaxy extends NamedGalaxy {
   independentDistanceUncertaintyLy?: number;
   morphologyClass: string; // de Vaucouleurs / Hubble type e.g. "SA(s)b", "SB(s)m", "E0"
   morphologyCategory?: string; // "spiral" | "elliptical" | "irregular" | "lenticular"
-  angularDiameterArcmin: { major: number; minor: number };
+  angularDiameterArcmin: { major: number; minor?: number };
   apparentMagnitude?: { band: string; value: number };
   photometry?: Record<string, number>;
   hostGroup?: string; // e.g. "Local Group", "Virgo Cluster", "M81 Group"
@@ -1981,6 +1986,12 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
 ];
 
 OBSERVATIONAL_GALAXY_CATALOG.push(...makeNearbyGalaxyAdditions(OBSERVATIONAL_GALAXY_CATALOG));
+OBSERVATIONAL_GALAXY_CATALOG.push(...IMPORTED_GALAXIES);
+for (const galaxy of OBSERVATIONAL_GALAXY_CATALOG) {
+  galaxy.aliases = [
+    ...new Set([...galaxy.aliases, ...(RECONCILED_GALAXY_ALIASES[galaxy.id] ?? [])]),
+  ];
+}
 
 // Deduplicated aliases lookup map
 const ALIAS_INDEX = new Map<string, ObservationalGalaxy>();
@@ -1992,9 +2003,11 @@ for (const g of OBSERVATIONAL_GALAXY_CATALOG) {
     ? "spiral"
     : t.includes("elliptical")
       ? "elliptical"
-      : t.includes("irregular") || t.includes("starburst")
+      : t.includes("irregular") || t.includes("starburst") || t.includes("compact dwarf")
         ? "irregular"
-        : "lenticular";
+        : t.includes("spheroidal")
+          ? "dwarf"
+          : "lenticular";
   g.independentDistanceUncertaintyLy = g.distanceUncertaintyLy;
 
   ALIAS_INDEX.set(g.name.toLowerCase(), g);
@@ -2003,11 +2016,14 @@ for (const g of OBSERVATIONAL_GALAXY_CATALOG) {
   ALIAS_INDEX.set(g.name.toLowerCase().replace(/[^a-z0-9]/g, ""), g);
   ALIAS_INDEX.set(g.preferredName.toLowerCase().replace(/[^a-z0-9]/g, ""), g);
   ALIAS_INDEX.set(g.id.toLowerCase().replace(/[^a-z0-9]/g, ""), g);
+  ALIAS_INDEX.set(galaxyIdentityKey(g.name), g);
+  ALIAS_INDEX.set(galaxyIdentityKey(g.preferredName), g);
 
   for (const alias of g.aliases) {
     ALIAS_INDEX.set(alias.toLowerCase(), g);
     const clean = alias.toLowerCase().replace(/[^a-z0-9]/g, "");
     if (clean) ALIAS_INDEX.set(clean, g);
+    if (clean) ALIAS_INDEX.set(galaxyIdentityKey(alias), g);
 
     const match = alias.match(/^([A-Za-z]+)\s*(\d+)$/);
     if (match) {
@@ -2049,10 +2065,10 @@ export function searchGalaxyAtlas(options: {
     ) {
       return false;
     }
-    if (options.minZ !== undefined && g.redshift < options.minZ) {
+    if (options.minZ !== undefined && (g.redshift === undefined || g.redshift < options.minZ)) {
       return false;
     }
-    if (options.maxZ !== undefined && g.redshift > options.maxZ) {
+    if (options.maxZ !== undefined && (g.redshift === undefined || g.redshift > options.maxZ)) {
       return false;
     }
     return true;
@@ -2068,7 +2084,7 @@ export function getGalaxyByAnyName(query: string): ObservationalGalaxy | undefin
   const direct = ALIAS_INDEX.get(q);
   if (direct) return direct;
   const clean = q.replace(/[^a-z0-9]/g, "");
-  return ALIAS_INDEX.get(clean);
+  return ALIAS_INDEX.get(clean) ?? ALIAS_INDEX.get(galaxyIdentityKey(query));
 }
 
 /**
@@ -2103,6 +2119,7 @@ export function searchObservationalAtlas(options: GalaxyFilterOptions): Observat
   } = options;
 
   const q = query.trim().toLowerCase();
+  const canonicalQuery = q ? getGalaxyByAnyName(query)?.id : undefined;
 
   return OBSERVATIONAL_GALAXY_CATALOG.filter((g) => {
     if (g.level < minLevel) return false;
@@ -2112,7 +2129,7 @@ export function searchObservationalAtlas(options: GalaxyFilterOptions): Observat
       const matchesName = g.name.toLowerCase().includes(q);
       const matchesPref = g.preferredName.toLowerCase().includes(q);
       const matchesAlias = g.aliases.some((a) => a.toLowerCase().includes(q));
-      if (!matchesName && !matchesPref && !matchesAlias) return false;
+      if (canonicalQuery !== g.id && !matchesName && !matchesPref && !matchesAlias) return false;
     }
 
     // Object type filter
@@ -2128,6 +2145,7 @@ export function searchObservationalAtlas(options: GalaxyFilterOptions): Observat
     // Redshift range filter
     if (redshiftRange !== "all") {
       const z = g.redshift;
+      if (z === undefined) return false;
       if (redshiftRange === "blueshifted" && z >= 0) return false;
       if (redshiftRange === "low" && (z < 0 || z >= 0.02)) return false;
       if (redshiftRange === "intermediate" && (z < 0.02 || z >= 1.0)) return false;
@@ -2144,22 +2162,26 @@ export function searchObservationalAtlas(options: GalaxyFilterOptions): Observat
     }
 
     // Constellation filter
-    if (constellation !== "all" && g.constellation) {
-      if (!g.constellation.toLowerCase().includes(constellation.toLowerCase())) {
+    if (constellation !== "all") {
+      if (!g.constellation?.toLowerCase().includes(constellation.toLowerCase())) {
         return false;
       }
     }
 
     // Host group filter
-    if (hostGroup !== "all" && g.hostGroup) {
-      if (!g.hostGroup.toLowerCase().includes(hostGroup.toLowerCase())) {
+    if (hostGroup !== "all") {
+      if (!g.hostGroup?.toLowerCase().includes(hostGroup.toLowerCase())) {
         return false;
       }
     }
 
     // Observation source filter
     if (observationSource !== "all") {
-      if (!g.observationSource.toLowerCase().includes(observationSource.toLowerCase())) {
+      if (
+        !`${g.observationSource} ${g.catalogueEvidence?.edition ?? ""}`
+          .toLowerCase()
+          .includes(observationSource.toLowerCase())
+      ) {
         return false;
       }
     }
@@ -2183,69 +2205,52 @@ export function deduplicateGalaxies(list: ObservationalGalaxy[]): ObservationalG
   return out;
 }
 
-/**
- * Query live NASA/IPAC Extragalactic Database (NED) via TAP service
- * Synchronous ADQL Endpoint: https://ned.ipac.caltech.edu/tap/sync
- */
-export async function queryLiveNedTap(
+/** Optional live lookup. Imported catalogue rendering never depends on this service. */
+export async function queryNedOverview(
   objectName: string,
   timeoutMs = 6000,
 ): Promise<{ success: boolean; data?: Record<string, unknown>; source: string }> {
+  const controller = new AbortController(),
+    timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const safeName = objectName.replace(/'/g, "''");
-    // Standard IVOA ADQL query on NED TAP service schema
-    const adql = `SELECT TOP 1 objname, objtype, ra, dec, z, z_unc, cz FROM ned_main WHERE objname = '${safeName}'`;
-    const params = new URLSearchParams({
-      REQUEST: "doQuery",
-      LANG: "ADQL",
-      FORMAT: "json",
-      QUERY: adql,
-    });
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
-    const res = await fetch(`https://ned.ipac.caltech.edu/tap/sync?${params.toString()}`, {
-      method: "GET",
-      headers: { Accept: "application/json" },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      throw new Error(`NED TAP response ${res.status}`);
-    }
-
-    const json = await res.json();
+    const params = new URLSearchParams({ TARGET: objectName });
+    const response = await fetch(
+      "https://ned.ipac.caltech.edu/NED::API/OverviewOfObject?" + params,
+      {
+        headers: { Accept: "application/x-votable+xml, application/xml" },
+        signal: controller.signal,
+      },
+    );
+    if (!response.ok) throw Error("NED response " + response.status);
     return {
       success: true,
-      data: json?.data?.[0] ?? json,
-      source: "NED TAP Live Sync",
+      data: parseNedOverview(await response.text()),
+      source: "NASA/IPAC NED OverviewOfObject API (live)",
     };
-  } catch (_err) {
-    // Graceful scientific fallback: resolve from normalized authoritative local atlas
+  } catch {
     const local = getGalaxyByAnyName(objectName);
-    if (local) {
-      return {
-        success: true,
-        data: {
-          objname: local.preferredName,
-          objtype: local.type,
-          ra: local.ra,
-          dec: local.dec,
-          z: local.redshift,
-          distance_ly: local.distance,
-          morphology: local.morphologyClass,
-        },
-        source: "NED Authoritative Ingested Cache (Hermetic Offline Mode)",
-      };
-    }
-    return {
-      success: false,
-      source: "NED Query Offline",
-    };
+    return local
+      ? {
+          success: true,
+          data: {
+            objname: local.preferredName,
+            objtype: local.type,
+            ra: local.ra,
+            dec: local.dec,
+            z: local.redshift,
+            distance_ly: local.distance,
+            morphology: local.morphologyClass,
+            catalogue: local.catalogueEvidence?.edition ?? local.observationSource,
+          },
+          source: "Local atlas fallback; live NED unavailable",
+        }
+      : { success: false, source: "NED unavailable; object absent from local atlas" };
+  } finally {
+    clearTimeout(timeout);
   }
 }
+/** Compatibility name for old consumers; the implementation uses the current NED API. */
+export const queryLiveNedTap = queryNedOverview;
 
 // -----------------------------------------------------------------------------
 // Backwards Compatibility Export:

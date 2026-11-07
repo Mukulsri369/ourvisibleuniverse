@@ -48,6 +48,20 @@ export function returnToGalaxyOverview(host: string, width = 1280, height = 720)
   useExploration.setState({ destinationName: host, pending: null, mapOpen: false });
   return true;
 }
+/** A group is a spatial organisation, never a galaxy with an invented interior. */
+export function exploreGalaxyAssociation(name: string, position: [number, number, number]) {
+  const phase = useExploration.getState().phase;
+  if (phase === "entering" || phase === "exiting") return;
+  useExploration.setState({ requestedGalaxyAssociation: name, mapOpen: true });
+  navigateExplorationTarget({
+    id: "association:" + name,
+    name,
+    kind: "space",
+    host: null,
+    position,
+    distance: 6_000_000,
+  });
+}
 export function navigateExplorationTarget(target: ExploreTarget) {
   const state = useStore.getState();
   if (target.kind === "galaxy") {

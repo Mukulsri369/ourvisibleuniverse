@@ -29,6 +29,7 @@ export const useExploration = create<{
   pending: ExploreTarget | null;
   queued: ExploreTarget | null;
   mapOpen: boolean;
+  requestedGalaxyAssociation: string | null;
   destinationName: string | null;
 }>(() => ({
   phase: "outside",
@@ -36,6 +37,7 @@ export const useExploration = create<{
   pending: null,
   queued: null,
   mapOpen: true,
+  requestedGalaxyAssociation: null,
   destinationName: null,
 }));
 export function mayVisit(host: string | null) {

@@ -47,7 +47,13 @@ export function GalaxySearchModal() {
   const sources = useMemo(() => {
     const set = new Set<string>();
     for (const g of OBSERVATIONAL_GALAXY_CATALOG) {
-      if (g.observationSource) set.add(g.observationSource.split("/")[0].trim());
+      if (g.observationSource)
+        set.add(
+          g.catalogueEvidence?.edition ??
+            (g.observationSource.startsWith("https://")
+              ? new URL(g.observationSource).hostname
+              : g.observationSource.split("/")[0].trim()),
+        );
     }
     return Array.from(set).sort();
   }, []);
@@ -332,13 +338,17 @@ export function GalaxySearchModal() {
                         {g.hostGroup ? ` · ${g.hostGroup}` : ""}
                       </div>
                       <div className="mt-1 flex flex-wrap gap-1 text-[10px] text-white/40">
-                        {g.redshift < 0 ? (
+                        {g.redshift === undefined ? (
+                          <span>Radial velocity / redshift unknown</span>
+                        ) : g.redshift < 0 ? (
                           <span className="text-sky-300 font-mono">
-                            Blueshift (z = {g.redshift.toFixed(5)})
+                            Blueshift ({g.redshiftMethod === "velocity_proxy" ? "v/c" : "z"} ={" "}
+                            {g.redshift.toFixed(5)})
                           </span>
                         ) : (
                           <span className="font-mono">
-                            z = {g.redshift.toFixed(g.redshift > 1 ? 3 : 4)}
+                            {g.redshiftMethod === "velocity_proxy" ? "v/c" : "z"} ={" "}
+                            {g.redshift.toFixed(g.redshift > 1 ? 3 : 4)}
                           </span>
                         )}
                         {g.constellation && <span>· {g.constellation}</span>}

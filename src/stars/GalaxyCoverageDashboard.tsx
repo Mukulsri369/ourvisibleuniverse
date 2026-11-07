@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "./store";
 import {
   OBSERVATIONAL_GALAXY_CATALOG,
-  queryLiveNedTap,
+  queryNedOverview,
   type ObservationalGalaxy,
 } from "./galaxy-catalog";
 import {
@@ -75,7 +75,7 @@ export function GalaxyCoverageDashboard() {
     setTapLoading(true);
     setTapResult(null);
     try {
-      const res = await queryLiveNedTap(tapQueryObj);
+      const res = await queryNedOverview(tapQueryObj);
       setTapResult(res);
     } catch {
       setTapResult({ success: false, source: "Query Error" });
@@ -125,7 +125,7 @@ export function GalaxyCoverageDashboard() {
                 { id: "coverage", label: "Catalog Coverage & Bias" },
                 { id: "calculator", label: "Cosmological Calculator" },
                 { id: "benchmarks", label: "Benchmark Verifications" },
-                { id: "ned_tap", label: "NASA/IPAC NED TAP Tool" },
+                { id: "ned_tap", label: "NASA/IPAC NED lookup" },
               ] as const
             ).map((t) => (
               <button
@@ -158,7 +158,7 @@ export function GalaxyCoverageDashboard() {
                       Total Objects
                     </div>
                     <div className="mt-1 text-2xl font-light text-white">{totalCount}</div>
-                    <div className="text-[9px] text-sky-400/80">Normalized NED</div>
+                    <div className="text-[9px] text-sky-400/80">Sourced atlas</div>
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
                     <div className="text-[10px] uppercase tracking-wider text-white/40">
@@ -210,7 +210,7 @@ export function GalaxyCoverageDashboard() {
                         NASA/IPAC Extragalactic Database (NED)
                       </div>
                       <div className="text-[11px] text-white/60">
-                        Version: NED v3.0 (2026 Release) / TAP 1.1 Endpoint
+                        Pinned UNGC 2013 and McConnachie 2021 editions; source-specific references
                       </div>
                       <div className="text-[10px] text-white/40">
                         Primary astrometric cross-matching, multiwavelength photometry, and
@@ -544,7 +544,11 @@ export function GalaxyCoverageDashboard() {
                             {g.ra.toFixed(2)}°, {g.dec.toFixed(2)}°
                           </td>
                           <td className="py-2.5 px-3 font-mono text-[11px]">
-                            {g.redshift < 0 ? `${g.redshift.toFixed(5)}` : g.redshift.toFixed(4)}
+                            {g.redshift === undefined
+                              ? "Unknown"
+                              : g.redshift < 0
+                                ? `${g.redshift.toFixed(5)}`
+                                : g.redshift.toFixed(4)}
                           </td>
                           <td className="py-2.5 px-3 font-medium text-sky-300">
                             {formatLy(g.distance)}
@@ -580,19 +584,19 @@ export function GalaxyCoverageDashboard() {
               </div>
             )}
 
-            {/* Tab 4: Live NED TAP Query Tool */}
+            {/* Tab 4: Live NED overview lookup */}
             {activeTab === "ned_tap" && (
               <div className="space-y-4">
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5 space-y-4">
                   <div>
                     <h3 className="text-sm font-medium uppercase tracking-wider text-sky-300">
-                      IVOA Table Access Protocol (TAP 1.1) Query Client
+                      NED OverviewOfObject · VOTable 1.5
                     </h3>
                     <p className="mt-1 text-xs text-white/60">
-                      Query the official NASA/IPAC Extragalactic Database (NED) synchronous TAP
+                      Query the official NASA/IPAC Extragalactic Database (NED) current overview API
                       service endpoint at{" "}
                       <code className="text-sky-300 font-mono">
-                        https://ned.ipac.caltech.edu/tap/sync
+                        https://ned.ipac.caltech.edu/NED::API/OverviewOfObject
                       </code>
                       .
                     </p>
@@ -611,7 +615,7 @@ export function GalaxyCoverageDashboard() {
                       disabled={tapLoading || !tapQueryObj}
                       className="rounded-lg bg-sky-500 px-4 py-2 text-xs font-medium text-white transition hover:bg-sky-600 disabled:opacity-50"
                     >
-                      {tapLoading ? "Querying NED..." : "Query NED TAP"}
+                      {tapLoading ? "Querying NED..." : "Query NED"}
                     </button>
                   </div>
 

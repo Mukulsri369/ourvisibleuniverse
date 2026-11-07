@@ -1,0 +1,59 @@
+[
+  {
+    "id": "ungc-2013-eso149003",
+    "name": "ESO149-003",
+    "preferredName": "ESO149-003",
+    "aliases": [
+      "ESO149-003"
+    ],
+    "type": "Dwarf irregular",
+    "ra": 358.01166666666666,
+    "dec": -52.5775,
+    "l": 322.46395824661965,
+    "b": -62.240167145045895,
+    "distance": 19243226.28528786,
+    "size": 14721.761366720692,
+    "color": "#b5cced",
+    "redshift": 0.001914657906437393,
+    "redshiftMethod": "velocity_proxy",
+    "radialVelocityKmS": 574,
+    "independentDistanceLy": 19243226.28528786,
+    "independentDistanceMpc": 5.9,
+    "morphologyClass": "Ir",
+    "angularDiameterArcmin": {
+      "major": 2.63,
+      "minor": 0.4734
+    },
+    "observationSource": "https://cdsarc.cds.unistra.fr/viz-bin/cat/J/AJ/145/101",
+    "bibcode": "2013AJ....145..101K",
+    "uncertaintyNotes": "UNGC 2013; source row ESO149-003. Adopted distance (individual-indicator): TF. Distance uncertainty is not supplied; this does not imply an exact distance. Angular extent is the B-band Holmberg isophote; very low surface-brightness entries may instead use a profile scale. Sky position angle is not supplied; roll is illustrative. Individual stars, intrinsic depth, arms, dust and colours are reconstructed. Overview markers can be enlarged for visibility; catalogue centres and travel distances are not compressed.",
+    "level": 2,
+    "distanceTier": "nearby_groups",
+    "catalogueEvidence": {
+      "sourceId": "ungc-2013",
+      "edition": "UNGC 2013",
+      "rowName": "ESO149-003",
+      "sourceUrl": "https://cdsarc.cds.unistra.fr/viz-bin/cat/J/AJ/145/101",
+      "references": [
+        "https://doi.org/10.26093/cds/vizier.51450101",
+        "https://ui.adsabs.harvard.edu/abs/2011LV.Distance...K",
+        "https://ui.adsabs.harvard.edu/abs/2005MNRAS.361...34D"
+      ],
+      "coordinateFrame": "FK5 J2000 (treated as ICRS for scene conversion)",
+      "distanceMpc": 5.9,
+      "distanceMethod": "TF",
+      "distanceBasis": "individual-indicator",
+      "velocityKmS": 574,
+      "velocityErrorKmS": 18,
+      "velocityFrame": "heliocentric",
+      "sizeDefinition": "Holmberg-B26.5",
+      "angularMajorArcmin": 2.63,
+      "axisRatio": 0.18,
+      "inclinationBasis": "not-measured",
+      "positionAngleMeasured": false,
+      "morphology": "Ir",
+      "morphologyUncertain": false,
+      "surfaceBrightnessClass": "N"
+    }
+  }
+]

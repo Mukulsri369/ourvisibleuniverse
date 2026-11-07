@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>OVU isolated catalogue performance QA</title>
+    <style>
+      body {
+        margin: 0;
+        background: #030303;
+        color: white;
+        font: 14px system-ui;
+      }
+      #root {
+        height: 100vh;
+        width: 100vw;
+      }
+      aside {
+        position: absolute;
+        right: 12px;
+        top: 12px;
+        z-index: 100;
+        width: 260px;
+        background: #111;
+        padding: 12px;
+      }
+      button,
+      select {
+        min-height: 40px;
+        max-width: 100%;
+        margin: 2px;
+      }
+      pre {
+        font: 11px monospace;
+        white-space: pre-wrap;
+        max-height: 160px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/scripts/nearby-qa/performance.tsx"></script>
+  </body>
+</html>

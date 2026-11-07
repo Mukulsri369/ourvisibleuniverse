@@ -1,4 +1,5 @@
 import { NEARBY_MEASUREMENT_BY_NAME } from "./nearby-galaxy-data";
+import { IMPORTED_GALAXY_BY_NAME } from "./galaxy-catalogue-data";
 import type { GalaxyModel } from "./galaxy-models";
 export type PopulationKnot = readonly [number, number, number, number];
 export type GalaxyPopulation = {
@@ -483,5 +484,33 @@ for (const [name, m] of NEARBY_MEASUREMENT_BY_NAME) {
   );
 }
 export function galaxyPopulation(model: Pick<GalaxyModel, "name">) {
-  return GALAXY_POPULATIONS[model.name] ?? nearbyPopulations.get(model.name);
+  const existing = GALAXY_POPULATIONS[model.name] ?? nearbyPopulations.get(model.name);
+  if (existing) return existing;
+  const galaxy = IMPORTED_GALAXY_BY_NAME.get(model.name);
+  if (!galaxy?.catalogueEvidence) return undefined;
+  if (importedPopulations.has(model.name)) return importedPopulations.get(model.name);
+  const evidence = galaxy.catalogueEvidence,
+    q = evidence.axisRatio ?? 0.75;
+  const old = /spheroidal|elliptical|lenticular/i.test(galaxy.type);
+  if (!old && !/irregular|compact dwarf/i.test(galaxy.type)) return undefined;
+  const active = /star-forming|Emission-line|BCD/.test(galaxy.type + evidence.morphology);
+  const population = old
+    ? sph({
+        axes: [1, Math.sqrt(q), q],
+        hotFraction: active ? 0.3 : 0.04,
+        dust: active ? 0.3 : 0,
+        hii: active ? 0.3 : 0,
+        source: evidence.sourceUrl,
+        note: galaxy.uncertaintyNotes,
+      })
+    : irr({
+        axes: [1, 0.3, q],
+        core: active ? 0.2 : 0.5,
+        hotFraction: /transition/i.test(galaxy.type) ? 0.15 : 0.42,
+        source: evidence.sourceUrl,
+        note: galaxy.uncertaintyNotes,
+      });
+  importedPopulations.set(model.name, population);
+  return population;
 }
+const importedPopulations = new Map<string, GalaxyPopulation>();

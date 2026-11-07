@@ -1,4 +1,6 @@
 import type { VisitGalaxy } from "./store";
+import { getGalaxyByAnyName } from "./galaxy-catalog";
+import { galaxyIdentityKey } from "./galaxy-ingestion";
 import { galaxyDestinations } from "./GalaxyDestinationGrid";
 import { EXPLORER_GALAXIES } from "./exploration-galaxies";
 import { OBSERVED_OBJECTS } from "./observed-objects";
@@ -110,6 +112,23 @@ export function outsideEntries(): ExplorerEntry[] {
   }));
   return [...unknown, ...structures];
 }
+const compactSearch = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
+function prepareSearchEntry(entry: ExplorerEntry) {
+  const text = [entry.name, entry.id, entry.type, entry.detail, ...(entry.aliases ?? [])]
+    .join(" ")
+    .toLowerCase();
+  return {
+    entry,
+    text,
+    compact: compactSearch(text),
+    name: compactSearch(entry.name),
+    id: compactSearch(entry.id),
+    aliases: entry.aliases?.map(compactSearch) ?? [],
+    identityKeys:
+      entry.kind === "galaxy" ? [entry.name, ...(entry.aliases ?? [])].map(galaxyIdentityKey) : [],
+  };
+}
+let universeSearchIndex: ReturnType<typeof prepareSearchEntry>[] | undefined;
 /** Search includes membership breadcrumbs; browsing still respects the entered galaxy. */
 export function searchExplorer(
   query: string,
@@ -119,8 +138,8 @@ export function searchExplorer(
   const q = query.toLowerCase().trim();
   if (!q) return [];
   const all = activeGalaxy
-    ? galaxyEntries(activeGalaxy, descriptor)
-    : EXPLORER_GALAXIES.flatMap((g) => [
+    ? galaxyEntries(activeGalaxy, descriptor).map(prepareSearchEntry)
+    : (universeSearchIndex ??= EXPLORER_GALAXIES.flatMap((g) => [
         {
           id: g.name,
           name: g.name,
@@ -128,23 +147,30 @@ export function searchExplorer(
           kind: "galaxy" as const,
           type: "Galaxy",
           detail: g.type,
+          aliases: getGalaxyByAnyName(g.name)?.aliases,
         },
         ...galaxyEntries(g.name),
-      ]).concat(outsideEntries());
-  const compact = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const needle = compact(q);
-  const score = (d: ExplorerEntry) =>
-    Number(compact(d.name) === needle) * 3 +
-    Number(compact(d.id) === needle) * 3 +
-    Number(!!d.aliases?.some((a) => compact(a) === needle)) * 2 +
-    Number(d.name.toLowerCase().startsWith(q));
+      ])
+        .concat(outsideEntries())
+        .map(prepareSearchEntry));
+  const needle = compactSearch(q),
+    identity = galaxyIdentityKey(q);
+  const score = (d: ReturnType<typeof prepareSearchEntry>) =>
+    Number(d.name === needle) * 3 +
+    Number(d.id === needle) * 3 +
+    Number(d.aliases.includes(needle)) * 2 +
+    Number(d.entry.name.toLowerCase().startsWith(q));
   return all
     .filter((d) => {
-      const text = [d.name, d.id, d.type, d.detail, ...(d.aliases ?? [])].join(" ").toLowerCase();
-      return text.includes(q) || (needle.length > 0 && compact(text).includes(needle));
+      return (
+        d.text.includes(q) ||
+        (needle.length > 0 && d.compact.includes(needle)) ||
+        d.identityKeys.includes(identity)
+      );
     })
     .sort((a, b) => score(b) - score(a))
-    .slice(0, 80);
+    .slice(0, 80)
+    .map((d) => d.entry);
 }
 
 /** Observed stars and clusters retain object navigation while filtering by scientific class. */

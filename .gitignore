@@ -37,3 +37,4 @@ dist-ssr
 
 # Local browser QA artifacts and isolated renderer harnesses
 .taste-skill/
+.cache/nearby-catalogue-sources/

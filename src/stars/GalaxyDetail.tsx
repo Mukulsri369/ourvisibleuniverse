@@ -701,6 +701,8 @@ function SelectedSurveyDetail() {
 
 export function DetailedGalaxies() {
   const subsystems = useStore((s) => s.subsystems);
+  const selectedName = useStore((s) => s.visitGalaxy?.name);
+  const activeName = useGalaxyJourney((s) => s.galaxy?.name);
   if (!subsystems.detailedGalaxies) return null;
 
   return (
@@ -708,7 +710,7 @@ export function DetailedGalaxies() {
       <SelectedSurveyDetail />
       <GalaxyGate m={MILKY_WAY_APPEARANCE} />
       <GalaxyGate m={ANDROMEDA_APPEARANCE} />
-      {GALAXY_MODELS.map((m) => (
+      {GALAXY_MODELS.filter((m) => m.name === selectedName || m.name === activeName).map((m) => (
         <GalaxyGate key={m.key} m={m} />
       ))}
     </group>
