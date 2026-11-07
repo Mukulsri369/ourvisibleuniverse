@@ -10,10 +10,10 @@ export function capClusterPointShader(shader: { vertexShader: string }) {
 }
 export const clusterPointProgramKey = () => "m31-cluster-point-cap-v1";
 
-export function clusterPopulation(kind: "globular" | "association", count = 1600) {
+export function clusterPopulation(kind: "globular" | "association" | "nuclear", count = 1600) {
   if (!Number.isInteger(count) || count < 1 || count > 5000)
     throw new Error("Invalid cluster budget");
-  let seed = kind === "globular" ? 3101 : 3206;
+  let seed = kind === "globular" ? 3101 : kind === "nuclear" ? 3303 : 3206;
   const random = () => {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
     return (seed + 0.5) / 4294967296;
@@ -21,6 +21,27 @@ export function clusterPopulation(kind: "globular" | "association", count = 1600
   const positions = new Float32Array(count * 3),
     colors = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {
+    if (kind === "nuclear") {
+      // A static, schematic nested population, not fitted M31 orbital elements.
+      // Uniform mean anomaly weights eccentric orbits toward apocentre (P1).
+      const blue = i % 5 === 0;
+      const a = blue ? 0.012 + 0.035 * Math.sqrt(random()) : 0.06 + 0.2 * Math.sqrt(random());
+      const e = blue ? 0 : 0.6;
+      const mean = 2 * Math.PI * random();
+      let eccentric = mean;
+      for (let step = 0; step < 8; step++)
+        eccentric -= (eccentric - e * Math.sin(eccentric) - mean) / (1 - e * Math.cos(eccentric));
+      positions.set(
+        [
+          a * (Math.cos(eccentric) - e),
+          (random() - 0.5) * a * 0.18,
+          a * Math.sqrt(1 - e * e) * Math.sin(eccentric),
+        ],
+        i * 3,
+      );
+      colors.set(blue ? [0.48, 0.7, 1] : [1, 0.6 + 0.2 * random(), 0.32], i * 3);
+      continue;
+    }
     const u = random(),
       phi = 2 * Math.PI * random(),
       z = 2 * random() - 1;

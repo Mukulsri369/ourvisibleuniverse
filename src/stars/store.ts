@@ -976,7 +976,15 @@ export const useStore = create<State>((set, get) => ({
       visitPlanet: null,
       visitGalaxy: null,
       tourActive: false,
-      flyTo: { x, y, z, distance: objectVisitDistance(item) },
+      flyTo: {
+        x,
+        y,
+        z,
+        distance: objectVisitDistance(
+          item,
+          typeof window === "undefined" ? 1 : window.innerWidth / window.innerHeight,
+        ),
+      },
     });
   },
   toggleUiHidden: () => set((st) => ({ uiHidden: !st.uiHidden })),

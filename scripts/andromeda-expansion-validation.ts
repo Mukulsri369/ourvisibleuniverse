@@ -95,7 +95,7 @@ for (const bad of [
   [0, Infinity],
 ])
   assert.throws(() => validateM31Coordinates(...(bad as [number, number])));
-for (const kind of ["globular", "association"] as const) {
+for (const kind of ["globular", "association", "nuclear"] as const) {
   const a = clusterPopulation(kind),
     b = clusterPopulation(kind);
   assert.deepEqual(a, b);
@@ -118,6 +118,39 @@ assert.notDeepEqual(
   clusterPopulation("association").positions,
 );
 assert.throws(() => clusterPopulation("globular", 100000));
+const nuclearStars = ANDROMEDA_OBJECTS.find((o) => o.id === "m31-nuclear-stars")!;
+assert.deepEqual(objectPosition(nuclearStars), M31_CENTER.toArray());
+assert.equal(nuclearStars.compactPhysics, undefined);
+assert.equal(createTargetFromObservedObject(nuclearStars).type, "cluster");
+for (const aspect of [1280 / 720, 390 / 844]) {
+  const limitingFov = Math.atan(Math.tan(Math.PI / 12) * Math.min(aspect, 1));
+  assert(
+    objectVisitDistance(nuclearStars, aspect) * Math.sin(limitingFov) >
+      nuclearStars.diameterLy * 0.5,
+  );
+}
+assert(objectVisitDistance(nuclearStars, 390 / 844) > objectVisitDistance(nuclearStars));
+assert(nuclearStars.properties.some((p) => p.includes("component astrometry is not encoded")));
+assert(nuclearStars.properties.some((p) => p.includes("not two additional black holes")));
+assert.equal(searchExplorer("M31*", M31_HOST)[0]?.id, "m31-nucleus");
+const nuclear = clusterPopulation("nuclear");
+let blueCount = 0,
+  warmCount = 0,
+  warmX = 0;
+for (let i = 0; i < nuclear.positions.length; i += 3) {
+  const [x, y, z] = nuclear.positions.slice(i, i + 3);
+  assert(Math.abs(y) < 0.024, "Nuclear population remains disk-like");
+  if (nuclear.colors[i + 2] > nuclear.colors[i]) {
+    blueCount++;
+    assert(Math.hypot(x, z) < 0.048, "Blue population stays nested around the focus");
+  } else {
+    warmCount++;
+    warmX += x;
+  }
+}
+assert.equal(blueCount, 320);
+assert.equal(warmCount, 1280);
+assert(warmX / warmCount < -0.12, "Warm population is lopsided toward apocentre");
 assert.equal(M31_PLANETS.length, 1);
 assert.equal(M31_PLANETS[0].confirmed, false);
 assert(M31_PLANETS[0].description.includes("hypothetical"));

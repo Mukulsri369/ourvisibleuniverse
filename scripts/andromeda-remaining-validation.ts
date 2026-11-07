@@ -74,7 +74,7 @@ for (const qaBuild of [false, true])
       remote,
     );
   }
-assert.equal(M31_TARGETS.length, 13);
+assert.equal(M31_TARGETS.length, 14);
 const get = (id: string) => ANDROMEDA_OBJECTS.find((o) => o.id === id)!;
 const sn = M31_TARGETS.find((t) => t.id === "m31-sn1885")!,
   nucleus = M31_TARGETS.find((t) => t.id === "m31-nucleus")!;

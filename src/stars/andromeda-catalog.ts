@@ -105,6 +105,31 @@ const M31_CORE_TARGETS = [
 export const M31_TARGETS: readonly M31ScientificTarget[] = [
   ...M31_CORE_TARGETS,
   ...M31_EXTENDED_TARGETS,
+  {
+    id: "m31-nuclear-stars",
+    name: "M31 nuclear stellar disks (P1/P2/P3)",
+    aliases: ["M31 double nucleus", "M31 P1", "M31 P2", "M31 P3", "M31 nuclear stellar disks"],
+    ra: h(0, 42, 44.33),
+    dec: d(41, 16, 7.5),
+    category: "Star cluster",
+    subtype: "Eccentric nuclear stellar disk and embedded blue stellar disk",
+    visual: "cluster",
+    color: "#ffd0a0",
+    extent: 24,
+    source: "https://chandra.as.utexas.edu/m31stis.html",
+    references: [
+      "https://science.nasa.gov/missions/hubble/hubble-finds-mysterious-disk-of-blue-stars-around-black-hole/",
+    ],
+    positionNote:
+      "Approximate J2000 nuclear centre shared with M31*; P1/P2/P3 component astrometry is not encoded. The nuclear disk orientation is illustrative, not the large-scale M31 disk orientation.",
+    facts: [
+      "P1 and P2 are brightness peaks of an eccentric stellar disk, not two additional black holes.",
+      "P3 denotes the embedded compact blue stellar population; stellar disks are distinct from a gaseous accretion disk.",
+      "The 24-light-year viewing envelope, orbital shapes, thickness, colors and sample counts are illustrative; individual stars are not catalogue entries.",
+    ],
+    description:
+      "Explore the stellar structures around M31*. An asymmetric warm population illustrates the P1/P2 eccentric-disk interpretation, with a smaller blue population representing P3. This grouped destination represents the surrounding stars, while the existing M31* destination represents the black hole. It is an artistic static reconstruction, not a fitted dynamical model or a resolved map of individual stars.",
+  },
 ];
 const nuclearDirection = icrsToGalactic(h(0, 42, 44.33), d(41, 16, 7.5));
 const lr = (nuclearDirection.l * Math.PI) / 180,

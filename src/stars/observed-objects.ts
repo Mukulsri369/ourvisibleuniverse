@@ -2075,7 +2075,14 @@ export function objectPosition(
     : position;
 }
 
-export function objectVisitDistance(item: ObservedObject): number {
+export function objectVisitDistance(item: ObservedObject, aspect = 1): number {
+  if (item.id === "m31-nuclear-stars") {
+    // Keep the off-centre eccentric disk in a portrait frame around the nuclear focus.
+    // A conservative 30-degree vertical FOV bounds the normal exploration view.
+    const safeAspect = Number.isFinite(aspect) && aspect > 0 ? Math.min(aspect, 1) : 1;
+    const halfFov = Math.atan(Math.tan(Math.PI / 12) * safeAspect);
+    return Math.max(item.diameterLy * 1.8, (item.diameterLy * 0.5 * 1.1) / Math.sin(halfFov));
+  }
   if (isBlackHoleTarget(item)) return blackHoleModel(item).radiusLy * 32;
   // Frame the entire diffuse cloud; users can then travel through its interior.
   if (item.nebulaClass) return Math.max(item.diameterLy * 2.4, 0.2);

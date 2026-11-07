@@ -2,6 +2,8 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
+Latest local continuation: the grouped P1/P2/P3 stellar destination is implemented; see the final section for current 14/124/18 counts, verification and pending authenticated visual acceptance. Earlier thirteen-object totals below describe the pushed checkpoint.
+
 ## Current scope and architecture
 
 - Repository: https://github.com/Mukulsri369/ourvisibleuniverse
@@ -64,3 +66,12 @@ When the owner asked whether the entire original prompt was finished, the answer
 ## Suggested first message in a new chat
 
 > Continue OVU in this repository on migration/supabase-cloudflare. Read AGENTS.md and docs/PROJECT_HANDOFF.md first, then docs/ANDROMEDA_EXPANSION_REQUEST.md and docs/ANDROMEDA_EXPANSION_REPORT.md. Preserve completed work including 89fa2bc and bf947ab, and inspect newer commits before editing. Continue deferred development with actual verification; do not repeat completed migrations or campaigns. Do not deploy or change production, payments, customer access, domains or services without my explicit approval.
+
+## 7 November continuation after 097b180 — local nuclear-structure batch
+
+- Preserved `89fa2bc`, `bf947ab` and the clean `097b180` checkpoint. Added one grouped nuclear stellar-structure destination, `m31-nuclear-stars` (P1/P2/P3), distinct from the existing M31* black hole. Current source counts: 14 expansion records, 124 global observed objects, 18 M31 explorer destinations.
+- Added sourced membership/coordinate/uncertainty disclosures and alias search, an asymmetric warm plus nested blue selected-only population, color-preserving brightness and portrait-aware visit framing. Approximate nuclear centre reused; no component astrometry, measured diameter, extra black hole or measured orbital elements invented.
+- Full details and executed checks: final continuation section in [expansion report](ANDROMEDA_EXPANSION_REPORT.md). Earlier P1/P2 deferral is now partially addressed by a grouped illustrative stellar exhibit; resolved astrometry and fitted dynamics remain deferred.
+- Local-only source changes at this checkpoint: not pushed, not deployed. No production, customer-access, payment, DNS or infrastructure changes. The previously documented production Worker version has not been freshly inspected.
+- Built application reached its normal sign-in screen on loopback 31752; the new destination still needs authenticated built-app visual acceptance. Isolated shared-geometry/material WebGL checks passed at desktop and 390x844, with no captured error-level console logs; these do not establish React-scene/navigation acceptance, physical-phone performance, VRAM or general FPS improvement.
+- Resume with the current Git state and newest commits. Do not repeat the earlier expansion/QA or historical migration/campaign operations. Next: authenticated local acceptance of this batch, then individually sourced survey candidates and measured performance work. Deployment still requires the owner's explicit approval.

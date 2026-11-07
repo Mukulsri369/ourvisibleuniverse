@@ -2,6 +2,8 @@
 
 ## Scope and status
 
+Latest local continuation adds the grouped nuclear stellar disks: fourteen canonical expansion records, 124 global observed objects and eighteen M31 explorer destinations. See the final section for new checks and remaining authenticated visual acceptance; the thirteen-object record immediately below describes the prior pushed batch.
+
 Curated expansion: thirteen new canonical destinations across variable stars, associations, a globular cluster, nuclear black hole, H II and planetary nebulae, supernova absorption debris, molecular gas/dust, recurrent nova, an accreting pulsar and a black-hole candidate. This is not a complete census of M31. No production deployment, DNS, hosting, payment or customer-data change is authorized or performed. Preserve the existing galaxy and speculative exhibit. Individual further survey records remain deferred rather than padded with unsupported entries. The 6 November first-batch findings below are retained as historical evidence; the 7 November completion record supersedes their outstanding-work and count statements.
 
 ## Existing implementation inventory
@@ -158,3 +160,30 @@ The final default build was opened after the last source changes. The QA panel w
 The requested curated category expansion, source/uncertainty integration, alias/host/navigation tests, relevant regression suites, browser/mobile-viewport QA, shared-shader GPU checks, missing-reference fallback check and practical before/after performance comparison are completed. This does not claim an exhaustive M31 survey census, real-device/VRAM measurement, a statistical performance guarantee or exhaustive third-party-service outage coverage. Further named survey entries remain individually deferred for scientific reconciliation as listed above. The existing low desktop baseline and legacy Orion compiler warnings are recorded future improvements.
 
 No production deployment was performed. The Store, live database/customer entitlements, authentication configuration, Razorpay, domains, DNS and hosting configuration remain unchanged. Source work remains on migration/supabase-cloudflare; publication requires a separate production-deployment instruction.
+
+## 7 November continuation — nuclear stellar structures (local source)
+
+The clean continuation baseline was `097b180`, with the thirteen earlier destinations and completed QA preserved. This batch adds one grouped `m31-nuclear-stars` destination, bringing the expansion to **14 canonical records**, the global observed catalogue to **124**, and the M31 explorer to **18 destinations**. It is local source work, not pushed or deployed at this checkpoint.
+
+### Scientific reconciliation
+
+| Candidate | Existing? | Evidence | Position / physical confidence | Decision |
+| --- | --- | --- | --- | --- |
+| M31 nuclear stellar disks: P1/P2 and embedded P3 | M31* exists as a black-hole destination; surrounding stellar structures were deferred | Bender et al. 2005, ApJ 631, 280; researcher explanation https://chandra.as.utexas.edu/m31stis.html; NASA release 20 September 2005 https://science.nasa.gov/missions/hubble/hubble-finds-mysterious-disk-of-blue-stars-around-black-hole/ (consulted 7 November 2026) | Existing approximate J2000 nuclear centre reused; component sky coordinates and individual depth are not encoded; morphology supported, sampled population/orientation/extent illustrative | Add one grouped stellar destination; preserve M31* separately; no additional black holes |
+
+P1/P2 searches identify components of this grouped exhibit, not aliases of M31*. P3 is represented within the same exhibit, avoiding separately invented component positions. The coordinate frame and registration are unchanged. The 24-ly display envelope is explicitly illustrative, not a measured diameter. No stellar masses, ages, temperatures or orbital measurements were synthesized.
+
+The selected-only cluster renderer now supports a deterministic asymmetric warm population plus a compact blue population. Uniform mean anomaly weights the illustrative eccentric orbits toward apocentre. The chosen eccentricity, semimajor axes, thickness, 80/20 population split and fixed tilt are schematic, not a fit to the observations or a time-evolving dynamics simulation. No gas accretion disk or jet is added. Existing cluster populations and prior visual-profile seed ordering are preserved. The new population uses the existing point shader, glow texture, disposal behavior and particle budget. A separate brightness multiplier preserves its colors without changing earlier clusters. Its visit distance accounts for portrait aspect ratio around the off-centre nuclear focus; existing destination distances are unchanged.
+
+### Executed checks and limits
+
+- Expansion and remaining-validation suites passed with the updated 14/124/18 counts. Assertions cover alias uniqueness, explicit membership, entry gating, every destination's fly-to/details, finite geometry, deterministic bounded populations, nested blue population, apocentre asymmetry, no compact-object classification for the stellar destination, and conservative desktop/portrait framing.
+- TypeScript, affected-source ESLint and the normal client/Cloudflare Worker build passed. The first direct build lacked the required public environment; the existing `run-ovu-supabase.ps1 -PublicBuildOnly` helper supplied approved public configuration for subsequent successful builds. No secret values were logged. Existing Vite/TanStack deprecation, splitting and sourcemap warnings remain.
+- Galaxy explorer, entry, experience and landmark suites and the 63/63 astronomy checks passed. Compact-object and black-hole regression results are recorded below after execution.
+- Built local Worker startup succeeded on loopback port 31752. `/universe` displayed sign-in because this browser had no authenticated OVU session. No sign-in, entitlement grant or production mutation was performed. **Integrated built-browser selection, camera and dossier acceptance for this new destination remains pending.**
+- An isolated Vite/WebGL harness outside Git (`work/qa-nuclear` in the surrounding workspace) imported the actual population generator, glow texture and point-shader modifier and mirrored the component's geometry/material/tilt and framing formula. Desktop and 390x844 portrait views rendered the complete warm/blue population after correcting brightness and portrait clipping. No error-level console messages were captured. This checks shared GPU primitives, not the React scene's full integration, scene-origin precision, bloom or authenticated navigation.
+- Isolated renderer statistics: 1,600 point samples, one draw call, 38,400 geometry-attribute bytes. This is neither total VRAM nor an application-wide FPS/load-time comparison. No physical phone, FPS gain, leak audit or provider-outage audit is claimed.
+
+Further red-supergiant, PHAT/PHAST-cluster and compact-source records still require individual scientific reconciliation. Nuclear component astrometry, fitted orientations/density profiles and quantitative dynamics remain deferred. Production remains at the previously documented startup-default version unless independently inspected; no deployment was performed.
+
+Final follow-up verification: after the brightness and portrait-framing corrections, TypeScript `--noEmit`, affected-source ESLint, both Andromeda suites and the normal client/Worker build exited successfully. Galaxy explorer, entry, experience and landmark suites passed again; compact-object validation passed 41/41, and black-hole validation passed. No tests were skipped or weakened. `git diff --check` passed. The prior 63/63 astronomy run in this continuation also passed.

@@ -373,8 +373,10 @@ function StarDetail({
 }
 
 const CLUSTER_DISPLAY_LUMINANCE = new THREE.Color(4, 4, 4);
+const NUCLEAR_DISPLAY_LUMINANCE = new THREE.Color(1, 1, 1);
 function AndromedaCluster({ item, scale }: { item: ObservedObject; scale: number }) {
-  const kind = item.id === "m31-g1" ? "globular" : "association";
+  const kind =
+    item.id === "m31-g1" ? "globular" : item.id === "m31-nuclear-stars" ? "nuclear" : "association";
   const { positions, colors } = useMemo(() => clusterPopulation(kind), [kind]);
   const glow = useMemo(makeGlowTexture, []);
   useEffect(() => () => glow.dispose(), [glow]);
@@ -382,6 +384,7 @@ function AndromedaCluster({ item, scale }: { item: ObservedObject; scale: number
     <group
       scale={scale}
       quaternion={kind === "association" ? M31_QUAT : undefined}
+      rotation={kind === "nuclear" ? [0.65, 0, 0.2] : undefined}
       name={"cluster-reconstruction:" + item.id}
     >
       <points>
@@ -391,7 +394,7 @@ function AndromedaCluster({ item, scale }: { item: ObservedObject; scale: number
         </bufferGeometry>
         <pointsMaterial
           size={scale * 0.024}
-          color={CLUSTER_DISPLAY_LUMINANCE}
+          color={kind === "nuclear" ? NUCLEAR_DISPLAY_LUMINANCE : CLUSTER_DISPLAY_LUMINANCE}
           onBeforeCompile={capClusterPointShader}
           customProgramCacheKey={clusterPointProgramKey}
           vertexColors
