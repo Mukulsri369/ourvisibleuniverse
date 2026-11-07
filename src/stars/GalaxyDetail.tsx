@@ -610,7 +610,6 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
       s.galaxy?.name === m.name &&
       (s.mode === "flying" || s.mode === "paused" || s.mode === "inside"),
   );
-  const selected = useStore((s) => s.visitGalaxy?.name === m.name);
   const blend = useRef(0);
   useEffect(
     () => () => {
@@ -637,7 +636,10 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
       const ready = mat && mat.uniforms.uCacheFade.value > 0.9;
       blend.current = THREE.MathUtils.damp(
         blend.current,
-        ready ? (entered || selected ? 1 : lod.alphaNear) : 0,
+        // Selection keeps the cache resident, but only explicit entry forces
+        // the full star field. Tiny overview galaxies use their existing
+        // world-anchored catalogue body instead of thousands of overlapping stars.
+        ready ? (entered ? 1 : lod.alphaNear) : 0,
         10,
         Math.min(dt, 0.1),
       );

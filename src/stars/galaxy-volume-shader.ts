@@ -8,6 +8,7 @@ uniform vec3 uEye,uFieldSize,uOccupancySize;uniform sampler3D uField,uOccupancy;
 uniform float uOccupancyReady;
 uniform float uAdaptiveSampling,uSkipEmpty;
 uniform float uOpacity,uReveal,uSteps,uCacheFade,uVolumeWeight;
+uniform float uExteriorView;
 varying vec3 vP;
 ` +
   GALAXY_MEDIUM +
@@ -78,7 +79,13 @@ void main(){
  float alpha=clamp(1.-trans,0.,.98)*uOpacity*uCacheFade;
  if(alpha<.001)discard;
  light=light/(1.+dot(light,vec3(.2126,.7152,.0722))*.075);
- gl_FragColor=vec4(light/max(1.-trans,.001),alpha);
+ vec3 radiance=light/max(1.-trans,.001);
+ // Integrated exterior light can exceed display white in all three channels.
+ // Compress its peak together, preserving stellar colour ratios and dust
+ // contrast before renderer tone mapping. Interior travel keeps its exposure.
+ float peak=max(radiance.r,max(radiance.g,radiance.b));
+ radiance=mix(radiance,radiance*(1.15/(1.+peak)),uExteriorView);
+ gl_FragColor=vec4(radiance,alpha);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }

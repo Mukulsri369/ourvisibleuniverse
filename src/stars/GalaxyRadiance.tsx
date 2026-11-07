@@ -10,6 +10,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
 import { motionTimeSeconds } from "./sim-clock";
+import { catalogueAppearance } from "./galaxy-overview-appearance";
 const VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
@@ -30,7 +31,6 @@ export function GalaxyRadiance({
   const ref = useRef<THREE.Mesh>(null!);
   const tier = useStore((s) => s.renderingQualityTier);
   const journeyActive = useGalaxyJourney((s) => s.galaxy?.name === model.name);
-  const selected = useStore((s) => s.visitGalaxy?.name === model.name);
   const entered = useGalaxyJourney(
     (s) =>
       s.galaxy?.name === model.name &&
@@ -40,6 +40,9 @@ export function GalaxyRadiance({
   const uniforms = useMemo(() => {
     const structure = galaxyStructure(model);
     const population = structure.population;
+    // Guide palettes are illustrative linear-light colours, never new measured
+    // photometry. Explicit sourced population recipes keep their own colours.
+    const appearance = catalogueAppearance(model);
     let seed = 0;
     for (const c of model.name) seed = (seed * 31 + c.charCodeAt(0)) % 997;
     const mode = [
@@ -72,12 +75,13 @@ export function GalaxyRadiance({
       uOccupancyReady: { value: 0 },
       uOccupancySize: { value: new THREE.Vector3(1, 1, 1) },
       uReveal: { value: 0 },
+      uExteriorView: { value: 1 },
       uOld: {
         value: new THREE.Color(
           ...(population?.old ??
             ([10, 11, 15].includes(structure.feature)
               ? ([1, 0.67, 0.33] as [number, number, number])
-              : model.oldColor)),
+              : appearance.oldColor)),
         ),
       },
       uYoung: {
@@ -85,7 +89,7 @@ export function GalaxyRadiance({
           ...(population?.hot ??
             ([10, 11, 15].includes(structure.feature)
               ? ([0.23, 0.52, 1] as [number, number, number])
-              : model.youngColor)),
+              : appearance.youngColor)),
         ),
       },
       uMode: { value: Math.max(0, mode) },
@@ -160,7 +164,7 @@ export function GalaxyRadiance({
     },
     [material],
   );
-  useFrame(({ camera, gl }, dt) => {
+  useFrame(({ camera, gl, size }, dt) => {
     if (!ref.current) return;
     ref.current.updateWorldMatrix(true, false);
     ref.current.worldToLocal(eye.copy(camera.position));
@@ -169,10 +173,14 @@ export function GalaxyRadiance({
     uniforms.uTime.value = motionTimeSeconds();
     const reveal = journeyActive ? galaxyMotion.reveal : 0;
     uniforms.uReveal.value = reveal;
-    if (
-      cache &&
-      (selected || entered || (ref.current.visible && uniforms.uOpacity.value > 0.001))
-    ) {
+    uniforms.uExteriorView.value = entered ? 0 : 1;
+    const projectedDiameter =
+      (size.height * (camera as THREE.PerspectiveCamera).projectionMatrix.elements[5]) /
+      Math.max(0.001, eye.length());
+    // A selected sub-pixel object still has its batched overview marker. Defer
+    // density slices until they can be seen; retain/resume the same cache when
+    // approaching, and always prepare it during explicit entry.
+    if (cache && (entered || projectedDiameter >= 8)) {
       const ready = cache.bake(gl);
       uniforms.uField.value = cache.target.texture;
       uniforms.uOccupancy.value = cache.occupancy?.texture ?? null;

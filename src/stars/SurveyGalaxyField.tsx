@@ -39,14 +39,19 @@ export function SurveyGalaxyField() {
   const material = useMemo(
     () =>
       new THREE.ShaderMaterial({
-        uniforms: { uHeight: { value: 800 }, uGain: { value: 0 }, uHiddenSeed: { value: -1 } },
+        uniforms: {
+          uHeight: { value: 800 },
+          uPixelRatio: { value: 1 },
+          uGain: { value: 0 },
+          uHiddenSeed: { value: -1 },
+        },
         transparent: true,
         depthWrite: false,
         blending: THREE.AdditiveBlending,
         vertexShader: `
 #include <common>
 #include <logdepthbuf_pars_vertex>
-attribute float seed,aCatalogMask;varying float vSeed,vAlpha;varying vec3 vRight,vUp,vToward;uniform float uHeight,uGain,uHiddenSeed;
+attribute float seed,aCatalogMask;varying float vSeed,vAlpha,vPixels;varying vec3 vRight,vUp,vToward;uniform float uHeight,uGain,uHiddenSeed,uPixelRatio;
 void main(){vSeed=seed;
 float a=seed*6.283185,b=fract(seed*7.13)*3.14159;
 mat3 orient=mat3(cos(a),0.,sin(a),sin(a)*sin(b),cos(b),-cos(a)*sin(b),-sin(a)*cos(b),sin(b),cos(a)*cos(b));
@@ -55,16 +60,31 @@ vUp=orient*vec3(viewMatrix[0][1],viewMatrix[1][1],viewMatrix[2][1]);
 vToward=orient*normalize(cameraPosition-(modelMatrix*vec4(position,1.)).xyz);
 vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
 float physical=35000.*(.55+fract(seed*17.3))*uHeight*projectionMatrix[1][1]/max(1.,-mv.z);
-gl_PointSize=clamp(physical,4.2,128.);vAlpha=uGain*smoothstep(60000.,300000.,length(mv.xyz));if(abs(seed-uHiddenSeed)<.000001||aCatalogMask>.5)vAlpha=0.;
+gl_PointSize=clamp(physical,4.2*uPixelRatio,128.*uPixelRatio);vPixels=gl_PointSize/uPixelRatio;vAlpha=uGain*smoothstep(60000.,300000.,length(mv.xyz));if(abs(seed-uHiddenSeed)<.000001||aCatalogMask>.5)vAlpha=0.;
 #include <logdepthbuf_vertex>
 }`,
         fragmentShader: `
 #include <logdepthbuf_pars_fragment>
-varying float vSeed,vAlpha;varying vec3 vRight,vUp,vToward;
+varying float vSeed,vAlpha,vPixels;varying vec3 vRight,vUp,vToward;
 void main(){
 #include <logdepthbuf_fragment>
 if(vAlpha<.001)discard;
 vec2 pixel=gl_PointCoord*2.-1.;float radius2=dot(pixel,pixel);if(radius2>1.)discard;
+// Sub-resolution survey sources have no resolved arms to integrate. A smooth
+// projected light profile avoids 16 volume samples and flickering tiny spirals.
+// The orientation, palette and visibility floor remain illustrative, not photometry.
+if(vPixels<12.){
+  vec2 axis=vec2(vRight.y,-vUp.y);axis/=max(.0001,length(axis));
+  float q=clamp(abs(vToward.y),.32,1.);
+  vec2 uv=vec2(dot(pixel,vec2(-axis.y,axis.x)),dot(pixel,axis)/q);
+  float profile=exp(-dot(uv,uv)*6.);
+  float spiral=step(.36,fract(vSeed*29.7));
+  vec3 tint=mix(vec3(1.,.87,.7),vec3(.73,.84,1.),spiral*.65);
+  gl_FragColor=vec4(tint*1.25,profile*.66*vAlpha);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+  return;
+}
 float span=sqrt(1.-radius2),ds=span/8.,trans=1.;vec3 light=vec3(0.);
 float mode=fract(vSeed*29.7);
 for(int j=0;j<16;j++){
@@ -133,7 +153,7 @@ gl_FragColor=vec4(light/max(.001,1.-trans)*3.,alpha);
     };
   }, []);
   useEffect(() => () => material.dispose(), [material]);
-  useFrame(({ camera, size }) => {
+  useFrame(({ camera, size, gl }) => {
     const gain = THREE.MathUtils.smoothstep(camera.position.length(), 180000, 2500000);
     const selected = useGalaxyJourney.getState().galaxy ?? useStore.getState().visitGalaxy;
     const match = selected?.name.match(/^2MRS field source (\d+)$/);
@@ -142,7 +162,8 @@ gl_FragColor=vec4(light/max(.001,1.-trans)*3.,alpha);
     material.uniforms.uHiddenSeed.value =
       index >= 0 ? (geometry?.getAttribute("seed").getX(index) ?? -1) : -1;
     material.uniforms.uGain.value = gain * 0.95;
-    material.uniforms.uHeight.value = size.height;
+    material.uniforms.uHeight.value = size.height * gl.getPixelRatio();
+    material.uniforms.uPixelRatio.value = gl.getPixelRatio();
     if (root.current) root.current.visible = gain > 0.001;
   });
   return geometry ? (

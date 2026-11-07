@@ -117,7 +117,18 @@ float unit=length(modelMatrix[0].xyz);vDistance=length(mv.xyz)/max(unit,.001);vC
 uniform float uReveal,uVisibility,uExterior;varying vec3 vColor;varying float vLum,vDistance;
 void main(){
 #include <logdepthbuf_fragment>
-vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;float core=exp(-r2*20.)+.006*exp(-r2*3.);float flux=clamp(vLum/sqrt(max(.05,vDistance)),.04,4.);float nearFade=smoothstep(.00002,.0004,vDistance);gl_FragColor=vec4(vColor*7.,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*mix(1.,1.7,uExterior));
+vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;
+// Exterior points represent unresolved associations. A broader, lower-exposure
+// footprint lets their warm/cool colours and the continuous dust volume survive
+// overlap, rather than tracing the arms as clipped white beads. Interior stars
+// retain their close-range core, exposure and travel/reveal behaviour.
+float interiorCore=exp(-r2*20.)+.006*exp(-r2*3.);
+float exteriorCore=.65*exp(-r2*8.)+.04*exp(-r2*2.5);
+float core=mix(interiorCore,exteriorCore,uExterior);
+float flux=clamp(vLum/sqrt(max(.05,vDistance)),.04,4.);
+float nearFade=smoothstep(.00002,.0004,vDistance);
+vec3 radiance=vColor*mix(7.,1.9,uExterior);
+gl_FragColor=vec4(radiance,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*mix(1.,1.2,uExterior));
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`,

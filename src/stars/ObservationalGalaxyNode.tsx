@@ -7,7 +7,13 @@ import { useStore } from "./store";
 import { GALAXY_BY_NAME, galaxyOrientation, gToXYZ } from "./galaxy-models";
 import { GalaxyCatalogCloud } from "./GalaxyCatalogCloud";
 import type { ObservationalGalaxy } from "./galaxy-catalog";
-export function ObservationalGalaxyNode({ g }: { g: ObservationalGalaxy }) {
+export function ObservationalGalaxyNode({
+  g,
+  navigating,
+}: {
+  g: ObservationalGalaxy;
+  navigating?: { current: boolean };
+}) {
   const pos = useMemo(() => gToXYZ(g.l, g.b, g.distance), [g]);
   const model = GALAXY_BY_NAME.get(g.name)!;
   const orientation = useMemo(() => galaxyOrientation(model), [model]);
@@ -16,6 +22,10 @@ export function ObservationalGalaxyNode({ g }: { g: ObservationalGalaxy }) {
   const setVisitGalaxy = useStore((s) => s.setVisitGalaxy);
   const hasDetail = Boolean(model);
   useFrame(({ camera, size }) => {
+    if (navigating?.current && hovered) {
+      setHovered(false);
+      document.body.style.cursor = "";
+    }
     const distance = camera.position.distanceTo(pos);
     const minDiameter =
       (distance *
@@ -26,6 +36,7 @@ export function ObservationalGalaxyNode({ g }: { g: ObservationalGalaxy }) {
     if (pickRef.current) pickRef.current.scale.setScalar(Math.max(g.size, minDiameter) * 0.5);
   });
   const onOver = (e: ThreeEvent<PointerEvent>) => {
+    if (navigating?.current || e.buttons !== 0) return;
     e.stopPropagation();
     setHovered(true);
     document.body.style.cursor = "pointer";

@@ -21,6 +21,11 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { nearestOrbitAngle, stellarDisplayRadius } from "./camera-navigation";
+import {
+  advanceCameraAngles,
+  ManualCameraRotation,
+  PointerDragClickGuard,
+} from "./camera-orbit-motion";
 import { useStore, TOUR_STOPS } from "./store";
 import { PLANETS, getPlanetEffectiveSize } from "./Planets";
 import { M31_PLANETS } from "./andromeda-data";
@@ -35,7 +40,7 @@ import {
   ScaleTransitionCoordinator,
 } from "@/lib/rendering/performance";
 
-// Custom orbit-style controller with smooth damped zoom & inertia
+// Custom orbit-style controller with eased travel and direct pointer rotation.
 export function CameraRig() {
   const { camera, gl, scene } = useThree();
   const nebulaFlight = useRef(new NebulaFlight());
@@ -57,7 +62,8 @@ export function CameraRig() {
     theta: 0,
     phi: bootGalaxy.current ? 0.6 : Math.PI / 2.2,
   });
-  const velocity = useRef({ theta: 0, phi: 0 });
+  const manualRotation = useRef(new ManualCameraRotation());
+  const clickGuard = useRef(new PointerDragClickGuard());
   const dragging = useRef(false);
   const activePointer = useRef<number | null>(null);
   const last = useRef({ x: 0, y: 0 });
@@ -143,8 +149,6 @@ export function CameraRig() {
     if (resetOrientationTrigger > 0) {
       desired.current.phi = Math.PI / 2.2;
       desired.current.theta = nearestOrbitAngle(spherical.current.theta, 0);
-      velocity.current.theta = 0;
-      velocity.current.phi = 0;
     }
   }, [resetOrientationTrigger]);
 
@@ -206,15 +210,19 @@ export function CameraRig() {
       camera.lookAt(anchor);
     };
     const onDown = (e: PointerEvent) => {
+      if (e.button === 0) clickGuard.current.begin(e.pointerId, e.clientX, e.clientY);
       if (e.pointerType === "touch" || e.button !== 0 || activePointer.current !== null) return;
       takeControl();
+      desired.current.theta = spherical.current.theta;
+      desired.current.phi = spherical.current.phi;
+      resumeLook.current = null;
       activePointer.current = e.pointerId;
-      velocity.current.theta = velocity.current.phi = 0;
       const state = useStore.getState();
       if (state.tourActive) state.stopTour();
       if (state.isAutoOrbiting) state.toggleAutoOrbit();
       dragging.current = true;
-      last.current = { x: e.clientX, y: e.clientY };
+      last.current.x = e.clientX;
+      last.current.y = e.clientY;
       try {
         el.setPointerCapture(e.pointerId);
       } catch {
@@ -222,6 +230,8 @@ export function CameraRig() {
       }
     };
     const onUp = (e: PointerEvent) => {
+      clickGuard.current.move(e.pointerId, e.clientX, e.clientY);
+      clickGuard.current.end(e.pointerId);
       if (activePointer.current !== e.pointerId) return;
       activePointer.current = null;
       dragging.current = false;
@@ -232,23 +242,32 @@ export function CameraRig() {
       }
     };
     const onMove = (e: PointerEvent) => {
+      clickGuard.current.move(e.pointerId, e.clientX, e.clientY);
       if (!dragging.current || e.pointerId !== activePointer.current || e.pointerType === "touch")
         return;
       if (!Number.isFinite(e.clientX + e.clientY)) return;
       const dx = e.clientX - last.current.x;
       const dy = e.clientY - last.current.y;
-      last.current = { x: e.clientX, y: e.clientY };
+      last.current.x = e.clientX;
+      last.current.y = e.clientY;
 
-      const currentR = useStore.getState().cameraFree ? freeScale.current : desired.current.radius;
+      const free = useStore.getState().cameraFree;
+      const currentR = free ? freeScale.current : desired.current.radius;
       // Adaptive angular speed: reduce sensitivity when inspecting planets close-up
       const sensitivity = currentR < 1e-5 ? 0.0028 : currentR > 1e6 ? 0.004 : 0.005;
-      velocity.current.theta = -dx * sensitivity;
-      velocity.current.phi = (useStore.getState().cameraFree ? dy : -dy) * sensitivity;
-      desired.current.theta += velocity.current.theta;
+      desired.current.theta -= dx * sensitivity;
       desired.current.phi = Math.max(
         0.03,
-        Math.min(Math.PI - 0.03, desired.current.phi + velocity.current.phi),
+        Math.min(Math.PI - 0.03, desired.current.phi + (free ? dy : -dy) * sensitivity),
       );
+      manualRotation.current.record(desired.current);
+    };
+    const onClickCapture = (e: MouseEvent) => {
+      // Keyboard activation has no pointer gesture and must remain available.
+      if (e.detail === 0 || !clickGuard.current.consumeClick()) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
     };
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -284,8 +303,12 @@ export function CameraRig() {
     };
     const onTouchStart = (e: TouchEvent) => {
       takeControl();
+      if (e.touches.length === 1) {
+        desired.current.theta = spherical.current.theta;
+        desired.current.phi = spherical.current.phi;
+        resumeLook.current = null;
+      }
       dragging.current = true;
-      velocity.current.theta = velocity.current.phi = 0;
       const state = useStore.getState();
       if (state.tourActive) state.stopTour();
       if (state.isAutoOrbiting) state.toggleAutoOrbit();
@@ -326,7 +349,8 @@ export function CameraRig() {
         if (!touch) return;
         const dx = touch.clientX - last.current.x;
         const dy = touch.clientY - last.current.y;
-        last.current = { x: touch.clientX, y: touch.clientY };
+        last.current.x = touch.clientX;
+        last.current.y = touch.clientY;
         desired.current.theta -= dx * 0.005;
         desired.current.phi = Math.max(
           0.03,
@@ -335,18 +359,25 @@ export function CameraRig() {
             desired.current.phi + dy * (useStore.getState().cameraFree ? 0.005 : -0.005),
           ),
         );
+        manualRotation.current.record(desired.current);
       }
     };
     const onTouchEnd = (e: TouchEvent) => {
       dragging.current = e.touches.length > 0;
       pinch.current = null;
       const touch = e.touches[0];
-      if (touch) last.current = { x: touch.clientX, y: touch.clientY };
+      if (touch) {
+        last.current.x = touch.clientX;
+        last.current.y = touch.clientY;
+      }
     };
     const onSingleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
         const touch = e.touches[0];
-        if (touch) last.current = { x: touch.clientX, y: touch.clientY };
+        if (touch) {
+          last.current.x = touch.clientX;
+          last.current.y = touch.clientY;
+        }
       }
     };
 
@@ -354,20 +385,29 @@ export function CameraRig() {
       dragging.current = false;
       activePointer.current = null;
       pinch.current = null;
-      velocity.current.theta = velocity.current.phi = 0;
+    };
+    const cancelGesture = () => {
+      cancel();
+      clickGuard.current.cancel();
+    };
+    const lostCapture = (e: PointerEvent) => {
+      // Normal pointerup releases capture before its click. Keep the recorded
+      // drag in that case so the capture-phase click guard can consume it.
+      if (activePointer.current === e.pointerId) cancelGesture();
     };
     const blur = () => {
-      cancel();
+      cancelGesture();
       freeLookInput.clear();
       freeVelocity.current.set(0, 0, 0);
       freeWheel.current = 0;
       keys.current.in = keys.current.out = false;
     };
     el.addEventListener("pointerdown", onDown);
-    el.addEventListener("lostpointercapture", cancel);
-    window.addEventListener("pointercancel", cancel);
+    el.addEventListener("click", onClickCapture, true);
+    el.addEventListener("lostpointercapture", lostCapture);
+    window.addEventListener("pointercancel", cancelGesture);
     window.addEventListener("blur", blur);
-    el.addEventListener("touchcancel", cancel);
+    el.addEventListener("touchcancel", cancelGesture);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointermove", onMove);
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -376,12 +416,13 @@ export function CameraRig() {
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd);
     return () => {
-      cancel();
+      cancelGesture();
       el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("lostpointercapture", cancel);
-      window.removeEventListener("pointercancel", cancel);
+      el.removeEventListener("click", onClickCapture, true);
+      el.removeEventListener("lostpointercapture", lostCapture);
+      window.removeEventListener("pointercancel", cancelGesture);
       window.removeEventListener("blur", blur);
-      el.removeEventListener("touchcancel", cancel);
+      el.removeEventListener("touchcancel", cancelGesture);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointermove", onMove);
       el.removeEventListener("wheel", onWheel);
@@ -520,7 +561,6 @@ export function CameraRig() {
     followedSun.current = null;
     freeVelocity.current.set(0, 0, 0);
     freeWheel.current = 0;
-    velocity.current.theta = velocity.current.phi = 0;
     if (cameraFree) {
       useBlackHoleJourney.getState().reset();
       descentSession.current.id = "";
@@ -714,6 +754,7 @@ export function CameraRig() {
 
   useFrame((_, dt) => {
     const clampedDt = Math.min(dt, 0.1);
+    const directRotation = manualRotation.current.consume(desired.current);
     const reg = (window as Window).__planetPositions;
     const st = useStore.getState();
     const selectedStar = st.selectedStar;
@@ -729,7 +770,6 @@ export function CameraRig() {
       desired.current.radius = spherical.current.radius;
       desired.current.theta = spherical.current.theta;
       desired.current.phi = spherical.current.phi;
-      velocity.current.theta = velocity.current.phi = 0;
       fovTarget.current = (camera as THREE.PerspectiveCamera).fov;
       if (["idle", "inside"].includes(useGalaxyJourney.getState().mode))
         resumeLook.current = camera.quaternion.clone();
@@ -746,7 +786,6 @@ export function CameraRig() {
       desired.current.radius = spherical.current.radius;
       desired.current.theta = spherical.current.theta;
       desired.current.phi = spherical.current.phi;
-      velocity.current.theta = velocity.current.phi = 0;
       fovTarget.current = (camera as THREE.PerspectiveCamera).fov;
       if (["idle", "inside"].includes(useNebulaJourney.getState().mode))
         resumeLook.current = camera.quaternion.clone();
@@ -776,18 +815,7 @@ export function CameraRig() {
         0.01,
         Math.PI - 0.01,
       );
-      spherical.current.theta = expDampScalar(
-        spherical.current.theta,
-        desired.current.theta,
-        12,
-        clampedDt,
-      );
-      spherical.current.phi = expDampScalar(
-        spherical.current.phi,
-        desired.current.phi,
-        12,
-        clampedDt,
-      );
+      advanceCameraAngles(spherical.current, desired.current, 12, clampedDt, directRotation);
       freeForward.current.setFromSphericalCoords(1, spherical.current.phi, spherical.current.theta);
       freeRight.current.crossVectors(freeForward.current, camera.up).normalize();
       const forward =
@@ -1036,28 +1064,11 @@ export function CameraRig() {
       clampedDt,
       minR,
     );
-    spherical.current.theta = expDampScalar(
-      spherical.current.theta,
-      desired.current.theta,
-      6.5,
-      clampedDt,
-    );
-    spherical.current.phi = expDampScalar(
-      spherical.current.phi,
-      desired.current.phi,
-      6.5,
-      clampedDt,
-    );
+    advanceCameraAngles(spherical.current, desired.current, 6.5, clampedDt, directRotation);
 
     if (tourActive || (isAutoOrbiting && !dragging.current)) {
       desired.current.theta += clampedDt * (tourActive ? 0.05 : 0.06);
     }
-    if (!dragging.current) {
-      const inertiaRetention = Math.pow(0.92, clampedDt * 60);
-      velocity.current.theta *= inertiaRetention;
-      velocity.current.phi *= inertiaRetention;
-    }
-
     scratchPos.current.setFromSpherical(spherical.current).add(target.current);
     camera.position.copy(scratchPos.current);
     camera.lookAt(target.current);

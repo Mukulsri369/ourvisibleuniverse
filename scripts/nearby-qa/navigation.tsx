@@ -35,13 +35,18 @@ function StateProbe() {
   };
   return null;
 }
-createRoot(document.getElementById("root")!).render(
+const container = document.getElementById("root")! as HTMLElement & {
+  nearbyQaRoot?: ReturnType<typeof createRoot>;
+};
+// Shared shader edits can refresh this QA entry. Reuse its root and WebGL canvas.
+const root = (container.nearbyQaRoot ??= createRoot(container));
+root.render(
   <main style={{ height: "100dvh", width: "100vw", overflow: "hidden", background: "#000" }}>
     <p className="pointer-events-none fixed bottom-2 left-4 z-50 text-xs text-neutral-400">
       Isolated local QA · actual explorer, camera, and catalogue components
     </p>
     <Canvas
-      dpr={1}
+      dpr={Math.max(1, Math.min(2, Number(new URLSearchParams(location.search).get("dpr")) || 1))}
       gl={{ antialias: false, logarithmicDepthBuffer: true }}
       camera={{ fov: 42, near: 0.001, far: 1e12 }}
     >
