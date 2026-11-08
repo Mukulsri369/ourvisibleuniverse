@@ -22,6 +22,12 @@ The owner requested connecting the newly purchased GoDaddy `ourvisibleuniverse.c
 
 ## Publication checkpoint
 
-At this documentation checkpoint the domains, TLS, Supabase settings and Razorpay approval are complete. The new primary-origin source is prepared locally; final code push, Worker version and post-deployment verification will be recorded here after publication. The previous runtime version is `3fa153d6-5214-4fa4-9519-d70566eabb7a`.
+Runtime source **445382d** was pushed to `origin/migration/supabase-cloudflare` and deployed to the same Worker as **2b85f0a4-a0cc-407d-8237-8e3560fc70b5**, serving **100%** of traffic. The preceding runtime version was `3fa153d6-5214-4fa4-9519-d70566eabb7a`. Subsequent documentation commits do not require rebuilding this runtime.
+
+Fresh committed-source client/Worker builds passed in 16.00 / 21.78 seconds, followed by a production-config dry run. The artifact scan checked 655 built files and 1,165 source files, with zero matches for the private credential values supplied to the scan. All production binding names/types and values were preserved except the intentional `PUBLIC_APP_ORIGIN` change to `https://ourvisibleuniverse.com`. No existing secret value was read back, displayed or rotated.
+
+At **2026-11-08 09:03:24 UTC**, 17 read-only HTTP checks passed: primary public/app/auth pages, route-and-query-preserving 308 redirects on all three aliases, retained `.in` auth/recovery routes and protected-resource metadata on both primary and legacy origins. The retained Workers auth hostname still returned 200 with noindex headers. HTTP 200 for protected shell routes does not establish authenticated access or a completed payment. Chrome also visibly followed `.in/` to `.com/` and rendered the homepage.
+
+Live `StarsApp-C9xlAokU.js` matched the built scene byte-for-byte (2,556,916 bytes; SHA-256 `1bcb6c963607d199c48de2d66c14787ddbf15d101f9c18323dc902789a729345`). Public DNS separately returned the preserved MX priorities, SPF, DMARC, both DKIM aliases and the exact `0 0 443` email autodiscovery SRV value. This verifies records, not mail delivery. Private build/configuration/deployment evidence remains outside Git.
 
 Scientific coverage, full authenticated M31 scene acceptance and physical-device performance gaps from the prior reports remain open. A domain transition does not close them.
