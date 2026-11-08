@@ -8,6 +8,30 @@ Latest release: on 8 November the owner explicitly requested pushing all changes
 
 The dense-view follow-up fixes stepped mouse input and unnecessary drag/wheel survey scans; it supersedes the earlier direct-pointer response. The nearby release remains at 831 catalogue galaxies / 641 additions. The grouped M31 P1/P2/P3 destination remains at 14/124/18 counts, with authenticated full-scene acceptance still pending. Publication does not close the documented scientific, source-rights or device/performance acceptance gaps.
 
+## 8 November — visual-fidelity tooling research (latest checkpoint; documentation only)
+
+- **What and why:** the owner asked which Claude Code skills, plugins and GitHub repositories would help OVU reach higher-resolution, realistic and scientifically sourced visuals with smooth interaction across all observed object classes. The answer is in the [visual-fidelity tooling report](VISUAL_FIDELITY_TOOLING_20261108.md). This was research only. No source, catalogue, texture, dependency, configuration, Supabase, Cloudflare, payment, DNS or customer change was made, and nothing was installed into the owner's Claude Code.
+- **Checkout verified:** a fresh cloud clone of `migration/supabase-cloudflare`, clean and level with origin at `c1b1ab0` before this commit. The owner's Windows workspace was not visible from this session, including any uncommitted files, the private helpers and the loopback 31755 preview.
+- **Recorded findings:**
+  - The renderer is WebGL-only (no `three/webgpu` or `three/tsl` imports).
+  - Planet maps are 2048×1024 and moon maps 1024×512.
+  - The 70 JPEG textures total 525 megapixels, about 2.6 GiB if all were uploaded uncompressed. That is an upper bound, not a VRAM measurement.
+  - KTX2 is used only in the cinematic loader; 123 files use `@ts-nocheck`.
+  - Upstream: three 0.187.0; R3F 9.8.2 stable, with v10 still alpha. Gaia DR4 is due 2 December 2026, and Euclid DR1-Foundation is due in November 2026.
+  - Licence cautions: TimeCraftJS needs Caltech negotiation for commercial use. Aladin Lite (GPL-3.0) and Stellarium Web Engine (AGPL-3.0) are reference-only for paid OVU. DSS imagery prohibits commercial use without permission.
+- **Checks actually run:**
+  - Git branch, status and log inspection.
+  - Dependency and grep counts, and a JPEG header dimension scan.
+  - A parse of the official and community plugin catalogues, and npm dist-tags.
+  - Licence-file reads, plus a `git ls-remote` check that every cited GitHub repository resolves.
+  - Not run: build, TypeScript, lint or test suites (no code changed); browser, device or production inspection.
+- **Source and deployment status:** one documentation-only commit on top of `c1b1ab0`, containing the report and this section, created in a cloud session with read-only GitHub access. **Not pushed and not deployed.** Production remains as last recorded (Worker `2b85f0a4-a0cc-407d-8237-8e3560fc70b5`, source `445382d`) and was not freshly inspected.
+- **Next concrete action:**
+  - Optional: the owner installs the report's §2 tooling locally.
+  - First measured task: an authenticated full-app performance trace at a fixed pose, viewport and DPR. This also closes the pending M31 nuclear-destination acceptance.
+  - Then: the KTX2 texture-pipeline task.
+  - Each task needs its own approval, and deployment still needs explicit authorisation.
+
 ## Current scope and architecture
 
 - Repository: https://github.com/Mukulsri369/ourvisibleuniverse
