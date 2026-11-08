@@ -53,7 +53,7 @@ export class PointerDragClickGuard {
   }
 }
 
-/** Coalesce pointer events without losing a final move that precedes pointerup. */
+/** Keep rendering between input packets, including the short settle after release. */
 export class ManualCameraRotation {
   private pending = false;
   private theta = 0;
@@ -65,16 +65,25 @@ export class ManualCameraRotation {
     this.phi = angles.phi;
   }
 
-  consume(angles: CameraAngles): boolean {
+  consume(angles: CameraAngles, current: CameraAngles): boolean {
     // A subsequent explicit destination/reset owns its new orientation and must
     // retain cinematic easing rather than inherit an earlier pointer event.
-    const direct = this.pending && angles.theta === this.theta && angles.phi === this.phi;
-    this.pending = false;
-    return direct;
+    if (!this.pending || angles.theta !== this.theta || angles.phi !== this.phi) {
+      this.pending = false;
+      return false;
+    }
+    if (Math.abs(current.theta - angles.theta) + Math.abs(current.phi - angles.phi) < 1e-7) {
+      this.pending = false;
+      return false;
+    }
+    return true;
   }
 }
 
-/** Direct gestures follow the latest input at render time; automated turns ease. */
+// A 20ms response fills display frames between sparse mouse packets. This is
+// much shorter than flight easing, with no velocity extrapolation or overshoot.
+export const MANUAL_ORBIT_RESPONSE = 50;
+/** Resample manual targets on every display frame; automated turns keep their easing. */
 export function advanceCameraAngles(
   current: CameraAngles,
   requested: CameraAngles,
@@ -82,12 +91,19 @@ export function advanceCameraAngles(
   deltaSeconds: number,
   manualInput: boolean,
 ): void {
-  if (manualInput) {
-    current.theta = requested.theta;
-    current.phi = requested.phi;
-    return;
-  }
-  const factor = 1 - Math.exp(-response * Math.max(0, Math.min(deltaSeconds, 0.1)));
+  if (deltaSeconds <= 0) return;
+  const factor =
+    1 -
+    Math.exp(
+      -(manualInput ? MANUAL_ORBIT_RESPONSE : response) * Math.max(0, Math.min(deltaSeconds, 0.1)),
+    );
   current.theta += (requested.theta - current.theta) * factor;
   current.phi += (requested.phi - current.phi) * factor;
+  if (
+    manualInput &&
+    Math.abs(current.theta - requested.theta) + Math.abs(current.phi - requested.phi) < 1e-7
+  ) {
+    current.theta = requested.theta;
+    current.phi = requested.phi;
+  }
 }

@@ -131,6 +131,9 @@ try {
         await page.mouse.down();
         await page.mouse.move(x + 12, y);
         await page.mouse.up();
+        // Manual input now interpolates between packets rather than snapping.
+        // Check prompt settling separately from rendered-frame pacing.
+        await page.waitForTimeout(100);
         const final = await page.evaluate(
           () =>
             new Promise((resolve) =>
@@ -142,15 +145,13 @@ try {
         const error = Math.abs(
           Math.atan2(Math.sin(final - initial + 0.048), Math.cos(final - initial + 0.048)),
         );
-        assert(
-          error < 0.002,
-          `Manual rotation must follow a 12px move in the next rendered frames: ${error}`,
-        );
+        assert(error < 0.002, `Manual rotation must settle promptly after a 12px move: ${error}`);
         result.manualStepErrorRadians = error;
         // Restore the heading before the next scenario/control comparison.
         await page.mouse.down();
         await page.mouse.move(x, y);
         await page.mouse.up();
+        await page.waitForTimeout(100);
         await page.evaluate(
           () =>
             new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),

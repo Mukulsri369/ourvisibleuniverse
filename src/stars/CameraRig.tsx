@@ -754,7 +754,7 @@ export function CameraRig() {
 
   useFrame((_, dt) => {
     const clampedDt = Math.min(dt, 0.1);
-    const directRotation = manualRotation.current.consume(desired.current);
+    const manualRotationActive = manualRotation.current.consume(desired.current, spherical.current);
     const reg = (window as Window).__planetPositions;
     const st = useStore.getState();
     const selectedStar = st.selectedStar;
@@ -815,7 +815,7 @@ export function CameraRig() {
         0.01,
         Math.PI - 0.01,
       );
-      advanceCameraAngles(spherical.current, desired.current, 12, clampedDt, directRotation);
+      advanceCameraAngles(spherical.current, desired.current, 12, clampedDt, manualRotationActive);
       freeForward.current.setFromSphericalCoords(1, spherical.current.phi, spherical.current.theta);
       freeRight.current.crossVectors(freeForward.current, camera.up).normalize();
       const forward =
@@ -1064,7 +1064,7 @@ export function CameraRig() {
       clampedDt,
       minR,
     );
-    advanceCameraAngles(spherical.current, desired.current, 6.5, clampedDt, directRotation);
+    advanceCameraAngles(spherical.current, desired.current, 6.5, clampedDt, manualRotationActive);
 
     if (tourActive || (isAutoOrbiting && !dragging.current)) {
       desired.current.theta += clampedDt * (tourActive ? 0.05 : 0.06);

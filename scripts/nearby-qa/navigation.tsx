@@ -11,6 +11,7 @@ import { useStore } from "../../src/stars/store";
 import { useExploration } from "../../src/stars/exploration-scope";
 import { useGalaxyJourney } from "../../src/stars/galaxy-journey";
 import { HOME_GALAXY } from "../../src/stars/exploration-galaxies";
+import { MotionProbe, MotionControls } from "./motion-probe";
 useStore.setState({
   visitGalaxy: HOME_GALAXY,
   uiHidden: false,
@@ -54,8 +55,10 @@ root.render(
       <Universe />
       <DetailedGalaxies />
       <CameraRig />
+      <MotionProbe />
     </Canvas>
     <GalaxyExplorer />
     <GalaxyInfoPanel />
+    <MotionControls />
   </main>,
 );

@@ -17,24 +17,56 @@ for (const hz of [30, 60, 120]) {
       requested.phi = 1 + ((frame - 1 + event / 4) * 0.2) / hz;
       input.record(requested);
     }
-    advanceCameraAngles(current, requested, 6.5, 1 / hz, input.consume(requested));
-    assert.equal(current.theta, requested.theta, `Horizontal input must not trail at ${hz} Hz`);
-    assert.equal(current.phi, requested.phi, `Vertical input must not trail at ${hz} Hz`);
+    advanceCameraAngles(current, requested, 6.5, 1 / hz, input.consume(requested, current));
+    assert(
+      Math.abs(current.theta - requested.theta) / 0.8 < 0.025,
+      `Manual response must stay below 25ms at ${hz}Hz`,
+    );
+    assert(
+      current.theta >= requested.theta && current.phi <= requested.phi,
+      "No extrapolation beyond the mouse target",
+    );
     assert.equal(current.radius, 1e8, "Orbit input cannot change zoom");
   }
 
-  // Pointerup may occur before the frame that consumes this final move. Pending
-  // input survives release and is consumed exactly once, without a drifting tail.
+  // A final pre-release move survives release and settles promptly, without
+  // snapping on pointerup or introducing unbounded angular inertia.
   requested.theta -= 0.01;
   requested.phi += 0.02;
   input.record(requested);
-  assert(input.consume(requested), "The final pre-release move must be available");
-  advanceCameraAngles(current, requested, 6.5, 1 / hz, true);
-  for (let frame = 0; frame < hz; frame++) {
-    assert.equal(input.consume(requested), false);
-    advanceCameraAngles(current, requested, 6.5, 1 / hz, false);
-    assert.deepEqual(current, { radius: 1e8, ...requested }, "Release cannot introduce inertia");
+  assert(input.consume(requested, current), "The final pre-release move must be available");
+  for (let frame = 0; frame < hz / 2; frame++) {
+    advanceCameraAngles(current, requested, 6.5, 1 / hz, input.consume(requested, current));
   }
+  assert.deepEqual(
+    current,
+    { radius: 1e8, ...requested },
+    "Settling ends at the exact requested heading",
+  );
+  assert.equal(input.consume(requested, current), false, "No continuing post-release drift");
+
+  const sparse = new ManualCameraRotation(),
+    pose = { theta: 0, phi: 1 },
+    goal = { theta: 0, phi: 1 };
+  let packet = 0,
+    held = 0;
+  for (let frame = 1; frame <= hz; frame++) {
+    const next = Math.floor((frame / hz) * 20);
+    if (next !== packet) {
+      packet = next;
+      goal.theta = -packet * 0.02;
+      sparse.record(goal);
+    }
+    const before = pose.theta;
+    advanceCameraAngles(pose, goal, 6.5, 1 / hz, sparse.consume(goal, pose));
+    if (frame > hz * 0.2 && pose.theta === before) held++;
+  }
+  assert.equal(held, 0, `${hz}Hz rendering must not hold still between 20Hz pointer packets`);
+  const step = { theta: 0, phi: 1 },
+    end = { theta: 1, phi: 1 };
+  for (let frame = 0; frame < Math.ceil(hz * 0.065); frame++)
+    advanceCameraAngles(step, end, 6.5, 1 / hz, true);
+  assert(step.theta > 0.95 && step.theta <= 1, `Manual input reaches 95% within 70ms at ${hz}Hz`);
 }
 
 for (const response of [6.5, 12]) {
@@ -59,7 +91,7 @@ const requested = { theta: 0.5, phi: 1.5 };
 input.record(requested);
 requested.theta = 2;
 const current = { theta: 0, phi: 1 };
-advanceCameraAngles(current, requested, 6.5, 1 / 60, input.consume(requested));
+advanceCameraAngles(current, requested, 6.5, 1 / 60, input.consume(requested, current));
 assert(current.theta > 0 && current.theta < requested.theta, "Explicit navigation retains easing");
 const paused = { ...current };
 advanceCameraAngles(current, requested, 6.5, -1, false);
@@ -110,5 +142,5 @@ clicks.end(8);
 assert(clicks.consumeClick(), "A two-finger gesture must not generate a galaxy selection");
 
 console.log(
-  "PASS: direct 30/60/120-Hz orbit, final pointer moves, eased navigation ownership and closed-loop drag click suppression",
+  "PASS: smooth 30/60/120-Hz orbit between sparse mouse packets, short settling, navigation ownership and drag click suppression",
 );

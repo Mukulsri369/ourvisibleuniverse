@@ -13,7 +13,32 @@ import * as THREE from "three";
 export function SurveyGalaxyField() {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
   const root = useRef<THREE.Points>(null);
+  const pickEvent = useRef("");
   const size = useThree((s) => s.size);
+  const gl = useThree((s) => s.gl);
+  useEffect(() => {
+    // R3F intersects click targets on pointerdown/up and wheel too. Track the
+    // native event before its handler so those gestures do not scan 42k rows.
+    const canvas = gl.domElement;
+    const types = [
+      "pointerdown",
+      "pointerup",
+      "pointermove",
+      "pointercancel",
+      "wheel",
+      "click",
+      "dblclick",
+      "contextmenu",
+    ];
+    const track = (event: Event) => {
+      pickEvent.current = event.type;
+    };
+    for (const type of types)
+      canvas.addEventListener(type, track, { capture: true, passive: true });
+    return () => {
+      for (const type of types) canvas.removeEventListener(type, track, true);
+    };
+  }, [gl]);
   const select = (e: ThreeEvent<MouseEvent>) => {
     if (e.delta > 4 || e.index == null || !geometry) return;
     e.stopPropagation();
@@ -174,7 +199,18 @@ gl_FragColor=vec4(light/max(.001,1.-trans)*3.,alpha);
       material={material}
       frustumCulled={false}
       onClick={select}
-      raycast={(raycaster, hits) => pickSurveyGalaxy(root.current, raycaster, size, hits)}
+      raycast={(raycaster, hits) => {
+        const object = root.current;
+        if (!object?.visible || !raycaster.camera) return;
+        if (pickEvent.current === "click") {
+          pickSurveyGalaxy(object, raycaster, size, hits);
+        } else if (pickEvent.current === "pointerdown") {
+          // R3F requires the object in initialHits to deliver a later true click.
+          // A last-priority registration hit avoids picking a source before we
+          // know this is a click. The click itself gets the real index/distance.
+          hits.push({ distance: Infinity, point: raycaster.ray.origin.clone(), object });
+        }
+      }}
     />
   ) : null;
 }
