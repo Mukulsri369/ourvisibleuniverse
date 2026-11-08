@@ -8,7 +8,25 @@ Latest release: on 8 November the owner explicitly requested pushing all changes
 
 The dense-view follow-up fixes stepped mouse input and unnecessary drag/wheel survey scans; it supersedes the earlier direct-pointer response. The nearby release remains at 831 catalogue galaxies / 641 additions. The grouped M31 P1/P2/P3 destination remains at 14/124/18 counts, with authenticated full-scene acceptance still pending. Publication does not close the documented scientific, source-rights or device/performance acceptance gaps.
 
-## 8 November — Claude Code project tooling installed (latest checkpoint; configuration only)
+## 8–9 November — registered telescope images for selected galaxies (latest checkpoint; local commit only)
+
+- **What and why:** the owner asked for the Milky Way and nearby galaxies to look realistic, like Hubble and Webb releases. Twelve galaxies now show their published Hubble, Webb or VST image when selected and viewed from the Solar System's side (M81, M51, M101, M104, M82, Antennae, Tadpole, Cartwheel, Hoag's Object, NGC 1300, Stephan's Quintet, M33). The image fades to the 3D reconstruction off-axis, close up and on entry. Method, sources, limitations and next steps: [observed-image report](GALAXY_OBSERVED_IMAGES_20261108.md).
+- **Scientific corrections made alongside:**
+  - Curated galaxies were oriented without their sky position (M51 appeared 88.7° inclined from Earth instead of 22°). 78 models now use the measured on-sky orientation.
+  - Ten reconstructions carried rounded positions, up to 4 disk radii from their catalogue body. Models now take the catalogue position.
+  - Catalogue positions corrected with evidence: Cartwheel, Hoag's Object, NGC 1300, Antennae, Tadpole, Mayall's Object. Nine further l/b-vs-RA/Dec disagreements are flagged, not changed.
+- **Behaviour changes to know about:** overview framing of galaxies beyond 1 Mly now looks from the Solar System's side (satellites keep the old framing after the LMC view broke in QA). Synthetic bloom is off while a registered image is shown. The QA page accepts `?optics=1` to add the production optics pipeline.
+- **Checks actually run:**
+  - `npx tsc --noEmit` exit 0. ESLint on changed files: 0 errors, 4 existing-style warnings.
+  - New `npm run test:galaxy-observed` passed.
+  - Passed: `test`, `test:catalog`, `test:consistency`, `test:extragalactic`, `test:compact`, `test:nebulae`, `test:black-holes`, `test:galaxies`, `test:scene-depth`, `test:galaxy-clarity`, `test:solar-galactic-motion`, `test:galaxy-entry`, `test:navigation`, `test:galaxy-populations`, `test:galaxy-landmarks`, `test:galaxy-empty-space`, `test:galaxy-explorer`, `test:exploration-camera`, `test:nearby-catalog`, `test:rendering`, `test:visual`, `test:3d`, `test:cosmic-web`, `test:lss`, `test:evolution`, `test:qa`, and the Andromeda expansion/remaining, galaxy-experience, overview-appearance and rendering-performance scripts.
+  - `test:nearby-expansion` and `test:nearby-regressions` fail, identically on a clean worktree of `53369a0`: a last-digit floating-point difference in the `mcconnachie-2021-andromeda20` raw import. Pre-existing and unrelated.
+  - Visual: loopback QA in headless Chrome with SwiftShader, with and without `?optics=1`. Screenshots only; no performance claim.
+  - Not run: the production app, authenticated full-scene checks, `build:cloudflare` (needs the approved public Supabase config), academy/auth/payment suites (untouched areas).
+- **Source and deployment status:** one local commit after `53369a0` on `migration/supabase-cloudflare`, created in a cloud session with read-only GitHub access. **Not pushed and not deployed**; delivered to the owner as a patch. Production remains as last recorded and was not inspected.
+- **Next concrete action:** apply and review the patch, run the app locally and look at M81, M51, M104 and M33 from the overview. Then: LMC and SMC images (framing and a frame window are needed; registration data is in the report), Centaurus A, a high-resolution registered Andromeda image (must be supplied by the owner), and the Milky Way exterior reconstruction.
+
+## 8 November — Claude Code project tooling installed (configuration only)
 
 - **What and why:** the owner asked to install the tooling recommended in the [visual-fidelity tooling report](VISUAL_FIDELITY_TOOLING_20261108.md) for the next improvement work. It is installed as committed project configuration, so local Claude Code and cloud sessions get the same setup. See [`.claude/README.md`](../.claude/README.md).
 - **Plugins:** `.claude/settings.json` enables six `claude-plugins-official` plugins at project scope, written by `claude plugin install … --scope project`:

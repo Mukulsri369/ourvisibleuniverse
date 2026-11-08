@@ -1,4 +1,5 @@
 import { GALAXY_MEDIUM } from "./galaxy-medium";
+import { OBSERVED_FOOTPRINT_GLSL } from "./galaxy-observed-projection";
 /** Rays integrate the same 3D field for the catalogue, approach, and interior. */
 export const GALAXY_FRAGMENT =
   /* glsl */ `
@@ -11,6 +12,7 @@ uniform float uOpacity,uReveal,uSteps,uCacheFade,uVolumeWeight;
 uniform float uExteriorView;
 varying vec3 vP;
 ` +
+  OBSERVED_FOOTPRINT_GLSL +
   GALAXY_MEDIUM +
   /* glsl */ `
 void main(){
@@ -41,9 +43,12 @@ void main(){
 #endif
  float ds=(finish-start)/steps,trans=1.;vec3 light=vec3(0.);
  float jitter=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);
+ // A registered telescope image replaces reconstructed light only inside its frame.
+ vec4 obs0=uObsMat*vec4(uEye,1.),obsDir=uObsMat*vec4(rd,0.);
  for(int i=0;i<112;i++){
   if(float(i)>=steps||trans<.012)break;
-  vec3 p=uEye+rd*(start+(float(i)+.5+(jitter-.5)*.35)*ds);
+  float t=start+(float(i)+.5+(jitter-.5)*.35)*ds;
+  vec3 p=uEye+rd*t;
   float r=length(p.xz),angle=uTime*uRotationRate;
   float c=cos(angle),s=sin(angle);vec3 q=vec3(p.x*c-p.z*s,p.y,p.x*s+p.z*c);
   vec4 field;
@@ -68,8 +73,9 @@ void main(){
   float detail=noise(q*210.);field.a*=mix(.65,1.5,detail);field.rgb*=mix(.78,1.22,detail);
 #endif
   float localClear=smoothstep(.012,mix(.045,.13,uReveal),length(p-uEye));
-  float dust=field.a*localClear;
-  vec3 emission=field.rgb*localClear*mix(1.,.09,uReveal);
+  float keep=observedKeepH(obs0+obsDir*t);
+  float dust=field.a*localClear*keep;
+  vec3 emission=field.rgb*localClear*mix(1.,.09,uReveal)*keep;
   float extinction=dust+dot(emission,vec3(.2126,.7152,.0722))*.11;
   float alpha=1.-exp(-extinction*ds*6.);
   vec3 reddening=exp(-dust*ds*vec3(.65,1.,1.6));

@@ -678,10 +678,17 @@ export function CameraRig() {
         ? visitGalaxy.focus.distance
         : Math.max(visitGalaxy.size * 2.2, 2000);
     desired.current.radius = r;
+    // Galaxies beyond the Milky Way's satellites are framed from the Solar System's
+    // side, the direction from which every telescope image of them was recorded.
+    // Satellites keep the oblique framing: an Earth-side camera would sit at the edge
+    // of the Milky Way's own halo (the LMC view broke in QA).
+    const towardSun = new THREE.Vector3(-visitGalaxy.x, -visitGalaxy.y, -visitGalaxy.z);
     const offset =
       visitGalaxy.name === "Milky Way"
         ? new THREE.Vector3(r * 0.15, r * 0.85, r * 0.5)
-        : new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
+        : towardSun.length() > 1_000_000
+          ? towardSun.normalize().multiplyScalar(r)
+          : new THREE.Vector3(r * 0.6, r * 0.35, r * 0.7);
     const sph = new THREE.Spherical().setFromVector3(offset);
     desired.current.theta = nearestOrbitAngle(spherical.current.theta, sph.theta);
     desired.current.phi = Math.max(0.3, Math.min(Math.PI - 0.3, sph.phi));

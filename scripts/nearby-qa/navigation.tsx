@@ -12,6 +12,9 @@ import { useExploration } from "../../src/stars/exploration-scope";
 import { useGalaxyJourney } from "../../src/stars/galaxy-journey";
 import { HOME_GALAXY } from "../../src/stars/exploration-galaxies";
 import { MotionProbe, MotionControls } from "./motion-probe";
+import { OpticsPostProcessing } from "../../src/stars/OpticsPostProcessing";
+// `?optics=1` adds the production exposure, tone-mapping and bloom pipeline.
+const OPTICS = new URLSearchParams(location.search).has("optics");
 useStore.setState({
   visitGalaxy: HOME_GALAXY,
   uiHidden: false,
@@ -56,6 +59,7 @@ root.render(
       <DetailedGalaxies />
       <CameraRig />
       <MotionProbe />
+      {OPTICS && <OpticsPostProcessing />}
     </Canvas>
     <GalaxyExplorer />
     <GalaxyInfoPanel />

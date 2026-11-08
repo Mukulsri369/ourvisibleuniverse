@@ -5,6 +5,7 @@ import { GALAXY_MODELS, galaxyCenter } from "./galaxy-models";
 import { ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
 import { BlackHoleLensPass } from "./BlackHoleLensPass";
 import { OBJECT_BY_ID } from "./observed-objects";
+import { galaxyObservedFootprint } from "./galaxy-detail-state";
 /**
  * Astronomical Optics & Post-Processing Pipeline
  *
@@ -271,6 +272,12 @@ export function OpticsPostProcessing() {
     );
     composer.bloomPass.strength *= 1 - interiorClarity * 0.97;
     composer.bloomPass.threshold = Math.max(composer.bloomPass.threshold, interiorClarity * 1.8);
+    // A registered telescope photograph already carries its instrument's optical
+    // response; synthetic bloom over it would apply a second one.
+    let observedImage = 0;
+    for (const footprint of galaxyObservedFootprint.values())
+      observedImage = Math.max(observedImage, footprint.weight);
+    composer.bloomPass.strength *= 1 - observedImage;
     // Render through composer with post-processing passes
     const autoReset = gl.info.autoReset;
     gl.info.autoReset = false;

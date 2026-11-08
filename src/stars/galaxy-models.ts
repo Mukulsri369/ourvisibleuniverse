@@ -655,8 +655,9 @@ const CURATED_GALAXY_MODELS: GalaxyModel[] = [
       name: "Cartwheel Galaxy",
       type: "Ring Galaxy",
       morphology: "ring" as Morphology,
-      l: 316.0,
-      b: -70.0,
+      // l/b recomputed from the catalogue ICRS RA/Dec; the previous 316.0/-70.0 was 12.96° away.
+      l: 326.306,
+      b: -82.777,
       distance: 500_000_000,
       inclination: 30,
       posAngle: 145,
@@ -687,8 +688,9 @@ const CURATED_GALAXY_MODELS: GalaxyModel[] = [
       name: "Hoag's Object",
       type: "Ring Galaxy",
       morphology: "ring" as Morphology,
-      l: 31.71,
-      b: 56.25,
+      // l/b recomputed from the catalogue ICRS RA/Dec; the previous 31.71/56.25 was 0.22° away.
+      l: 31.518,
+      b: 56.452,
       distance: 612_800_000,
       inclination: 18,
       posAngle: 25,
@@ -719,8 +721,9 @@ const CURATED_GALAXY_MODELS: GalaxyModel[] = [
       name: "NGC 4038/4039 (Antennae)",
       type: "Interacting",
       morphology: "interacting" as Morphology,
-      l: 286.21,
-      b: 42.48,
+      // l/b recomputed from the catalogue ICRS RA/Dec; the previous 286.21/42.48 was 0.55° away.
+      l: 286.959,
+      b: 42.461,
       distance: 45_000_000,
       inclination: 46,
       posAngle: 68,
@@ -781,8 +784,9 @@ const CURATED_GALAXY_MODELS: GalaxyModel[] = [
       name: "Tadpole Galaxy (UGC 10214)",
       type: "Interacting",
       morphology: "interacting" as Morphology,
-      l: 85.62,
-      b: 44.51,
+      // l/b recomputed from the catalogue ICRS RA/Dec; the previous 85.62/44.51 was 0.64° away.
+      l: 85.756,
+      b: 45.138,
       distance: 420_000_000,
       inclination: 58,
       posAngle: 72,
@@ -812,8 +816,9 @@ const CURATED_GALAXY_MODELS: GalaxyModel[] = [
       name: "Mayall's Object (Arp 148)",
       type: "Ring Galaxy",
       morphology: "ring" as Morphology,
-      l: 177.26,
-      b: 63.61,
+      // l/b recomputed from the catalogue ICRS RA/Dec; the previous 177.26/63.61 was 1.41° away.
+      l: 174.186,
+      b: 63.988,
       distance: 450_000_000,
       inclination: 48,
       posAngle: 95,
@@ -999,6 +1004,13 @@ export const GALAXY_MODELS: GalaxyModel[] = RECONSTRUCTED_GALAXIES.map((m) => {
   const ratio = (observed.size * 0.5) / m.diskRadius;
   return {
     ...m,
+    // The catalogue record is the measured position. Ten hand-built reconstructions
+    // carried a rounded copy (0.1° in l/b; M87 53.0 vs 53.5 Mly), which put the
+    // detailed body up to 4 disk radii from the catalogue body, the explorer's
+    // hosted-object frame and registered photographs (M104 1.1, M51 0.47 radii).
+    l: observed.l,
+    b: observed.b,
+    distance: observed.distance,
     diskRadius: observed.size * 0.5,
     bulgeRadius: m.bulgeRadius * ratio,
     haloRadius: m.haloRadius * ratio,
@@ -1006,6 +1018,22 @@ export const GALAXY_MODELS: GalaxyModel[] = RECONSTRUCTED_GALAXIES.map((m) => {
     ringRadius: m.ringRadius === undefined ? undefined : m.ringRadius * ratio,
     inclination: observed.inclination ?? m.inclination,
     posAngle: observed.posAngle ?? m.posAngle,
+    // Catalogued inclination and position angle are on-sky quantities. Apply them in
+    // the observed sky frame at the catalogue RA/Dec, as imported records already do,
+    // so the disk is seen from Earth at its measured tilt and orientation.
+    skyOrientation:
+      m.skyOrientation ??
+      (observed.ra !== undefined &&
+      observed.dec !== undefined &&
+      observed.inclination !== undefined &&
+      observed.posAngle !== undefined
+        ? {
+            ra: observed.ra,
+            dec: observed.dec,
+            inclination: observed.inclination,
+            pa: observed.posAngle,
+          }
+        : undefined),
     system: m.system
       ? {
           ...m.system,

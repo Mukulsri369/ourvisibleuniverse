@@ -11,6 +11,7 @@ import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
 import { motionTimeSeconds } from "./sim-clock";
 import { catalogueAppearance } from "./galaxy-overview-appearance";
+import { galaxyObservedFootprint } from "./galaxy-detail-state";
 const VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
@@ -126,6 +127,8 @@ export function GalaxyRadiance({
       uRotationRate: { value: structure.rotationRate },
       uTime: { value: 0 },
       uOpacity: { value: opacity },
+      uObsMat: { value: new THREE.Matrix4() },
+      uObsWeight: { value: 0 },
     };
   }, [model, opacity, preview]);
   const cache = useMemo(
@@ -169,6 +172,10 @@ export function GalaxyRadiance({
     ref.current.updateWorldMatrix(true, false);
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
+    const footprint = galaxyObservedFootprint.get(model.key);
+    uniforms.uObsWeight.value = footprint?.weight ?? 0;
+    if (footprint)
+      uniforms.uObsMat.value.multiplyMatrices(footprint.worldToImage, ref.current.matrixWorld);
     if (cache) uniforms.uFieldSize.value.set(cache.size, cache.size * 2, cache.size);
     uniforms.uTime.value = motionTimeSeconds();
     const reveal = journeyActive ? galaxyMotion.reveal : 0;

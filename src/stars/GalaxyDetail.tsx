@@ -3,6 +3,7 @@ import { lodManager } from "./lod/LODTransitionManager";
 import { galaxyAppearance } from "./galaxy-appearance";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { galaxyDetailAlpha, galaxyPresentationAlpha } from "./galaxy-detail-state";
+import { GalaxyObservedLayer } from "./GalaxyObservedLayer";
 import { GalaxyRadiance, ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "./GalaxyRadiance";
 import { motionTimeSeconds, backgroundFocus } from "./sim-clock";
 import { useEffect, useMemo, useRef } from "react";
@@ -658,6 +659,8 @@ function GalaxyBody({ m }: { m: GalaxyModel }) {
         <GalaxyRadiance model={m} />
         {entered && m.system && <GxSystem m={m} system={m.system} />}
       </group>
+      {/* Outside the cache-gated group: the image needs only its decoded texture. */}
+      <GalaxyObservedLayer m={m} />
     </group>
   );
 }

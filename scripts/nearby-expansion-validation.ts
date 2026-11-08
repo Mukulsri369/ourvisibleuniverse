@@ -103,6 +103,18 @@ assert.deepEqual(
   IMPORTED_GALAXIES.map((g) => g.id),
   coverage.addedIds,
 );
+// Documented position corrections since the 387de79 baseline. Galactic l/b were
+// inconsistent with the same records' ICRS RA/Dec; two RA/Dec pairs were also ~25–70″
+// from SIMBAD/NED. Each is confirmed by the galaxy image's embedded AVM registration
+// (docs/GALAXY_OBSERVED_IMAGES_20261108.md). Every other baseline value stays exact.
+const DOCUMENTED_CORRECTIONS: Record<string, Record<string, number>> = {
+  "NGC-4038-4039": { l: 286.959, b: 42.461 },
+  "NGC-1300": { l: 208.164, b: -55.223 },
+  "CARTWHEEL-GALAXY": { ra: 9.4214, dec: -33.7163, l: 326.306, b: -82.777 },
+  "HOAGS-OBJECT": { ra: 229.31, dec: 21.5855, l: 31.518, b: 56.452 },
+  "TADPOLE-GALAXY": { l: 85.756, b: 45.138 },
+  "MAYALLS-OBJECT": { l: 174.186, b: 63.988 },
+};
 for (const old of baseline.galaxies) {
   const current = galaxies.find((g) => g.id === old.id)!;
   assert(current);
@@ -112,7 +124,7 @@ for (const old of baseline.galaxies) {
     } else
       assert.deepEqual(
         (current as unknown as Record<string, unknown>)[k],
-        value,
+        DOCUMENTED_CORRECTIONS[old.id]?.[k] ?? value,
         old.name + ": " + k,
       );
   }

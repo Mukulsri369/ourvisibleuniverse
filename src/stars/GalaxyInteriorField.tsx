@@ -1,6 +1,6 @@
 import { galaxyStructure } from "./galaxy-structure";
 import { motionTimeSeconds } from "./sim-clock";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
@@ -10,6 +10,8 @@ import {
   type GalaxyStarData,
 } from "./galaxy-interior-stars";
 import { galaxyMotion } from "./galaxy-journey";
+import { galaxyObservedFootprint } from "./galaxy-detail-state";
+import { OBSERVED_FOOTPRINT_GLSL } from "./galaxy-observed-projection";
 export function GalaxyInteriorField({
   model,
   count = 100000,
@@ -99,10 +101,13 @@ export function GalaxyInteriorField({
           uViewport: { value: 800 },
           uAspect: { value: 1 },
           uClipStars: { value: 1 },
+          uObsMat: { value: new THREE.Matrix4() },
+          uObsWeight: { value: 0 },
         },
         vertexShader: /* glsl */ `#include <common>
 #include <logdepthbuf_pars_vertex>
 precision highp sampler3D;
+${OBSERVED_FOOTPRINT_GLSL}
 uniform sampler3D uField;uniform vec3 uEye;uniform float uHasField,uPopulation;
 uniform float uTime,uReveal,uViewport,uRotation,uExterior,uAspect,uClipStars;attribute float aLum,aPhase;varying vec3 vColor;varying float vLum,vDistance;
 void main(){float radius=length(position.xz),angle=-uTime*uRotation;float c=cos(angle),s=sin(angle);vec3 p=vec3(position.x*c-position.z*s,position.y,position.x*s+position.z*c);vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;
@@ -110,7 +115,7 @@ void main(){float radius=length(position.xz),angle=-uTime*uRotation;float c=cos(
 // keep nearby stars together so neighbouring GPU lanes take the same branch.
 vec2 margin=vec2(20./(uViewport*uAspect),20./uViewport);
 if(uClipStars>.5&&(gl_Position.w<=0.||any(greaterThan(abs(gl_Position.xy),vec2(gl_Position.w)*(vec2(1.)+margin))))){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vColor=vec3(0.);vLum=0.;vDistance=1.;return;}
-float unit=length(modelMatrix[0].xyz);vDistance=length(mv.xyz)/max(unit,.001);vColor=color;float tau=0.;if(uHasField>.5){vec3 end=mix(p,uEye,min(1.,2.7/max(.001,length(uEye-p))));float ds=length(end-p)/6.;for(int j=0;j<6;j++){vec3 q=mix(p,end,(float(j)+.5)/6.);float an=uTime*uRotation;q.xz=mat2(cos(an),sin(an),-sin(an),cos(an))*q.xz;tau+=texture(uField,q/2.7+.5).a*ds;}}vLum=aLum*(.985+.015*sin(uTime*.4+aPhase))*exp(-tau*5.)*uPopulation;gl_PointSize=clamp(uViewport*.002*sqrt(aLum)/sqrt(max(.0001,vDistance)),mix(.9,1.,uExterior),mix(9.,3.,uExterior));
+float unit=length(modelMatrix[0].xyz);vDistance=length(mv.xyz)/max(unit,.001);vColor=color;float tau=0.;if(uHasField>.5){vec3 end=mix(p,uEye,min(1.,2.7/max(.001,length(uEye-p))));float ds=length(end-p)/6.;for(int j=0;j<6;j++){vec3 q=mix(p,end,(float(j)+.5)/6.);float an=uTime*uRotation;q.xz=mat2(cos(an),sin(an),-sin(an),cos(an))*q.xz;tau+=texture(uField,q/2.7+.5).a*ds;}}vLum=aLum*(.985+.015*sin(uTime*.4+aPhase))*exp(-tau*5.)*uPopulation*observedKeep(p);gl_PointSize=clamp(uViewport*.002*sqrt(aLum)/sqrt(max(.0001,vDistance)),mix(.9,1.,uExterior),mix(9.,3.,uExterior));
 #include <logdepthbuf_vertex>
 }`,
         fragmentShader: /* glsl */ `#include <logdepthbuf_pars_fragment>
@@ -135,9 +140,19 @@ gl_FragColor=vec4(radiance,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*m
       }),
     [model],
   );
+  const points = useRef<THREE.Points>(null);
   useFrame(({ size, gl }) => {
     const time = motionTimeSeconds();
     material.uniforms.uTime.value = time;
+    const footprint = points.current ? galaxyObservedFootprint.get(model.key) : undefined;
+    material.uniforms.uObsWeight.value = footprint?.weight ?? 0;
+    if (footprint && points.current) {
+      points.current.updateWorldMatrix(true, false);
+      material.uniforms.uObsMat.value.multiplyMatrices(
+        footprint.worldToImage,
+        points.current.matrixWorld,
+      );
+    }
     material.uniforms.uField.value = field?.value ?? null;
     material.uniforms.uHasField.value = field?.value && (cacheFade?.value ?? 0) > 0.9 ? 1 : 0;
     if (eye) material.uniforms.uEye.value.copy(eye.value);
@@ -159,6 +174,7 @@ gl_FragColor=vec4(radiance,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*m
   useEffect(() => () => material.dispose(), [material]);
   return (
     <points
+      ref={points}
       dispose={null}
       name={(exterior ? "galaxy-exterior-stars:" : "galaxy-interior-stars:") + model.name}
       geometry={geometry}
