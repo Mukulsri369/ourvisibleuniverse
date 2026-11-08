@@ -1,5 +1,6 @@
 import { defineTool } from "../tool";
 import { ACCESS_PLANS } from "@/lib/plans";
+import { SITE_ORIGIN } from "@/lib/site-origin";
 
 export default defineTool({
   name: "list_access_plans",
@@ -22,7 +23,7 @@ export default defineTool({
           type: "text",
           text:
             plans.map((p) => `${p.name}: ${p.inr} / ${p.usd} (${p.note})`).join("\n") +
-            "\nOne-time payment, no auto-renewal. Buy at https://ourvisibleuniverse.in/pricing",
+            `\nOne-time payment, no auto-renewal. Buy at ${SITE_ORIGIN}/pricing`,
         },
       ],
       structuredContent: { plans },

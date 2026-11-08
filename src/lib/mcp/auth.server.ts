@@ -1,4 +1,5 @@
 import { createRemoteJWKSet, jwtVerify, type JWTVerifyGetKey } from "jose";
+import { SITE_ORIGIN } from "../site-origin";
 
 const resolvers = new Map<string, JWTVerifyGetKey>();
 export function supabaseIssuer() {
@@ -29,7 +30,7 @@ export async function verifyMcpToken(token: string, issuer = supabaseIssuer(), k
 export function resourceOrigin(request: Request) {
   const url = new URL(request.url);
   const configured = process.env.PUBLIC_APP_ORIGIN;
-  const allowed = new Set(["http://127.0.0.1:31751", "http://localhost:31751", "https://ourvisibleuniverse.in"]);
+  const allowed = new Set(["http://127.0.0.1:31751", "http://localhost:31751", "https://ourvisibleuniverse.in", SITE_ORIGIN]);
   if (configured) allowed.add(new URL(configured).origin);
   if (!allowed.has(url.origin)) throw new Error("Unrecognized application origin");
   const origin = request.headers.get("origin");

@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportApplicationError } from "../lib/error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { SITE_ORIGIN } from "@/lib/site-origin";
 
 function NotFoundComponent() {
   return (
@@ -134,8 +135,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "Our Visible Universe",
-          url: "https://ourvisibleuniverse.in",
-          logo: "https://ourvisibleuniverse.in/favicon.png",
+          url: SITE_ORIGIN,
+          logo: `${SITE_ORIGIN}/favicon.png`,
           sameAs: ["https://github.com/Mukulsri369"],
         }),
       },

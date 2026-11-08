@@ -159,7 +159,7 @@ async function runPrompt11ValidationSuite() {
   checksCount++;
   assert(
     verified.verificationUrl !== undefined &&
-      verified.verificationUrl.includes("ourvisibleuniverse.in"),
+      new URL(verified.verificationUrl).origin === "https://ourvisibleuniverse.com",
     `Official verification URL is present: ${verified.verificationUrl}`,
   );
   checksCount++;

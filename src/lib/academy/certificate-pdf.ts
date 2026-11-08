@@ -470,7 +470,7 @@ export async function generateCertificatePdf(
     color: goldPrimary,
   });
 
-  const urlText = "ourvisibleuniverse.in/verify";
+  const urlText = CERTIFICATE_CONSTANTS.OFFICIAL_VERIFICATION_BASE_URL.replace("https://", "");
   const urlWidth = helvetica.widthOfTextAtSize(urlText, 7);
   page.drawText(urlText, {
     x: qrX + (qrSize - urlWidth) / 2,

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState, useRef, useEffect } from "react";
+import { SITE_ORIGIN } from "@/lib/site-origin";
 import {
   Award,
   Sparkles,
@@ -159,7 +160,7 @@ export const CosmicCertificateModal: React.FC<CosmicCertificateModalProps> = ({
 
   const handleShare = async () => {
     if (!certificate) return;
-    const shareUrl = `${typeof window !== "undefined" ? window.location.origin : "https://ourvisibleuniverse.in"}/verify-certificate?id=${encodeURIComponent(certificate.certificateNumber)}`;
+    const shareUrl = `${typeof window !== "undefined" ? window.location.origin : SITE_ORIGIN}/verify-certificate?id=${encodeURIComponent(certificate.certificateNumber)}`;
     const shareData = {
       title: "Certified Cosmic Explorer — Our Visible Universe Academy",
       text: `I've successfully achieved the Certified Cosmic Explorer credential in the Cosmic Journey astronomy curriculum (${certificate.finalScorePercentage.toFixed(1)}% on the final assessment)!`,

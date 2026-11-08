@@ -193,7 +193,7 @@ async function runCertificateValidationSuite() {
   console.log("\n5. Verification Service & QR Destination URL:");
   assert(
     mockEligibleCert.verificationUrl.startsWith(
-      "https://ourvisibleuniverse.in/verify-certificate?id=",
+      "https://ourvisibleuniverse.com/verify-certificate?id=",
     ),
     `QR points to official verification URL: ${mockEligibleCert.verificationUrl}`,
   );

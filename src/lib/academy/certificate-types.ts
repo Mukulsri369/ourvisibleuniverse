@@ -1,4 +1,5 @@
 import type { LearningLevel } from "./types";
+import { SITE_ORIGIN } from "../site-origin";
 
 export type CertificateTheme = "cosmic_dark" | "print_light";
 
@@ -179,10 +180,10 @@ export const CERTIFICATE_CONSTANTS = {
     "This certificate recognizes the successful completion of Cosmic Journey and achievement of the required standard in its astronomy learning program and final assessment.",
   DISCLAIMER:
     "This certificate is issued by Our Visible Universe Academy as an educational achievement credential. It does not confer university degree credits, government licensure, or professional scientific accreditation.",
-  OFFICIAL_DOMAIN: "https://ourvisibleuniverse.in",
+  OFFICIAL_DOMAIN: SITE_ORIGIN,
   PUBLIC_VERIFICATION_ROUTE: "/verify",
-  VERIFICATION_BASE_URL: "https://ourvisibleuniverse.in/verify-certificate",
-  OFFICIAL_VERIFICATION_BASE_URL: "https://ourvisibleuniverse.in/verify",
+  VERIFICATION_BASE_URL: `${SITE_ORIGIN}/verify-certificate`,
+  OFFICIAL_VERIFICATION_BASE_URL: `${SITE_ORIGIN}/verify`,
 };
 
 export const LEARNING_LEVEL_LABELS: Record<LearningLevel, string> = {
