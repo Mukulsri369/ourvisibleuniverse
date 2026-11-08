@@ -1,0 +1,13 @@
+{
+  "phase": "after",
+  "dragReads": 0,
+  "wheelReads": 0,
+  "clickReads": 42525,
+  "selected": "2MRS field source 17",
+  "errors": {
+    "page": [],
+    "console": [],
+    "responses": [],
+    "failures": []
+  }
+}

@@ -1,0 +1,206 @@
+{
+  "phase": "after",
+  "browser": "156.0.8078.80",
+  "viewport": [
+    696,
+    640
+  ],
+  "dpr": 1,
+  "kind": "actual scene/camera, real mouse down plus 125Hz pointer-move events, four-second drag; isolated local QA",
+  "results": [
+    {
+      "radius": 1800000,
+      "fps": 78.11130861454293,
+      "p95": 22.5,
+      "max": 33.099999994039536,
+      "over33": 0,
+      "frames": 312,
+      "calls": 8,
+      "points": 87563,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "layers": [
+        {
+          "name": "galaxy-catalog-3d:Milky Way",
+          "visible": true
+        },
+        {
+          "name": "2mrs-observed-galaxy-field",
+          "visible": true
+        },
+        {
+          "name": "galaxy-catalog-3d:Antlia 2",
+          "visible": true
+        },
+        {
+          "name": "galaxy-radiance:Milky Way",
+          "visible": true
+        }
+      ],
+      "camera": [
+        260054.26691291452,
+        1524927.8460592602,
+        912350.0088900066
+      ]
+    },
+    {
+      "radius": 3600000,
+      "fps": 94.39395077479091,
+      "p95": 20.200000017881393,
+      "max": 28.30000001192093,
+      "over33": 0,
+      "frames": 377,
+      "calls": 6,
+      "points": 83467,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "layers": [
+        {
+          "name": "galaxy-catalog-3d:Milky Way",
+          "visible": true
+        },
+        {
+          "name": "2mrs-observed-galaxy-field",
+          "visible": true
+        },
+        {
+          "name": "galaxy-radiance:Milky Way",
+          "visible": true
+        }
+      ],
+      "camera": [
+        576496.203057959,
+        3033390.3071838873,
+        1842479.3504310905
+      ]
+    },
+    {
+      "radius": 12000000,
+      "fps": 109.54107790421408,
+      "p95": 16.5,
+      "max": 29,
+      "over33": 0,
+      "frames": 438,
+      "calls": 4,
+      "points": 47467,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "layers": [
+        {
+          "name": "galaxy-catalog-3d:Milky Way",
+          "visible": true
+        },
+        {
+          "name": "2mrs-observed-galaxy-field",
+          "visible": true
+        },
+        {
+          "name": "galaxy-radiance:Milky Way",
+          "visible": true
+        }
+      ],
+      "camera": [
+        1920216.7770429493,
+        10146540.395154964,
+        6103878.947483341
+      ]
+    },
+    {
+      "radius": 35000000,
+      "fps": 103.96621098189564,
+      "p95": 18.700000017881393,
+      "max": 44.099999994039536,
+      "over33": 2,
+      "frames": 416,
+      "calls": 5,
+      "points": 51563,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "layers": [
+        {
+          "name": "galaxy-catalog-3d:Milky Way",
+          "visible": true
+        },
+        {
+          "name": "2mrs-observed-galaxy-field",
+          "visible": true
+        },
+        {
+          "name": "galaxy-catalog-3d:M101 (Pinwheel)",
+          "visible": true
+        },
+        {
+          "name": "galaxy-radiance:Milky Way",
+          "visible": true
+        }
+      ],
+      "camera": [
+        5632844.706657732,
+        29604736.36338384,
+        17791274.38331775
+      ]
+    },
+    {
+      "radius": 100000000,
+      "fps": 112.48312753020002,
+      "p95": 15.300000011920929,
+      "max": 37.5,
+      "over33": 1,
+      "frames": 450,
+      "calls": 3,
+      "points": 47467,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "layers": [
+        {
+          "name": "galaxy-catalog-3d:Milky Way",
+          "visible": true
+        },
+        {
+          "name": "2mrs-observed-galaxy-field",
+          "visible": true
+        },
+        {
+          "name": "galaxy-radiance:Milky Way",
+          "visible": true
+        }
+      ],
+      "camera": [
+        16574074.9042727,
+        84345884.94813359,
+        51089987.87761194
+      ]
+    },
+    {
+      "radius": 326000000,
+      "fps": 110.53868854115412,
+      "p95": 16.099999994039536,
+      "max": 30.5,
+      "over33": 0,
+      "frames": 442,
+      "calls": 3,
+      "points": 47467,
+      "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "layers": [
+        {
+          "name": "galaxy-catalog-3d:Milky Way",
+          "visible": true
+        },
+        {
+          "name": "2mrs-observed-galaxy-field",
+          "visible": true
+        },
+        {
+          "name": "galaxy-radiance:Milky Way",
+          "visible": true
+        }
+      ],
+      "camera": [
+        52771299.09492843,
+        275699480.5076777,
+        165765408.30479383
+      ]
+    }
+  ],
+  "errors": {
+    "page": [],
+    "console": [],
+    "responses": [],
+    "failures": []
+  }
+}

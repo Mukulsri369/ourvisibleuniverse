@@ -1,0 +1,19 @@
+{
+  "phase": "after",
+  "kind": "20Hz synthetic mouse packets through actual CameraRig at display refresh; local QA",
+  "result": {
+    "inputHz": 19.5,
+    "frames": 199,
+    "heldFrames": 0,
+    "heldPercent": 0,
+    "maxFrameMs": 22.5,
+    "fps": 116.75662989867642,
+    "settledChanged": 0
+  },
+  "errors": {
+    "page": [],
+    "console": [],
+    "responses": [],
+    "failures": []
+  }
+}

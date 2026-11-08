@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-08",
+  "source": "visible QA output read from the actual in-app preview after native browser drag actions",
+  "viewport": [678, 615],
+  "dpr": 1,
+  "orbitRadiusLy": 35000000,
+  "renderer": "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics (0x000046A8) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "selectedGalaxy": "Milky Way",
+  "drags": [
+    {
+      "direction": "horizontal-diagonal",
+      "from": [220, 260],
+      "to": [520, 340],
+      "fps": 120.0,
+      "p95FrameMs": 10.7,
+      "maxFrameMs": 21.7,
+      "framesOver33ms": 0,
+      "frames": 72
+    },
+    {
+      "direction": "reverse-diagonal",
+      "from": [520, 340],
+      "to": [220, 220],
+      "fps": 120.3,
+      "p95FrameMs": 9.9,
+      "maxFrameMs": 11.9,
+      "framesOver33ms": 0,
+      "frames": 113
+    }
+  ],
+  "limits": "Short warm-scene native automation, not physical-phone, GPU time, full authenticated app or hardware latency measurement. No universal frame-rate guarantee."
+}
