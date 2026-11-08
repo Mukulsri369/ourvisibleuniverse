@@ -1,6 +1,6 @@
 # Registered telescope images for selected galaxies (2026-11-08)
 
-Status: local commit on `migration/supabase-cloudflare`, not pushed, not deployed.
+Status: pushed to `migration/supabase-cloudflare` and deployed on 9 November 2026 as Worker `515c5b59-f82b-4adc-8ded-b838faa23f14`, serving 100% of production traffic. See [release verification](migration/GALAXY_IMAGES_RELEASE_20261109.md). Earlier workspace verification and limitations below remain historical evidence.
 
 ## What a visitor sees
 
