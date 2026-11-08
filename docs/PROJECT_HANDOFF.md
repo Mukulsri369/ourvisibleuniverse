@@ -1,15 +1,17 @@
-# OVU continuation handoff — 7 November 2026
+# OVU continuation handoff — 8 November 2026
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-Latest local continuation: 8 November dense-view follow-up fixes stepped mouse input and unnecessary drag/wheel survey scans. Read the final dense-view section and report first; it supersedes the earlier direct-pointer response. The nearby release at 7c23c53 remains at 831 catalogue galaxies / 641 additions. The grouped M31 P1/P2/P3 destination remains at 14/124/18 counts, with authenticated full-scene acceptance still pending. Earlier totals below describe historical checkpoints.
+Latest release: on 8 November the owner explicitly requested pushing all changes and making them live. Source through **6636040** was pushed to `origin/migration/supabase-cloudflare` and deployed to the existing production Worker as **3fa153d6-5214-4fa4-9519-d70566eabb7a**, serving 100% of traffic. See [release verification](migration/GALAXY_RELEASE_20261108.md). Both domains passed read-only page checks and the live scene asset matched the release build byte-for-byte. Production bindings were preserved. Earlier local-only/not-deployed statements below are historical checkpoints, superseded by this release.
+
+The dense-view follow-up fixes stepped mouse input and unnecessary drag/wheel survey scans; it supersedes the earlier direct-pointer response. The nearby release remains at 831 catalogue galaxies / 641 additions. The grouped M31 P1/P2/P3 destination remains at 14/124/18 counts, with authenticated full-scene acceptance still pending. Publication does not close the documented scientific, source-rights or device/performance acceptance gaps.
 
 ## Current scope and architecture
 
 - Repository: https://github.com/Mukulsri369/ourvisibleuniverse
 - Working branch: `migration/supabase-cloudflare`. Preserve published history; do not force push or rewrite pushed commits. Do not assume it is merged into `main`.
 - The owner abandoned Hostinger/MariaDB. OVU uses Cloudflare Workers and owned Supabase project `pdvwkdggyyrfkoqrpbji` (https://pdvwkdggyyrfkoqrpbji.supabase.co).
-- Production: https://ourvisibleuniverse.in and https://www.ourvisibleuniverse.in. They were cut over earlier; the latest Andromeda source changes have **not** been deployed.
+- Production: https://ourvisibleuniverse.in and https://www.ourvisibleuniverse.in. Source through `6636040`, including Andromeda, nearby galaxies and dense-view motion changes, was deployed on 8 November; see the latest release record above.
 - Preserve React/Three.js/R3F, the existing TanStack architecture, Academy, authentication, paid-access enforcement and server-verified Razorpay purchases. Inspect current code/configuration rather than trusting older generic architecture documents.
 - The Store is outside the current scope. Do not resume its migration or reopen its backup discussion without a new request.
 - Earlier approvals covered specific historical operations, not permission to repeat grants, imports, emails, charges, refunds or infrastructure changes.
@@ -18,11 +20,11 @@ Latest local continuation: 8 November dense-view follow-up fixes stepped mouse i
 
 - OVU moved to Cloudflare and owned Supabase. Historical customer transfer, Google sign-in, Academy/admin and payment work have dated records in `docs/migration/`.
 - The owner subsequently reported a successful real Live payment. Distinguish that report from a newly executed provider/webhook/refund audit. Do not restore obsolete checkout-held/Test-mode settings from earlier checkpoints.
-- Startup toolbar visibility, galactic travel speed `3090` and seven days per real second were published. Recorded source: `cfcf1cb`; Worker version: `d367a27f-8be5-4390-bad9-b9beaef31b05`. See [startup defaults](migration/UNIVERSE_STARTUP_DEFAULTS_20261106.md). This is the last deployment documented here, not a fresh Cloudflare inspection.
+- Startup toolbar visibility, galactic travel speed `3090` and seven days per real second were published. Historical source: `cfcf1cb`; Worker version: `d367a27f-8be5-4390-bad9-b9beaef31b05`. See [startup defaults](migration/UNIVERSE_STARTUP_DEFAULTS_20261106.md). The 8 November release supersedes that version.
 - A specifically authorized seven-day gift was applied to the fixed cohort of 82 accounts on 6 November. See [campaign record](migration/SEVEN_DAY_PROMOTION_20261106.md). That count is historical, not today's user/access count. Do not apply the campaign again or infer permission to send another email.
 - Keep former service resources and backups until separately authorized for retirement. Deployment does not prove old subscriptions/resources were cancelled.
 
-## Previously pushed source work — not deployed
+## Historical source checkpoint — subsequently deployed on 8 November
 
 - `89fa2bc`: first sourced Andromeda batch, pushed.
 - `bf947ab`: seven further destinations, rendering/navigation fixes, tests and measured QA, pushed to `origin/migration/supabase-cloudflare`. Working tree was clean at that checkpoint.
@@ -51,7 +53,7 @@ The entire original prompt is not signed off. The prior curated expansion and it
 2. Broader performance optimization remains. The desktop baseline itself is around 21 FPS; the expansion did not establish a general performance fix. Preserve scientific/visual behavior and use measurements.
 3. Physical-phone testing, total GPU-memory measurement and exhaustive provider-outage/leak testing are not established. JS heap/geometry bytes are not total VRAM.
 4. Gemini-backed features and human-completed email recovery were previously left unverified by the owner. Other migration acceptance/reconciliation limitations remain in their reports; Andromeda QA did not re-audit them.
-5. Publication of `bf947ab` requires separate production approval. Pushed code, a successful build and a local preview do not mean it is live. Do not deploy as a substitute for further requested scientific development.
+5. The owner authorized publication of all pending changes on 8 November, and this release includes `bf947ab`. Future production changes still need applicable explicit approval. Deployment does not substitute for pending scientific development or acceptance.
 
 ## How to resume safely
 
