@@ -8,7 +8,46 @@ Latest release: on 8 November the owner explicitly requested pushing all changes
 
 The dense-view follow-up fixes stepped mouse input and unnecessary drag/wheel survey scans; it supersedes the earlier direct-pointer response. The nearby release remains at 831 catalogue galaxies / 641 additions. The grouped M31 P1/P2/P3 destination remains at 14/124/18 counts, with authenticated full-scene acceptance still pending. Publication does not close the documented scientific, source-rights or device/performance acceptance gaps.
 
-## 8 November — visual-fidelity tooling research (latest checkpoint; documentation only)
+## 8 November — Claude Code project tooling installed (latest checkpoint; configuration only)
+
+- **What and why:** the owner asked to install the tooling recommended in the [visual-fidelity tooling report](VISUAL_FIDELITY_TOOLING_20261108.md) for the next improvement work. It is installed as committed project configuration, so local Claude Code and cloud sessions get the same setup. See [`.claude/README.md`](../.claude/README.md).
+- **Plugins:** `.claude/settings.json` enables six `claude-plugins-official` plugins at project scope, written by `claude plugin install … --scope project`:
+  - `chrome-devtools-mcp`, `playwright`, `context7`, `typescript-lsp`, `skill-creator`, `code-review`.
+  - It also declares the marketplace under `extraKnownMarketplaces`.
+- **Plugins left out:**
+  - `cloudflare`: its bundled account-level MCP server (`mcp.cloudflare.com`) can build and deploy.
+  - `supabase`: needs a token and reaches the production database.
+  - `security-guidance`: runs hooks and an LLM review on every turn.
+  - `pr-review-toolkit`: about 1,600 always-on tokens.
+  - `modern-web-guidance` and `frontend-design`: low relevance.
+- **Guardrails** (also in `settings.json`):
+  - Deny: Wrangler deploy, version deploy and secret commands; force-push; reading `.dev.vars*`, `.env.local*` and `.env.production*`.
+  - Ask first: any `git push`, rebase, amend, `reset --hard`, other Wrangler commands and Supabase CLI.
+  - These are pattern rules, not a security boundary; AGENTS.md approvals still govern.
+- **Skills in `.claude/skills/`:**
+  - Three new OVU skills (`ovu-object-intake`, `ovu-asset-pipeline`, `ovu-perf-evidence`) built from the repository's actual files, scripts and rules.
+  - Nine MIT three.js skills copied unchanged from `cloudai-x/threejs-skills@0e18186` (they target three r186).
+  - The MIT `webgpu-threejs-tsl` skill from `dgreenheck/webgpu-claude-skill@af2319b`.
+  - Licence files are kept in each vendored folder. The vendored files were scanned for shell pipes, remote scripts and agent-directed instructions; none were found.
+- **Findings for future tasks (not fixed here):**
+  - `npm ci` fails because `package-lock.json` is out of sync with `package.json` (missing `@emnapi/*`). `npm install` works, and the lockfile was restored unchanged.
+  - `CosmosAssetLoader` points KTX2 at `/decoders/basis/`, but `public/decoders/` does not exist.
+  - `src/lib/astronomy/observation/aladin-service.ts` loads GPL-3.0 Aladin Lite at runtime and offers the CDS **DSS Color** HiPS, among other surveys. DSS prohibits commercial use without permission, so this belongs in the owner's source-rights review. It is not legal advice.
+- **Checks actually run:**
+  - `claude plugin list` shows the six project plugins, and `claude plugin validate .claude/skills` passed.
+  - `settings.json` parses as JSON. `npx tsc --noEmit` exited 0 on the unchanged source.
+  - The isolated loopback QA page (`scripts/nearby-qa/navigation.html`, port 31755) loaded through Playwright 1.65.0 and system Chrome with no console errors. The cloud renderer was SwiftShader, so it is valid for screenshots only, not performance.
+  - KTX-Software 4.4.2 encoded `moon.jpg` (1.05 MB) to KTX2 in `/tmp`: ETC1S 0.34 MB, UASTC 2.54 MB, 12 mip levels.
+  - `npm run build:cloudflare` was **not** completed: it correctly refuses to run without the approved public Supabase build configuration, which is absent from Git and was not synthesised.
+  - The QA server was stopped.
+- **Machine-local installs (cloud workspace only; not in Git):** npm dependencies, global `typescript`, `typescript-language-server`, `@gltf-transform/cli`, the KTX-Software 4.4.2 tools and a Playwright module outside the repository. Your Windows machine needs the steps in `.claude/README.md`.
+- **Source and deployment status:** a configuration and documentation commit follows `38c5333`, both created in a cloud session with read-only GitHub access. **Not pushed and not deployed.** Production remains as last recorded (Worker `2b85f0a4-a0cc-407d-8237-8e3560fc70b5`, source `445382d`) and was not freshly inspected.
+- **Next concrete action:**
+  - Push or apply the commits, then open the repository in Claude Code and accept the plugin and trust prompts.
+  - First improvement task: an authenticated full-app performance trace with `chrome-devtools-mcp`, then KTX2 conversion following `ovu-asset-pipeline` (including self-hosting the Basis transcoder).
+  - Each task needs its own approval; deployment needs explicit authorisation.
+
+## 8 November — visual-fidelity tooling research (documentation only)
 
 - **What and why:** the owner asked which Claude Code skills, plugins and GitHub repositories would help OVU reach higher-resolution, realistic and scientifically sourced visuals with smooth interaction across all observed object classes. The answer is in the [visual-fidelity tooling report](VISUAL_FIDELITY_TOOLING_20261108.md). This was research only. No source, catalogue, texture, dependency, configuration, Supabase, Cloudflare, payment, DNS or customer change was made, and nothing was installed into the owner's Claude Code.
 - **Checkout verified:** a fresh cloud clone of `migration/supabase-cloudflare`, clean and level with origin at `c1b1ab0` before this commit. The owner's Windows workspace was not visible from this session, including any uncommitted files, the private helpers and the loopback 31755 preview.

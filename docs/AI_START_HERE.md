@@ -35,6 +35,7 @@ Start with `git status --short --branch` and `git log -8 --oneline`. Check remot
 | Authenticated MCP | `src/lib/mcp/` |
 | Regression tools | `scripts/`, commands in `package.json` |
 | Detailed evidence and decisions | `docs/` and `docs/migration/` |
+| Claude Code plugins, skills and guardrails | `.claude/README.md`, `.claude/settings.json`, `.claude/skills/` |
 
 The repository's `wrangler.jsonc` uses preview defaults. Never deploy it directly to production. Use the documented production preparation flow, inspect current remote bindings and preserve existing secrets and domains. Private workspace helpers are outside Git and may be absent on another machine; do not synthesize credentials.
 

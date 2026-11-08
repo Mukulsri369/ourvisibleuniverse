@@ -1,0 +1,45 @@
+{
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true
+  },
+  "permissions": {
+    "deny": [
+      "Bash(npx wrangler deploy*)",
+      "Bash(wrangler deploy*)",
+      "Bash(npx wrangler versions deploy*)",
+      "Bash(wrangler versions deploy*)",
+      "Bash(npx wrangler secret *)",
+      "Bash(wrangler secret *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Read(./.dev.vars*)",
+      "Read(./.env.local*)",
+      "Read(./.env.production*)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git rebase*)",
+      "Bash(git commit --amend*)",
+      "Bash(git reset --hard*)",
+      "Bash(npx wrangler*)",
+      "Bash(wrangler*)",
+      "Bash(npx supabase*)",
+      "Bash(supabase*)"
+    ]
+  }
+}
