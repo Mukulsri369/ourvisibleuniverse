@@ -1,0 +1,21 @@
+{
+  "key": "catalog-ngc-1300",
+  "view": "earth",
+  "optics": false,
+  "render": {
+    "saturation": 0.034,
+    "colourGradient": 1.044,
+    "concentration": 2.591,
+    "fineStructure": 0.079,
+    "darkLaneFraction": 0,
+    "pinkFraction": 0
+  },
+  "reference": {
+    "saturation": 0.226,
+    "colourGradient": 1.438,
+    "concentration": 2.656,
+    "fineStructure": 0.076,
+    "darkLaneFraction": 0.01,
+    "pinkFraction": 0.008
+  }
+}

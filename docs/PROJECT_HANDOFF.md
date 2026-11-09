@@ -2,6 +2,25 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
+## 9 November — galaxy-realism tooling and baseline audit (tooling only; not deployed)
+
+- **What and why:** the owner asked for the skills and plugins needed to make galaxies look realistic (planets are acceptable) and to install them. A re-scan of the official marketplace (317 plugins) again found no three.js, shader or astronomy plugin, so no plugin was added. The real gaps were a render-against-telescope feedback loop, galaxy appearance knowledge and structured GLSL building blocks. Details: [galaxy realism tooling report](GALAXY_REALISM_TOOLING_20261109.md).
+- **Added:**
+  - New project skill `.claude/skills/ovu-galaxy-realism/`: look-dev loop, cited appearance physics, recipes mapped to `galaxy-medium.ts`, `galaxy-volume-shader.ts`, `GalaxyRadiance.tsx` and `galaxy-star-data.ts`, the morphology checklist and tests.
+  - Vendored MIT skill `.claude/skills/shader-art-coding/` from `gokayfem/shader-skills@a56e773`, unchanged, with its licence and credits.
+  - New QA harness `scripts/galaxy-lookdev/`: an isolated production volume at a north-up Earth, face-on or edge-on pose. `capture.mjs` writes a side-by-side sheet against the AVM-rotated registered image, plus six appearance indicators.
+  - `.claude/README.md` updated with the new skills, `glslangValidator` and the reasons for not adding plugins.
+- **Baseline finding:** off-axis, close-up, on entry and for all models without a registered image, the reconstructions are nearly grey: saturation 0.02–0.03, against 0.11–0.23 in the telescope images. Arms are uniform tubes and bulges are weak, with no dust lanes or HII knots. M104's dust ring renders light instead of dark, and M33 renders as a two-arm spiral rather than a flocculent one. Indicators and suspected causes are in the report and skill.
+- **Checks actually run:**
+  - The look-dev page type-checks (temporary tsconfig) and ESLint reports 0 errors (1 existing-style Fast Refresh warning).
+  - `capture.mjs` passes `node --check`, and Prettier was applied to the new files.
+  - `claude plugin validate .claude/skills` passed.
+  - Six baseline captures (M51, M81, M104, NGC 1300, M33, M101) were run in headless Chromium with SwiftShader, plus `--recompute`, and a fresh end-to-end M51 capture with the final script. The "before" sheets and JSON are in [`galaxy-lookdev-baseline-20261109/`](galaxy-lookdev-baseline-20261109/). They are appearance-only, with no performance claim.
+  - Not run: the galaxy test suites and build, because no runtime source changed. No full-app, authenticated or physical-device checks.
+- **Machine-local (cloud session only, not in Git):** `glslang-tools` 15.1.0 via apt. The vendored `glsl_tools.py` was not executed, because the session policy blocks running downloaded code.
+- **Source and deployment status:** committed and pushed to `origin/migration/supabase-cloudflare` from a cloud session. No runtime change and **nothing deployed**. Production remains as last recorded (Worker `515c5b59-f82b-4adc-8ded-b838faa23f14`) and was not inspected.
+- **Next concrete action:** with owner approval, start the redesign in the skill's "Suggested order of work", beginning with structured noise and arm anatomy in `galaxy-medium.ts`. Each step needs before and after look-dev sheets, the morphology checklist, the galaxy suites and a real-GPU performance comparison.
+
 ## 9 November — per-branch preview workflow added (setup pending)
 
 - **What and why:** the owner wants to test Claude's changes on a hosted URL before merging them into `migration/supabase-cloudflare`. New `.github/workflows/branch-preview.yml` builds every pushed branch (type check and `build:cloudflare`). It then uploads the build as a preview version of the separate, non-production Worker `ovu-supabase-preview`, with a per-branch alias URL (`https://<branch-slug>-ovu-supabase-preview.<account>.workers.dev`). The URL appears in the run summary.
