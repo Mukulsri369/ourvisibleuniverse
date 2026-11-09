@@ -145,6 +145,7 @@ void main(){
   float vertical=(.45*abs(p.y)+.85*hd)/ay;
   float central=.3*length(p)+.35*core;
   float ds=clamp(min(vertical,central),.0015,dsCap);
+  if(uPartCount>.5)ds=max(.0015,min(ds,diskPartStep(p)));
   if(i==0)ds*=.15+.85*jitter;
   ds=min(ds,finish-t);
   float tm=t+ds*.5;

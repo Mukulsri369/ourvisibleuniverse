@@ -1,6 +1,6 @@
 # Galaxy 3D reconstruction from all viewing angles — 9 November 2026
 
-Status: **in progress** (draft; results and checks are filled in at the end of the task).
+Status: implemented and verified in the isolated QA page (software WebGL). Not deployed.
 
 ## Request
 
@@ -68,6 +68,16 @@ Sombrero; face-on grand-design spirals such as M51, M74 and M101.
   absorb. Seen from Earth's direction the reconstruction reproduces the photograph's display
   values; edge-on columns roll off logarithmically instead of clipping.
 
+## Photographed parts
+
+Parts are cut from the registered image and extruded along Earth's sightline, so Earth's view
+reproduces the image exactly. Spheroids (bulges, NGC 5195, NGC 7317, NGC 7318A/B) use the depth
+weighting of a spherical deprojection (emissivity proportional to (r² + c²)^-1.5), so a bright
+nucleus stays compact and the body looks round from the side. Sheets (disturbed disks, tidal
+tails, the Quintet's shock region) use a thin biweight profile; seen edge-on they become thin
+streaks, as tidal tails are. Part depths and relative depths between components are
+illustrative.
+
 ## Scientific labelling
 
 The derived maps are reconstruction inputs computed from published images, not new
@@ -75,6 +85,60 @@ observations. Vertical structure, the far side of each disk, everything outside 
 photograph's frame and the depth of companions are illustrative. Photograph-registered
 disks no longer rotate their pattern, so they stay aligned with the image.
 
-## Results and verification
+## Coverage
 
-(Filled in at the end of the task.)
+| Group | Galaxies | How the 3D structure is built |
+| --- | --- | --- |
+| Photograph-derived disks | M51 (+ NGC 5195), M81, M101, M33, NGC 1300, Cartwheel, Hoag's Object | Deprojected face-on maps from the registered image; bulges and the companion as round spheroids extruded along Earth's sightline |
+| Photograph-derived components | Antennae (NGC 4038/4039), Tadpole (body + tail), Stephan's Quintet (NGC 7319, 7318A/B, 7317, shock region, old tail) | Each component cut from the registered image and extruded as a sheet or spheroid; foreground NGC 7320 excluded |
+| Procedural with object guides | M82 (dusty starburst disk + biconical H-alpha wind), M104 (Sombrero: bulge, dust ring), M64, M94, Andromeda | Procedural face-on map with object-specific parameters |
+| Procedural disks | All other spiral, barred, flocculent, lenticular, ring and edge-on models | Procedural face-on map from catalogued morphology, arms, pitch, bar, ring and dust class |
+| Unchanged cached volume | Milky Way, ellipticals, dwarfs, irregulars, Cen A, LMC, SMC, Mayall's Object, Malin 1, sourced dwarf populations | Existing renderer (interior-tuned or bespoke features) |
+
+214 of the 830 catalogue models use the new disk layer (10 photograph-derived).
+
+## GPU memory and cost
+
+- The 3D density cache (176 × 352 × 176 half-float RGBA, about 87 MB at the default
+  quality tier) is no longer allocated for disk-layer galaxies. In its place: a procedural
+  face-on map (2048² RGBA8 with mipmaps, about 22 MB, plus 1.4 MB), and for photograph-derived
+  galaxies a packed young/dust map (about 22 MB), an old-light map (1.4 MB) and a parts
+  atlas (up to about 4 MB). Only the selected galaxy is resident.
+- Downloads: about 8 MB in `public/textures/galaxies/derived/`, fetched only when that
+  galaxy is selected (0.1–2 MB per galaxy).
+- Ray steps are adaptive (fine inside the thin layers, the bulge and any photographed part,
+  coarse elsewhere) and bounded by the existing quality-tier step counts. Each step reads two to five 2D textures
+  instead of one 3D texture plus noise. **Frame time on real GPUs has not been measured**:
+  the cloud renderer is SwiftShader, valid only for appearance. Measure with
+  `ovu-perf-evidence` before claiming any performance change.
+
+## Verification
+
+- `npm run test:galaxy-disk-layer` (new): derived maps match their metadata; each derived disk
+  re-projected through the registration correlates with its photograph (r = 0.80–0.99 for the
+  seven disks); vertical-structure ratios and profile normalisation (each profile integrates
+  to its map value; spheroid parts integrate to the image along every sightline); galaxy
+  selection; no pattern rotation for photograph-registered galaxies.
+- Existing suites passed: `test:galaxies`, `test:galaxy-clarity`, `test:galaxy-observed`,
+  `test:galaxy-landmarks`, `test:galaxy-populations`, `test:galaxy-entry`,
+  `test:galaxy-explorer`, `test:galaxy-empty-space`, `test:scene-depth`, `test:rendering`,
+  `test:visual`, `test:3d`, `test:navigation`, `test:solar-controls`,
+  `test:exploration-camera`. `npx tsc --noEmit` passed; ESLint on changed files: 0 errors.
+- Visual: `scripts/nearby-qa/galaxy-views.html` renders the production galaxy components and
+  optics from fixed poses (front = Earth's direction, oblique, edge, back, top); `?nophoto=1`
+  withholds photographs to show the 3D model alone. `scripts/galaxy-views-capture.mjs` saved
+  before/after screenshots under `.taste-skill/galaxy-views/` (ignored by Git), in headless
+  Chromium with SwiftShader at 640×400 or 960×600, DPR 1.
+
+## Known limitations
+
+- Vertical structure, far sides, companion depths and the views away from Earth are
+  illustrative reconstructions, labelled as such.
+- Photographs crop some disks (M81 to about 0.7 R, M101 to about 0.6 R); outside the frame a
+  procedural continuation matched to the measured radial profile is shown.
+- The Antennae's long tidal tails lie outside the Hubble frame and are not reconstructed.
+  Webb images (Cartwheel, Quintet) use assigned infrared colours.
+- Dust is inferred from reddened darkening in display-stretched images, not from far-infrared
+  dust maps.
+- Not run: authenticated full app, `build:cloudflare` (needs the approved public Supabase
+  configuration), physical devices, GPU frame-time measurement.

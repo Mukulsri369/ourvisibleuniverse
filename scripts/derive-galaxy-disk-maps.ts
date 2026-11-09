@@ -324,7 +324,7 @@ const SKY_CONFIGS: SkyConfig[] = [
         b: 400,
         angle: 32,
         taper: 0.5,
-        depth: 0.3,
+        depth: 0.14,
         offset: 0,
       },
       {
@@ -338,7 +338,7 @@ const SKY_CONFIGS: SkyConfig[] = [
         b: 125,
         angle: 46.6,
         taper: 0.55,
-        depth: 0.22,
+        depth: 0.09,
         offset: 0,
       },
       {
@@ -352,7 +352,7 @@ const SKY_CONFIGS: SkyConfig[] = [
         b: 135,
         angle: 50.5,
         taper: 0.55,
-        depth: 0.22,
+        depth: 0.09,
         offset: 0,
       },
       {
@@ -366,7 +366,7 @@ const SKY_CONFIGS: SkyConfig[] = [
         b: 125,
         angle: 60.6,
         taper: 0.55,
-        depth: 0.22,
+        depth: 0.09,
         offset: 0,
       },
     ],
@@ -389,7 +389,7 @@ const SKY_CONFIGS: SkyConfig[] = [
         b: 450,
         angle: -25,
         taper: 0.45,
-        depth: 0.4,
+        depth: 0.18,
         offset: 0.05,
       },
       {
@@ -445,7 +445,7 @@ const SKY_CONFIGS: SkyConfig[] = [
         b: 300,
         angle: 60,
         taper: 0.5,
-        depth: 0.45,
+        depth: 0.2,
         offset: 0,
       },
       {
@@ -459,7 +459,7 @@ const SKY_CONFIGS: SkyConfig[] = [
         b: 150,
         angle: 40,
         taper: 0.55,
-        depth: 0.3,
+        depth: 0.12,
         offset: 0.05,
       },
     ],

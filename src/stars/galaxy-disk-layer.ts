@@ -423,6 +423,18 @@ vec3 diskWind(vec3 q){
  float shell=.35+.65*smoothstep(.25,.95,rr/max(cone,1e-3));
  return vec3(1.,.26,.32)*uDiskWind.x*inside*filament*shell*exp(-y/uDiskWind.w);
 }
+/** Step bound near image parts: thin sheets and compact spheroids need several samples across
+ * their depth, wherever they sit relative to the disk plane. */
+float diskPartStep(vec3 q){
+ float step=1e3;
+ for(int k=0;k<${MAX_DISK_PARTS};k++){
+  if(float(k)>=uPartCount)break;
+  vec4 b=uPartBound[k];
+  float fine=max(.004,uPartDepth[k].w*.3);
+  step=min(step,max(length(q-b.xyz)-b.w,fine));
+ }
+ return step;
+}
 /** Compact image parts (bulges, companions) extruded along Earth's sightline. */
 vec3 diskParts(vec3 q,float lod){
  vec3 light=vec3(0.);
