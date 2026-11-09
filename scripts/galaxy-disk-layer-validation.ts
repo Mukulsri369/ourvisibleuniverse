@@ -60,29 +60,74 @@ function pearson(a: number[], b: number[]) {
 const keys = Object.keys(OBSERVED_DISK_MAPS);
 assert.deepEqual(
   [...keys].sort(),
-  ["cartwheel", "catalog-ngc-1300", "hoags-object", "m101", "m33", "m51", "m81"],
-  "Observed disk maps cover exactly the seven disk-surface photographs",
+  [
+    "antennae",
+    "cartwheel",
+    "catalog-ngc-1300",
+    "hoags-object",
+    "m101",
+    "m33",
+    "m51",
+    "m81",
+    "stephans-quintet",
+    "tadpole",
+  ],
+  "Observed maps cover the seven disk-surface photographs and three merging systems",
 );
 for (const key of keys) {
   const map = OBSERVED_DISK_MAPS[key];
   const model = byKey.get(key);
   const image = OBSERVED_IMAGE_BY_KEY.get(key);
   assert(model && image, key + " model and registered image");
-  assert.equal(image.surface, "disk", key + " uses a disk-surface registration");
   assert.equal(map.image, image.url);
-  assert(map.extent > 0.3 && map.extent <= 1.6, key + " extent");
-  const young = await decode(map.detail.url);
-  assert.equal(young.w, map.detail.size);
-  assert.equal(young.h, map.detail.size);
-  const old = await decode(map.smooth.url);
-  assert.equal(old.w, map.smooth.size);
-  const dust = await decode(map.dust.url);
-  assert.equal(dust.w, map.dust.size);
-  assert(map.detail.scale > 0 && map.smooth.scale > 0 && map.dust.tauMax > 0);
+  assert.equal(
+    map.mode,
+    image.surface === "disk" ? "disk" : "sky",
+    key + " mode follows its registration surface",
+  );
   assert(map.note.includes("not an observation"), key + " labelled as a reconstruction input");
+  if (map.mode === "sky") {
+    // Part-only systems: every component sits inside the photograph and the volume box.
+    const atlas = await decode(map.parts!.url);
+    assert.equal(atlas.w, map.parts!.width);
+    const spec = diskLayerSpec(model)!;
+    assert(
+      map.parts!.items.length >= 2 && map.parts!.items.length <= MAX_DISK_PARTS,
+      key + " part count",
+    );
+    for (const part of map.parts!.items) {
+      assert(
+        part.centreUv.every((v) => v > 0 && v < 1),
+        key + " part centred in the photograph",
+      );
+      assert(
+        Math.max(...part.centre.map(Math.abs)) + part.radius <= spec.box + 1e-6,
+        key + " part inside the volume",
+      );
+      assert(part.kind === "sheet" || part.kind === "spheroid");
+    }
+    assert(
+      !map.parts!.items.some((p) => /7320/.test(p.label)),
+      "Foreground NGC 7320 is not part of the group",
+    );
+    console.log(`${key}: ${map.parts!.items.length} photographed components`);
+    continue;
+  }
+  assert.equal(image.surface, "disk", key + " uses a disk-surface registration");
+  assert(map.detail && map.smooth && map.dust, key + " face-on maps");
+  assert(map.extent > 0.3 && map.extent <= 1.6, key + " extent");
+  const young = await decode(map.detail!.url);
+  assert.equal(young.w, map.detail!.size);
+  assert.equal(young.h, map.detail!.size);
+  const old = await decode(map.smooth!.url);
+  assert.equal(old.w, map.smooth!.size);
+  const dust = await decode(map.dust!.url);
+  assert.equal(dust.w, map.dust!.size);
+  assert(map.detail!.scale > 0 && map.smooth!.scale > 0 && map.dust!.tauMax > 0);
   assert((map.parts?.items.length ?? 0) <= MAX_DISK_PARTS);
   for (const part of map.parts?.items ?? []) {
-    for (const v of [...part.uvRect, ...part.atlasRect, ...part.centreUv]) assert(v >= -1e-6 && v <= 1 + 1e-6, key + " part rects");
+    for (const v of [...part.uvRect, ...part.atlasRect, ...part.centreUv])
+      assert(v >= -1e-6 && v <= 1 + 1e-6, key + " part rects");
     assert(part.depthExtent > 0 && part.radius > 0 && part.texel > 0, key + " part geometry");
     assert(part.source.length > 5, key + " part position source");
   }
@@ -108,7 +153,9 @@ for (const key of keys) {
       const inPart = (map.parts?.items ?? []).some((p) => {
         const du = u - p.centreUv[0],
           dv = v - p.centreUv[1];
-        return Math.hypot(p.axisA[0] * du + p.axisA[1] * dv, p.axisB[0] * du + p.axisB[1] * dv) < 1.1;
+        return (
+          Math.hypot(p.axisA[0] * du + p.axisA[1] * dv, p.axisB[0] * du + p.axisB[1] * dv) < 1.1
+        );
       });
       if (inPart) continue;
       // Map texel (row 0 = +z) and photograph pixel (row 0 = top, v up).
@@ -117,7 +164,8 @@ for (const key of keys) {
       const yi = (my * young.w + mx) * young.c,
         oi = (Math.floor(my * smoothScale) * old.w + Math.floor(mx * smoothScale)) * old.c;
       const derived =
-        0.7152 * (srgb(young.data[yi + 1]) * map.detail.scale + srgb(old.data[oi + 1]) * map.smooth.scale);
+        0.7152 *
+        (srgb(young.data[yi + 1]) * map.detail!.scale + srgb(old.data[oi + 1]) * map.smooth!.scale);
       const px = Math.min(photo.w - 1, Math.floor(u * photo.w)),
         py = Math.min(photo.h - 1, Math.floor((1 - v) * photo.h));
       a.push(derived);
@@ -125,8 +173,13 @@ for (const key of keys) {
     }
   assert(a.length > 400, key + " enough registration samples");
   const r = pearson(a, b);
-  assert(r > 0.75, `${key}: derived disk light must stay registered with its photograph (r=${r.toFixed(3)})`);
-  console.log(`${key}: registration correlation ${r.toFixed(3)} over ${a.length} disk-plane samples`);
+  assert(
+    r > 0.75,
+    `${key}: derived disk light must stay registered with its photograph (r=${r.toFixed(3)})`,
+  );
+  console.log(
+    `${key}: registration correlation ${r.toFixed(3)} over ${a.length} disk-plane samples`,
+  );
 }
 
 // 3. Vertical structure and normalisation.
@@ -138,7 +191,12 @@ const close = (v: number, target: number, tol: number, label: string) =>
 close(spec.heights.dust / hzOld, 0.5, 0.12, "dust/old scale height (Xilouris et al. 1999)");
 close(spec.heights.young / hzOld, 0.5, 0.15, "young/old scale height (De Looze et al. 2014)");
 close(spec.heights.ionised / hzOld, 0.25, 0.1, "ionised/old scale height");
-close(hzOld / 0.27, 0.085, 0.04, "old scale height / scale length (de Grijs 1998; Kregel et al. 2002)");
+close(
+  hzOld / 0.27,
+  0.085,
+  0.04,
+  "old scale height / scale length (de Grijs 1998; Kregel et al. 2002)",
+);
 const integrate = (f: (y: number) => number, lim: number) => {
   let s = 0;
   const steps = 200000,
@@ -147,26 +205,52 @@ const integrate = (f: (y: number) => number, lim: number) => {
   return s;
 };
 const sech2 = (x: number) => 1 / Math.cosh(Math.min(Math.abs(x), 30)) ** 2;
-close(integrate((y) => sech2(y / 0.046) / (2 * 0.046), 2), 1, 1e-3, "sech² profile normalisation");
-close(integrate((y) => Math.exp(-Math.abs(y) / 0.012) / (2 * 0.012), 2), 1, 1e-3, "exponential profile normalisation");
+close(
+  integrate((y) => sech2(y / 0.046) / (2 * 0.046), 2),
+  1,
+  1e-3,
+  "sech² profile normalisation",
+);
+close(
+  integrate((y) => Math.exp(-Math.abs(y) / 0.012) / (2 * 0.012), 2),
+  1,
+  1e-3,
+  "exponential profile normalisation",
+);
 // Spheroid parts: truncated spherical-deprojection weight, renormalised per sightline.
 for (const rho of [0, 0.3, 0.6, 0.9]) {
   const s2 = rho * rho + 0.0036,
     lim = Math.sqrt(1 - rho * rho);
   const column = integrate(
-    (d) => (Math.abs(d) < lim ? ((s2 / (2 * (s2 + d * d) ** 1.5)) * 1.0018) / Math.sqrt(Math.max(1 - rho * rho, 0.02)) : 0),
+    (d) =>
+      Math.abs(d) < lim
+        ? ((s2 / (2 * (s2 + d * d) ** 1.5)) * 1.0018) / Math.sqrt(Math.max(1 - rho * rho, 0.02))
+        : 0,
     1.2,
   );
   close(column, 1, 2e-3, "spheroid part column at rho=" + rho);
 }
-assert(DISK_LAYER_GLSL.includes("diskSech2(y/zo)/(2.*zo)") && DISK_LAYER_GLSL.includes("s2/(2.*pow(s2+dn*dn,1.5))"));
-assert(!/uDiskDust\b/.test(DISK_LAYER_GLSL), "Observed dust travels in the packed young-light texture");
-assert(GALAXY_DISK_FRAGMENT.includes("beforeDisplay(display)"), "Exterior view uses the photograph's display mapping");
+assert(
+  DISK_LAYER_GLSL.includes("diskSech2(y/zo)/(2.*zo)") &&
+    DISK_LAYER_GLSL.includes("s2/(2.*pow(s2+dn*dn,1.5))"),
+);
+assert(
+  !/uDiskDust\b/.test(DISK_LAYER_GLSL),
+  "Observed dust travels in the packed young-light texture",
+);
+assert(
+  GALAXY_DISK_FRAGMENT.includes("beforeDisplay(display)"),
+  "Exterior view uses the photograph's display mapping",
+);
 
 // 4. Selection.
 const observedCount = GALAXY_MODELS.filter((m) => diskLayerSpec(m)?.observed).length;
-assert.equal(observedCount, 7);
-assert.equal(diskLayerSpec(MILKY_WAY_APPEARANCE), null, "The home galaxy keeps its interior-tuned volume");
+assert.equal(observedCount, 10);
+assert.equal(
+  diskLayerSpec(MILKY_WAY_APPEARANCE),
+  null,
+  "The home galaxy keeps its interior-tuned volume",
+);
 assert(diskLayerSpec(ANDROMEDA_APPEARANCE), "Andromeda uses a procedural disk layer");
 for (const m of GALAXY_MODELS) {
   const s = diskLayerSpec(m);
@@ -178,18 +262,27 @@ for (const m of GALAXY_MODELS) {
     structure.feature !== 3
   )
     assert.equal(s, null, m.name + " keeps the cached volume");
-  if (structure.feature === 3) assert(s && s.wind[0] > 0 && s.slab >= 0.99, m.name + " carries its bipolar wind");
-  if ([1, 4, 5, 7, 8, 9, 12, 15].includes(structure.feature)) assert.equal(s, null, m.name + " keeps its bespoke feature");
+  if (structure.feature === 3)
+    assert(s && s.wind[0] > 0 && s.slab >= 0.99, m.name + " carries its bipolar wind");
+  if ([1, 4, 5, 7, 8, 9, 12, 15].includes(structure.feature) && !OBSERVED_DISK_MAPS[m.key])
+    assert.equal(s, null, m.name + " keeps its bespoke feature");
   if (s) {
     assert(s.slab > 0.1 && s.slab <= s.box, m.name + " slab");
-    assert(s.box >= 1.35 && s.box <= 1.65, m.name + " box");
+    assert(s.box >= 1.35 && s.box <= 2.6, m.name + " box");
     const u = diskLayerUniforms(m, s);
-    assert(u.uDiskHeights.value.toArray().every((v) => v > 0 && v < 0.1), m.name + " heights");
+    assert(
+      u.uDiskHeights.value.toArray().every((v) => v > 0 && v < 0.1),
+      m.name + " heights",
+    );
   }
 }
 // 5. Observed disks keep their registration with the photograph.
-for (const key of keys) assert.equal(galaxyStructure(byKey.get(key)!).rotationRate, 0, key + " pattern rotation");
-assert(galaxyStructure(byKey.get("catalog-m74-phantom-galaxy")!).rotationRate !== 0, "Procedural disks still rotate");
+for (const key of keys)
+  assert.equal(galaxyStructure(byKey.get(key)!).rotationRate, 0, key + " pattern rotation");
+assert(
+  galaxyStructure(byKey.get("catalog-m74-phantom-galaxy")!).rotationRate !== 0,
+  "Procedural disks still rotate",
+);
 console.log(
   `PASS: ${keys.length} observed disk maps registered with their photographs; vertical ratios and profile normalisation; ${
     GALAXY_MODELS.filter((m) => diskLayerSpec(m)).length

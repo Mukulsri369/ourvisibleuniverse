@@ -72,7 +72,7 @@ function select(key: string) {
 }
 
 /** Unit view direction and up vector in the galaxy's local frame (disk normal = +Y). */
-export function localPose(model: GalaxyModel, direction: string) {
+function localPose(model: GalaxyModel, direction: string) {
   const normal = new THREE.Vector3(0, 1, 0);
   const earth = earthDirectionLocal(model);
   const inPlane = earth.clone().setY(0);
@@ -117,7 +117,9 @@ function ViewRig() {
     const { dir, up } = localPose(model, view.direction);
     const centre = galaxyCenter(model);
     camera.up.copy(up.applyQuaternion(q));
-    camera.position.copy(centre).addScaledVector(dir.applyQuaternion(q), view.distance * model.diskRadius);
+    camera.position
+      .copy(centre)
+      .addScaledVector(dir.applyQuaternion(q), view.distance * model.diskRadius);
     camera.lookAt(centre);
     camera.updateMatrixWorld();
   }, -10);
@@ -136,8 +138,7 @@ function Probe() {
     status() {
       const model = modelFor(view.key);
       const volume = scene.getObjectByName("galaxy-radiance:" + model.name) as
-        | THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial>
-        | undefined;
+        THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> | undefined;
       return {
         key: model.key,
         name: model.name,

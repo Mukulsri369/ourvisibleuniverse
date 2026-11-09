@@ -61,6 +61,8 @@
     "test:galaxy-populations": "tsx scripts/galaxy-populations-validation.ts",
     "test:galaxy-landmarks": "tsx scripts/galaxy-landmarks-validation.ts",
     "test:galaxy-observed": "tsx scripts/galaxy-observed-layer-validation.ts",
+    "test:galaxy-disk-layer": "tsx scripts/galaxy-disk-layer-validation.ts",
+    "derive:galaxy-disk-maps": "tsx scripts/derive-galaxy-disk-maps.ts",
     "test:galaxy-empty-space": "tsx scripts/galaxy-empty-space-validation.ts",
     "test:galaxy-explorer": "tsx scripts/galaxy-explorer-validation.ts",
     "test:preview": "node scripts/preview-validation.mjs",

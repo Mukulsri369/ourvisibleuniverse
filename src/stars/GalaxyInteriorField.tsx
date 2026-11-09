@@ -135,7 +135,9 @@ float cosv=abs(normalize(uEye-p).y);
 float fs=position.y<0.?.5*exp(position.y/hd):1.-.5*exp(-position.y/hd);
 float fe=uEye.y<0.?.5*exp(uEye.y/hd):1.-.5*exp(-uEye.y/hd);
 float column=(faceTau+diskDiffuseTau(rr))*abs(fe-fs)/max(cosv,.04);
-vLum*=clamp(host,0.,2.6)*exp(-column*1.1);}
+// Part-only systems (mergers, groups) show their photographed components from outside;
+// their generic star points appear only once inside.
+vLum*=(uDiskStarHost>.5?clamp(host,0.,2.6):1.-uExterior)*exp(-column*1.1);}
 #endif
 gl_PointSize=clamp(uViewport*.002*sqrt(aLum)/sqrt(max(.0001,vDistance)),mix(.9,1.,uExterior),mix(9.,3.,uExterior));
 #include <logdepthbuf_vertex>

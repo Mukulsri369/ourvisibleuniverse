@@ -28,19 +28,19 @@ no new images were added; the sixteen photographs already in `public/textures/ga
 were used. The providers below were reviewed for what they offer and how their images may
 be used. This is not legal advice; check each image's own page.
 
-| Provider | What it offers for galaxies | Terms (as published) |
-| --- | --- | --- |
-| [ESA/Hubble](https://esahubble.org/copyright/) | Large processed releases, most with embedded AVM sky registration | CC BY 4.0; credit unaltered; changes noted after the credit; no implied endorsement |
-| [ESA/Webb](https://esawebb.org/copyright/) | NIRCam/MIRI releases (infrared, assigned colours) | CC BY 4.0, same conditions |
-| NASA / STScI (hubblesite.org, webbtelescope.org, science.nasa.gov) | Hubble and Webb releases | Generally public domain when credited to NASA/ESA/CSA/STScI; third-party credit lines can differ; NASA logos restricted |
-| [ESO](https://www.eso.org/public/outreach/copyright/) | VLT/VST/VISTA wide fields (M33, LMC, SMC, Cen A, M31) | CC BY 4.0 unless noted; no implied endorsement |
-| [NOIRLab](https://noirlab.edu/public/) | Gemini, Kitt Peak, CTIO releases | CC BY 4.0 for current releases; older items vary |
-| [AstroPix (IPAC)](https://www.astropix.org/) | Aggregator of observatory images with AVM metadata (sky registration) | Terms of each contributing observatory |
-| [ESA Euclid ERO](https://www.cosmos.esa.int/web/euclid/ero-credits) | Wide, deep near-IR/optical views of nearby galaxies | CC BY-SA 3.0 IGO or ESA Standard Licence |
-| [DESI Legacy Surveys](https://www.legacysurvey.org/) | Uniform optical cutouts of most catalogue galaxies (viewer/cutout service) | Acknowledgement requested; image reuse terms not stated in the pages found |
-| SDSS SkyServer, Pan-STARRS | Uniform survey cutouts | Acknowledgement requested |
-| DSS (STScI) | All-sky photographic plates | No commercial use without permission (paid OVU: avoid) |
-| Rubin Observatory | 2025 first-look releases | Check each release page |
+| Provider                                                            | What it offers for galaxies                                                | Terms (as published)                                                                                                    |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| [ESA/Hubble](https://esahubble.org/copyright/)                      | Large processed releases, most with embedded AVM sky registration          | CC BY 4.0; credit unaltered; changes noted after the credit; no implied endorsement                                     |
+| [ESA/Webb](https://esawebb.org/copyright/)                          | NIRCam/MIRI releases (infrared, assigned colours)                          | CC BY 4.0, same conditions                                                                                              |
+| NASA / STScI (hubblesite.org, webbtelescope.org, science.nasa.gov)  | Hubble and Webb releases                                                   | Generally public domain when credited to NASA/ESA/CSA/STScI; third-party credit lines can differ; NASA logos restricted |
+| [ESO](https://www.eso.org/public/outreach/copyright/)               | VLT/VST/VISTA wide fields (M33, LMC, SMC, Cen A, M31)                      | CC BY 4.0 unless noted; no implied endorsement                                                                          |
+| [NOIRLab](https://noirlab.edu/public/)                              | Gemini, Kitt Peak, CTIO releases                                           | CC BY 4.0 for current releases; older items vary                                                                        |
+| [AstroPix (IPAC)](https://www.astropix.org/)                        | Aggregator of observatory images with AVM metadata (sky registration)      | Terms of each contributing observatory                                                                                  |
+| [ESA Euclid ERO](https://www.cosmos.esa.int/web/euclid/ero-credits) | Wide, deep near-IR/optical views of nearby galaxies                        | CC BY-SA 3.0 IGO or ESA Standard Licence                                                                                |
+| [DESI Legacy Surveys](https://www.legacysurvey.org/)                | Uniform optical cutouts of most catalogue galaxies (viewer/cutout service) | Acknowledgement requested; image reuse terms not stated in the pages found                                              |
+| SDSS SkyServer, Pan-STARRS                                          | Uniform survey cutouts                                                     | Acknowledgement requested                                                                                               |
+| DSS (STScI)                                                         | All-sky photographic plates                                                | No commercial use without permission (paid OVU: avoid)                                                                  |
+| Rubin Observatory                                                   | 2025 first-look releases                                                   | Check each release page                                                                                                 |
 
 Structural references for what a disk galaxy looks like from each direction (used to set
 vertical structure, not copied as images): edge-on systems such as NGC 891, NGC 4565 and the

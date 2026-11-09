@@ -17,7 +17,10 @@ const playwright = await import(
 const chromium = playwright.chromium ?? playwright.default.chromium;
 const origin = process.env.OVU_QA_ORIGIN || "http://127.0.0.1:31755";
 const [label = "capture", keyList, viewList, query = ""] = process.argv.slice(2);
-const keys = (keyList || "m51,m81,m101,m33,catalog-ngc-1300,cartwheel,hoags-object,m104,m82,antennae,tadpole,stephans-quintet").split(",");
+const keys = (
+  keyList ||
+  "m51,m81,m101,m33,catalog-ngc-1300,cartwheel,hoags-object,m104,m82,antennae,tadpole,stephans-quintet"
+).split(",");
 const views = (viewList || "front,oblique,edge,back").split(",");
 const width = Number(process.env.OVU_VIEW_WIDTH || 960),
   height = Number(process.env.OVU_VIEW_HEIGHT || 600);

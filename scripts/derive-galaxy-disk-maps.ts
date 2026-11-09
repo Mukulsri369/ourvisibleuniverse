@@ -24,8 +24,16 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import sharp from "sharp";
 import * as THREE from "three";
-import { GALAXY_MODELS, galaxyCenter, galaxyOrientation, type GalaxyModel } from "../src/stars/galaxy-models";
-import { OBSERVED_IMAGE_BY_KEY, type ObservedGalaxyImage } from "../src/stars/galaxy-observed-images";
+import {
+  GALAXY_MODELS,
+  galaxyCenter,
+  galaxyOrientation,
+  type GalaxyModel,
+} from "../src/stars/galaxy-models";
+import {
+  OBSERVED_IMAGE_BY_KEY,
+  type ObservedGalaxyImage,
+} from "../src/stars/galaxy-observed-images";
 import {
   avmDirection,
   avmTextureRows,
@@ -58,6 +66,32 @@ type Part = {
   source: string;
 };
 type Mask = { x: number; y: number; r: number; note: string };
+/** A component of a system photographed without a single disk plane (mergers, groups). */
+type SkyPart = {
+  id: string;
+  label: string;
+  source: string;
+  /** "spheroid": spherically deprojected; "sheet": a flattened slab (disturbed disks, tails, gas). */
+  kind: "spheroid" | "sheet";
+  /** Local-file pixel centre (x right, y down), semi-axes (px) and angle (degrees from +x toward +y). */
+  x: number;
+  y: number;
+  a: number;
+  b: number;
+  angle: number;
+  taper: number;
+  /** Depth half-extent as a fraction of the semi-major axis. */
+  depth: number;
+  /** Depth offset along Earth's sightline (disk radii, positive toward Earth); illustrative. */
+  offset: number;
+};
+type SkyConfig = {
+  key: string;
+  skyParts: SkyPart[];
+  masks?: Mask[];
+  starMinPeak?: number;
+  note: string;
+};
 type Config = {
   key: string;
   parts: Part[];
@@ -193,7 +227,9 @@ const CONFIGS: Config[] = [
     continuation: false,
     extent: 1.55,
     maxRadius: 1.4,
-    masks: [{ x: 3440, y: 1640, r: 46, note: "foreground star with diffraction spikes on the ring" }],
+    masks: [
+      { x: 3440, y: 1640, r: 46, note: "foreground star with diffraction spikes on the ring" },
+    ],
     parts: [
       {
         id: "bulge",
@@ -237,6 +273,199 @@ const CONFIGS: Config[] = [
   },
 ];
 
+/** Mergers and groups: each component becomes a sightline-extruded part (no disk plane). */
+const SKY_CONFIGS: SkyConfig[] = [
+  {
+    key: "antennae",
+    note: "NGC 4038 and NGC 4039 bodies as two disturbed disks; the long tidal tails lie outside this photograph and are not reconstructed.",
+    skyParts: [
+      {
+        id: "ngc4038",
+        label: "NGC 4038",
+        source: "Body outline measured in ESA/Hubble heic0615a",
+        kind: "sheet",
+        x: 2330,
+        y: 1330,
+        a: 1180,
+        b: 760,
+        angle: -10,
+        taper: 0.45,
+        depth: 0.18,
+        offset: 0.04,
+      },
+      {
+        id: "ngc4039",
+        label: "NGC 4039",
+        source: "Body outline measured in ESA/Hubble heic0615a",
+        kind: "sheet",
+        x: 1560,
+        y: 2480,
+        a: 1080,
+        b: 560,
+        angle: 78,
+        taper: 0.45,
+        depth: 0.2,
+        offset: -0.04,
+      },
+    ],
+  },
+  {
+    key: "tadpole",
+    note: "Disrupted spiral and its tidal tail as flattened sheets; depth and thickness are illustrative.",
+    skyParts: [
+      {
+        id: "body",
+        label: "UGC 10214",
+        source: "Outline measured in ESA/Hubble heic0206a",
+        kind: "sheet",
+        x: 1100,
+        y: 640,
+        a: 720,
+        b: 400,
+        angle: 32,
+        taper: 0.5,
+        depth: 0.3,
+        offset: 0,
+      },
+      {
+        id: "tail-1",
+        label: "Tidal tail",
+        source: "Outline measured in ESA/Hubble heic0206a",
+        kind: "sheet",
+        x: 1975,
+        y: 1450,
+        a: 650,
+        b: 125,
+        angle: 46.6,
+        taper: 0.55,
+        depth: 0.22,
+        offset: 0,
+      },
+      {
+        id: "tail-2",
+        label: "Tidal tail",
+        source: "Outline measured in ESA/Hubble heic0206a",
+        kind: "sheet",
+        x: 2700,
+        y: 2275,
+        a: 590,
+        b: 135,
+        angle: 50.5,
+        taper: 0.55,
+        depth: 0.22,
+        offset: 0,
+      },
+      {
+        id: "tail-3",
+        label: "Tidal tail",
+        source: "Outline measured in ESA/Hubble heic0206a",
+        kind: "sheet",
+        x: 3225,
+        y: 3050,
+        a: 500,
+        b: 125,
+        angle: 60.6,
+        taper: 0.55,
+        depth: 0.22,
+        offset: 0,
+      },
+    ],
+  },
+  {
+    key: "stephans-quintet",
+    masks: [
+      { x: 2085, y: 3070, r: 60, note: "foreground star with diffraction spikes beside NGC 7317" },
+    ],
+    note: "Members NGC 7319, 7318A/B and 7317 plus the intergalactic shock region. Foreground NGC 7320 (about 40 Mly) is excluded. Relative depths are illustrative.",
+    skyParts: [
+      {
+        id: "ngc7319",
+        label: "NGC 7319",
+        source: "Outline measured in ESA/Webb weic2208a",
+        kind: "sheet",
+        x: 2250,
+        y: 1100,
+        a: 560,
+        b: 450,
+        angle: -25,
+        taper: 0.45,
+        depth: 0.4,
+        offset: 0.05,
+      },
+      {
+        id: "ngc7318b",
+        label: "NGC 7318B",
+        source: "Outline measured in ESA/Webb weic2208a",
+        kind: "spheroid",
+        x: 2230,
+        y: 1890,
+        a: 360,
+        b: 320,
+        angle: 0,
+        taper: 0.4,
+        depth: 0.9,
+        offset: -0.12,
+      },
+      {
+        id: "ngc7318a",
+        label: "NGC 7318A",
+        source: "Outline measured in ESA/Webb weic2208a",
+        kind: "spheroid",
+        x: 2350,
+        y: 2150,
+        a: 300,
+        b: 280,
+        angle: 0,
+        taper: 0.4,
+        depth: 0.9,
+        offset: 0.1,
+      },
+      {
+        id: "ngc7317",
+        label: "NGC 7317",
+        source: "Outline measured in ESA/Webb weic2208a",
+        kind: "spheroid",
+        x: 1930,
+        y: 3060,
+        a: 300,
+        b: 280,
+        angle: 0,
+        taper: 0.4,
+        depth: 0.9,
+        offset: -0.06,
+      },
+      {
+        id: "shock",
+        label: "Intergalactic shock region",
+        source: "Outline measured in ESA/Webb weic2208a",
+        kind: "sheet",
+        x: 2620,
+        y: 1620,
+        a: 470,
+        b: 300,
+        angle: 60,
+        taper: 0.5,
+        depth: 0.45,
+        offset: 0,
+      },
+      {
+        id: "old-tail",
+        label: "NGC 7319 tidal tail",
+        source: "Outline measured in ESA/Webb weic2208a",
+        kind: "sheet",
+        x: 1450,
+        y: 850,
+        a: 520,
+        b: 150,
+        angle: 40,
+        taper: 0.55,
+        depth: 0.3,
+        offset: 0.05,
+      },
+    ],
+  },
+];
+
 const ROOT = process.cwd();
 const OUT_DIR = path.join(ROOT, "public/textures/galaxies/derived");
 const META_FILE = path.join(ROOT, "src/stars/catalog-data/galaxy-disk-maps.json");
@@ -275,7 +504,9 @@ function boxesForGauss(sigma: number) {
   let lower = Math.floor(ideal);
   if (lower % 2 === 0) lower--;
   const upper = lower + 2;
-  const m = Math.round((12 * sigma * sigma - n * lower * lower - 4 * n * lower - 3 * n) / (-4 * lower - 4));
+  const m = Math.round(
+    (12 * sigma * sigma - n * lower * lower - 4 * n * lower - 3 * n) / (-4 * lower - 4),
+  );
   return Array.from({ length: n }, (_, i) => ((i < m ? lower : upper) - 1) / 2);
 }
 function boxH(src: Plane, dst: Plane, w: number, h: number, r: number) {
@@ -304,7 +535,7 @@ function boxV(src: Plane, dst: Plane, w: number, h: number, r: number) {
 /** Gaussian blur (three box passes); returns a new plane. */
 function blur(src: Plane, w: number, h: number, sigma: number): Plane {
   if (sigma < 0.3) return src.slice();
-  let a = src.slice();
+  const a = src.slice();
   const b = new Float32Array(src.length);
   for (const r of boxesForGauss(sigma)) {
     if (r < 1) continue;
@@ -381,14 +612,19 @@ function sampleBilinear(p: Plane, w: number, h: number, x: number, y: number) {
 }
 function percentile(values: ArrayLike<number>, q: number, stride = 1) {
   const list: number[] = [];
-  for (let i = 0; i < values.length; i += stride) if (Number.isFinite(values[i])) list.push(values[i]);
+  for (let i = 0; i < values.length; i += stride)
+    if (Number.isFinite(values[i])) list.push(values[i]);
   if (!list.length) return 0;
   list.sort((a, b) => a - b);
   return list[Math.min(list.length - 1, Math.max(0, Math.round(q * (list.length - 1))))];
 }
 
 async function readImage(file: string): Promise<RGB> {
-  const { data, info } = await sharp(file).removeAlpha().toColourspace("srgb").raw().toBuffer({ resolveWithObject: true });
+  const { data, info } = await sharp(file)
+    .removeAlpha()
+    .toColourspace("srgb")
+    .raw()
+    .toBuffer({ resolveWithObject: true });
   const w = info.width,
     h = info.height,
     n = w * h;
@@ -404,9 +640,17 @@ async function writeRgb(file: string, img: RGB, scale: number, quality = 90) {
     .jpeg({ quality, chromaSubsampling: "4:4:4", mozjpeg: true })
     .toFile(file);
 }
-async function writeGray(file: string, plane: Plane, w: number, h: number, encode: (x: number) => number, quality = 90) {
+async function writeGray(
+  file: string,
+  plane: Plane,
+  w: number,
+  h: number,
+  encode: (x: number) => number,
+  quality = 90,
+) {
   const buf = Buffer.alloc(w * h);
-  for (let i = 0; i < w * h; i++) buf[i] = Math.round(Math.min(1, Math.max(0, encode(plane[i]))) * 255);
+  for (let i = 0; i < w * h; i++)
+    buf[i] = Math.round(Math.min(1, Math.max(0, encode(plane[i]))) * 255);
   await sharp(buf, { raw: { width: w, height: h, channels: 1 } })
     .jpeg({ quality, mozjpeg: true })
     .toFile(file);
@@ -452,11 +696,20 @@ function pixelAxis(image: ObservedGalaxyImage, ra: number, dec: number, paDeg: n
   return { x: (p1[0] - p0[0]) / len, y: (p1[1] - p0[1]) / len, pxPerArcsec: len / 10 };
 }
 /** Local point where the Sun's sightline through image coordinate (u, v) meets a plane. */
-function sightlinePoint(model: GalaxyModel, image: ObservedGalaxyImage, u: number, v: number, normal: THREE.Vector3, offset = 0) {
+function sightlinePoint(
+  model: GalaxyModel,
+  image: ObservedGalaxyImage,
+  u: number,
+  v: number,
+  normal: THREE.Vector3,
+  offset = 0,
+) {
   const inverse = galaxyOrientation(model).clone().invert(),
     unalign = catalogueAlignment(model).invert();
   const sun = galaxyCenter(model).negate().applyQuaternion(inverse).divideScalar(model.diskRadius);
-  const direction = sceneFromIcrs(avmDirection(image.avm, u, v)).applyQuaternion(unalign).applyQuaternion(inverse);
+  const direction = sceneFromIcrs(avmDirection(image.avm, u, v))
+    .applyQuaternion(unalign)
+    .applyQuaternion(inverse);
   const t = (offset - normal.dot(sun)) / normal.dot(direction);
   return sun.clone().addScaledVector(direction, t);
 }
@@ -470,11 +723,22 @@ function skyAndNoise(img: RGB) {
   const band = Math.max(8, Math.round(Math.min(w, h) * 0.03));
   const idx: number[] = [];
   for (let y = 0; y < h; y += 2)
-    for (let x = 0; x < w; x += 2) if (x < band || y < band || x >= w - band || y >= h - band) idx.push(y * w + x);
-  const level = img.c.map((p) => percentile(idx.map((i) => p[i]), 0.25)) as [number, number, number];
-  const lum = idx.map((i) => luma(img.c[0][i] - level[0], img.c[1][i] - level[1], img.c[2][i] - level[2]));
+    for (let x = 0; x < w; x += 2)
+      if (x < band || y < band || x >= w - band || y >= h - band) idx.push(y * w + x);
+  const level = img.c.map((p) =>
+    percentile(
+      idx.map((i) => p[i]),
+      0.25,
+    ),
+  ) as [number, number, number];
+  const lum = idx.map((i) =>
+    luma(img.c[0][i] - level[0], img.c[1][i] - level[1], img.c[2][i] - level[2]),
+  );
   const med = percentile(lum, 0.5);
-  const mad = percentile(lum.map((v) => Math.abs(v - med)), 0.5);
+  const mad = percentile(
+    lum.map((v) => Math.abs(v - med)),
+    0.5,
+  );
   return { level, noise: Math.max(1e-5, 1.4826 * mad) };
 }
 
@@ -483,7 +747,13 @@ type StarReport = { x: number; y: number; r: number; peak: number };
  * Compact, non-H II point sources that stand far above the local galaxy light: foreground
  * stars (and their diffraction spikes) and compact background objects.
  */
-function findPointSources(img: RGB, noise: number, strength: number, minPeak: number, keepBlue = true): { mask: Plane; stars: StarReport[] } {
+function findPointSources(
+  img: RGB,
+  noise: number,
+  strength: number,
+  minPeak: number,
+  keepBlue = true,
+): { mask: Plane; stars: StarReport[] } {
   const { w, h, c } = img;
   const n = w * h;
   const Y = new Float32Array(n);
@@ -499,8 +769,12 @@ function findPointSources(img: RGB, noise: number, strength: number, minPeak: nu
   const mask = new Float32Array(n);
   const stars: StarReport[] = [];
   const RING = 16;
-  const ringX = Array.from({ length: RING }, (_, k) => Math.round(Math.cos((k / RING) * Math.PI * 2) * 3.6));
-  const ringY = Array.from({ length: RING }, (_, k) => Math.round(Math.sin((k / RING) * Math.PI * 2) * 3.6));
+  const ringX = Array.from({ length: RING }, (_, k) =>
+    Math.round(Math.cos((k / RING) * Math.PI * 2) * 3.6),
+  );
+  const ringY = Array.from({ length: RING }, (_, k) =>
+    Math.round(Math.sin((k / RING) * Math.PI * 2) * 3.6),
+  );
   for (let y = 6; y < h - 6; y++)
     for (let x = 6; x < w - 6; x++) {
       const i = y * w + x;
@@ -509,12 +783,14 @@ function findPointSources(img: RGB, noise: number, strength: number, minPeak: nu
       if (excess < Math.max(14 * noise, minPeak) || excess < (1.3 / strength) * bg[i]) continue;
       let peak = true;
       for (let dy = -2; dy <= 2 && peak; dy++)
-        for (let dx = -2; dx <= 2; dx++) if ((dx || dy) && core[i + dy * w + dx] > core[i]) peak = false;
+        for (let dx = -2; dx <= 2; dx++)
+          if ((dx || dy) && core[i + dy * w + dx] > core[i]) peak = false;
       if (!peak) continue;
       // Compactness: an unresolved point leaves almost nothing in a ring 3.6 px out, whereas
       // H II regions and associations at these distances are resolved.
       let ring = 0;
-      for (let k = 0; k < RING; k++) ring += core[i + ringY[k] * w + ringX[k]] - bg[i + ringY[k] * w + ringX[k]];
+      for (let k = 0; k < RING; k++)
+        ring += core[i + ringY[k] * w + ringX[k]] - bg[i + ringY[k] * w + ringX[k]];
       ring /= RING;
       if (excess < (4.5 / strength) * Math.max(ring, 0)) continue;
       let r = 0,
@@ -575,7 +851,8 @@ function findPointSources(img: RGB, noise: number, strength: number, minPeak: nu
             // A spike pixel is brighter than its local background and its own sides.
             const side =
               0.5 *
-              (Y[Math.round(py + ca * 3) * w + Math.round(px - sa * 3)] + Y[Math.round(py - ca * 3) * w + Math.round(px + sa * 3)]);
+              (Y[Math.round(py + ca * 3) * w + Math.round(px - sa * 3)] +
+                Y[Math.round(py - ca * 3) * w + Math.round(px + sa * 3)]);
             if (Y[j] - Math.max(bg[j], side) > Math.max(3 * noise, 0.08 * bg[j])) run = rr;
             else if (rr - run > 4) break;
           }
@@ -652,11 +929,19 @@ type PartMeta = {
 type MapMeta = {
   key: string;
   image: string;
+  /** "disk": deprojected face-on maps (+ parts); "sky": sightline-extruded parts only. */
+  mode: "disk" | "sky";
   extent: number;
-  detail: { url: string; size: number; scale: number };
-  smooth: { url: string; size: number; scale: number };
-  dust: { url: string; size: number; tauMax: number; encoding: "sqrt" };
-  parts: { url: string; width: number; height: number; scale: number; items: PartMeta[] } | null;
+  detail: { url: string; size: number; scale: number } | null;
+  smooth: { url: string; size: number; scale: number } | null;
+  dust: { url: string; size: number; tauMax: number; encoding: "sqrt" } | null;
+  parts: {
+    url: string;
+    width: number;
+    height: number;
+    scale: number;
+    items: (PartMeta & { kind?: "spheroid" | "sheet" })[];
+  } | null;
   /** Exponential fits (photo units, disk radii) for continuing the disk outside the frame. */
   profile: { old: [number, number]; young: [number, number]; dust: [number, number] };
   colours: { old: [number, number, number]; young: [number, number, number] };
@@ -671,11 +956,13 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   if (image.surface !== "disk") throw Error(config.key + " is not a disk-surface image");
   const file = path.join(ROOT, "public", image.url);
   const photo = await readImage(file);
-  if (photo.w !== image.width || photo.h !== image.height) throw Error("Unexpected size " + config.key);
+  if (photo.w !== image.width || photo.h !== image.height)
+    throw Error("Unexpected size " + config.key);
   const { w, h } = photo;
   const n = w * h;
   const { level, noise } = skyAndNoise(photo);
-  for (let k = 0; k < 3; k++) for (let i = 0; i < n; i++) photo.c[k][i] = Math.max(0, photo.c[k][i] - level[k]);
+  for (let k = 0; k < 3; k++)
+    for (let i = 0; i < n; i++) photo.c[k][i] = Math.max(0, photo.c[k][i] - level[k]);
 
   // Scale of the disk in this file.
   const arcsec = arcsecPerPixel(image);
@@ -683,7 +970,16 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   const pxPerR = radiusArcsec / arcsec;
 
   // 1. Foreground stars and listed objects.
-  const { mask, stars } = config.starContrast === 0 ? { mask: new Float32Array(n), stars: [] } : findPointSources(photo, noise, config.starContrast ?? 1, config.starMinPeak ?? 0.22, config.starKeepBlue ?? true);
+  const { mask, stars } =
+    config.starContrast === 0
+      ? { mask: new Float32Array(n), stars: [] }
+      : findPointSources(
+          photo,
+          noise,
+          config.starContrast ?? 1,
+          config.starMinPeak ?? 0.22,
+          config.starKeepBlue ?? true,
+        );
   for (const m of config.masks ?? []) {
     const rr = Math.ceil(m.r + 3);
     for (let dy = -rr; dy <= rr; dy++)
@@ -700,7 +996,8 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   const filled = pushPull(photo.c, keep, w, h);
   const clean: RGB = { w, h, c: [filled[0], filled[1], filled[2]] };
   // Restore unmasked pixels exactly and blend the soft mask edge.
-  for (let k = 0; k < 3; k++) for (let i = 0; i < n; i++) clean.c[k][i] = photo.c[k][i] * keep[i] + filled[k][i] * mask[i];
+  for (let k = 0; k < 3; k++)
+    for (let i = 0; i < n; i++) clean.c[k][i] = photo.c[k][i] * keep[i] + filled[k][i] * mask[i];
 
   // 2. Dust along the sightline (image plane) and partial restoration of the light behind it.
   const sigmaDust = Math.max(2, 0.011 * pxPerR);
@@ -708,16 +1005,26 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   // Inpainted stars leave smooth patches whose surroundings read as false dust rings.
   const near = blur(mask, w, h, 4);
   for (let i = 0; i < n; i++) tauLos[i] *= 1 - smoothstep(0.01, 0.08, near[i]);
-  const restored: RGB = { w, h, c: [new Float32Array(n), new Float32Array(n), new Float32Array(n)] };
+  const restored: RGB = {
+    w,
+    h,
+    c: [new Float32Array(n), new Float32Array(n), new Float32Array(n)],
+  };
   for (let i = 0; i < n; i++) {
     const t = Math.min(1.6, tauLos[i]);
-    for (let k = 0; k < 3; k++) restored.c[k][i] = clean.c[k][i] * Math.exp(0.55 * t * REDDENING[k]);
+    for (let k = 0; k < 3; k++)
+      restored.c[k][i] = clean.c[k][i] * Math.exp(0.55 * t * REDDENING[k]);
   }
 
   // 3. Compact spheroids become separate sightline-extruded parts.
   const earth = earthDirectionLocal(model);
   const diskWeight = new Float32Array(n).fill(1);
-  const partPlanes: { cfg: Part; weight: Plane; box: [number, number, number, number]; meta: Omit<PartMeta, "atlasRect" | "texel"> }[] = [];
+  const partPlanes: {
+    cfg: Part;
+    weight: Plane;
+    box: [number, number, number, number];
+    meta: Omit<PartMeta, "atlasRect" | "texel">;
+  }[] = [];
   for (const part of config.parts) {
     const [cu, cv] = uvOfRaDec(image, part.ra, part.dec);
     const [cx, cy] = pixelOfUv(image, cu, cv);
@@ -783,7 +1090,8 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
     const sigma = Math.max(2, (p.cfg.smooth ?? 0.1) * p.cfg.semiMajorArcsec * axis.pxPerArcsec);
     const planes = restored.c.map((plane) => {
       const crop = new Float32Array(bw * bh);
-      for (let y = 0; y < bh; y++) for (let x = 0; x < bw; x++) crop[y * bw + x] = plane[(y + y0) * w + x + x0];
+      for (let y = 0; y < bh; y++)
+        for (let x = 0; x < bw; x++) crop[y * bw + x] = plane[(y + y0) * w + x + x0];
       let env = blur(crop, bw, bh, sigma);
       for (let pass = 0; pass < 2; pass++) {
         const lower = new Float32Array(bw * bh);
@@ -805,7 +1113,8 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
         const share = yc > 1e-6 ? Math.max(0, yc - ye * 1.07 - 4 * noise) / yc : 0;
         for (let k = 0; k < 3; k++) {
           residual[k][i] += planes[k].crop[j] * share * wt;
-          light[k][j] = (planes[k].env[j] + (planes[k].crop[j] * (1 - share) - planes[k].env[j]) * 0.85) * wt;
+          light[k][j] =
+            (planes[k].env[j] + (planes[k].crop[j] * (1 - share) - planes[k].env[j]) * 0.85) * wt;
         }
       }
     partLight.push(light);
@@ -833,7 +1142,11 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   });
   const tauPre = blur(tauLos, w, h, pre);
   const cosI = Math.max(0.15, Math.abs(earth.y));
-  const light: RGB = { w: N, h: N, c: [new Float32Array(N * N), new Float32Array(N * N), new Float32Array(N * N)] };
+  const light: RGB = {
+    w: N,
+    h: N,
+    c: [new Float32Array(N * N), new Float32Array(N * N), new Float32Array(N * N)],
+  };
   const tauFace = new Float32Array(N * N);
   const inFrame = new Float32Array(N * N);
   const v4 = new THREE.Vector4();
@@ -846,12 +1159,15 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
       const u = v4.x / v4.z,
         v = v4.y / v4.z;
       if (u < 0 || v < 0 || u > 1 || v > 1) continue;
-      const frame = smoothstep(0, 0.012, Math.min(u, 1 - u)) * smoothstep(0, 0.012, Math.min(v, 1 - v));
+      const frame =
+        smoothstep(0, 0.012, Math.min(u, 1 - u)) * smoothstep(0, 0.012, Math.min(v, 1 - v));
       const [px, py] = pixelOfUv(image, u, v);
       const o = j * N + i;
       inFrame[o] = frame;
-      for (let k = 0; k < 3; k++) light.c[k][o] = sampleBilinear(diskLight[k], w, h, px, py) * frame * cosI;
-      tauFace[o] = sampleBilinear(tauPre, w, h, px, py) * frame * cosI * 1.6 * (config.dustGain ?? 1);
+      for (let k = 0; k < 3; k++)
+        light.c[k][o] = sampleBilinear(diskLight[k], w, h, px, py) * frame * cosI;
+      tauFace[o] =
+        sampleBilinear(tauPre, w, h, px, py) * frame * cosI * 1.6 * (config.dustGain ?? 1);
     }
 
   // 5. Support (galaxy light above the noise) and the smooth/young split.
@@ -863,7 +1179,9 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   for (let o = 0; o < N * N; o++) {
     // Galaxy light on two scales: isolated points in empty sky (stars, background galaxies)
     // fail the wide-scale test even when they are bright.
-    const support = smoothstep(1.5 * noiseFace, 6 * noiseFace, lumWide[o]) * smoothstep(1 * noiseFace, 4 * noiseFace, lumGalaxy[o]);
+    const support =
+      smoothstep(1.5 * noiseFace, 6 * noiseFace, lumWide[o]) *
+      smoothstep(1 * noiseFace, 4 * noiseFace, lumGalaxy[o]);
     for (let k = 0; k < 3; k++) light.c[k][o] *= support;
     tauFace[o] *= support;
   }
@@ -871,7 +1189,8 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   // and frame fill beyond the disk).
   const radius = new Float32Array(N * N);
   for (let j = 0; j < N; j++)
-    for (let i = 0; i < N; i++) radius[j * N + i] = Math.hypot(-extent + (i + 0.5) * texel, extent - (j + 0.5) * texel);
+    for (let i = 0; i < N; i++)
+      radius[j * N + i] = Math.hypot(-extent + (i + 0.5) * texel, extent - (j + 0.5) * texel);
   const rMax = config.maxRadius ?? 1.18;
   for (let o = 0; o < N * N; o++) {
     const taper = 1 - smoothstep(rMax * 0.88, rMax, radius[o]);
@@ -889,9 +1208,14 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
       for (let o = 0; o < N * N; o++) lower[o] = Math.min(p[o], env[k][o]);
       return frameBlur(lower);
     });
-  const young: RGB = { w: N, h: N, c: [new Float32Array(N * N), new Float32Array(N * N), new Float32Array(N * N)] };
+  const young: RGB = {
+    w: N,
+    h: N,
+    c: [new Float32Array(N * N), new Float32Array(N * N), new Float32Array(N * N)],
+  };
   for (let k = 0; k < 3; k++)
-    for (let o = 0; o < N * N; o++) young.c[k][o] = inFrame[o] > 0 ? Math.max(0, light.c[k][o] - env[k][o]) : 0;
+    for (let o = 0; o < N * N; o++)
+      young.c[k][o] = inFrame[o] > 0 ? Math.max(0, light.c[k][o] - env[k][o]) : 0;
   // Isolated point-like peaks (foreground stars that survived detection) would become thin
   // bright spikes when the young layer is given depth; clamp them to a few times their
   // surroundings. Clusters and H II regions spread over several texels keep their contrast.
@@ -958,25 +1282,42 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   };
   const profile =
     config.continuation === false
-      ? { old: [0, 0.3] as [number, number], young: [0, 0.3] as [number, number], dust: [0, 0.3] as [number, number] }
+      ? {
+          old: [0, 0.3] as [number, number],
+          young: [0, 0.3] as [number, number],
+          dust: [0, 0.3] as [number, number],
+        }
       : { old: fit((a) => a.o), young: fit((a) => a.y), dust: fit((a) => a.t) };
 
   // The smooth map is stored at a quarter of the detail resolution.
   const S = SMOOTH_SIZE,
     f = N / S;
-  const smooth: RGB = { w: S, h: S, c: [new Float32Array(S * S), new Float32Array(S * S), new Float32Array(S * S)] };
+  const smooth: RGB = {
+    w: S,
+    h: S,
+    c: [new Float32Array(S * S), new Float32Array(S * S), new Float32Array(S * S)],
+  };
   for (let k = 0; k < 3; k++)
     for (let j = 0; j < S; j++)
       for (let i = 0; i < S; i++) {
         let sum = 0;
-        for (let dy = 0; dy < f; dy++) for (let dx = 0; dx < f; dx++) sum += env[k][(j * f + dy) * N + i * f + dx];
+        for (let dy = 0; dy < f; dy++)
+          for (let dx = 0; dx < f; dx++) sum += env[k][(j * f + dy) * N + i * f + dx];
         smooth.c[k][j * S + i] = sum / (f * f);
       }
 
   // Normalisation (stored so the renderer restores photograph units).
   const smoothLum = new Float32Array(S * S);
-  for (let o = 0; o < S * S; o++) smoothLum[o] = luma(smooth.c[0][o], smooth.c[1][o], smooth.c[2][o]);
-  const youngPeak = Math.max(1e-4, percentile(youngLum.filter((v) => v > 0), 0.9995, 3));
+  for (let o = 0; o < S * S; o++)
+    smoothLum[o] = luma(smooth.c[0][o], smooth.c[1][o], smooth.c[2][o]);
+  const youngPeak = Math.max(
+    1e-4,
+    percentile(
+      youngLum.filter((v) => v > 0),
+      0.9995,
+      3,
+    ),
+  );
   const smoothPeak = Math.max(1e-4, percentile(smoothLum, 1));
   const youngScale = 0.92 / youngPeak,
     smoothScale = 0.97 / smoothPeak;
@@ -994,18 +1335,40 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
       ch = Math.max(8, Math.round(bh * scale));
     const pre2 = Math.max(0, 0.45 / scale - 0.3);
     const src = partLight[partPlanes.indexOf(p)].map((plane) => blur(plane, bw, bh, pre2));
-    const crop: RGB = { w: cw, h: ch, c: [new Float32Array(cw * ch), new Float32Array(cw * ch), new Float32Array(cw * ch)] };
+    const crop: RGB = {
+      w: cw,
+      h: ch,
+      c: [new Float32Array(cw * ch), new Float32Array(cw * ch), new Float32Array(cw * ch)],
+    };
     for (let y = 0; y < ch; y++)
       for (let x = 0; x < cw; x++)
         for (let k = 0; k < 3; k++)
-          crop.c[k][y * cw + x] = sampleBilinear(src[k], bw, bh, ((x + 0.5) / cw) * bw - 0.5, ((y + 0.5) / ch) * bh - 0.5);
-    for (let i = 0; i < cw * ch; i++) partPeak = Math.max(partPeak, luma(crop.c[0][i], crop.c[1][i], crop.c[2][i]));
-    partAtlas.push({ img: crop, meta: { ...p.meta, atlasRect: [0, 0, 0, 0], texel: bw / pxPerR / cw } });
+          crop.c[k][y * cw + x] = sampleBilinear(
+            src[k],
+            bw,
+            bh,
+            ((x + 0.5) / cw) * bw - 0.5,
+            ((y + 0.5) / ch) * bh - 0.5,
+          );
+    for (let i = 0; i < cw * ch; i++)
+      partPeak = Math.max(partPeak, luma(crop.c[0][i], crop.c[1][i], crop.c[2][i]));
+    partAtlas.push({
+      img: crop,
+      meta: { ...p.meta, atlasRect: [0, 0, 0, 0], texel: bw / pxPerR / cw },
+    });
   }
   if (partAtlas.length) {
     const width = partAtlas.reduce((s, p) => s + p.img.w + 2, 0),
       height = Math.max(...partAtlas.map((p) => p.img.h));
-    const atlas: RGB = { w: width, h: height, c: [new Float32Array(width * height), new Float32Array(width * height), new Float32Array(width * height)] };
+    const atlas: RGB = {
+      w: width,
+      h: height,
+      c: [
+        new Float32Array(width * height),
+        new Float32Array(width * height),
+        new Float32Array(width * height),
+      ],
+    };
     let x = 0;
     for (const p of partAtlas) {
       for (let y = 0; y < p.img.h; y++)
@@ -1044,10 +1407,25 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   if (!check) {
     await writeRgb(path.join(ROOT, "public", detailUrl), young, youngScale, 90);
     await writeRgb(path.join(ROOT, "public", smoothUrl), smooth, smoothScale, 92);
-    await writeGray(path.join(ROOT, "public", dustUrl), tauFace, N, N, (t) => Math.sqrt(t / TAU_MAX), 92);
+    await writeGray(
+      path.join(ROOT, "public", dustUrl),
+      tauFace,
+      N,
+      N,
+      (t) => Math.sqrt(t / TAU_MAX),
+      92,
+    );
     fs.mkdirSync(DIAG_DIR, { recursive: true });
-    await writeDiagnostic(path.join(DIAG_DIR, `${config.key}-clean.jpg`), clean, 1 / Math.max(1e-4, percentile(clean.c[1], 0.998, 13)));
-    const maskView: RGB = { w, h, c: [mask, keep.map(() => 0) as Plane, keep.map(() => 0) as Plane] };
+    await writeDiagnostic(
+      path.join(DIAG_DIR, `${config.key}-clean.jpg`),
+      clean,
+      1 / Math.max(1e-4, percentile(clean.c[1], 0.998, 13)),
+    );
+    const maskView: RGB = {
+      w,
+      h,
+      c: [mask, keep.map(() => 0) as Plane, keep.map(() => 0) as Plane],
+    };
     await writeDiagnostic(path.join(DIAG_DIR, `${config.key}-mask.jpg`), maskView, 1);
     const composite: RGB = {
       w: N,
@@ -1055,17 +1433,24 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
       c: [0, 1, 2].map((k) => {
         const out = new Float32Array(N * N);
         for (let o = 0; o < N * N; o++)
-          out[o] = young.c[k][o] + smooth.c[k][Math.floor(Math.floor(o / N) / f) * S + Math.floor((o % N) / f)];
+          out[o] =
+            young.c[k][o] +
+            smooth.c[k][Math.floor(Math.floor(o / N) / f) * S + Math.floor((o % N) / f)];
         return out;
       }) as [Plane, Plane, Plane],
     };
-    await writeDiagnostic(path.join(DIAG_DIR, `${config.key}-faceon.jpg`), composite, smoothScale * 0.9);
+    await writeDiagnostic(
+      path.join(DIAG_DIR, `${config.key}-faceon.jpg`),
+      composite,
+      smoothScale * 0.9,
+    );
     const tauView: RGB = { w: N, h: N, c: [tauFace, tauFace, tauFace] };
     await writeDiagnostic(path.join(DIAG_DIR, `${config.key}-tau.jpg`), tauView, 0.6);
   }
   return {
     key: config.key,
     image: image.url,
+    mode: "disk",
     extent,
     detail: { url: detailUrl, size: N, scale: +(1 / youngScale).toPrecision(6) },
     smooth: { url: smoothUrl, size: S, scale: +(1 / smoothScale).toPrecision(6) },
@@ -1086,6 +1471,7 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
             centre: p.centre.map((v) => +v.toFixed(5)) as PartMeta["centre"],
             radius: +p.radius.toFixed(5),
             texel: +p.texel.toPrecision(4),
+            kind: "spheroid" as const,
           })),
         }
       : null,
@@ -1100,27 +1486,246 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   };
 }
 
+async function deriveSky(config: SkyConfig): Promise<MapMeta> {
+  const model = GALAXY_MODELS.find((m) => m.key === config.key);
+  const image = OBSERVED_IMAGE_BY_KEY.get(config.key);
+  if (!model || !image) throw Error("Missing model or image " + config.key);
+  const photo = await readImage(path.join(ROOT, "public", image.url));
+  const { w, h } = photo;
+  const n = w * h;
+  const { level, noise } = skyAndNoise(photo);
+  for (let k = 0; k < 3; k++)
+    for (let i = 0; i < n; i++) photo.c[k][i] = Math.max(0, photo.c[k][i] - level[k]);
+  const arcsec = arcsecPerPixel(image);
+  const pxPerR = ((model.diskRadius / model.distance) * 180 * 3600) / Math.PI / arcsec;
+  const { mask, stars } = findPointSources(photo, noise, 1, config.starMinPeak ?? 0.22, true);
+  for (const m of config.masks ?? []) {
+    const rr = Math.ceil(m.r + 3);
+    for (let dy = -rr; dy <= rr; dy++)
+      for (let dx = -rr; dx <= rr; dx++) {
+        const x = Math.round(m.x + dx),
+          y = Math.round(m.y + dy);
+        if (x < 0 || y < 0 || x >= w || y >= h) continue;
+        mask[y * w + x] = Math.max(
+          mask[y * w + x],
+          1 - smoothstep(m.r, m.r + 3, Math.hypot(dx, dy)),
+        );
+      }
+    // Webb's eight diffraction spikes reach far beyond the core.
+    for (let k = 0; k < 8; k++) {
+      const a = (k / 8) * Math.PI * 2 + (Math.PI / 8) * (k % 2 ? 0 : 0);
+      for (let r = m.r; r < m.r * 4.5; r++)
+        for (let t = -3; t <= 3; t++) {
+          const x = Math.round(m.x + Math.cos(a) * r - Math.sin(a) * t),
+            y = Math.round(m.y + Math.sin(a) * r + Math.cos(a) * t);
+          if (x < 0 || y < 0 || x >= w || y >= h) continue;
+          mask[y * w + x] = Math.max(mask[y * w + x], 1 - Math.abs(t) / 4);
+        }
+    }
+  }
+  const keep = new Float32Array(n);
+  for (let i = 0; i < n; i++) keep[i] = 1 - mask[i];
+  const filled = pushPull(photo.c, keep, w, h);
+  const clean: RGB = { w, h, c: [filled[0], filled[1], filled[2]] };
+  for (let k = 0; k < 3; k++)
+    for (let i = 0; i < n; i++) clean.c[k][i] = photo.c[k][i] * keep[i] + filled[k][i] * mask[i];
+  // Galaxy light on a wide scale: empty sky (and isolated background objects) between the
+  // components carries no part light.
+  const lum = new Float32Array(n);
+  for (let i = 0; i < n; i++) lum[i] = luma(clean.c[0][i], clean.c[1][i], clean.c[2][i]);
+  const wide = blur(lum, w, h, Math.max(3, 0.015 * pxPerR));
+  const earth = earthDirectionLocal(model);
+  const weights = config.skyParts.map((p) => {
+    const weight = new Float32Array(n);
+    const ca = Math.cos((p.angle * Math.PI) / 180),
+      sa = Math.sin((p.angle * Math.PI) / 180);
+    const reach = Math.ceil(p.a * 1.02);
+    for (let y = Math.max(0, Math.floor(p.y - reach)); y < Math.min(h, Math.ceil(p.y + reach)); y++)
+      for (
+        let x = Math.max(0, Math.floor(p.x - reach));
+        x < Math.min(w, Math.ceil(p.x + reach));
+        x++
+      ) {
+        const dx = x - p.x,
+          dy = y - p.y;
+        const rho = Math.hypot((dx * ca + dy * sa) / p.a, (-dx * sa + dy * ca) / p.b);
+        const border = Math.min(x, y, w - 1 - x, h - 1 - y) / Math.min(w, h);
+        weight[y * w + x] = (1 - smoothstep(p.taper, 1, rho)) * smoothstep(0, 0.03, border);
+      }
+    return weight;
+  });
+  // Overlapping components share their light.
+  for (let i = 0; i < n; i++) {
+    let sum = 0;
+    for (const wt of weights) sum += wt[i];
+    if (sum > 1) for (const wt of weights) wt[i] /= sum;
+  }
+  const items: (PartMeta & { kind: SkyPart["kind"] })[] = [];
+  const crops: RGB[] = [];
+  let peak = 1e-4;
+  config.skyParts.forEach((p, index) => {
+    const weight = weights[index];
+    const reach = Math.ceil(p.a * 1.02);
+    const x0 = Math.max(0, Math.floor(p.x - reach)),
+      x1 = Math.min(w, Math.ceil(p.x + reach)),
+      y0 = Math.max(0, Math.floor(p.y - reach)),
+      y1 = Math.min(h, Math.ceil(p.y + reach));
+    const bw = x1 - x0,
+      bh = y1 - y0;
+    const scale = Math.min(1, PART_CELL / Math.max(bw, bh));
+    const cw = Math.max(8, Math.round(bw * scale)),
+      ch = Math.max(8, Math.round(bh * scale));
+    const src = clean.c.map((plane) => {
+      const out = new Float32Array(bw * bh);
+      for (let y = 0; y < bh; y++)
+        for (let x = 0; x < bw; x++) {
+          const i = (y + y0) * w + x + x0;
+          out[y * bw + x] = plane[i] * weight[i] * smoothstep(2 * noise, 8 * noise, wide[i]);
+        }
+      return blur(out, bw, bh, Math.max(0, 0.45 / scale - 0.3));
+    });
+    const crop: RGB = {
+      w: cw,
+      h: ch,
+      c: [new Float32Array(cw * ch), new Float32Array(cw * ch), new Float32Array(cw * ch)],
+    };
+    for (let y = 0; y < ch; y++)
+      for (let x = 0; x < cw; x++)
+        for (let k = 0; k < 3; k++)
+          crop.c[k][y * cw + x] = sampleBilinear(
+            src[k],
+            bw,
+            bh,
+            ((x + 0.5) / cw) * bw - 0.5,
+            ((y + 0.5) / ch) * bh - 0.5,
+          );
+    for (let i = 0; i < cw * ch; i++)
+      peak = Math.max(peak, luma(crop.c[0][i], crop.c[1][i], crop.c[2][i]));
+    crops.push(crop);
+    const ca = Math.cos((p.angle * Math.PI) / 180),
+      sa = Math.sin((p.angle * Math.PI) / 180);
+    const cu = (p.x + 0.5) / w,
+      cv = 1 - (p.y + 0.5) / h;
+    const centre = sightlinePoint(model, image, cu, cv, earth, p.offset);
+    const aLocal = p.a / pxPerR;
+    items.push({
+      id: p.id,
+      label: p.label,
+      source: p.source,
+      kind: p.kind,
+      uvRect: [x0 / w, 1 - y1 / h, x1 / w, 1 - y0 / h],
+      atlasRect: [0, 0, 0, 0],
+      centreUv: [cu, cv],
+      axisA: [(w * ca) / p.a, (-h * sa) / p.a],
+      axisB: [(w * -sa) / p.b, (-h * ca) / p.b],
+      depthCentre: p.offset,
+      depthExtent: aLocal * p.depth,
+      centre: [centre.x, centre.y, centre.z],
+      radius: aLocal * 1.05,
+      texel: bw / pxPerR / cw,
+    });
+  });
+  const width = crops.reduce((sum, c) => sum + c.w + 2, 0),
+    height = Math.max(...crops.map((c) => c.h));
+  const atlas: RGB = {
+    w: width,
+    h: height,
+    c: [
+      new Float32Array(width * height),
+      new Float32Array(width * height),
+      new Float32Array(width * height),
+    ],
+  };
+  let x = 0;
+  crops.forEach((crop, index) => {
+    for (let y = 0; y < crop.h; y++)
+      for (let xx = 0; xx < crop.w; xx++)
+        for (let k = 0; k < 3; k++) atlas.c[k][y * width + x + xx] = crop.c[k][y * crop.w + xx];
+    items[index].atlasRect = [x / width, 1 - crop.h / height, (x + crop.w) / width, 1];
+    x += crop.w + 2;
+  });
+  const url = `/textures/galaxies/derived/${config.key}-parts.jpg`;
+  await writeRgb(path.join(ROOT, "public", url), atlas, 0.97 / peak, 92);
+  fs.mkdirSync(DIAG_DIR, { recursive: true });
+  await writeDiagnostic(path.join(DIAG_DIR, `${config.key}-parts.jpg`), atlas, 0.97 / peak);
+  return {
+    key: config.key,
+    image: image.url,
+    mode: "sky",
+    extent: 0,
+    detail: null,
+    smooth: null,
+    dust: null,
+    parts: {
+      url,
+      width,
+      height,
+      scale: +(peak / 0.97).toPrecision(6),
+      items: items.map((p) => ({
+        ...p,
+        uvRect: p.uvRect.map((v) => +v.toFixed(6)) as PartMeta["uvRect"],
+        atlasRect: p.atlasRect.map((v) => +v.toFixed(6)) as PartMeta["atlasRect"],
+        centreUv: p.centreUv.map((v) => +v.toFixed(6)) as PartMeta["centreUv"],
+        axisA: p.axisA.map((v) => +v.toPrecision(6)) as PartMeta["axisA"],
+        axisB: p.axisB.map((v) => +v.toPrecision(6)) as PartMeta["axisB"],
+        depthCentre: +p.depthCentre.toFixed(5),
+        depthExtent: +p.depthExtent.toFixed(5),
+        centre: p.centre.map((v) => +v.toFixed(5)) as PartMeta["centre"],
+        radius: +p.radius.toFixed(5),
+        texel: +p.texel.toPrecision(4),
+      })),
+    },
+    profile: { old: [0, 0.3], young: [0, 0.3], dust: [0, 0.3] },
+    colours: { old: [1, 1, 1], young: [1, 1, 1] },
+    stars: stars.length,
+    note:
+      "Components of a merging system or group, each extruded along Earth's sightline from the registered image. " +
+      config.note +
+      " A reconstruction input, not an observation.",
+  };
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const check = args.includes("--check");
   const keys = args.filter((a) => !a.startsWith("--"));
   const selected = CONFIGS.filter((c) => !keys.length || keys.includes(c.key));
+  const selectedSky = SKY_CONFIGS.filter((c) => !keys.length || keys.includes(c.key));
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const existing: Record<string, MapMeta> = fs.existsSync(META_FILE) ? JSON.parse(fs.readFileSync(META_FILE, "utf8")).maps ?? {} : {};
+  const existing: Record<string, MapMeta> = fs.existsSync(META_FILE)
+    ? (JSON.parse(fs.readFileSync(META_FILE, "utf8")).maps ?? {})
+    : {};
   for (const config of selected) {
     const started = Date.now();
     const meta = await deriveOne(config, check);
     if (check) {
       const before = JSON.stringify(existing[config.key]);
-      if (before !== JSON.stringify(meta)) throw Error(`${config.key}: derived metadata differs from ${path.relative(ROOT, META_FILE)}`);
+      if (before !== JSON.stringify(meta))
+        throw Error(
+          `${config.key}: derived metadata differs from ${path.relative(ROOT, META_FILE)}`,
+        );
       console.log(`${config.key}: metadata reproduced`);
       continue;
     }
     existing[config.key] = meta;
-    console.log(`${config.key}: extent ±${meta.extent} R, ${meta.stars} point sources removed, ${((Date.now() - started) / 1000).toFixed(1)} s`);
+    console.log(
+      `${config.key}: extent ±${meta.extent} R, ${meta.stars} point sources removed, ${((Date.now() - started) / 1000).toFixed(1)} s`,
+    );
+  }
+  for (const config of selectedSky) {
+    if (check) continue;
+    const started = Date.now();
+    existing[config.key] = await deriveSky(config);
+    console.log(
+      `${config.key}: ${config.skyParts.length} sky parts, ${((Date.now() - started) / 1000).toFixed(1)} s`,
+    );
   }
   if (!check) {
-    const ordered = Object.fromEntries(CONFIGS.filter((c) => existing[c.key]).map((c) => [c.key, existing[c.key]]));
+    const ordered = Object.fromEntries(
+      [...CONFIGS, ...SKY_CONFIGS]
+        .filter((c) => existing[c.key])
+        .map((c) => [c.key, existing[c.key]]),
+    );
     const body = { generator: "scripts/derive-galaxy-disk-maps.ts", maps: ordered };
     fs.writeFileSync(META_FILE, JSON.stringify(body, null, 2) + "\n");
     const digest = createHash("sha256").update(JSON.stringify(body)).digest("hex").slice(0, 12);

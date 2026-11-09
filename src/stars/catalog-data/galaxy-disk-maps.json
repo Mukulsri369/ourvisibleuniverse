@@ -4,6 +4,7 @@
     "m51": {
       "key": "m51",
       "image": "/textures/galaxies/m51.jpg",
+      "mode": "disk",
       "extent": 1.1,
       "detail": {
         "url": "/textures/galaxies/derived/m51-young.jpg",
@@ -63,7 +64,8 @@
               0.471698,
               1
             ],
-            "texel": 0.0004209
+            "texel": 0.0004209,
+            "kind": "spheroid"
           },
           {
             "id": "companion",
@@ -101,7 +103,8 @@
               0.998113,
               1
             ],
-            "texel": 0.001328
+            "texel": 0.001328,
+            "kind": "spheroid"
           }
         ]
       },
@@ -137,6 +140,7 @@
     "m81": {
       "key": "m81",
       "image": "/textures/galaxies/m81.jpg",
+      "mode": "disk",
       "extent": 1.15,
       "detail": {
         "url": "/textures/galaxies/derived/m81-young.jpg",
@@ -196,7 +200,8 @@
               0.996885,
               1
             ],
-            "texel": 0.0009138
+            "texel": 0.0009138,
+            "kind": "spheroid"
           }
         ]
       },
@@ -232,6 +237,7 @@
     "m101": {
       "key": "m101",
       "image": "/textures/galaxies/m101.jpg",
+      "mode": "disk",
       "extent": 1.15,
       "detail": {
         "url": "/textures/galaxies/derived/m101-young.jpg",
@@ -291,7 +297,8 @@
               0.992857,
               1
             ],
-            "texel": 0.0002371
+            "texel": 0.0002371,
+            "kind": "spheroid"
           }
         ]
       },
@@ -327,6 +334,7 @@
     "m33": {
       "key": "m33",
       "image": "/textures/galaxies/m33.jpg",
+      "mode": "disk",
       "extent": 1.3,
       "detail": {
         "url": "/textures/galaxies/derived/m33-young.jpg",
@@ -386,7 +394,8 @@
               0.986667,
               1
             ],
-            "texel": 0.00045
+            "texel": 0.00045,
+            "kind": "spheroid"
           }
         ]
       },
@@ -422,6 +431,7 @@
     "catalog-ngc-1300": {
       "key": "catalog-ngc-1300",
       "image": "/textures/galaxies/ngc1300.jpg",
+      "mode": "disk",
       "extent": 1.3,
       "detail": {
         "url": "/textures/galaxies/derived/catalog-ngc-1300-young.jpg",
@@ -481,7 +491,8 @@
               0.995652,
               1
             ],
-            "texel": 0.0004462
+            "texel": 0.0004462,
+            "kind": "spheroid"
           }
         ]
       },
@@ -517,6 +528,7 @@
     "cartwheel": {
       "key": "cartwheel",
       "image": "/textures/galaxies/cartwheel.jpg",
+      "mode": "disk",
       "extent": 1.55,
       "detail": {
         "url": "/textures/galaxies/derived/cartwheel-young.jpg",
@@ -576,7 +588,8 @@
               0.992188,
               1
             ],
-            "texel": 0.001136
+            "texel": 0.001136,
+            "kind": "spheroid"
           }
         ]
       },
@@ -612,6 +625,7 @@
     "hoags-object": {
       "key": "hoags-object",
       "image": "/textures/galaxies/hoag.jpg",
+      "mode": "disk",
       "extent": 1.3,
       "detail": {
         "url": "/textures/galaxies/derived/hoags-object-young.jpg",
@@ -671,7 +685,8 @@
               0.996241,
               1
             ],
-            "texel": 0.002464
+            "texel": 0.002464,
+            "kind": "spheroid"
           }
         ]
       },
@@ -703,6 +718,609 @@
       },
       "stars": 26,
       "note": "Derived from the registered image: sky-subtracted, foreground stars inpainted, dust measured from reddened local darkening, deprojected to the disk plane. A reconstruction input, not an observation."
+    },
+    "antennae": {
+      "key": "antennae",
+      "image": "/textures/galaxies/antennae.jpg",
+      "mode": "sky",
+      "extent": 0,
+      "detail": null,
+      "smooth": null,
+      "dust": null,
+      "parts": {
+        "url": "/textures/galaxies/derived/antennae-parts.jpg",
+        "width": 1284,
+        "height": 640,
+        "scale": 1.02928,
+        "items": [
+          {
+            "id": "ngc4038",
+            "label": "NGC 4038",
+            "source": "Body outline measured in ESA/Hubble heic0615a",
+            "kind": "sheet",
+            "uvRect": [
+              0.287612,
+              0.347748,
+              0.902682,
+              0.967568
+            ],
+            "atlasRect": [
+              0,
+              0,
+              0.498442,
+              1
+            ],
+            "centreUv": [
+              0.595275,
+              0.657529
+            ],
+            "axisA": [
+              3.26739,
+              0.571715
+            ],
+            "axisB": [
+              0.894517,
+              -5.03418
+            ],
+            "depthCentre": 0.04,
+            "depthExtent": 0.05165,
+            "centre": [
+              -0.03421,
+              0.04232,
+              0.01452
+            ],
+            "radius": 0.30127,
+            "texel": 0.0009149
+          },
+          {
+            "id": "ngc4039",
+            "label": "NGC 4039",
+            "source": "Body outline measured in ESA/Hubble heic0615a",
+            "kind": "sheet",
+            "uvRect": [
+              0.116986,
+              0.077992,
+              0.679949,
+              0.645302
+            ],
+            "atlasRect": [
+              0.5,
+              0,
+              0.998442,
+              1
+            ],
+            "centreUv": [
+              0.398595,
+              0.361519
+            ],
+            "axisA": [
+              0.75368,
+              -3.51861
+            ],
+            "axisB": [
+              -6.8383,
+              -1.44239
+            ],
+            "depthCentre": -0.04,
+            "depthExtent": 0.05252,
+            "centre": [
+              -0.37394,
+              0.01179,
+              -0.04304
+            ],
+            "radius": 0.27574,
+            "texel": 0.0008374
+          }
+        ]
+      },
+      "profile": {
+        "old": [
+          0,
+          0.3
+        ],
+        "young": [
+          0,
+          0.3
+        ],
+        "dust": [
+          0,
+          0.3
+        ]
+      },
+      "colours": {
+        "old": [
+          1,
+          1,
+          1
+        ],
+        "young": [
+          1,
+          1,
+          1
+        ]
+      },
+      "stars": 1238,
+      "note": "Components of a merging system or group, each extruded along Earth's sightline from the registered image. NGC 4038 and NGC 4039 bodies as two disturbed disks; the long tidal tails lie outside this photograph and are not reconstructed. A reconstruction input, not an observation."
+    },
+    "tadpole": {
+      "key": "tadpole",
+      "image": "/textures/galaxies/tadpole.jpg",
+      "mode": "sky",
+      "extent": 0,
+      "detail": null,
+      "smooth": null,
+      "dust": null,
+      "parts": {
+        "url": "/textures/galaxies/derived/tadpole-parts.jpg",
+        "width": 2568,
+        "height": 640,
+        "scale": 1.02728,
+        "items": [
+          {
+            "id": "body",
+            "label": "UGC 10214",
+            "source": "Outline measured in ESA/Hubble heic0206a",
+            "kind": "sheet",
+            "uvRect": [
+              0.09125,
+              0.605339,
+              0.45875,
+              1
+            ],
+            "atlasRect": [
+              0,
+              0.064063,
+              0.249221,
+              1
+            ],
+            "centreUv": [
+              0.275125,
+              0.81616
+            ],
+            "axisA": [
+              4.71138,
+              -2.56422
+            ],
+            "axisB": [
+              -5.29919,
+              -7.3865
+            ],
+            "depthCentre": 0,
+            "depthExtent": 0.1703,
+            "centre": [
+              -1.20079,
+              0.13872,
+              -0.08667
+            ],
+            "radius": 0.59606,
+            "texel": 0.001811
+          },
+          {
+            "id": "tail-1",
+            "label": "Tidal tail",
+            "source": "Outline measured in ESA/Hubble heic0206a",
+            "kind": "sheet",
+            "uvRect": [
+              0.328,
+              0.393513,
+              0.6595,
+              0.77411
+            ],
+            "atlasRect": [
+              0.25,
+              0,
+              0.499221,
+              1
+            ],
+            "centreUv": [
+              0.493875,
+              0.583668
+            ],
+            "axisA": [
+              4.22823,
+              -3.89444
+            ],
+            "axisB": [
+              -23.2504,
+              -19.1505
+            ],
+            "depthCentre": 0,
+            "depthExtent": 0.11275,
+            "centre": [
+              -0.27652,
+              -0.00668,
+              0.00418
+            ],
+            "radius": 0.53811,
+            "texel": 0.001634
+          },
+          {
+            "id": "tail-2",
+            "label": "Tidal tail",
+            "source": "Outline measured in ESA/Hubble heic0206a",
+            "kind": "sheet",
+            "uvRect": [
+              0.5245,
+              0.174225,
+              0.8255,
+              0.519805
+            ],
+            "atlasRect": [
+              0.5,
+              0,
+              0.749221,
+              1
+            ],
+            "centreUv": [
+              0.675125,
+              0.346871
+            ],
+            "axisA": [
+              4.31239,
+              -4.55651
+            ],
+            "axisB": [
+              -22.863,
+              -16.4155
+            ],
+            "depthCentre": 0,
+            "depthExtent": 0.10234,
+            "centre": [
+              0.58657,
+              -0.06568,
+              0.04104
+            ],
+            "radius": 0.48844,
+            "texel": 0.001483
+          },
+          {
+            "id": "tail-3",
+            "label": "Tidal tail",
+            "source": "Outline measured in ESA/Hubble heic0206a",
+            "kind": "sheet",
+            "uvRect": [
+              0.67875,
+              0,
+              0.93375,
+              0.270953
+            ],
+            "atlasRect": [
+              0.75,
+              0.075,
+              0.999221,
+              1
+            ],
+            "centreUv": [
+              0.806375,
+              0.124426
+            ],
+            "axisA": [
+              3.92723,
+              -6.07062
+            ],
+            "axisB": [
+              -27.8788,
+              -13.6825
+            ],
+            "depthCentre": 0,
+            "depthExtent": 0.08673,
+            "centre": [
+              1.32384,
+              -0.03745,
+              0.0234
+            ],
+            "radius": 0.41393,
+            "texel": 0.001257
+          }
+        ]
+      },
+      "profile": {
+        "old": [
+          0,
+          0.3
+        ],
+        "young": [
+          0,
+          0.3
+        ],
+        "dust": [
+          0,
+          0.3
+        ]
+      },
+      "colours": {
+        "old": [
+          1,
+          1,
+          1
+        ],
+        "young": [
+          1,
+          1,
+          1
+        ]
+      },
+      "stars": 62,
+      "note": "Components of a merging system or group, each extruded along Earth's sightline from the registered image. Disrupted spiral and its tidal tail as flattened sheets; depth and thickness are illustrative. A reconstruction input, not an observation."
+    },
+    "stephans-quintet": {
+      "key": "stephans-quintet",
+      "image": "/textures/galaxies/quintet.jpg",
+      "mode": "sky",
+      "extent": 0,
+      "detail": null,
+      "smooth": null,
+      "dust": null,
+      "parts": {
+        "url": "/textures/galaxies/derived/stephans-quintet-parts.jpg",
+        "width": 3796,
+        "height": 640,
+        "scale": 1.02745,
+        "items": [
+          {
+            "id": "ngc7319",
+            "label": "NGC 7319",
+            "source": "Outline measured in ESA/Webb weic2208a",
+            "kind": "sheet",
+            "uvRect": [
+              0.4195,
+              0.564016,
+              0.7055,
+              0.862321
+            ],
+            "atlasRect": [
+              0,
+              0,
+              0.168599,
+              1
+            ],
+            "centreUv": [
+              0.562625,
+              0.713038
+            ],
+            "axisA": [
+              6.47363,
+              2.89418
+            ],
+            "axisB": [
+              3.75661,
+              -7.72376
+            ],
+            "depthCentre": 0.05,
+            "depthExtent": 0.27213,
+            "centre": [
+              -0.09625,
+              0.31735,
+              -0.42698
+            ],
+            "radius": 0.71433,
+            "texel": 0.002172
+          },
+          {
+            "id": "ngc7318b",
+            "label": "NGC 7318B",
+            "source": "Outline measured in ESA/Webb weic2208a",
+            "kind": "spheroid",
+            "uvRect": [
+              0.4655,
+              0.411213,
+              0.6495,
+              0.603129
+            ],
+            "atlasRect": [
+              0.169125,
+              0,
+              0.337724,
+              1
+            ],
+            "centreUv": [
+              0.557625,
+              0.50704
+            ],
+            "axisA": [
+              11.1111,
+              0
+            ],
+            "axisB": [
+              0,
+              -11.9844
+            ],
+            "depthCentre": -0.12,
+            "depthExtent": 0.39361,
+            "centre": [
+              -0.69493,
+              -0.0586,
+              0.24448
+            ],
+            "radius": 0.45921,
+            "texel": 0.001397
+          },
+          {
+            "id": "ngc7318a",
+            "label": "NGC 7318A",
+            "source": "Outline measured in ESA/Webb weic2208a",
+            "kind": "spheroid",
+            "uvRect": [
+              0.511,
+              0.359583,
+              0.664,
+              0.519166
+            ],
+            "atlasRect": [
+              0.338251,
+              0.04375,
+              0.499473,
+              1
+            ],
+            "centreUv": [
+              0.587625,
+              0.439244
+            ],
+            "axisA": [
+              13.3333,
+              0
+            ],
+            "axisB": [
+              0,
+              -13.6964
+            ],
+            "depthCentre": 0.1,
+            "depthExtent": 0.32801,
+            "centre": [
+              -1.00967,
+              -0.32114,
+              0.20728
+            ],
+            "radius": 0.38268,
+            "texel": 0.001215
+          },
+          {
+            "id": "ngc7317",
+            "label": "NGC 7317",
+            "source": "Outline measured in ESA/Webb weic2208a",
+            "kind": "spheroid",
+            "uvRect": [
+              0.406,
+              0.122295,
+              0.559,
+              0.281877
+            ],
+            "atlasRect": [
+              0.5,
+              0.04375,
+              0.661222,
+              1
+            ],
+            "centreUv": [
+              0.482625,
+              0.201956
+            ],
+            "axisA": [
+              13.3333,
+              0
+            ],
+            "axisB": [
+              0,
+              -13.6964
+            ],
+            "depthCentre": -0.06,
+            "depthExtent": 0.32801,
+            "centre": [
+              -1.33004,
+              -0.98849,
+              1.18722
+            ],
+            "radius": 0.38268,
+            "texel": 0.001215
+          },
+          {
+            "id": "shock",
+            "label": "Intergalactic shock region",
+            "source": "Outline measured in ESA/Webb weic2208a",
+            "kind": "sheet",
+            "uvRect": [
+              0.535,
+              0.452412,
+              0.775,
+              0.702738
+            ],
+            "atlasRect": [
+              0.661749,
+              0,
+              0.830348,
+              1
+            ],
+            "centreUv": [
+              0.655125,
+              0.577445
+            ],
+            "axisA": [
+              4.25532,
+              -7.0664
+            ],
+            "axisB": [
+              -11.547,
+              -6.39167
+            ],
+            "depthCentre": 0,
+            "depthExtent": 0.25694,
+            "centre": [
+              -0.84674,
+              0.22432,
+              -0.24885
+            ],
+            "radius": 0.59953,
+            "texel": 0.001822
+          },
+          {
+            "id": "old-tail",
+            "label": "NGC 7319 tidal tail",
+            "source": "Outline measured in ESA/Webb weic2208a",
+            "kind": "sheet",
+            "uvRect": [
+              0.22975,
+              0.639896,
+              0.49525,
+              0.916819
+            ],
+            "atlasRect": [
+              0.830875,
+              0,
+              0.999473,
+              1
+            ],
+            "centreUv": [
+              0.362625,
+              0.778227
+            ],
+            "axisA": [
+              5.89265,
+              -4.74056
+            ],
+            "axisB": [
+              -17.141,
+              -19.5852
+            ],
+            "depthCentre": 0.05,
+            "depthExtent": 0.18952,
+            "centre": [
+              0.84326,
+              0.05455,
+              -0.13543
+            ],
+            "radius": 0.66331,
+            "texel": 0.002016
+          }
+        ]
+      },
+      "profile": {
+        "old": [
+          0,
+          0.3
+        ],
+        "young": [
+          0,
+          0.3
+        ],
+        "dust": [
+          0,
+          0.3
+        ]
+      },
+      "colours": {
+        "old": [
+          1,
+          1,
+          1
+        ],
+        "young": [
+          1,
+          1,
+          1
+        ]
+      },
+      "stars": 650,
+      "note": "Components of a merging system or group, each extruded along Earth's sightline from the registered image. Members NGC 7319, 7318A/B and 7317 plus the intergalactic shock region. Foreground NGC 7320 (about 40 Mly) is excluded. Relative depths are illustrative. A reconstruction input, not an observation."
     }
   }
 }

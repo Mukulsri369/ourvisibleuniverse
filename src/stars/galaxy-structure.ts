@@ -2,7 +2,9 @@ import { galaxyPopulation } from "./galaxy-populations";
 import diskMapData from "./catalog-data/galaxy-disk-maps.json";
 
 /** Disks rendered from registered photographs stay aligned with them (no pattern rotation). */
-const OBSERVED_DISKS = new Set(Object.keys((diskMapData as { maps: Record<string, unknown> }).maps));
+const OBSERVED_DISKS = new Set(
+  Object.keys((diskMapData as { maps: Record<string, unknown> }).maps),
+);
 import type { GalaxyModel } from "./galaxy-models";
 
 /** Observed morphology constrains the reconstruction; unseen depth is illustrative.

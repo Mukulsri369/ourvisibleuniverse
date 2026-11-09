@@ -42,14 +42,18 @@ export type ObservedDiskPart = {
   radius: number;
   /** Local units (disk radii) per atlas texel. */
   texel: number;
+  /** "spheroid": spherically deprojected; "sheet": flattened slab (disturbed disks, tails, gas). */
+  kind?: "spheroid" | "sheet";
 };
 export type ObservedDiskMap = {
   key: string;
   image: string;
+  /** "disk": deprojected face-on maps plus parts; "sky": sightline-extruded parts only. */
+  mode: "disk" | "sky";
   extent: number;
-  detail: { url: string; size: number; scale: number };
-  smooth: { url: string; size: number; scale: number };
-  dust: { url: string; size: number; tauMax: number; encoding: "sqrt" };
+  detail: { url: string; size: number; scale: number } | null;
+  smooth: { url: string; size: number; scale: number } | null;
+  dust: { url: string; size: number; tauMax: number; encoding: "sqrt" } | null;
   parts: {
     url: string;
     width: number;
@@ -68,7 +72,7 @@ export const OBSERVED_DISK_MAPS: Readonly<Record<string, ObservedDiskMap>> = (
 ).maps;
 
 /** Maximum sightline-extruded parts (bulges, companions) per galaxy. */
-export const MAX_DISK_PARTS = 2;
+export const MAX_DISK_PARTS = 6;
 
 export type ProceduralDiskParameters = {
   arms: number;
@@ -120,6 +124,8 @@ export type DiskLayerSpec = {
   /** Bipolar starburst wind: amplitude, tan(half-opening), base radius, height scale. */
   wind: [number, number, number, number];
   procedural: ProceduralDiskParameters;
+  /** 1 when star points follow the disk maps' light; 0 for part-only systems. */
+  starHost: number;
   /** Extent (± disk radii) of the procedural map. */
   proceduralExtent: number;
 };
@@ -151,7 +157,12 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   if (!observed) {
     if (model.name === "Milky Way") return null;
     // M82 (feature 3) is an edge-on starburst disk; other irregulars keep the cached volume.
-    if (structure.population || structure.spheroid || (structure.irregular && structure.feature !== 3)) return null;
+    if (
+      structure.population ||
+      structure.spheroid ||
+      (structure.irregular && structure.feature !== 3)
+    )
+      return null;
     if (!DISK_MORPHOLOGIES.has(model.morphology)) return null;
     if (LEGACY_FEATURES.has(structure.feature)) return null;
   }
@@ -187,7 +198,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     oldAmp: sombrero ? 0.35 : lenticular ? 0.85 : 0.62,
     youngAmp: lenticular || sombrero ? 0 : 0.55,
     hiiAmp: lenticular || sombrero ? 0 : 0.85,
-    dustAmp: sombrero ? 2.6 : model.dustLanes ? 1 : 0.35,
+    dustAmp: sombrero ? 2.6 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
     outer: m94 ? 1.15 : 1.05,
     oldColour,
     youngColour,
@@ -209,7 +220,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
       oldAmp: 0.75,
       youngAmp: 0.95,
       hiiAmp: 1.5,
-      dustAmp: 1.7,
+      dustAmp: 3.2,
       outer: 1,
     });
   }
@@ -232,16 +243,32 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const thick = { z0: 0.13, fraction: lenticular || sombrero ? 0.2 : 0.1 };
   const flare = 0.6;
   const bulge = {
-    radius: sombrero ? 0.36 : andromeda ? 0.16 : cigar ? 0.07 : clamp(bulgeRatio, 0.04, 0.3),
+    radius: sombrero ? 0.3 : andromeda ? 0.16 : cigar ? 0.07 : clamp(bulgeRatio, 0.04, 0.3),
     flattening: sombrero ? 0.82 : lenticular ? 0.62 : 0.72,
-    amplitude: observed ? 0 : sombrero ? 3.4 : andromeda ? 2.6 : cigar ? 0.9 : lenticular ? 1.6 : 1.25,
-    exponent: sombrero ? 0.6 : 0.75,
+    amplitude: observed
+      ? 0
+      : sombrero
+        ? 1.15
+        : andromeda
+          ? 1.6
+          : cigar
+            ? 0.9
+            : lenticular
+              ? 1.3
+              : 1.05,
+    exponent: sombrero ? 0.7 : 0.75,
     colour: normalise(appearance.oldColor),
   };
   const parts = observed?.parts?.items ?? [];
+  const sky = observed?.mode === "sky";
+  if (sky) {
+    // Mergers and groups are carried by their photographed components alone.
+    Object.assign(procedural, { oldAmp: 0, youngAmp: 0, hiiAmp: 0, dustAmp: 0 });
+    bulge.amplitude = 0;
+  }
   // H-alpha superwind of M82: biconical, about 30° half-opening, filaments to ~0.9 disk radii
   // (Shopbell & Bland-Hawthorn 1998; ESA/Hubble heic0604a). Filament positions are illustrative.
-  const wind: [number, number, number, number] = cigar ? [0.85, 0.55, 0.07, 0.3] : [0, 0, 0, 1];
+  const wind: [number, number, number, number] = cigar ? [3.2, 0.55, 0.07, 0.34] : [0, 0, 0, 1];
   const slab = Math.max(
     wind[0] > 0 ? 1.0 : 0,
     thick.z0 * (1 + flare) * 3.6,
@@ -249,7 +276,14 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     ...parts.map((p) => Math.abs(p.centre[1]) + p.radius),
     0.12,
   );
-  const box = Math.max(1.35, (observed?.extent ?? 0) + 0.05);
+  const box = Math.min(
+    2.6,
+    Math.max(
+      1.35,
+      (observed?.extent ?? 0) + 0.05,
+      ...parts.map((p) => Math.max(...p.centre.map(Math.abs)) + p.radius + p.depthExtent),
+    ),
+  );
   return {
     key: model.key,
     observed,
@@ -257,10 +291,15 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     heights,
     thick,
     flare,
-    slab: Math.min(box, slab),
+    slab: sky ? box : Math.min(box, slab),
     bulge,
-    halo: observed ? 0 : lenticular || sombrero ? 0.06 : 0.03,
-    dust: [sombrero ? 0.15 : cigar ? 0.9 : model.dustLanes ? 0.55 : 0.2, cigar ? 0.3 : 0.36, 1.12],
+    halo: observed ? 0 : sombrero ? 0.02 : lenticular ? 0.04 : 0.025,
+    starHost: sky ? 0 : 1,
+    dust: [
+      sky ? 0 : sombrero ? 0.15 : cigar ? 0.9 : model.dustLanes ? 0.7 : 0.2,
+      cigar ? 0.3 : 0.36,
+      1.12,
+    ],
     wind,
     procedural,
     proceduralExtent: 1.3,
@@ -288,7 +327,8 @@ uniform mat4 uDiskMat;      // local -> photograph [u w, v w, w]
 uniform vec4 uDiskBulge;    // radius, flattening, amplitude, exponent
 uniform vec3 uDiskBulgeColor;
 uniform vec3 uEarth;
-uniform float uPartCount,uPartScale;uniform vec2 uPartTexel;
+uniform float uPartCount,uPartScale,uDiskStarHost;
+uniform float uPartTexel[${MAX_DISK_PARTS}],uPartKind[${MAX_DISK_PARTS}];
 uniform vec4 uPartRect[${MAX_DISK_PARTS}],uPartAtlas[${MAX_DISK_PARTS}],uPartAxes[${MAX_DISK_PARTS}],uPartBound[${MAX_DISK_PARTS}];
 uniform vec4 uPartDepth[${MAX_DISK_PARTS}]; // centre uv (xy), depth centre, depth extent
 uniform vec4 uDiskWind;     // amplitude, tan(half opening), base radius, height scale
@@ -398,19 +438,30 @@ vec3 diskParts(vec3 q,float lod){
   if(rho>1.)continue;
   // Compact (biweight) depth profile: a rounded spheroid with no faint tails along the
   // sightline. Its integral along the sightline is 1, so Earth's view equals the image.
-  // Spherical deprojection: for an emissivity j(r) proportional to (r^2+c^2)^-1.5 the light seen
-  // at projected radius rho comes from depths d with weight s^2/(2(s^2+d^2)^1.5), s^2=rho^2+c^2.
-  // Weighting the image by it keeps Earth's view exact and gives a round, centrally
-  // concentrated spheroid from the side. Truncated at the part's outline and renormalised.
   float dn=(dot(q,uEarth)-uPartDepth[k].z)/uPartDepth[k].w;
-  if(rho*rho+dn*dn>=1.)continue;
-  float s2=rho*rho+.0036;
-  // Column inside |dn|<sqrt(1-rho^2) is sqrt(1-rho^2)/sqrt(1+c^2); divide it out.
-  float profile=s2/(2.*pow(s2+dn*dn,1.5))*1.0018/sqrt(max(1.-rho*rho,.02))/uPartDepth[k].w;
+  float profile;
+  if(uPartKind[k]>.5){
+   // Spherical deprojection: for an emissivity j(r) proportional to (r^2+c^2)^-1.5 the light at
+   // projected radius rho comes from depths d with weight s^2/(2(s^2+d^2)^1.5), s^2=rho^2+c^2.
+   // Weighting the image by it keeps Earth's view exact and gives a round, centrally
+   // concentrated spheroid from the side. Truncated at the outline and renormalised
+   // (the column inside |dn|<sqrt(1-rho^2) is sqrt(1-rho^2)/sqrt(1+c^2)).
+   if(rho*rho+dn*dn>=1.)continue;
+   float s2=rho*rho+.0036;
+   profile=s2/(2.*pow(s2+dn*dn,1.5))*1.0018/sqrt(max(1.-rho*rho,.02))/uPartDepth[k].w;
+  }else{
+   // Flattened slab (disturbed disk, tidal tail, gas): biweight depth profile, thinning
+   // toward the outline. Its column is 1, so Earth's view equals the image.
+   float e=1.6*sqrt(max(.03,1.-rho*rho));
+   float z=dn/e;
+   if(abs(z)>=1.)continue;
+   float w=1.-z*z;
+   profile=.9375*w*w/(e*uPartDepth[k].w);
+  }
   vec4 rect=uPartRect[k],atlas=uPartAtlas[k];
   vec2 c=(uv-rect.xy)/(rect.zw-rect.xy);
   if(any(lessThan(c,vec2(0.)))||any(greaterThan(c,vec2(1.))))continue;
-  float l=max(0.,lod-log2(k==0?uPartTexel.x:uPartTexel.y));
+  float l=max(0.,lod-log2(uPartTexel[k]));
   light+=textureLod(uDiskParts,atlas.xy+c*(atlas.zw-atlas.xy),l).rgb*profile;
  }
  return light*uPartScale;
@@ -464,15 +515,19 @@ void main(){
  float sharp=mix(2.2,6.5,uGrand)*mix(1.,.5,uFlocculent);
  float region=smoothstep(launch*.75,launch*1.5,r)*edge;
  float arm=pow(wave,sharp)*region*segment*armGain*(1.-uLenticular);
+ // Real arms are ragged: their light breaks into sheared clumps along and across them.
+ float rag=fbm(p*21.+vec2(warp*2.3,uSeed*4.1));
+ arm*=.35+1.05*smoothstep(.28,.78,rag);
  // Flocculent disks: many short, sheared fragments.
  float flocks=smoothstep(.52,.78,fbm(vec2(p.x*cos(.6)-p.y*sin(.6),p.x*sin(.6)+p.y*cos(.6))*9.+uSeed))*uFlocculent*region;
  arm=max(arm,flocks*.85*(1.-uLenticular));
  // Dust lanes trace the inner (upstream) edge of the arms, with spurs crossing the interarm.
- float lane=pow(.5+.5*cos(m*phi-.55),sharp*3.2+4.)*region*mix(.7+.3*along,segment,.5)*armGain;
+ float lane=pow(.5+.5*cos(m*phi-.55),sharp*3.2+4.)*region*mix(.7+.3*along,segment,.5)*armGain*(1.-uLenticular);
+ lane*=.55+.9*smoothstep(.3,.7,fbm(p*16.+uSeed*2.9));
  float rel=fract(m*phi/TAU);
  float spurPhase=th-lr/tan(1.05)+warp*.4;
- float spurs=pow(.5+.5*cos(floor(m*5.+1.)*spurPhase+fbm(p*7.+uSeed)*3.),14.)*smoothstep(.58,.82,rel)*(1.-smoothstep(.9,.99,rel))*region;
- float patchy=smoothstep(.55,.8,fbm(p*14.+uSeed*1.7))*region;
+ float spurs=pow(.5+.5*cos(floor(m*5.+1.)*spurPhase+fbm(p*7.+uSeed)*3.),14.)*smoothstep(.58,.82,rel)*(1.-smoothstep(.9,.99,rel))*region*(1.-uLenticular);
+ float patchy=smoothstep(.55,.8,fbm(p*14.+uSeed*1.7))*region*(1.-uLenticular);
  // Bar (Ferrers-like) with offset dust lanes along its leading edges, and the inner ring at its ends.
  float ca=cos(uBarAngle),sa=sin(uBarAngle);
  vec2 b=vec2(ca*p.x+sa*p.y,-sa*p.x+ca*p.y);
@@ -488,7 +543,7 @@ void main(){
  // Star-forming knots: H II regions and young clusters on the arms and ring.
  float host=max(arm,ring*(1.-uLenticular*.8));
  vec2 cellA=worley(p*58.+uSeed);
- float hiiOn=step(cellA.y,(.15+.75*uClumps)*smoothstep(.18,.85,host));
+ float hiiOn=step(cellA.y,(.22+.75*uClumps)*smoothstep(.15,.8,host));
  float hiiSize=.18+.32*fract(cellA.y*13.7);
  float hii=hiiOn*exp(-pow(cellA.x/hiiSize,2.))*(.25+pow(fract(cellA.y*91.3),3.)*2.2);
  vec2 cellB=worley(p*150.+uSeed*2.3);
@@ -496,7 +551,8 @@ void main(){
  float grain=fbm(p*38.+uSeed*5.);
  if(uPass<.5){
   float youngDisk=uAmps.y*exp(-r/uScales.y)*region;
-  vec3 young=uYoungColor*youngDisk*(arm*(.55+.75*grain)+ring*.7+.06*region);
+  float knots=smoothstep(.4,.85,grain);
+  vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.04*region);
   young+=uYoungColor*uAmps.y*exp(-r/uScales.y)*cluster*.9*region;
   young+=vec3(1.,.3,.52)*uAmps.z*exp(-r/uScales.y)*hii*region;
   float dust=uAmps.w*exp(-r/(uScales.x*1.35))*edge*(uLanes*(lane*1.15+spurs*.55+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes);
@@ -608,7 +664,11 @@ export class GalaxyDiskMaps {
       depthTest: false,
       depthWrite: false,
       toneMapped: false,
-      uniforms: { uYoung: { value: pending.young }, uDust: { value: pending.dust }, uSize: { value: size } },
+      uniforms: {
+        uYoung: { value: pending.young },
+        uDust: { value: pending.dust },
+        uSize: { value: size },
+      },
       vertexShader: "void main(){gl_Position=vec4(position.xy,0.,1.);}",
       fragmentShader:
         "precision highp float;uniform sampler2D uYoung,uDust;uniform float uSize;layout(location=0)out vec4 outColor;" +
@@ -634,6 +694,9 @@ export class GalaxyDiskMaps {
   }
   get observedReady() {
     return this.observedState === "ready";
+  }
+  get observedMaps() {
+    return this.observedState === "ready" && this.observedPacked !== null;
   }
   /** One-time bake of the procedural maps (two full-screen draws). */
   bake(gl: THREE.WebGLRenderer) {
@@ -666,7 +729,9 @@ export class GalaxyDiskMaps {
         imageOrientation: "flipY",
         premultiplyAlpha: "none",
         colorSpaceConversion: "none",
-        ...(resize ? { resizeWidth: resize, resizeHeight: resize, resizeQuality: "high" as const } : {}),
+        ...(resize
+          ? { resizeWidth: resize, resizeHeight: resize, resizeQuality: "high" as const }
+          : {}),
       });
       this.bitmaps.push(bitmap);
       const texture = new THREE.Texture(bitmap);
@@ -678,6 +743,19 @@ export class GalaxyDiskMaps {
       texture.needsUpdate = true;
       return texture;
     };
+    if (!map.detail || !map.smooth || !map.dust) {
+      try {
+        const parts = map.parts ? await load(map.parts.url, true) : null;
+        if (this.controller.signal.aborted) return parts?.dispose();
+        this.parts = parts;
+        this.observedState = "ready";
+      } catch (error) {
+        if ((error as Error).name === "AbortError") return;
+        console.warn("Observed galaxy parts unavailable", map.key, error);
+        this.observedState = "failed";
+      }
+      return;
+    }
     const resize = this.size < map.detail.size ? this.size : undefined;
     try {
       const [young, old, dust, parts] = await Promise.all([
@@ -696,7 +774,11 @@ export class GalaxyDiskMaps {
       this.pending = { young, dust };
     } catch (error) {
       if ((error as Error).name === "AbortError") return;
-      console.warn("Observed galaxy disk maps unavailable; using the procedural disk", map.key, error);
+      console.warn(
+        "Observed galaxy disk maps unavailable; using the procedural disk",
+        map.key,
+        error,
+      );
       this.observedState = "failed";
     }
   }
@@ -706,7 +788,8 @@ export class GalaxyDiskMaps {
     this.procOld.dispose();
     this.material.dispose();
     this.geometry.dispose();
-    for (const t of [this.observedOld, this.parts, this.pending?.young, this.pending?.dust]) t?.dispose();
+    for (const t of [this.observedOld, this.parts, this.pending?.young, this.pending?.dust])
+      t?.dispose();
     this.observedPacked?.dispose();
     for (const b of this.bitmaps) b.close();
     this.bitmaps = [];
@@ -722,7 +805,10 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
   const image = o ? OBSERVED_IMAGE_BY_KEY.get(model.key) : undefined;
   const parts = o?.parts?.items ?? [];
   const blank = Array.from({ length: MAX_DISK_PARTS }, () => new THREE.Vector4());
-  const partTexel = new THREE.Vector2(parts[0]?.texel ?? 1, parts[1]?.texel ?? 1);
+  const partTexel = Array.from({ length: MAX_DISK_PARTS }, (_, i) => parts[i]?.texel ?? 1);
+  const partKind = Array.from({ length: MAX_DISK_PARTS }, (_, i) =>
+    parts[i]?.kind === "sheet" ? 0 : 1,
+  );
   return {
     uDiskYoung: { value: null as THREE.Texture | null },
     uDiskOld: { value: null as THREE.Texture | null },
@@ -734,19 +820,26 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
       value: new THREE.Vector4(
         o?.extent ?? 1,
         spec.proceduralExtent,
-        o ? (2 * o.extent) / o.detail.size : 1,
+        o?.detail ? (2 * o.extent) / o.detail.size : 1,
         (2 * spec.proceduralExtent) / 2048,
       ),
     },
     uDiskHeights: {
-      value: new THREE.Vector4(spec.heights.old, spec.heights.young, spec.heights.ionised, spec.heights.dust),
+      value: new THREE.Vector4(
+        spec.heights.old,
+        spec.heights.young,
+        spec.heights.ionised,
+        spec.heights.dust,
+      ),
     },
-    uDiskShape: { value: new THREE.Vector4(spec.thick.z0, spec.thick.fraction, spec.flare, spec.halo) },
+    uDiskShape: {
+      value: new THREE.Vector4(spec.thick.z0, spec.thick.fraction, spec.flare, spec.halo),
+    },
     uDiskScale: {
       value: new THREE.Vector4(
-        o?.detail.scale ?? 0,
-        o?.smooth.scale ?? 0,
-        o?.dust.tauMax ?? 0,
+        o?.detail?.scale ?? 0,
+        o?.smooth?.scale ?? 0,
+        o?.dust?.tauMax ?? 0,
         PROCEDURAL_TAU_MAX,
       ),
     },
@@ -754,30 +847,63 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
     uDiskWind: { value: new THREE.Vector4(...spec.wind) },
     uDiskMat: { value: image ? observedImageMatrix(model, image) : new THREE.Matrix4() },
     uDiskBulge: {
-      value: new THREE.Vector4(spec.bulge.radius, spec.bulge.flattening, spec.bulge.amplitude, spec.bulge.exponent),
+      value: new THREE.Vector4(
+        spec.bulge.radius,
+        spec.bulge.flattening,
+        spec.bulge.amplitude,
+        spec.bulge.exponent,
+      ),
     },
     uDiskBulgeColor: { value: new THREE.Vector3(...spec.bulge.colour) },
     uEarth: { value: earthDirectionLocal(model) },
     uPartCount: { value: 0 },
     uPartScale: { value: o?.parts?.scale ?? 0 },
     uPartTexel: { value: partTexel },
-    uPartRect: { value: parts.length ? parts.map((p) => new THREE.Vector4(...p.uvRect)).concat(blank).slice(0, MAX_DISK_PARTS) : blank },
+    uPartKind: { value: partKind },
+    uDiskStarHost: { value: spec.starHost },
+    uPartRect: {
+      value: parts.length
+        ? parts
+            .map((p) => new THREE.Vector4(...p.uvRect))
+            .concat(blank)
+            .slice(0, MAX_DISK_PARTS)
+        : blank,
+    },
     uPartAtlas: {
-      value: parts.length ? parts.map((p) => new THREE.Vector4(...p.atlasRect)).concat(blank).slice(0, MAX_DISK_PARTS) : blank,
+      value: parts.length
+        ? parts
+            .map((p) => new THREE.Vector4(...p.atlasRect))
+            .concat(blank)
+            .slice(0, MAX_DISK_PARTS)
+        : blank,
     },
     uPartAxes: {
       value: parts.length
-        ? parts.map((p) => new THREE.Vector4(p.axisA[0], p.axisA[1], p.axisB[0], p.axisB[1])).concat(blank).slice(0, MAX_DISK_PARTS)
+        ? parts
+            .map((p) => new THREE.Vector4(p.axisA[0], p.axisA[1], p.axisB[0], p.axisB[1]))
+            .concat(blank)
+            .slice(0, MAX_DISK_PARTS)
         : blank,
     },
     uPartBound: {
       value: parts.length
-        ? parts.map((p) => new THREE.Vector4(p.centre[0], p.centre[1], p.centre[2], p.radius + p.depthExtent)).concat(blank).slice(0, MAX_DISK_PARTS)
+        ? parts
+            .map(
+              (p) =>
+                new THREE.Vector4(p.centre[0], p.centre[1], p.centre[2], p.radius + p.depthExtent),
+            )
+            .concat(blank)
+            .slice(0, MAX_DISK_PARTS)
         : blank,
     },
     uPartDepth: {
       value: parts.length
-        ? parts.map((p) => new THREE.Vector4(p.centreUv[0], p.centreUv[1], p.depthCentre, p.depthExtent)).concat(blank).slice(0, MAX_DISK_PARTS)
+        ? parts
+            .map(
+              (p) => new THREE.Vector4(p.centreUv[0], p.centreUv[1], p.depthCentre, p.depthExtent),
+            )
+            .concat(blank)
+            .slice(0, MAX_DISK_PARTS)
         : blank,
     },
   };
@@ -788,12 +914,15 @@ export type DiskLayerUniforms = ReturnType<typeof diskLayerUniforms>;
 export function bindDiskMaps(uniforms: DiskLayerUniforms, maps: GalaxyDiskMaps) {
   uniforms.uProcYoung.value = maps.procYoung.texture;
   uniforms.uProcOld.value = maps.procOld.texture;
-  const observed = maps.observedReady;
+  const observed = maps.observedMaps;
   uniforms.uDiskObserved.value = observed ? 1 : 0;
   uniforms.uDiskYoung.value = observed ? maps.observedPacked!.texture : maps.procYoung.texture;
   uniforms.uDiskOld.value = observed ? maps.observedOld : maps.procOld.texture;
   uniforms.uDiskParts.value = maps.parts ?? maps.procOld.texture;
-  uniforms.uPartCount.value = observed && maps.parts ? Math.min(MAX_DISK_PARTS, maps.spec.observed?.parts?.items.length ?? 0) : 0;
+  uniforms.uPartCount.value =
+    maps.observedReady && maps.parts
+      ? Math.min(MAX_DISK_PARTS, maps.spec.observed?.parts?.items.length ?? 0)
+      : 0;
   uniforms.uDiskExtent.value.w = (2 * maps.spec.proceduralExtent) / maps.size;
   const observedSize = maps.observedPacked?.width;
   if (observed && observedSize && maps.spec.observed)

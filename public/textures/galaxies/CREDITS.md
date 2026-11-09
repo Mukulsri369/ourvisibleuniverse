@@ -19,3 +19,19 @@
 - **m33**: [VST snaps a very detailed view of the Triangulum Galaxy](https://www.eso.org/public/images/eso1424a/). ESO. Optical.
 - **lmc**: [The Large Magellanic Cloud revealed by VISTA](https://www.eso.org/public/images/eso1914a/). ESO/VMC Survey. Near-infrared Y/J/Ks.
 - **smc**: [VISTA’s view of the Small Magellanic Cloud](https://www.eso.org/public/images/eso1714a/). ESO/VISTA VMC. Near-infrared Y/J/Ks.
+
+## Derived 3D reconstruction inputs (`derived/`)
+
+Files in `derived/` are computed from the images credited above by
+`scripts/derive-galaxy-disk-maps.ts`, with the original credits applying. Changes made:
+sky level subtracted; bright foreground stars and listed background objects removed by
+inpainting; dust estimated from reddened local darkening and partly compensated; bulges and
+the companion NGC 5195 separated into cut-outs; the remaining disk light deprojected to the
+galaxy's disk plane through the image's sky registration, split into smooth and clumpy
+components, resampled and recompressed. For the Antennae, the Tadpole and Stephan's Quintet,
+component cut-outs only (foreground NGC 7320 excluded). These are reconstruction inputs for the
+3D models, not observations; depth and the views away from Earth are illustrative.
+
+- `m51-*`, `m81-*`, `m101-*`, `catalog-ngc-1300-*`, `hoags-object-*`, `antennae-*`, `tadpole-*`: from the ESA/Hubble and NASA/Hubble images listed above.
+- `cartwheel-*`, `stephans-quintet-*`: from the ESA/Webb images listed above (infrared, assigned colours).
+- `m33-*`: from ESO eso1424a (VST).

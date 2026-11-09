@@ -159,7 +159,10 @@ export function GalaxyRadiance({
   const maps = useMemo(
     () =>
       spec
-        ? new GalaxyDiskMaps(spec, tier === "performance" ? 1024 : tier === "scientific_high" ? 2048 : 1536)
+        ? new GalaxyDiskMaps(
+            spec,
+            tier === "performance" ? 1024 : tier === "scientific_high" ? 2048 : 1536,
+          )
         : null,
     [spec, tier],
   );
@@ -274,7 +277,9 @@ export function GalaxyRadiance({
       frustumCulled
       material={material}
     >
-      <boxGeometry args={[2 * (spec?.box ?? 1.35), 2 * (spec?.box ?? 1.35), 2 * (spec?.box ?? 1.35)]} />
+      <boxGeometry
+        args={[2 * (spec?.box ?? 1.35), 2 * (spec?.box ?? 1.35), 2 * (spec?.box ?? 1.35)]}
+      />
       {!preview && (
         <GalaxyInteriorField
           model={model}
