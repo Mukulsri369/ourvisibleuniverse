@@ -1,0 +1,107 @@
+# Builds every pushed branch and uploads it to the separate, non-production
+# Worker `ovu-supabase-preview` as a per-branch preview URL. The owner can test
+# a change there before merging it. This workflow never touches the production
+# Worker, its domains or its secrets, and the preview runs with RAZORPAY_MODE=test.
+#
+# One-time setup (GitHub → Settings → Secrets and variables → Actions):
+#   secret   CLOUDFLARE_API_TOKEN           token limited to "Workers Scripts: Edit" on this account
+#   secret   CLOUDFLARE_ACCOUNT_ID          Cloudflare account id
+#   variable VITE_SUPABASE_PUBLISHABLE_KEY  the public sb_publishable_ key (never sb_secret_)
+# Until these exist, the job only builds and prints a notice.
+name: Branch preview
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: branch-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PREVIEW_WORKER: ovu-supabase-preview
+  VITE_SUPABASE_PROJECT_ID: pdvwkdggyyrfkoqrpbji
+  VITE_SUPABASE_URL: https://pdvwkdggyyrfkoqrpbji.supabase.co
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check configuration
+        id: config
+        env:
+          HAS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          PUBLIC_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ "$HAS_TOKEN" = "true" ] && [ -n "$PUBLIC_KEY" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Preview upload skipped: add CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID (secrets) and VITE_SUPABASE_PUBLISHABLE_KEY (variable). See the header of this workflow."
+          fi
+
+      # package-lock.json is currently out of sync with package.json, so `npm ci` fails.
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund --no-save
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        env:
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_ci_build_only' }}
+        run: npm run build:cloudflare
+
+      - name: Point build at the preview Worker
+        if: steps.config.outputs.deploy == 'true'
+        run: |
+          cfg=dist/server/wrangler.json
+          jq '.workers_dev = true | .preview_urls = true
+              | .vars.RAZORPAY_MODE = "test"
+              | .vars.OVU_DEPLOYMENT_STAGE = "staging"' "$cfg" > "$cfg.tmp"
+          mv "$cfg.tmp" "$cfg"
+          name=$(jq -r .name "$cfg")
+          mode=$(jq -r .vars.RAZORPAY_MODE "$cfg")
+          if [ "$name" != "$PREVIEW_WORKER" ] || [ "$mode" != "test" ]; then
+            echo "::error::Refusing to upload: worker is '$name' with RAZORPAY_MODE '$mode'"
+            exit 1
+          fi
+
+      - name: Upload preview version
+        if: steps.config.outputs.deploy == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          cfg=dist/server/wrangler.json
+          # Alias + "-" + worker name must fit one 63-character DNS label.
+          alias=$(printf '%s' "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//' | cut -c1-40 | sed -E 's/-+$//')
+          # First run only: the Worker must exist before versions can be uploaded.
+          if ! npx wrangler deployments list --name "$PREVIEW_WORKER" > /dev/null 2>&1; then
+            npx wrangler deploy -c "$cfg"
+          fi
+          npx wrangler versions upload -c "$cfg" --preview-alias "$alias" \
+            --message "$BRANCH@${GITHUB_SHA::7}" | tee upload.log
+          url=$(grep -oE "https://${alias}-${PREVIEW_WORKER}\.[a-z0-9-]+\.workers\.dev" upload.log | head -1)
+          [ -n "$url" ] || url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' upload.log | tail -1)
+          echo "::notice title=Preview URL::$url"
+          {
+            echo "### Preview for \`$BRANCH\`"
+            echo
+            echo "$url"
+            echo
+            echo "Commit \`${GITHUB_SHA::7}\` · Razorpay test mode · non-production Worker \`$PREVIEW_WORKER\`"
+          } >> "$GITHUB_STEP_SUMMARY"

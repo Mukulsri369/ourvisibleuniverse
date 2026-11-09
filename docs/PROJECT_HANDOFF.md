@@ -2,6 +2,14 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
+## 9 November — per-branch preview workflow added (setup pending)
+
+- **What and why:** the owner wants to test Claude's changes on a hosted URL before merging them into `migration/supabase-cloudflare`. New `.github/workflows/branch-preview.yml` builds every pushed branch (type check and `build:cloudflare`). It then uploads the build as a preview version of the separate, non-production Worker `ovu-supabase-preview`, with a per-branch alias URL (`https://<branch-slug>-ovu-supabase-preview.<account>.workers.dev`). The URL appears in the run summary.
+- **Safety:** the workflow patches only the generated `dist/server/wrangler.json`, forcing `RAZORPAY_MODE=test` and `OVU_DEPLOYMENT_STAGE=staging` (noindex headers). It refuses to upload if the Worker name or mode differ. It never deploys the production Worker or changes domains or secrets. If `ovu-supabase-preview` does not yet exist, its first run runs `wrangler deploy` on that preview Worker only.
+- **Owner setup still required:** add the GitHub secrets `CLOUDFLARE_API_TOKEN` (Workers Scripts: Edit) and `CLOUDFLARE_ACCOUNT_ID`, and the variable `VITE_SUPABASE_PUBLISHABLE_KEY`. Until then the job builds only and prints a notice. For sign-in on preview URLs, add `https://*-ovu-supabase-preview.mukul-srivastava-025.workers.dev/**` to the Supabase Auth redirect URLs.
+- **Limitations:** previews use the single production Supabase project, so sign-ins and Academy progress there are real. With test mode, imported live passes read as sandbox, so the 3D Atlas needs a sandbox (test-payment) pass. MCP is not allowed on preview origins. `npm ci` still fails on the out-of-sync lockfile; the workflow uses `npm install --no-save`.
+- **Checks run:** `npx tsc --noEmit` exit 0; `build:cloudflare` succeeded locally with a placeholder public key; YAML parsed; the `jq` patch and branch-slug logic were run locally. The workflow itself has not run on GitHub yet, and nothing was uploaded to Cloudflare.
+
 ## 9 November — latest GitHub galaxy-image changes deployed
 
 The owner explicitly requested publishing the changes pushed from Claude Code. Source **84bf05a** (including runtime **55c7d2c**) on `origin/migration/supabase-cloudflare` was built locally with the approved public Supabase configuration and deployed to the existing production Worker as **515c5b59-f82b-4adc-8ded-b838faa23f14**, receiving **100%** of traffic. This supersedes the pending-deployment statements below. Primary site: https://ourvisibleuniverse.com.
