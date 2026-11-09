@@ -1,4 +1,8 @@
 import { galaxyPopulation } from "./galaxy-populations";
+import diskMapData from "./catalog-data/galaxy-disk-maps.json";
+
+/** Disks rendered from registered photographs stay aligned with them (no pattern rotation). */
+const OBSERVED_DISKS = new Set(Object.keys((diskMapData as { maps: Record<string, unknown> }).maps));
 import type { GalaxyModel } from "./galaxy-models";
 
 /** Observed morphology constrains the reconstruction; unseen depth is illustrative.
@@ -62,7 +66,7 @@ export function galaxyStructure(m: GalaxyModel) {
     // Broken symmetry prevents the same perfect spiral being repeated across the catalogue.
     asymmetry: /m101|triangulum|m66|whale/.test(name) ? 0.16 : irregular ? 0.25 : 0.045,
     rotationRate:
-      spheroid || irregular || m.morphology === "interacting"
+      spheroid || irregular || m.morphology === "interacting" || OBSERVED_DISKS.has(m.key)
         ? 0
         : ((m.name === "Milky Way" ? -1 : 1) * Math.PI) / m.rotPeriod,
   };

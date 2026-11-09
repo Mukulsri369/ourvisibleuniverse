@@ -3,7 +3,14 @@ import { GalaxyInteriorField } from "./GalaxyInteriorField";
 import { GalaxyDensityCache } from "./galaxy-density-cache";
 import { useGalaxyJourney, galaxyMotion } from "./galaxy-journey";
 import { SGR_A_DISTANCE_LY } from "@/lib/astronomy/galactic-scene";
-import { GALAXY_FRAGMENT } from "./galaxy-volume-shader";
+import { GALAXY_DISK_FRAGMENT, GALAXY_FRAGMENT } from "./galaxy-volume-shader";
+import {
+  GalaxyDiskMaps,
+  bindDiskMaps,
+  diskLayerSpec,
+  diskLayerUniforms,
+  type DiskLayerUniforms,
+} from "./galaxy-disk-layer";
 import { useStore } from "./store";
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
@@ -32,6 +39,8 @@ export function GalaxyRadiance({
   const ref = useRef<THREE.Mesh>(null!);
   const tier = useStore((s) => s.renderingQualityTier);
   const journeyActive = useGalaxyJourney((s) => s.galaxy?.name === model.name);
+  // Disk galaxies use face-on maps with analytic vertical structure instead of the cached volume.
+  const spec = useMemo(() => (preview ? null : diskLayerSpec(model)), [model, preview]);
   const entered = useGalaxyJourney(
     (s) =>
       s.galaxy?.name === model.name &&
@@ -129,33 +138,57 @@ export function GalaxyRadiance({
       uOpacity: { value: opacity },
       uObsMat: { value: new THREE.Matrix4() },
       uObsWeight: { value: 0 },
+      uPixelAngle: { value: 0.001 },
+      uSlab: { value: spec?.slab ?? 1.35 },
+      uBox: { value: spec?.box ?? 1.35 },
+      uExposure: { value: 1 },
+      uNeutral: { value: 0 },
+      ...(spec ? diskLayerUniforms(model, spec) : {}),
     };
-  }, [model, opacity, preview]);
+  }, [model, opacity, preview, spec]);
   const cache = useMemo(
     () =>
-      preview
+      preview || spec
         ? null
         : new GalaxyDensityCache(
             uniforms,
             tier === "performance" ? 80 : tier === "scientific_high" ? 176 : 144,
           ),
-    [uniforms, tier, preview],
+    [uniforms, tier, preview, spec],
   );
+  const maps = useMemo(
+    () =>
+      spec
+        ? new GalaxyDiskMaps(spec, tier === "performance" ? 1024 : tier === "scientific_high" ? 2048 : 1536)
+        : null,
+    [spec, tier],
+  );
+  useEffect(() => () => maps?.dispose(), [maps]);
   const material = useMemo(
     () =>
-      new THREE.ShaderMaterial({
-        uniforms,
-        vertexShader: VERT,
-        fragmentShader: GALAXY_FRAGMENT,
-        defines: {
-          ...(preview ? { GALAXY_PREVIEW: 1 } : {}),
-          ...(uniforms.uPopKind.value > 0 ? { GALAXY_POPULATION: 1 } : {}),
-        },
-        transparent: true,
-        depthWrite: false,
-        side: THREE.BackSide,
-      }),
-    [uniforms, preview],
+      spec
+        ? new THREE.ShaderMaterial({
+            uniforms,
+            vertexShader: VERT,
+            fragmentShader: GALAXY_DISK_FRAGMENT,
+            transparent: true,
+            premultipliedAlpha: true,
+            depthWrite: false,
+            side: THREE.BackSide,
+          })
+        : new THREE.ShaderMaterial({
+            uniforms,
+            vertexShader: VERT,
+            fragmentShader: GALAXY_FRAGMENT,
+            defines: {
+              ...(preview ? { GALAXY_PREVIEW: 1 } : {}),
+              ...(uniforms.uPopKind.value > 0 ? { GALAXY_POPULATION: 1 } : {}),
+            },
+            transparent: true,
+            depthWrite: false,
+            side: THREE.BackSide,
+          }),
+    [uniforms, preview, spec],
   );
   useEffect(() => {
     uniforms.uCacheFade.value = preview ? 1 : 0;
@@ -205,6 +238,22 @@ export function GalaxyRadiance({
         Math.min(dt, 0.1),
       );
     }
+    if (maps && "uProcYoung" in uniforms) {
+      maps.bake(gl);
+      bindDiskMaps(uniforms as unknown as DiskLayerUniforms, maps);
+      uniforms.uCacheFade.value = THREE.MathUtils.damp(
+        uniforms.uCacheFade.value,
+        maps.ready ? 1 : 0,
+        5,
+        Math.min(dt, 0.1),
+      );
+      const perspective = camera as THREE.PerspectiveCamera;
+      uniforms.uPixelAngle.value =
+        (2 * Math.tan(THREE.MathUtils.degToRad(perspective.fov ?? 42) * 0.5)) /
+        Math.max(1, size.height * gl.getPixelRatio());
+      uniforms.uExposure.value = gl.toneMappingExposure;
+      uniforms.uNeutral.value = gl.toneMapping === THREE.NeutralToneMapping ? 1 : 0;
+    }
     // The density field is world-anchored: rotating the view cannot swap it for a flat portrait.
     uniforms.uVolumeWeight.value = 1;
     uniforms.uSteps.value = preview
@@ -225,16 +274,17 @@ export function GalaxyRadiance({
       frustumCulled
       material={material}
     >
-      <boxGeometry args={[2.7, 2.7, 2.7]} />
+      <boxGeometry args={[2 * (spec?.box ?? 1.35), 2 * (spec?.box ?? 1.35), 2 * (spec?.box ?? 1.35)]} />
       {!preview && (
         <GalaxyInteriorField
           model={model}
           count={entered ? 100000 : 36000}
           exterior={!entered}
           visibility={uniforms.uOpacity}
-          field={uniforms.uField}
+          field={spec ? undefined : uniforms.uField}
           cacheFade={uniforms.uCacheFade}
           eye={uniforms.uEye}
+          disk={spec ? (uniforms as unknown as DiskLayerUniforms) : undefined}
         />
       )}
     </mesh>

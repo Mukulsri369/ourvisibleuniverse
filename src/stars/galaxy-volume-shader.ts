@@ -1,5 +1,6 @@
 import { GALAXY_MEDIUM } from "./galaxy-medium";
-import { OBSERVED_FOOTPRINT_GLSL } from "./galaxy-observed-projection";
+import { OBSERVED_DISPLAY_GLSL, OBSERVED_FOOTPRINT_GLSL } from "./galaxy-observed-projection";
+import { DISK_LAYER_GLSL } from "./galaxy-disk-layer";
 /** Rays integrate the same 3D field for the catalogue, approach, and interior. */
 export const GALAXY_FRAGMENT =
   /* glsl */ `
@@ -92,6 +93,96 @@ void main(){
  float peak=max(radiance.r,max(radiance.g,radiance.b));
  radiance=mix(radiance,radiance*(1.15/(1.+peak)),uExteriorView);
  gl_FragColor=vec4(radiance,alpha);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+}
+`;
+
+/**
+ * Disk galaxies: face-on maps × analytic vertical profiles (galaxy-disk-layer.ts), a
+ * flattened bulge and sightline-extruded image parts, integrated front to back with
+ * per-channel dust extinction. Starlight is pure emission; only dust absorbs.
+ */
+export const GALAXY_DISK_FRAGMENT =
+  /* glsl */ `
+#include <logdepthbuf_pars_fragment>
+precision highp sampler3D;
+uniform vec3 uEye;
+uniform float uOpacity,uReveal,uSteps,uCacheFade,uExteriorView,uTime,uRotationRate,uPixelAngle,uSlab,uBox;
+varying vec3 vP;
+` +
+  OBSERVED_FOOTPRINT_GLSL +
+  OBSERVED_DISPLAY_GLSL +
+  DISK_LAYER_GLSL +
+  /* glsl */ `
+const vec3 REDDEN=vec3(.74,1.,1.32);
+const vec3 LUMA=vec3(.2126,.7152,.0722);
+void main(){
+#include <logdepthbuf_fragment>
+ if(uCacheFade<.001||uOpacity<.001)discard;
+ vec3 rd=normalize(vP-uEye),inv=1./(rd+vec3(1.e-8));
+ vec3 a=(-vec3(uBox)-uEye)*inv,b=(vec3(uBox)-uEye)*inv;
+ vec3 lo=min(a,b),hi=max(a,b);
+ // Rays only integrate the slab that holds the disk, bulge and image parts.
+ float y0=(-uSlab-uEye.y)*inv.y,y1=(uSlab-uEye.y)*inv.y;
+ lo.y=max(lo.y,min(y0,y1));hi.y=min(hi.y,max(y0,y1));
+ float start=max(0.,max(lo.x,max(lo.y,lo.z))),finish=min(hi.x,min(hi.y,hi.z));
+ if(finish<=start)discard;
+ // Steps: fine inside the thin dust/young layers and the bulge, up to dsCap elsewhere.
+ // uSteps bounds the step count of the longest (edge-on) rays.
+ float dsCap=max(4.2*uBox/1.35/uSteps,.02);
+ float ay=max(abs(rd.y),1.e-3);
+ float hd=uDiskHeights.w,core=uDiskBulge.x*uDiskBulge.y;
+ // Interleaved gradient noise decorrelates step positions between neighbouring pixels.
+ float jitter=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))));
+ vec4 obs0=uObsMat*vec4(uEye,1.),obsDir=uObsMat*vec4(rd,0.);
+ float angle=uTime*uRotationRate,c=cos(angle),s=sin(angle);
+ vec3 trans=vec3(1.),light=vec3(0.);
+ float t=start;
+ for(int i=0;i<140;i++){
+  if(t>=finish||max(trans.r,max(trans.g,trans.b))<.006)break;
+  vec3 p=uEye+rd*t;
+  float vertical=(.45*abs(p.y)+.85*hd)/ay;
+  float central=.3*length(p)+.35*core;
+  float ds=clamp(min(vertical,central),.0015,dsCap);
+  if(i==0)ds*=.15+.85*jitter;
+  ds=min(ds,finish-t);
+  float tm=t+ds*.5;
+  vec3 x=uEye+rd*tm;
+  vec3 q=vec3(x.x*c-x.z*s,x.y,x.x*s+x.z*c);
+  float lod=log2(max(tm*uPixelAngle,1.e-6));
+  vec3 e;float k;
+  diskLayer(q,lod,e,k);
+  e+=diskBulge(q);
+  if(uPartCount>.5)e+=diskParts(q,lod);
+  if(uDiskWind.x>0.)e+=diskWind(q);
+  float clear=smoothstep(.012,mix(.045,.13,uReveal),length(x-uEye));
+  float keep=observedKeepH(obs0+obsDir*tm);
+  e*=clear*mix(1.,.09,uReveal)*keep;
+  vec3 kk=k*clear*keep*REDDEN*ds;
+  vec3 att=exp(-kk);
+  vec3 seg=ds*mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
+  light+=trans*e*seg;
+  trans*=att;
+  t+=ds;
+ }
+ float coverage=clamp(1.-dot(trans,vec3(1./3.)),0.,1.);
+ // Display-referred columns (photograph units). Face-on columns keep the photograph's
+ // values; edge-on columns, many times brighter, roll off logarithmically toward white so
+ // the disk keeps gradations instead of clipping.
+ float peak=max(light.r,max(light.g,light.b));
+ float shaped=peak<=.55?peak:peak<=1.?.55+.27*(peak-.55)/.45:.82+.16*log(peak)/log(25.);
+ vec3 display=light*(min(shaped,.985)/max(peak,1.e-6));
+ // The photograph's exact display inversion lifts the faintest light as well; a soft black
+ // point keeps the faint exponential wings of very bright edge-on columns from widening
+ // the disk, as a photographic sky level would.
+ float low=min(display.r,min(display.g,display.b));
+ vec3 exact=beforeDisplay(display);
+ vec3 toe=display/max(uExposure,1e-4)+(exact-display/max(uExposure,1e-4))*smoothstep(.0015,.02,low);
+ vec3 radiance=mix(display*2.4,toe,uExteriorView);
+ float o=uOpacity*uCacheFade;
+ if(max(coverage,peak)*o<.0004)discard;
+ gl_FragColor=vec4(radiance*o,coverage*o);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }
