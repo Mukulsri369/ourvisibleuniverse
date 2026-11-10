@@ -33,11 +33,12 @@ Read this first in a new chat. This is a dated development checkpoint, not a liv
   - `test:nearby-expansion` and `ingest:nearby-catalog -- --check` pass.
   - Passed before the final procedural tuning and spheroid window, which change only GLSL and spec constants: `test`, `test:catalog`, `test:consistency`, `test:galaxies`, `test:galaxy-clarity`, `test:galaxy-landmarks`, `test:galaxy-populations`, `test:galaxy-entry`, `test:galaxy-explorer`, `test:galaxy-empty-space`, `test:scene-depth`, `test:rendering`, `test:visual`, `test:3d`, `test:navigation`, `test:solar-controls`, `test:exploration-camera`.
   - SwiftShader multi-angle renders (appearance only): NGC 1300, M81, M51, Stephan's Quintet, M82, M74, NGC 1365, Andromeda, NGC 4565 and M104.
+  - Look-dev comparison with the 9 November baseline (`ovu-galaxy-realism`, SwiftShader, Earth view): all six galaxies captured; saturation 0.02–0.03 → 0.17–0.30 (images 0.11–0.23), dust lanes and H II knots now present, winding and bar angles agree with the images. Table and caveats in the report; M33's pink fraction and M104's saturation overshoot.
 - **Found, not changed (catalogue data):**
   - M104's dust lane lies north of the nucleus in the reconstruction and south in the Hubble image, so its near side looks flipped; a follow-up task was suggested.
   - NGC 1300's catalogued PA (86°) is just below the published 87–106°.
 - **Not established:** GPU frame time on real hardware (the sheet adds one young/dust texture read per step in tilted views; the cloud renderer is SwiftShader), an authenticated full-app run, physical devices.
-- **Source and deployment status:** commits after `6ebf9d0` on `migration/supabase-cloudflare` (`f72c3b8`, `68473e5`, `425a76d`, `4376426` and the procedural-tuning/look-dev commit that adds this entry), pushed at the owner's standing instruction for this task. **Not deployed**; production (which still shows NGC 1300 mirrored) was not inspected.
+- **Source and deployment status:** all commits after `6ebf9d0` up to the branch head on 10 November (`f72c3b8` … the docs commits recording the look-dev results) on `migration/supabase-cloudflare`, pushed at the owner's standing instruction for this task. **Not deployed**; production (which still shows NGC 1300 mirrored) was not inspected.
 - **Next concrete action:** owner review on the per-branch preview or locally (`node node_modules/vite/bin/vite.js --config scripts/nearby-qa/vite.config.mts`, then `/scripts/nearby-qa/galaxy-views.html?g=catalog-ngc-1300&v=top`). Then measure GPU cost per `ovu-perf-evidence`, fix M104's near side through `ovu-object-intake`, and deploy only with the owner's approval; deploying also ships the NGC 1300 correction.
 
 ## 9 November — galaxies rebuilt in 3D from every angle
