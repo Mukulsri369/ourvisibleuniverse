@@ -198,7 +198,11 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const oldColour = observed
     ? normalise(observed.colours.old)
     : tint(OLD_DISK_COLOUR, appearance.oldColor, 0.25);
-  const youngColour = normalise(observed?.colours.young ?? appearance.youngColor);
+  // Young light in composites is blue (with pink H II, carried separately); catalogue palettes
+  // are paler, so procedural disks lean toward it. Display choice, not photometry.
+  const youngColour = observed
+    ? normalise(observed.colours.young)
+    : tint(appearance.youngColor, [0.6, 0.78, 1], 0.4);
   const procedural: ProceduralDiskParameters = {
     arms: lenticular || sombrero ? 0 : Math.max(2, Math.min(6, model.arms || 2)),
     pitch: THREE.MathUtils.degToRad(clamp(model.pitchDeg || 16, 6, 40)),
@@ -213,9 +217,11 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     clumps: clamp(appearance.features[2] || 0.5, 0.2, 1),
     asymmetry: structure.asymmetry,
     lanes: model.dustLanes ? 1 : lenticular ? 0.15 : 0.35,
-    oldScale: andromeda ? 0.2 : sombrero ? 0.3 : 0.27,
+    // Old-disk scale length about 0.2 of the model radius, as measured from the registered
+    // photographs (0.15-0.2 for M51, M81 and M101), so the outer disk is carried by the arms.
+    oldScale: andromeda ? 0.2 : sombrero ? 0.3 : 0.21,
     youngScale: andromeda ? 0.32 : 0.34,
-    oldAmp: sombrero ? 0.35 : lenticular ? 0.85 : 0.62,
+    oldAmp: sombrero ? 0.35 : lenticular ? 0.85 : 0.7,
     youngAmp: lenticular || sombrero ? 0 : 0.55,
     hiiAmp: lenticular || sombrero ? 0 : 0.85,
     dustAmp: sombrero ? 2.6 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
@@ -619,7 +625,7 @@ void main(){
  if(uPass<.5){
   float youngDisk=uAmps.y*exp(-r/uScales.y)*region;
   float knots=smoothstep(.4,.85,grain);
-  vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.04*region);
+  vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.02*region);
   young+=uYoungColor*uAmps.y*exp(-r/uScales.y)*cluster*.9*region;
   young+=vec3(1.,.3,.52)*uAmps.z*exp(-r/uScales.y)*hii*region;
   float dust=uAmps.w*exp(-r/(uScales.x*1.35))*edge*(uLanes*(lane*1.15+spurs*.55+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes);
@@ -631,7 +637,7 @@ void main(){
   float lens=uLenticular*.35*uAmps.x*exp(-pow(r/(uScales.x*.9),2.));
   // Density-wave arms gather old stars too (K-band arm contrast: Rix & Zaritsky 1995),
   // weakly in flocculent disks (Thornley 1996), so the interarm disk is darker than the arms.
-  float oldArm=mix(.65,.2,uFlocculent)*(1.-uLenticular);
+  float oldArm=mix(.8,.25,uFlocculent)*(1.-uLenticular);
   vec3 old=uOldColor*(disk*(1.-.35*oldArm+oldArm*1.1*arm-.3*lane*uLanes)+lens+uAmps.x*bar*1.35+uAmps.x*ring*.12*uLenticular);
   outColor=vec4(max(old,vec3(0.)),1.);
  }
