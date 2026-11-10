@@ -1352,17 +1352,24 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
   const smoothLum = new Float32Array(S * S);
   for (let o = 0; o < S * S; o++)
     smoothLum[o] = luma(smooth.c[0][o], smooth.c[1][o], smooth.c[2][o]);
+  // The scales must not move with a tiny change in the geometry (1e-11 in an orientation):
+  //  - The young peak is the 99.95th percentile of every texel above 1e-9 of the face-on noise,
+  //    with no subsample. Where the light is zero, round-off in the envelope's running sums
+  //    leaves young light of up to 1e-18 (1e-15 of the noise) that appears and disappears with
+  //    any upstream change. Counting those texels, or striding through the filtered list,
+  //    shifted the percentile's rank. Real young light starts above 1e-12 of the noise.
+  //  - Both peaks are rounded to four significant digits. Each still follows the last bit of
+  //    one texel; unrounded, that change reaches every texel of its map.
   const youngPeak = Math.max(
     1e-4,
     percentile(
-      youngLum.filter((v) => v > 0),
+      youngLum.filter((v) => v > 1e-9 * noiseFace),
       0.9995,
-      3,
     ),
   );
   const smoothPeak = Math.max(1e-4, percentile(smoothLum, 1));
-  const youngScale = 0.92 / youngPeak,
-    smoothScale = 0.97 / smoothPeak;
+  const youngScale = 0.92 / +youngPeak.toPrecision(4),
+    smoothScale = 0.97 / +smoothPeak.toPrecision(4);
 
   // Part atlas.
   let partsMeta: MapMeta["parts"] = null;

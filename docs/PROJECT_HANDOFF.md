@@ -2,7 +2,46 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 10 November — M81's near side sourced (latest checkpoint)
+## 10 November — derived-map normalisation made stable (latest checkpoint)
+
+- **What and why:** `npm run derive:galaxy-disk-maps` re-encoded whole derived maps after geometry changes of about 1e-11. Normalising Earth's direction in the M81 change re-encoded M33's and the Cartwheel's young maps, and a trial normalisation of the sky-orientation quaternion moved NGC 1300's `detail.scale` by 2%. Each map's encoding scale is now stable under such changes. Report: [stable map normalisation](GALAXY_3D_RECONSTRUCTION_20261109.md#stable-map-normalisation-10-november-2026-pushed-not-deployed).
+- **Causes**, found by re-deriving every map with perturbed orientations in scratch worktrees (not committed):
+  - The young peak was the 99.95th percentile of every third texel in the list of positive texels. One texel crossing zero shifted that subsample.
+  - Removing the stride was not enough on its own. Where the light is zero, round-off in the envelope blur's running sums makes young light of up to 1e-18 appear and disappear. Such texels were 0.05% (M101) to 30% (Cartwheel) of the "positive" texels, and a 1e-11 rad rotation flipped 3,115 of M51's. The percentile's rank moves by one for every 2,000 of them.
+  - The old map's peak is a maximum. Under a perturbation it moved by one float32 step. Through the unrounded scale that change reached every texel, and one block of Hoag's Object's old map changed.
+- **Code and data:**
+  - `scripts/derive-galaxy-disk-maps.ts`, normalisation only:
+    - The young peak is the 99.95th percentile of every texel above 1e-9 of the face-on noise, with no subsample. The round-off lies at or below 1e-15 of the noise, and real young light starts above 1e-12.
+    - The young and old peaks are rounded to four significant digits before they set the encoding scale.
+    - The other percentiles were checked and left unchanged.
+  - Every map was re-derived once:
+    - The seven young and seven old maps were re-encoded. The dust maps and part atlases are byte-identical.
+    - In `galaxy-disk-maps.json` only `detail.scale` (−0.02% to +6.96%) and `smooth.scale` (at most 0.013%) changed.
+    - On 8×8 means, rendered young light changed by about the size of one JPEG re-encoding. The exceptions are Hoag's Object and the Cartwheel, whose brightest knots now clip less (their total young light rose by 0.19% and 0.09%).
+- **Checks actually run:**
+  - Dependencies were installed with `npm install --no-save`, because `npm ci` still rejects the out-of-sync lockfile. The lockfile is unchanged.
+  - Baseline on the unchanged checkout: `derive:galaxy-disk-maps -- --check` passed, and a full re-derive reproduced every committed output byte for byte (sharp 0.35.5).
+  - Stability: four perturbations, each a full re-derive in a scratch worktree. They were the quaternion normalised, Earth's direction left unnormalised, and two 1e-11 rad rotations about different axes.
+    - With this change, the metadata, scales and lit-texel counts were identical in all four runs, and 31 of the 32 outputs were byte-identical in all four.
+    - In two runs one 8×8 block of M81's young map differed (at most 2 levels): a single texel at an 8-bit rounding boundary.
+    - For comparison, the previous script re-encoded two maps under the quaternion normalisation (NGC 1300 +2.00%) and changed a block of a third. With only the stride removed, the first rotation re-encoded two maps (M51 −0.16%) and changed a block in each of two more.
+  - Reproducibility: two full re-derives gave byte-identical outputs. `derive:galaxy-disk-maps -- --check` reproduces all seven disk galaxies' metadata.
+  - `test:galaxy-disk-layer` passed. Registration, measured before (`958bc70`) and after: M51 0.913 → 0.913, M81 0.840 → 0.842, M101 0.917 → 0.917, M33 0.800 → 0.800, NGC 1300 0.929 → 0.929, Cartwheel 0.988 → 0.988, Hoag's Object 0.826 → 0.829.
+  - Passed: `test:galaxy-observed` and `test:galaxies`. `npx tsc --noEmit` exited 0, and ESLint and Prettier are clean on the changed script. No test was changed.
+  - Look-dev, Earth view, M51 and M81, in headless Chromium with SwiftShader, before (worktree at `958bc70`) and after: no visible change.
+    - The renders differ by 0.028 and 0.012 of an 8-bit level on average and by at most 3 levels, and every appearance indicator is equal to three decimals.
+    - M81's after capture needed `--bake-timeout 600000`; the default 240 s ran out. The sheets were not committed.
+  - Also passed, because they load the disk-map metadata: `test:galaxy-landmarks`, `test:solar-controls` and `scripts/galaxy-experience-validation.ts`.
+  - Not run: `test:nearby-regressions`, which needs the gitignored local download in `.cache/nearby-catalogue-sources/` and does not touch the derived maps.
+- **Remaining:** a texel at an 8-bit rounding boundary can still flip under a tiny geometry change, which changes one JPEG block of a map. Part atlases are not rounded: their peaks come from the photograph plane, which no orientation change touches, but a change to the image-registration arithmetic itself could still re-encode them.
+- **Not established:** the full or authenticated app, `build:cloudflare`, physical devices, real-GPU timing. No shader or renderer code changed.
+- **Source and deployment status:**
+  - Branch `claude/magical-galileo-y1be5c`, created from `claude/vibrant-shannon-o27jcc` at `958bc70`, plus one commit. `958bc70` had not been merged into `migration/supabase-cloudflare`, which has three newer documentation commits. This branch merges with it without conflicts (checked with `git merge-tree`). No history was rewritten.
+  - Pushed to origin from a cloud session. Not merged.
+  - **Not deployed.** Production remains as last recorded and was not inspected.
+- **Next concrete action:** review, then merge this branch into `migration/supabase-cloudflare`. It contains the M104 and M81 commits, so neither `claude/great-ramanujan-r2pi5b` nor `claude/vibrant-shannon-o27jcc` needs merging separately. Optionally, tone down M81's near-side dust in the bulge through `ovu-galaxy-realism`.
+
+## 10 November — M81's near side sourced
 
 - **What and why:** the M104 audit found M81 probably reversed. The convention made the ENE half of its minor axis (PA 67°) the near one, so the reconstruction silhouetted its dust lanes against the wrong side of the bulge. Its near side is now sourced and recorded as the WSW half (PA 247°), and its face-on maps are re-derived. Report: [near sides, M81 follow-up](GALAXY_NEAR_SIDE_20261110.md#m81-follow-up-latest).
 - **Sources** (read in full from arXiv in this session, and quoted in the report and in the record):

@@ -9,12 +9,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/m51-young.jpg",
         "size": 2048,
-        "scale": 0.443382
+        "scale": 0.450761
       },
       "smooth": {
         "url": "/textures/galaxies/derived/m51-old.jpg",
         "size": 512,
-        "scale": 0.211884
+        "scale": 0.211856
       },
       "dust": {
         "url": "/textures/galaxies/derived/m51-dust.jpg",
@@ -147,12 +147,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/m81-young.jpg",
         "size": 2048,
-        "scale": 0.137616
+        "scale": 0.139457
       },
       "smooth": {
         "url": "/textures/galaxies/derived/m81-old.jpg",
         "size": 512,
-        "scale": 0.10276
+        "scale": 0.102763
       },
       "dust": {
         "url": "/textures/galaxies/derived/m81-dust.jpg",
@@ -245,12 +245,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/m101-young.jpg",
         "size": 2048,
-        "scale": 0.710164
+        "scale": 0.71
       },
       "smooth": {
         "url": "/textures/galaxies/derived/m101-old.jpg",
         "size": 512,
-        "scale": 0.304937
+        "scale": 0.304948
       },
       "dust": {
         "url": "/textures/galaxies/derived/m101-dust.jpg",
@@ -343,12 +343,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/m33-young.jpg",
         "size": 2048,
-        "scale": 0.33065
+        "scale": 0.336522
       },
       "smooth": {
         "url": "/textures/galaxies/derived/m33-old.jpg",
         "size": 512,
-        "scale": 0.268457
+        "scale": 0.268454
       },
       "dust": {
         "url": "/textures/galaxies/derived/m33-dust.jpg",
@@ -441,12 +441,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/catalog-ngc-1300-young.jpg",
         "size": 2048,
-        "scale": 0.380427
+        "scale": 0.39
       },
       "smooth": {
         "url": "/textures/galaxies/derived/catalog-ngc-1300-old.jpg",
         "size": 512,
-        "scale": 0.30453
+        "scale": 0.304536
       },
       "dust": {
         "url": "/textures/galaxies/derived/catalog-ngc-1300-dust.jpg",
@@ -539,12 +539,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/cartwheel-young.jpg",
         "size": 2048,
-        "scale": 0.534602
+        "scale": 0.55837
       },
       "smooth": {
         "url": "/textures/galaxies/derived/cartwheel-old.jpg",
         "size": 512,
-        "scale": 0.528797
+        "scale": 0.528763
       },
       "dust": {
         "url": "/textures/galaxies/derived/cartwheel-dust.jpg",
@@ -637,12 +637,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/hoags-object-young.jpg",
         "size": 2048,
-        "scale": 0.479547
+        "scale": 0.512935
       },
       "smooth": {
         "url": "/textures/galaxies/derived/hoags-object-old.jpg",
         "size": 512,
-        "scale": 0.0691691
+        "scale": 0.0691649
       },
       "dust": {
         "url": "/textures/galaxies/derived/hoags-object-dust.jpg",
