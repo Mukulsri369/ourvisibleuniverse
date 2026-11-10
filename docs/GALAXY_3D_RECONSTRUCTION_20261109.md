@@ -87,13 +87,13 @@ disks no longer rotate their pattern, so they stay aligned with the image.
 
 ## Coverage
 
-| Group | Galaxies | How the 3D structure is built |
-| --- | --- | --- |
-| Photograph-derived disks | M51 (+ NGC 5195), M81, M101, M33, NGC 1300, Cartwheel, Hoag's Object | Deprojected face-on maps from the registered image; bulges and the companion as round spheroids extruded along Earth's sightline |
-| Photograph-derived components | Antennae (NGC 4038/4039), Tadpole (body + tail), Stephan's Quintet (NGC 7319, 7318A/B, 7317, shock region, old tail) | Each component cut from the registered image and extruded as a sheet or spheroid; foreground NGC 7320 excluded |
-| Procedural with object guides | M82 (dusty starburst disk + biconical H-alpha wind), M104 (Sombrero: bulge, dust ring), M64, M94, Andromeda | Procedural face-on map with object-specific parameters |
-| Procedural disks | All other spiral, barred, flocculent, lenticular, ring and edge-on models | Procedural face-on map from catalogued morphology, arms, pitch, bar, ring and dust class |
-| Unchanged cached volume | Milky Way, ellipticals, dwarfs, irregulars, Cen A, LMC, SMC, Mayall's Object, Malin 1, sourced dwarf populations | Existing renderer (interior-tuned or bespoke features) |
+| Group                         | Galaxies                                                                                                             | How the 3D structure is built                                                                                                    |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Photograph-derived disks      | M51 (+ NGC 5195), M81, M101, M33, NGC 1300, Cartwheel, Hoag's Object                                                 | Deprojected face-on maps from the registered image; bulges and the companion as round spheroids extruded along Earth's sightline |
+| Photograph-derived components | Antennae (NGC 4038/4039), Tadpole (body + tail), Stephan's Quintet (NGC 7319, 7318A/B, 7317, shock region, old tail) | Each component cut from the registered image and extruded as a sheet or spheroid; foreground NGC 7320 excluded                   |
+| Procedural with object guides | M82 (dusty starburst disk + biconical H-alpha wind), M104 (Sombrero: bulge, dust ring), M64, M94, Andromeda          | Procedural face-on map with object-specific parameters                                                                           |
+| Procedural disks              | All other spiral, barred, flocculent, lenticular, ring and edge-on models                                            | Procedural face-on map from catalogued morphology, arms, pitch, bar, ring and dust class                                         |
+| Unchanged cached volume       | Milky Way, ellipticals, dwarfs, irregulars, Cen A, LMC, SMC, Mayall's Object, Malin 1, sourced dwarf populations     | Existing renderer (interior-tuned or bespoke features)                                                                           |
 
 214 of the 830 catalogue models use the new disk layer (10 photograph-derived).
 
@@ -130,6 +130,48 @@ disks no longer rotate their pattern, so they stay aligned with the image.
   before/after screenshots under `.taste-skill/galaxy-views/` (ignored by Git), in headless
   Chromium with SwiftShader at 640×400 or 960×600, DPR 1.
 
+## Follow-up, 10 November 2026 (pushed, not deployed)
+
+- **NGC 1300 registration.** The image's embedded AVM describes a mirrored frame; the
+  nucleus position and the published position angle show it is an ordinary east-left
+  frame ([registered-image report](GALAXY_OBSERVED_IMAGES_20261108.md#correction-10-november-2026-ngc-1300-parity-pushed-not-deployed)).
+  Deprojected through the mirrored registration, the face-on disk came out as a
+  2.5:1 ellipse, so the reconstruction looked squashed from every other direction.
+  The maps were regenerated with the corrected registration.
+- **Mid-plane detail sheet.** A face-on map is a column. Fine detail spread through the
+  young and dust layers drew streaks and short pillars in tilted views, because
+  each layer projects to a strip about 2h·tan(i) wide (about 0.05 disk radii for M81).
+  Young light and dust above their local mean on that scale are now drawn as a thin
+  sheet where each ray crosses the mid-plane. The face-on column is unchanged. Rays within 7° of the plane keep the
+  layers, blending to the sheet by 17°. Concentrating H II regions, clusters
+  and dust lanes into a zero-thickness sheet is a rendering approximation of their
+  thin layers.
+- **Spheroid cores.** Each photographed spheroid now carries its measured core radius:
+  the half-width of its light, 0.17–0.63 of its outline. With the fixed small core,
+  flat-topped bulges and the Quintet's ellipticals looked boxy from the side. A
+  parabolic window over each sightline's chord brings the light to zero at the
+  outline, renormalised in closed form so Earth's view still equals the image.
+  Without it, a wide core such as M81's showed a hard spherical edge.
+- **Procedural disks:**
+  - Old light and bulges start from warm old-population colours (Peletier & Balcells
+    1996; de Jong 1996), with a light catalogue tint. The catalogue colours of
+    generated models are integrated colours, blue for late types, and had made the
+    interarm disk bluer than the arms.
+  - Old light follows the arms, strongly in grand-design disks (Rix & Zaritsky 1995)
+    and weakly in flocculent ones (Thornley 1996).
+  - Arms are narrower, with clumps elongated along them.
+  - Bars are brighter and flatter and launch the arms at their ends.
+  - The old disk's scale length is 0.21 of the model radius (was 0.27), closer to the
+    0.15–0.2 measured from the registered photographs, so the outer disk is carried by
+    the arms. Young light leans 40% toward composite blue (a display choice).
+- **M82 wind.** Its filament noise was sampled far finer than the 64³ noise texture,
+  which drew speckle. Filaments are now about eight times longer along the outflow
+  than across it.
+- **Look-dev harness.** The page clears to opaque black, as the app does (`f72c3b8`).
+  Before that, readback un-premultiplied and clipped the emissive light.
+
+The look-dev comparison with the 9 November baseline is being re-captured on this code and will be recorded here.
+
 ## Known limitations
 
 - Vertical structure, far sides, companion depths and the views away from Earth are
@@ -140,5 +182,12 @@ disks no longer rotate their pattern, so they stay aligned with the image.
   Webb images (Cartwheel, Quintet) use assigned infrared colours.
 - Dust is inferred from reddened darkening in display-stretched images, not from far-infrared
   dust maps.
+- Photographed bulges keep the image's display-stretched (flat-topped) profile as their
+  light, so M81's large bulge reads as a bright, rounded plateau from the side rather than
+  a centrally concentrated glow. A fix would un-stretch parts before extrusion.
+- Generated (procedural) spirals now have warm cores and less haze, but their arms are
+  still greyer and their interarm disks brighter than in the photographed galaxies.
+- M104's near side appears flipped relative to the Hubble image (catalogue orientation;
+  not changed here).
 - Not run: authenticated full app, `build:cloudflare` (needs the approved public Supabase
   configuration), physical devices, GPU frame-time measurement.

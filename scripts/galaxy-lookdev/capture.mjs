@@ -1,7 +1,7 @@
 /**
  * Captures look-dev renders and writes each next to its registered telescope image.
  *
- *   node scripts/galaxy-lookdev/capture.mjs --out <dir> [--galaxies m51,m81] [--views earth,faceon] [--optics] [--software]
+ *   node scripts/galaxy-lookdev/capture.mjs --out <dir> [--galaxies m51,m81] [--views earth,faceon] [--optics] [--software] [--bake-timeout ms]
  *   node scripts/galaxy-lookdev/capture.mjs --out <dir> --recompute   (rebuild sheets and
  *     indicators from the saved <key>-<view>[-optics]-render.png files, without re-rendering)
  *
@@ -28,6 +28,8 @@ const galaxies = arg("galaxies", "m51,m81,m101,m104,m33,catalog-ngc-1300").split
 const views = arg("views", "earth").split(",");
 const optics = process.argv.includes("--optics");
 const settleMs = Number(arg("settle", "9000"));
+// Software rendering can take several minutes to bake a procedural disk map.
+const bakeTimeoutMs = Number(arg("bake-timeout", "240000"));
 const recompute = process.argv.includes("--recompute");
 fs.mkdirSync(out, { recursive: true });
 
@@ -187,7 +189,7 @@ async function openLookdev(key, view, waitForBake) {
   if (waitForBake) {
     // Wait for the progressive density-cache bake, then let exposure settle.
     await page.waitForFunction(() => window.__galaxyLookdev.cacheFade() > 0.97, null, {
-      timeout: 240000,
+      timeout: bakeTimeoutMs,
       polling: 1000,
     });
     await page.waitForTimeout(settleMs);

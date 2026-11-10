@@ -925,7 +925,49 @@ type PartMeta = {
   radius: number;
   /** Local units (disk radii) per atlas texel. */
   texel: number;
+  /** Spheroids: core radius of the light profile, in units of the outline (see spheroidCore). */
+  core?: number;
 };
+
+/**
+ * Core radius of a spheroid part: the half-width at half maximum of its azimuthally averaged
+ * light, in units of the part's elliptical outline. The renderer spreads the light along the
+ * sightline as a spherical emissivity proportional to (r² + c²)^-1.5, whose projection has
+ * this half-width. A fixed small core gave display-stretched, flat-topped bulges a boxy,
+ * bow-tie shape from the side; the measured core keeps them round from every direction.
+ */
+function spheroidCore(
+  img: RGB,
+  meta: Pick<PartMeta, "uvRect" | "centreUv" | "axisA" | "axisB">,
+): number {
+  const bins = 48,
+    sum = new Float64Array(bins),
+    count = new Float64Array(bins);
+  const [u0, v0, u1, v1] = meta.uvRect;
+  for (let y = 0; y < img.h; y++)
+    for (let x = 0; x < img.w; x++) {
+      // Crop rows run from the top of the photograph (v1) down (v up in uv).
+      const du = u0 + ((x + 0.5) / img.w) * (u1 - u0) - meta.centreUv[0],
+        dv = v1 - ((y + 0.5) / img.h) * (v1 - v0) - meta.centreUv[1];
+      const rho = Math.hypot(
+        meta.axisA[0] * du + meta.axisA[1] * dv,
+        meta.axisB[0] * du + meta.axisB[1] * dv,
+      );
+      if (rho >= 1) continue;
+      const i = y * img.w + x,
+        b = Math.min(bins - 1, Math.floor(rho * bins));
+      sum[b] += luma(img.c[0][i], img.c[1][i], img.c[2][i]);
+      count[b]++;
+    }
+  const profile = Array.from(sum, (s, b) => (count[b] ? s / count[b] : 0));
+  const peak = Math.max(profile[0], profile[1], profile[2]);
+  for (let b = 1; b < bins; b++)
+    if (profile[b] < peak / 2) {
+      const t = (profile[b - 1] - peak / 2) / Math.max(1e-12, profile[b - 1] - profile[b]);
+      return Math.min(0.8, Math.max(0.06, (b - 0.5 + t) / bins));
+    }
+  return 0.8;
+}
 type MapMeta = {
   key: string;
   image: string;
@@ -1354,7 +1396,12 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
       partPeak = Math.max(partPeak, luma(crop.c[0][i], crop.c[1][i], crop.c[2][i]));
     partAtlas.push({
       img: crop,
-      meta: { ...p.meta, atlasRect: [0, 0, 0, 0], texel: bw / pxPerR / cw },
+      meta: {
+        ...p.meta,
+        atlasRect: [0, 0, 0, 0],
+        texel: bw / pxPerR / cw,
+        core: spheroidCore(crop, p.meta),
+      },
     });
   }
   if (partAtlas.length) {
@@ -1472,6 +1519,7 @@ async function deriveOne(config: Config, check: boolean): Promise<MapMeta> {
             radius: +p.radius.toFixed(5),
             texel: +p.texel.toPrecision(4),
             kind: "spheroid" as const,
+            core: +(p.core ?? 0.06).toFixed(3),
           })),
         }
       : null,
@@ -1608,7 +1656,7 @@ async function deriveSky(config: SkyConfig): Promise<MapMeta> {
       cv = 1 - (p.y + 0.5) / h;
     const centre = sightlinePoint(model, image, cu, cv, earth, p.offset);
     const aLocal = p.a / pxPerR;
-    items.push({
+    const item: PartMeta & { kind: SkyPart["kind"] } = {
       id: p.id,
       label: p.label,
       source: p.source,
@@ -1623,7 +1671,9 @@ async function deriveSky(config: SkyConfig): Promise<MapMeta> {
       centre: [centre.x, centre.y, centre.z],
       radius: aLocal * 1.05,
       texel: bw / pxPerR / cw,
-    });
+    };
+    if (p.kind === "spheroid") item.core = spheroidCore(crop, item);
+    items.push(item);
   });
   const width = crops.reduce((sum, c) => sum + c.w + 2, 0),
     height = Math.max(...crops.map((c) => c.h));
@@ -1673,6 +1723,7 @@ async function deriveSky(config: SkyConfig): Promise<MapMeta> {
         centre: p.centre.map((v) => +v.toFixed(5)) as PartMeta["centre"],
         radius: +p.radius.toFixed(5),
         texel: +p.texel.toPrecision(4),
+        ...(p.core === undefined ? {} : { core: +p.core.toFixed(3) }),
       })),
     },
     profile: { old: [0, 0.3], young: [0, 0.3], dust: [0, 0.3] },

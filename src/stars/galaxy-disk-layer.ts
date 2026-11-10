@@ -44,6 +44,8 @@ export type ObservedDiskPart = {
   texel: number;
   /** "spheroid": spherically deprojected; "sheet": flattened slab (disturbed disks, tails, gas). */
   kind?: "spheroid" | "sheet";
+  /** Spheroids: core radius of the light profile (half-width at half maximum), outline units. */
+  core?: number;
 };
 export type ObservedDiskMap = {
   key: string;
@@ -136,6 +138,22 @@ const normalise = (c: RGB): RGB => {
   const l = Math.max(1e-4, luma(c));
   return c.map((v) => v / l) as RGB;
 };
+/** Mixes two colours at equal luminance (weight w of the second), normalised to unit luminance. */
+const tint = (base: RGB, colour: RGB, w: number): RGB => {
+  const a = normalise(base),
+    b = normalise(colour);
+  return normalise(a.map((v, i) => v * (1 - w) + b[i] * w) as RGB);
+};
+/**
+ * Display colours of old populations: bulges and old disks have the red optical colours of
+ * old stars (Peletier & Balcells 1996, AJ 111, 2238; de Jong 1996, A&A 313, 377) and read
+ * cream to yellow in Hubble and Legacy Surveys composites. Catalogue colours of generated
+ * models are integrated colours of the whole galaxy, blue for late types; the disk layer
+ * separates old and young light, so it starts from these and keeps a light catalogue tint.
+ * Display choices, not photometry.
+ */
+const OLD_DISK_COLOUR: RGB = [1, 0.9, 0.76];
+const OLD_BULGE_COLOUR: RGB = [1, 0.86, 0.68];
 
 /** Galaxies whose bespoke legacy volume features are kept (Cen A, M82, Magellanic Clouds, mergers…). */
 const LEGACY_FEATURES = new Set([1, 4, 5, 7, 8, 9, 10, 11, 12, 15]);
@@ -177,8 +195,14 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const cigar = structure.feature === 3;
   const barred = model.barLength > 0 ? 1 : 0;
   const bulgeRatio = clamp(model.bulgeRadius / Math.max(1, model.diskRadius), 0.025, 0.6);
-  const oldColour = normalise(observed?.colours.old ?? appearance.oldColor);
-  const youngColour = normalise(observed?.colours.young ?? appearance.youngColor);
+  const oldColour = observed
+    ? normalise(observed.colours.old)
+    : tint(OLD_DISK_COLOUR, appearance.oldColor, 0.25);
+  // Young light in composites is blue (with pink H II, carried separately); catalogue palettes
+  // are paler, so procedural disks lean toward it. Display choice, not photometry.
+  const youngColour = observed
+    ? normalise(observed.colours.young)
+    : tint(appearance.youngColor, [0.6, 0.78, 1], 0.4);
   const procedural: ProceduralDiskParameters = {
     arms: lenticular || sombrero ? 0 : Math.max(2, Math.min(6, model.arms || 2)),
     pitch: THREE.MathUtils.degToRad(clamp(model.pitchDeg || 16, 6, 40)),
@@ -193,9 +217,11 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     clumps: clamp(appearance.features[2] || 0.5, 0.2, 1),
     asymmetry: structure.asymmetry,
     lanes: model.dustLanes ? 1 : lenticular ? 0.15 : 0.35,
-    oldScale: andromeda ? 0.2 : sombrero ? 0.3 : 0.27,
+    // Old-disk scale length about 0.2 of the model radius, as measured from the registered
+    // photographs (0.15-0.2 for M51, M81 and M101), so the outer disk is carried by the arms.
+    oldScale: andromeda ? 0.2 : sombrero ? 0.3 : 0.21,
     youngScale: andromeda ? 0.32 : 0.34,
-    oldAmp: sombrero ? 0.35 : lenticular ? 0.85 : 0.62,
+    oldAmp: sombrero ? 0.35 : lenticular ? 0.85 : 0.7,
     youngAmp: lenticular || sombrero ? 0 : 0.55,
     hiiAmp: lenticular || sombrero ? 0 : 0.85,
     dustAmp: sombrero ? 2.6 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
@@ -257,7 +283,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
               ? 1.3
               : 1.05,
     exponent: sombrero ? 0.7 : 0.75,
-    colour: normalise(appearance.oldColor),
+    colour: tint(OLD_BULGE_COLOUR, appearance.oldColor, 0.2),
   };
   const parts = observed?.parts?.items ?? [];
   const sky = observed?.mode === "sky";
@@ -328,7 +354,7 @@ uniform vec4 uDiskBulge;    // radius, flattening, amplitude, exponent
 uniform vec3 uDiskBulgeColor;
 uniform vec3 uEarth;
 uniform float uPartCount,uPartScale,uDiskStarHost;
-uniform float uPartTexel[${MAX_DISK_PARTS}],uPartKind[${MAX_DISK_PARTS}];
+uniform float uPartTexel[${MAX_DISK_PARTS}],uPartKind[${MAX_DISK_PARTS}],uPartCore[${MAX_DISK_PARTS}]; // core: c²
 uniform vec4 uPartRect[${MAX_DISK_PARTS}],uPartAtlas[${MAX_DISK_PARTS}],uPartAxes[${MAX_DISK_PARTS}],uPartBound[${MAX_DISK_PARTS}];
 uniform vec4 uPartDepth[${MAX_DISK_PARTS}]; // centre uv (xy), depth centre, depth extent
 uniform vec4 uDiskWind;     // amplitude, tan(half opening), base radius, height scale
@@ -343,45 +369,65 @@ float diskPhotoFrame(vec2 xz){
  vec2 uv=h.xy/h.z,e=min(uv,1.-uv);
  return smoothstep(0.,.05,e.x)*smoothstep(0.,.05,e.y);
 }
-/** Face-on maps at a disk-plane point: young light, old light, face-on optical depth.
- * Inside a photograph's frame the observed maps carry the disk; outside it (and for
- * galaxies without one) the procedural map continues it with the measured profile. */
-void diskMaps(vec2 xz,float lod,out vec3 young,out vec3 old,out float tau){
- young=vec3(0.);old=vec3(0.);tau=0.;
- float photo=0.;
- if(uDiskObserved>.5){
-  vec2 uv=xz/(2.*uDiskExtent.x)+.5,em=min(uv,1.-uv);
-  photo=smoothstep(0.,.035,em.x)*smoothstep(0.,.035,em.y);
-  if(photo>0.)photo*=diskPhotoFrame(xz);
-  if(photo>0.){
-   float l=max(0.,lod-log2(uDiskExtent.z));
-   // Young light (rgb) and sqrt-encoded dust (alpha) share one texture.
-   vec4 yd=textureLod(uDiskYoung,uv,l);
-   young=yd.rgb*uDiskScale.x*photo;
-   old=textureLod(uDiskOld,uv,max(0.,l-2.)).rgb*uDiskScale.y*photo;
-   tau=yd.a*yd.a*uDiskScale.z*photo;
-  }
+/** Weight of the photograph-derived maps at a disk-plane point (feathered frame). */
+float diskPhoto(vec2 xz){
+ if(uDiskObserved<.5)return 0.;
+ vec2 uv=xz/(2.*uDiskExtent.x)+.5,em=min(uv,1.-uv);
+ float photo=smoothstep(0.,.035,em.x)*smoothstep(0.,.035,em.y);
+ return photo>0.?photo*diskPhotoFrame(xz):0.;
+}
+/** Young light (rgb) and face-on optical depth (a) at a disk-plane point. Inside a photograph's
+ * frame the observed maps carry the disk; outside it (and for galaxies without one) the
+ * procedural map continues it with the measured profile. */
+vec4 diskYoungDust(vec2 xz,float lod,float photo){
+ vec4 r=vec4(0.);
+ if(photo>0.){
+  // Young light (rgb) and sqrt-encoded dust (alpha) share one texture.
+  vec4 yd=textureLod(uDiskYoung,xz/(2.*uDiskExtent.x)+.5,max(0.,lod-log2(uDiskExtent.z)));
+  r=vec4(yd.rgb*uDiskScale.x,yd.a*yd.a*uDiskScale.z)*photo;
  }
  if(photo<.999){
   vec2 uv=xz/(2.*uDiskExtent.y)+.5;
   if(all(greaterThan(uv,vec2(0.)))&&all(lessThan(uv,vec2(1.)))){
-   float l=max(0.,lod-log2(uDiskExtent.w)),w=1.-photo;
-   vec4 y=textureLod(uProcYoung,uv,l);
-   young+=y.rgb*w;
-   old+=textureLod(uProcOld,uv,max(0.,l-2.)).rgb*w;
-   tau+=y.a*y.a*uDiskScale.w*w;
+   vec4 y=textureLod(uProcYoung,uv,max(0.,lod-log2(uDiskExtent.w)));
+   r+=vec4(y.rgb,y.a*y.a*uDiskScale.w)*(1.-photo);
   }
  }
+ return r;
+}
+/** Old light at a disk-plane point (its maps have a quarter of the young-light resolution). */
+vec3 diskOld(vec2 xz,float lod,float photo){
+ vec3 old=vec3(0.);
+ if(photo>0.)
+  old=textureLod(uDiskOld,xz/(2.*uDiskExtent.x)+.5,max(0.,lod-log2(uDiskExtent.z)-2.)).rgb*uDiskScale.y*photo;
+ if(photo<.999){
+  vec2 uv=xz/(2.*uDiskExtent.y)+.5;
+  if(all(greaterThan(uv,vec2(0.)))&&all(lessThan(uv,vec2(1.))))
+   old+=textureLod(uProcOld,uv,max(0.,lod-log2(uDiskExtent.w)-2.)).rgb*(1.-photo);
+ }
+ return old;
+}
+/** Face-on maps at a disk-plane point: young light, old light, face-on optical depth. */
+void diskMaps(vec2 xz,float lod,out vec3 young,out vec3 old,out float tau){
+ float photo=diskPhoto(xz);
+ vec4 yd=diskYoungDust(xz,lod,photo);
+ young=yd.rgb;tau=yd.a;old=diskOld(xz,lod,photo);
 }
 float diskDiffuseTau(float r){return uDiskDiffuse.x*exp(-r/uDiskDiffuse.y)*(1.-smoothstep(uDiskDiffuse.z*.82,uDiskDiffuse.z,r));}
-/** Emission (per unit length) and extinction of the disk layers at q. */
-void diskLayer(vec3 q,float lod,out vec3 emission,out float kappa){
+/** Emission (per unit length) and extinction of the disk layers at q. Young light and dust
+ * above their local mean on the scale lodC (the layers' projected thickness) belong to the
+ * mid-plane sheet (diskSheet) with weight w; the layers keep the rest, so the face-on
+ * column is unchanged. */
+void diskLayer(vec3 q,float lod,float lodC,float w,out vec3 emission,out float kappa){
  emission=vec3(0.);kappa=0.;
  float r=length(q.xz),y=abs(q.y),f=diskFlare(r);
  float zt=uDiskShape.x*f;
  if(y>zt*3.6)return;
- vec3 young,old;float tau;
- diskMaps(q.xz,lod,young,old,tau);
+ float photo=diskPhoto(q.xz);
+ vec4 yd=diskYoungDust(q.xz,lod,photo);
+ if(w>0.&&lodC>lod+.5)yd=mix(yd,min(yd,diskYoungDust(q.xz,lodC,photo)),w);
+ vec3 young=yd.rgb,old=diskOld(q.xz,lod,photo);
+ float tau=yd.a;
  float zo=uDiskHeights.x*f;
  float oldProfile=mix(diskSech2(y/zo)/(2.*zo),diskSech2(y/zt)/(2.*zt),uDiskShape.y);
  // H-alpha light (magenta) sits in a thinner layer than blue young stars.
@@ -391,6 +437,14 @@ void diskLayer(vec3 q,float lod,out vec3 emission,out float kappa){
  float hd=uDiskHeights.w*f;
  emission=old*oldProfile+young*exp(-y/h)/(2.*h);
  kappa=(tau+diskDiffuseTau(r))*exp(-y/hd)/(2.*hd);
+}
+/** Fine detail at a mid-plane point: young light (rgb) and optical depth (a) above their local
+ * mean on the scale lodC. H II regions, young clusters and dust lanes lie close to the
+ * mid-plane; the ray marcher draws this as a thin sheet where the ray crosses it. */
+vec4 diskSheet(vec2 xz,float lod,float lodC){
+ if(lodC<=lod+.5)return vec4(0.);
+ float photo=diskPhoto(xz);
+ return max(diskYoungDust(xz,lod,photo)-diskYoungDust(xz,lodC,photo),vec4(0.));
 }
 /** Flattened, centrally concentrated bulge and faint halo (procedural galaxies). */
 vec3 diskBulge(vec3 q){
@@ -415,11 +469,12 @@ vec3 diskWind(vec3 q){
  float rr=length(q.xz);
  float inside=(1.-smoothstep(cone*.55,cone*1.05,rr))*smoothstep(.012,.06,y);
  if(inside<=0.)return vec3(0.);
- // Filaments run along the outflow: noise stretched along the axis.
- vec3 n=vec3(q.x/(cone+.03)*1.5,y*1.1+(q.y<0.?.5:0.),q.z/(cone+.03)*1.5);
- float f1=texture(uNoise,n*.85+vec3(.13,uSeed*.017,.71)).r;
- float f2=texture(uNoise,n*2.2+vec3(.57,.21,uSeed*.023)).r;
- float filament=pow(smoothstep(.4,.88,.65*f1+.35*f2),1.5);
+ // Filaments run along the outflow: noise in cone-relative coordinates, about eight times
+ // longer along the axis than across it (uNoise is 64³ white noise; one texel = 1/64).
+ vec3 n=vec3(q.x/(cone+.03)*.16,y*.05+(q.y<0.?.37:0.),q.z/(cone+.03)*.16);
+ float f1=texture(uNoise,n+vec3(.13,uSeed*.017,.71)).r;
+ float f2=texture(uNoise,n*vec3(2.3,1.6,2.3)+vec3(.57,.21,uSeed*.023)).r;
+ float filament=pow(smoothstep(.38,.85,.62*f1+.38*f2),1.4);
  float shell=.35+.65*smoothstep(.25,.95,rr/max(cone,1e-3));
  return vec3(1.,.26,.32)*uDiskWind.x*inside*filament*shell*exp(-y/uDiskWind.w);
 }
@@ -455,12 +510,15 @@ vec3 diskParts(vec3 q,float lod){
   if(uPartKind[k]>.5){
    // Spherical deprojection: for an emissivity j(r) proportional to (r^2+c^2)^-1.5 the light at
    // projected radius rho comes from depths d with weight s^2/(2(s^2+d^2)^1.5), s^2=rho^2+c^2.
-   // Weighting the image by it keeps Earth's view exact and gives a round, centrally
-   // concentrated spheroid from the side. Truncated at the outline and renormalised
-   // (the column inside |dn|<sqrt(1-rho^2) is sqrt(1-rho^2)/sqrt(1+c^2)).
+   // The core c is measured from the part's own profile (its half-width at half maximum), so
+   // flat-topped, display-stretched bulges stay round from the side. A parabolic window over
+   // the chord |dn|<L=sqrt(1-rho^2) brings the light to zero at the outline, so a wide core
+   // shows no hard spherical edge. Each sightline is renormalised by the closed-form column
+   // L/q-(s^2/L^2)(asinh(L/s)-L/q), q=sqrt(1+c^2), so Earth's view equals the image.
    if(rho*rho+dn*dn>=1.)continue;
-   float s2=rho*rho+.0036;
-   profile=s2/(2.*pow(s2+dn*dn,1.5))*1.0018/sqrt(max(1.-rho*rho,.02))/uPartDepth[k].w;
+   float c2=uPartCore[k],s2=rho*rho+c2,l2=max(1.-rho*rho,.0025),r1=sqrt(l2/(1.+c2));
+   float column=r1-s2/l2*(asinh(sqrt(l2/s2))-r1);
+   profile=s2/(2.*pow(s2+dn*dn,1.5))*(1.-dn*dn/l2)/column/uPartDepth[k].w;
   }else{
    // Flattened slab (disturbed disk, tidal tail, gas): biweight depth profile, thinning
    // toward the outline. Its column is 1, so Earth's view equals the image.
@@ -499,6 +557,7 @@ vec2 hash22(vec2 p){vec3 p3=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));p3+=dot(p
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
  return mix(mix(hash12(i),hash12(i+vec2(1,0)),u.x),mix(hash12(i+vec2(0,1)),hash12(i+vec2(1,1)),u.x),u.y);}
 float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<6;i++){s+=a*vnoise(p);p=mat2(1.6,1.2,-1.2,1.6)*p+17.17;a*=.5;}return s/.984;}
+float fbm4(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vnoise(p);p=mat2(1.6,1.2,-1.2,1.6)*p+17.17;a*=.5;}return s/.9375;}
 // F1 distance and cell identity of a jittered grid.
 vec2 worley(vec2 p){vec2 i=floor(p),f=fract(p);float d1=9.,id=0.;
  for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec2 g=vec2(x,y),o=hash22(i+g);vec2 r=g+o-f;float d=dot(r,r);
@@ -524,12 +583,14 @@ void main(){
  // Arms break into segments along their length (lr runs along a logarithmic spiral).
  float along=vnoise(vec2(lr*mix(2.6,5.5,uFlocculent),armIdx*7.31+uSeed));
  float segment=mix(.55+.45*along,smoothstep(.3,.7,along),uFlocculent);
- float sharp=mix(2.2,6.5,uGrand)*mix(1.,.5,uFlocculent);
- float region=smoothstep(launch*.75,launch*1.5,r)*edge;
+ float sharp=mix(3.4,6.5,uGrand)*mix(1.,.5,uFlocculent);
+ float region=smoothstep(launch*.75,launch*(uBar>0.?1.1:1.5),r)*edge;
  float arm=pow(wave,sharp)*region*segment*armGain*(1.-uLenticular);
  // Real arms are ragged: their light breaks into sheared clumps along and across them.
- float rag=fbm(p*21.+vec2(warp*2.3,uSeed*4.1));
- arm*=.35+1.05*smoothstep(.28,.78,rag);
+ // Arm-aligned coordinates, continuous across the atan seam (m is an integer).
+ vec2 armUv=vec2(lr*7.+armIdx*13.7,0.)+.5*vec2(cos(m*phi),sin(m*phi));
+ float rag=.6*fbm4(armUv+vec2(warp*1.3,uSeed*4.1))+.4*fbm4(p*13.+uSeed*1.9);
+ arm*=.42+.95*smoothstep(.3,.72,rag);
  // Flocculent disks: many short, sheared fragments.
  float flocks=smoothstep(.52,.78,fbm(vec2(p.x*cos(.6)-p.y*sin(.6),p.x*sin(.6)+p.y*cos(.6))*9.+uSeed))*uFlocculent*region;
  arm=max(arm,flocks*.85*(1.-uLenticular));
@@ -545,8 +606,8 @@ void main(){
  vec2 b=vec2(ca*p.x+sa*p.y,-sa*p.x+ca*p.y);
  float bar=0.,barLane=0.;
  if(uBar>0.){
-  float q=1.-pow(b.x/uBar,2.)-pow(b.y/(uBar*.24),2.);
-  bar=pow(max(q,0.),1.6);
+  float q=1.-pow(b.x/uBar,2.)-pow(b.y/(uBar*.26),2.);
+  bar=max(q,0.);
   float offset=uBar*.13*tanh(b.x/(uBar*.28));
   barLane=exp(-pow((b.y-offset)/(uBar*.035),2.))*smoothstep(uBar*.12,uBar*.3,abs(b.x))*(1.-smoothstep(uBar*.82,uBar*1.05,abs(b.x)));
  }
@@ -560,11 +621,11 @@ void main(){
  float hii=hiiOn*exp(-pow(cellA.x/hiiSize,2.))*(.25+pow(fract(cellA.y*91.3),3.)*2.2);
  vec2 cellB=worley(p*150.+uSeed*2.3);
  float cluster=step(cellB.y,.55*smoothstep(.1,.7,host))*exp(-pow(cellB.x/.2,2.))*(.3+fract(cellB.y*57.1));
- float grain=fbm(p*38.+uSeed*5.);
+ float grain=fbm4(p*30.+uSeed*5.);
  if(uPass<.5){
   float youngDisk=uAmps.y*exp(-r/uScales.y)*region;
   float knots=smoothstep(.4,.85,grain);
-  vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.04*region);
+  vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.02*region);
   young+=uYoungColor*uAmps.y*exp(-r/uScales.y)*cluster*.9*region;
   young+=vec3(1.,.3,.52)*uAmps.z*exp(-r/uScales.y)*hii*region;
   float dust=uAmps.w*exp(-r/(uScales.x*1.35))*edge*(uLanes*(lane*1.15+spurs*.55+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes);
@@ -574,7 +635,10 @@ void main(){
  }else{
   float disk=uAmps.x*exp(-r/uScales.x)*edge;
   float lens=uLenticular*.35*uAmps.x*exp(-pow(r/(uScales.x*.9),2.));
-  vec3 old=uOldColor*(disk*(1.+.35*arm-.25*lane*uLanes)+lens+uAmps.x*bar*.9+uAmps.x*ring*.12*uLenticular);
+  // Density-wave arms gather old stars too (K-band arm contrast: Rix & Zaritsky 1995),
+  // weakly in flocculent disks (Thornley 1996), so the interarm disk is darker than the arms.
+  float oldArm=mix(.8,.25,uFlocculent)*(1.-uLenticular);
+  vec3 old=uOldColor*(disk*(1.-.35*oldArm+oldArm*1.1*arm-.3*lane*uLanes)+lens+uAmps.x*bar*1.35+uAmps.x*ring*.12*uLenticular);
   outColor=vec4(max(old,vec3(0.)),1.);
  }
 }`;
@@ -821,6 +885,7 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
   const partKind = Array.from({ length: MAX_DISK_PARTS }, (_, i) =>
     parts[i]?.kind === "sheet" ? 0 : 1,
   );
+  const partCore = Array.from({ length: MAX_DISK_PARTS }, (_, i) => (parts[i]?.core ?? 0.06) ** 2);
   return {
     uDiskYoung: { value: null as THREE.Texture | null },
     uDiskOld: { value: null as THREE.Texture | null },
@@ -872,6 +937,7 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
     uPartScale: { value: o?.parts?.scale ?? 0 },
     uPartTexel: { value: partTexel },
     uPartKind: { value: partKind },
+    uPartCore: { value: partCore },
     uDiskStarHost: { value: spec.starHost },
     uPartRect: {
       value: parts.length

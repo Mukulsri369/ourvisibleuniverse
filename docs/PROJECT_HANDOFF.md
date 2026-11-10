@@ -40,6 +40,44 @@ Read this first in a new chat. This is a dated development checkpoint, not a liv
   - Review the before and after sheets, then merge the branch into `migration/supabase-cloudflare` if accepted.
   - Then M81: read a source that states its west near side, add `nearSide: { pa: 247, … }`, re-derive its maps (`npm run derive:galaxy-disk-maps`) and re-check them with `test:galaxy-disk-layer` and a look-dev sheet.
 
+## 10 November — galaxy 3D follow-up: NGC 1300 registration, crisp tilted disks, round spheroids
+
+- **What and why:** running the `ovu-galaxy-realism` look-dev comparison on the 9 November rebuild exposed five problems:
+  - NGC 1300's reconstruction was a squashed (2.5:1) disk.
+  - Tilted disks showed streaks and short pillars of light.
+  - Photographed bulges and ellipticals looked boxy from the side; with wider cores, M81's bulge showed a hard spherical edge.
+  - Generated spirals looked like blue fog with no warm core.
+  - M82's wind was speckle.
+
+  Report: [galaxy 3D reconstruction, follow-up](GALAXY_3D_RECONSTRUCTION_20261109.md#follow-up-10-november-2026-pushed-not-deployed).
+
+- **NGC 1300 image registration corrected (data fix, `ovu-object-intake`):** the file's embedded AVM describes a mirrored frame, but two checks show it is an ordinary east-left frame:
+  - Nucleus: 5.9″ from its light peak with the embedded parity, 0.75″ with the correction.
+  - Position angle: published values are 87–106°; the embedded parity gives about 137°, the correction about 103°.
+
+  **The deployed build therefore shows NGC 1300's photograph mirrored on the sky.** The fix is on this branch only. `galaxy-observed-images.ts` keeps the verbatim embedded value and the evidence in a `correction`, and `test:galaxy-observed` checks it with a measured nucleus landmark. Details: [registered-image report](GALAXY_OBSERVED_IMAGES_20261108.md#correction-10-november-2026-ngc-1300-parity-pushed-not-deployed). NGC 1300's derived maps were regenerated; all other derived files are byte-identical.
+
+- **Rendering (`galaxy-disk-layer.ts`, `galaxy-volume-shader.ts`):**
+  - Fine young-light and dust detail is drawn as a mid-plane sheet, so tilted views have no streaks or pillars; the face-on column is unchanged.
+  - Spheroid parts use their measured core radius (`core` in `galaxy-disk-maps.json`, from `derive:galaxy-disk-maps`), with a closed-form-renormalised parabolic window that removes hard edges.
+  - Procedural disks use warm old-population colours, a shorter old-disk scale (0.21 of the model radius) and bluer young light. Old light follows the arms. Arms are narrower, with arm-aligned clumps, and bars are brighter.
+  - M82's wind filaments are sampled at the noise texture's scale.
+  - The look-dev page clears to opaque black; readback had clipped emissive light.
+- **Test fix (asked for in this session):** `test:nearby-expansion` and `ingest:nearby-catalog -- --check` failed on an unchanged checkout. 27 distance-derived numbers differed from the frozen rows by at most 1.2e-15 relative, because `**` is implementation-approximated. Both checks now compare numbers to 1e-12 relative and everything else exactly (`scripts/json-difference.ts`); no catalogue data changed.
+- **Checks actually run:**
+  - `npx tsc --noEmit`: exit 0. ESLint on changed files: 0 errors.
+  - `test:galaxy-disk-layer`: the spheroid column was checked in closed form against numerical integration.
+  - `test:galaxy-observed`: the NGC 1300 landmark passes corrected and fails with the embedded parity.
+  - `test:nearby-expansion` and `ingest:nearby-catalog -- --check` pass.
+  - Passed before the final procedural tuning and spheroid window, which change only GLSL and spec constants: `test`, `test:catalog`, `test:consistency`, `test:galaxies`, `test:galaxy-clarity`, `test:galaxy-landmarks`, `test:galaxy-populations`, `test:galaxy-entry`, `test:galaxy-explorer`, `test:galaxy-empty-space`, `test:scene-depth`, `test:rendering`, `test:visual`, `test:3d`, `test:navigation`, `test:solar-controls`, `test:exploration-camera`.
+  - SwiftShader multi-angle renders (appearance only): NGC 1300, M81, M51, Stephan's Quintet, M82, M74, NGC 1365, Andromeda, NGC 4565 and M104.
+- **Found, not changed (catalogue data):**
+  - M104's dust lane lies north of the nucleus in the reconstruction and south in the Hubble image, so its near side looks flipped; a follow-up task was suggested.
+  - NGC 1300's catalogued PA (86°) is just below the published 87–106°.
+- **Not established:** GPU frame time on real hardware (the sheet adds one young/dust texture read per step in tilted views; the cloud renderer is SwiftShader), an authenticated full-app run, physical devices.
+- **Source and deployment status:** commits after `6ebf9d0` on `migration/supabase-cloudflare` (`f72c3b8`, `68473e5`, `425a76d`, `4376426` and the procedural-tuning/look-dev commit that adds this entry), pushed at the owner's standing instruction for this task. **Not deployed**; production (which still shows NGC 1300 mirrored) was not inspected.
+- **Next concrete action:** owner review on the per-branch preview or locally (`node node_modules/vite/bin/vite.js --config scripts/nearby-qa/vite.config.mts`, then `/scripts/nearby-qa/galaxy-views.html?g=catalog-ngc-1300&v=top`). Then measure GPU cost per `ovu-perf-evidence`, fix M104's near side through `ovu-object-intake`, and deploy only with the owner's approval; deploying also ships the NGC 1300 correction.
+
 ## 9 November — galaxies rebuilt in 3D from every angle
 
 - **What and why:** the owner reported that the twelve galaxies given telescope photographs looked right only from the front; from the side and back the old generic volume remained (a grey streak edge-on, the same noise spiral for every galaxy, M82 as a fog box). Disk galaxies now render as **face-on maps × analytic vertical profiles** (sech² old disk, young/dust layers at ~½ and ionised gas at ~¼ of its scale height, thick disk, flaring, flattened bulge), following radiative-transfer models of nearby spirals (De Looze et al. 2014; Xilouris et al. 1999; de Grijs 1998; Kregel et al. 2002). Report: [galaxy 3D reconstruction](GALAXY_3D_RECONSTRUCTION_20261109.md).

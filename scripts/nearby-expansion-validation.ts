@@ -28,6 +28,7 @@ import { createTargetFromGalaxy } from "../src/stars/universal-target-factory";
 import { searchExplorer, galaxyEntries } from "../src/stars/exploration-catalog";
 import { explorerGalaxy } from "../src/stars/exploration-galaxies";
 import { useStore } from "../src/stars/store";
+import { jsonDifference } from "./json-difference";
 import { useExploration, galaxyContentsLoaded } from "../src/stars/exploration-scope";
 import { filterNearbyGalaxies, formatGalaxyRedshift } from "../src/stars/galaxy-measurement-format";
 import { GalaxySpatialIndex, resolvedGalaxyIndices } from "../src/stars/galaxy-spatial-index";
@@ -252,10 +253,17 @@ const frozenRows = coverage.chunks.flatMap((chunk) =>
   JSON.parse(fs.readFileSync("src/stars/catalog-data/nearby-v2/" + chunk.file, "utf8")),
 );
 assert.equal(regenerated.added.length, frozenRows.length);
+// Derived distances use `**`, which engines may round differently in the last bits, so
+// numbers agree to 1e-12 (relative) and everything else exactly (see jsonDifference).
+assert.equal(jsonDifference({ d: 0.7413103715293462 }, { d: 0.7413103715293463 }), null);
+assert.notEqual(jsonDifference({ d: 0.7413103715293462 }, { d: 0.7413103722 }), null);
+assert.notEqual(jsonDifference({ d: 1, m: "dSph" }, { d: 1, m: "dE" }), null);
+assert.notEqual(jsonDifference({ d: [1, 2] }, { d: [1, 2, 3] }), null);
+assert.notEqual(jsonDifference({ d: Infinity }, { d: 1e308 }), null);
 for (let i = 0; i < frozenRows.length; i++)
-  assert.deepEqual(
-    JSON.parse(JSON.stringify(regenerated.added[i])),
-    frozenRows[i],
+  assert.equal(
+    jsonDifference(JSON.parse(JSON.stringify(regenerated.added[i])), frozenRows[i]),
+    null,
     "Deterministic raw import: " + frozenRows[i].id,
   );
 // Synthetic stress data are confined to this test; never catalogue galaxies.

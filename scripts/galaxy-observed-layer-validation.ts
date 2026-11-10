@@ -97,7 +97,9 @@ for (const image of OBSERVED_GALAXY_IMAGES) {
 
   const avm = readAvm(file);
   if (image.avmSource === "embedded") {
-    // Registry values are the file's own embedded metadata.
+    // Registry values are the file's own embedded metadata, except a documented
+    // correction: it keeps the verbatim embedded value, and landmarks measured in the
+    // file (checked below) must confirm the corrected record.
     assert(avm, image.key + " has no AVM in its XMP packet");
     assert.equal(avm.quality, "Full", image.key + " AVM quality");
     assert.equal(avm.frame, image.avm.frame);
@@ -108,10 +110,23 @@ for (const image of OBSERVED_GALAXY_IMAGES) {
       "referenceDimension",
       "scale",
     ] as const)
-      avm[field].forEach((v: number, i: number) =>
-        close(v, image.avm[field][i], Math.abs(v) * 1e-12 + 1e-12, `${image.key} ${field}[${i}]`),
-      );
+      avm[field].forEach((v: number, i: number) => {
+        const corrected = image.correction?.field === `${field}[${i}]`;
+        close(
+          v,
+          corrected ? image.correction!.embedded : image.avm[field][i],
+          Math.abs(v) * 1e-12 + 1e-12,
+          `${image.key} ${field}[${i}]${corrected ? " (embedded value of the correction)" : ""}`,
+        );
+      });
     close(avm.rotation, image.avm.rotation, 1e-9, image.key + " rotation");
+    if (image.correction) {
+      assert(image.correction.reason.length > 40, image.key + " correction needs its evidence");
+      assert(
+        (image.landmarks?.length ?? 0) >= 1,
+        image.key + " correction needs a measured landmark",
+      );
+    }
   } else {
     // Published record: only allowed when the file has no spatial AVM of its own,
     // and it must place at least two measured compact features.
@@ -211,7 +226,7 @@ for (const image of OBSERVED_GALAXY_IMAGES) {
     `${image.key}: catalogue body ${bodyOffset.toFixed(3)} radii from model`,
   );
   console.log(
-    `${image.key}: ${image.avmSource === "embedded" ? "embedded AVM verified" : `published AVM checked by ${image.landmarks!.length} landmarks`}, nucleus at uv (${nucleus.map((x) => x.toFixed(3)).join(", ")}), ${image.surface} surface`,
+    `${image.key}: ${image.avmSource === "embedded" ? (image.correction ? `embedded AVM with ${image.correction.field} corrected, checked by ${image.landmarks!.length} landmark(s)` : "embedded AVM verified") : `published AVM checked by ${image.landmarks!.length} landmarks`}, nucleus at uv (${nucleus.map((x) => x.toFixed(3)).join(", ")}), ${image.surface} surface`,
   );
 }
 

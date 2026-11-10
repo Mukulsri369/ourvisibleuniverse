@@ -133,6 +133,15 @@ void main(){
  float dsCap=max(4.2*uBox/1.35/uSteps,.02);
  float ay=max(abs(rd.y),1.e-3);
  float hd=uDiskHeights.w,core=uDiskBulge.x*uDiskBulge.y;
+ // A face-on map is a column: detail spread through the young and dust layers would show as
+ // streaks and pillars in tilted views, where each layer projects to a strip about
+ // 2h·tan(inclination) wide. H II regions, clusters and dust lanes lie close to the
+ // mid-plane, so detail finer than that strip is drawn as a thin sheet where the ray crosses
+ // the plane (the face-on column is unchanged). Grazing rays keep it in the layers.
+ float sheetW=smoothstep(.12,.3,ay);
+ float smear=2.*max(uDiskHeights.y,hd)*sqrt(max(1.-ay*ay,0.))/ay;
+ float tc=-uEye.y/(abs(rd.y)>1.e-7?rd.y:1.e-7);
+ bool sheet=sheetW>0.&&tc>start&&tc<finish;
  // Interleaved gradient noise decorrelates step positions between neighbouring pixels.
  float jitter=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))));
  vec4 obs0=uObsMat*vec4(uEye,1.),obsDir=uObsMat*vec4(rd,0.);
@@ -148,24 +157,45 @@ void main(){
   if(uPartCount>.5)ds=max(.0015,min(ds,diskPartStep(p)));
   if(i==0)ds*=.15+.85*jitter;
   ds=min(ds,finish-t);
-  float tm=t+ds*.5;
-  vec3 x=uEye+rd*tm;
-  vec3 q=vec3(x.x*c-x.z*s,x.y,x.x*s+x.z*c);
-  float lod=log2(max(tm*uPixelAngle,1.e-6));
-  vec3 e;float k;
-  diskLayer(q,lod,e,k);
-  e+=diskBulge(q);
-  if(uPartCount>.5)e+=diskParts(q,lod);
-  if(uDiskWind.x>0.)e+=diskWind(q);
-  float clear=smoothstep(.012,mix(.045,.13,uReveal),length(x-uEye));
-  float keep=observedKeepH(obs0+obsDir*tm);
-  e*=clear*mix(1.,.09,uReveal)*keep;
-  vec3 kk=k*clear*keep*REDDEN*ds;
-  vec3 att=exp(-kk);
-  vec3 seg=ds*mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
-  light+=trans*e*seg;
-  trans*=att;
-  t+=ds;
+  // The step that reaches the mid-plane ends there; the sheet is composited after it.
+  bool atSheet=sheet&&t+ds>=tc;
+  if(atSheet)ds=max(tc-t,0.);
+  if(ds>0.){
+   float tm=t+ds*.5;
+   vec3 x=uEye+rd*tm;
+   vec3 q=vec3(x.x*c-x.z*s,x.y,x.x*s+x.z*c);
+   float lod=log2(max(tm*uPixelAngle,1.e-6));
+   float lodC=max(lod,log2(max(smear*diskFlare(length(q.xz)),1.e-6)));
+   vec3 e;float k;
+   diskLayer(q,lod,lodC,sheetW,e,k);
+   e+=diskBulge(q);
+   if(uPartCount>.5)e+=diskParts(q,lod);
+   if(uDiskWind.x>0.)e+=diskWind(q);
+   float clear=smoothstep(.012,mix(.045,.13,uReveal),length(x-uEye));
+   float keep=observedKeepH(obs0+obsDir*tm);
+   e*=clear*mix(1.,.09,uReveal)*keep;
+   vec3 kk=k*clear*keep*REDDEN*ds;
+   vec3 att=exp(-kk);
+   vec3 seg=ds*mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
+   light+=trans*e*seg;
+   trans*=att;
+   t+=ds;
+  }
+  if(atSheet){
+   sheet=false;
+   vec3 x=uEye+rd*tc;
+   vec2 xz=vec2(x.x*c-x.z*s,x.x*s+x.z*c);
+   float lod=log2(max(tc*uPixelAngle,1.e-6));
+   // The sheet's column, seen along the ray, is spread over 1/|rd.y| of path.
+   vec4 d=diskSheet(xz,lod,max(lod,log2(max(smear*diskFlare(length(xz)),1.e-6))))*sheetW;
+   float clear=smoothstep(.012,mix(.045,.13,uReveal),tc);
+   float keep=observedKeepH(obs0+obsDir*tc);
+   vec3 kk=d.a*clear*keep*REDDEN/ay;
+   vec3 att=exp(-kk);
+   vec3 seg=mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
+   light+=trans*d.rgb*clear*mix(1.,.09,uReveal)*keep*seg/ay;
+   trans*=att;
+  }
  }
  float coverage=clamp(1.-dot(trans,vec3(1./3.)),0.,1.);
  // Display-referred columns (photograph units). Face-on columns keep the photograph's

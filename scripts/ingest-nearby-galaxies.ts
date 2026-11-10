@@ -8,6 +8,7 @@ import manifest from "../src/stars/catalog-data/nearby-v2/source-manifest.json";
 import { OBSERVATIONAL_GALAXY_CATALOG } from "../src/stars/galaxy-catalog";
 import { NEARBY_SOURCE_CANDIDATES } from "../src/stars/galaxy-catalogue-sources";
 import { ingestGalaxySources, type GalaxyIdentityHistory } from "../src/stars/galaxy-ingestion";
+import { jsonDifference } from "./json-difference";
 const dir = "src/stars/catalog-data/nearby-v2",
   check = process.argv.includes("--check");
 const hash = (s: string | Buffer) => crypto.createHash("sha256").update(s).digest("hex");
@@ -24,12 +25,21 @@ const previousIdentities: GalaxyIdentityHistory[] = fs.existsSync(identityFile)
   ? JSON.parse(fs.readFileSync(identityFile, "utf8")).identities
   : [];
 const output = ingestGalaxySources(base, NEARBY_SOURCE_CANDIDATES, previousIdentities);
+// Derived distances use `**`, which engines may round differently in the last bits. A file
+// whose data agrees within that noise (see jsonDifference) is current and left as written,
+// so regenerating on another Node version neither reports drift nor churns the data.
 const write = (file: string, data: unknown) => {
   const body = JSON.stringify(data, null, 2) + "\n";
+  const existing = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
+  const difference =
+    existing === null
+      ? "missing"
+      : existing === body
+        ? null
+        : jsonDifference(JSON.parse(body), JSON.parse(existing));
   if (check) {
-    if (fs.readFileSync(file, "utf8") !== body) throw Error("Generated data drift: " + file);
-  } else if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== body)
-    fs.writeFileSync(file, body);
+    if (difference) throw Error(`Generated data drift: ${file} (${difference})`);
+  } else if (difference) fs.writeFileSync(file, body);
 };
 const chunks: string[] = [];
 const identities = new Map(previousIdentities.map((identity) => [identity.id, identity]));
