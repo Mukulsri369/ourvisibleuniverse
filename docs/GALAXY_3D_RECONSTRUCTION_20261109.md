@@ -161,6 +161,9 @@ disks no longer rotate their pattern, so they stay aligned with the image.
     and weakly in flocculent ones (Thornley 1996).
   - Arms are narrower, with clumps elongated along them.
   - Bars are brighter and flatter and launch the arms at their ends.
+  - The old disk's scale length is 0.21 of the model radius (was 0.27), closer to the
+    0.15–0.2 measured from the registered photographs, so the outer disk is carried by
+    the arms. Young light leans 40% toward composite blue (a display choice).
 - **M82 wind.** Its filament noise was sampled far finer than the 64³ noise texture,
   which drew speckle. Filaments are now about eight times longer along the outflow
   than across it.
@@ -179,5 +182,12 @@ The look-dev comparison with the 9 November baseline is being re-captured on thi
   Webb images (Cartwheel, Quintet) use assigned infrared colours.
 - Dust is inferred from reddened darkening in display-stretched images, not from far-infrared
   dust maps.
+- Photographed bulges keep the image's display-stretched (flat-topped) profile as their
+  light, so M81's large bulge reads as a bright, rounded plateau from the side rather than
+  a centrally concentrated glow. A fix would un-stretch parts before extrusion.
+- Generated (procedural) spirals now have warm cores and less haze, but their arms are
+  still greyer and their interarm disks brighter than in the photographed galaxies.
+- M104's near side appears flipped relative to the Hubble image (catalogue orientation;
+  not changed here).
 - Not run: authenticated full app, `build:cloudflare` (needs the approved public Supabase
   configuration), physical devices, GPU frame-time measurement.
