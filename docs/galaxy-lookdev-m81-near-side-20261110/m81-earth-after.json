@@ -1,0 +1,21 @@
+{
+  "key": "m81",
+  "view": "earth",
+  "optics": false,
+  "render": {
+    "saturation": 0.321,
+    "colourGradient": 0.776,
+    "concentration": 2.418,
+    "fineStructure": 0.031,
+    "darkLaneFraction": 0,
+    "pinkFraction": 0.03
+  },
+  "reference": {
+    "saturation": 0.23,
+    "colourGradient": 0.808,
+    "concentration": 2.612,
+    "fineStructure": 0.034,
+    "darkLaneFraction": 0,
+    "pinkFraction": 0.015
+  }
+}

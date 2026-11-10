@@ -157,10 +157,13 @@ export function observedImageMatrix(model: GalaxyModel, image: ObservedGalaxyIma
 
 /** Unit vector from the galaxy centre toward the Sun, in the galaxy's local frame. */
 export function earthDirectionLocal(model: GalaxyModel) {
+  // Sky orientations come from a 10-digit ICRS-to-Galactic matrix, so their quaternions are
+  // unit only to about 1e-11; normalising again keeps the promised unit length.
   return galaxyCenter(model)
     .negate()
     .normalize()
-    .applyQuaternion(galaxyOrientation(model).clone().invert());
+    .applyQuaternion(galaxyOrientation(model).clone().invert())
+    .normalize();
 }
 
 /** Local-frame normal of the surface the image is projected onto. */

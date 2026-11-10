@@ -753,6 +753,14 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
     color: "#dae4ff",
     inclination: 62,
     posAngle: 157,
+    nearSide: {
+      pa: 247,
+      method: "dust-silhouette",
+      evidence:
+        "Published: the SW side shows the more prominent dust extinction, and with NW receding and trailing arms the SW side is near; the de Vaucouleurs Atlas puts it W. With the major axis at PA 157°, SW and W both name the WSW half of the minor axis. Registered Hubble mosaic heic0710a, sampled along the minor axis through its embedded AVM inside the bulge (20–140″): the WSW half is dimmer (×0.87) and redder (blue/red ×0.73) than the ENE half, while the two major-axis halves differ by 3.5% in light. Reddened lanes cross the bulge 58–67″ (blue/red 0.8 → 0.4) and about 120″ WSW of the nucleus; the deepest dims the light ×1.19 against its neighbours, against ×1.04 on the ENE half. This silhouette is weak (10–30%, against M104's ×6), so the photograph corroborates the published near side rather than establishing it.",
+      source:
+        "Li, Li, García-Benito & Feng 2022, ApJ 928, 111 (arXiv:2111.06683), §3.2.2: the southwestern side, with “more prominent extinction features”, “is the near side”. Schnorr Müller et al. 2011, MNRAS 413, 149 (arXiv:1012.3015), §4.1: “the near side of the galaxy is the SW”, from the stellar velocity field under trailing arms. Buta, Corwin & Odewahn 2007, The de Vaucouleurs Atlas of Galaxies (Cambridge University Press): west, as cited by Rao et al. 2026, ApJ (arXiv:2610.37661), §III.1.",
+    },
     redshift: -0.000113,
     radialVelocityKmS: -34.0,
     independentDistanceLy: 12_000_000,

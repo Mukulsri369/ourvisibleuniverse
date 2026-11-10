@@ -188,6 +188,7 @@ The look-dev comparison with the 9 November baseline is being re-captured on thi
 - Generated (procedural) spirals now have warm cores and less haze, but their arms are
   still greyer and their interarm disks brighter than in the photographed galaxies.
 - M104's near side appears flipped relative to the Hubble image (catalogue orientation;
-  not changed here).
+  not changed here). Since sourced and corrected, with M81's: see
+  [GALAXY_NEAR_SIDE_20261110.md](GALAXY_NEAR_SIDE_20261110.md).
 - Not run: authenticated full app, `build:cloudflare` (needs the approved public Supabase
   configuration), physical devices, GPU frame-time measurement.
