@@ -226,20 +226,20 @@ close(
   1e-3,
   "exponential profile normalisation",
 );
-// Spheroid parts: truncated spherical-deprojection weight with the part's measured core c,
-// renormalised per sightline (the column inside |d| < sqrt(1 − rho²) is
-// sqrt(1 − rho²) / sqrt(1 + c²)), so Earth's view equals the image for any core.
+// Spheroid parts: spherical-deprojection weight with the part's measured core c, times a
+// parabolic window over the chord |d| < L = sqrt(1 − rho²), renormalised per sightline by
+// its closed-form column, so Earth's view equals the image for any core (mirrors the GLSL).
 for (const core of [0.06, 0.3, 0.6, 0.8])
-  for (const rho of [0, 0.3, 0.6, 0.9]) {
+  for (const rho of [0, 0.3, 0.6, 0.9, 0.99]) {
     const c2 = core * core,
       s2 = rho * rho + c2,
-      lim = Math.sqrt(1 - rho * rho);
+      l2 = Math.max(1 - rho * rho, 0.0025),
+      l = Math.sqrt(l2),
+      r1 = l / Math.sqrt(1 + c2);
+    const closedForm = r1 - (s2 / l2) * (Math.asinh(l / Math.sqrt(s2)) - r1);
     const column = integrate(
       (d) =>
-        Math.abs(d) < lim
-          ? ((s2 / (2 * (s2 + d * d) ** 1.5)) * Math.sqrt(1 + c2)) /
-            Math.sqrt(Math.max(1 - rho * rho, 0.02))
-          : 0,
+        Math.abs(d) < l ? ((s2 / (2 * (s2 + d * d) ** 1.5)) * (1 - (d * d) / l2)) / closedForm : 0,
       1.2,
     );
     close(column, 1, 2e-3, `spheroid part column at core=${core}, rho=${rho}`);
