@@ -65,6 +65,7 @@
               1
             ],
             "texel": 0.0004209,
+            "core": 0.557,
             "kind": "spheroid"
           },
           {
@@ -104,6 +105,7 @@
               1
             ],
             "texel": 0.001328,
+            "core": 0.173,
             "kind": "spheroid"
           }
         ]
@@ -201,6 +203,7 @@
               1
             ],
             "texel": 0.0009138,
+            "core": 0.458,
             "kind": "spheroid"
           }
         ]
@@ -298,6 +301,7 @@
               1
             ],
             "texel": 0.0002371,
+            "core": 0.608,
             "kind": "spheroid"
           }
         ]
@@ -395,6 +399,7 @@
               1
             ],
             "texel": 0.00045,
+            "core": 0.626,
             "kind": "spheroid"
           }
         ]
@@ -436,12 +441,12 @@
       "detail": {
         "url": "/textures/galaxies/derived/catalog-ngc-1300-young.jpg",
         "size": 2048,
-        "scale": 0.389222
+        "scale": 0.380427
       },
       "smooth": {
         "url": "/textures/galaxies/derived/catalog-ngc-1300-old.jpg",
         "size": 512,
-        "scale": 0.320292
+        "scale": 0.30453
       },
       "dust": {
         "url": "/textures/galaxies/derived/catalog-ngc-1300-dust.jpg",
@@ -453,29 +458,29 @@
         "url": "/textures/galaxies/derived/catalog-ngc-1300-parts.jpg",
         "width": 460,
         "height": 458,
-        "scale": 0.819721,
+        "scale": 0.820256,
         "items": [
           {
             "id": "bulge",
             "label": "NGC 1300 bulge",
             "source": "NED NGC 1300 nucleus position",
             "uvRect": [
-              0.4515,
+              0.434,
               0.42901,
-              0.566,
+              0.5485,
               0.629711
             ],
             "centreUv": [
-              0.50885,
+              0.491301,
               0.529527
             ],
             "axisA": [
-              17.9116,
+              -17.9116,
               2.53029
             ],
             "axisB": [
               5.21789,
-              -12.0218
+              12.0218
             ],
             "depthCentre": 0,
             "depthExtent": 0.07738,
@@ -492,6 +497,7 @@
               1
             ],
             "texel": 0.0004462,
+            "core": 0.615,
             "kind": "spheroid"
           }
         ]
@@ -512,14 +518,14 @@
       },
       "colours": {
         "old": [
-          1.2454,
-          0.9337,
-          0.9343
+          1.2456,
+          0.9336,
+          0.9344
         ],
         "young": [
-          0.978,
-          0.9869,
-          1.1951
+          0.9744,
+          0.9872,
+          1.2026
         ]
       },
       "stars": 311,
@@ -589,6 +595,7 @@
               1
             ],
             "texel": 0.001136,
+            "core": 0.609,
             "kind": "spheroid"
           }
         ]
@@ -686,6 +693,7 @@
               1
             ],
             "texel": 0.002464,
+            "core": 0.19,
             "kind": "spheroid"
           }
         ]
@@ -1133,7 +1141,8 @@
               0.24448
             ],
             "radius": 0.45921,
-            "texel": 0.001397
+            "texel": 0.001397,
+            "core": 0.385
           },
           {
             "id": "ngc7318a",
@@ -1172,7 +1181,8 @@
               0.20728
             ],
             "radius": 0.38268,
-            "texel": 0.001215
+            "texel": 0.001215,
+            "core": 0.334
           },
           {
             "id": "ngc7317",
@@ -1211,7 +1221,8 @@
               1.18722
             ],
             "radius": 0.38268,
-            "texel": 0.001215
+            "texel": 0.001215,
+            "core": 0.265
           },
           {
             "id": "shock",

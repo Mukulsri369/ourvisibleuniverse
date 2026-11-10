@@ -105,6 +105,11 @@ for (const key of keys) {
         key + " part inside the volume",
       );
       assert(part.kind === "sheet" || part.kind === "spheroid");
+      if (part.kind === "spheroid")
+        assert(
+          part.core !== undefined && part.core >= 0.06 && part.core <= 0.8,
+          key + " spheroid part has a measured core radius",
+        );
     }
     assert(
       !map.parts!.items.some((p) => /7320/.test(p.label)),
@@ -130,6 +135,10 @@ for (const key of keys) {
       assert(v >= -1e-6 && v <= 1 + 1e-6, key + " part rects");
     assert(part.depthExtent > 0 && part.radius > 0 && part.texel > 0, key + " part geometry");
     assert(part.source.length > 5, key + " part position source");
+    assert(
+      part.core !== undefined && part.core >= 0.06 && part.core <= 0.8,
+      key + " spheroid part has a measured core radius",
+    );
   }
 
   // 2. Registration: re-project the derived face-on light into the photograph and compare.
@@ -217,19 +226,24 @@ close(
   1e-3,
   "exponential profile normalisation",
 );
-// Spheroid parts: truncated spherical-deprojection weight, renormalised per sightline.
-for (const rho of [0, 0.3, 0.6, 0.9]) {
-  const s2 = rho * rho + 0.0036,
-    lim = Math.sqrt(1 - rho * rho);
-  const column = integrate(
-    (d) =>
-      Math.abs(d) < lim
-        ? ((s2 / (2 * (s2 + d * d) ** 1.5)) * 1.0018) / Math.sqrt(Math.max(1 - rho * rho, 0.02))
-        : 0,
-    1.2,
-  );
-  close(column, 1, 2e-3, "spheroid part column at rho=" + rho);
-}
+// Spheroid parts: truncated spherical-deprojection weight with the part's measured core c,
+// renormalised per sightline (the column inside |d| < sqrt(1 − rho²) is
+// sqrt(1 − rho²) / sqrt(1 + c²)), so Earth's view equals the image for any core.
+for (const core of [0.06, 0.3, 0.6, 0.8])
+  for (const rho of [0, 0.3, 0.6, 0.9]) {
+    const c2 = core * core,
+      s2 = rho * rho + c2,
+      lim = Math.sqrt(1 - rho * rho);
+    const column = integrate(
+      (d) =>
+        Math.abs(d) < lim
+          ? ((s2 / (2 * (s2 + d * d) ** 1.5)) * Math.sqrt(1 + c2)) /
+            Math.sqrt(Math.max(1 - rho * rho, 0.02))
+          : 0,
+      1.2,
+    );
+    close(column, 1, 2e-3, `spheroid part column at core=${core}, rho=${rho}`);
+  }
 assert(
   DISK_LAYER_GLSL.includes("diskSech2(y/zo)/(2.*zo)") &&
     DISK_LAYER_GLSL.includes("s2/(2.*pow(s2+dn*dn,1.5))"),

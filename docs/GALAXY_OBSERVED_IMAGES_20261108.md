@@ -15,20 +15,20 @@ other direction the 3D model is a reconstruction, as before.
 
 ## Galaxies covered (12)
 
-| Key              | Image                | Light                | Surface | Registration                   |
-| ---------------- | -------------------- | -------------------- | ------- | ------------------------------ |
-| m81              | ESA/Hubble heic0710a | optical–near-IR      | disk    | embedded AVM                   |
-| m51              | ESA/Hubble heic0506a | optical              | disk    | embedded AVM                   |
-| m101             | ESA/Hubble heic0602a | optical              | disk    | embedded AVM                   |
-| m104             | Hubble opo0328a      | optical              | sky     | embedded AVM                   |
-| m82              | ESA/Hubble heic0604a | optical              | sky     | embedded AVM                   |
-| antennae         | ESA/Hubble heic0615a | optical              | sky     | embedded AVM                   |
-| tadpole          | ESA/Hubble heic0206a | optical              | sky     | embedded AVM                   |
-| cartwheel        | ESA/Webb weic2211a   | IR, assigned colours | disk    | embedded AVM                   |
-| hoags-object     | Hubble opo0221a      | optical              | disk    | embedded AVM                   |
-| catalog-ngc-1300 | Hubble opo0501a      | optical              | disk    | embedded AVM                   |
-| stephans-quintet | ESA/Webb weic2208a   | IR, assigned colours | sky     | embedded AVM                   |
-| m33              | ESO eso1424a (VST)   | optical              | disk    | published record + 3 landmarks |
+| Key              | Image                | Light                | Surface | Registration                            |
+| ---------------- | -------------------- | -------------------- | ------- | --------------------------------------- |
+| m81              | ESA/Hubble heic0710a | optical–near-IR      | disk    | embedded AVM                            |
+| m51              | ESA/Hubble heic0506a | optical              | disk    | embedded AVM                            |
+| m101             | ESA/Hubble heic0602a | optical              | disk    | embedded AVM                            |
+| m104             | Hubble opo0328a      | optical              | sky     | embedded AVM                            |
+| m82              | ESA/Hubble heic0604a | optical              | sky     | embedded AVM                            |
+| antennae         | ESA/Hubble heic0615a | optical              | sky     | embedded AVM                            |
+| tadpole          | ESA/Hubble heic0206a | optical              | sky     | embedded AVM                            |
+| cartwheel        | ESA/Webb weic2211a   | IR, assigned colours | disk    | embedded AVM                            |
+| hoags-object     | Hubble opo0221a      | optical              | disk    | embedded AVM                            |
+| catalog-ngc-1300 | Hubble opo0501a      | optical              | disk    | embedded AVM, parity corrected (10 Nov) |
+| stephans-quintet | ESA/Webb weic2208a   | IR, assigned colours | sky     | embedded AVM                            |
+| m33              | ESO eso1424a (VST)   | optical              | disk    | published record + 3 landmarks          |
 
 All files were already in `public/textures/galaxies/` with credits in
 `public/textures/galaxies/CREDITS.md`; no new image files were added.
@@ -79,6 +79,34 @@ and interacting systems with no single plane.
   Malin 1, GLASS-z12, M60, Hercules A, Canis Major Dwarf, M65, M66, NGC 3628, M86.
 - Overview framing now looks at a visited galaxy beyond 1 Mly from the Solar
   System's side. Milky Way satellites keep the previous oblique framing.
+
+## Correction, 10 November 2026: NGC 1300 parity (pushed, not deployed)
+
+NGC 1300's embedded AVM has a positive x scale, which describes a mirrored
+(east-right) frame. The deployed build follows it, so its NGC 1300 image is placed
+on the sky as a mirror image. Two checks show the file is an ordinary east-left
+frame:
+
+- Nucleus: with the embedded parity, the catalogued nucleus (ICRS 49.9208,
+  −19.4111) falls 5.9″ from the nucleus light peak in the file. With east to the
+  left (same scale magnitude and rotation), it falls 0.75″ from it.
+- Position angle: the bar and disk lie at PA ≈ 137° with the embedded parity and
+  ≈ 103° with the correction. Published values are 87–106° (England 1989;
+  Lindblad et al. 1997; LEDA, as adopted by Atkinson et al. 2005,
+  arXiv:astro-ph/0502573).
+
+`galaxy-observed-images.ts` keeps the verbatim embedded value in a `correction`
+record with this evidence and uses the corrected scale.
+`npm run test:galaxy-observed` now accepts a corrected field only if the file still
+holds the recorded embedded value and a measured landmark confirms the result. It
+added an NGC 1300 nucleus landmark (tolerance 0.003 in uv): the corrected record
+misses by 0.0023, the embedded one by 0.0178. The disk deprojection of the 3D
+reconstruction follows the same registration, so its face-on map was regenerated
+(see [galaxy 3D reconstruction](GALAXY_3D_RECONSTRUCTION_20261109.md)).
+
+The 8 November check confirmed the images were registered and oriented, but its
+screenshots could not reveal a mirror image: the image was placed exactly as its
+metadata described.
 
 ## Verification actually run (2026-11-08/09, this workspace)
 

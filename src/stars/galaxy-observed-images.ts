@@ -57,6 +57,11 @@ export type ObservedGalaxyImage = {
     pixel: [number, number];
     toleranceUv: number;
   }[];
+  /**
+   * A documented correction of one embedded AVM value: the field, the file's verbatim
+   * value and the evidence. `landmarks` measured in this file must confirm the result.
+   */
+  correction?: { field: "scale[0]"; embedded: number; reason: string };
 };
 
 export const OBSERVED_GALAXY_IMAGES: readonly ObservedGalaxyImage[] = [
@@ -260,9 +265,30 @@ export const OBSERVED_GALAXY_IMAGES: readonly ObservedGalaxyImage[] = [
       referenceValue: [49.9192536, -19.4120509],
       referencePixel: [3319.5, 1894.5],
       referenceDimension: [6637, 3787],
-      scale: [0.0000139017404438, 0.0000138905317193],
+      // East to the left; the file's own x scale is positive (see `correction`).
+      scale: [-0.0000139017404438, 0.0000138905317193],
       rotation: -29.9,
     },
+    correction: {
+      field: "scale[0]",
+      embedded: 0.0000139017404438,
+      reason:
+        "The embedded x scale is positive (a mirrored, east-right frame). Read that way, the " +
+        "catalogued nucleus falls 5.9 arcsec from the nucleus light peak in this file and the " +
+        "bar and disk lie at PA ~137 deg. With east to the left (same scale magnitude and " +
+        "rotation) the nucleus lands within 0.3 arcsec of the peak and the major axis at " +
+        "PA ~103 deg, inside the published 87-106 deg (England 1989; Lindblad et al. 1997; " +
+        "LEDA as adopted by Atkinson et al. 2005, arXiv:astro-ph/0502573).",
+    },
+    landmarks: [
+      {
+        name: "NGC 1300 nucleus",
+        ra: 49.9208,
+        dec: -19.4111,
+        pixel: [1963.3, 1077.9],
+        toleranceUv: 0.003,
+      },
+    ],
   },
   {
     key: "stephans-quintet",
