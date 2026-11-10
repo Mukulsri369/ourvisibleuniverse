@@ -2,7 +2,45 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 9 November — galaxies rebuilt in 3D from every angle (latest checkpoint)
+## 10 November — M104's near side sourced (latest checkpoint)
+
+- **What and why:** In the look-dev Earth view, the Sombrero's dust ring crossed the bulge north of the nucleus. In the registered Hubble image it crosses south.
+  - A catalogue inclination (0–90°) and position angle leave open which half of the minor axis is nearer to us.
+  - `observedSkyQuaternion` settled that by convention, making the half toward PA − 90° the near one. For M104 that was the north half.
+  - The near side is now a sourced, per-object orientation fact. M104's near side is south (PA 180°).
+  - Report: [M104 near side](GALAXY_NEAR_SIDE_20261110.md).
+- **Sources:**
+  - The registered photograph (opo0328a), sampled along the minor axis through its embedded AVM. 12–18″ south of the nucleus the light falls to about a third and is strongly reddened; to the north it falls off smoothly.
+  - Emsellem & Ferruit 2000, A&A 357, 111, §4: north is "the far (north) side of the galaxy".
+  - Method: Iye, Tadaki & Fukumoto 2019. The dust-lane-dominant side is the near side, a reading proven independently only for M31.
+- **Code:**
+  - `src/stars/galaxy-sky-orientation.ts`: new `SkyNearSide` type and optional `SkyOrientation.nearSide`. A near side on the PA + 90° half reverses the tilt (the inclination changes sign), which leaves the disk plane's projection on the sky unchanged.
+  - `src/stars/galaxy-catalog.ts`: M104's record carries `nearSide` with its method, evidence and citation.
+  - `src/stars/galaxy-models.ts`: copies `nearSide` into the sky orientation.
+  - Distances, inclinations, position angles and host membership are unchanged. No derived map depends on M104.
+- **Checks actually run:**
+  - `npm run test:galaxy-observed` passed, with three new checks: sourced near sides are the nearer half; the other 199 inclined models keep the default convention; M104's photograph shows the dust silhouette on the recorded half. Two mutations, disabling the reversal and recording the wrong half, both fail it.
+  - `test:galaxies` and `test:galaxy-disk-layer` passed.
+  - Also passed: `test`, `test:catalog`, `test:consistency`, `test:nearby-catalog`, `test:galaxy-explorer`, `test:galaxy-entry`, `test:navigation`, `test:exploration-camera`, `test:galaxy-clarity`, `test:galaxy-landmarks`, `test:galaxy-populations`, `test:galaxy-empty-space`, `test:scene-depth`, `test:rendering`, `test:visual`, `test:3d`, `test:extragalactic`, `test:nebulae`, `test:black-holes`, `test:compact`, `test:solar-controls`, and the two Andromeda scripts.
+  - `npx tsc --noEmit` exited 0. ESLint and Prettier are clean on the changed files.
+  - `test:nearby-expansion` and `ingest:nearby-catalog -- --check` fail with logs identical to the run before the change. This is the recorded `mcconnachie-2021-andromeda20` drift.
+  - Look-dev Earth view, before and after, in headless Chromium with SwiftShader: the dust lane moved from north to south of the nucleus. The sheets are in [`galaxy-lookdev-m104-near-side-20261110/`](galaxy-lookdev-m104-near-side-20261110/).
+  - Photo cross-fade on the multi-angle QA page: before, the reconstruction's lane darkened the bulge north of the core and diluted the photograph's lane to the south; after, the two coincide. Oblique, edge and back poses are unchanged.
+- **Audit of other inclined galaxies with registered images:**
+  - **M81 is probably reversed.** The de Vaucouleurs Atlas puts its near side west; the render puts it ENE. The photograph agrees only weakly. It was not changed, because its face-on maps were derived through the current orientation and need re-deriving.
+  - **M82 already matches** Shopbell & Bland-Hawthorn 1998, which places the near edge northwest.
+  - **NGC 4565** has no registered image.
+- **Not established:** the full or authenticated app, `build:cloudflare`, physical devices and real-GPU timing. No shader changed.
+- **Source and deployment status:**
+  - One commit on `claude/great-ramanujan-r2pi5b`, which was fast-forwarded from `main` to `migration/supabase-cloudflare` at `f72c3b8`. No history was rewritten.
+  - Pushed to origin from a cloud session, as the task asked. Not merged into `migration/supabase-cloudflare`.
+  - **Not deployed.** Production remains as last recorded and was not inspected.
+  - With the owner's approval, the cloud environment now also allows `arxiv.org`, so that the cited papers could be read.
+- **Next concrete action:**
+  - Review the before and after sheets, then merge the branch into `migration/supabase-cloudflare` if accepted.
+  - Then M81: read a source that states its west near side, add `nearSide: { pa: 247, … }`, re-derive its maps (`npm run derive:galaxy-disk-maps`) and re-check them with `test:galaxy-disk-layer` and a look-dev sheet.
+
+## 9 November — galaxies rebuilt in 3D from every angle
 
 - **What and why:** the owner reported that the twelve galaxies given telescope photographs looked right only from the front; from the side and back the old generic volume remained (a grey streak edge-on, the same noise spiral for every galaxy, M82 as a fog box). Disk galaxies now render as **face-on maps × analytic vertical profiles** (sech² old disk, young/dust layers at ~½ and ionised gas at ~¼ of its scale height, thick disk, flaring, flattened bulge), following radiative-transfer models of nearby spirals (De Looze et al. 2014; Xilouris et al. 1999; de Grijs 1998; Kregel et al. 2002). Report: [galaxy 3D reconstruction](GALAXY_3D_RECONSTRUCTION_20261109.md).
 - **Coverage:**

@@ -3,6 +3,7 @@ import { makeNearbyGalaxyAdditions, type NearbyMeasurement } from "./nearby-gala
 import { IMPORTED_GALAXIES, RECONCILED_GALAXY_ALIASES } from "./galaxy-catalogue-data";
 import { galaxyIdentityKey } from "./galaxy-ingestion";
 import type { GalaxyCatalogueEvidence } from "./galaxy-catalogue-types";
+import type { SkyNearSide } from "./galaxy-sky-orientation";
 /**
  * LARGE-SCALE OBSERVATIONAL EXTRAGALACTIC ATLAS
  *
@@ -49,6 +50,8 @@ export type NamedGalaxy = {
   color: string;
   inclination?: number; // deg, tilt of disk from face-on
   posAngle?: number; // deg, orientation of major axis in sky
+  /** Nearer half of the disk, only where a source establishes it (galaxy-sky-orientation.ts). */
+  nearSide?: SkyNearSide;
 };
 
 export interface ObservationalGalaxy extends NamedGalaxy {
@@ -911,6 +914,14 @@ export const OBSERVATIONAL_GALAXY_CATALOG: ObservationalGalaxy[] = [
     color: "#ffd8b0",
     inclination: 84,
     posAngle: 90,
+    nearSide: {
+      pa: 180,
+      method: "dust-silhouette",
+      evidence:
+        "Registered Hubble Heritage mosaic opo0328a, sampled along the minor axis through its embedded AVM: 12–18″ south of the nucleus the dust ring cuts the bulge light to about a third of its surroundings and reddens it (blue/red 1.1 → 0.2–0.6); to the north the light falls smoothly, with no lane.",
+      source:
+        "Emsellem & Ferruit 2000, A&A 357, 111 (arXiv:astro-ph/0003167), §4: north is “the far (north) side of the galaxy”.",
+    },
     redshift: 0.003416,
     radialVelocityKmS: 1024.0,
     independentDistanceLy: 29_000_000,

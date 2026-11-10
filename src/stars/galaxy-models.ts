@@ -983,6 +983,7 @@ function catalogModel(g: NamedGalaxy): GalaxyModel {
       dec: obs.dec!,
       inclination: base.inclination,
       pa: obs.posAngle ?? 0,
+      ...(obs.nearSide ? { nearSide: obs.nearSide } : {}),
     };
   if (obs.measurements || obs.catalogueEvidence) base.description = obs.uncertaintyNotes!;
   const merged = { ...base, ...(MORPHOLOGY_OVERRIDES[g.name] ?? {}) };
@@ -1020,7 +1021,8 @@ export const GALAXY_MODELS: GalaxyModel[] = RECONSTRUCTED_GALAXIES.map((m) => {
     posAngle: observed.posAngle ?? m.posAngle,
     // Catalogued inclination and position angle are on-sky quantities. Apply them in
     // the observed sky frame at the catalogue RA/Dec, as imported records already do,
-    // so the disk is seen from Earth at its measured tilt and orientation.
+    // so the disk is seen from Earth at its measured tilt and orientation. A sourced
+    // near side (M104) decides which half of the minor axis is tilted toward us.
     skyOrientation:
       m.skyOrientation ??
       (observed.ra !== undefined &&
@@ -1032,6 +1034,7 @@ export const GALAXY_MODELS: GalaxyModel[] = RECONSTRUCTED_GALAXIES.map((m) => {
             dec: observed.dec,
             inclination: observed.inclination,
             pa: observed.posAngle,
+            ...(observed.nearSide ? { nearSide: observed.nearSide } : {}),
           }
         : undefined),
     system: m.system

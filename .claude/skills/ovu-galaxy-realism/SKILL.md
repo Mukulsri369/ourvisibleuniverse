@@ -69,7 +69,7 @@ Causes in the code:
 
 The per-galaxy numbers are in `docs/GALAXY_REALISM_TOOLING_20261109.md`, and the "before" sheets are in `docs/galaxy-lookdev-baseline-20261109/`.
 
-Also check in every Earth-view sheet that the arms wind the same way as in the telescope image and that the bar and major-axis angles agree. The images are measured, so the reconstruction must not contradict them. The baseline did not verify the winding sense.
+Also check in every Earth-view sheet that the arms wind the same way as in the telescope image and that the bar and major-axis angles agree. The images are measured, so the reconstruction must not contradict them. The baseline did not verify the winding sense. Check also that a dust lane crosses the bulge on the same side as in the image. If it crosses on the other side, the near side is wrong. That is an orientation fact: record a sourced `nearSide` with `ovu-object-intake` (see `docs/GALAXY_NEAR_SIDE_20261110.md`) rather than restyling the dust.
 
 ## Where to change what
 
