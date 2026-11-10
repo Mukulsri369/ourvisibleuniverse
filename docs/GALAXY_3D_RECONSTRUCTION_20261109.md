@@ -170,7 +170,39 @@ disks no longer rotate their pattern, so they stay aligned with the image.
 - **Look-dev harness.** The page clears to opaque black, as the app does (`f72c3b8`).
   Before that, readback un-premultiplied and clipped the emissive light.
 
-The look-dev comparison with the 9 November baseline is being re-captured on this code and will be recorded here.
+### Look-dev comparison with the 9 November baseline
+
+The `ovu-galaxy-realism` look-dev loop was re-run on this code:
+`scripts/galaxy-lookdev/capture.mjs --software` (SwiftShader, 900×900, DPR 1, no optics,
+Earth's view, north up). Values are baseline render → this render / registered image.
+The baseline is commit `bafc5a4`, from [the tooling report](GALAXY_REALISM_TOOLING_20261109.md).
+
+| Galaxy            | saturation                                                          | colourGradient        | darkLaneFraction      | pinkFraction          | concentration         | fineStructure         |
+| ----------------- | ------------------------------------------------------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- |
+| M51               | 0.034 → 0.241 / 0.212                                               | 1.021 → 1.349 / 1.259 | 0.000 → 0.012 / 0.019 | 0.000 → 0.070 / 0.043 | 2.403 → 2.731 / 2.991 | 0.108 → 0.087 / 0.089 |
+| M81               | 0.020 → 0.297 / 0.230                                               | 1.032 → 0.770 / 0.808 | 0.000 → 0.000 / 0.000 | 0.000 → 0.040 / 0.015 | 2.804 → 2.465 / 2.612 | 0.067 → 0.030 / 0.034 |
+| NGC 1300          | 0.034 → 0.226 / 0.226                                               | 1.044 → 1.453 / 1.438 | 0.000 → 0.004 / 0.010 | 0.000 → 0.007 / 0.008 | 2.591 → 2.615 / 2.656 | 0.079 → 0.061 / 0.076 |
+| M33               | 0.025 → 0.220 / 0.167                                               | 1.016 → 1.000 / 1.119 | 0.000 → 0.000 / 0.002 | 0.000 → 0.246 / 0.065 | 2.478 → 2.471 / 2.726 | 0.093 → 0.084 / 0.129 |
+| M101              | 0.028 → 0.166 / 0.165                                               | 1.020 → 1.086 / 1.198 | 0.000 → 0.022 / 0.049 | 0.000 → 0.002 / 0.004 | 2.182 → 2.521 / 2.733 | 0.175 → 0.129 / 0.131 |
+| M104 (procedural) | capture in progress (procedural bake is slow in software rendering) |
+
+- **Grey baseline is gone.** Saturation moved from 0.02–0.03 to within about 0.07 of
+  each telescope image. Core-to-disk colour now separates in the image's direction
+  (M81 bluer outside and redder inside). Dust lanes and H II knots, absent from every
+  baseline render, now appear.
+- **Overshoots and shortfalls:**
+  - M33 has about four times the image's pink (H II) fraction, because its outer
+    disk is fainter than in the image.
+  - M51 and M81 are slightly more saturated than their images.
+  - Concentration stays below the references: the photographs' cores are brighter
+    and their frames crop the disks.
+- **Orientation and winding:** every sheet agrees with its image in arm winding, bar
+  and major-axis angle. NGC 1300 agrees only since the parity correction; before it,
+  render and image differed by about 50° and a mirror.
+- Read these as direction of change only. The baseline table used 600-px crops and
+  these use full 900-px renders, and every indicator depends on crop, companions,
+  foreground stars and the images' display stretch. The sheets are in
+  `.taste-skill/lookdev-final/`, which Git ignores.
 
 ## Known limitations
 
