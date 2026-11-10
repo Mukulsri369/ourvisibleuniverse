@@ -177,14 +177,14 @@ The `ovu-galaxy-realism` look-dev loop was re-run on this code:
 Earth's view, north up). Values are baseline render → this render / registered image.
 The baseline is commit `bafc5a4`, from [the tooling report](GALAXY_REALISM_TOOLING_20261109.md).
 
-| Galaxy            | saturation                                                          | colourGradient        | darkLaneFraction      | pinkFraction          | concentration         | fineStructure         |
-| ----------------- | ------------------------------------------------------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- |
-| M51               | 0.034 → 0.241 / 0.212                                               | 1.021 → 1.349 / 1.259 | 0.000 → 0.012 / 0.019 | 0.000 → 0.070 / 0.043 | 2.403 → 2.731 / 2.991 | 0.108 → 0.087 / 0.089 |
-| M81               | 0.020 → 0.297 / 0.230                                               | 1.032 → 0.770 / 0.808 | 0.000 → 0.000 / 0.000 | 0.000 → 0.040 / 0.015 | 2.804 → 2.465 / 2.612 | 0.067 → 0.030 / 0.034 |
-| NGC 1300          | 0.034 → 0.226 / 0.226                                               | 1.044 → 1.453 / 1.438 | 0.000 → 0.004 / 0.010 | 0.000 → 0.007 / 0.008 | 2.591 → 2.615 / 2.656 | 0.079 → 0.061 / 0.076 |
-| M33               | 0.025 → 0.220 / 0.167                                               | 1.016 → 1.000 / 1.119 | 0.000 → 0.000 / 0.002 | 0.000 → 0.246 / 0.065 | 2.478 → 2.471 / 2.726 | 0.093 → 0.084 / 0.129 |
-| M101              | 0.028 → 0.166 / 0.165                                               | 1.020 → 1.086 / 1.198 | 0.000 → 0.022 / 0.049 | 0.000 → 0.002 / 0.004 | 2.182 → 2.521 / 2.733 | 0.175 → 0.129 / 0.131 |
-| M104 (procedural) | capture in progress (procedural bake is slow in software rendering) |
+| Galaxy            | saturation            | colourGradient        | darkLaneFraction      | pinkFraction          | concentration         | fineStructure         |
+| ----------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- | --------------------- |
+| M51               | 0.034 → 0.241 / 0.212 | 1.021 → 1.349 / 1.259 | 0.000 → 0.012 / 0.019 | 0.000 → 0.070 / 0.043 | 2.403 → 2.731 / 2.991 | 0.108 → 0.087 / 0.089 |
+| M81               | 0.020 → 0.297 / 0.230 | 1.032 → 0.770 / 0.808 | 0.000 → 0.000 / 0.000 | 0.000 → 0.040 / 0.015 | 2.804 → 2.465 / 2.612 | 0.067 → 0.030 / 0.034 |
+| NGC 1300          | 0.034 → 0.226 / 0.226 | 1.044 → 1.453 / 1.438 | 0.000 → 0.004 / 0.010 | 0.000 → 0.007 / 0.008 | 2.591 → 2.615 / 2.656 | 0.079 → 0.061 / 0.076 |
+| M33               | 0.025 → 0.220 / 0.167 | 1.016 → 1.000 / 1.119 | 0.000 → 0.000 / 0.002 | 0.000 → 0.246 / 0.065 | 2.478 → 2.471 / 2.726 | 0.093 → 0.084 / 0.129 |
+| M101              | 0.028 → 0.166 / 0.165 | 1.020 → 1.086 / 1.198 | 0.000 → 0.022 / 0.049 | 0.000 → 0.002 / 0.004 | 2.182 → 2.521 / 2.733 | 0.175 → 0.129 / 0.131 |
+| M104 (procedural) | 0.027 → 0.196 / 0.109 | 1.008 → 0.967 / 0.933 | 0.000 → 0.022 / 0.026 | 0.000 → 0.000 / 0.000 | 2.240 → 2.180 / 2.304 | 0.028 → 0.018 / 0.043 |
 
 - **Grey baseline is gone.** Saturation moved from 0.02–0.03 to within about 0.07 of
   each telescope image. Core-to-disk colour now separates in the image's direction
@@ -194,6 +194,9 @@ The baseline is commit `bafc5a4`, from [the tooling report](GALAXY_REALISM_TOOLI
   - M33 has about four times the image's pink (H II) fraction, because its outer
     disk is fainter than in the image.
   - M51 and M81 are slightly more saturated than their images.
+  - M104's warm bulge is more saturated than the image (0.196 against 0.109). Its
+    dust ring is now a dark silhouette instead of the baseline's light band, but it
+    crosses north of the nucleus where the image has it south (catalogue near side).
   - Concentration stays below the references: the photographs' cores are brighter
     and their frames crop the disks.
 - **Orientation and winding:** every sheet agrees with its image in arm winding, bar
