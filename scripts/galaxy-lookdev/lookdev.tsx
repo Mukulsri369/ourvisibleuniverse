@@ -102,6 +102,9 @@ createRoot(container).render(
         gl={{ antialias: false, logarithmicDepthBuffer: true, preserveDrawingBuffer: true }}
         camera={{ fov: 42, near: 1, far: 1e12 }}
       >
+        {/* Opaque black, as in StarsApp: emissive (premultiplied) galaxy light would
+            otherwise be un-premultiplied and clipped when the canvas is read back. */}
+        <color attach="background" args={["#000000"]} />
         <Pose m={model} />
         {OPTICS && <OpticsPostProcessing />}
       </Canvas>
