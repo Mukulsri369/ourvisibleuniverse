@@ -26,6 +26,12 @@ Read this first in a new chat. This is a dated development checkpoint, not a liv
   - SwiftShader multi-angle renders (appearance only) of M104, M87, M32, M110, Leo I, LMC, SMC, NGC 6822, IC 10, NGC 5866 and M86, against baseline renders of the old models.
 - **Not established:** GPU frame time, now that up to eight previews ray-march the disk layer; an authenticated full-app run; physical devices. NGC 5866's dust lane is not reconstructed, because it lacks a sourced inclination.
 - **Source and deployment status:** pushed to `migration/supabase-cloudflare` on top of the deployed `569d9d8`/`f2b0135`. **Not deployed**; production (Worker `3ac21eee…`) still shows the photo overlays and legacy dwarf/elliptical volumes.
+- **Deployment attempt (owner-approved, 11 November, cloud session):**
+  - Done: release tests on `21aaae3`, the production build (public Supabase configuration), a credential-pattern scan and a `wrangler versions upload --dry-run` with production's six plaintext settings all passed. Settings were read from live version `3ac21eee` and the five secret bindings were left in place.
+  - Failed: the real upload failed at `workers/assets/upload` with 401. The cloud session's network proxy replaces every `api.cloudflare.com` Authorization header with the saved API token, which overwrites the short-lived asset-upload token Cloudflare issues.
+  - Production unchanged: no version was created and `3ac21eee` still serves 100%.
+  - Repository rules still deny `wrangler deploy` and `wrangler versions deploy` from agent sessions.
+  - Deploy this release from the owner's computer, as for the 9 and 11 November releases. Keep production's plaintext settings exactly: stage `production`, origin `https://ourvisibleuniverse.com`, Razorpay `live` with checkout enabled, and the Supabase URL and publishable key. The generated `dist/server/wrangler.json` targets the preview Worker with `RAZORPAY_MODE=test` and must not be deployed as-is.
 - **Next concrete action:** owner review on the branch preview or locally (`node node_modules/vite/bin/vite.js --config scripts/nearby-qa/vite.config.mts`, then `/scripts/nearby-qa/galaxy-views.html?g=lmc&v=oblique` or `?g=m104`); then measure GPU cost per `ovu-perf-evidence`, and deploy only with the owner's approval.
 
 ## 11 November — galaxy reconstruction release live
