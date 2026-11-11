@@ -278,10 +278,10 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     // photographs (0.15-0.2 for M51, M81 and M101), so the outer disk is carried by the arms.
     oldScale: andromeda ? 0.2 : sombrero ? 0.32 : 0.21,
     youngScale: andromeda ? 0.32 : 0.34,
-    oldAmp: sombrero ? 0.9 : lenticular ? 0.85 : 0.7,
+    oldAmp: sombrero ? 0.5 : lenticular ? 0.85 : 0.7,
     youngAmp: lenticular || sombrero ? 0 : 0.55,
     hiiAmp: lenticular || sombrero ? 0 : 0.85,
-    dustAmp: sombrero ? 3.6 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
+    dustAmp: sombrero ? 4.5 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
     outer: m94 ? 1.15 : sombrero ? 0.74 : 1.05,
     oldColour,
     youngColour,
@@ -332,7 +332,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   // a faint halo that reaches beyond the disk.
   const bulgeExponent = sombrero ? 0.25 : 0.75;
   const bulgeRadius = sombrero
-    ? 0.2
+    ? 0.3
     : andromeda
       ? 0.16
       : cigar
@@ -346,7 +346,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     amplitude: observed
       ? 0
       : sombrero
-        ? 2.2
+        ? 3.2
         : andromeda
           ? 1.6
           : cigar
@@ -457,7 +457,8 @@ function populationLayerSpec(
   const edgeOn = model.morphology === "edge-on";
   const giant = /elliptical|lenticular|S0/i.test(model.type) && !/dwarf/i.test(model.type);
   const dwarfSpheroidal = /spheroidal/i.test(model.type);
-  const n = !spheroidal ? 1 : giant ? 4 : dwarfSpheroidal ? 0.8 : 1.5;
+  // Lenticular bulges are less concentrated than giant ellipticals (n about 2-3).
+  const n = !spheroidal ? 1 : lenticular || edgeOn ? 3 : giant ? 4 : dwarfSpheroidal ? 0.8 : 1.5;
   const exponent = 1 / n;
   const coefficient = sersicCoefficient(n);
   const knots = (population.knots ?? []).slice(0, MAX_DISK_PARTS);
@@ -477,14 +478,12 @@ function populationLayerSpec(
     lanes: 0,
     oldScale: 0.25,
     youngScale: Math.max(0.12, population.core * 0.6),
-    oldAmp: spheroidal && (lenticular || edgeOn) ? 0.55 : 0,
-    youngAmp: spheroidal ? 0 : 0.9 * population.hotFraction,
+    // Population lenticulars stay smooth spheroids: their sourced axes carry the measured
+    // projected shape, and most lack a measured inclination for a separate thin disk.
+    oldAmp: 0,
+    youngAmp: spheroidal ? 0 : 0.6 * population.hotFraction,
     hiiAmp: spheroidal ? 0 : 0.8 * population.hii,
-    dustAmp: spheroidal
-      ? model.dustLanes && (lenticular || edgeOn)
-        ? 1.6
-        : 0
-      : 1.1 * population.dust,
+    dustAmp: spheroidal ? 0 : 1.1 * population.dust,
     outer: spheroidal ? 0.9 : 1.05,
     oldColour: normalise(population.old),
     youngColour: normalise(population.hot),
@@ -533,8 +532,8 @@ function populationLayerSpec(
     bulge,
     knots: {
       items: knots.map((k) => [k[0], k[1], k[2], k[3]] as [number, number, number, number]),
-      hot: spheroidal ? 0.25 * population.hotFraction : 0.9 * population.hotFraction,
-      hii: spheroidal ? 0.25 * population.hii : 0.85 * population.hii,
+      hot: spheroidal ? 0.25 * population.hotFraction : 0.5 * population.hotFraction,
+      hii: spheroidal ? 0.25 * population.hii : 1.2 * population.hii,
       dust: 0.6 * population.dust,
       colour: normalise(population.hot),
     },
@@ -689,9 +688,11 @@ vec3 diskKnots(vec3 q,out float kappa){
   vec3 d=(q-kn.xyz)/kn.w;
   float r2=dot(d,d);
   if(r2>9.)continue;
-  float clump=.35+.65*smoothstep(.35,.8,texture(uNoise,q*1.7+kn.xyz*3.1).r);
+  vec3 nq=(q-kn.xyz)/kn.w;
+  float n1=texture(uNoise,nq*.09+kn.xyz*3.1).r,n2=texture(uNoise,nq*.23+kn.xyz*1.7).r;
+  float clump=.2+.8*smoothstep(.38,.78,.6*n1+.4*n2);
   float a=exp(-r2*1.4)*clump/(1.5*kn.w);
-  light+=(uKnotColor*uKnotLight.x+vec3(1.,.3,.5)*uKnotLight.y*clump)*a;
+  light+=(uKnotColor*uKnotLight.x*(.4+.6*n2)+vec3(1.,.28,.45)*uKnotLight.y*clump)*a;
   kappa+=uKnotLight.z*a;
  }
  return light;

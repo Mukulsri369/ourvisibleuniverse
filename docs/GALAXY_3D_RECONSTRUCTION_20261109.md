@@ -346,6 +346,63 @@ of the same script.
   - M81's after capture needed `--bake-timeout 600000`, because its bake outran the default
     240 s. The sheets were not committed.
 
+## 3D models everywhere, 11 November 2026 (pushed, not deployed)
+
+The owner asked for three changes after reviewing the live release. The 2D telescope
+photographs should go, because the 3D reconstructions now reproduce them. The new
+models should show before a galaxy is selected, not only after. And every other plotted
+galaxy should be rebuilt the same way.
+
+- **Photograph overlay removed.** `GalaxyObservedLayer` and its footprint state are
+  gone, so no flat image appears from Earth's direction. The 3D reconstruction is no
+  longer dimmed inside the old photograph frame, and bloom no longer switches off over
+  it. The registered images remain the source of the derived maps (re-derivable with
+  `npm run derive:galaxy-disk-maps`), and `test:galaxy-observed` keeps the AVM,
+  landmark, orientation and near-side checks.
+- **Same model before selection.** The up to eight resolved, unselected catalogue
+  galaxies near the camera (`GalaxyCatalogCloud`) used the legacy preview volume. They
+  now render the disk layer with 512² maps (256² on the performance tier). Only the
+  selected galaxy loads full-resolution maps.
+- **Population reconstructions for the remaining galaxies.** 612 models have sourced
+  population recipes in `galaxy-populations.ts` (axis ratio, core, diffuse light, young
+  fraction, dust, H II and named complexes), and NGC 5253 uses the default irregular
+  recipe. All of them now use the disk layer:
+  - Ellipticals and dwarf ellipticals or spheroidals are smooth triaxial Sérsic
+    spheroids with their sourced axes, core and colours. The index is n = 4 for giant
+    ellipticals (de Vaucouleurs), 3 for lenticulars, 1.5 for dwarf ellipticals and
+    0.8 for dwarf spheroidals (Caon, Capaccioli & D'Onofrio 1993; Graham & Guzmán 2003;
+    McConnachie 2012). Dwarf spheroidals keep faint diffuse light; their resolved star
+    points carry their look.
+  - Irregulars and starbursts, the LMC and SMC included, keep their old population as
+    an exponential spheroid. Young light, H II and dust form a thick, lopsided, clumpy
+    layer; dwarf irregulars are intrinsically thick (Roychowdhury et al. 2013). The
+    sourced star-forming complexes, such as the LMC's 30 Doradus-like region, are drawn
+    as 3D clumps of clusters, H II and dust.
+  - 827 of 830 models now use the new layer. The Milky Way (interior-tuned), Centaurus A,
+    Mayall's Object and Malin 1 keep their bespoke volumes.
+- **Spheroid profile.** Bulges and spheroids use exp(−b m^(1/n)) on triaxial axes, with
+  a closed-form column normaliser: 2 r q Γ(1+n) b^(−n). Existing disk bulges are
+  unchanged by construction; the old fixed 0.55 is this normaliser for their profile.
+- **M104.** The near side now comes from the catalogue's sourced `nearSide` (another
+  session; Emsellem & Ferruit 2000), so the dust silhouette crosses south of the
+  nucleus as in the Hubble image. The Sombrero now has a de Vaucouleurs (n = 4) bulge
+  (Kormendy 1988; Hes & Peletier 1993), a dimmer stellar disk inside a sharper, darker
+  dust ring, and a halo that reaches beyond the disk.
+- **Distant markers.** The batched point-sprite impostors now take each galaxy's 3D
+  colours: old disk, young light, and a separate warm core. Distant late-type spirals
+  no longer show blue cores that turn warm on approach.
+
+Limitations of this step:
+
+- Lenticulars with only a default inclination (NGC 5866, M86, M84 and Fornax A use 0°
+  or 48°) are shown as smooth spheroids with their measured projected shape. NGC 5866's
+  edge-on dust lane needs a sourced inclination first.
+- Shapes in depth, clump layouts between named complexes and dwarf colours are
+  reconstructions.
+- GPU cost is not measured. Each resolved preview now ray-marches the disk layer
+  instead of the cheaper legacy preview. Measure with `ovu-perf-evidence` before
+  release.
+
 ## Known limitations
 
 - Vertical structure, far sides, companion depths and the views away from Earth are

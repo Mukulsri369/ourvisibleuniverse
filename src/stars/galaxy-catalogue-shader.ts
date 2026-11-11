@@ -8,13 +8,13 @@ export const CATALOGUE_VERTEX = /*glsl*/ `
 #include <logdepthbuf_pars_vertex>
 attribute vec3 aPositionLow;
 attribute vec4 aShape,aOrientation,aAppearance,aFeatures;
-attribute vec3 aOldColor,aYoungColor;
+attribute vec3 aOldColor,aYoungColor,aCoreColor;
 attribute float aMask,aSeed;
 uniform vec3 uCameraHigh,uCameraLow;
 // Physical drawing-buffer height, including the current device-pixel ratio.
 uniform float uHeight,uPixelRatio;
 varying vec4 vShape,vAppearance,vFeatures;
-varying vec3 vOldColor,vYoungColor,vRight,vUp,vToward;
+varying vec3 vOldColor,vYoungColor,vCoreColor,vRight,vUp,vToward;
 varying float vSeed,vAlpha,vPixels;
 vec3 inverseRotate(vec4 q,vec3 p){return p+2.*cross(-q.xyz,cross(-q.xyz,p)+q.w*p);}
 void main(){
@@ -25,7 +25,7 @@ void main(){
   gl_PointSize=clamp(physical,6.*uPixelRatio,128.*uPixelRatio);
   vPixels=gl_PointSize;vAlpha=1.-aMask;vShape=aShape;vSeed=aSeed;
   vAppearance=aAppearance;vFeatures=aFeatures;
-  vOldColor=aOldColor;vYoungColor=aYoungColor;
+  vOldColor=aOldColor;vYoungColor=aYoungColor;vCoreColor=aCoreColor;
   vRight=inverseRotate(aOrientation,vec3(viewMatrix[0][0],viewMatrix[1][0],viewMatrix[2][0]));
   vUp=inverseRotate(aOrientation,vec3(viewMatrix[0][1],viewMatrix[1][1],viewMatrix[2][1]));
   vToward=inverseRotate(aOrientation,normalize(-relative));
@@ -36,7 +36,7 @@ void main(){
 export const CATALOGUE_FRAGMENT = /*glsl*/ `
 #include <logdepthbuf_pars_fragment>
 varying vec4 vShape,vAppearance,vFeatures;
-varying vec3 vOldColor,vYoungColor,vRight,vUp,vToward;
+varying vec3 vOldColor,vYoungColor,vCoreColor,vRight,vUp,vToward;
 varying float vSeed,vAlpha,vPixels;
 
 // Analytic line-of-sight profile of a finite-thickness ellipsoidal population.
@@ -170,7 +170,8 @@ void main(){
   }
 
   vec3 population=mix(vOldColor,vYoungColor,clamp(young*detail,0.,.92));
-  vec3 emission=population*disk+vOldColor*bulge*.7;
+  // Core colour as in the 3D reconstruction (warm old population), not the integrated one.
+  vec3 emission=population*disk+vCoreColor*bulge*.7;
   // Pink H II accents are population-level illustration, not named observed objects.
   emission+=vec3(1.,.23,.38)*(association*disk*.12+wind);
   float attenuation=exp(-dust*2.);

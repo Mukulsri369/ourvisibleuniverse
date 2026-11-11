@@ -17,6 +17,12 @@ import { useStore } from "./store";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { galaxyDistanceLabel } from "./galaxy-measurement-format";
 import { catalogueAppearance } from "./galaxy-overview-appearance";
+import { diskLayerSpec } from "./galaxy-disk-layer";
+/** Colours scaled to a unit maximum, as the impostor palette expects. */
+const unitMax = (c: readonly number[]) => {
+  const m = Math.max(1e-4, ...c);
+  return c.map((v) => v / m);
+};
 const rows = NEARBY_GALAXIES.filter((g) => g.name !== "Andromeda (M31)");
 const rowByName = new Map(rows.map((g, i) => [g.name, i]));
 const items = rows.map((g) => ({ position: gToXYZ(g.l, g.b, g.distance), radius: g.size * 0.65 }));
@@ -78,6 +84,7 @@ export function CatalogueGalaxyField() {
       orientation = new Float32Array(rows.length * 4),
       oldColor = new Float32Array(rows.length * 3),
       youngColor = new Float32Array(rows.length * 3),
+      coreColor = new Float32Array(rows.length * 3),
       appearance = new Float32Array(rows.length * 4),
       features = new Float32Array(rows.length * 4),
       seed = new Float32Array(rows.length),
@@ -93,8 +100,12 @@ export function CatalogueGalaxyField() {
       shape.set(catalogueShape(model), i * 4);
       orientation.set(catalogueOrientation(model), i * 4);
       const profile = catalogueAppearance(model, g);
-      oldColor.set(profile.oldColor, i * 3);
-      youngColor.set(profile.youngColor, i * 3);
+      // Distant markers carry the same colours as the galaxy's 3D reconstruction, so the
+      // hand-off to the resolved body does not change its look.
+      const spec = diskLayerSpec(model);
+      oldColor.set(spec ? unitMax(spec.procedural.oldColour) : profile.oldColor, i * 3);
+      youngColor.set(spec ? unitMax(spec.procedural.youngColour) : profile.youngColor, i * 3);
+      coreColor.set(spec ? unitMax(spec.bulge.colour) : profile.oldColor, i * 3);
       appearance.set(profile.parameters, i * 4);
       features.set(profile.features, i * 4);
       let hash = 2166136261;
@@ -108,6 +119,7 @@ export function CatalogueGalaxyField() {
     geometry.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
     geometry.setAttribute("aOldColor", new THREE.BufferAttribute(oldColor, 3));
     geometry.setAttribute("aYoungColor", new THREE.BufferAttribute(youngColor, 3));
+    geometry.setAttribute("aCoreColor", new THREE.BufferAttribute(coreColor, 3));
     geometry.setAttribute("aAppearance", new THREE.BufferAttribute(appearance, 4));
     geometry.setAttribute("aFeatures", new THREE.BufferAttribute(features, 4));
     geometry.setAttribute(

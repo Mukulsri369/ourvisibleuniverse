@@ -2,6 +2,32 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
+## 11 November — 3D models replace photo overlays and legacy volumes (latest checkpoint)
+
+- **What and why:** after the 11 November release, the owner reported three problems:
+  - The 2D photographs still showed from one angle; with the 3D models built from them, they are no longer needed.
+  - The new 3D model appeared only after selecting a galaxy, so unselected galaxies kept the old model.
+  - M104 did not look realistic.
+
+  The owner also asked for every other plotted galaxy to be rebuilt the same way. Report: [3D models everywhere](GALAXY_3D_RECONSTRUCTION_20261109.md#3d-models-everywhere-11-november-2026-pushed-not-deployed).
+
+- **Changes:**
+  - **Photo overlay removed:** `GalaxyObservedLayer` and its footprint state are deleted. The registered images stay as derive inputs and registration tests.
+  - **Previews use the new model:** resolved unselected galaxies render the disk layer, with 512² maps (256² on the performance tier).
+  - **Population reconstructions:** 612 sourced recipes plus NGC 5253 now use the new layer, so 827 of 830 models do in all. Spheroids are triaxial Sérsic (sourced axes, core and colours). Irregulars, including the LMC and SMC, use a thick clumpy layer with the sourced complexes as 3D clumps.
+  - **M104:** n = 4 bulge, sharper dust ring, dimmer disk. Its near side comes from the sourced `nearSide` that another session pushed; my own half-turn was dropped during the rebase, so it is not flipped twice.
+  - **Distant impostors:** they take each galaxy's 3D colours, including a warm core.
+  - **Still legacy:** the Milky Way, Cen A, Mayall's Object and Malin 1.
+- **Checks actually run:**
+  - `npx tsc --noEmit` passes, and ESLint reports 0 errors.
+  - `test:galaxy-disk-layer` passes, with new population selection rules and the Sérsic column checked against numerical integration.
+  - `test:galaxy-observed` passes, including the sourced near sides.
+  - Also passing: `test:galaxies`, `test:galaxy-clarity`, `test:galaxy-landmarks`, `test:galaxy-populations`, `test:galaxy-entry`, `test:galaxy-explorer`, `test:galaxy-empty-space`, `test:scene-depth`, `test:rendering`, `test:visual`, `test:3d`, `test:navigation`, `test:nearby-expansion`.
+  - SwiftShader multi-angle renders (appearance only) of M104, M87, M32, M110, Leo I, LMC, SMC, NGC 6822, IC 10, NGC 5866 and M86, against baseline renders of the old models.
+- **Not established:** GPU frame time, now that up to eight previews ray-march the disk layer; an authenticated full-app run; physical devices. NGC 5866's dust lane is not reconstructed, because it lacks a sourced inclination.
+- **Source and deployment status:** pushed to `migration/supabase-cloudflare` on top of the deployed `569d9d8`/`f2b0135`. **Not deployed**; production (Worker `3ac21eee…`) still shows the photo overlays and legacy dwarf/elliptical volumes.
+- **Next concrete action:** owner review on the branch preview or locally (`node node_modules/vite/bin/vite.js --config scripts/nearby-qa/vite.config.mts`, then `/scripts/nearby-qa/galaxy-views.html?g=lmc&v=oblique` or `?g=m104`); then measure GPU cost per `ovu-perf-evidence`, and deploy only with the owner's approval.
+
 ## 11 November — galaxy reconstruction release live
 
 The owner requested deploying the latest Claude Code changes from GitHub. The production branch `migration/supabase-cloudflare` included all three Claude branches at merge commit `569d9d8`. That source was deployed to https://ourvisibleuniverse.com as Cloudflare Worker version `3ac21eee-e6d5-405c-9743-3a7425d04f21`, serving 100% of traffic. The previous version was `515c5b59-f82b-4adc-8ded-b838faa23f14`. This supersedes the pending merge and deployment checkpoints below.
@@ -10,7 +36,7 @@ The release includes the rebuilt galaxy views, M81 and M104 near-side correction
 
 At 11:22 IST, 15 live HTTPS checks passed across public pages, auth and MCP routes, and domain redirects. The live scene bundle, 12 telescope images, and 31 derived textures matched the build byte for byte. Cloudflare reported the same production bindings and four attached domains. Signed-in visual testing and real-device performance measurements remain open.
 
-## 10 November — derived-map normalisation made stable (latest checkpoint)
+## 10 November — derived-map normalisation made stable
 
 - **What and why:** `npm run derive:galaxy-disk-maps` re-encoded whole derived maps after geometry changes of about 1e-11. Normalising Earth's direction in the M81 change re-encoded M33's and the Cartwheel's young maps, and a trial normalisation of the sky-orientation quaternion moved NGC 1300's `detail.scale` by 2%. Each map's encoding scale is now stable under such changes. Report: [stable map normalisation](GALAXY_3D_RECONSTRUCTION_20261109.md#stable-map-normalisation-10-november-2026-pushed-not-deployed).
 - **Causes**, found by re-deriving every map with perturbed orientations in scratch worktrees (not committed):
