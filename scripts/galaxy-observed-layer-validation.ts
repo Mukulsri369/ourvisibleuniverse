@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import sharp from "sharp";
 import * as THREE from "three";
 import { readAvm } from "./galaxy-observed-avm.mjs";
 import { NEARBY_GALAXIES } from "../src/stars/galaxy-catalog";
@@ -261,6 +262,225 @@ for (const m of GALAXY_MODELS) {
   oriented++;
 }
 console.log(`Measured inclination and position angle seen from Earth for ${oriented} models`);
+
+// Near side. Inclination and position angle leave open which half of the minor axis is
+// nearer the Sun. A sourced near side must be the nearer half; every other inclined model
+// keeps the default convention (the half toward PA − 90°), so recording one moves no other.
+const skyBasis = (raDeg: number, decDeg: number) => {
+  const ra = raDeg * D2R,
+    dec = decDeg * D2R;
+  return {
+    east: new THREE.Vector3(-Math.sin(ra), Math.cos(ra), 0),
+    north: new THREE.Vector3(
+      -Math.sin(dec) * Math.cos(ra),
+      -Math.sin(dec) * Math.sin(ra),
+      Math.cos(dec),
+    ),
+  };
+};
+/** Smallest angle between two position angles (0–180°). */
+const paGap = (a: number, b: number) => {
+  const d = (((a - b) % 360) + 360) % 360;
+  return Math.min(d, 360 - d);
+};
+let sourcedNearSides = 0,
+  conventionalNearSides = 0;
+for (const m of GALAXY_MODELS) {
+  const o = m.skyOrientation;
+  // Face-on and exactly edge-on disks have no near half to check.
+  if (!o || o.inclination < 1 || o.inclination > 89) {
+    assert(!o?.nearSide, `${m.name}: a near side needs an inclined disk`);
+    continue;
+  }
+  const minor = new THREE.Vector3(0, 0, 1).applyQuaternion(galaxyOrientation(m));
+  const { east, north } = skyBasis(o.ra, o.dec);
+  const icrsMinor = icrsFromScene(minor);
+  const minorPa = (Math.atan2(icrsMinor.dot(east), icrsMinor.dot(north)) / D2R + 360) % 360;
+  const towardSun = minor.dot(sceneFromIcrs(icrsUnit(o.ra, o.dec))) < 0;
+  const nearPa = towardSun ? minorPa : (minorPa + 180) % 360;
+  const n = o.nearSide;
+  if (n) {
+    assert(
+      Math.min(paGap(n.pa, o.pa + 90), paGap(n.pa, o.pa - 90)) < 0.5,
+      `${m.name}: near side PA ${n.pa} is not on the minor axis of PA ${o.pa}`,
+    );
+    assert(
+      n.evidence.length > 40 && /arXiv:|doi:|\b(19|20)\d\d\b/.test(n.source),
+      `${m.name}: a near side needs its evidence and a citation`,
+    );
+    close(paGap(nearPa, n.pa), 0, 0.5, `${m.name}: sourced near side (PA ${n.pa})`);
+    sourcedNearSides++;
+  } else {
+    close(paGap(nearPa, o.pa - 90), 0, 0.5, `${m.name}: default near-side convention`);
+    conventionalNearSides++;
+  }
+}
+const m104 = GALAXY_MODELS.find((m) => m.key === "m104")!;
+assert.equal(m104.skyOrientation?.nearSide?.pa, 180, "M104's near side is south of the nucleus");
+assert.equal(
+  GALAXY_MODELS.find((m) => m.key === "m81")!.skyOrientation?.nearSide?.pa,
+  247,
+  "M81's near side is west-southwest",
+);
+console.log(
+  `Near side: ${sourcedNearSides} sourced, ${conventionalNearSides} on the default convention`,
+);
+
+// A dust-silhouette near side must be visible in the registered photograph. Strong test
+// (calibrated on M104, 84°): along the minor axis the bulge light dips and recovers,
+// reddened, on that half, and falls off smoothly on the far half. Medians across a band
+// ignore foreground stars.
+//
+// A less inclined disk crosses its bulge with thinner lanes, which dim it by 10–30% rather
+// than to a third. Those photographs are listed here with the reason, and get a weak test
+// inside the bulge instead: the near half must be dimmer and redder than the far half, its
+// dimming must be tied to the minor axis (three times the difference between the two halves
+// of the major axis, which lie at equal depth), and it must hold the deepest reddened lane.
+// The thresholds were set on M81 (docs/GALAXY_NEAR_SIDE_20261110.md). They still pass with
+// the axes turned ±5° and with other band widths, windows and steps, and they fail in every
+// such variant when the near side is recorded on the opposite half. A listed photograph that
+// passes the strong test must leave this list.
+const WEAK_SILHOUETTES: Record<string, { window: [number, number]; reason: string }> = {
+  m81: {
+    window: [20, 140],
+    reason:
+      "62° tilt: thin dust arcs dim and redden a bright bulge. The strong test's reach (212″) " +
+      "runs past the bulge outline (215″ × 0.66 ≈ 142″ in derive:galaxy-disk-maps) into the " +
+      "spiral arms, whose arm/inter-arm contrast reads as a lane on both halves (×1.30 near, " +
+      "×1.22 far); inside 20″ is the saturated nucleus.",
+  },
+};
+const SRGB = (c: number) => {
+  const v = c / 255;
+  return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+};
+const median = (values: number[]) => [...values].sort((a, b) => a - b)[values.length >> 1];
+for (const m of GALAXY_MODELS) {
+  const n = m.skyOrientation?.nearSide;
+  const image = OBSERVED_GALAXY_IMAGES.find((i) => i.key === m.key);
+  if (!n || n.method !== "dust-silhouette" || !image) continue;
+  const g = NEARBY_GALAXIES.find((x) => x.name === m.name)!;
+  const { data, info } = await sharp("public" + image.url)
+    .removeAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const rows = avmTextureRows(image.avm),
+    centre = icrsUnit(g.ra!, g.dec!),
+    { east, north } = skyBasis(g.ra!, g.dec!);
+  const semiMinor = ((g.angularDiameterArcmin.minor ?? g.angularDiameterArcmin.major) * 60) / 2;
+  const reach = 0.5 * semiMinor,
+    band = Math.max(4, 0.06 * semiMinor);
+  /** Linear luminance and blue/red, medians across the band, every `step`″ from the nucleus. */
+  const profile = (paDeg: number, to: number, step: number) => {
+    const t = paDeg * D2R,
+      along = north.clone().multiplyScalar(Math.cos(t)).addScaledVector(east, Math.sin(t)),
+      across = east.clone().multiplyScalar(Math.cos(t)).addScaledVector(north, -Math.sin(t));
+    const samples: { s: number; light: number; blueRed: number }[] = [];
+    for (let s = 0; s <= to; s += step) {
+      const light: number[] = [],
+        blueRed: number[] = [];
+      for (let k = -band; k <= band; k += band / 12) {
+        const d = centre
+          .clone()
+          .addScaledVector(along, (s / 3600) * D2R)
+          .addScaledVector(across, (k / 3600) * D2R);
+        const [u, v, w] = rows.map((r) => r.dot(d));
+        const x = Math.floor((u / w) * info.width),
+          y = Math.floor((1 - v / w) * info.height);
+        if (x < 0 || y < 0 || x >= info.width || y >= info.height) continue;
+        const i = (y * info.width + x) * info.channels;
+        const [r, gg, b] = [SRGB(data[i]), SRGB(data[i + 1]), SRGB(data[i + 2])];
+        light.push(0.2126 * r + 0.7152 * gg + 0.0722 * b);
+        blueRed.push((b + 1e-3) / (r + 1e-3));
+      }
+      if (light.length) samples.push({ s, light: median(light), blueRed: median(blueRed) });
+    }
+    return samples;
+  };
+  const silhouette = (paDeg: number) => {
+    const p = profile(paDeg, reach, reach / 80);
+    // Recovery: how far the light climbs again beyond its darkest point (1 = smooth fall-off).
+    let best = { recovery: 1, reddening: 1 };
+    for (let i = 0; i < p.length; i++) {
+      let peak = i;
+      for (let k = i; k < p.length; k++) if (p[k].light > p[peak].light) peak = k;
+      const recovery = p[peak].light / Math.max(p[i].light, 1e-6);
+      if (recovery > best.recovery) best = { recovery, reddening: p[i].blueRed / p[peak].blueRed };
+    }
+    return best;
+  };
+  const near = silhouette(n.pa),
+    far = silhouette(n.pa + 180);
+  const strong = near.recovery > 2 && near.reddening < 0.8 && far.recovery < 1.2;
+  const weak = WEAK_SILHOUETTES[image.key];
+  if (!weak) {
+    assert(
+      strong,
+      `${m.name}: photograph's dust silhouette should lie at PA ${n.pa} ` +
+        `(near ${JSON.stringify(near)}, far ${JSON.stringify(far)})`,
+    );
+    console.log(
+      `${image.key}: dust silhouette at PA ${n.pa}° in its photograph (light recovers ×${near.recovery.toFixed(1)}, ` +
+        `reddened ×${near.reddening.toFixed(2)}; far half ×${far.recovery.toFixed(2)})`,
+    );
+    continue;
+  }
+  assert(weak.reason.length > 40, `${m.name}: a weak silhouette needs its reason`);
+  assert(
+    !strong,
+    `${m.name}: its photograph passes the strong silhouette test; remove it from WEAK_SILHOUETTES`,
+  );
+  const [from, to] = weak.window,
+    step = 1.5,
+    laneHalfWidth = 6; // arcsec
+  /** Medians over the window of the light ratio (this half / opposite half) and the colour ratio. */
+  const asymmetry = (paDeg: number) => {
+    const a = profile(paDeg, to, step),
+      b = profile(paDeg + 180, to, step);
+    assert(
+      a.length === b.length && a.length === Math.floor(to / step) + 1,
+      `${m.name}: the photograph must cover the bulge window on both halves`,
+    );
+    const pairs = a.map((q, i) => [q, b[i]] as const).filter(([q]) => q.s >= from);
+    return {
+      light: median(pairs.map(([q, r]) => q.light / r.light)),
+      colour: median(pairs.map(([q]) => q.blueRed)) / median(pairs.map(([, r]) => r.blueRed)),
+    };
+  };
+  /** Deepest reddened lane: the light at a point against its neighbours ±laneHalfWidth away. */
+  const lane = (paDeg: number) => {
+    const p = profile(paDeg, to, step),
+      k = Math.round(laneHalfWidth / step);
+    let best = { depth: 1, reddening: 1, at: 0 };
+    for (let i = k; i + k < p.length; i++) {
+      if (p[i].s < from) continue;
+      const depth = Math.sqrt(p[i - k].light * p[i + k].light) / Math.max(p[i].light, 1e-6),
+        reddening = p[i].blueRed / Math.sqrt(p[i - k].blueRed * p[i + k].blueRed);
+      if (reddening < 0.9 && depth > best.depth) best = { depth, reddening, at: p[i].s };
+    }
+    return best;
+  };
+  const minorAxis = asymmetry(n.pa),
+    majorAxis = asymmetry(m.skyOrientation!.pa),
+    nearLane = lane(n.pa),
+    farLane = lane(n.pa + 180);
+  assert(
+    minorAxis.light < 0.9 &&
+      minorAxis.colour < 0.85 &&
+      Math.abs(Math.log(minorAxis.light)) > 3 * Math.abs(Math.log(majorAxis.light)) &&
+      nearLane.depth > 1.1 &&
+      nearLane.depth > farLane.depth,
+    `${m.name}: photograph's weak dust silhouette should lie at PA ${n.pa} ` +
+      `(${JSON.stringify({ minorAxis, majorAxis, nearLane, farLane })})`,
+  );
+  console.log(
+    `${image.key}: weak dust silhouette at PA ${n.pa}° in its photograph, ${from}–${to}″ inside the bulge ` +
+      `(near half ×${minorAxis.light.toFixed(2)} light, blue/red ×${minorAxis.colour.toFixed(2)}; ` +
+      `major-axis halves ×${majorAxis.light.toFixed(2)}; reddened lane ×${nearLane.depth.toFixed(2)} at ` +
+      `${nearLane.at.toFixed(0)}″, far half ×${farLane.depth.toFixed(2)}; strong test ×${near.recovery.toFixed(2)} ` +
+      `near, ×${far.recovery.toFixed(2)} far)`,
+  );
+}
 
 // Visibility rules.
 const w = (angle: number, inclination: number, surface: "disk" | "sky", radii = 4) =>

@@ -2,7 +2,125 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 10 November — galaxy 3D follow-up: NGC 1300 registration, crisp tilted disks, round spheroids (latest checkpoint)
+## 10 November — derived-map normalisation made stable (latest checkpoint)
+
+- **What and why:** `npm run derive:galaxy-disk-maps` re-encoded whole derived maps after geometry changes of about 1e-11. Normalising Earth's direction in the M81 change re-encoded M33's and the Cartwheel's young maps, and a trial normalisation of the sky-orientation quaternion moved NGC 1300's `detail.scale` by 2%. Each map's encoding scale is now stable under such changes. Report: [stable map normalisation](GALAXY_3D_RECONSTRUCTION_20261109.md#stable-map-normalisation-10-november-2026-pushed-not-deployed).
+- **Causes**, found by re-deriving every map with perturbed orientations in scratch worktrees (not committed):
+  - The young peak was the 99.95th percentile of every third texel in the list of positive texels. One texel crossing zero shifted that subsample.
+  - Removing the stride was not enough on its own. Where the light is zero, round-off in the envelope blur's running sums makes young light of up to 1e-18 appear and disappear. Such texels were 0.05% (M101) to 30% (Cartwheel) of the "positive" texels, and a 1e-11 rad rotation flipped 3,115 of M51's. The percentile's rank moves by one for every 2,000 of them.
+  - The old map's peak is a maximum. Under a perturbation it moved by one float32 step. Through the unrounded scale that change reached every texel, and one block of Hoag's Object's old map changed.
+- **Code and data:**
+  - `scripts/derive-galaxy-disk-maps.ts`, normalisation only:
+    - The young peak is the 99.95th percentile of every texel above 1e-9 of the face-on noise, with no subsample. The round-off lies at or below 1e-15 of the noise, and real young light starts above 1e-12.
+    - The young and old peaks are rounded to four significant digits before they set the encoding scale.
+    - The other percentiles were checked and left unchanged.
+  - Every map was re-derived once:
+    - The seven young and seven old maps were re-encoded. The dust maps and part atlases are byte-identical.
+    - In `galaxy-disk-maps.json` only `detail.scale` (−0.02% to +6.96%) and `smooth.scale` (at most 0.013%) changed.
+    - On 8×8 means, rendered young light changed by about the size of one JPEG re-encoding. The exceptions are Hoag's Object and the Cartwheel, whose brightest knots now clip less (their total young light rose by 0.19% and 0.09%).
+- **Checks actually run:**
+  - Dependencies were installed with `npm install --no-save`, because `npm ci` still rejects the out-of-sync lockfile. The lockfile is unchanged.
+  - Baseline on the unchanged checkout: `derive:galaxy-disk-maps -- --check` passed, and a full re-derive reproduced every committed output byte for byte (sharp 0.35.5).
+  - Stability: four perturbations, each a full re-derive in a scratch worktree. They were the quaternion normalised, Earth's direction left unnormalised, and two 1e-11 rad rotations about different axes.
+    - With this change, the metadata, scales and lit-texel counts were identical in all four runs, and 31 of the 32 outputs were byte-identical in all four.
+    - In two runs one 8×8 block of M81's young map differed (at most 2 levels): a single texel at an 8-bit rounding boundary.
+    - For comparison, the previous script re-encoded two maps under the quaternion normalisation (NGC 1300 +2.00%) and changed a block of a third. With only the stride removed, the first rotation re-encoded two maps (M51 −0.16%) and changed a block in each of two more.
+  - Reproducibility: two full re-derives gave byte-identical outputs. `derive:galaxy-disk-maps -- --check` reproduces all seven disk galaxies' metadata.
+  - `test:galaxy-disk-layer` passed. Registration, measured before (`958bc70`) and after: M51 0.913 → 0.913, M81 0.840 → 0.842, M101 0.917 → 0.917, M33 0.800 → 0.800, NGC 1300 0.929 → 0.929, Cartwheel 0.988 → 0.988, Hoag's Object 0.826 → 0.829.
+  - Passed: `test:galaxy-observed` and `test:galaxies`. `npx tsc --noEmit` exited 0, and ESLint and Prettier are clean on the changed script. No test was changed.
+  - Look-dev, Earth view, M51 and M81, in headless Chromium with SwiftShader, before (worktree at `958bc70`) and after: no visible change.
+    - The renders differ by 0.028 and 0.012 of an 8-bit level on average and by at most 3 levels, and every appearance indicator is equal to three decimals.
+    - M81's after capture needed `--bake-timeout 600000`; the default 240 s ran out. The sheets were not committed.
+  - Also passed, because they load the disk-map metadata: `test:galaxy-landmarks`, `test:solar-controls` and `scripts/galaxy-experience-validation.ts`.
+  - Not run: `test:nearby-regressions`, which needs the gitignored local download in `.cache/nearby-catalogue-sources/` and does not touch the derived maps.
+- **Remaining:** a texel at an 8-bit rounding boundary can still flip under a tiny geometry change, which changes one JPEG block of a map. Part atlases are not rounded: their peaks come from the photograph plane, which no orientation change touches, but a change to the image-registration arithmetic itself could still re-encode them.
+- **Not established:** the full or authenticated app, `build:cloudflare`, physical devices, real-GPU timing. No shader or renderer code changed.
+- **Source and deployment status:**
+  - Branch `claude/magical-galileo-y1be5c`, created from `claude/vibrant-shannon-o27jcc` at `958bc70`, plus one commit. `958bc70` had not been merged into `migration/supabase-cloudflare`, which has three newer documentation commits. This branch merges with it without conflicts (checked with `git merge-tree`). No history was rewritten.
+  - Pushed to origin from a cloud session. Not merged.
+  - **Not deployed.** Production remains as last recorded and was not inspected.
+- **Next concrete action:** review, then merge this branch into `migration/supabase-cloudflare`. It contains the M104 and M81 commits, so neither `claude/great-ramanujan-r2pi5b` nor `claude/vibrant-shannon-o27jcc` needs merging separately. Optionally, tone down M81's near-side dust in the bulge through `ovu-galaxy-realism`.
+
+## 10 November — M81's near side sourced
+
+- **What and why:** the M104 audit found M81 probably reversed. The convention made the ENE half of its minor axis (PA 67°) the near one, so the reconstruction silhouetted its dust lanes against the wrong side of the bulge. Its near side is now sourced and recorded as the WSW half (PA 247°), and its face-on maps are re-derived. Report: [near sides, M81 follow-up](GALAXY_NEAR_SIDE_20261110.md#m81-follow-up-latest).
+- **Sources** (read in full from arXiv in this session, and quoted in the report and in the record):
+  - Li, Li, García-Benito & Feng 2022, ApJ 928, 111, §3.2.2, from dust extinction: the southwestern side "is the near side".
+  - Schnorr Müller et al. 2011, MNRAS 413, 149, §4.1, from the stellar velocity field under trailing arms: "the near side of the galaxy is the SW".
+  - Rao et al. 2026, ApJ (accepted), §III.1: "the western half is closer to us", citing the de Vaucouleurs Atlas (Buta, Corwin & Odewahn 2007).
+  - The Atlas web entry itself was still not read. With the owner's approval, the environment now allows `kudzu.astr.ua.edu`, but the host's certificate chains to eMudhra emSign roots that no trust store in the container has. Verification was not disabled.
+- **Photograph:** the registered Hubble image heic0710a only weakly corroborates the near side.
+  - Inside the bulge (20–140″ along the minor axis), the WSW half is ×0.87 in light and ×0.73 in blue/red against the ENE half. The two major-axis halves differ by only 3.5% in light.
+  - Reddened lanes cross the WSW half at 58–67″ and about 120″; the ENE half falls off smoothly.
+  - M104's strong test (dip and recovery over ×2) does not apply, because out to its reach of 212″ the minor axis crosses spiral arms on both halves.
+- **Code and data:**
+  - `src/stars/galaxy-catalog.ts`: M81 has `nearSide: { pa: 247, method: "dust-silhouette", evidence, source }`. Distance, inclination, position angle and host membership are unchanged.
+  - `scripts/galaxy-observed-layer-validation.ts`: M104 keeps the strong silhouette test. A documented `WEAK_SILHOUETTES` list, holding M81 only with its reason and bulge window, gets a weak test: the near half must be dimmer and redder, the dimming at least three times the major-axis difference, and the deepest reddened lane on the near half. A listed photograph that passes the strong test fails the suite. Nothing was relaxed.
+  - `src/stars/galaxy-observed-projection.ts`: `earthDirectionLocal` normalises its result. Sky-orientation quaternions are unit only to about 1e-11, because of the 10-digit ICRS-to-Galactic matrix. M81's reversed orientation then failed the existing 1e-12 unit-vector check (by 8.3e-12).
+  - Derived maps, from `npm run derive:galaxy-disk-maps`:
+    - M81's young, old and dust maps were regenerated; the bulge atlas is byte-identical. They differ from the old maps by the predicted perspective warp, up to 3.3 px at 0.72 R, and are not mirrored.
+    - Through the new orientation, the re-derived maps register with the photograph at r 0.863 (gradient r 0.634). The old maps would give 0.837 (0.470).
+    - The normalisation also re-encoded M33's and Cartwheel's young maps. `detail.scale` moved by −0.25% and −0.11%, because derive's peak percentile uses a stride-3 subsample that shifts when a pixel crosses zero. The change in light (2.6% and 2.1% RMS) is the size of their own JPEG encoding error, and their registration is unchanged.
+- **Integration:** `336caaf` (M104) had not been merged into `migration/supabase-cloudflare`, which had six newer commits after `f72c3b8`, including spheroid core radii in the derive script. This branch fast-forwarded to `336caaf` and merged `migration/supabase-cloudflare` (merge `5d8866d`; only this file conflicted, and both sections were kept). M81's maps were then derived with the current script.
+- **Checks actually run:**
+  - `npx tsc --noEmit` exited 0.
+  - Passed: `test:galaxy-observed`, with M81's weak test and M104's unchanged strong test; `test:galaxy-disk-layer`, with M81's registration 0.840 (before 0.835) and M33 and Cartwheel unchanged at 0.800 and 0.988; and `test:galaxies`.
+  - `derive-galaxy-disk-maps --check` reproduced all seven disk galaxies' metadata, and re-deriving M81, M33 and Cartwheel reproduced their maps byte for byte.
+  - Five mutations each fail the suite for the intended reason: M81 recorded on the wrong half; M104 added to the weak list; M81 removed from it; the tilt reversal disabled; the normalisation removed.
+  - The weak test holds with the axes turned ±5° and with other bands, windows and steps, and fails in all of them for the wrong half.
+  - Look-dev, Earth view, before and after, in headless Chromium with SwiftShader: [`galaxy-lookdev-m81-near-side-20261110/`](galaxy-lookdev-m81-near-side-20261110/). Before, the render dimmed the ENE half of the bulge (WSW/ENE ×1.35). After, the WSW half is dimmed and reddened (×0.59, blue/red ×0.49), with the lane near 65″ as in the photograph. The render's silhouette is darker than the photograph's (×0.87).
+  - Also passed: `test`, `test:catalog`, `test:consistency`, `test:nearby-catalog`, `test:nearby-expansion`, `ingest:nearby-catalog -- --check`, `test:galaxy-explorer`, `test:galaxy-entry`, `test:navigation`, `test:exploration-camera`, `test:galaxy-clarity`, `test:galaxy-landmarks`, `test:galaxy-populations`, `test:galaxy-empty-space`, `test:scene-depth`, `test:rendering`, `test:visual`, `test:3d`, `test:extragalactic`, `test:nebulae`, `test:black-holes`, `test:compact`, `test:solar-controls`, and the two Andromeda scripts.
+  - Could not run here: `test:nearby-regressions`. Its catalogue checks pass, but its source crosscheck needs the gitignored local download `.cache/nearby-catalogue-sources/`, which a cloud checkout lacks. That run rewrote `docs/nearby-galaxy-checks.json`, which was restored to the committed version rather than committed.
+- **Not established:** the full or authenticated app, `build:cloudflare`, physical devices, real-GPU timing, the multi-angle cross-fade page. No shader changed.
+- **Source and deployment status:**
+  - Branch `claude/vibrant-shannon-o27jcc`, fast-forwarded from `main` to `336caaf`, then merge `5d8866d` and one M81 commit. No history was rewritten.
+  - Pushed to origin from a cloud session, as the task asked. Not merged into `migration/supabase-cloudflare`.
+  - **Not deployed.** Production remains as last recorded and was not inspected.
+  - The environment's allowed hosts are now `arxiv.org` and `kudzu.astr.ua.edu`.
+- **Next concrete action:**
+  - Review the before and after sheets, then merge this branch into `migration/supabase-cloudflare` if accepted. It contains the M104 commit, so `claude/great-ramanujan-r2pi5b` need not be merged separately.
+  - Then make derive's young-map peak stable under tiny geometry changes and re-derive every map once.
+  - Optionally, tone down the reconstruction's near-side dust in the bulge through `ovu-galaxy-realism`.
+
+## 10 November — M104's near side sourced
+
+- **What and why:** In the look-dev Earth view, the Sombrero's dust ring crossed the bulge north of the nucleus. In the registered Hubble image it crosses south.
+  - A catalogue inclination (0–90°) and position angle leave open which half of the minor axis is nearer to us.
+  - `observedSkyQuaternion` settled that by convention, making the half toward PA − 90° the near one. For M104 that was the north half.
+  - The near side is now a sourced, per-object orientation fact. M104's near side is south (PA 180°).
+  - Report: [M104 near side](GALAXY_NEAR_SIDE_20261110.md).
+- **Sources:**
+  - The registered photograph (opo0328a), sampled along the minor axis through its embedded AVM. 12–18″ south of the nucleus the light falls to about a third and is strongly reddened; to the north it falls off smoothly.
+  - Emsellem & Ferruit 2000, A&A 357, 111, §4: north is "the far (north) side of the galaxy".
+  - Method: Iye, Tadaki & Fukumoto 2019. The dust-lane-dominant side is the near side, a reading proven independently only for M31.
+- **Code:**
+  - `src/stars/galaxy-sky-orientation.ts`: new `SkyNearSide` type and optional `SkyOrientation.nearSide`. A near side on the PA + 90° half reverses the tilt (the inclination changes sign), which leaves the disk plane's projection on the sky unchanged.
+  - `src/stars/galaxy-catalog.ts`: M104's record carries `nearSide` with its method, evidence and citation.
+  - `src/stars/galaxy-models.ts`: copies `nearSide` into the sky orientation.
+  - Distances, inclinations, position angles and host membership are unchanged. No derived map depends on M104.
+- **Checks actually run:**
+  - `npm run test:galaxy-observed` passed, with three new checks: sourced near sides are the nearer half; the other 199 inclined models keep the default convention; M104's photograph shows the dust silhouette on the recorded half. Two mutations, disabling the reversal and recording the wrong half, both fail it.
+  - `test:galaxies` and `test:galaxy-disk-layer` passed.
+  - Also passed: `test`, `test:catalog`, `test:consistency`, `test:nearby-catalog`, `test:galaxy-explorer`, `test:galaxy-entry`, `test:navigation`, `test:exploration-camera`, `test:galaxy-clarity`, `test:galaxy-landmarks`, `test:galaxy-populations`, `test:galaxy-empty-space`, `test:scene-depth`, `test:rendering`, `test:visual`, `test:3d`, `test:extragalactic`, `test:nebulae`, `test:black-holes`, `test:compact`, `test:solar-controls`, and the two Andromeda scripts.
+  - `npx tsc --noEmit` exited 0. ESLint and Prettier are clean on the changed files.
+  - `test:nearby-expansion` and `ingest:nearby-catalog -- --check` fail with logs identical to the run before the change. This is the recorded `mcconnachie-2021-andromeda20` drift.
+  - Look-dev Earth view, before and after, in headless Chromium with SwiftShader: the dust lane moved from north to south of the nucleus. The sheets are in [`galaxy-lookdev-m104-near-side-20261110/`](galaxy-lookdev-m104-near-side-20261110/).
+  - Photo cross-fade on the multi-angle QA page: before, the reconstruction's lane darkened the bulge north of the core and diluted the photograph's lane to the south; after, the two coincide. Oblique, edge and back poses are unchanged.
+- **Audit of other inclined galaxies with registered images:**
+  - **M81 is probably reversed.** The de Vaucouleurs Atlas puts its near side west; the render puts it ENE. The photograph agrees only weakly. It was not changed, because its face-on maps were derived through the current orientation and need re-deriving.
+  - **M82 already matches** Shopbell & Bland-Hawthorn 1998, which places the near edge northwest.
+  - **NGC 4565** has no registered image.
+- **Not established:** the full or authenticated app, `build:cloudflare`, physical devices and real-GPU timing. No shader changed.
+- **Source and deployment status:**
+  - One commit on `claude/great-ramanujan-r2pi5b`, which was fast-forwarded from `main` to `migration/supabase-cloudflare` at `f72c3b8`. No history was rewritten.
+  - Pushed to origin from a cloud session, as the task asked. Not merged into `migration/supabase-cloudflare`.
+  - **Not deployed.** Production remains as last recorded and was not inspected.
+  - With the owner's approval, the cloud environment now also allows `arxiv.org`, so that the cited papers could be read.
+- **Next concrete action:**
+  - Review the before and after sheets, then merge the branch into `migration/supabase-cloudflare` if accepted.
+  - Then M81: read a source that states its west near side, add `nearSide: { pa: 247, … }`, re-derive its maps (`npm run derive:galaxy-disk-maps`) and re-check them with `test:galaxy-disk-layer` and a look-dev sheet.
+
+## 10 November — galaxy 3D follow-up: NGC 1300 registration, crisp tilted disks, round spheroids
 
 - **What and why:** running the `ovu-galaxy-realism` look-dev comparison on the 9 November rebuild exposed five problems:
   - NGC 1300's reconstruction was a squashed (2.5:1) disk.

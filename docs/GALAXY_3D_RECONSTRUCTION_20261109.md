@@ -207,6 +207,145 @@ The baseline is commit `bafc5a4`, from [the tooling report](GALAXY_REALISM_TOOLI
   foreground stars and the images' display stretch. The sheets are in
   `.taste-skill/lookdev-final/`, which Git ignores.
 
+## Stable map normalisation, 10 November 2026 (pushed, not deployed)
+
+`npm run derive:galaxy-disk-maps` re-encoded whole maps after geometry changes of about
+1e-11, far below anything visible. Normalising Earth's direction in the M81 near-side change
+re-encoded M33's and the Cartwheel's young maps. A trial normalisation of the sky-orientation
+quaternion moved NGC 1300's `detail.scale` by 2%
+([near-side report](GALAXY_NEAR_SIDE_20261110.md#m81-follow-up-latest)). The normalisation
+is now stable, and re-deriving every map changed only the scales of the young and old maps.
+
+### Causes
+
+Each cause was found by re-deriving every map with a perturbed orientation, in scratch
+worktrees that were not committed.
+
+- **A stride over a filtered list.** Each young map's peak was the 99.95th percentile of
+  every third texel in the list of positive texels. When one texel crossed zero, the
+  subsample shifted.
+- **Round-off counted as light.** Where the light is exactly zero, round-off in the running
+  sums of the envelope's blur leaves the envelope slightly negative (to −8e-19). So
+  `young = light − envelope` came out positive, at most about 1e-18, or 1e-15 of the
+  face-on noise.
+  - These texels were from 0.05% (M101) to 30% (the Cartwheel) of the texels counted as
+    positive: 82,133 in M51 and 757,728 in the Cartwheel.
+  - Whether they are positive depends on the round-off, which any upstream change
+    reshuffles. A 1e-11 rad rotation of the orientation flipped 3,115 of them in M51 and
+    3,497 in the Cartwheel.
+  - With the stride removed, the percentile's rank still moves by one for every 2,000
+    texels that cross zero. Under that rotation M51's young peak moved by 0.16%.
+- **Unrounded scales.** The old (smooth) map's peak is a maximum. Under a perturbation,
+  Hoag's Object's peak moved by one float32 step (1 part in 9 million). The encoding used
+  that exact scale, so the change reached every texel of the map; one block, where a texel
+  sat at a rounding boundary, changed.
+
+### Change
+
+In `scripts/derive-galaxy-disk-maps.ts`, only the normalisation changed:
+
+- The young peak is the 99.95th percentile of every texel above 1e-9 of the face-on noise,
+  with no subsample.
+  - In all seven maps the round-off lies at or below 1e-15 of the noise, and real young
+    light starts above 1e-12, so the floor sits in an empty gap.
+  - Besides the round-off, it leaves out four texels, all in the Cartwheel and far below
+    what the 8-bit map can show.
+- The young and old peaks are rounded to four significant digits before they set each
+  map's encoding scale.
+- The other percentiles and strided loops were checked and left alone:
+  - The sky level and noise use a fixed subsample of the photograph's border.
+  - The stride-13 percentile only scales an ignored diagnostic image.
+  - Mean colours and radial profiles stride over the unfiltered texel index.
+  - Part atlases take their peak from the photograph plane, which no orientation change
+    touches.
+
+### Re-derived maps
+
+Every map was re-derived once (`npm run derive:galaxy-disk-maps`). The seven young and
+seven old maps were re-encoded. The dust maps and part atlases are byte-identical. In the
+metadata only `detail.scale` and `smooth.scale` changed.
+
+| Galaxy        | `detail.scale`               | `smooth.scale` | Young light change, per texel / 8×8 means | Clipped texels  |
+| ------------- | ---------------------------- | -------------- | ----------------------------------------- | --------------- |
+| M51           | 0.443382 → 0.450761 (+1.66%) | −0.013%        | 2.81% / 0.35%                             | 0.054% → 0.050% |
+| M81           | 0.137616 → 0.139457 (+1.34%) | +0.003%        | 2.93% / 0.53%                             | 0.016% → 0.016% |
+| M101          | 0.710164 → 0.71 (−0.02%)     | +0.004%        | 1.14% / 0.14%                             | 0.002% → 0.002% |
+| M33           | 0.33065 → 0.336522 (+1.78%)  | −0.001%        | 2.55% / 0.48%                             | 0.032% → 0.029% |
+| NGC 1300      | 0.380427 → 0.39 (+2.52%)     | +0.002%        | 2.64% / 0.35%                             | 0.021% → 0.018% |
+| Cartwheel     | 0.534602 → 0.55837 (+4.45%)  | −0.006%        | 2.38% / 0.66%                             | 0.155% → 0.118% |
+| Hoag's Object | 0.479547 → 0.512935 (+6.96%) | −0.006%        | 3.36% / 1.97%                             | 0.037% → 0.030% |
+
+- The young scales rose because the round-off texels no longer pad the percentile's
+  population. M101 has almost none. Removing the stride alone would have moved the young
+  scales by −0.9% to +0.9%.
+- The renderer multiplies each map by its stored scale. A new scale therefore changes the
+  rendered light only through 8-bit quantisation, JPEG encoding and clipping.
+- Light changes are the RMS change in rendered young light, weighted by luminance. For
+  comparison, one more quality-90 JPEG generation of the same maps alone changes them by
+  0.8–1.3% per texel and 0.19–0.37% on 8×8 means.
+- The larger changes in Hoag's Object and the Cartwheel are in their brightest knots, which
+  now clip less.
+  - Blocks that held a clipped texel (133 and 586) carry 96% and 82% of the squared
+    change. The other blocks change by 0.48% and 0.33%.
+  - Total young light rose by 0.19% and 0.09%.
+
+### Verification
+
+**Stability under 1e-11 changes.** Each perturbation was applied in its own scratch worktree,
+and every map was re-derived. The table lists the outputs that differ from an unperturbed run
+of the same script.
+
+| Perturbation                                                      | Script before this change                                     | Stride removed only                                          | This change      |
+| ----------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------ | ---------------- |
+| Sky-orientation quaternion normalised (length off by 2e-13–6e-12) | 2 maps re-encoded (NGC 1300 scale +2.00%); 1 block of a third | 1 block of 1 map                                             | 1 block of 1 map |
+| Earth's direction left unnormalised (changes up to 1.0e-11)       | 2 maps re-encoded (M81 change)                                | Identical                                                    | Identical        |
+| Rotated by 1e-11 rad about (0.6, 0.48, 0.64)                      | Not run                                                       | 2 maps re-encoded (M51 scale −0.16%); 1 block each of 2 more | Identical        |
+| Rotated by 1e-11 rad about (−0.3, 0.9, 0.2)                       | Not run                                                       | Not run                                                      | 1 block of 1 map |
+
+- **Before this change:**
+  - The quaternion normalisation re-encoded NGC 1300's and the Cartwheel's young maps
+    (+2.00% and +0.08%), and changed one block of Hoag's old map.
+  - Adding the Earth-direction normalisation had re-encoded M33's and the Cartwheel's young
+    maps, as recorded in the M81 change.
+- **With the stride removed only:**
+  - The first rotation re-encoded M51's and the Cartwheel's young maps (−0.16% and
+    −0.012%), and changed one block each of NGC 1300's young map and Hoag's old map.
+  - The quaternion normalisation changed the same block of Hoag's old map, because its
+    peak moved by one float32 step.
+- **With this change:**
+  - In every run, the metadata, every scale and every count of lit texels were unchanged.
+  - The one remaining difference, in two runs, is the same 8×8 block of M81's young map:
+    30 channel values, by at most 2 levels.
+  - A single texel there sits at an 8-bit rounding boundary. When its value changes in the
+    last bit, it flips by one level, and JPEG spreads that over its block.
+  - Any 8-bit encoding of float32 data has such texels. They can no longer re-encode a map
+    or move its scale.
+
+**Other checks:**
+
+- **Reproducibility.**
+  - Two full re-derives with this change gave byte-identical outputs: 31 maps and the
+    metadata.
+  - Before the change, the unchanged script reproduced every committed output byte for
+    byte in this environment (sharp 0.35.5, libvips 8.18.7).
+  - `npm run derive:galaxy-disk-maps -- --check` reproduces all seven disk galaxies'
+    metadata.
+- **Registration** (`npm run test:galaxy-disk-layer`), measured at `958bc70` and after:
+  M51 0.913 → 0.913, M81 0.840 → 0.842, M101 0.917 → 0.917, M33 0.800 → 0.800,
+  NGC 1300 0.929 → 0.929, Cartwheel 0.988 → 0.988, Hoag's Object 0.826 → 0.829.
+- `npm run test:galaxy-observed`, `npm run test:galaxies` and `npx tsc --noEmit` pass. No
+  test was changed.
+- **Look-dev:** no visible change.
+  - Captured with
+    `scripts/galaxy-lookdev/capture.mjs --galaxies m51,m81 --views earth --software`
+    (headless Chromium with SwiftShader, 900×900), before from a worktree at `958bc70`
+    and after on this change.
+  - The renders differ by 0.028 (M51) and 0.012 (M81) of an 8-bit level on average, and by
+    at most 3 levels. Only 10 and 2 pixels differ by more than 2 levels.
+  - Every appearance indicator is equal to three decimals.
+  - M81's after capture needed `--bake-timeout 600000`, because its bake outran the default
+    240 s. The sheets were not committed.
+
 ## Known limitations
 
 - Vertical structure, far sides, companion depths and the views away from Earth are
@@ -223,6 +362,7 @@ The baseline is commit `bafc5a4`, from [the tooling report](GALAXY_REALISM_TOOLI
 - Generated (procedural) spirals now have warm cores and less haze, but their arms are
   still greyer and their interarm disks brighter than in the photographed galaxies.
 - M104's near side appears flipped relative to the Hubble image (catalogue orientation;
-  not changed here).
+  not changed here). Since sourced and corrected, with M81's: see
+  [GALAXY_NEAR_SIDE_20261110.md](GALAXY_NEAR_SIDE_20261110.md).
 - Not run: authenticated full app, `build:cloudflare` (needs the approved public Supabase
   configuration), physical devices, GPU frame-time measurement.
