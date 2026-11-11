@@ -384,10 +384,16 @@ galaxy should be rebuilt the same way.
   a closed-form column normaliser: 2 r q Γ(1+n) b^(−n). Existing disk bulges are
   unchanged by construction; the old fixed 0.55 is this normaliser for their profile.
 - **M104.** The near side now comes from the catalogue's sourced `nearSide` (another
-  session; Emsellem & Ferruit 2000), so the dust silhouette crosses south of the
-  nucleus as in the Hubble image. The Sombrero now has a de Vaucouleurs (n = 4) bulge
-  (Kormendy 1988; Hes & Peletier 1993), a dimmer stellar disk inside a sharper, darker
-  dust ring, and a halo that reaches beyond the disk.
+  session; Emsellem & Ferruit 2000), so the dust silhouette crosses south of the nucleus,
+  as in the Hubble image. The Sombrero was rebuilt against its north-up look-dev sheet:
+  - a de Vaucouleurs (n = 4) spheroid (Kormendy 1988; Hes & Peletier 1993) with axis
+    ratio 0.62, measured on the registered image (isophotes at 8–15% of the peak, on the
+    side away from the lane);
+  - a dust ring at 0.88 of the disk radius, since the lane spans nearly the whole stellar
+    disk;
+  - a dimmer stellar disk that reaches the ring;
+  - spheroid wings that taper between 3 and 5.5 half-light radii, where photographs
+    reach the sky level, instead of filling the view with a grey glow.
 - **Distant markers.** The batched point-sprite impostors now take each galaxy's 3D
   colours: old disk, young light, and a separate warm core. Distant late-type spirals
   no longer show blue cores that turn warm on approach.
