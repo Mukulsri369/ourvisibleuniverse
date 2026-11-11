@@ -57,7 +57,7 @@ try {
       const distance = Number(process.env.OVU_VIEW_DISTANCE || 0) || undefined;
       await page.evaluate(([v, d]) => window.__galaxyViews.setView(v, d), [view, distance]);
       const started = Date.now();
-      // Wait for the density bake and detail blend, then let the photo weight settle.
+      // Wait for the map bake and detail blend, then let exposure settle.
       await page.waitForFunction(
         () => {
           const s = window.__galaxyViews?.status();
@@ -71,7 +71,7 @@ try {
       const file = path.join(out, `${key}-${view}.png`);
       await page.screenshot({ path: file });
       log.push({ ...status, file, seconds: (Date.now() - started) / 1000 });
-      console.log(`${key} ${view}: photo ${status.photoWeight.toFixed(2)} -> ${file}`);
+      console.log(`${key} ${view}: -> ${file}`);
     }
   }
   fs.writeFileSync(path.join(out, "capture.json"), JSON.stringify({ log, errors }, null, 2));

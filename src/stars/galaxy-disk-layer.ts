@@ -106,6 +106,19 @@ export type ProceduralDiskParameters = {
   youngColour: RGB;
   /** Optional dust patch: centre x, z, radius, optical depth (M64's "black eye"). */
   patch: [number, number, number, number];
+  /** Irregular galaxies: clumpy, lopsided complexes instead of arms (0 or 1). */
+  irregular: number;
+  /** Irregular envelope: centre offset (disk plane x, z) and minor/major axis ratio. */
+  envelope: [number, number, number];
+};
+
+/** Star-forming complexes (sourced positions) drawn as 3D clumps of young light, H II and dust. */
+export type DiskKnots = {
+  items: [number, number, number, number][];
+  hot: number;
+  hii: number;
+  dust: number;
+  colour: RGB;
 };
 
 export type DiskLayerSpec = {
@@ -119,14 +132,31 @@ export type DiskLayerSpec = {
   slab: number;
   /** Half-size of the volume box (disk radii); 1.35 unless a ring reaches further. */
   box: number;
-  bulge: { radius: number; flattening: number; amplitude: number; exponent: number; colour: RGB };
+  /**
+   * Spheroid (a bulge, or the whole old population of an elliptical, dwarf or irregular):
+   * a triaxial profile exp(-b m^(1/n)), m = |q / axes| / radius. Amplitude is its central
+   * face-on column; `flattening` sets the ray marcher's fine-step core.
+   */
+  bulge: {
+    radius: number;
+    flattening: number;
+    amplitude: number;
+    exponent: number;
+    coefficient: number;
+    axes: [number, number, number];
+    colour: RGB;
+  };
+  knots: DiskKnots;
   halo: number;
   /** Diffuse face-on dust: central optical depth, scale length, outer radius. */
   dust: [number, number, number];
   /** Bipolar starburst wind: amplitude, tan(half-opening), base radius, height scale. */
   wind: [number, number, number, number];
   procedural: ProceduralDiskParameters;
-  /** 1 when star points follow the disk maps' light; 0 for part-only systems. */
+  /**
+   * Star points: 1 follow the disk maps' light; 0 part-only systems (shown only inside);
+   * 2 resolved populations (dwarfs, ellipticals, irregulars) keep their own distribution.
+   */
   starHost: number;
   /** Extent (± disk radii) of the procedural map. */
   proceduralExtent: number;
@@ -153,6 +183,28 @@ const tint = (base: RGB, colour: RGB, w: number): RGB => {
  * Display choices, not photometry.
  */
 const OLD_DISK_COLOUR: RGB = [1, 0.9, 0.76];
+
+/** Γ(x), x > 0 (Lanczos, g = 7), for the spheroid column normalisation. */
+function gamma(x: number): number {
+  const c = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
+    1.5056327351493116e-7,
+  ];
+  if (x < 0.5) return Math.PI / (Math.sin(Math.PI * x) * gamma(1 - x));
+  x -= 1;
+  let a = c[0];
+  const t = x + 7.5;
+  for (let i = 1; i < 9; i++) a += c[i] / (x + i);
+  return Math.sqrt(2 * Math.PI) * t ** (x + 0.5) * Math.exp(-t) * a;
+}
+/** Sérsic coefficient b(n) (Ciotti & Bertin 1999), so `radius` is the half-light radius. */
+export const sersicCoefficient = (n: number) =>
+  2 * n - 1 / 3 + 4 / (405 * n) + 46 / (25515 * n * n);
+/** Central face-on column of exp(-b m^w) through a spheroid of vertical semi-axis `vertical`. */
+export function spheroidColumn(radius: number, vertical: number, exponent: number, b: number) {
+  return 2 * radius * vertical * gamma(1 + 1 / exponent) * b ** (-1 / exponent);
+}
 const OLD_BULGE_COLOUR: RGB = [1, 0.86, 0.68];
 
 /** Galaxies whose bespoke legacy volume features are kept (Cen A, M82, Magellanic Clouds, mergers…). */
@@ -174,13 +226,16 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const structure = galaxyStructure(model);
   if (!observed) {
     if (model.name === "Milky Way") return null;
-    // M82 (feature 3) is an edge-on starburst disk; other irregulars keep the cached volume.
-    if (
-      structure.population ||
-      structure.spheroid ||
-      (structure.irregular && structure.feature !== 3)
-    )
-      return null;
+    // Resolved populations (ellipticals, lenticulars, dwarfs, irregulars and starbursts with
+    // sourced recipes) and irregulars without one have their own reconstructions below.
+    const populationSpec =
+      structure.population || (structure.irregular && structure.feature !== 3)
+        ? populationLayerSpec(model, structure)
+        : null;
+    if (populationSpec) return populationSpec;
+    if (structure.population || structure.spheroid || structure.irregular) {
+      if (structure.feature !== 3) return null;
+    }
     if (!DISK_MORPHOLOGIES.has(model.morphology)) return null;
     if (LEGACY_FEATURES.has(structure.feature)) return null;
   }
@@ -208,8 +263,10 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     pitch: THREE.MathUtils.degToRad(clamp(model.pitchDeg || 16, 6, 40)),
     bar: barred ? clamp(model.barLength / model.diskRadius, 0.05, 0.6) : 0,
     barAngle: (seed % 31) * 0.21,
-    ring: sombrero ? 0.66 : clamp(structure.ringRadius || 0, 0, 0.9),
-    ringWidth: sombrero ? 0.075 : 0.05,
+    // Sombrero (Hubble opo0328a): a sharp dust ring at about two thirds of the disk radius
+    // with a bright stellar disk inside it.
+    ring: sombrero ? 0.62 : clamp(structure.ringRadius || 0, 0, 0.9),
+    ringWidth: sombrero ? 0.045 : 0.05,
     seed: seed / 13,
     flocculent: model.morphology === "flocculent" ? 1 : 0,
     grand: model.morphology === "grand-design" || model.morphology === "barred" ? 1 : 0,
@@ -219,16 +276,18 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     lanes: model.dustLanes ? 1 : lenticular ? 0.15 : 0.35,
     // Old-disk scale length about 0.2 of the model radius, as measured from the registered
     // photographs (0.15-0.2 for M51, M81 and M101), so the outer disk is carried by the arms.
-    oldScale: andromeda ? 0.2 : sombrero ? 0.3 : 0.21,
+    oldScale: andromeda ? 0.2 : sombrero ? 0.32 : 0.21,
     youngScale: andromeda ? 0.32 : 0.34,
-    oldAmp: sombrero ? 0.35 : lenticular ? 0.85 : 0.7,
+    oldAmp: sombrero ? 0.9 : lenticular ? 0.85 : 0.7,
     youngAmp: lenticular || sombrero ? 0 : 0.55,
     hiiAmp: lenticular || sombrero ? 0 : 0.85,
-    dustAmp: sombrero ? 2.6 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
-    outer: m94 ? 1.15 : 1.05,
+    dustAmp: sombrero ? 3.6 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
+    outer: m94 ? 1.15 : sombrero ? 0.74 : 1.05,
     oldColour,
     youngColour,
     patch: blackEye ? [0.07, 0.035, 0.2, 2.2] : [0, 0, 0, 0],
+    irregular: 0,
+    envelope: [0, 0, 1],
   };
   if (cigar) {
     // M82: an edge-on, dusty, clumpy starburst disk with a short bar (ESA/Hubble heic0604a).
@@ -261,20 +320,33 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     procedural.dustAmp = clamp(observed.profile.dust[0] * 0.6, 0, 6);
   }
   const heights = {
-    old: cigar ? 0.06 : lenticular || sombrero ? 0.06 : 0.046,
+    old: cigar ? 0.06 : sombrero ? 0.035 : lenticular ? 0.06 : 0.046,
     young: cigar ? 0.02 : 0.014,
     ionised: cigar ? 0.012 : 0.0075,
-    dust: cigar ? 0.019 : sombrero ? 0.011 : 0.012,
+    dust: cigar ? 0.019 : sombrero ? 0.0075 : 0.012,
   };
-  const thick = { z0: 0.13, fraction: lenticular || sombrero ? 0.2 : 0.1 };
-  const flare = 0.6;
+  const thick = { z0: 0.13, fraction: sombrero ? 0.12 : lenticular ? 0.2 : 0.1 };
+  const flare = sombrero ? 0.2 : 0.6;
+  // Disk bulges: exp(-3 m^0.75). The Sombrero's dominant spheroid follows a de Vaucouleurs
+  // (Sérsic n = 4) law (Kormendy 1988; Hes & Peletier 1993): a bright, compact core inside
+  // a faint halo that reaches beyond the disk.
+  const bulgeExponent = sombrero ? 0.25 : 0.75;
+  const bulgeRadius = sombrero
+    ? 0.2
+    : andromeda
+      ? 0.16
+      : cigar
+        ? 0.07
+        : clamp(bulgeRatio, 0.04, 0.3);
+  const bulgeFlattening = sombrero ? 0.86 : lenticular ? 0.62 : 0.72;
   const bulge = {
-    radius: sombrero ? 0.3 : andromeda ? 0.16 : cigar ? 0.07 : clamp(bulgeRatio, 0.04, 0.3),
-    flattening: sombrero ? 0.82 : lenticular ? 0.62 : 0.72,
+    radius: bulgeRadius,
+    // Steeper (n = 4) profiles need finer steps through their core.
+    flattening: bulgeFlattening * (sombrero ? 0.3 : 1),
     amplitude: observed
       ? 0
       : sombrero
-        ? 1.15
+        ? 2.2
         : andromeda
           ? 1.6
           : cigar
@@ -282,8 +354,12 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
             : lenticular
               ? 1.3
               : 1.05,
-    exponent: sombrero ? 0.7 : 0.75,
-    colour: tint(OLD_BULGE_COLOUR, appearance.oldColor, 0.2),
+    exponent: bulgeExponent,
+    coefficient: sombrero ? sersicCoefficient(4) : 3,
+    axes: [1, bulgeFlattening, 1] as [number, number, number],
+    colour: sombrero
+      ? tint(OLD_BULGE_COLOUR, [1, 0.97, 0.92], 0.45)
+      : tint(OLD_BULGE_COLOUR, appearance.oldColor, 0.2),
   };
   const parts = observed?.parts?.items ?? [];
   const sky = observed?.mode === "sky";
@@ -298,7 +374,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const slab = Math.max(
     wind[0] > 0 ? 1.0 : 0,
     thick.z0 * (1 + flare) * 3.6,
-    bulge.amplitude > 0 ? bulge.radius * bulge.flattening * 3.2 : 0,
+    bulge.amplitude > 0 ? bulge.radius * bulgeFlattening * (sombrero ? 4.5 : 3.2) : 0,
     ...parts.map((p) => Math.abs(p.centre[1]) + p.radius),
     0.12,
   );
@@ -319,14 +395,153 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     flare,
     slab: sky ? box : Math.min(box, slab),
     bulge,
-    halo: observed ? 0 : sombrero ? 0.02 : lenticular ? 0.04 : 0.025,
+    knots: NO_KNOTS,
+    halo: observed ? 0 : sombrero ? 0.035 : lenticular ? 0.04 : 0.025,
     starHost: sky ? 0 : 1,
     dust: [
-      sky ? 0 : sombrero ? 0.15 : cigar ? 0.9 : model.dustLanes ? 0.7 : 0.2,
+      sky ? 0 : sombrero ? 0.1 : cigar ? 0.9 : model.dustLanes ? 0.7 : 0.2,
       cigar ? 0.3 : 0.36,
-      1.12,
+      sombrero ? 0.7 : 1.12,
     ],
     wind,
+    procedural,
+    proceduralExtent: 1.3,
+  };
+}
+
+const NO_KNOTS: DiskKnots = { items: [], hot: 0, hii: 0, dust: 0, colour: [1, 1, 1] };
+
+/** Default recipe for irregulars without a sourced population (e.g. NGC 5253). */
+const IRREGULAR_DEFAULT = {
+  kind: 2 as const,
+  axes: [1, 0.32, 0.68] as [number, number, number],
+  core: 0.55,
+  continuum: 0.12,
+  hotFraction: 0.48,
+  dust: 0.12,
+  hii: 0.4,
+  old: [1, 0.77, 0.52] as RGB,
+  hot: [0.38, 0.65, 1] as RGB,
+  knots: [] as readonly (readonly [number, number, number, number])[],
+};
+
+/**
+ * Resolved stellar populations with sourced recipes (galaxy-populations.ts: projected axis
+ * ratio, core radius, diffuse-light level, young fraction, dust, H II and the positions of
+ * named star-forming complexes):
+ *
+ *  - Ellipticals, lenticulars and dwarf spheroidals/ellipticals are smooth triaxial
+ *    spheroids with a Sérsic profile by class: n = 4 for giant ellipticals (de Vaucouleurs),
+ *    about 1.5 for dwarf ellipticals and 0.8 for dwarf spheroidals, whose low-concentration
+ *    profiles are close to exponential (Caon, Capaccioli & D'Onofrio 1993; Graham & Guzmán
+ *    2003; McConnachie 2012). Lenticulars add a thin disk with a dust lane when catalogued.
+ *  - Irregulars and starbursts keep their old population as an exponential spheroid and draw
+ *    young light, H II and dust as a thick, lopsided, clumpy layer (dwarf irregulars have
+ *    intrinsic thickness ratios of about 0.3-0.6; Roychowdhury et al. 2013), with the sourced
+ *    complexes (30 Doradus-like regions) as 3D clumps.
+ *
+ * Shapes in depth and the clump layout between named complexes are reconstructions.
+ */
+function populationLayerSpec(
+  model: GalaxyModel,
+  structure: ReturnType<typeof galaxyStructure>,
+): DiskLayerSpec | null {
+  const population = structure.population ?? (structure.irregular ? IRREGULAR_DEFAULT : null);
+  if (!population) return null;
+  let seed = 0;
+  for (const c of model.name) seed = (seed * 31 + c.charCodeAt(0)) % 997;
+  const appearance = catalogueAppearance(model);
+  const axes = [...population.axes] as [number, number, number];
+  const spheroidal = population.kind === 1 || population.kind === 4;
+  const lenticular = /lenticular|S0/i.test(model.type) || model.morphology === "lenticular";
+  const edgeOn = model.morphology === "edge-on";
+  const giant = /elliptical|lenticular|S0/i.test(model.type) && !/dwarf/i.test(model.type);
+  const dwarfSpheroidal = /spheroidal/i.test(model.type);
+  const n = !spheroidal ? 1 : giant ? 4 : dwarfSpheroidal ? 0.8 : 1.5;
+  const exponent = 1 / n;
+  const coefficient = sersicCoefficient(n);
+  const knots = (population.knots ?? []).slice(0, MAX_DISK_PARTS);
+  const procedural: ProceduralDiskParameters = {
+    arms: 0,
+    pitch: 0.3,
+    bar: 0,
+    barAngle: (seed % 31) * 0.21,
+    ring: 0,
+    ringWidth: 0.05,
+    seed: seed / 13,
+    flocculent: spheroidal ? 0 : 1,
+    grand: 0,
+    lenticular: spheroidal ? 1 : 0,
+    clumps: 1,
+    asymmetry: structure.asymmetry,
+    lanes: 0,
+    oldScale: 0.25,
+    youngScale: Math.max(0.12, population.core * 0.6),
+    oldAmp: spheroidal && (lenticular || edgeOn) ? 0.55 : 0,
+    youngAmp: spheroidal ? 0 : 0.9 * population.hotFraction,
+    hiiAmp: spheroidal ? 0 : 0.8 * population.hii,
+    dustAmp: spheroidal
+      ? model.dustLanes && (lenticular || edgeOn)
+        ? 1.6
+        : 0
+      : 1.1 * population.dust,
+    outer: spheroidal ? 0.9 : 1.05,
+    oldColour: normalise(population.old),
+    youngColour: normalise(population.hot),
+    patch: [0, 0, 0, 0],
+    irregular: spheroidal ? 0 : 1,
+    // Irregular envelopes are lopsided (an off-centre light peak; e.g. the LMC's bar sits off
+    // the disk centre) and follow the sourced axis ratio in the disk plane.
+    envelope: [
+      ((seed % 7) / 7 - 0.5) * 0.18 * (spheroidal ? 0 : 1),
+      ((seed % 11) / 11 - 0.5) * 0.18 * (spheroidal ? 0 : 1),
+      clamp(axes[2], 0.25, 1),
+    ],
+  };
+  const thicknessRatio = clamp(axes[1], 0.15, 1);
+  const heights = {
+    old: lenticular || edgeOn ? 0.05 : 0.08,
+    young: spheroidal ? 0.03 : Math.min(0.09, 0.22 * thicknessRatio),
+    ionised: spheroidal ? 0.02 : Math.min(0.06, 0.13 * thicknessRatio),
+    dust: spheroidal ? 0.01 : Math.min(0.08, 0.17 * thicknessRatio),
+  };
+  // Diffuse light: bright for ellipticals, faint for dwarf spheroidals, whose look is
+  // carried by their resolved stars (central surface brightness about 23-27 mag/arcsec²).
+  const amplitude = spheroidal ? 2.2 * population.continuum ** 1.6 : 1.3 * population.continuum;
+  const radius = Math.max(0.05, population.core) * (spheroidal ? 1 : 0.9);
+  const bulge = {
+    radius,
+    flattening: Math.min(axes[1], axes[2]) * (n >= 3 ? 0.3 : 1),
+    amplitude,
+    exponent,
+    coefficient,
+    axes,
+    colour: normalise(population.old),
+  };
+  const slab = Math.min(
+    1.35,
+    Math.max(0.12, radius * axes[1] * (n >= 3 ? 6 : 4), heights.young * 4, 0.3 * thicknessRatio),
+  );
+  return {
+    key: model.key,
+    observed: null,
+    box: 1.35,
+    heights,
+    thick: { z0: heights.old * 2, fraction: 0.15 },
+    flare: 0.3,
+    slab: Math.max(slab, ...knots.map((k) => Math.abs(k[1]) + k[3] * 3)),
+    bulge,
+    knots: {
+      items: knots.map((k) => [k[0], k[1], k[2], k[3]] as [number, number, number, number]),
+      hot: spheroidal ? 0.25 * population.hotFraction : 0.9 * population.hotFraction,
+      hii: spheroidal ? 0.25 * population.hii : 0.85 * population.hii,
+      dust: 0.6 * population.dust,
+      colour: normalise(population.hot),
+    },
+    halo: spheroidal ? (giant ? 0.02 : 0.006) : 0.004,
+    starHost: 2,
+    dust: [spheroidal ? 0 : 0.25 * population.dust, 0.4, 1.0],
+    wind: [0, 0, 0, 1],
     procedural,
     proceduralExtent: 1.3,
   };
@@ -350,8 +565,12 @@ uniform vec4 uDiskShape;    // thick z0, thick fraction, flare, halo
 uniform vec4 uDiskScale;    // observed young, old, tau max, procedural tau max
 uniform vec3 uDiskDiffuse;  // diffuse dust: central tau, scale length, outer radius
 uniform mat4 uDiskMat;      // local -> photograph [u w, v w, w]
-uniform vec4 uDiskBulge;    // radius, flattening, amplitude, exponent
+uniform vec4 uDiskBulge;    // radius, fine-step core, amplitude over the central column, exponent 1/n
+uniform vec4 uDiskBulgeAxes; // spheroid semi-axes (x, vertical y, z) and Sérsic coefficient b
 uniform vec3 uDiskBulgeColor;
+uniform vec4 uKnot[${MAX_DISK_PARTS}]; // star-forming complexes: centre (local), size
+uniform vec4 uKnotLight;    // young-light column, H II column, optical depth, count
+uniform vec3 uKnotColor;
 uniform vec3 uEarth;
 uniform float uPartCount,uPartScale,uDiskStarHost;
 uniform float uPartTexel[${MAX_DISK_PARTS}],uPartKind[${MAX_DISK_PARTS}],uPartCore[${MAX_DISK_PARTS}]; // core: c²
@@ -446,20 +665,46 @@ vec4 diskSheet(vec2 xz,float lod,float lodC){
  float photo=diskPhoto(xz);
  return max(diskYoungDust(xz,lod,photo)-diskYoungDust(xz,lodC,photo),vec4(0.));
 }
-/** Flattened, centrally concentrated bulge and faint halo (procedural galaxies). */
+/** Spheroid (bulge, or a whole elliptical, dwarf or irregular's old population) and faint halo. */
 vec3 diskBulge(vec3 q){
  vec3 light=vec3(0.);
- float rq=length(q);
- if(uDiskBulge.z>0.&&rq<uDiskBulge.x*5.){
-  float m=length(q*vec3(1.,1./uDiskBulge.y,1.))/uDiskBulge.x;
-  // Normalised so uDiskBulge.z is the central surface brightness of the face-on column.
-  light+=uDiskBulgeColor*uDiskBulge.z*exp(-3.*pow(m+.002,uDiskBulge.w))/(.55*uDiskBulge.x*uDiskBulge.y);
+ if(uDiskBulge.z>0.){
+  float m=length(q/uDiskBulgeAxes.xyz)/uDiskBulge.x;
+  // exp(-b m^(1/n)); uDiskBulge.z is pre-divided by the central face-on column (CPU).
+  if(m<14.)light+=uDiskBulgeColor*uDiskBulge.z*exp(-uDiskBulgeAxes.w*pow(m+.002,uDiskBulge.w));
  }
  if(uDiskShape.w>0.){
   float hm=length(q*vec3(1.,1.6,1.));
   light+=uDiskBulgeColor*uDiskShape.w*exp(-hm/.26)*(1.-smoothstep(1.,1.3,hm));
  }
  return light;
+}
+/** Named star-forming complexes as 3D clumps: young light, H II and dust, broken into
+ * clusters by noise. Columns through a clump's centre equal uKnotLight (per unit size). */
+vec3 diskKnots(vec3 q,out float kappa){
+ vec3 light=vec3(0.);kappa=0.;
+ for(int k=0;k<${MAX_DISK_PARTS};k++){
+  if(float(k)>=uKnotLight.w)break;
+  vec4 kn=uKnot[k];
+  vec3 d=(q-kn.xyz)/kn.w;
+  float r2=dot(d,d);
+  if(r2>9.)continue;
+  float clump=.35+.65*smoothstep(.35,.8,texture(uNoise,q*1.7+kn.xyz*3.1).r);
+  float a=exp(-r2*1.4)*clump/(1.5*kn.w);
+  light+=(uKnotColor*uKnotLight.x+vec3(1.,.3,.5)*uKnotLight.y*clump)*a;
+  kappa+=uKnotLight.z*a;
+ }
+ return light;
+}
+/** Step bound near the complexes, so each is sampled several times. */
+float diskKnotStep(vec3 q){
+ float step=1e3;
+ for(int k=0;k<${MAX_DISK_PARTS};k++){
+  if(float(k)>=uKnotLight.w)break;
+  vec4 kn=uKnot[k];
+  step=min(step,max(length(q-kn.xyz)-2.5*kn.w,.35*kn.w));
+ }
+ return step;
 }
 /** Biconical starburst wind: edge-brightened cones of filamentary H-alpha emission. */
 vec3 diskWind(vec3 q){
@@ -551,6 +796,8 @@ uniform vec4 uScales;   // old scale, young scale, outer radius, unused
 uniform vec4 uAmps;     // old, young, H II, dust
 uniform vec3 uOldColor,uYoungColor;
 uniform vec4 uPatch;
+uniform float uIrregular;
+uniform vec3 uEnvelope;   // irregular envelope: centre offset (x, z), minor/major axis ratio
 layout(location=0)out vec4 outColor;
 float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
 vec2 hash22(vec2 p){vec3 p3=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));p3+=dot(p3,p3.yzx+33.33);return fract((p3.xx+p3.yz)*p3.zy);}
@@ -613,6 +860,20 @@ void main(){
  }
  float ring=uRing>0.?exp(-pow((r-uRing)/uRingWidth,2.)):0.;
  if(uBar>0.)ring=max(ring,.7*exp(-pow((r-uBar*1.02)/(uBar*.12),2.))*(1.-uLenticular));
+ // Irregular galaxies: no arms. Young light sits in large star-forming complexes and smaller
+ // associations inside a lopsided elliptical envelope (offset centre, sourced axis ratio).
+ float rr=r;
+ if(uIrregular>.5){
+  vec2 e=(p-uEnvelope.xy)*vec2(1.,1./uEnvelope.z);
+  rr=length(e);
+  float env=1.-smoothstep(.72,1.12,rr);
+  float big=smoothstep(.42,.78,fbm4(p*2.4+uSeed*3.3));
+  float mid=smoothstep(.5,.82,fbm4(p*6.5+uSeed*1.7));
+  arm=(big*.8+mid*.55)*env;
+  region=env;
+  lane=0.;spurs=0.;
+  patchy=smoothstep(.55,.8,fbm(p*9.+uSeed*1.7))*env;
+ }
  // Star-forming knots: H II regions and young clusters on the arms and ring.
  float host=max(arm,ring*(1.-uLenticular*.8));
  vec2 cellA=worley(p*58.+uSeed);
@@ -623,12 +884,13 @@ void main(){
  float cluster=step(cellB.y,.55*smoothstep(.1,.7,host))*exp(-pow(cellB.x/.2,2.))*(.3+fract(cellB.y*57.1));
  float grain=fbm4(p*30.+uSeed*5.);
  if(uPass<.5){
-  float youngDisk=uAmps.y*exp(-r/uScales.y)*region;
+  float youngDisk=uAmps.y*exp(-rr/uScales.y)*region;
   float knots=smoothstep(.4,.85,grain);
   vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.02*region);
-  young+=uYoungColor*uAmps.y*exp(-r/uScales.y)*cluster*.9*region;
-  young+=vec3(1.,.3,.52)*uAmps.z*exp(-r/uScales.y)*hii*region;
+  young+=uYoungColor*uAmps.y*exp(-rr/uScales.y)*cluster*.9*region;
+  young+=vec3(1.,.3,.52)*uAmps.z*exp(-rr/uScales.y)*hii*region;
   float dust=uAmps.w*exp(-r/(uScales.x*1.35))*edge*(uLanes*(lane*1.15+spurs*.55+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes);
+  if(uIrregular>.5)dust=uAmps.w*exp(-rr/(uScales.y*1.5))*region*(patchy*.6+arm*.4);
   if(uPatch.w>0.)dust+=uPatch.w*exp(-pow(length(p-uPatch.xy)/uPatch.z,2.))*(.6+.6*fbm(p*20.));
   if(uRing>0.&&uLenticular>.5)dust+=uAmps.w*exp(-pow((r-uRing)/(uRingWidth*.65),2.))*(.75+.5*fbm(p*18.));
   outColor=vec4(max(young,vec3(0.)),sqrt(clamp(dust/uTauMax,0.,1.)));
@@ -710,6 +972,8 @@ export class GalaxyDiskMaps {
         uOldColor: { value: new THREE.Vector3(...p.oldColour) },
         uYoungColor: { value: new THREE.Vector3(...p.youngColour) },
         uPatch: { value: new THREE.Vector4(...p.patch) },
+        uIrregular: { value: p.irregular },
+        uEnvelope: { value: new THREE.Vector3(...p.envelope) },
       },
     });
     this.scene.add(new THREE.Mesh(this.geometry, this.material));
@@ -927,10 +1191,34 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
       value: new THREE.Vector4(
         spec.bulge.radius,
         spec.bulge.flattening,
-        spec.bulge.amplitude,
+        spec.bulge.amplitude > 0
+          ? spec.bulge.amplitude /
+              spheroidColumn(
+                spec.bulge.radius,
+                spec.bulge.axes[1],
+                spec.bulge.exponent,
+                spec.bulge.coefficient,
+              )
+          : 0,
         spec.bulge.exponent,
       ),
     },
+    uDiskBulgeAxes: { value: new THREE.Vector4(...spec.bulge.axes, spec.bulge.coefficient) },
+    uKnot: {
+      value: Array.from(
+        { length: MAX_DISK_PARTS },
+        (_, i) => new THREE.Vector4(...(spec.knots.items[i] ?? [0, 0, 0, 1])),
+      ),
+    },
+    uKnotLight: {
+      value: new THREE.Vector4(
+        spec.knots.hot,
+        spec.knots.hii,
+        spec.knots.dust,
+        Math.min(MAX_DISK_PARTS, spec.knots.items.length),
+      ),
+    },
+    uKnotColor: { value: new THREE.Vector3(...spec.knots.colour) },
     uDiskBulgeColor: { value: new THREE.Vector3(...spec.bulge.colour) },
     uEarth: { value: earthDirectionLocal(model) },
     uPartCount: { value: 0 },

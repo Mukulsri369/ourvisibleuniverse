@@ -18,7 +18,6 @@ import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
 import { motionTimeSeconds } from "./sim-clock";
 import { catalogueAppearance } from "./galaxy-overview-appearance";
-import { galaxyObservedFootprint } from "./galaxy-detail-state";
 const VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
@@ -39,8 +38,9 @@ export function GalaxyRadiance({
   const ref = useRef<THREE.Mesh>(null!);
   const tier = useStore((s) => s.renderingQualityTier);
   const journeyActive = useGalaxyJourney((s) => s.galaxy?.name === model.name);
-  // Disk galaxies use face-on maps with analytic vertical structure instead of the cached volume.
-  const spec = useMemo(() => (preview ? null : diskLayerSpec(model)), [model, preview]);
+  // Disk galaxies use face-on maps with analytic vertical structure instead of the cached
+  // volume, both as the selected galaxy and as an unselected catalogue preview (smaller maps).
+  const spec = useMemo(() => diskLayerSpec(model), [model]);
   const entered = useGalaxyJourney(
     (s) =>
       s.galaxy?.name === model.name &&
@@ -75,7 +75,7 @@ export function GalaxyRadiance({
       uEye: { value: new THREE.Vector3() },
       uNoise: { value: getGalaxyNoise() },
       uField: { value: null as THREE.Texture | null },
-      uCacheFade: { value: preview ? 1 : 0 },
+      uCacheFade: { value: preview && !spec ? 1 : 0 },
       uVolumeWeight: { value: 0 },
       uSteps: { value: 32 },
       uFieldSize: { value: new THREE.Vector3(1, 1, 1) },
@@ -136,8 +136,6 @@ export function GalaxyRadiance({
       uRotationRate: { value: structure.rotationRate },
       uTime: { value: 0 },
       uOpacity: { value: opacity },
-      uObsMat: { value: new THREE.Matrix4() },
-      uObsWeight: { value: 0 },
       uPixelAngle: { value: 0.001 },
       uSlab: { value: spec?.slab ?? 1.35 },
       uBox: { value: spec?.box ?? 1.35 },
@@ -161,10 +159,18 @@ export function GalaxyRadiance({
       spec
         ? new GalaxyDiskMaps(
             spec,
-            tier === "performance" ? 1024 : tier === "scientific_high" ? 2048 : 1536,
+            preview
+              ? tier === "performance"
+                ? 256
+                : 512
+              : tier === "performance"
+                ? 1024
+                : tier === "scientific_high"
+                  ? 2048
+                  : 1536,
           )
         : null,
-    [spec, tier],
+    [spec, tier, preview],
   );
   useEffect(() => () => maps?.dispose(), [maps]);
   const material = useMemo(
@@ -194,9 +200,9 @@ export function GalaxyRadiance({
     [uniforms, preview, spec],
   );
   useEffect(() => {
-    uniforms.uCacheFade.value = preview ? 1 : 0;
+    uniforms.uCacheFade.value = preview && !spec ? 1 : 0;
     return () => cache?.dispose();
-  }, [cache, uniforms, preview]);
+  }, [cache, uniforms, preview, spec]);
   useEffect(
     () => () => {
       material.dispose();
@@ -208,10 +214,6 @@ export function GalaxyRadiance({
     ref.current.updateWorldMatrix(true, false);
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
-    const footprint = galaxyObservedFootprint.get(model.key);
-    uniforms.uObsWeight.value = footprint?.weight ?? 0;
-    if (footprint)
-      uniforms.uObsMat.value.multiplyMatrices(footprint.worldToImage, ref.current.matrixWorld);
     if (cache) uniforms.uFieldSize.value.set(cache.size, cache.size * 2, cache.size);
     uniforms.uTime.value = motionTimeSeconds();
     const reveal = journeyActive ? galaxyMotion.reveal : 0;

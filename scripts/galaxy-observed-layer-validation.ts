@@ -8,21 +8,13 @@ import { GALAXY_MODELS, galaxyCenter, galaxyOrientation, gToXYZ } from "../src/s
 import { OBSERVED_GALAXY_IMAGES } from "../src/stars/galaxy-observed-images";
 import {
   OBSERVED_DISPLAY_GLSL,
-  OBSERVED_EDGE_UV,
-  OBSERVED_FOOTPRINT_GLSL,
-  OBSERVED_RECONSTRUCTION_FLOOR,
   avmDirection,
   avmTextureRows,
   beforeDisplay,
   earthDirectionLocal,
   icrsFromScene,
   icrsUnit,
-  observedEdgeFade,
   observedImageMatrix,
-  observedKeep,
-  observedLayerWeight,
-  observedResolution,
-  observedSurfaceCorners,
   sceneFromIcrs,
 } from "../src/stars/galaxy-observed-projection";
 
@@ -180,44 +172,6 @@ for (const image of OBSERVED_GALAXY_IMAGES) {
   close(a[0], b[0], 2e-5, image.key + " sightline u");
   close(a[1], b[1], 2e-5, image.key + " sightline v");
 
-  // The rendered quad covers exactly the registered image.
-  const corners = observedSurfaceCorners(model, image);
-  [
-    [0, 0],
-    [1, 0],
-    [1, 1],
-    [0, 1],
-  ].forEach(([u, v], i) => {
-    const p = corners[i];
-    assert([p.x, p.y, p.z].every(Number.isFinite), image.key + " corner finite");
-    assert(p.length() < 6, `${image.key} corner ${i} extends ${p.length().toFixed(2)} radii`);
-    const [pu, pv] = project(matrix, p);
-    close(pu, u, 2e-4, `${image.key} corner ${i} u`);
-    close(pv, v, 2e-4, `${image.key} corner ${i} v`);
-  });
-  // Reconstruction shaders receive worldToImage · (their own matrixWorld), composed
-  // exactly as GalaxyObservedLayer and its consumers do. The catalogue body is placed
-  // from the catalogue record (two-decimal l/b), the detailed body from the model, so
-  // the footprint must be evaluated in world space to land on the same pixels.
-  const sheetWorld = new THREE.Matrix4().compose(
-    galaxyCenter(model),
-    galaxyOrientation(model),
-    new THREE.Vector3().setScalar(model.diskRadius),
-  );
-  const worldToImage = new THREE.Matrix4().copy(sheetWorld).invert().premultiply(matrix);
-  const catalogueWorld = new THREE.Matrix4().compose(
-    gToXYZ(catalogued.l, catalogued.b, catalogued.distance),
-    galaxyOrientation(model),
-    new THREE.Vector3().setScalar(model.diskRadius * 1.0),
-  );
-  const viaCatalogue = new THREE.Matrix4().multiplyMatrices(worldToImage, catalogueWorld);
-  for (const local of [new THREE.Vector3(), q, new THREE.Vector3(-0.6, 0.02, 0.45)]) {
-    const world = local.clone().applyMatrix4(catalogueWorld);
-    const [u0, v0] = project(matrix, world.applyMatrix4(sheetWorld.clone().invert())),
-      [u1, v1] = project(viaCatalogue, local);
-    close(u1, u0, 1e-6, image.key + " catalogue-body footprint u");
-    close(v1, v0, 1e-6, image.key + " catalogue-body footprint v");
-  }
   const bodyOffset =
     galaxyCenter(model).distanceTo(gToXYZ(catalogued.l, catalogued.b, catalogued.distance)) /
     model.diskRadius;
@@ -482,51 +436,10 @@ for (const m of GALAXY_MODELS) {
   );
 }
 
-// Visibility rules.
-const w = (angle: number, inclination: number, surface: "disk" | "sky", radii = 4) =>
-  observedLayerWeight({
-    angleFromEarthDeg: angle,
-    inclinationDeg: inclination,
-    surface,
-    eyeDistanceRadii: radii,
-  });
-close(w(0, 20, "disk"), 1, 1e-12, "Earth view shows the image");
-assert(w(90, 20, "disk") === 0 && w(40, 84, "sky") === 0, "Side views return to the 3D model");
-assert(w(0, 20, "disk", 0.5) === 0, "Close approach yields to stars");
-assert(w(35, 20, "disk") > w(35, 62, "disk"), "Face-on disks deproject farther than inclined ones");
-assert(w(20, 20, "disk") > w(20, 20, "sky"), "Sky sheets fade earlier than disks");
+// The 3D reconstruction carries every view (the photograph is no longer overlaid);
+// registration still places the derived maps and parts.
 const m81 = GALAXY_MODELS.find((m) => m.key === "m81")!;
 close(earthDirectionLocal(m81).length(), 1, 1e-12, "Earth direction is a unit vector");
-assert(
-  observedResolution(10) === 0 && observedResolution(80) === 1,
-  "Unresolved markers get no image",
-);
-
-// Reconstructed light is replaced only inside the photograph's frame, and the two
-// cross-fade over the same edge band.
-close(observedKeep(1, 0.5, 0.5), OBSERVED_RECONSTRUCTION_FLOOR, 1e-12, "Inside a full image");
-assert(observedKeep(1, -0.2, 0.5) === 1 && observedKeep(1, 0.5, 1.3) === 1, "Outside the frame");
-assert(observedKeep(0, 0.5, 0.5) === 1, "No image, no change");
-assert(
-  observedKeep(1, 0, 0.5) === 1 && observedEdgeFade(0, 0.5) === 0,
-  "Continuous at the frame edge",
-);
-close(
-  observedKeep(1, OBSERVED_EDGE_UV, 0.5),
-  OBSERVED_RECONSTRUCTION_FLOOR,
-  1e-12,
-  "Edge band width",
-);
-for (const u of [0.005, 0.01, 0.02, 0.03]) {
-  const photo = observedEdgeFade(u, 0.5),
-    keep = observedKeep(1, u, 0.5);
-  close(keep, 1 - (1 - OBSERVED_RECONSTRUCTION_FLOOR) * photo, 1e-12, "Cross-fade at " + u);
-}
-assert(
-  OBSERVED_FOOTPRINT_GLSL.includes(String(1 - OBSERVED_RECONSTRUCTION_FLOOR)) &&
-    OBSERVED_FOOTPRINT_GLSL.includes(String(OBSERVED_EDGE_UV)),
-  "GLSL footprint uses the tested constants",
-);
 
 // Display inverse: three.js NeutralToneMapping(exposure · beforeDisplay(y)) returns y.
 function neutral(color: number[], exposure: number) {

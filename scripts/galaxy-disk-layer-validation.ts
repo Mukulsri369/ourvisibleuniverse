@@ -24,6 +24,8 @@ import {
   OBSERVED_DISK_MAPS,
   diskLayerSpec,
   diskLayerUniforms,
+  sersicCoefficient,
+  spheroidColumn,
 } from "../src/stars/galaxy-disk-layer";
 import { GALAXY_DISK_FRAGMENT } from "../src/stars/galaxy-volume-shader";
 
@@ -226,6 +228,19 @@ close(
   1e-3,
   "exponential profile normalisation",
 );
+// Spheroids: exp(-b m^w) column normaliser. w = 0.75, b = 3 reproduces the earlier fixed 0.55
+// (disk bulges unchanged); the n = 4 column matches numerical integration.
+close(spheroidColumn(1, 1, 0.75, 3), 0.5503, 2e-4, "disk-bulge column normaliser");
+for (const n of [0.8, 1, 1.5, 4]) {
+  const b = sersicCoefficient(n);
+  close(
+    integrate((y) => Math.exp(-b * Math.abs(y / 0.3) ** (1 / n)), 6) /
+      spheroidColumn(0.5, 0.6, 1 / n, b),
+    1,
+    3e-3,
+    "spheroid column n=" + n,
+  );
+}
 // Spheroid parts: spherical-deprojection weight with the part's measured core c, times a
 // parabolic window over the chord |d| < L = sqrt(1 − rho²), renormalised per sightline by
 // its closed-form column, so Earth's view equals the image for any core (mirrors the GLSL).
@@ -269,16 +284,26 @@ assert(diskLayerSpec(ANDROMEDA_APPEARANCE), "Andromeda uses a procedural disk la
 for (const m of GALAXY_MODELS) {
   const s = diskLayerSpec(m);
   const structure = galaxyStructure(m);
-  // M82 (feature 3) is the one starburst rendered as an edge-on disk with its wind.
-  if (
-    ["elliptical", "dwarf", "irregular", "starburst", "interacting"].includes(m.morphology) &&
+  // Resolved populations (ellipticals, lenticulars, dwarfs, irregulars, starbursts; LMC and
+  // SMC included) and irregulars without a recipe use the population reconstruction.
+  const population =
     !OBSERVED_DISK_MAPS[m.key] &&
-    structure.feature !== 3
-  )
-    assert.equal(s, null, m.name + " keeps the cached volume");
+    (structure.population || (structure.irregular && structure.feature !== 3));
+  if (population)
+    assert(
+      s && s.starHost === 2 && s.bulge.amplitude > 0 && s.bulge.exponent > 0,
+      m.name + " has a population reconstruction",
+    );
+  // M82 (feature 3) is the one starburst rendered as an edge-on disk with its wind.
   if (structure.feature === 3)
     assert(s && s.wind[0] > 0 && s.slab >= 0.99, m.name + " carries its bipolar wind");
-  if ([1, 4, 5, 7, 8, 9, 12, 15].includes(structure.feature) && !OBSERVED_DISK_MAPS[m.key])
+  // Bespoke legacy volumes: Centaurus A, Mayall's Object, Malin 1, and interacting systems
+  // without a photograph.
+  if (
+    !OBSERVED_DISK_MAPS[m.key] &&
+    !population &&
+    ([1, 12, 15].includes(structure.feature) || m.morphology === "interacting")
+  )
     assert.equal(s, null, m.name + " keeps its bespoke feature");
   if (s) {
     assert(s.slab > 0.1 && s.slab <= s.box, m.name + " slab");
@@ -300,5 +325,5 @@ assert(
 console.log(
   `PASS: ${keys.length} observed disk maps registered with their photographs; vertical ratios and profile normalisation; ${
     GALAXY_MODELS.filter((m) => diskLayerSpec(m)).length
-  } disk-layer galaxies; legacy volumes kept for the Milky Way, spheroids, dwarfs, irregulars and bespoke features`,
+  } disk-layer galaxies; population reconstructions for ellipticals, dwarfs and irregulars; legacy volumes kept for the Milky Way and bespoke features`,
 );

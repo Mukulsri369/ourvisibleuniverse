@@ -1,5 +1,5 @@
 import { GALAXY_MEDIUM } from "./galaxy-medium";
-import { OBSERVED_DISPLAY_GLSL, OBSERVED_FOOTPRINT_GLSL } from "./galaxy-observed-projection";
+import { OBSERVED_DISPLAY_GLSL } from "./galaxy-observed-projection";
 import { DISK_LAYER_GLSL } from "./galaxy-disk-layer";
 /** Rays integrate the same 3D field for the catalogue, approach, and interior. */
 export const GALAXY_FRAGMENT =
@@ -13,7 +13,6 @@ uniform float uOpacity,uReveal,uSteps,uCacheFade,uVolumeWeight;
 uniform float uExteriorView;
 varying vec3 vP;
 ` +
-  OBSERVED_FOOTPRINT_GLSL +
   GALAXY_MEDIUM +
   /* glsl */ `
 void main(){
@@ -45,7 +44,6 @@ void main(){
  float ds=(finish-start)/steps,trans=1.;vec3 light=vec3(0.);
  float jitter=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);
  // A registered telescope image replaces reconstructed light only inside its frame.
- vec4 obs0=uObsMat*vec4(uEye,1.),obsDir=uObsMat*vec4(rd,0.);
  for(int i=0;i<112;i++){
   if(float(i)>=steps||trans<.012)break;
   float t=start+(float(i)+.5+(jitter-.5)*.35)*ds;
@@ -74,9 +72,8 @@ void main(){
   float detail=noise(q*210.);field.a*=mix(.65,1.5,detail);field.rgb*=mix(.78,1.22,detail);
 #endif
   float localClear=smoothstep(.012,mix(.045,.13,uReveal),length(p-uEye));
-  float keep=observedKeepH(obs0+obsDir*t);
-  float dust=field.a*localClear*keep;
-  vec3 emission=field.rgb*localClear*mix(1.,.09,uReveal)*keep;
+  float dust=field.a*localClear;
+  vec3 emission=field.rgb*localClear*mix(1.,.09,uReveal);
   float extinction=dust+dot(emission,vec3(.2126,.7152,.0722))*.11;
   float alpha=1.-exp(-extinction*ds*6.);
   vec3 reddening=exp(-dust*ds*vec3(.65,1.,1.6));
@@ -111,7 +108,6 @@ uniform vec3 uEye;
 uniform float uOpacity,uReveal,uSteps,uCacheFade,uExteriorView,uTime,uRotationRate,uPixelAngle,uSlab,uBox;
 varying vec3 vP;
 ` +
-  OBSERVED_FOOTPRINT_GLSL +
   OBSERVED_DISPLAY_GLSL +
   DISK_LAYER_GLSL +
   /* glsl */ `
@@ -144,7 +140,6 @@ void main(){
  bool sheet=sheetW>0.&&tc>start&&tc<finish;
  // Interleaved gradient noise decorrelates step positions between neighbouring pixels.
  float jitter=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))));
- vec4 obs0=uObsMat*vec4(uEye,1.),obsDir=uObsMat*vec4(rd,0.);
  float angle=uTime*uRotationRate,c=cos(angle),s=sin(angle);
  vec3 trans=vec3(1.),light=vec3(0.);
  float t=start;
@@ -155,6 +150,7 @@ void main(){
   float central=.3*length(p)+.35*core;
   float ds=clamp(min(vertical,central),.0015,dsCap);
   if(uPartCount>.5)ds=max(.0015,min(ds,diskPartStep(p)));
+  if(uKnotLight.w>.5)ds=max(.0015,min(ds,diskKnotStep(vec3(p.x*c-p.z*s,p.y,p.x*s+p.z*c))));
   if(i==0)ds*=.15+.85*jitter;
   ds=min(ds,finish-t);
   // The step that reaches the mid-plane ends there; the sheet is composited after it.
@@ -169,12 +165,12 @@ void main(){
    vec3 e;float k;
    diskLayer(q,lod,lodC,sheetW,e,k);
    e+=diskBulge(q);
+   if(uKnotLight.w>.5){float kn;e+=diskKnots(q,kn);k+=kn;}
    if(uPartCount>.5)e+=diskParts(q,lod);
    if(uDiskWind.x>0.)e+=diskWind(q);
    float clear=smoothstep(.012,mix(.045,.13,uReveal),length(x-uEye));
-   float keep=observedKeepH(obs0+obsDir*tm);
-   e*=clear*mix(1.,.09,uReveal)*keep;
-   vec3 kk=k*clear*keep*REDDEN*ds;
+   e*=clear*mix(1.,.09,uReveal);
+   vec3 kk=k*clear*REDDEN*ds;
    vec3 att=exp(-kk);
    vec3 seg=ds*mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
    light+=trans*e*seg;
@@ -189,11 +185,10 @@ void main(){
    // The sheet's column, seen along the ray, is spread over 1/|rd.y| of path.
    vec4 d=diskSheet(xz,lod,max(lod,log2(max(smear*diskFlare(length(xz)),1.e-6))))*sheetW;
    float clear=smoothstep(.012,mix(.045,.13,uReveal),tc);
-   float keep=observedKeepH(obs0+obsDir*tc);
-   vec3 kk=d.a*clear*keep*REDDEN/ay;
+   vec3 kk=d.a*clear*REDDEN/ay;
    vec3 att=exp(-kk);
    vec3 seg=mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
-   light+=trans*d.rgb*clear*mix(1.,.09,uReveal)*keep*seg/ay;
+   light+=trans*d.rgb*clear*mix(1.,.09,uReveal)*seg/ay;
    trans*=att;
   }
  }

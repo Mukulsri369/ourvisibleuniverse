@@ -17,7 +17,7 @@ import {
 } from "../../src/stars/galaxy-models";
 import { ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "../../src/stars/GalaxyRadiance";
 import { earthDirectionLocal } from "../../src/stars/galaxy-observed-projection";
-import { galaxyDetailAlpha, galaxyObservedFootprint } from "../../src/stars/galaxy-detail-state";
+import { galaxyDetailAlpha } from "../../src/stars/galaxy-detail-state";
 
 /**
  * Isolated multi-angle galaxy QA page. It renders the production galaxy components
@@ -27,19 +27,10 @@ import { galaxyDetailAlpha, galaxyObservedFootprint } from "../../src/stars/gala
  *   ?g=<model key>&v=<front|back|edge|oblique|top|bottom|three-quarter>&d=<disk radii>
  *   &optics=0 disables the production exposure/tone-mapping/bloom pipeline
  *   &universe=1 adds the surrounding atlas (stars, catalogue galaxies)
- *   &nophoto=1 withholds registered telescope images, showing only the 3D model
  */
 const params = new URLSearchParams(location.search);
 const OPTICS = params.get("optics") !== "0";
 const UNIVERSE = params.get("universe") === "1";
-if (params.get("nophoto") === "1") {
-  const original = window.fetch.bind(window);
-  window.fetch = (input: RequestInfo | URL, init?: RequestInit) =>
-    String(input instanceof Request ? input.url : input).includes("/textures/galaxies/") &&
-    !String(input).includes("/derived/")
-      ? Promise.reject(new TypeError("QA: registered photographs withheld"))
-      : original(input, init);
-}
 
 const ALL_MODELS: GalaxyModel[] = [MILKY_WAY_APPEARANCE, ANDROMEDA_APPEARANCE, ...GALAXY_MODELS];
 const view = {
@@ -147,7 +138,6 @@ function Probe() {
         mounted: Boolean(volume),
         cacheFade: volume?.material.uniforms.uCacheFade?.value ?? 0,
         detailAlpha: galaxyDetailAlpha.get(model.key) ?? 0,
-        photoWeight: galaxyObservedFootprint.get(model.key)?.weight ?? 0,
         renderer: (() => {
           const ext = gl.getContext().getExtension("WEBGL_debug_renderer_info");
           return ext ? gl.getContext().getParameter(ext.UNMASKED_RENDERER_WEBGL) : "unknown";
