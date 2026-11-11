@@ -2,6 +2,14 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
+## 11 November — galaxy reconstruction release live
+
+The owner requested deploying the latest Claude Code changes from GitHub. The production branch `migration/supabase-cloudflare` included all three Claude branches at merge commit `569d9d8`. That source was deployed to https://ourvisibleuniverse.com as Cloudflare Worker version `3ac21eee-e6d5-405c-9743-3a7425d04f21`, serving 100% of traffic. The previous version was `515c5b59-f82b-4adc-8ded-b838faa23f14`. This supersedes the pending merge and deployment checkpoints below.
+
+The release includes the rebuilt galaxy views, M81 and M104 near-side corrections, NGC 1300 image registration fix, and stable derived-map normalisation. The Cloudflare production build and dry run passed, as did TypeScript, `test:galaxy-observed`, `test:galaxy-disk-layer`, `test:galaxies`, `test:galaxy-entry`, `test:nearby-expansion`, and `test:nearby-regressions`. The credential scan found zero matches across 686 build files and 1,337 source files.
+
+At 11:22 IST, 15 live HTTPS checks passed across public pages, auth and MCP routes, and domain redirects. The live scene bundle, 12 telescope images, and 31 derived textures matched the build byte for byte. Cloudflare reported the same production bindings and four attached domains. Signed-in visual testing and real-device performance measurements remain open.
+
 ## 10 November — derived-map normalisation made stable (latest checkpoint)
 
 - **What and why:** `npm run derive:galaxy-disk-maps` re-encoded whole derived maps after geometry changes of about 1e-11. Normalising Earth's direction in the M81 change re-encoded M33's and the Cartwheel's young maps, and a trial normalisation of the sky-orientation quaternion moved NGC 1300's `detail.scale` by 2%. Each map's encoding scale is now stable under such changes. Report: [stable map normalisation](GALAXY_3D_RECONSTRUCTION_20261109.md#stable-map-normalisation-10-november-2026-pushed-not-deployed).
