@@ -266,7 +266,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     // Sombrero (Hubble opo0328a): a sharp dust ring at about two thirds of the disk radius
     // with a bright stellar disk inside it.
     ring: sombrero ? 0.62 : clamp(structure.ringRadius || 0, 0, 0.9),
-    ringWidth: sombrero ? 0.045 : 0.05,
+    ringWidth: sombrero ? 0.065 : 0.05,
     seed: seed / 13,
     flocculent: model.morphology === "flocculent" ? 1 : 0,
     grand: model.morphology === "grand-design" || model.morphology === "barred" ? 1 : 0,
@@ -278,10 +278,10 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     // photographs (0.15-0.2 for M51, M81 and M101), so the outer disk is carried by the arms.
     oldScale: andromeda ? 0.2 : sombrero ? 0.32 : 0.21,
     youngScale: andromeda ? 0.32 : 0.34,
-    oldAmp: sombrero ? 0.5 : lenticular ? 0.85 : 0.7,
+    oldAmp: sombrero ? 0.28 : lenticular ? 0.85 : 0.7,
     youngAmp: lenticular || sombrero ? 0 : 0.55,
     hiiAmp: lenticular || sombrero ? 0 : 0.85,
-    dustAmp: sombrero ? 4.5 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
+    dustAmp: sombrero ? 5.5 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
     outer: m94 ? 1.15 : sombrero ? 0.74 : 1.05,
     oldColour,
     youngColour,
@@ -323,7 +323,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     old: cigar ? 0.06 : sombrero ? 0.035 : lenticular ? 0.06 : 0.046,
     young: cigar ? 0.02 : 0.014,
     ionised: cigar ? 0.012 : 0.0075,
-    dust: cigar ? 0.019 : sombrero ? 0.0075 : 0.012,
+    dust: cigar ? 0.019 : sombrero ? 0.012 : 0.012,
   };
   const thick = { z0: 0.13, fraction: sombrero ? 0.12 : lenticular ? 0.2 : 0.1 };
   const flare = sombrero ? 0.2 : 0.6;
@@ -332,7 +332,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   // a faint halo that reaches beyond the disk.
   const bulgeExponent = sombrero ? 0.25 : 0.75;
   const bulgeRadius = sombrero
-    ? 0.3
+    ? 0.24
     : andromeda
       ? 0.16
       : cigar
@@ -346,7 +346,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     amplitude: observed
       ? 0
       : sombrero
-        ? 3.2
+        ? 2.2
         : andromeda
           ? 1.6
           : cigar
@@ -396,7 +396,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     slab: sky ? box : Math.min(box, slab),
     bulge,
     knots: NO_KNOTS,
-    halo: observed ? 0 : sombrero ? 0.035 : lenticular ? 0.04 : 0.025,
+    halo: observed ? 0 : sombrero ? 0.012 : lenticular ? 0.04 : 0.025,
     starHost: sky ? 0 : 1,
     dust: [
       sky ? 0 : sombrero ? 0.1 : cigar ? 0.9 : model.dustLanes ? 0.7 : 0.2,
@@ -669,8 +669,10 @@ vec3 diskBulge(vec3 q){
  vec3 light=vec3(0.);
  if(uDiskBulge.z>0.){
   float m=length(q/uDiskBulgeAxes.xyz)/uDiskBulge.x;
-  // exp(-b m^(1/n)); uDiskBulge.z is pre-divided by the central face-on column (CPU).
-  if(m<14.)light+=uDiskBulgeColor*uDiskBulge.z*exp(-uDiskBulgeAxes.w*pow(m+.002,uDiskBulge.w));
+  // exp(-b m^(1/n)); uDiskBulge.z is pre-divided by the central face-on column (CPU). The
+  // wings taper beyond 3-5.5 half-light radii, where photographs reach the sky level; a
+  // de Vaucouleurs law kept to infinity fills the view with a grey glow.
+  if(m<5.5)light+=uDiskBulgeColor*uDiskBulge.z*exp(-uDiskBulgeAxes.w*pow(m+.002,uDiskBulge.w))*(1.-smoothstep(3.,5.5,m));
  }
  if(uDiskShape.w>0.){
   float hm=length(q*vec3(1.,1.6,1.));
