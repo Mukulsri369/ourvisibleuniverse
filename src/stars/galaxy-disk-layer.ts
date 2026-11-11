@@ -263,10 +263,10 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     pitch: THREE.MathUtils.degToRad(clamp(model.pitchDeg || 16, 6, 40)),
     bar: barred ? clamp(model.barLength / model.diskRadius, 0.05, 0.6) : 0,
     barAngle: (seed % 31) * 0.21,
-    // Sombrero (Hubble opo0328a): a sharp dust ring at about two thirds of the disk radius
-    // with a bright stellar disk inside it.
-    ring: sombrero ? 0.62 : clamp(structure.ringRadius || 0, 0, 0.9),
-    ringWidth: sombrero ? 0.065 : 0.05,
+    // Sombrero (Hubble opo0328a): the dust lane runs almost the full length of the stellar
+    // disk, so the ring sits near its outer edge, with the bright disk inside it.
+    ring: sombrero ? 0.88 : clamp(structure.ringRadius || 0, 0, 0.9),
+    ringWidth: sombrero ? 0.05 : 0.05,
     seed: seed / 13,
     flocculent: model.morphology === "flocculent" ? 1 : 0,
     grand: model.morphology === "grand-design" || model.morphology === "barred" ? 1 : 0,
@@ -276,13 +276,13 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     lanes: model.dustLanes ? 1 : lenticular ? 0.15 : 0.35,
     // Old-disk scale length about 0.2 of the model radius, as measured from the registered
     // photographs (0.15-0.2 for M51, M81 and M101), so the outer disk is carried by the arms.
-    oldScale: andromeda ? 0.2 : sombrero ? 0.32 : 0.21,
+    oldScale: andromeda ? 0.2 : sombrero ? 0.42 : 0.21,
     youngScale: andromeda ? 0.32 : 0.34,
     oldAmp: sombrero ? 0.28 : lenticular ? 0.85 : 0.7,
     youngAmp: lenticular || sombrero ? 0 : 0.55,
     hiiAmp: lenticular || sombrero ? 0 : 0.85,
     dustAmp: sombrero ? 5.5 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
-    outer: m94 ? 1.15 : sombrero ? 0.74 : 1.05,
+    outer: m94 ? 1.15 : sombrero ? 0.98 : 1.05,
     oldColour,
     youngColour,
     patch: blackEye ? [0.07, 0.035, 0.2, 2.2] : [0, 0, 0, 0],
@@ -338,7 +338,9 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
       : cigar
         ? 0.07
         : clamp(bulgeRatio, 0.04, 0.3);
-  const bulgeFlattening = sombrero ? 0.86 : lenticular ? 0.62 : 0.72;
+  // M104's spheroid: axis ratio 0.62 measured on its registered Hubble image (opo0328a;
+  // isophotes at 8-15% of the peak, on the side away from the dust lane).
+  const bulgeFlattening = sombrero ? 0.62 : lenticular ? 0.62 : 0.72;
   const bulge = {
     radius: bulgeRadius,
     // Steeper (n = 4) profiles need finer steps through their core.
@@ -358,7 +360,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     coefficient: sombrero ? sersicCoefficient(4) : 3,
     axes: [1, bulgeFlattening, 1] as [number, number, number],
     colour: sombrero
-      ? tint(OLD_BULGE_COLOUR, [1, 0.97, 0.92], 0.45)
+      ? tint(OLD_BULGE_COLOUR, [1, 0.97, 0.93], 0.65)
       : tint(OLD_BULGE_COLOUR, appearance.oldColor, 0.2),
   };
   const parts = observed?.parts?.items ?? [];
