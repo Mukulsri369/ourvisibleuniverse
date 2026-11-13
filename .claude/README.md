@@ -54,6 +54,10 @@ The vendored three.js skills target three r186 and the WebGPU skill targets r183
 
 The normal build (`npm run build:cloudflare`) deliberately refuses to run without the approved public Supabase build configuration (`VITE_SUPABASE_PROJECT_ID`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`), which is kept outside Git. Never put a server or secret key in it. The isolated QA harness (`scripts/nearby-qa/vite.config.mts`, port 31755) does not need it.
 
+## Browser-pane QA server
+
+`launch.json` lets the Claude desktop app's Browser pane start the loopback QA server (`ovu-qa`, port 31755, `scripts/nearby-qa/vite.config.mts`). It serves the isolated QA pages only, never the authenticated app.
+
 ## Galaxy look-dev harness
 
 `scripts/galaxy-lookdev/` renders one production galaxy volume at a fixed, north-up camera and writes it next to its registered telescope image with appearance indicators (`capture.mjs`). It is QA tooling on the loopback server only; see the `ovu-galaxy-realism` skill.

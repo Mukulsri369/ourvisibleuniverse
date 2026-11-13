@@ -18,6 +18,7 @@ import {
 import { ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "../../src/stars/GalaxyRadiance";
 import { earthDirectionLocal } from "../../src/stars/galaxy-observed-projection";
 import { galaxyDetailAlpha } from "../../src/stars/galaxy-detail-state";
+import { galaxyMotion, useGalaxyJourney } from "../../src/stars/galaxy-journey";
 
 /**
  * Isolated multi-angle galaxy QA page. It renders the production galaxy components
@@ -27,16 +28,25 @@ import { galaxyDetailAlpha } from "../../src/stars/galaxy-detail-state";
  *   ?g=<model key>&v=<front|back|edge|oblique|top|bottom|three-quarter>&d=<disk radii>
  *   &optics=0 disables the production exposure/tone-mapping/bloom pipeline
  *   &universe=1 adds the surrounding atlas (stars, catalogue galaxies)
+ *   &eye=x,y,z&look=x,y,z places the camera and its target in the galaxy's local frame
+ *     (disk radii, disk normal = +Y), e.g. the Sun in the Milky Way: eye=0.533,0,0
+ *   &inside=1 shows the entered state (interior exposure and star population) without the flight;
+ *     &reveal=0..1 sets how far the interior is revealed (0 at the start of the flight)
+ *   &sel=none selects no galaxy, so g is drawn by its unselected far-field preview (universe=1)
  */
 const params = new URLSearchParams(location.search);
 const OPTICS = params.get("optics") !== "0";
 const UNIVERSE = params.get("universe") === "1";
 
 const ALL_MODELS: GalaxyModel[] = [MILKY_WAY_APPEARANCE, ANDROMEDA_APPEARANCE, ...GALAXY_MODELS];
+const vector = (name: string) =>
+  params.get(name)?.split(",").map(Number) as [number, number, number] | undefined;
 const view = {
   key: params.get("g") ?? "m51",
   direction: params.get("v") ?? "front",
   distance: Number(params.get("d")) || 2.7,
+  eye: vector("eye"),
+  look: vector("look"),
 };
 
 function modelFor(key: string) {
@@ -105,8 +115,17 @@ function ViewRig() {
   useFrame(() => {
     const model = modelFor(view.key);
     const q = galaxyOrientation(model);
-    const { dir, up } = localPose(model, view.direction);
     const centre = galaxyCenter(model);
+    if (view.eye) {
+      const place = (v: [number, number, number]) =>
+        new THREE.Vector3(...v).multiplyScalar(model.diskRadius).applyQuaternion(q).add(centre);
+      camera.up.set(0, 1, 0).applyQuaternion(q);
+      camera.position.copy(place(view.eye));
+      camera.lookAt(place(view.look ?? [0, 0, 0]));
+      camera.updateMatrixWorld();
+      return;
+    }
+    const { dir, up } = localPose(model, view.direction);
     camera.up.copy(up.applyQuaternion(q));
     camera.position
       .copy(centre)
@@ -124,7 +143,12 @@ function Probe() {
     select,
     setView(direction: string, distance?: number) {
       view.direction = direction;
+      view.eye = undefined;
       if (distance) view.distance = distance;
+    },
+    setEye(eye: [number, number, number], look?: [number, number, number]) {
+      view.eye = eye;
+      view.look = look;
     },
     status() {
       const model = modelFor(view.key);
@@ -162,6 +186,11 @@ useStore.setState({
 });
 useExploration.setState({ phase: "outside", galaxy: null, mapOpen: false });
 select(view.key);
+if (params.get("sel") === "none") useStore.setState({ visitGalaxy: null });
+if (params.get("inside") === "1") {
+  useGalaxyJourney.setState({ galaxy: useStore.getState().visitGalaxy, mode: "inside" });
+  galaxyMotion.progress = galaxyMotion.reveal = Number(params.get("reveal") ?? 1);
+}
 
 const container = document.getElementById("root")! as HTMLElement & {
   galaxyViewsRoot?: ReturnType<typeof createRoot>;

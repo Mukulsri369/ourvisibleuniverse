@@ -14,7 +14,7 @@ Galaxies are reconstructions: a 3D emissivity and dust volume plus representativ
 - **Keep per-object facts in the catalogue.** Never change catalogue values, distances, orientations or host membership as part of a look change; that is `ovu-object-intake` work. Per-object morphology (arms, pitch, bar, bulge) changes need a cited source.
 - **Use only licensed images.** Telescope images used for comparison stay those in `public/textures/galaxies/` with their credits. New reference images go through `ovu-asset-pipeline`.
 - **Measure performance.** Any frame-time cost needs `ovu-perf-evidence`. SwiftShader captures are for appearance only, never speed.
-- **Mind the shared renderer.** The Milky Way, Andromeda and all catalogue galaxies share `GALAXY_MEDIUM`. Check across morphologies (rendering-recipes §7).
+- **Mind the shared renderer.** The Milky Way, Andromeda and nearly every catalogue galaxy share the disk layer (`galaxy-disk-layer.ts`, `GALAXY_DISK_FRAGMENT`); Centaurus A, Mayall's Object, Malin 1 and interacting systems without a photograph still use `GALAXY_MEDIUM`. Check across morphologies (rendering-recipes §7).
 
 ## Look-dev loop (do this before and after every change)
 
@@ -80,6 +80,7 @@ Also check in every Earth-view sheet that the arms wind the same way as in the t
 | Uniforms, noise texture, cache size, step counts          | `src/stars/GalaxyRadiance.tsx`, `src/stars/galaxy-density-cache.ts`                               |
 | Star points, HII and cluster classes                      | `src/stars/galaxy-star-data.ts`, `galaxy-interior-stars.ts`, `GalaxyInteriorField.tsx`            |
 | Morphology parameters, feature IDs                        | `src/stars/galaxy-structure.ts`, `galaxy-models.ts`, `galaxy-populations.ts`                      |
+| Milky Way arms, bar and bulge (sourced fits)              | `src/stars/milky-way-structure.ts`, `milkyWay` branches of `galaxy-disk-layer.ts`                 |
 | Display palettes (labelled)                               | `src/stars/galaxy-overview-appearance.ts`                                                         |
 | Exposure, tone map, bloom                                 | `src/stars/OpticsPostProcessing.tsx`                                                              |
 | Registered telescope image layer                          | `src/stars/GalaxyObservedLayer.tsx`, `galaxy-observed-images.ts`, `galaxy-observed-projection.ts` |

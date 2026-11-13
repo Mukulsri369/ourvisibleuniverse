@@ -5,7 +5,9 @@
  *  - vertical structure follows the adopted literature ratios and every profile integrates
  *    to the map value it carries (Earth's view of a part equals its image);
  *  - galaxy selection: observed disks, procedural disks, and galaxies that keep the cached
- *    volume (Milky Way, ellipticals, dwarfs, bespoke legacy features);
+ *    volume (bespoke legacy features);
+ *  - the Milky Way's sourced arms keep their observed directions from the Sun, trail its
+ *    rotation and share the bar's measured angle with its bulge and star points;
  *  - observed disks do not rotate away from their registration.
  */
 import assert from "node:assert/strict";
@@ -18,9 +20,19 @@ import { ANDROMEDA_APPEARANCE, MILKY_WAY_APPEARANCE } from "../src/stars/GalaxyR
 import { OBSERVED_IMAGE_BY_KEY } from "../src/stars/galaxy-observed-images";
 import { observedImageMatrix } from "../src/stars/galaxy-observed-projection";
 import { galaxyStructure } from "../src/stars/galaxy-structure";
+import { makeGalaxyStarData } from "../src/stars/galaxy-star-data";
+import {
+  MILKY_WAY_ARMS,
+  MILKY_WAY_BAR,
+  ARM_FIT_R0_KPC,
+  armRadius,
+  galacticLongitude,
+} from "../src/stars/milky-way-structure";
 import {
   DISK_LAYER_GLSL,
+  MAX_ARM_KNOTS,
   MAX_DISK_PARTS,
+  MAX_TABLE_ARMS,
   OBSERVED_DISK_MAPS,
   diskLayerSpec,
   diskLayerUniforms,
@@ -275,12 +287,110 @@ assert(
 // 4. Selection.
 const observedCount = GALAXY_MODELS.filter((m) => diskLayerSpec(m)?.observed).length;
 assert.equal(observedCount, 10);
-assert.equal(
-  diskLayerSpec(MILKY_WAY_APPEARANCE),
-  null,
-  "The home galaxy keeps its interior-tuned volume",
+const andromeda = diskLayerSpec(ANDROMEDA_APPEARANCE);
+assert(andromeda, "Andromeda uses a procedural disk layer");
+assert(
+  andromeda.procedural.armTable.length === 0 &&
+    andromeda.bulge.turn === 0 &&
+    andromeda.interior[0] === 2.4 &&
+    andromeda.interior[1] === 0.09,
+  "Other disks keep the m-fold spiral, an unturned bulge and the default interior light",
 );
-assert(diskLayerSpec(ANDROMEDA_APPEARANCE), "Andromeda uses a procedural disk layer");
+
+// 4b. The Milky Way: a disk layer baked from published fits (milky-way-structure.ts).
+const milkyWay = diskLayerSpec(MILKY_WAY_APPEARANCE);
+assert(
+  milkyWay && milkyWay.procedural.armTable === MILKY_WAY_ARMS,
+  "The Milky Way is drawn from its sourced arms",
+);
+assert(MILKY_WAY_ARMS.length <= MAX_TABLE_ARMS, "The arm table fits the map bake");
+for (const a of MILKY_WAY_ARMS) {
+  assert(a.knots.length >= 2 && a.knots.length <= MAX_ARM_KNOTS, a.name + " knots fit the bake");
+  // Azimuth rises with Galactic rotation and falls outward along every arm, so arms trail.
+  for (let k = 0; k + 1 < a.knots.length; k++)
+    assert(a.knots[k + 1][0] < a.knots[k][0], a.name + " azimuth falls outward");
+}
+for (const name of ["Norma-Outer", "Scutum-Centaurus", "Sagittarius-Carina", "Perseus"]) {
+  const a = MILKY_WAY_ARMS.find((x) => x.name === name)!;
+  assert(a.knots.at(-1)![1] > a.knots[0][1] + 0.9, name + " winds outward");
+}
+// The arms keep their observed directions from the Sun: the fourth-quadrant tangencies of
+// Reid et al. 2019, Table 2 (posterior longitudes, column 3).
+for (const [name, longitude] of Object.entries({
+  "3-kpc (near)": 337.0,
+  "Norma-Outer": 327.5,
+  "Scutum-Centaurus": 306.1,
+  "Sagittarius-Carina": 285.6,
+})) {
+  const a = MILKY_WAY_ARMS.find((x) => x.name === name)!;
+  let tangency = 360;
+  for (let beta = 0; beta > -2.5; beta -= 0.0005) {
+    const r = armRadius(a, beta);
+    if (r === null || r >= 1) continue;
+    const l = galacticLongitude(beta, r);
+    if (l > 180) tangency = Math.min(tangency, l);
+  }
+  close(tangency, longitude, 1, name + " tangency longitude");
+}
+// The Sun (azimuth 0, R0) lies outside the Sagittarius arm, inside the Perseus arm and just
+// inside the ridge of the Local arm.
+const atSun = (name: string) =>
+  armRadius(
+    MILKY_WAY_ARMS.find((x) => x.name === name)!,
+    0,
+  )!;
+assert(
+  atSun("Sagittarius-Carina") < 0.9 &&
+    atSun("Local") > 1 &&
+    atSun("Local") < 1.1 &&
+    atSun("Perseus") > 1.15,
+  "The Sun sits between the Sagittarius and Perseus arms, beside the Local arm",
+);
+close(
+  milkyWay.procedural.armScale,
+  MILKY_WAY_APPEARANCE.distance / MILKY_WAY_APPEARANCE.diskRadius,
+  1e-12,
+  "Arm radii are scaled by the Sun's distance from the centre",
+);
+// Bar and bulge share the measured angle; the near end lies at positive longitude.
+assert(
+  milkyWay.bulge.turn === MILKY_WAY_BAR.angle &&
+    milkyWay.procedural.barAngle === MILKY_WAY_BAR.angle,
+);
+const barEnd = galacticLongitude(MILKY_WAY_BAR.angle, MILKY_WAY_BAR.halfLengthKpc / ARM_FIT_R0_KPC);
+assert(barEnd > 0 && barEnd < 90, "The near end of the bar is in the first quadrant");
+assert(
+  galaxyStructure(MILKY_WAY_APPEARANCE).rotationRate < 0,
+  "The pattern turns toward rising azimuth, the sense the arms trail",
+);
+{
+  // Star points: the bar points lie along the bar, and the disk points do not trace a second,
+  // m-fold spiral beside the sourced arms (their light comes from the map).
+  const stars = makeGalaxyStarData(MILKY_WAY_APPEARANCE, 36000).positions;
+  let xx = 0,
+    zz = 0,
+    xz = 0;
+  const bar = MILKY_WAY_APPEARANCE.barLength / MILKY_WAY_APPEARANCE.diskRadius;
+  const sectors = new Array(72).fill(0);
+  for (let i = 0; i < stars.length; i += 3) {
+    const x = stars[i],
+      z = stars[i + 2],
+      r = Math.hypot(x, z);
+    if (r > 0.5 * bar && r < bar && Math.abs(stars[i + 1]) < 0.05) {
+      xx += x * x;
+      zz += z * z;
+      xz += x * z;
+    }
+    if (r > 0.45 && r < 0.55)
+      sectors[Math.floor(((Math.atan2(z, x) + Math.PI) / (2 * Math.PI)) * 72) % 72]++;
+  }
+  close(0.5 * Math.atan2(2 * xz, xx - zz), MILKY_WAY_BAR.angle, 0.1, "Star-point bar angle");
+  const mean = sectors.reduce((s, v) => s + v, 0) / 72;
+  assert(
+    Math.max(...sectors) < 1.8 * mean && Math.min(...sectors) > 0.4 * mean,
+    "Milky Way disk points are even in azimuth",
+  );
+}
 for (const m of GALAXY_MODELS) {
   const s = diskLayerSpec(m);
   const structure = galaxyStructure(m);
@@ -308,6 +418,16 @@ for (const m of GALAXY_MODELS) {
   if (s) {
     assert(s.slab > 0.1 && s.slab <= s.box, m.name + " slab");
     assert(s.box >= 1.35 && s.box <= 2.6, m.name + " box");
+    // Rays stop at `reach` only for procedural disks, whose maps, spheroid and halo end inside it.
+    assert(
+      OBSERVED_DISK_MAPS[m.key] || population
+        ? s.reach === 0
+        : s.reach === 0 ||
+            (s.reach >= 1.3 &&
+              s.reach >= 1.12 * s.procedural.outer &&
+              s.reach >= 5.5 * s.bulge.radius * Math.max(s.bulge.axes[0], s.bulge.axes[2])),
+      m.name + " reach",
+    );
     const u = diskLayerUniforms(m, s);
     assert(
       u.uDiskHeights.value.toArray().every((v) => v > 0 && v < 0.1),
@@ -325,5 +445,5 @@ assert(
 console.log(
   `PASS: ${keys.length} observed disk maps registered with their photographs; vertical ratios and profile normalisation; ${
     GALAXY_MODELS.filter((m) => diskLayerSpec(m)).length
-  } disk-layer galaxies; population reconstructions for ellipticals, dwarfs and irregulars; legacy volumes kept for the Milky Way and bespoke features`,
+  } disk-layer galaxies; population reconstructions for ellipticals, dwarfs and irregulars; the Milky Way from its sourced arms and bar; legacy volumes kept for bespoke features`,
 );

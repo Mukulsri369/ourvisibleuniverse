@@ -379,7 +379,8 @@ galaxy should be rebuilt the same way.
     sourced star-forming complexes, such as the LMC's 30 Doradus-like region, are drawn
     as 3D clumps of clusters, H II and dust.
   - 827 of 830 models now use the new layer. The Milky Way (interior-tuned), Centaurus A,
-    Mayall's Object and Malin 1 keep their bespoke volumes.
+    Mayall's Object and Malin 1 keep their bespoke volumes. The Milky Way has since moved
+    to the disk layer: see [MILKY_WAY_RECONSTRUCTION_20261113.md](MILKY_WAY_RECONSTRUCTION_20261113.md).
 - **Spheroid profile.** Bulges and spheroids use exp(−b m^(1/n)) on triaxial axes, with
   a closed-form column normaliser: 2 r q Γ(1+n) b^(−n). Existing disk bulges are
   unchanged by construction; the old fixed 0.55 is this normaliser for their profile.
@@ -428,4 +429,6 @@ Limitations of this step:
   not changed here). Since sourced and corrected, with M81's: see
   [GALAXY_NEAR_SIDE_20261110.md](GALAXY_NEAR_SIDE_20261110.md).
 - Not run: authenticated full app, `build:cloudflare` (needs the approved public Supabase
-  configuration), physical devices, GPU frame-time measurement.
+  configuration), physical devices, GPU frame-time measurement. Frame time has since been
+  measured on one integrated GPU, and the shared ray marcher made cheaper: see
+  [MILKY_WAY_RECONSTRUCTION_20261113.md](MILKY_WAY_RECONSTRUCTION_20261113.md#performance).

@@ -29,7 +29,7 @@ Scientific scope: we can observe these galaxies from Earth, not from arbitrary d
 
 ## Catalogue coverage
 
-All 63 model entries use the same 3D renderer. Milky Way and Andromeda have dedicated navigation integration and use that renderer as well. Profiles vary by recorded morphology, dimensions, arm pitch, bar and ring size; their seeded populations are stable across entry and exit.
+All 63 model entries use the same 3D renderer. Milky Way and Andromeda have dedicated navigation integration and use that renderer as well. The Milky Way, which cannot be photographed from outside, is reconstructed from published fits to its spiral arms, bar, bulge and disk; see [MILKY_WAY_RECONSTRUCTION_20261113.md](MILKY_WAY_RECONSTRUCTION_20261113.md) for the sources and for what is measured and what is extrapolated. Profiles vary by recorded morphology, dimensions, arm pitch, bar and ring size; their seeded populations are stable across entry and exit.
 
 | Galaxy | Structure | Diameter (ly) | Additional feature | Catalogue |
 | --- | --- | ---: | --- | --- |

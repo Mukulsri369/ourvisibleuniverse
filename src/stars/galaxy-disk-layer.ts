@@ -5,6 +5,13 @@ import { catalogueAppearance } from "./galaxy-overview-appearance";
 import { OBSERVED_IMAGE_BY_KEY } from "./galaxy-observed-images";
 import { earthDirectionLocal, observedImageMatrix } from "./galaxy-observed-projection";
 import diskMapData from "./catalog-data/galaxy-disk-maps.json";
+import {
+  KPC_LY,
+  MILKY_WAY_ARMS,
+  MILKY_WAY_ARM_WIDTH,
+  MILKY_WAY_BAR,
+  type MilkyWayArm,
+} from "./milky-way-structure";
 
 /**
  * GALAXY DISK LAYER
@@ -21,7 +28,9 @@ import diskMapData from "./catalog-data/galaxy-disk-maps.json";
  *
  * Seven galaxies with registered telescope images take their in-plane maps from the
  * image itself (scripts/derive-galaxy-disk-maps.ts); the rest bake a procedural map
- * from their catalogued morphology. Vertical structure, the far side of each disk and
+ * from their catalogued morphology. The Milky Way, which cannot be photographed from
+ * outside, bakes its map from published fits to its arms, bar and disk
+ * (milky-way-structure.ts). Vertical structure, the far side of each disk and
  * everything outside a photograph's frame are reconstructions, not measurements.
  */
 
@@ -75,6 +84,9 @@ export const OBSERVED_DISK_MAPS: Readonly<Record<string, ObservedDiskMap>> = (
 
 /** Maximum sightline-extruded parts (bulges, companions) per galaxy. */
 export const MAX_DISK_PARTS = 6;
+/** Capacity of a sourced arm table in the map bake: arms, and knots per arm. */
+export const MAX_TABLE_ARMS = 8;
+export const MAX_ARM_KNOTS = 5;
 
 export type ProceduralDiskParameters = {
   arms: number;
@@ -110,6 +122,12 @@ export type ProceduralDiskParameters = {
   irregular: number;
   /** Irregular envelope: centre offset (disk plane x, z) and minor/major axis ratio. */
   envelope: [number, number, number];
+  /**
+   * Sourced arms (the Milky Way) that replace the m-fold spiral: log-spiral knots in units of
+   * `armScale` (disk radii), with azimuth 0 along +x and increasing toward +z. Empty otherwise.
+   */
+  armTable: readonly MilkyWayArm[];
+  armScale: number;
 };
 
 /** Star-forming complexes (sourced positions) drawn as 3D clumps of young light, H II and dust. */
@@ -132,6 +150,8 @@ export type DiskLayerSpec = {
   slab: number;
   /** Half-size of the volume box (disk radii); 1.35 unless a ring reaches further. */
   box: number;
+  /** Radius beyond which the galaxy has no light or dust, so rays stop there; 0: the whole box. */
+  reach: number;
   /**
    * Spheroid (a bulge, or the whole old population of an elliptical, dwarf or irregular):
    * a triaxial profile exp(-b m^(1/n)), m = |q / axes| / radius. Amplitude is its central
@@ -144,8 +164,15 @@ export type DiskLayerSpec = {
     exponent: number;
     coefficient: number;
     axes: [number, number, number];
+    /** Azimuth of the x semi-axis in the disk plane (radians): a bar-shaped bulge. */
+    turn: number;
     colour: RGB;
   };
+  /**
+   * Once the camera has entered: gain of the display-referred light (interior exposure), and
+   * the fraction of the galaxy's own light kept when the interior is revealed.
+   */
+  interior: [number, number];
   knots: DiskKnots;
   halo: number;
   /** Diffuse face-on dust: central optical depth, scale length, outer radius. */
@@ -225,7 +252,6 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const observed = OBSERVED_DISK_MAPS[model.key] ?? null;
   const structure = galaxyStructure(model);
   if (!observed) {
-    if (model.name === "Milky Way") return null;
     // Resolved populations (ellipticals, lenticulars, dwarfs, irregulars and starbursts with
     // sourced recipes) and irregulars without one have their own reconstructions below.
     const populationSpec =
@@ -247,6 +273,9 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const blackEye = structure.feature === 13;
   const m94 = structure.feature === 14;
   const andromeda = model.key === "andromeda";
+  const milkyWay = model.name === "Milky Way";
+  /** Disk radii per kiloparsec. */
+  const kpc = KPC_LY / model.diskRadius;
   const cigar = structure.feature === 3;
   const barred = model.barLength > 0 ? 1 : 0;
   const bulgeRatio = clamp(model.bulgeRadius / Math.max(1, model.diskRadius), 0.025, 0.6);
@@ -262,7 +291,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     arms: lenticular || sombrero ? 0 : Math.max(2, Math.min(6, model.arms || 2)),
     pitch: THREE.MathUtils.degToRad(clamp(model.pitchDeg || 16, 6, 40)),
     bar: barred ? clamp(model.barLength / model.diskRadius, 0.05, 0.6) : 0,
-    barAngle: (seed % 31) * 0.21,
+    barAngle: milkyWay ? MILKY_WAY_BAR.angle : (seed % 31) * 0.21,
     // Sombrero (Hubble opo0328a): the dust lane runs almost the full length of the stellar
     // disk, so the ring sits near its outer edge, with the bright disk inside it.
     ring: sombrero ? 0.88 : clamp(structure.ringRadius || 0, 0, 0.9),
@@ -276,18 +305,24 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     lanes: model.dustLanes ? 1 : lenticular ? 0.15 : 0.35,
     // Old-disk scale length about 0.2 of the model radius, as measured from the registered
     // photographs (0.15-0.2 for M51, M81 and M101), so the outer disk is carried by the arms.
-    oldScale: andromeda ? 0.2 : sombrero ? 0.42 : 0.21,
-    youngScale: andromeda ? 0.32 : 0.34,
-    oldAmp: sombrero ? 0.28 : lenticular ? 0.85 : 0.7,
-    youngAmp: lenticular || sombrero ? 0 : 0.55,
-    hiiAmp: lenticular || sombrero ? 0 : 0.85,
-    dustAmp: sombrero ? 5.5 : andromeda ? 2 : model.dustLanes ? 1.5 : 0.4,
+    // Milky Way: thin-disk scale length 2.6 ± 0.5 kpc (Bland-Hawthorn & Gerhard 2016). Its
+    // young light is given a shorter scale than the generic disk, a display choice: little
+    // star formation is seen in its outer arms.
+    oldScale: milkyWay ? 2.6 * kpc : andromeda ? 0.2 : sombrero ? 0.42 : 0.21,
+    youngScale: milkyWay ? 0.26 : andromeda ? 0.32 : 0.34,
+    oldAmp: sombrero ? 0.28 : lenticular ? 0.85 : milkyWay ? 0.38 : 0.7,
+    youngAmp: lenticular || sombrero ? 0 : milkyWay ? 0.7 : 0.55,
+    hiiAmp: lenticular || sombrero ? 0 : milkyWay ? 0.55 : 0.85,
+    dustAmp: sombrero ? 5.5 : andromeda ? 2 : milkyWay ? 2.4 : model.dustLanes ? 1.5 : 0.4,
     outer: m94 ? 1.15 : sombrero ? 0.98 : 1.05,
     oldColour,
     youngColour,
     patch: blackEye ? [0.07, 0.035, 0.2, 2.2] : [0, 0, 0, 0],
     irregular: 0,
     envelope: [0, 0, 1],
+    armTable: milkyWay ? MILKY_WAY_ARMS : [],
+    // The Sun's distance from the centre: the arm fits are in units of it.
+    armScale: milkyWay ? model.distance / model.diskRadius : 1,
   };
   if (cigar) {
     // M82: an edge-on, dusty, clumpy starburst disk with a short bar (ESA/Hubble heic0604a).
@@ -319,28 +354,46 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     procedural.hiiAmp = procedural.youngAmp * 0.9;
     procedural.dustAmp = clamp(observed.profile.dust[0] * 0.6, 0, 6);
   }
+  // Milky Way (Bland-Hawthorn & Gerhard 2016): thin and thick disks with exponential scale
+  // heights 300 ± 50 pc and 900 ± 180 pc (sech² z0 is twice that) and a thick/thin surface
+  // density of 12 ± 4%. Its young, ionised and dust layers keep the generic ratios to the old
+  // disk.
+  const thin = milkyWay ? (0.6 * kpc) / 0.046 : 1;
   const heights = {
-    old: cigar ? 0.06 : sombrero ? 0.035 : lenticular ? 0.06 : 0.046,
-    young: cigar ? 0.02 : 0.014,
-    ionised: cigar ? 0.012 : 0.0075,
-    dust: cigar ? 0.019 : sombrero ? 0.012 : 0.012,
+    old: milkyWay ? 0.6 * kpc : cigar ? 0.06 : sombrero ? 0.035 : lenticular ? 0.06 : 0.046,
+    young: cigar ? 0.02 : 0.014 * thin,
+    ionised: cigar ? 0.012 : 0.0075 * thin,
+    dust: cigar ? 0.019 : 0.012 * thin,
   };
-  const thick = { z0: 0.13, fraction: sombrero ? 0.12 : lenticular ? 0.2 : 0.1 };
+  const thick = milkyWay
+    ? { z0: 1.8 * kpc, fraction: 0.12 / 1.12 }
+    : { z0: 0.13, fraction: sombrero ? 0.12 : lenticular ? 0.2 : 0.1 };
   const flare = sombrero ? 0.2 : 0.6;
   // Disk bulges: exp(-3 m^0.75). The Sombrero's dominant spheroid follows a de Vaucouleurs
   // (Sérsic n = 4) law (Kormendy 1988; Hes & Peletier 1993): a bright, compact core inside
   // a faint halo that reaches beyond the disk.
   const bulgeExponent = sombrero ? 0.25 : 0.75;
+  // Milky Way: a box/peanut bulge that is the inner, thick part of the bar. Vertical scale
+  // height 180 pc with axis ratios 0.26 edge-on and 0.5 from above (Bland-Hawthorn & Gerhard
+  // 2016, §4.2), so 180 / 0.26 pc along the bar; exp(-3 m^0.75) falls by e at m = 3^(-4/3).
   const bulgeRadius = sombrero
     ? 0.24
     : andromeda
       ? 0.16
-      : cigar
-        ? 0.07
-        : clamp(bulgeRatio, 0.04, 0.3);
+      : milkyWay
+        ? ((0.18 / MILKY_WAY_BAR.bulgeAxes[1]) * kpc) / 3 ** (-4 / 3)
+        : cigar
+          ? 0.07
+          : clamp(bulgeRatio, 0.04, 0.3);
   // M104's spheroid: axis ratio 0.62 measured on its registered Hubble image (opo0328a;
   // isophotes at 8-15% of the peak, on the side away from the dust lane).
-  const bulgeFlattening = sombrero ? 0.62 : lenticular ? 0.62 : 0.72;
+  const bulgeFlattening = milkyWay
+    ? MILKY_WAY_BAR.bulgeAxes[1]
+    : sombrero
+      ? 0.62
+      : lenticular
+        ? 0.62
+        : 0.72;
   const bulge = {
     radius: bulgeRadius,
     // Steeper (n = 4) profiles need finer steps through their core.
@@ -351,14 +404,21 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
         ? 2.2
         : andromeda
           ? 1.6
-          : cigar
-            ? 0.9
-            : lenticular
-              ? 1.3
-              : 1.05,
+          : milkyWay
+            ? 0.75
+            : cigar
+              ? 0.9
+              : lenticular
+                ? 1.3
+                : 1.05,
     exponent: bulgeExponent,
     coefficient: sombrero ? sersicCoefficient(4) : 3,
-    axes: [1, bulgeFlattening, 1] as [number, number, number],
+    axes: [1, bulgeFlattening, milkyWay ? MILKY_WAY_BAR.bulgeAxes[0] : 1] as [
+      number,
+      number,
+      number,
+    ],
+    turn: milkyWay ? MILKY_WAY_BAR.angle : 0,
     colour: sombrero
       ? tint(OLD_BULGE_COLOUR, [1, 0.97, 0.93], 0.65)
       : tint(OLD_BULGE_COLOUR, appearance.oldColor, 0.2),
@@ -392,11 +452,25 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     key: model.key,
     observed,
     box,
+    // A procedural disk ends at its map's edge taper (with room for texture filtering), the
+    // spheroid's taper and the halo's.
+    reach:
+      observed || cigar
+        ? 0
+        : Math.max(
+            1.12 * procedural.outer + 0.1,
+            5.5 * bulge.radius * Math.max(bulge.axes[0], bulge.axes[2]),
+            1.3,
+          ),
     heights,
     thick,
     flare,
     slab: sky ? box : Math.min(box, slab),
     bulge,
+    // The Milky Way is seen mostly from inside: its gain matches the exterior view at the
+    // default exposure, so entry and exit have no brightness step, and its band keeps more
+    // of its light than a galaxy visited briefly.
+    interior: milkyWay ? [8, 0.36] : [2.4, 0.09],
     knots: NO_KNOTS,
     halo: observed ? 0 : sombrero ? 0.012 : lenticular ? 0.04 : 0.025,
     starHost: sky ? 0 : 1,
@@ -498,6 +572,8 @@ function populationLayerSpec(
       ((seed % 11) / 11 - 0.5) * 0.18 * (spheroidal ? 0 : 1),
       clamp(axes[2], 0.25, 1),
     ],
+    armTable: [],
+    armScale: 1,
   };
   const thicknessRatio = clamp(axes[1], 0.15, 1);
   const heights = {
@@ -517,6 +593,7 @@ function populationLayerSpec(
     exponent,
     coefficient,
     axes,
+    turn: 0,
     colour: normalise(population.old),
   };
   const slab = Math.min(
@@ -527,11 +604,13 @@ function populationLayerSpec(
     key: model.key,
     observed: null,
     box: 1.35,
+    reach: 0,
     heights,
     thick: { z0: heights.old * 2, fraction: 0.15 },
     flare: 0.3,
     slab: Math.max(slab, ...knots.map((k) => Math.abs(k[1]) + k[3] * 3)),
     bulge,
+    interior: [2.4, 0.09],
     knots: {
       items: knots.map((k) => [k[0], k[1], k[2], k[3]] as [number, number, number, number]),
       hot: spheroidal ? 0.25 * population.hotFraction : 0.5 * population.hotFraction,
@@ -561,6 +640,7 @@ export const DISK_LAYER_GLSL = /* glsl */ `
 uniform sampler2D uDiskYoung,uDiskOld,uProcYoung,uProcOld,uDiskParts;
 uniform float uDiskObserved;
 uniform vec4 uDiskExtent;   // observed half-extent, procedural half-extent, observed texel, procedural texel
+uniform vec2 uDiskLod;      // log2 of the observed and procedural texel sizes
 uniform vec4 uDiskHeights;  // old sech² z0, young h, ionised h, dust h
 uniform vec4 uDiskShape;    // thick z0, thick fraction, flare, halo
 uniform vec4 uDiskScale;    // observed young, old, tau max, procedural tau max
@@ -569,6 +649,7 @@ uniform mat4 uDiskMat;      // local -> photograph [u w, v w, w]
 uniform vec4 uDiskBulge;    // radius, fine-step core, amplitude over the central column, exponent 1/n
 uniform vec4 uDiskBulgeAxes; // spheroid semi-axes (x, vertical y, z) and Sérsic coefficient b
 uniform vec3 uDiskBulgeColor;
+uniform vec2 uDiskBulgeTurn; // cos, sin of the azimuth of the spheroid's x semi-axis
 uniform vec4 uKnot[${MAX_DISK_PARTS}]; // star-forming complexes: centre (local), size
 uniform vec4 uKnotLight;    // young-light column, H II column, optical depth, count
 uniform vec3 uKnotColor;
@@ -580,7 +661,7 @@ uniform vec4 uPartDepth[${MAX_DISK_PARTS}]; // centre uv (xy), depth centre, dep
 uniform vec4 uDiskWind;     // amplitude, tan(half opening), base radius, height scale
 uniform sampler3D uNoise;
 uniform float uSeed;
-float diskSech2(float x){float c=cosh(min(abs(x),30.));return 1./(c*c);}
+float diskSech2(float x){float e=exp(-2.*min(abs(x),30.));return 4.*e/((1.+e)*(1.+e));}
 float diskFlare(float r){return 1.+uDiskShape.z*r*r;}
 /** Feathered photograph frame of a disk-plane point (where the young-light map is valid). */
 float diskPhotoFrame(vec2 xz){
@@ -603,13 +684,13 @@ vec4 diskYoungDust(vec2 xz,float lod,float photo){
  vec4 r=vec4(0.);
  if(photo>0.){
   // Young light (rgb) and sqrt-encoded dust (alpha) share one texture.
-  vec4 yd=textureLod(uDiskYoung,xz/(2.*uDiskExtent.x)+.5,max(0.,lod-log2(uDiskExtent.z)));
+  vec4 yd=textureLod(uDiskYoung,xz/(2.*uDiskExtent.x)+.5,max(0.,lod-uDiskLod.x));
   r=vec4(yd.rgb*uDiskScale.x,yd.a*yd.a*uDiskScale.z)*photo;
  }
  if(photo<.999){
   vec2 uv=xz/(2.*uDiskExtent.y)+.5;
   if(all(greaterThan(uv,vec2(0.)))&&all(lessThan(uv,vec2(1.)))){
-   vec4 y=textureLod(uProcYoung,uv,max(0.,lod-log2(uDiskExtent.w)));
+   vec4 y=textureLod(uProcYoung,uv,max(0.,lod-uDiskLod.y));
    r+=vec4(y.rgb,y.a*y.a*uDiskScale.w)*(1.-photo);
   }
  }
@@ -619,11 +700,11 @@ vec4 diskYoungDust(vec2 xz,float lod,float photo){
 vec3 diskOld(vec2 xz,float lod,float photo){
  vec3 old=vec3(0.);
  if(photo>0.)
-  old=textureLod(uDiskOld,xz/(2.*uDiskExtent.x)+.5,max(0.,lod-log2(uDiskExtent.z)-2.)).rgb*uDiskScale.y*photo;
+  old=textureLod(uDiskOld,xz/(2.*uDiskExtent.x)+.5,max(0.,lod-uDiskLod.x-2.)).rgb*uDiskScale.y*photo;
  if(photo<.999){
   vec2 uv=xz/(2.*uDiskExtent.y)+.5;
   if(all(greaterThan(uv,vec2(0.)))&&all(lessThan(uv,vec2(1.))))
-   old+=textureLod(uProcOld,uv,max(0.,lod-log2(uDiskExtent.w)-2.)).rgb*(1.-photo);
+   old+=textureLod(uProcOld,uv,max(0.,lod-uDiskLod.y-2.)).rgb*(1.-photo);
  }
  return old;
 }
@@ -644,18 +725,22 @@ void diskLayer(vec3 q,float lod,float lodC,float w,out vec3 emission,out float k
  float zt=uDiskShape.x*f;
  if(y>zt*3.6)return;
  float photo=diskPhoto(q.xz);
- vec4 yd=diskYoungDust(q.xz,lod,photo);
- if(w>0.&&lodC>lod+.5)yd=mix(yd,min(yd,diskYoungDust(q.xz,lodC,photo)),w);
- vec3 young=yd.rgb,old=diskOld(q.xz,lod,photo);
- float tau=yd.a;
  float zo=uDiskHeights.x*f;
  float oldProfile=mix(diskSech2(y/zo)/(2.*zo),diskSech2(y/zt)/(2.*zt),uDiskShape.y);
+ emission=diskOld(q.xz,lod,photo)*oldProfile;
+ // Nine scale heights up, the young and dust layers hold about 0.01% of their mid-plane
+ // density: only old stars are left to sample.
+ if(y>9.*max(uDiskHeights.y,uDiskHeights.w)*f)return;
+ vec4 yd=diskYoungDust(q.xz,lod,photo);
+ if(w>0.&&lodC>lod+.5)yd=mix(yd,min(yd,diskYoungDust(q.xz,lodC,photo)),w);
+ vec3 young=yd.rgb;
+ float tau=yd.a;
  // H-alpha light (magenta) sits in a thinner layer than blue young stars.
  float s=young.r+young.g+young.b;
  float magenta=clamp((young.r+young.b-2.*young.g)/max(1e-5,s)*2.5,0.,1.);
  float h=mix(uDiskHeights.y,uDiskHeights.z,magenta)*f;
  float hd=uDiskHeights.w*f;
- emission=old*oldProfile+young*exp(-y/h)/(2.*h);
+ emission+=young*exp(-y/h)/(2.*h);
  kappa=(tau+diskDiffuseTau(r))*exp(-y/hd)/(2.*hd);
 }
 /** Fine detail at a mid-plane point: young light (rgb) and optical depth (a) above their local
@@ -670,7 +755,8 @@ vec4 diskSheet(vec2 xz,float lod,float lodC){
 vec3 diskBulge(vec3 q){
  vec3 light=vec3(0.);
  if(uDiskBulge.z>0.){
-  float m=length(q/uDiskBulgeAxes.xyz)/uDiskBulge.x;
+  vec3 b=vec3(uDiskBulgeTurn.x*q.x+uDiskBulgeTurn.y*q.z,q.y,uDiskBulgeTurn.x*q.z-uDiskBulgeTurn.y*q.x);
+  float m=length(b/uDiskBulgeAxes.xyz)/uDiskBulge.x;
   // exp(-b m^(1/n)); uDiskBulge.z is pre-divided by the central face-on column (CPU). The
   // wings taper beyond 3-5.5 half-light radii, where photographs reach the sky level; a
   // de Vaucouleurs law kept to infinity fills the view with a grey glow.
@@ -803,6 +889,10 @@ uniform vec3 uOldColor,uYoungColor;
 uniform vec4 uPatch;
 uniform float uIrregular;
 uniform vec3 uEnvelope;   // irregular envelope: centre offset (x, z), minor/major axis ratio
+uniform float uArmCount;
+uniform vec2 uArmKnot[${MAX_TABLE_ARMS * MAX_ARM_KNOTS}]; // azimuth (decreasing outward), ln(radius)
+uniform vec3 uArmLight[${MAX_TABLE_ARMS}]; // knot count, old-star strength, young strength
+uniform vec2 uArmWidth;   // Gaussian sigma across an arm: x + y·r
 layout(location=0)out vec4 outColor;
 float hash12(vec2 p){vec3 p3=fract(vec3(p.xyx)*.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
 vec2 hash22(vec2 p){vec3 p3=fract(vec3(p.xyx)*vec3(.1031,.1030,.0973));p3+=dot(p3,p3.yzx+33.33);return fract((p3.xx+p3.yz)*p3.zy);}
@@ -816,6 +906,37 @@ vec2 worley(vec2 p){vec2 i=floor(p),f=fract(p);float d1=9.,id=0.;
   if(d<d1){d1=d;id=hash12(i+g+uSeed*7.13);}}
  return vec2(sqrt(d1),id);}
 const float TAU=6.2831853;
+/** Sourced arm table: log-spiral segments between knots. Gives the young and old arm light, the
+ * dust lane on the inner edge, and for the brightest arm its index, its azimuth along the arm
+ * and the offset across it in sigma (positive outward). Sigma is the measured width of the
+ * star-forming ridge; young light is drawn 1.5 and old-star light 3 times as wide. */
+void tableArms(float r,float th,out float young,out float old,out float lane,out vec3 ridge){
+ young=0.;old=0.;lane=0.;ridge=vec3(0.,0.,9.);
+ float lr=log(max(r,1e-4)),sigma=uArmWidth.x+uArmWidth.y*r;
+ for(int a=0;a<${MAX_TABLE_ARMS};a++){
+  if(float(a)>=uArmCount)break;
+  vec3 light=uArmLight[a];
+  int last=int(light.x)-1;
+  float first=uArmKnot[a*${MAX_ARM_KNOTS}].x,end=uArmKnot[a*${MAX_ARM_KNOTS}+last].x;
+  float fade=min(.3,.25*(first-end)),s=9.,beta=0.;
+  for(int k=0;k<last;k++){
+   vec2 k0=uArmKnot[a*${MAX_ARM_KNOTS}+k],k1=uArmKnot[a*${MAX_ARM_KNOTS}+k+1];
+   float slope=(k1.y-k0.y)/(k0.x-k1.x);
+   for(int n=-1;n<=1;n++){
+    float b=th+TAU*float(n);
+    if(b>k0.x||b<k1.x)continue;
+    float d=(lr-mix(k0.y,k1.y,(k0.x-b)/(k0.x-k1.x)))*r/(sigma*sqrt(1.+slope*slope));
+    if(abs(d)<abs(s)){s=d;beta=b;}
+   }
+  }
+  if(abs(s)>8.)continue;
+  float taper=smoothstep(0.,fade,first-beta)*smoothstep(0.,fade,beta-end);
+  float y=light.z*taper*exp(-.222*s*s);
+  if(y>young){young=y;ridge=vec3(float(a),beta,s);}
+  old=max(old,light.y*taper*exp(-.0556*s*s));
+  lane=max(lane,light.z*taper*exp(-pow((s+1.5)/.55,2.)));
+ }
+}
 void main(){
  vec2 p=(gl_FragCoord.xy/uSize-.5)*2.*uExtent;
  float r=length(p),th=atan(p.y,p.x);
@@ -852,6 +973,28 @@ void main(){
  float rel=fract(m*phi/TAU);
  float spurPhase=th-lr/tan(1.05)+warp*.4;
  float spurs=pow(.5+.5*cos(floor(m*5.+1.)*spurPhase+fbm(p*7.+uSeed)*3.),14.)*smoothstep(.58,.82,rel)*(1.-smoothstep(.9,.99,rel))*region*(1.-uLenticular);
+ float armOld=arm,mottle=0.;
+ if(uArmCount>.5){
+  // Sourced arms (the Milky Way). Azimuth is the fits' own: 0 toward the Sun and increasing
+  // with rotation, so the arms trail. Old stars follow broad arms, young stars narrow ones.
+  float y,o,l;vec3 ridge;
+  tableArms(r,th,y,o,l,ridge);
+  region=smoothstep(.1,.18,r)*edge;
+  along=vnoise(vec2(ridge.y*2.3,ridge.x*7.31+uSeed));
+  rag=.6*fbm4(vec2(ridge.y*4.+ridge.x*13.7,ridge.z*.6)+uSeed*4.1)+.4*fbm4(p*13.+uSeed*1.9);
+  arm=y*region*(.5+.5*smoothstep(.2,.75,along))*(.42+.95*smoothstep(.3,.72,rag));
+  armOld=o*region;
+  lane=l*region*(.7+.3*along)*(.55+.9*smoothstep(.3,.7,fbm(p*16.+uSeed*2.9)));
+  // Spurs leave the outer, downstream edge of an arm at a steeper pitch (about 60°).
+  spurs=.6*pow(.5+.5*cos(21.*(th+lr/tan(1.05))+fbm(p*7.+uSeed)*3.),10.)*smoothstep(1.2,2.2,ridge.z)*(1.-smoothstep(4.,7.,ridge.z))*smoothstep(.2,.36,r)*edge;
+  // Faint, sheared star-forming fragments between the arms.
+  float shear=th+lr/tan(.38);
+  float fragments=smoothstep(.55,.8,fbm(vec2(cos(shear),sin(shear))*3.5+lr*vec2(5.,-3.5)+uSeed));
+  arm=max(arm,.3*fragments*region*smoothstep(2.2,4.,abs(ridge.z)));
+  // Feathery dust lanes between and across the arms, sheared like the fragments.
+  float web=fbm(vec2(cos(shear),sin(shear))*6.+lr*vec2(9.,-6.)+uSeed*2.3);
+  mottle=1.4*pow(1.-abs(2.*web-1.),2.5)*smoothstep(.35,.7,fbm(p*5.+uSeed*.7))*region;
+ }
  float patchy=smoothstep(.55,.8,fbm(p*14.+uSeed*1.7))*region*(1.-uLenticular);
  // Bar (Ferrers-like) with offset dust lanes along its leading edges, and the inner ring at its ends.
  float ca=cos(uBarAngle),sa=sin(uBarAngle);
@@ -862,9 +1005,12 @@ void main(){
   bar=max(q,0.);
   float offset=uBar*.13*tanh(b.x/(uBar*.28));
   barLane=exp(-pow((b.y-offset)/(uBar*.035),2.))*smoothstep(uBar*.12,uBar*.3,abs(b.x))*(1.-smoothstep(uBar*.82,uBar*1.05,abs(b.x)));
+  // Beside sourced arms: a softer-edged (Ferrers n = 2) bar with fainter dust lanes.
+  if(uArmCount>.5){bar*=bar*.9;barLane*=.45;}
  }
  float ring=uRing>0.?exp(-pow((r-uRing)/uRingWidth,2.)):0.;
- if(uBar>0.)ring=max(ring,.7*exp(-pow((r-uBar*1.02)/(uBar*.12),2.))*(1.-uLenticular));
+ // A sourced arm table already carries the arm segments that surround the bar.
+ if(uBar>0.&&uArmCount<.5)ring=max(ring,.7*exp(-pow((r-uBar*1.02)/(uBar*.12),2.))*(1.-uLenticular));
  // Irregular galaxies: no arms. Young light sits in large star-forming complexes and smaller
  // associations inside a lopsided elliptical envelope (offset centre, sourced axis ratio).
  float rr=r;
@@ -881,7 +1027,8 @@ void main(){
  }
  // Star-forming knots: H II regions and young clusters on the arms and ring.
  float host=max(arm,ring*(1.-uLenticular*.8));
- vec2 cellA=worley(p*58.+uSeed);
+ // H II regions are drawn smaller beside sourced arms, which are seen from close by.
+ vec2 cellA=worley(p*(uArmCount>.5?92.:58.)+uSeed);
  float hiiOn=step(cellA.y,(.22+.75*uClumps)*smoothstep(.15,.8,host));
  float hiiSize=.18+.32*fract(cellA.y*13.7);
  float hii=hiiOn*exp(-pow(cellA.x/hiiSize,2.))*(.25+pow(fract(cellA.y*91.3),3.)*2.2);
@@ -894,7 +1041,7 @@ void main(){
   vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.02*region);
   young+=uYoungColor*uAmps.y*exp(-rr/uScales.y)*cluster*.9*region;
   young+=vec3(1.,.3,.52)*uAmps.z*exp(-rr/uScales.y)*hii*region;
-  float dust=uAmps.w*exp(-r/(uScales.x*1.35))*edge*(uLanes*(lane*1.15+spurs*.55+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes);
+  float dust=uAmps.w*exp(-r/(uScales.x*1.35))*edge*(uLanes*(lane*1.15+spurs*.55+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes+mottle);
   if(uIrregular>.5)dust=uAmps.w*exp(-rr/(uScales.y*1.5))*region*(patchy*.6+arm*.4);
   if(uPatch.w>0.)dust+=uPatch.w*exp(-pow(length(p-uPatch.xy)/uPatch.z,2.))*(.6+.6*fbm(p*20.));
   if(uRing>0.&&uLenticular>.5)dust+=uAmps.w*exp(-pow((r-uRing)/(uRingWidth*.65),2.))*(.75+.5*fbm(p*18.));
@@ -904,8 +1051,9 @@ void main(){
   float lens=uLenticular*.35*uAmps.x*exp(-pow(r/(uScales.x*.9),2.));
   // Density-wave arms gather old stars too (K-band arm contrast: Rix & Zaritsky 1995),
   // weakly in flocculent disks (Thornley 1996), so the interarm disk is darker than the arms.
-  float oldArm=mix(.8,.25,uFlocculent)*(1.-uLenticular);
-  vec3 old=uOldColor*(disk*(1.-.35*oldArm+oldArm*1.1*arm-.3*lane*uLanes)+lens+uAmps.x*bar*1.35+uAmps.x*ring*.12*uLenticular);
+  // Sourced arms carry their own old-star strengths.
+  float oldArm=uArmCount>.5?.5:mix(.8,.25,uFlocculent)*(1.-uLenticular);
+  vec3 old=uOldColor*(disk*(1.-.35*oldArm+oldArm*1.1*armOld-.3*lane*uLanes)+lens+uAmps.x*bar*1.35+uAmps.x*ring*.12*uLenticular);
   outColor=vec4(max(old,vec3(0.)),1.);
  }
 }`;
@@ -979,6 +1127,22 @@ export class GalaxyDiskMaps {
         uPatch: { value: new THREE.Vector4(...p.patch) },
         uIrregular: { value: p.irregular },
         uEnvelope: { value: new THREE.Vector3(...p.envelope) },
+        uArmCount: { value: p.armTable.length },
+        uArmKnot: {
+          value: Array.from({ length: MAX_TABLE_ARMS * MAX_ARM_KNOTS }, (_, i) => {
+            const knot = p.armTable[Math.floor(i / MAX_ARM_KNOTS)]?.knots[i % MAX_ARM_KNOTS];
+            return new THREE.Vector2(knot?.[0] ?? 0, (knot?.[1] ?? 0) + Math.log(p.armScale));
+          }),
+        },
+        uArmLight: {
+          value: Array.from({ length: MAX_TABLE_ARMS }, (_, i) => {
+            const arm = p.armTable[i];
+            return new THREE.Vector3(arm?.knots.length ?? 0, arm?.old ?? 0, arm?.young ?? 0);
+          }),
+        },
+        uArmWidth: {
+          value: new THREE.Vector2(MILKY_WAY_ARM_WIDTH[0] * p.armScale, MILKY_WAY_ARM_WIDTH[1]),
+        },
       },
     });
     this.scene.add(new THREE.Mesh(this.geometry, this.material));
@@ -1170,6 +1334,12 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
         (2 * spec.proceduralExtent) / 2048,
       ),
     },
+    uDiskLod: {
+      value: new THREE.Vector2(
+        Math.log2(o?.detail ? (2 * o.extent) / o.detail.size : 1),
+        Math.log2((2 * spec.proceduralExtent) / 2048),
+      ),
+    },
     uDiskHeights: {
       value: new THREE.Vector4(
         spec.heights.old,
@@ -1190,6 +1360,7 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
       ),
     },
     uDiskDiffuse: { value: new THREE.Vector3(...spec.dust) },
+    uDiskReach: { value: spec.reach },
     uDiskWind: { value: new THREE.Vector4(...spec.wind) },
     uDiskMat: { value: image ? observedImageMatrix(model, image) : new THREE.Matrix4() },
     uDiskBulge: {
@@ -1209,6 +1380,10 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
       ),
     },
     uDiskBulgeAxes: { value: new THREE.Vector4(...spec.bulge.axes, spec.bulge.coefficient) },
+    uDiskBulgeTurn: {
+      value: new THREE.Vector2(Math.cos(spec.bulge.turn), Math.sin(spec.bulge.turn)),
+    },
+    uDiskInterior: { value: new THREE.Vector2(...spec.interior) },
     uKnot: {
       value: Array.from(
         { length: MAX_DISK_PARTS },
@@ -1298,4 +1473,8 @@ export function bindDiskMaps(uniforms: DiskLayerUniforms, maps: GalaxyDiskMaps) 
   const observedSize = maps.observedPacked?.width;
   if (observed && observedSize && maps.spec.observed)
     uniforms.uDiskExtent.value.z = (2 * maps.spec.observed.extent) / observedSize;
+  uniforms.uDiskLod.value.set(
+    Math.log2(uniforms.uDiskExtent.value.z),
+    Math.log2(uniforms.uDiskExtent.value.w),
+  );
 }

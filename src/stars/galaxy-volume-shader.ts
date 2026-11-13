@@ -106,6 +106,8 @@ export const GALAXY_DISK_FRAGMENT =
 precision highp sampler3D;
 uniform vec3 uEye;
 uniform float uOpacity,uReveal,uSteps,uCacheFade,uExteriorView,uTime,uRotationRate,uPixelAngle,uSlab,uBox;
+uniform vec2 uDiskInterior; // interior gain, light kept when the interior is revealed
+uniform float uDiskReach;   // radius with no light or dust beyond it (0: the whole box)
 varying vec3 vP;
 ` +
   OBSERVED_DISPLAY_GLSL +
@@ -123,6 +125,15 @@ void main(){
  float y0=(-uSlab-uEye.y)*inv.y,y1=(uSlab-uEye.y)*inv.y;
  lo.y=max(lo.y,min(y0,y1));hi.y=min(hi.y,max(y0,y1));
  float start=max(0.,max(lo.x,max(lo.y,lo.z))),finish=min(hi.x,min(hi.y,hi.z));
+ if(uDiskReach>0.){
+  // Nothing lies outside this radius: rays keep to the cylinder around the disk axis.
+  float ra=dot(rd.xz,rd.xz),rb=dot(uEye.xz,rd.xz),rc=dot(uEye.xz,uEye.xz)-uDiskReach*uDiskReach;
+  float rh=rb*rb-ra*rc;
+  if(ra>1.e-8){
+   if(rh<=0.)discard;
+   rh=sqrt(rh);start=max(start,(-rb-rh)/ra);finish=min(finish,(-rb+rh)/ra);
+  }else if(rc>0.)discard;
+ }
  if(finish<=start)discard;
  // Steps: fine inside the thin dust/young layers and the bulge, up to dsCap elsewhere.
  // uSteps bounds the step count of the longest (edge-on) rays.
@@ -137,6 +148,11 @@ void main(){
  float sheetW=smoothstep(.12,.3,ay);
  float smear=2.*max(uDiskHeights.y,hd)*sqrt(max(1.-ay*ay,0.))/ay;
  float tc=-uEye.y/(abs(rd.y)>1.e-7?rd.y:1.e-7);
+ // An eye inside the slab sees the galaxy in perspective: steps lengthen with distance. Along
+ // grazing rays, which have no mid-plane sheet, the maps are filtered over the ground each
+ // step covers, far wider than a pixel there.
+ bool inside=start<=0.;
+ float sweep=inside?(1.-sheetW)*sqrt(max(1.-ay*ay,0.)):0.;
  bool sheet=sheetW>0.&&tc>start&&tc<finish;
  // Interleaved gradient noise decorrelates step positions between neighbouring pixels.
  float jitter=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))));
@@ -148,7 +164,7 @@ void main(){
   vec3 p=uEye+rd*t;
   float vertical=(.45*abs(p.y)+.85*hd)/ay;
   float central=.3*length(p)+.35*core;
-  float ds=clamp(min(vertical,central),.0015,dsCap);
+  float ds=clamp(min(vertical,central),.0015,inside?max(.02,.2*t):dsCap);
   if(uPartCount>.5)ds=max(.0015,min(ds,diskPartStep(p)));
   if(uKnotLight.w>.5)ds=max(.0015,min(ds,diskKnotStep(vec3(p.x*c-p.z*s,p.y,p.x*s+p.z*c))));
   if(i==0)ds*=.15+.85*jitter;
@@ -160,21 +176,28 @@ void main(){
    float tm=t+ds*.5;
    vec3 x=uEye+rd*tm;
    vec3 q=vec3(x.x*c-x.z*s,x.y,x.x*s+x.z*c);
-   float lod=log2(max(tm*uPixelAngle,1.e-6));
-   float lodC=max(lod,log2(max(smear*diskFlare(length(q.xz)),1.e-6)));
+   float lod=log2(max(max(tm*uPixelAngle,ds*sweep),1.e-6));
+   // The layers' own scale is only read where the mid-plane sheet is drawn.
+   float lodC=sheetW>0.?max(lod,log2(max(smear*diskFlare(length(q.xz)),1.e-6))):lod;
    vec3 e;float k;
    diskLayer(q,lod,lodC,sheetW,e,k);
    e+=diskBulge(q);
    if(uKnotLight.w>.5){float kn;e+=diskKnots(q,kn);k+=kn;}
    if(uPartCount>.5)e+=diskParts(q,lod);
    if(uDiskWind.x>0.)e+=diskWind(q);
-   float clear=smoothstep(.012,mix(.045,.13,uReveal),length(x-uEye));
-   e*=clear*mix(1.,.09,uReveal);
-   vec3 kk=k*clear*REDDEN*ds;
-   vec3 att=exp(-kk);
-   vec3 seg=ds*mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
-   light+=trans*e*seg;
-   trans*=att;
+   float clear=smoothstep(.012,mix(.045,.13,uReveal),tm);
+   e*=clear*mix(1.,uDiskInterior.y,uReveal);
+   float kd=k*clear*ds;
+   if(kd<7.5e-5){
+    // Outside the dust (most steps): no channel is attenuated measurably.
+    light+=trans*e*ds;
+    trans*=1.-kd*REDDEN;
+   }else{
+    vec3 kk=kd*REDDEN;
+    vec3 att=exp(-kk);
+    light+=trans*e*ds*mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
+    trans*=att;
+   }
    t+=ds;
   }
   if(atSheet){
@@ -188,7 +211,7 @@ void main(){
    vec3 kk=d.a*clear*REDDEN/ay;
    vec3 att=exp(-kk);
    vec3 seg=mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
-   light+=trans*d.rgb*clear*mix(1.,.09,uReveal)*seg/ay;
+   light+=trans*d.rgb*clear*mix(1.,uDiskInterior.y,uReveal)*seg/ay;
    trans*=att;
   }
  }
@@ -205,7 +228,7 @@ void main(){
  float low=min(display.r,min(display.g,display.b));
  vec3 exact=beforeDisplay(display);
  vec3 toe=display/max(uExposure,1e-4)+(exact-display/max(uExposure,1e-4))*smoothstep(.0015,.02,low);
- vec3 radiance=mix(display*2.4,toe,uExteriorView);
+ vec3 radiance=mix(display*uDiskInterior.x,toe,uExteriorView);
  float o=uOpacity*uCacheFade;
  if(max(coverage,peak)*o<.0004)discard;
  gl_FragColor=vec4(radiance*o,coverage*o);

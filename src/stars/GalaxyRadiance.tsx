@@ -18,6 +18,7 @@ import * as THREE from "three";
 import type { GalaxyModel } from "./galaxy-models";
 import { motionTimeSeconds } from "./sim-clock";
 import { catalogueAppearance } from "./galaxy-overview-appearance";
+import { KPC_LY, MILKY_WAY_BAR } from "./milky-way-structure";
 const VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
@@ -327,6 +328,12 @@ export const MILKY_WAY_APPEARANCE: GalaxyModel = {
   key: "milky-way",
   name: "Milky Way",
   distance: SGR_A_DISTANCE_LY,
+  // Long-bar half-length 5.0 ± 0.2 kpc (Wegg, Gerhard & Portail 2015).
+  barLength: Math.round(MILKY_WAY_BAR.halfLengthKpc * KPC_LY),
+  // Display palette, as for the guide galaxies: blue star-forming arms on a warm old disk. The
+  // Galaxy's integrated colour is red for a spiral (Licquia, Newman & Brinchmann 2015).
+  youngColor: [0.26, 0.52, 1],
+  oldColor: [1, 0.8, 0.56],
 };
 export const ANDROMEDA_APPEARANCE: GalaxyModel = {
   ...shared,

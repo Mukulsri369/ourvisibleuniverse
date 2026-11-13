@@ -126,10 +126,19 @@ float unit=length(modelMatrix[0].xyz);vDistance=length(mv.xyz)/max(unit,.001);vC
 float host=dot(young,vec3(.2126,.7152,.0722))*4.+dot(old,vec3(.2126,.7152,.0722))*.9;
 // Dust column between the star and the eye through the thin dust layer.
 float rr=length(position.xz),hd=uDiskHeights.w*diskFlare(rr);
-float cosv=abs(normalize(uEye-p).y);
+float span=length(uEye-p),cosv=abs(uEye.y-p.y)/max(span,1e-6);
 float fs=position.y<0.?.5*exp(position.y/hd):1.-.5*exp(-position.y/hd);
 float fe=uEye.y<0.?.5*exp(uEye.y/hd):1.-.5*exp(-uEye.y/hd);
-float column=(faceTau+diskDiffuseTau(rr))*abs(fe-fs)/max(cosv,.04);
+float layerTau=faceTau+diskDiffuseTau(rr);
+float column=layerTau*abs(fe-fs)/max(cosv,.04);
+if(uExterior<.5){
+// From inside, the sight line runs through the layer beside whichever end lies deeper in it.
+// The medium near the eye is cleared, so only its smooth dust counts there. A path along the
+// layer takes its mid-plane density times the path, the limit of the plane-parallel column.
+layerTau=mix(layerTau,diskDiffuseTau(length(uEye.xz)),smoothstep(-hd,hd,abs(position.y)-abs(uEye.y)));
+float along=span*exp(-abs(.5*(position.y+uEye.y))/hd)/(2.*hd);
+column=layerTau*mix(along,abs(fe-fs)/max(cosv,.04),smoothstep(0.,.04,cosv));
+}
 // Part-only systems (mergers, groups) show their photographed components from outside;
 // their generic star points appear only once inside. Resolved populations (dwarfs,
 // ellipticals, irregulars) keep their own star distribution.

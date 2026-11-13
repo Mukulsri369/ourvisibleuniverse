@@ -14,7 +14,8 @@ Each technique below names where it lives in OVU's renderer and what it costs. R
 - `GALAXY_FRAGMENT` (`src/stars/galaxy-volume-shader.ts`) is the per-pixel raymarch: up to 112 steps, adaptively about 3 samples per crossed voxel. Every texture fetch or noise call inside its loop is multiplied by steps × pixels. It currently adds `noise(q*210.)` per step as sub-voxel detail.
 - Under `GALAXY_PREVIEW` (the catalogue warm-up path in `GalaxyCatalogCloud.tsx`), `populations()` runs **per ray step**. Keep anything expensive inside `#ifndef GALAXY_PREVIEW`, or behind a cheap branch.
 - `GalaxyInteriorField` draws 36,000 exterior or 100,000 interior star points from `galaxy-interior-stars` / `galaxy-star-data.ts`. Point sprites are the right carrier for detail smaller than a voxel: HII knots, OB clusters, supergiants.
-- The same medium also renders the Milky Way (`MILKY_WAY_APPEARANCE`) and Andromeda (`ANDROMEDA_APPEARANCE`). Every change to `populations()` affects all 65 appearances, so check a spread of morphologies, not only the hero galaxy.
+- Since 11 November 2026 most galaxies, and since 13 November the Milky Way (`MILKY_WAY_APPEARANCE`), render through the disk layer (`galaxy-disk-layer.ts`: face-on maps baked once, analytic vertical profiles, the `GALAXY_DISK_FRAGMENT` ray marcher). `populations()` now reaches only Centaurus A, Mayall's Object, Malin 1 and interacting systems without a photograph. A change to the disk layer affects every other galaxy, so check a spread of morphologies, not only the hero galaxy.
+- The Milky Way and Andromeda are not in the look-dev page's key list. View them with `scripts/nearby-qa/galaxy-views.html?g=milky-way` (`&v=top|oblique|edge`, or `&inside=1&eye=0.53346,0,0&look=0,0,0` for the sky from the Sun).
 
 ## 1. Replace the white-noise texture with structured noise
 

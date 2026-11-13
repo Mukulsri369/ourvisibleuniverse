@@ -1,5 +1,6 @@
 import type { GalaxyModel } from "./galaxy-models";
 import { galaxyStructure } from "./galaxy-structure";
+import { MILKY_WAY_BAR } from "./milky-way-structure";
 /** Stable, nested representative populations; no measured star positions are implied. */
 export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
   let seed = 2166136261;
@@ -18,6 +19,9 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
     f = shape.feature;
   const ring = model.morphology === "ring",
     interacting = model.morphology === "interacting";
+  // The Milky Way's arms come from its sourced map (the points take its light), not from the
+  // m-fold spiral below, and its bar points follow the bar's measured angle.
+  const milkyWay = model.name === "Milky Way";
   for (let i = 0; i < count; i++) {
     let r = Math.min(1.2, -Math.log(Math.max(0.001, (1 - rand()) * (1 - rand()))) / 5.6),
       a = rand() * Math.PI * 2;
@@ -103,6 +107,7 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
       } else if (
         model.arms > 0 &&
         model.morphology !== "lenticular" &&
+        !milkyWay &&
         rand() < shape.armContrast
       ) {
         const launch = Math.max(0.045, model.barLength / model.diskRadius);
@@ -122,6 +127,11 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
       ) {
         x = ((rand() * 2 - 1) * model.barLength) / model.diskRadius;
         z = gaussian() * 0.025;
+        if (milkyWay)
+          [x, z] = [
+            x * Math.cos(MILKY_WAY_BAR.angle) - z * Math.sin(MILKY_WAY_BAR.angle),
+            x * Math.sin(MILKY_WAY_BAR.angle) + z * Math.cos(MILKY_WAY_BAR.angle),
+          ];
       }
       if (f === 15) {
         if (rand() < 0.68) {

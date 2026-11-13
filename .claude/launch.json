@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ovu-qa",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "scripts/nearby-qa/vite.config.mts"
+      ],
+      "port": 31755
+    }
+  ]
+}
