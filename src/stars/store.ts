@@ -173,6 +173,9 @@ interface State {
   galacticTravelSpeed: number;
   navigationSettingsOpen: boolean;
   systemSpeed: number;
+  /** Time rates of objects outside the Solar System, by time key (sim-clock.ts); unset = real time. */
+  objectTimeRates: Record<string, number>;
+  setObjectTimeRate: (key: string, rate: number) => void;
   trailSize: number;
   scaleMode: "enhanced" | "true_scale";
   properMotionYears: number;
@@ -292,7 +295,6 @@ interface State {
   sceneBrightness: number;
   setSceneBrightness: (value: number) => void;
   toneMappingAlgorithm: "aces" | "agx" | "neutral" | "reinhard";
-  diffractionSpikesEnabled: boolean;
   atmosphericScintillation: number;
   renderingQualityTier: "scientific_high" | "standard" | "performance";
   opticsModalOpen: boolean;
@@ -332,7 +334,6 @@ interface State {
   setBloomThreshold: (v: number) => void;
   setExposure: (v: number) => void;
   setToneMappingAlgorithm: (algo: "aces" | "agx" | "neutral" | "reinhard") => void;
-  toggleDiffractionSpikes: () => void;
   setAtmosphericScintillation: (v: number) => void;
   setRenderingQualityTier: (tier: "scientific_high" | "standard" | "performance") => void;
   setOpticsModalOpen: (open: boolean) => void;
@@ -817,6 +818,9 @@ export const useStore = create<State>((set, get) => ({
   galacticTravelSpeed: 3090,
   navigationSettingsOpen: false,
   systemSpeed: DEFAULT_SIMULATION_SPEED,
+  objectTimeRates: {},
+  setObjectTimeRate: (key, rate) =>
+    set((st) => ({ objectTimeRates: { ...st.objectTimeRates, [key]: clampTimeRate(rate) } })),
   trailSize: 50,
   scaleMode: "enhanced",
   properMotionYears: 0,
@@ -1191,7 +1195,6 @@ export const useStore = create<State>((set, get) => ({
   exposure: 0.1,
   sceneBrightness: 1,
   toneMappingAlgorithm: "neutral",
-  diffractionSpikesEnabled: true,
   atmosphericScintillation: 0.35,
   renderingQualityTier: "scientific_high",
   opticsModalOpen: false,
@@ -1241,8 +1244,6 @@ export const useStore = create<State>((set, get) => ({
   setExposure: (v) =>
     set({ exposure: Number.isFinite(v) ? Math.min(2.5, Math.max(0.001, v)) : 0.1 }),
   setToneMappingAlgorithm: (algo) => set({ toneMappingAlgorithm: algo }),
-  toggleDiffractionSpikes: () =>
-    set((st) => ({ diffractionSpikesEnabled: !st.diffractionSpikesEnabled })),
   setAtmosphericScintillation: (v) => set({ atmosphericScintillation: v }),
   setRenderingQualityTier: (tier) => set({ renderingQualityTier: tier }),
   setOpticsModalOpen: (open) => set({ opticsModalOpen: open }),

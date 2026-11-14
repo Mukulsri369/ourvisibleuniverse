@@ -32,9 +32,6 @@ export function OpticsControlModal() {
   const toneMapping = useStore((s) => s.toneMappingAlgorithm);
   const setToneMapping = useStore((s) => s.setToneMappingAlgorithm);
 
-  const diffractionSpikes = useStore((s) => s.diffractionSpikesEnabled);
-  const toggleDiffractionSpikes = useStore((s) => s.toggleDiffractionSpikes);
-
   const scintillation = useStore((s) => s.atmosphericScintillation);
   const setScintillation = useStore((s) => s.setAtmosphericScintillation);
 
@@ -357,22 +354,6 @@ export function OpticsControlModal() {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                {/* Diffraction Spikes */}
-                <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                  <div>
-                    <div className="text-xs font-medium text-white">Stellar Diffraction Spikes</div>
-                    <div className="text-[10px] text-white/50">
-                      Secondary mirror spider vane diffraction on high-luminosity stars
-                    </div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={diffractionSpikes}
-                    onChange={toggleDiffractionSpikes}
-                    className="h-4 w-4 accent-cyan-400"
-                  />
                 </div>
               </div>
             </div>

@@ -157,10 +157,10 @@ export function magnitudeToPhotometricIntensity(
 }
 
 /**
- * Procedural Anti-Aliased Star Sprite with Gaussian Airy core and diffraction spikes.
+ * Procedural Anti-Aliased Star Sprite: Gaussian Airy core and soft halo, no diffraction spikes.
  * High-precision canvas generator ensuring zero artifacts and physically accurate falloff.
  */
-export function makeAntiAliasedStarTexture(includeSpikes = true): THREE.Texture {
+export function makeAntiAliasedStarTexture(): THREE.Texture {
   const size = 256;
   const canvas = document.createElement("canvas");
   canvas.width = canvas.height = size;
@@ -179,44 +179,7 @@ export function makeAntiAliasedStarTexture(includeSpikes = true): THREE.Texture 
   ctx.fillStyle = outerGrad;
   ctx.fillRect(0, 0, size, size);
 
-  // 2. Diffraction spikes (Spider vane diffraction for brighter stars)
-  if (includeSpikes) {
-    ctx.save();
-    ctx.translate(center, center);
-    ctx.globalCompositeOperation = "lighter";
-
-    const drawSpike = (angleRad: number, length: number, width: number, alpha: number) => {
-      ctx.save();
-      ctx.rotate(angleRad);
-      const grad = ctx.createLinearGradient(0, -width, 0, width);
-      grad.addColorStop(0, "rgba(255,255,255,0)");
-      grad.addColorStop(0.5, `rgba(255,255,255,${alpha})`);
-      grad.addColorStop(1, "rgba(255,255,255,0)");
-
-      ctx.fillStyle = grad;
-      // Diamond tapered spike
-      ctx.beginPath();
-      ctx.moveTo(-length, 0);
-      ctx.lineTo(0, width);
-      ctx.lineTo(length, 0);
-      ctx.lineTo(0, -width);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    };
-
-    // 4 primary orthogonal spikes
-    drawSpike(0, size * 0.46, 2.2, 0.42);
-    drawSpike(Math.PI / 2, size * 0.46, 2.2, 0.42);
-
-    // Subtle 45-degree secondary cross
-    drawSpike(Math.PI / 4, size * 0.28, 1.4, 0.18);
-    drawSpike(-Math.PI / 4, size * 0.28, 1.4, 0.18);
-
-    ctx.restore();
-  }
-
-  // 3. Dense Gaussian-Airy core (sharp, anti-aliased center)
+  // 2. Dense Gaussian-Airy core (sharp, anti-aliased center)
   ctx.globalCompositeOperation = "lighter";
   const coreGrad = ctx.createRadialGradient(center, center, 0, center, center, center * 0.22);
   coreGrad.addColorStop(0, "rgba(255,255,255,1.0)");

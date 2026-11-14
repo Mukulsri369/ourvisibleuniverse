@@ -11,10 +11,17 @@ import {
 } from "./galaxy-interior-stars";
 import { makeLocalStarData } from "./galaxy-star-data";
 
-/** Resolved stars drawn around an observer inside a galaxy, and their tile's size in light-years. */
-const LOCAL_STARS = 40000;
-const LOCAL_TILE_LY = 1300;
 import { galaxyMotion } from "./galaxy-journey";
+import { useStore } from "./store";
+/**
+ * Resolved stars around an observer inside a galaxy, in nested levels: each level's tile is four
+ * times wider than the last and its stars sixteen times as luminous, so every level shows the
+ * same apparent-brightness mix (the brightest stars are seen farthest) and together they resolve
+ * the whole galaxy into stars. Representative stars, not measured ones.
+ */
+const LEVEL_STARS = { performance: 90000, standard: 220000, scientific_high: 360000 } as const;
+const LOCAL_TILE_LY = 1300;
+const MAX_LEVELS = 5;
 import { DISK_LAYER_GLSL, type DiskLayerUniforms } from "./galaxy-disk-layer";
 export function GalaxyInteriorField({
   model,
@@ -85,19 +92,24 @@ export function GalaxyInteriorField({
   }, [model, count]);
   useEffect(() => () => baseGeometry.dispose(), [baseGeometry]);
   useEffect(() => () => stream?.geometry.dispose(), [stream]);
-  // Inside a disk-layer galaxy, a tile of resolved stars wraps around the eye, so nearby stars
-  // show parallax and fill the sky as in SpaceEngine, while the volume carries the unresolved
-  // band. The Milky Way's own sky comes from its star catalogues instead.
-  const localTile =
-    !exterior && disk && model.name !== "Milky Way"
-      ? THREE.MathUtils.clamp(LOCAL_TILE_LY / model.diskRadius, 0.02, 0.3)
-      : 0;
+  // Inside a disk-layer galaxy, nested tiles of resolved stars wrap around the eye, so nearby
+  // stars show parallax and distant ones fill the band as in SpaceEngine, while the volume
+  // carries only the unresolved light. The Milky Way's own sky comes from its star catalogues.
+  const tier = useStore((s) => s.renderingQualityTier);
+  const tiles = useMemo(() => {
+    if (exterior || !disk || model.name === "Milky Way") return [];
+    const out = [THREE.MathUtils.clamp(LOCAL_TILE_LY / model.diskRadius, 0.02, 0.3)];
+    while (out.length < MAX_LEVELS && 0.5 * out[out.length - 1] < 1.3)
+      out.push(out[out.length - 1] * 4);
+    return out;
+  }, [exterior, disk, model]);
   const localGeometry = useMemo(
-    () => (localTile > 0 ? galaxyStarGeometry(makeLocalStarData(LOCAL_STARS, model.name)) : null),
-    [localTile, model.name],
+    () =>
+      tiles.length ? galaxyStarGeometry(makeLocalStarData(LEVEL_STARS[tier], model.name)) : null,
+    [tiles.length, tier, model.name],
   );
   useEffect(() => () => localGeometry?.dispose(), [localGeometry]);
-  const makeMaterial = (tile: number) =>
+  const makeMaterial = (tile: number, inner = 0) =>
     new THREE.ShaderMaterial({
       defines: disk ? { GALAXY_DISK_LAYER: 1 } : {},
       vertexColors: true,
@@ -120,6 +132,8 @@ export function GalaxyInteriorField({
         uAspect: { value: 1 },
         uClipStars: { value: 1 },
         uLocalTile: { value: tile },
+        uLocalInner: { value: inner },
+        uLocalCount: { value: tiles.length },
         // Shared by reference with the volume, so map bindings stay in step.
         ...(disk ?? {}),
       },
@@ -130,16 +144,31 @@ precision highp sampler3D;
 ${DISK_LAYER_GLSL}
 #endif
 uniform sampler3D uField;uniform vec3 uEye;uniform float uHasField,uPopulation;
-uniform float uTime,uReveal,uViewport,uRotation,uExterior,uAspect,uClipStars,uLocalTile;attribute float aLum,aPhase;varying vec3 vColor;varying float vLum,vDistance,vCrisp;
-void main(){vec3 pos=position;float localFade=1.;vCrisp=0.;
+uniform float uTime,uReveal,uViewport,uRotation,uExterior,uAspect,uClipStars,uLocalTile,uLocalInner;attribute float aLum,aPhase;varying vec3 vColor;varying float vLum,vDistance,vCrisp,vLocal;
+#ifdef GALAXY_DISK_LAYER
+// A level much wider than the thin disk places its stars in the disk (sech² heights at the local
+// scale height) instead of wasting them in an empty cube; its fades then use horizontal distance.
+bool slabLevel(float tile){return uDiskStarHost<1.5&&tile>24.*uDiskHeights.x;}
+#else
+bool slabLevel(float tile){return false;}
+#endif
+void main(){vec3 pos=position;float localFade=1.;vCrisp=0.;vLocal=0.;
 // Local stars: unit-cube positions wrapped into a tile centred on the eye (fixed in the galaxy,
-// faded before the tile's edge so the wrap is never seen), given in the pattern's frame.
-if(uLocalTile>0.){vec3 o=mod(position*uLocalTile-uEye+.5*uLocalTile,uLocalTile)-.5*uLocalTile;vec3 P=uEye+o;localFade=1.-smoothstep(.3*uLocalTile,.5*uLocalTile,length(o));float T=uTime*uRotation;pos=vec3(P.x*cos(T)-P.z*sin(T),P.y,P.x*sin(T)+P.z*cos(T));}
+// faded before the tile's edge so the wrap is never seen), given in the pattern's frame. Each
+// level fades in where the level inside it fades out, so the levels form shells.
+if(uLocalTile>0.){vLocal=1.;vec3 o=mod(position*uLocalTile-uEye+.5*uLocalTile,uLocalTile)-.5*uLocalTile;vec3 P=uEye+o;
+bool slab=slabLevel(uLocalTile);
+#ifdef GALAXY_DISK_LAYER
+if(slab){float u=clamp(2.*position.y-1.,-.9995,.9995);float thick=step(fract(aPhase*7.13),uDiskShape.y);P.y=.5*log((1.+u)/(1.-u))*mix(uDiskHeights.x,uDiskShape.x,thick)*diskFlare(length(P.xz));o=P-uEye;}
+#endif
+localFade=1.-smoothstep(.3*uLocalTile,.5*uLocalTile,slab?length(o.xz):length(o));
+if(uLocalInner>0.)localFade*=smoothstep(.3*uLocalInner,.5*uLocalInner,slabLevel(uLocalInner)?length(o.xz):length(o));
+float T=uTime*uRotation;pos=vec3(P.x*cos(T)-P.z*sin(T),P.y,P.x*sin(T)+P.z*cos(T));}
 float radius=length(pos.xz),angle=-uTime*uRotation;float c=cos(angle),s=sin(angle);vec3 p=vec3(pos.x*c-pos.z*s,pos.y,pos.x*s+pos.z*c);vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;
 // Reject invisible points before six 3D dust lookups. Worker-sorted indices
 // keep nearby stars together so neighbouring GPU lanes take the same branch.
 vec2 margin=vec2(20./(uViewport*uAspect),20./uViewport);
-if(uClipStars>.5&&(gl_Position.w<=0.||any(greaterThan(abs(gl_Position.xy),vec2(gl_Position.w)*(vec2(1.)+margin))))){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vColor=vec3(0.);vLum=0.;vDistance=1.;return;}
+if(localFade<=0.||uClipStars>.5&&(gl_Position.w<=0.||any(greaterThan(abs(gl_Position.xy),vec2(gl_Position.w)*(vec2(1.)+margin))))){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;vColor=vec3(0.);vLum=0.;vDistance=1.;return;}
 float unit=length(modelMatrix[0].xyz);vDistance=length(mv.xyz)/max(unit,.001);vColor=color;float tau=0.;if(uHasField>.5){vec3 end=mix(p,uEye,min(1.,2.7/max(.001,length(uEye-p))));float ds=length(end-p)/6.;for(int j=0;j<6;j++){vec3 q=mix(p,end,(float(j)+.5)/6.);float an=uTime*uRotation;q.xz=mat2(cos(an),sin(an),-sin(an),cos(an))*q.xz;tau+=texture(uField,q/2.7+.5).a*ds;}}vLum=aLum*(.985+.015*sin(uTime*.4+aPhase))*exp(-tau*5.)*uPopulation;
 #ifdef GALAXY_DISK_LAYER
 {vec3 young,old;float faceTau;diskMaps(pos.xz,-8.4,young,old,faceTau);
@@ -176,22 +205,40 @@ if(uLocalTile>0.){
 float col=dot(young+old,vec3(.2126,.7152,.0722));
 float zo=uDiskHeights.x*diskFlare(rr),zt=uDiskShape.x*diskFlare(rr);
 float vert=mix(diskSech2(pos.y/zo),diskSech2(pos.y/zt),uDiskShape.y);
-float diskStars=uDiskStarHost>1.5?0.:smoothstep(.002,.05,col)*(.55+.45*smoothstep(.03,.25,col))*vert;
+// Resolved populations without a disk map (spheroidals) have zero map light here.
+float diskStars=smoothstep(.002,.05,col)*(.55+.45*smoothstep(.03,.25,col))*(slabLevel(uLocalTile)?1.:vert);
 vec3 b=vec3(uDiskBulgeTurn.x*pos.x+uDiskBulgeTurn.y*pos.z,pos.y,uDiskBulgeTurn.x*pos.z-uDiskBulgeTurn.y*pos.x);
 float m=length(b/uDiskBulgeAxes.xyz)/uDiskBulge.x;
 float sph=uDiskBulge.z>0.?exp(-uDiskBulgeAxes.w*pow(m+.002,uDiskBulge.w))*(1.-smoothstep(3.,5.5,m)):0.;
 gain=localFade*clamp(1.5*max(diskStars,sqrt(sph)),0.,1.5);
-}
-vLum*=gain*exp(-column*1.1);}
+// Hot O/B stars crowd the young arms and complexes; elsewhere the representative mix holds.
+float hot=step(fract(aPhase*3.71),.4*smoothstep(.01,.3,dot(young,vec3(.2126,.7152,.0722))*4.));
+if(hot>.5)vColor=vec3(.6,.74,1.);
+// Inverse-square flux, self-similar between levels (it depends on distance / tile only).
+vLum=aLum*(1.+3.*hot)*pow(.05*uLocalTile/max(vDistance,1e-6),2.)*14.*gain*exp(-column*1.1);
+}else vLum*=gain*exp(-column*1.1);}
 #endif
-gl_PointSize=clamp(uViewport*(uLocalTile>0.?.0015:.002)*sqrt(aLum)/sqrt(max(.0001,vDistance)),mix(.9,1.,uExterior),mix(uLocalTile>0.?6.:9.,3.,uExterior));
+if(uLocalTile>0.){
+// Too faint to show: skip rasterising it.
+if(vLum<.006){gl_Position=vec4(2.,2.,2.,1.);gl_PointSize=1.;return;}
+// Faint stars are single soft pixels carrying their flux as opacity; bright ones grow slowly.
+gl_PointSize=uViewport/800.*clamp(2.6*pow(vLum,.3),1.6,7.);
+}else
+gl_PointSize=clamp(uViewport*.002*sqrt(aLum)/sqrt(max(.0001,vDistance)),mix(.9,1.,uExterior),mix(9.,3.,uExterior));
 #include <logdepthbuf_vertex>
 }`,
       fragmentShader: /* glsl */ `#include <logdepthbuf_pars_fragment>
-uniform float uReveal,uVisibility,uExterior;varying vec3 vColor;varying float vLum,vDistance,vCrisp;
+uniform float uReveal,uVisibility,uExterior,uLocalCount;varying vec3 vColor;varying float vLum,vDistance,vCrisp,vLocal;
 void main(){
 #include <logdepthbuf_fragment>
 vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;
+if(vLocal>.5){
+// A resolved star: a Gaussian image whose opacity carries its flux up to white.
+gl_FragColor=vec4(vColor*2.2,exp(-r2*5.)*min(vLum,1.)*uReveal*uVisibility);
+#include <tonemapping_fragment>
+#include <colorspace_fragment>
+return;
+}
 // Exterior points represent unresolved associations. A broader, lower-exposure
 // footprint lets their warm/cool colours and the continuous dust volume survive
 // overlap, rather than tracing the arms as clipped white beads. Interior stars
@@ -205,26 +252,28 @@ float core=mix(interiorCore,exteriorCore,ext);
 float flux=clamp(vLum/sqrt(max(.05,vDistance)),.04,mix(2.5,4.,uExterior))*(1.+2.*vCrisp*uExterior);
 float nearFade=smoothstep(.00002,.0004,vDistance);
 vec3 radiance=vColor*mix(7.,1.9,ext);
-gl_FragColor=vec4(radiance,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*mix(1.,1.2,uExterior));
+// Once inside, the resolved levels replace these association points (bright flat discs up close).
+float handOver=uLocalCount>0.?1.-.9*smoothstep(.3,.9,uReveal):1.;
+gl_FragColor=vec4(radiance,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*mix(1.,1.2,uExterior)*handOver);
 #include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const material = useMemo(() => makeMaterial(0), [model, disk]);
-  const localMaterial = useMemo(
-    () => (localTile > 0 ? makeMaterial(localTile) : null),
+  const localMaterials = useMemo(
+    () => tiles.map((tile, k) => makeMaterial(tile, k ? tiles[k - 1] : 0)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [model, disk, localTile],
+    [model, disk, tiles],
   );
-  useEffect(() => () => localMaterial?.dispose(), [localMaterial]);
+  useEffect(() => () => localMaterials.forEach((m) => m.dispose()), [localMaterials]);
   const points = useRef<THREE.Points>(null);
   const update = (
     material: THREE.ShaderMaterial,
     size: { width: number; height: number },
     gl: THREE.WebGLRenderer,
   ) => {
-    const time = motionTimeSeconds();
+    const time = motionTimeSeconds(model.name);
     material.uniforms.uTime.value = time;
     material.uniforms.uField.value = field?.value ?? null;
     material.uniforms.uHasField.value = field?.value && (cacheFade?.value ?? 0) > 0.9 ? 1 : 0;
@@ -242,13 +291,11 @@ gl_FragColor=vec4(radiance,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*m
         );
     material.uniforms.uViewport.value = size.height * gl.getPixelRatio();
     material.uniforms.uAspect.value = size.width / Math.max(1, size.height);
+    material.uniforms.uLocalCount.value = tiles.length;
   };
   useFrame(({ size, gl }) => {
     update(material, size, gl);
-    if (localMaterial) {
-      update(localMaterial, size, gl);
-      localMaterial.uniforms.uPopulation.value = 4;
-    }
+    for (const m of localMaterials) update(m, size, gl);
   });
 
   useEffect(() => () => material.dispose(), [material]);
@@ -263,16 +310,18 @@ gl_FragColor=vec4(radiance,core*flux*mix(.11,.30,uReveal)*nearFade*uVisibility*m
         frustumCulled
         raycast={() => {}}
       />
-      {localGeometry && localMaterial && (
-        <points
-          dispose={null}
-          name={"galaxy-local-stars:" + model.name}
-          geometry={localGeometry}
-          material={localMaterial}
-          frustumCulled={false}
-          raycast={() => {}}
-        />
-      )}
+      {localGeometry &&
+        localMaterials.map((m, k) => (
+          <points
+            key={k}
+            dispose={null}
+            name={"galaxy-local-stars:" + model.name}
+            geometry={localGeometry}
+            material={m}
+            frustumCulled={false}
+            raycast={() => {}}
+          />
+        ))}
     </>
   );
 }

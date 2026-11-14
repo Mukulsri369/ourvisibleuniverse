@@ -254,10 +254,6 @@ export function RenderingBenchmarkModal() {
                     </li>
                     <li className="flex items-center gap-1.5">
                       <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />
-                      Diffraction spikes on bright guide stars
-                    </li>
-                    <li className="flex items-center gap-1.5">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />
                       Explicit [Cinematic Active] visual indicator badge
                     </li>
                   </ul>

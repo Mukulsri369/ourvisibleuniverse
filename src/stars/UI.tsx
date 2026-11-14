@@ -10,6 +10,7 @@ import {
   formatTimeRate,
   SIM_SECONDS_PER_REAL_SECOND,
 } from "./scene-controls";
+import { NORMAL_TIME_RATE, SOLAR_TIME_KEY, timeTargetKey } from "./sim-clock";
 
 import { HideablePanel, NasaResources } from "./NasaResources";
 import { AnimatePresence, motion } from "framer-motion";
@@ -728,8 +729,19 @@ function MaximizeButton() {
 function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const zoomSpeed = useStore((s) => s.zoomSpeed);
   const setZoomSpeed = useStore((s) => s.setZoomSpeed);
-  const systemSpeed = useStore((s) => s.systemSpeed);
   const setSystemSpeed = useStore((s) => s.setSystemSpeed);
+  const setObjectTimeRate = useStore((s) => s.setObjectTimeRate);
+  // The Time control sets only the selected object's time (the Solar System when none is).
+  useExploration((s) => s.galaxy);
+  useGalaxyJourney((s) => s.galaxy);
+  const timeKey = useStore(() => timeTargetKey());
+  const solarTime = timeKey === SOLAR_TIME_KEY;
+  const timeRate = useStore((s) =>
+    solarTime ? s.systemSpeed : (s.objectTimeRates[timeKey] ?? NORMAL_TIME_RATE),
+  );
+  const setTimeRate = (rate: number) =>
+    solarTime ? setSystemSpeed(rate) : setObjectTimeRate(timeKey, rate);
+  const timeName = OBSERVED_OBJECTS.find((o) => o.id === timeKey)?.name ?? timeKey;
   const freeSpeed = useStore((s) => s.freeLookSpeed);
   const setFreeSpeed = useStore((s) => s.setFreeLookSpeed);
   const galacticSpeed = useStore((s) => s.galacticTravelSpeed);
@@ -840,8 +852,8 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
           <PlanetOrbitSettings />
           <div className="mb-4 space-y-2">
             <label htmlFor="simulation-time" className="flex justify-between text-xs text-white/80">
-              <span>Time</span>
-              <span className="font-mono text-sky-200">{formatTimeRate(systemSpeed)}</span>
+              <span>Time · {timeName}</span>
+              <span className="font-mono text-sky-200">{formatTimeRate(timeRate)}</span>
             </label>
             <input
               id="simulation-time"
@@ -850,8 +862,8 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
               min={-6}
               max={2}
               step={0.01}
-              value={Math.log10(Math.max(1e-6, systemSpeed))}
-              onChange={(e) => setSystemSpeed(10 ** Number(e.target.value))}
+              value={Math.log10(Math.max(1e-6, timeRate))}
+              onChange={(e) => setTimeRate(10 ** Number(e.target.value))}
               className="w-full accent-sky-300"
             />
             <div className="flex flex-wrap gap-1.5">
@@ -860,12 +872,15 @@ function SettingsPanel({ open, onClose }: { open: boolean; onClose: () => void }
                 { label: "Slow motion", rate: 1e-6 },
                 { label: "Real time", rate: 1 / SIM_SECONDS_PER_REAL_SECOND },
                 { label: "Slow", rate: 0.01 },
-                { label: "Default", rate: DEFAULT_SIMULATION_SPEED },
+                {
+                  label: "Default",
+                  rate: solarTime ? DEFAULT_SIMULATION_SPEED : NORMAL_TIME_RATE,
+                },
               ].map((p) => (
                 <button
                   key={p.label}
                   type="button"
-                  onClick={() => setSystemSpeed(p.rate)}
+                  onClick={() => setTimeRate(p.rate)}
                   className="min-h-11 rounded border border-white/15 px-2 text-[11px] text-white/75 hover:bg-white/10 focus-visible:outline focus-visible:outline-sky-300"
                 >
                   {p.label}

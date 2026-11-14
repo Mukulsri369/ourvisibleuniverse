@@ -42,9 +42,11 @@ gl_FragColor=vec4(uColor*surface*limb*7.0,1.0);
 export function StellarSurface({
   star,
   radius,
+  timeKey = star.name,
 }: {
   star: Pick<NamedStar, "name" | "temperature">;
   radius: number;
+  timeKey?: string;
 }) {
   const mesh = useRef<THREE.Mesh>(null!);
   const map = useSolarMap("Sun", () => new THREE.Texture());
@@ -65,8 +67,8 @@ export function StellarSurface({
     mesh.current.getWorldPosition((mesh.current.userData.world ??= new THREE.Vector3()));
     const distance = camera.position.distanceTo(mesh.current.userData.world);
     mesh.current.visible = distance < radius * 1800;
-    uniforms.uTime.value = motionTimeSeconds();
-    mesh.current.rotation.y = motionTimeSeconds() * 0.018;
+    uniforms.uTime.value = motionTimeSeconds(timeKey);
+    mesh.current.rotation.y = motionTimeSeconds(timeKey) * 0.018;
   });
   return (
     <mesh

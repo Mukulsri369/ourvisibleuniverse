@@ -141,14 +141,14 @@ export function navigateExplorationTarget(target: ExploreTarget) {
     const live = typeof window !== "undefined" ? window.__planetPositions?.get(target.id) : null;
     p =
       live?.clone() ??
-      (model ? systemWorldPosition(model, motionTimeSeconds()) : PA99N2_WORLD.clone());
+      (model ? systemWorldPosition(model, motionTimeSeconds(model.name)) : PA99N2_WORLD.clone());
     distance = model ? systemViewDistance(model) : Math.max(...M31_PLANETS.map((p) => p.a)) * 3.2;
   } else if (target.local) {
     const appearance = model ?? galaxyAppearance(galaxy);
     p = new THREE.Vector3(...target.local)
       .applyAxisAngle(
         new THREE.Vector3(0, 1, 0),
-        motionTimeSeconds() * galaxyStructure(appearance).rotationRate,
+        motionTimeSeconds(appearance.name) * galaxyStructure(appearance).rotationRate,
       )
       .multiplyScalar(appearance.diskRadius)
       .applyQuaternion(galaxyOrientation(appearance))

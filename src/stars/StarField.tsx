@@ -46,12 +46,8 @@ export function StarField() {
   const observerMode = useStore((s) => s.observerMode);
   const atmosphericScintillation = useStore((s) => s.atmosphericScintillation);
   const opticsPreset = useStore((s) => s.opticsPreset);
-  const diffractionSpikesEnabled = useStore((s) => s.diffractionSpikesEnabled);
 
-  const texture = useMemo(
-    () => makeAntiAliasedStarTexture(diffractionSpikesEnabled),
-    [diffractionSpikesEnabled],
-  );
+  const texture = useMemo(() => makeAntiAliasedStarTexture(), []);
 
   const spectralTarget = useRef(0);
   const spectralBlend = useRef(0);

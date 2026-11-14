@@ -50,16 +50,16 @@ function PulsarDetail({
   const companion = useRef<THREE.Group>(null!);
   useFrame(() => {
     if (rotor.current)
-      rotor.current.rotation.y += Math.min(motionDeltaSeconds(), 0.05) * (profile.spin ?? 1);
+      rotor.current.rotation.y += Math.min(motionDeltaSeconds(item.id), 0.05) * (profile.spin ?? 1);
     if (companion.current)
-      companion.current.rotation.y += Math.min(motionDeltaSeconds(), 0.05) * 0.9;
+      companion.current.rotation.y += Math.min(motionDeltaSeconds(item.id), 0.05) * 0.9;
   });
   return (
     <group scale={scale} rotation={profile.tilt}>
-      <NeutronSurface color={item.color} spin={profile.spin ?? 1} />
+      <NeutronSurface color={item.color} spin={profile.spin ?? 1} timeKey={item.id} />
       <group ref={rotor}>
         <group rotation-z={profile.beamTilt ?? 0.45}>
-          <PlasmaJets color={item.accent} length={1.25} width={0.1} />
+          <PlasmaJets color={item.accent} length={1.25} width={0.1} timeKey={item.id} />
         </group>
       </group>
       {profile.morphology === "pulsar-torus" && (
@@ -77,7 +77,7 @@ function PulsarDetail({
       {profile.morphology === "neutron-binary" && (
         <group ref={companion}>
           <group position={[0.52, 0, 0]}>
-            <NeutronSurface color={item.accent} radius={0.065} />
+            <NeutronSurface color={item.accent} radius={0.065} timeKey={item.id} />
           </group>
         </group>
       )}
@@ -114,7 +114,7 @@ function ThermalNeutronStarDetail({
 }) {
   return (
     <group scale={scale} rotation={profile.tilt}>
-      <NeutronSurface color={item.color} radius={0.075} spin={0.05} />
+      <NeutronSurface color={item.color} radius={0.075} spin={0.05} timeKey={item.id} />
     </group>
   );
 }
@@ -132,7 +132,7 @@ function GravitationalWaveRegionDetail({
   const arcRef = useRef<THREE.Group>(null);
 
   useFrame(() => {
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(item.id);
     if (rippleRef.current) {
       rippleRef.current.rotation.z = t * 0.15;
     }
@@ -326,7 +326,7 @@ function StarDetail({
     [material, corona],
   );
   useFrame(() => {
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(item.id);
     material.uniforms.uTime.value = t;
     if (!star.current) return;
     star.current.rotation.y = t * (profile.spin ?? 0.02);

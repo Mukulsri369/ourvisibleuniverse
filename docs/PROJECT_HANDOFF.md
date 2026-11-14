@@ -2,7 +2,34 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 14 November — `9d6c4cf` deployed to production (latest checkpoint)
+## 15 November — no star crosses, galaxy interiors as stars, per-object time (latest checkpoint)
+
+- **What and why:** the owner asked for three changes. First, remove the old "+" crosses on stars near the Sun. Second, make spiral and irregular interiors show millions of stars, with no fog or exterior dust. Third, run every object at normal time while the Solar System keeps its default, with the Time control changing only the selected object. Report: [GALAXY_INTERIOR_STARS_AND_OBJECT_TIME_20261115.md](GALAXY_INTERIOR_STARS_AND_OBJECT_TIME_20261115.md); evidence: [galaxy-interior-stars-20261115/](galaxy-interior-stars-20261115/).
+- **Star crosses:** the diffraction spikes in the Gaia star sprite (`color-science.ts`) are deleted, with their store flag and their Optics and Benchmark UI. The halo and core are unchanged.
+- **Interiors:**
+  - Nested resolved-star levels around the eye (`GalaxyInteriorField.tsx`) replace the single tile.
+  - The bright band is resolved into point stars in `galaxy-volume-shader.ts`.
+  - Inside, the glow near the eye is cut and its saturation lowered, and the flattened H II/dust sheet is off.
+  - Exterior views and the Milky Way are unchanged.
+- **Time:**
+  - The Solar System keeps `systemSpeed` (7 days/s). Every other object runs at real time unless `objectTimeRates[key]` sets its own rate.
+  - The Settings Time control sets only `timeTargetKey()`.
+  - At real time, display-unit animations (accretion texture, pulsar rotors, galaxy rotation, exoplanet orbits) look still until raised. `NORMAL_TIME_RATE` is the one constant to change.
+- **Checks run:**
+  - `tsc`, plus Prettier and ESLint on the changed files.
+  - `galaxy-experience-validation.ts`, with new per-object time assertions.
+  - 22 `test:` suites, listed in the report. All passed.
+  - Same-pose GPU captures against the pinned control on port 31757.
+- **Cost (DPR 2 stress mode, AMD integrated GPU):** the M51 interior is within noise. The LMC interior is about 12–19% slower.
+- **Not checked:** the signed-in full app, the entry flight frame by frame, other GPUs and phones.
+- **Source and deployment status:** committed on `migration/supabase-cloudflare` on top of `c61dc08`, in the commit that records this section. **Not pushed, not deployed.** The owner's `.claude/settings.json` change remains uncommitted and theirs.
+- **Next concrete action:** owner review locally:
+  - `/scripts/nearby-qa/galaxy-views.html?g=m51&inside=1&eye=0.56,0.018,0&look=-0.36,0.009,0`
+  - `?g=lmc&inside=1&eye=0.43,0.045,0&look=-0.28,0.02,0`
+  - In the app, check the Time control on a black hole and on the Solar System.
+  - Then push, and deploy only with approval.
+
+## 14 November — `9d6c4cf` deployed to production
 
 - **What was deployed:** at the owner's request, `89a7f35` (galaxy interiors, warmer spirals, resolved dwarfs) and `9d6c4cf` (nebula detail, opaque dust, 16 s entry) were pushed to `migration/supabase-cloudflare` and deployed from the owner's computer.
 - **Live version:** Worker `ovu-supabase-staging` version `d58a4f85-0750-41e7-8478-6be12d1b2a13` serves 100% (previous `439aecb5`).

@@ -211,7 +211,7 @@ export class BlackHoleLensPass extends Pass {
       .divideScalar(this.rs);
     u.uView.value.set(Math.tan(THREE.MathUtils.degToRad(camera.fov) * 0.5), camera.aspect);
     if (this.face >= 6) u.uSkyReady.value = Math.min(1, u.uSkyReady.value + Math.min(dt, 0.1) * 4);
-    u.uTime.value = motionTimeSeconds();
+    u.uTime.value = motionTimeSeconds(item.id);
     u.uInner.value = model.innerRs;
     u.uOuter.value = model.outerRs;
     u.uDisk.value = model.dormant ? 0 : 1;

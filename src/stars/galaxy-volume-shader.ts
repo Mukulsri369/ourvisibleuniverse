@@ -118,6 +118,50 @@ const vec3 LUMA=vec3(.2126,.7152,.0722);
 /** Display-referred columns (photograph units). Face-on columns keep the photograph's values;
  * edge-on columns, many times brighter, roll off logarithmically toward white so the disk keeps
  * gradations instead of clipping. */
+/** Share of the light at distance t that stays unresolved glow once inside: nearby light is
+ * drawn as resolved stars (GalaxyInteriorField), distant light blends into the band. The Milky
+ * Way (no sky-contrast flag) draws its sky from catalogues and keeps all its glow. */
+float unresolved(float t){return mix(1.,mix(.2,1.,smoothstep(.0,.45,t)),uDiskInterior.z);}
+vec3 starHash3(vec3 p){p=fract(p*vec3(.1031,.103,.0973));p+=dot(p,p.yxz+33.33);return fract((p.xxy+p.yxx)*p.zyx);}
+/** Share of the band's light drawn as point stars: none in the faint sky (its stars are the
+ * resolved nearby ones), most in the bright band. */
+float bandShare(vec3 light){return smoothstep(.008,.08,dot(light,LUMA));}
+/** The band's light resolved into point stars. Each sky cell (a cube map of directions fixed in
+ * the galaxy, about 1.6 pixels wide) holds at most one star, present with a probability that
+ * rises with the band's light; a star carries its share of the cell's light times a heavy-tailed
+ * brightness draw. The band keeps its mean light, star clouds and dark lanes, and its fine
+ * texture becomes millions of stars instead of fog. Distant stars show no parallax, so a
+ * direction grid holds. Returns the stars' light for a resolved share of 1. */
+vec3 bandStars(vec3 dir,vec3 light){
+ float L=dot(light,LUMA);
+ float p=.32*bandShare(light);
+ if(p<.001)return vec3(0.);
+ vec3 a=abs(dir);float face;vec2 uv;
+ if(a.x>=a.y&&a.x>=a.z){face=dir.x>0.?0.:1.;uv=dir.zy/a.x;}
+ else if(a.y>=a.z){face=dir.y>0.?2.:3.;uv=dir.xz/a.y;}
+ else{face=dir.z>0.?4.:5.;uv=dir.xy/a.z;}
+ // Cells per face edge, a power of two so small view changes keep the same stars.
+ float n=exp2(floor(log2(1.25/uPixelAngle)+.5));
+ float k=pow(1.+dot(uv,uv),-.75); // a cell's linear size on the sky shrinks toward face corners
+ float cellPx=2./(n*uPixelAngle)*k,sigma=.5;
+ vec2 g=(uv*.5+.5)*n,cell=floor(g);
+ vec3 sum=vec3(0.);
+ for(int j=-1;j<=1;j++)for(int i=-1;i<=1;i++){
+  vec2 c=cell+vec2(i,j);
+  vec3 h=starHash3(vec3(c,face*131.7+.5));
+  if(h.z>=p)continue;
+  vec3 h2=starHash3(vec3(c+.37,face*57.1+9.));
+  vec2 d=(c+.2+.6*h.xy-g)*cellPx;
+  // (-ln u)^2.5 / Gamma(3.5): mean 1, most stars faint, about 1 in 100 over ten times brighter.
+  float r=pow(-log(max(h2.x,1e-4)),2.5)/3.32;
+  // Star colours: mostly the band's own, some hotter and some redder.
+  vec3 tint=h2.y<.12?vec3(.75,.85,1.15):h2.y>.8?vec3(1.12,.92,.75):vec3(1.);
+  sum+=tint*r*exp(-dot(d,d)/(2.*sigma*sigma));
+ }
+ // Flux per star = cell light / presence; its Gaussian peak = flux / (2 pi sigma^2).
+ // Integrated starlight looks whiter than the band's tinted glow.
+ return mix(vec3(L),light,.5)*sum*cellPx*cellPx*.32/(p*6.2832*sigma*sigma);
+}
 vec3 rollOff(vec3 light,out float peak){
  peak=max(light.r,max(light.g,light.b));
  float shaped=peak<=.55?peak:peak<=1.?.55+.27*(peak-.55)/.45:.82+.16*log(peak)/log(25.);
@@ -153,7 +197,9 @@ void main(){
  // 2h·tan(inclination) wide. H II regions, clusters and dust lanes lie close to the
  // mid-plane, so detail finer than that strip is drawn as a thin sheet where the ray crosses
  // the plane (the face-on column is unchanged). Grazing rays keep it in the layers.
- float sheetW=smoothstep(.12,.3,ay);
+ // Inside, no sheet: seen from within, flattened H II and dust read as pink pancakes, so the
+ // fine structure stays in the 3D layers.
+ float sheetW=smoothstep(.12,.3,ay)*(1.-uReveal*uDiskInterior.z);
  float smear=2.*max(uDiskHeights.y,hd)*sqrt(max(1.-ay*ay,0.))/ay;
  float tc=-uEye.y/(abs(rd.y)>1.e-7?rd.y:1.e-7);
  // An eye inside the slab sees the galaxy in perspective: steps lengthen with distance. Along
@@ -203,7 +249,7 @@ void main(){
    if(uPartCount>.5)e+=diskParts(q,lod);
    if(uDiskWind.x>0.)e+=diskWind(q);
    float clear=smoothstep(.012,mix(.045,.13,uReveal),tm);
-   e*=clear*mix(1.,uDiskInterior.y,uReveal);
+   e*=clear*mix(1.,uDiskInterior.y*unresolved(tm),uReveal);
    float kd=k*clear*ds;
    if(kd<7.5e-5){
     // Outside the dust (most steps): no channel is attenuated measurably.
@@ -228,7 +274,7 @@ void main(){
    vec3 kk=d.a*clear*REDDEN/ay;
    vec3 att=exp(-kk);
    vec3 seg=mix(vec3(1.),(1.-att)/max(kk,vec3(1.e-6)),step(vec3(1.e-4),kk));
-   light+=trans*d.rgb*clear*mix(1.,uDiskInterior.y,uReveal)*seg/ay;
+   light+=trans*d.rgb*clear*mix(1.,uDiskInterior.y*unresolved(tc),uReveal)*seg/ay;
    trans*=att;
   }
  }
@@ -240,13 +286,19 @@ void main(){
  // in a uniform glow, and the band itself is lifted.
  // An S-curve on the linear light: faint glow x0.4, the bright band x1.4.
  float contrast=mix(.4,1.4,smoothstep(.03,.7,peak));
- vec3 interior=rollOff(light*mix(1.,contrast,uReveal*uDiskInterior.z),peakInterior);
+ // Inside, most of the band's light is drawn as point stars rather than glow.
+ float resolve=uReveal*uDiskInterior.z;
+ vec3 stars=resolve>0.?bandStars(vec3(rd.x*c-rd.z*s,rd.y,rd.x*s+rd.z*c),light):vec3(0.);
+ float share=.6*resolve*bandShare(light);
+ vec3 interior=rollOff((light*(1.-share)+.6*resolve*stars)*mix(1.,contrast,resolve),peakInterior);
  // The photograph's exact display inversion lifts the faintest light as well; a soft black
  // point keeps the faint exponential wings of very bright edge-on columns from widening
  // the disk, as a photographic sky level would.
  float low=min(display.r,min(display.g,display.b));
  vec3 exact=beforeDisplay(display);
  vec3 toe=display/max(uExposure,1e-4)+(exact-display/max(uExposure,1e-4))*smoothstep(.0015,.02,low);
+ // Faint orange light reads as brown fog; inside, the glow is a paler, whiter starlight.
+ interior=mix(vec3(dot(interior,LUMA)),interior,1.-.35*resolve);
  vec3 radiance=mix(interior*uDiskInterior.x,toe,uExteriorView);
  float o=uOpacity*uCacheFade;
  if(max(coverage,peak)*o<.0004)discard;

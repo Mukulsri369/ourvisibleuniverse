@@ -705,7 +705,7 @@ export function MilkyWay() {
   useFrame(({ clock, camera, gl }) => {
     if (!groupRef.current) return;
     // Galaxy itself is fixed; differential rotation happens in the shader.
-    shader.uniforms.uTime.value = motionTimeSeconds();
+    shader.uniforms.uTime.value = motionTimeSeconds("Milky Way");
     shader.uniforms.uPixelRatio.value = gl.getPixelRatio();
     shader.uniforms.uFocus.value = backgroundFocus();
 

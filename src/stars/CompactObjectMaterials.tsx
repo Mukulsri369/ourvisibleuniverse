@@ -64,7 +64,15 @@ gl_FragColor=vec4(c*light*5.,clamp(light,0.,.95));
 }`;
 
 /** Analytic thin-disk interpretation; no per-frame particle uploads or geodesic claim. */
-export function AccretionFlow({ color, spin = 0.2 }: { color: string; spin?: number }) {
+export function AccretionFlow({
+  color,
+  spin = 0.2,
+  timeKey,
+}: {
+  color: string;
+  spin?: number;
+  timeKey: string;
+}) {
   const ref = useRef<THREE.Group>(null!);
   const eye = useMemo(() => new THREE.Vector3(), []);
   const uniforms = useMemo(
@@ -82,7 +90,7 @@ export function AccretionFlow({ color, spin = 0.2 }: { color: string; spin?: num
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
     uniforms.uInclination.value = 1 - Math.abs(eye.y) / Math.max(eye.length(), 1e-12);
-    uniforms.uTime.value = motionTimeSeconds();
+    uniforms.uTime.value = motionTimeSeconds(timeKey);
   });
   return (
     <group ref={ref} name="accretion-flow">
@@ -136,10 +144,12 @@ export function NeutronSurface({
   color,
   radius = 0.07,
   spin = 0.2,
+  timeKey,
 }: {
   color: string;
   radius?: number;
   spin?: number;
+  timeKey: string;
 }) {
   const ref = useRef<THREE.Mesh>(null!);
   const uniforms = useMemo(
@@ -147,8 +157,8 @@ export function NeutronSurface({
     [color],
   );
   useFrame(() => {
-    uniforms.uTime.value = motionTimeSeconds();
-    if (ref.current) ref.current.rotation.y = motionTimeSeconds() * spin;
+    uniforms.uTime.value = motionTimeSeconds(timeKey);
+    if (ref.current) ref.current.rotation.y = motionTimeSeconds(timeKey) * spin;
   });
   return (
     <mesh ref={ref} name="neutron-surface">
@@ -174,10 +184,12 @@ export function PlasmaJets({
   color,
   length = 1.6,
   width = 0.08,
+  timeKey,
 }: {
   color: string;
   length?: number;
   width?: number;
+  timeKey: string;
 }) {
   const u = useMemo(
     () => ({ uTime: { value: 0 }, uColor: { value: new THREE.Color(color) } }),
@@ -199,7 +211,7 @@ export function PlasmaJets({
   }, [length, width]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   useFrame(() => {
-    u.uTime.value = motionTimeSeconds();
+    u.uTime.value = motionTimeSeconds(timeKey);
   });
   return (
     <group name="plasma-jets">

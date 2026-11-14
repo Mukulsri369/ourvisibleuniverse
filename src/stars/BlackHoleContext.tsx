@@ -52,19 +52,19 @@ export function BlackHoleContext({ item }: { item: ObservedObject }) {
   useFrame(() => {
     if (orbit.current && binary)
       orbit.current.rotation.y =
-        (motionTimeSeconds() * Math.PI * 2) / (binary.periodYears * 31557600);
+        (motionTimeSeconds(item.id) * Math.PI * 2) / (binary.periodYears * 31557600);
   });
   return (
     <group rotation={profile?.tilt} name={"black-hole-context:" + item.id}>
       {item.compactPhysics?.hasRelativisticJet && (
         <group scale={model.radiusLy}>
-          <PlasmaJets color={item.accent} length={70} width={0.4} />
+          <PlasmaJets color={item.accent} length={70} width={0.4} timeKey={item.id} />
         </group>
       )}
       {binary && (
         <group ref={orbit}>
           <group position={[binary.separation * AU_LY, 0, 0]}>
-            <StellarSurface star={binary} radius={binary.radius * RSUN_LY} />
+            <StellarSurface star={binary} radius={binary.radius * RSUN_LY} timeKey={item.id} />
           </group>
         </group>
       )}

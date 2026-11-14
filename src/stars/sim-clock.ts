@@ -10,6 +10,14 @@
 
 import { SOLAR_ORBIT_NAMES } from "./planet-orbit-controls";
 import { useStore } from "./store";
+import { useExploration } from "./exploration-scope";
+import { useGalaxyJourney } from "./galaxy-journey";
+import { SIM_SECONDS_PER_REAL_SECOND } from "./scene-controls";
+
+/** The Solar System runs on its own clock (store.systemSpeed); every other object runs at real
+ * time unless its own rate is set in store.objectTimeRates. */
+export const SOLAR_TIME_KEY = "Solar System";
+export const NORMAL_TIME_RATE = 1 / SIM_SECONDS_PER_REAL_SECOND;
 
 const J2000_JD = 2451545.0;
 const J2000_MS = Date.UTC(2000, 0, 1, 12, 0, 0);
@@ -23,6 +31,11 @@ let timeMultiplier = 1.0; // 1.0 = nominal standard speed
 let focus = 1.0;
 let motionSeconds = 0;
 let motionStep = 0;
+let frameStep = 0;
+let normalSeconds = 0;
+// Accumulated difference from real time of each object with its own rate, so a rate change never
+// jumps the object's phase.
+const objectOffsets = new Map<string, number>();
 const planetOrbitalJd: Record<string, number> = Object.fromEntries(
   SOLAR_ORBIT_NAMES.map((name) => [name, currentJd]),
 );
@@ -36,8 +49,27 @@ export function setGalacticTimeScale(value: number) {
 
 /** Independent elapsed orbital time, integrated continuously so changing speed never jumps phase. */
 export const getPlanetSimulationJd = (name: string) => planetOrbitalJd[name] ?? currentJd;
-export const motionDeltaSeconds = () => motionStep;
-export const motionTimeSeconds = () => motionSeconds;
+const objectRate = (key: string) => useStore.getState().objectTimeRates[key] ?? NORMAL_TIME_RATE;
+/** Motion time of an object (its key: catalogue id, star, galaxy name); Solar System by default. */
+export const motionTimeSeconds = (key = SOLAR_TIME_KEY) =>
+  key === SOLAR_TIME_KEY ? motionSeconds : normalSeconds + (objectOffsets.get(key) ?? 0);
+export const motionDeltaSeconds = (key = SOLAR_TIME_KEY) =>
+  key === SOLAR_TIME_KEY ? motionStep : frameStep * objectRate(key);
+
+/** Whose time the Time control sets: the most specific current selection, else the Solar System. */
+export function timeTargetKey(): string {
+  const st = useStore.getState();
+  const galaxy = useExploration.getState().galaxy;
+  if (st.exoVisit) return st.exoVisit.star.name;
+  // Planets of systems hosted by other galaxies share their galaxy's time.
+  if (st.visitPlanet) return galaxy && galaxy !== "Milky Way" ? galaxy : SOLAR_TIME_KEY;
+  if (st.selectedObjectId) return st.selectedObjectId;
+  if (st.selectedStar)
+    return st.selectedStar.name === "Sun" ? SOLAR_TIME_KEY : st.selectedStar.name;
+  const visited = useGalaxyJourney.getState().galaxy?.name ?? st.visitGalaxy?.name;
+  if (visited) return visited;
+  return galaxy && galaxy !== "Milky Way" ? galaxy : SOLAR_TIME_KEY;
+}
 
 /**
  * Sets the simulation date directly from a JavaScript Date or ISO string or JD.
@@ -109,7 +141,14 @@ export function tickSim(dt: number) {
   const st = useStore.getState();
 
   motionStep = isPaused ? 0 : d * st.systemSpeed * timeMultiplier;
+  frameStep = isPaused ? 0 : d;
   if (!isPaused) {
+    normalSeconds += d * NORMAL_TIME_RATE;
+    for (const key in st.objectTimeRates)
+      objectOffsets.set(
+        key,
+        (objectOffsets.get(key) ?? 0) + d * (st.objectTimeRates[key] - NORMAL_TIME_RATE),
+      );
     // Base speed: systemSpeed=25 -> 1 Earth year per 31.5 s
     // (i.e. ~11.59 days of sim time per real second)
     motionSeconds += motionStep;

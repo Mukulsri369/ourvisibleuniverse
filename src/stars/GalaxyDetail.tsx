@@ -246,10 +246,12 @@ function GxMoon({
   moon,
   parent,
   displayScale,
+  timeKey,
 }: {
   moon: GxMoonDef;
   parent: string;
   displayScale: number;
+  timeKey: string;
 }) {
   const ref = useRef<THREE.Mesh>(null!);
   useEffect(
@@ -263,7 +265,7 @@ function GxMoon({
   const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame(() => {
     if (!ref.current) return;
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(timeKey);
     const a = phase + (t / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
     ref.current.position.set(
@@ -295,10 +297,12 @@ function GxPlanet({
   def,
   au,
   displayScale,
+  timeKey,
 }: {
   def: GxPlanetDef;
   au: number;
   displayScale: number;
+  timeKey: string;
 }) {
   const groupRef = useRef<THREE.Group>(null!);
   const bodyRef = useRef<THREE.Mesh>(null!);
@@ -336,7 +340,7 @@ function GxPlanet({
   );
   useFrame(() => {
     if (!groupRef.current) return;
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(timeKey);
     groupRef.current.position.copy(keplerPosition(def, phase, t, local));
     if (bodyRef.current) bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     groupRef.current.getWorldPosition(tmp);
@@ -426,13 +430,19 @@ function GxPlanet({
         )}
       </group>
       {def.moons?.map((mn) => (
-        <GxMoon key={mn.name} moon={mn} parent={def.name} displayScale={displayScale} />
+        <GxMoon
+          key={mn.name}
+          moon={mn}
+          parent={def.name}
+          displayScale={displayScale}
+          timeKey={timeKey}
+        />
       ))}
     </group>
   );
 }
 
-function GxBelt({ system }: { system: GxSystemDef }) {
+function GxBelt({ system, timeKey }: { system: GxSystemDef; timeKey: string }) {
   const au = system.au;
   const { geom, radii, thetas, heights, omegas } = useMemo(() => {
     const n = 1200;
@@ -462,7 +472,7 @@ function GxBelt({ system }: { system: GxSystemDef }) {
   const beltTick = useRef(0);
   useFrame(() => {
     if (beltTick.current++ % 3 !== 0) return;
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(timeKey);
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < radii.length; i++) {
@@ -519,7 +529,7 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
   );
 
   useFrame(() => {
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(m.name);
     const ang = s.orbitPhase + omega * t;
     if (groupRef.current) {
       groupRef.current.position.set(
@@ -575,9 +585,9 @@ function GxSystem({ m, system }: { m: GalaxyModel; system: GxSystemDef }) {
           <primitive key={i} object={o} />
         ))}
         {s.planets.map((p) => (
-          <GxPlanet key={p.name} def={p} au={s.au} displayScale={displayScale} />
+          <GxPlanet key={p.name} def={p} au={s.au} displayScale={displayScale} timeKey={m.name} />
         ))}
-        {s.beltOuterAU > s.beltInnerAU && <GxBelt system={s} />}
+        {s.beltOuterAU > s.beltInnerAU && <GxBelt system={s} timeKey={m.name} />}
         <Billboard>
           <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
             <div

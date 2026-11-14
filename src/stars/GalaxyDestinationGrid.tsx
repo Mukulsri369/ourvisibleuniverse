@@ -143,7 +143,7 @@ export function GalaxyDestinationGrid({ name, onVisit }: { name: string; onVisit
       const p = new THREE.Vector3(...d.landmark.local);
       p.applyAxisAngle(
         new THREE.Vector3(0, 1, 0),
-        motionTimeSeconds() * galaxyStructure(m).rotationRate,
+        motionTimeSeconds(m.name) * galaxyStructure(m).rotationRate,
       );
       p.multiplyScalar(m.diskRadius)
         .applyQuaternion(galaxyOrientation(m))

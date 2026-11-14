@@ -275,7 +275,10 @@ function ExoBody({
     const speed = 1 / 25;
     const ang =
       p.phase +
-      ((motionTimeSeconds() * speed) / (8 * Math.pow(p.periodYears, 0.5))) * Math.PI * 2 * 0.25;
+      ((motionTimeSeconds(star.name) * speed) / (8 * Math.pow(p.periodYears, 0.5))) *
+        Math.PI *
+        2 *
+        0.25;
     ref.current.position.copy(orbitPoint(p, ang, tmp));
     ref.current.getWorldPosition(world);
     let position = registry().get(p.name);
@@ -288,11 +291,11 @@ function ExoBody({
     const pixels = (size / camera.position.distanceTo(world)) * viewport.height;
     const body = meshRef.current?.parent;
     if (body) body.visible = pixels > 0.15;
-    material.uniforms.uTime.value = motionTimeSeconds();
+    material.uniforms.uTime.value = motionTimeSeconds(star.name);
     // Tidally locked worlds keep one face (+Z) to the star; others spin.
     if (meshRef.current) {
       if (p.tidallyLocked) meshRef.current.lookAt(starPos);
-      else meshRef.current.rotation.y = motionTimeSeconds() * 0.3;
+      else meshRef.current.rotation.y = motionTimeSeconds(star.name) * 0.3;
     }
   }, -2); // Publish live body coordinates after the clock and before CameraRig.
   const pick = (e: ThreeEvent<MouseEvent>) => {

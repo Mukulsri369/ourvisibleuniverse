@@ -9,7 +9,14 @@ import {
   COSMIC_BENCHMARKS,
 } from "../src/lib/astronomy/cosmic-web/survey-catalogs";
 import { useStore } from "../src/stars/store";
-import { tickSim, motionTimeSeconds, setSimPaused, getSimulationJd } from "../src/stars/sim-clock";
+import {
+  tickSim,
+  motionTimeSeconds,
+  motionDeltaSeconds,
+  setSimPaused,
+  getSimulationJd,
+  NORMAL_TIME_RATE,
+} from "../src/stars/sim-clock";
 const names = new Set(),
   families = new Set();
 for (const m of GALAXY_MODELS) {
@@ -63,6 +70,26 @@ tickSim(0.1);
 assert.equal(motionTimeSeconds(), paused);
 setSimPaused(false);
 useStore.getState().setSystemSpeed(saved);
+// Objects outside the Solar System run at real time; a rate set for one object changes only it,
+// continuously, and leaves the Solar System's clock alone.
+{
+  const solar = motionTimeSeconds(),
+    m51 = motionTimeSeconds("M51"),
+    m42 = motionTimeSeconds("m42");
+  tickSim(0.1);
+  assert(Math.abs(motionTimeSeconds("m42") - m42 - 0.1 * NORMAL_TIME_RATE) < 1e-12);
+  assert(Math.abs(motionTimeSeconds() - solar - 0.1 * saved) < 1e-9);
+  const m51Now = motionTimeSeconds("M51");
+  assert(Math.abs(m51Now - m51 - 0.1 * NORMAL_TIME_RATE) < 1e-12);
+  useStore.getState().setObjectTimeRate("M51", 1);
+  const m51Before = motionTimeSeconds("M51");
+  assert.equal(m51Before, m51Now, "setting a rate must not jump the object's time");
+  tickSim(0.1);
+  assert(Math.abs(motionTimeSeconds("M51") - m51Before - 0.1) < 1e-9);
+  assert(Math.abs(motionDeltaSeconds("M51") - 0.1) < 1e-9);
+  assert(motionTimeSeconds("m42") - m42 < 1e-5, "other objects keep real time");
+  useStore.setState({ objectTimeRates: {} });
+}
 assert.equal(useStore.getState().exposure, 0.1);
 assert.equal(useStore.getState().sceneBrightness, 1);
 useStore.getState().setExposure(NaN);

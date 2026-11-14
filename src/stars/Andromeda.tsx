@@ -556,7 +556,7 @@ function M31Moon({ moon, parent }: { moon: M31MoonDef; parent: string }) {
   const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame(() => {
     if (!ref.current) return;
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(ANDROMEDA_NAME);
     const a = phase + (t / moon.period) * Math.PI * 2;
     const inc = moon.inclination ?? 0;
     ref.current.position.set(
@@ -613,7 +613,7 @@ function M31Planet({ def }: { def: M31PlanetDef }) {
   );
   useFrame(() => {
     if (!groupRef.current) return;
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(ANDROMEDA_NAME);
     groupRef.current.position.copy(keplerPosition(def, phase, t));
     if (bodyRef.current) bodyRef.current.rotation.y = (t / def.spinPeriod) * Math.PI * 2;
     groupRef.current.getWorldPosition(tmp);
@@ -736,7 +736,7 @@ function M31Belt() {
   const beltTick = useRef(0);
   useFrame(() => {
     if (beltTick.current++ % 3 !== 0) return;
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(ANDROMEDA_NAME);
     const attr = geom.getAttribute("position") as THREE.BufferAttribute;
     const arr = attr.array as Float32Array;
     for (let i = 0; i < radii.length; i++) {
@@ -793,7 +793,7 @@ function PA99N2System() {
   const sysOmega = useMemo(() => V_FLAT / Math.max(sysR, 1), [sysR]);
 
   useFrame(() => {
-    const t = motionTimeSeconds();
+    const t = motionTimeSeconds(ANDROMEDA_NAME);
     if (starRef.current) starRef.current.rotation.y = t * 0.05;
     if (sysRef.current) {
       const ang = sysPhase + sysOmega * t;

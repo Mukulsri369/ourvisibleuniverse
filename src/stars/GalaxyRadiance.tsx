@@ -216,7 +216,7 @@ export function GalaxyRadiance({
     ref.current.worldToLocal(eye.copy(camera.position));
     uniforms.uEye.value.copy(eye);
     if (cache) uniforms.uFieldSize.value.set(cache.size, cache.size * 2, cache.size);
-    uniforms.uTime.value = motionTimeSeconds();
+    uniforms.uTime.value = motionTimeSeconds(model.name);
     const reveal = journeyActive ? galaxyMotion.reveal : 0;
     uniforms.uReveal.value = reveal;
     uniforms.uExteriorView.value = entered ? 0 : 1;
