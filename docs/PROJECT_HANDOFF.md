@@ -2,7 +2,17 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 14 November — exoplanet surfaces rebuilt, moon close-ups steadied (latest checkpoint)
+## 14 November — `6c35ad6` deployed to production (latest checkpoint)
+
+- **What was deployed:** at the owner's request, `6c35ad6` was pushed and deployed from the owner's computer. It is the exoplanet and moon release below, plus the undeployed `bdb5c06` (Lovable removal), `69047e4` (contacts, object list, sitemap) and `8bcbd25` (cosmic structures).
+- **Live version:** Worker `ovu-supabase-staging` version `439aecb5-4784-4092-926f-31211bb0dae0` serves 100% (previous `6c081ba1`).
+- **Settings and secrets:** the six plaintext settings were copied from the live version. The five secrets were inherited, not read. The new version's 11 bindings (names, types, plaintext values) and compatibility date matched the live version before traffic moved.
+- **Pre-deploy checks:** a fresh build, a credential-pattern scan (prefix checks only) and a dry run passed.
+- **Live checks:** `/`, `/about`, `/universe`, `/pricing` and the object-list download return 200; `/mcp` returns 401. `www.com` and `.in` return 308 to the apex `.com`, keeping path and query. The live `StarsApp-DmATgOUT.js` matches the build byte for byte (SHA-256 prefix `bcb5f68c36e17d20`) and contains the new exoplanet shader.
+- **Not checked:** the signed-in scene and physical devices.
+- **Rollback:** `npx wrangler versions deploy 6c081ba1-cec9-4190-9e99-86c8217b8462@100 --name ovu-supabase-staging`.
+
+## 14 November — exoplanet surfaces rebuilt, moon close-ups steadied
 
 - **What and why:** the owner reported that exoplanets looked blurry and unlike their real images, and that a selected moon shook when viewed close up. Report: [EXOPLANET_REALISM_AND_MOON_TRACKING_20261114.md](EXOPLANET_REALISM_AND_MOON_TRACKING_20261114.md). Look-dev: [exoplanet-lookdev-20261114/](exoplanet-lookdev-20261114/).
 - **Moon shake:**
