@@ -64,7 +64,7 @@ vec2 p=gl_PointCoord*2.-1.;float r2=dot(p,p);if(r2>1.)discard;
 vec3 delta=vStar-uEye;float distance=length(delta);vec3 dir=delta/max(distance,.0001);
 vec3 inv=1./(dir+vec3(1.e-8)),aa=(-vec3(1.6)-uEye)*inv,bb=(vec3(1.6)-uEye)*inv;
 vec3 lo=min(aa,bb),hi=max(aa,bb);float start=max(0.,max(lo.x,max(lo.y,lo.z))),end=min(distance,min(hi.x,min(hi.y,hi.z)));
-float tau=0.;if(end>start){float ds=(end-start)/32.;for(int i=0;i<32;i++){vec3 q=uEye+dir*(start+(float(i)+.5)*ds);vec2 m=sampleNebula(q);tau+=(m.x*.8+m.y*1.8*uDust*mix(1.,.45,uReveal))*ds;}}
+float tau=0.;if(end>start){float ds=(end-start)/32.;for(int i=0;i<32;i++){vec3 q=uEye+dir*(start+(float(i)+.5)*ds);vec2 m=sampleNebula(q);tau+=(m.x*.2+m.y*4.5*uDust*mix(1.,.45,uReveal))*ds;}}
 float transmission=exp(-min(tau,20.));float core=exp(-r2*18.)+exp(-r2*3.5)*.1;
 float fade=smoothstep(.0005,.004,distance);float power=clamp(vLum/sqrt(max(.3,distance)),.08,2.);
 gl_FragColor=vec4(vColor*20.*uViewGain*uStars*mix(1.,1.6,uReveal),core*power*transmission*fade);

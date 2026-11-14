@@ -1,6 +1,6 @@
 /** Static scattering colour, baked with the density; camera exposure stays live. */
 export const NEBULA_RADIANCE = /* glsl */ `
-uniform sampler2D uReference;uniform vec3 uPrimary,uSecondary,uLight;uniform float uHasReference,uAspect,uDark;
+uniform sampler2D uReference;uniform vec3 uPrimary,uSecondary;uniform float uHasReference,uAspect,uDark;
 vec3 nebulaSource(vec3 p,vec2 media){
   float f=fbm(p*7.);
   vec3 palette=mix(uPrimary,uSecondary,smoothstep(.25,.75,f+p.y*.18));
@@ -18,6 +18,8 @@ vec3 nebulaSource(vec3 p,vec2 media){
   float rejectStar=1.-smoothstep(.10,.32,max(max(finePhoto.r,finePhoto.g),finePhoto.b)-max(max(observed.r,observed.g),observed.b));
   float detail=mix(1.,clamp((fineLum+.025)/(broadLum+.025),.6,1.7),uHasReference*confidence*rejectStar*.65);
   vec3 source=color*(54.+smoothstep(.35,.75,n(p*93.))*18.)*illumination*detail+vec3(.012,.009,.006)*(1.-illumination);
+  // Dust scatters the cluster's light (warm, reddened); dark clouds have no nearby illuminator.
+  source+=mix(color,vec3(1.,.7,.45),.6)*.8*(1.-illumination)*(1.-uDark);
   source*=mix(1.,.38,uDark);
   // Soft illumination around the stellar cavity and forward-scattered dust.
   float stellarLight=1./(1.+dot(p-uLight,p-uLight)*3.);

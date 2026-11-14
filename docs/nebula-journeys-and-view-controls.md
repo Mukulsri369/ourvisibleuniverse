@@ -1,6 +1,6 @@
 # Nebula journeys and object view controls
 
-Select a nebula and use **Enter in nebula**. Each of the 21 volumes has a distinct 48-second route (64 seconds with reduced motion). Pause/resume and Return to viewpoint remain available; Escape returns. The final pose hands over to existing free look. Selecting another object cancels the old passage. Hidden tabs pause it. Return restores position, orientation and field of view.
+Select a nebula and use **Enter in nebula**. Each of the 21 volumes has a distinct 16-second route (24 seconds with reduced motion; shortened from 48 s on 14 November 2026). Pause/resume and Return to viewpoint remain available; Escape returns. The final pose hands over to existing free look. Selecting another object cancels the old passage. Hidden tabs pause it. Return restores position, orientation and field of view.
 
 Object details include **Adjust this object’s view**: exposure in EV, brightness and contrast. Nebulae add balanced lighting, dust opacity, starlight and Interior clarity. Preferences persist per catalogue ID. Resetting one leaves other objects and global optics unchanged. Black-hole exposure grades disk emission rather than background sky or the dark horizon.
 

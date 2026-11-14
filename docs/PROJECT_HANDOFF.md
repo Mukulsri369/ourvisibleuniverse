@@ -2,7 +2,26 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 14 November — galaxy realism: spiral colours, interiors, dwarfs (latest checkpoint)
+## 14 November — nebula realism, interiors and 16 s entry (latest checkpoint)
+
+- **What and why:** the owner reported blurry, unrealistic nebulae, empty interiors and a slow entry flight. Report: [NEBULA_REALISM_20261114.md](NEBULA_REALISM_20261114.md); before/after sheets: [nebula-lookdev-20261114/](nebula-lookdev-20261114/).
+- **Changes (rendering only; no catalogue, shape or route changes):**
+  - Sub-voxel procedural detail, faded out below pixel and step size.
+  - Adaptive ray stepping.
+  - Optically thin gas emission with n²-like contrast.
+  - Opaque dust with hard silhouettes, a shadow probe toward the cluster, and ionisation-front rims.
+  - Faint ionised gas filling H II interiors, and interior dimming removed.
+  - Entry flight 48 s → 16 s (reduced motion 64 → 24 s).
+- **Code:**
+  - `src/stars/nebula-volume-shader.ts`, `nebula-medium.ts`, `nebula-radiance.ts`, `NebulaStars.tsx`, `NebulaVolume.tsx`, `nebula-journey.ts`.
+  - QA tools: `scripts/nearby-qa/nebula-views.*`, `nebula-capture.mjs`, `nebula-control-config.mts`, plus `ovu-nebula-control` (port 31758) in `.claude/launch.json`.
+- **Checks run:** `tsc`; ESLint and Prettier on the changed files; `test:nebulae`, `test:nebula-journey`, `test:rendering`, `test:visual`, `test:3d`, `test:navigation`, `test:exploration-camera`; same-pose GPU captures of all 22 volumes against the pinned control (no shader errors).
+- **Cost:** frame times are 1.15–1.5× higher on the AMD iGPU (for example, M16 close 24 → 34 ms).
+- **Not established:** the signed-in full app, the flight in motion, other GPUs and phones. Close-ups are improved but not photograph-sharp. Barnard 68 is near-black in isolation and needs checking against the full-scene star field.
+- **Source and deployment status:** uncommitted in the working tree on `migration/supabase-cloudflare` at the end of this session. **Not pushed, not deployed.** The owner's `.claude/settings.json` change remains theirs.
+- **Next concrete action:** owner review locally (`/scripts/nearby-qa/nebula-views.html?n=m16&v=close`, `?n=m42&v=inside`), then commit. Push and deploy only with approval.
+
+## 14 November — galaxy realism: spiral colours, interiors, dwarfs
 
 - **What and why:** the owner asked for spirals that look more realistic outside, realistic interiors and premium dwarf galaxies, with SpaceEngine as the reference. Report: [GALAXY_REALISM_20261114.md](GALAXY_REALISM_20261114.md); before/after sheets: [galaxy-lookdev-realism-20261114/](galaxy-lookdev-realism-20261114/).
 - **Reference limits:** spaceengine.org returns a Cloudflare bot check, which was not bypassed. SpaceEngine is proprietary and not installed, so no REA analysis was done. Its publicly described approach was used: map-driven volumes, a procedural local star field, HDR adaptation.

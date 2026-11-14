@@ -1,5 +1,6 @@
 /** Shared true 3D density: used by emission rays and embedded-star extinction. */
 export const NEBULA_MEDIUM = /* glsl */ `
+uniform vec3 uLight;
 float n(vec3 p){return texture(uNoise,p/32.+uSeed).r;}
 float fbm(vec3 p){return n(p)*.56+n(p*2.03+3.1)*.28+n(p*4.07+7.7)*.16;}
 float bell(float x,float w){return exp(-x*x/(w*w));}
@@ -124,6 +125,10 @@ vec2 nebulaMedium(vec3 p){
  float filaments=.45+.75*smoothstep(.26,.76,f)+n(p*71.+11.)*.2;
  float clumps=pow(smoothstep(.48,.74,fbm(p*27.+vec3(11.,3.,7.))),2.);
  float cloudDust=(uShape<7.||uShape>13.5&&uShape<17.5)?m.x*clumps*.65:0.;
- return vec2(m.x*filaments*.5,m.y*(.4+f)+cloudDust)*edge;
+ // H II regions: the ionised volume around the exciting cluster is filled with faint,
+ // turbulent gas (the Stromgren volume), so an observer inside sees glow in every direction.
+ bool hii=uShape<2.5||uShape>13.5&&uShape<17.5||uShape>21.5&&uShape<25.5;
+ float diffuse=hii?ell(p-uLight*.6,vec3(1.05,.95,1.))*(.35+f)*.07:0.;
+ return vec2(m.x*filaments*.5+diffuse,m.y*(.4+f)+cloudDust)*edge;
 }
 `;

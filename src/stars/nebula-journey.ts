@@ -16,7 +16,7 @@ export const useNebulaJourney = create<{
 }>((set, get) => ({
   id: null,
   mode: "idle",
-  duration: 48,
+  duration: 16,
   start: (id) => {
     if (!NEBULA_ROUTES[id] || get().mode !== "idle") return;
     previousHidden = useStore.getState().uiHidden;
@@ -33,8 +33,8 @@ export const useNebulaJourney = create<{
       mode: "flying",
       duration:
         typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? 64
-          : 48,
+          ? 24
+          : 16,
     });
   },
   pause: () => {

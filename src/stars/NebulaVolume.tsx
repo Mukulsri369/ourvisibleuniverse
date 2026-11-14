@@ -100,6 +100,7 @@ export function NebulaVolume({
         transparent: true,
         depthWrite: false,
         blending: THREE.NormalBlending,
+        premultipliedAlpha: true,
       }),
     [uniforms],
   );

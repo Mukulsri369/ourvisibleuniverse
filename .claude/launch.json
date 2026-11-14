@@ -14,12 +14,7 @@
     {
       "name": "ovu-app",
       "runtimeExecutable": "node",
-      "runtimeArgs": [
-        "node_modules/vite/bin/vite.js",
-        "--port",
-        "31760",
-        "--strictPort"
-      ],
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--port", "31760", "--strictPort"],
       "port": 31760
     },
     {
@@ -41,6 +36,16 @@
         "scripts/nearby-qa/galaxy-control-config.mts"
       ],
       "port": 31757
+    },
+    {
+      "name": "ovu-nebula-control",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "scripts/nearby-qa/nebula-control-config.mts"
+      ],
+      "port": 31758
     }
   ]
 }
