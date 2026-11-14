@@ -339,18 +339,6 @@ ANIMATION DETAILS
 - Galaxy backdrop: very slow rotation (one full rotation = ~5 minutes)
 - All animations should feel slow, deliberate, and cinematic — never jarring
 
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://ourvisibleuniverse.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/6f478791-cfcb-4931-ba58-b9ed1948e8d4).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
 ## Development
 
 Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).

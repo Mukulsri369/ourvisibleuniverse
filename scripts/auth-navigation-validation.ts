@@ -21,7 +21,7 @@ for (const [next, saved, student, expected] of cases)
   assert.equal(authDestination(next, saved, student), expected);
 for (const origin of [
   "https://ourvisibleuniverse.in",
-  "https://example.lovable.app",
+  "https://ourvisibleuniverse.com",
   "http://localhost:3000",
   "http://127.0.0.1:31751",
 ]) {

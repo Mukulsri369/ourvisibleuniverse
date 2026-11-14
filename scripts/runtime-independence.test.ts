@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFile, readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadStoreRecommendations, AUTHENTIC_STORE_SEED } from "../src/lib/store-products";
 import { authenticateCronRequest } from "../src/integrations/supabase/cron-auth";
@@ -18,11 +19,13 @@ test("all package paths and runtime source are independent of the former vendor"
       if (entry.isDirectory()) await scan(path);
       else if (/\.[cm]?[jt]sx?$/.test(entry.name)) {
         const source = await readFile(path, "utf8");
-        assert.doesNotMatch(source, /@lovable\.dev\/|https?:\/\/[^\s"']*lovable\.(?:cloud|dev|app)|__lovableEvents|LOVABLE_CRON_SECRET/, path);
+        assert.doesNotMatch(source, /@lovable\.dev\/|https?:\/\/[^\s"']*lovable\.(?:cloud|dev|app)|__lovableEvents|LOVABLE_|\/\.lovable\//, path);
       }
     }
   }
   await scan("src");
+  assert.ok(!existsSync(".lovable"), "Lovable project config must stay removed");
+  assert.doesNotMatch(await readFile("drizzle.config.ts", "utf8"), /LOVABLE_/);
   assert.doesNotMatch(await readFile("vite.config.ts", "utf8"), /nitro|@lovable/);
 });
 

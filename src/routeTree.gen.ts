@@ -41,7 +41,6 @@ import { Route as AdminSubscribersRouteImport } from './routes/admin.subscribers
 import { Route as OauthConsentRouteImport } from './routes/oauth.consent'
 import { Route as VerifyIndexRouteImport } from './routes/verify.index'
 import { Route as VerifyCertificateIdRouteImport } from './routes/verify.$certificateId'
-import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicCatalogObjectRouteImport } from './routes/api/public/catalog/object'
 import { Route as ApiPublicCatalogSearchRouteImport } from './routes/api/public/catalog/search'
 import { Route as ApiPublicCatalogSourcesRouteImport } from './routes/api/public/catalog/sources'
@@ -208,11 +207,6 @@ const VerifyCertificateIdRoute = VerifyCertificateIdRouteImport.update({
   path: '/verify/$certificateId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicCatalogObjectRoute = ApiPublicCatalogObjectRouteImport.update({
   id: '/api/public/catalog/object',
   path: '/api/public/catalog/object',
@@ -272,7 +266,6 @@ export interface FileRoutesByFullPath {
   '/oauth/consent': typeof OauthConsentRoute
   '/verify/$certificateId': typeof VerifyCertificateIdRoute
   '/verify/': typeof VerifyIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
   '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
   '/api/public/catalog/sources': typeof ApiPublicCatalogSourcesRoute
@@ -311,7 +304,6 @@ export interface FileRoutesByTo {
   '/oauth/consent': typeof OauthConsentRoute
   '/verify/$certificateId': typeof VerifyCertificateIdRoute
   '/verify': typeof VerifyIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
   '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
   '/api/public/catalog/sources': typeof ApiPublicCatalogSourcesRoute
@@ -352,7 +344,6 @@ export interface FileRoutesById {
   '/oauth/consent': typeof OauthConsentRoute
   '/verify/$certificateId': typeof VerifyCertificateIdRoute
   '/verify/': typeof VerifyIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/api/public/catalog/object': typeof ApiPublicCatalogObjectRoute
   '/api/public/catalog/search': typeof ApiPublicCatalogSearchRoute
   '/api/public/catalog/sources': typeof ApiPublicCatalogSourcesRoute
@@ -393,7 +384,6 @@ export interface FileRouteTypes {
     | '/oauth/consent'
     | '/verify/$certificateId'
     | '/verify/'
-    | '/.lovable/oauth/consent'
     | '/api/public/catalog/object'
     | '/api/public/catalog/search'
     | '/api/public/catalog/sources'
@@ -432,7 +422,6 @@ export interface FileRouteTypes {
     | '/oauth/consent'
     | '/verify/$certificateId'
     | '/verify'
-    | '/.lovable/oauth/consent'
     | '/api/public/catalog/object'
     | '/api/public/catalog/search'
     | '/api/public/catalog/sources'
@@ -472,7 +461,6 @@ export interface FileRouteTypes {
     | '/oauth/consent'
     | '/verify/$certificateId'
     | '/verify/'
-    | '/.lovable/oauth/consent'
     | '/api/public/catalog/object'
     | '/api/public/catalog/search'
     | '/api/public/catalog/sources'
@@ -510,7 +498,6 @@ export interface RootRouteChildren {
   OauthConsentRoute: typeof OauthConsentRoute
   VerifyCertificateIdRoute: typeof VerifyCertificateIdRoute
   VerifyIndexRoute: typeof VerifyIndexRoute
-  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicCatalogObjectRoute: typeof ApiPublicCatalogObjectRoute
   ApiPublicCatalogSearchRoute: typeof ApiPublicCatalogSearchRoute
   ApiPublicCatalogSourcesRoute: typeof ApiPublicCatalogSourcesRoute
@@ -744,13 +731,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyCertificateIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.lovable/oauth/consent': {
-      id: '/.lovable/oauth/consent'
-      path: '/.lovable/oauth/consent'
-      fullPath: '/.lovable/oauth/consent'
-      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/catalog/object': {
       id: '/api/public/catalog/object'
       path: '/api/public/catalog/object'
@@ -835,7 +815,6 @@ const rootRouteChildren: RootRouteChildren = {
   OauthConsentRoute: OauthConsentRoute,
   VerifyCertificateIdRoute: VerifyCertificateIdRoute,
   VerifyIndexRoute: VerifyIndexRoute,
-  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicCatalogObjectRoute: ApiPublicCatalogObjectRoute,
   ApiPublicCatalogSearchRoute: ApiPublicCatalogSearchRoute,
   ApiPublicCatalogSourcesRoute: ApiPublicCatalogSourcesRoute,
