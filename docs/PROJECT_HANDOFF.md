@@ -2,7 +2,18 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 14 November — nebula realism, interiors and 16 s entry (latest checkpoint)
+## 14 November — `9d6c4cf` deployed to production (latest checkpoint)
+
+- **What was deployed:** at the owner's request, `89a7f35` (galaxy interiors, warmer spirals, resolved dwarfs) and `9d6c4cf` (nebula detail, opaque dust, 16 s entry) were pushed to `migration/supabase-cloudflare` and deployed from the owner's computer.
+- **Live version:** Worker `ovu-supabase-staging` version `d58a4f85-0750-41e7-8478-6be12d1b2a13` serves 100% (previous `439aecb5`).
+- **Settings and secrets:** the six plaintext settings were passed from the live version; the five secrets were inherited, not read. Binding names, types, value hashes and the compatibility date matched the previous version before traffic moved.
+- **Pre-deploy checks:** `npx tsc --noEmit`, `npm run build`, a credential-pattern scan (prefix checks and placeholders only), a dry run, and `test:galaxies`, `test:nebulae`, `test:nebula-journey`, `test:galaxy-entry`, `test:galaxy-observed`, `test:galaxy-disk-layer`, `test:rendering`, `test:visual`, `test:navigation`, `test:3d`, `test:object-rendering`.
+- **Live checks:** `/`, `/about`, `/universe`, `/pricing` return 200; `/mcp` returns 401; `www.com` and `.in` return 308 to the apex keeping path and query. The live `StarsApp-DV8kBYte.js` matches the build (SHA-256 prefix `bee725e7383c78e8`).
+- **Not checked:** the signed-in scene, GPU frame time of the new galaxy and nebula shading, physical devices.
+- **Rollback:** `npx wrangler versions deploy 439aecb5-4784-4092-926f-31211bb0dae0@100 --name ovu-supabase-staging`.
+- **Status notes in the two sections below** that say "not pushed or deployed" are superseded by this entry.
+
+## 14 November — nebula realism, interiors and 16 s entry
 
 - **What and why:** the owner reported blurry, unrealistic nebulae, empty interiors and a slow entry flight. Report: [NEBULA_REALISM_20261114.md](NEBULA_REALISM_20261114.md); before/after sheets: [nebula-lookdev-20261114/](nebula-lookdev-20261114/).
 - **Changes (rendering only; no catalogue, shape or route changes):**
