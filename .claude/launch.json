@@ -31,6 +31,16 @@
         "scripts/nearby-qa/structure-control-config.mts"
       ],
       "port": 31756
+    },
+    {
+      "name": "ovu-galaxy-control",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "scripts/nearby-qa/galaxy-control-config.mts"
+      ],
+      "port": 31757
     }
   ]
 }

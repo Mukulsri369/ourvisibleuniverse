@@ -169,10 +169,11 @@ export type DiskLayerSpec = {
     colour: RGB;
   };
   /**
-   * Once the camera has entered: gain of the display-referred light (interior exposure), and
-   * the fraction of the galaxy's own light kept when the interior is revealed.
+   * Once the camera has entered: gain of the display-referred light (interior exposure), the
+   * fraction of the galaxy's own light kept when the interior is revealed, and whether the sky
+   * contrast curve applies (1) or not (0).
    */
-  interior: [number, number];
+  interior: [number, number, number];
   knots: DiskKnots;
   halo: number;
   /** Diffuse face-on dust: central optical depth, scale length, outer radius. */
@@ -279,14 +280,22 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
   const cigar = structure.feature === 3;
   const barred = model.barLength > 0 ? 1 : 0;
   const bulgeRatio = clamp(model.bulgeRadius / Math.max(1, model.diskRadius), 0.025, 0.6);
+  // Generated spirals carry bluish integrated catalogue colours, which at a 0.25 tint turned
+  // their old disks and bulges white and their arms grey. They keep a faint tint only; the
+  // hand-tuned Milky Way and Andromeda keep theirs. Display choices, not photometry.
+  const generated = !milkyWay && !andromeda;
   const oldColour = observed
     ? normalise(observed.colours.old)
-    : tint(OLD_DISK_COLOUR, appearance.oldColor, 0.25);
+    : tint(OLD_DISK_COLOUR, appearance.oldColor, generated ? 0.06 : 0.25);
   // Young light in composites is blue (with pink H II, carried separately); catalogue palettes
   // are paler, so procedural disks lean toward it. Display choice, not photometry.
   const youngColour = observed
     ? normalise(observed.colours.young)
-    : tint(appearance.youngColor, [0.6, 0.78, 1], 0.4);
+    : tint(
+        appearance.youngColor,
+        generated ? [0.42, 0.64, 1] : [0.6, 0.78, 1],
+        generated ? 0.65 : 0.4,
+      );
   const procedural: ProceduralDiskParameters = {
     arms: lenticular || sombrero ? 0 : Math.max(2, Math.min(6, model.arms || 2)),
     pitch: THREE.MathUtils.degToRad(clamp(model.pitchDeg || 16, 6, 40)),
@@ -311,7 +320,9 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     oldScale: milkyWay ? 2.6 * kpc : andromeda ? 0.2 : sombrero ? 0.42 : 0.21,
     youngScale: milkyWay ? 0.26 : andromeda ? 0.32 : 0.34,
     oldAmp: sombrero ? 0.28 : lenticular ? 0.85 : milkyWay ? 0.38 : 0.7,
-    youngAmp: lenticular || sombrero ? 0 : milkyWay ? 0.7 : 0.55,
+    // Young light dominates the arms in blue-optical composites; generated arms had less of it
+    // than the old disk beneath them, so they read grey.
+    youngAmp: lenticular || sombrero ? 0 : milkyWay ? 0.7 : andromeda ? 0.55 : 0.8,
     hiiAmp: lenticular || sombrero ? 0 : milkyWay ? 0.55 : 0.85,
     dustAmp: sombrero ? 5.5 : andromeda ? 2 : milkyWay ? 2.4 : model.dustLanes ? 1.5 : 0.4,
     outer: m94 ? 1.15 : sombrero ? 0.98 : 1.05,
@@ -421,7 +432,7 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     turn: milkyWay ? MILKY_WAY_BAR.angle : 0,
     colour: sombrero
       ? tint(OLD_BULGE_COLOUR, [1, 0.97, 0.93], 0.65)
-      : tint(OLD_BULGE_COLOUR, appearance.oldColor, 0.2),
+      : tint(OLD_BULGE_COLOUR, appearance.oldColor, generated ? 0.05 : 0.2),
   };
   const parts = observed?.parts?.items ?? [];
   const sky = observed?.mode === "sky";
@@ -467,10 +478,8 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     flare,
     slab: sky ? box : Math.min(box, slab),
     bulge,
-    // The Milky Way is seen mostly from inside: its gain matches the exterior view at the
-    // default exposure, so entry and exit have no brightness step, and its band keeps more
-    // of its light than a galaxy visited briefly.
-    interior: milkyWay ? [8, 0.36] : [2.4, 0.09],
+    // The Milky Way keeps its 13 November interior band (no sky contrast curve).
+    interior: milkyWay ? [8, 0.36, 0] : INTERIOR_LIGHT,
     knots: NO_KNOTS,
     halo: observed ? 0 : sombrero ? 0.012 : lenticular ? 0.04 : 0.025,
     starHost: sky ? 0 : 1,
@@ -484,6 +493,15 @@ export function diskLayerSpec(model: GalaxyModel): DiskLayerSpec | null {
     proceduralExtent: 1.3,
   };
 }
+
+/**
+ * Interior light: gain of the display-referred light once entered, and the fraction of the
+ * galaxy's own light kept when the interior is revealed. Tuned on the Milky Way (13 November)
+ * so entry and exit have no brightness step; every galaxy now shares it, since the earlier
+ * 2.4 x 9% left other interiors about 13 times darker than the Milky Way's, a black sky with
+ * a faint brown band.
+ */
+const INTERIOR_LIGHT: [number, number, number] = [8, 0.36, 1];
 
 const NO_KNOTS: DiskKnots = { items: [], hot: 0, hii: 0, dust: 0, colour: [1, 1, 1] };
 
@@ -584,17 +602,24 @@ function populationLayerSpec(
   };
   // Diffuse light: bright for ellipticals, faint for dwarf spheroidals, whose look is
   // carried by their resolved stars (central surface brightness about 23-27 mag/arcsec²).
-  const amplitude = spheroidal ? 2.2 * population.continuum ** 1.6 : 1.3 * population.continuum;
-  const radius = Math.max(0.05, population.core) * (spheroidal ? 1 : 0.9);
+  // Dwarf spheroidals are mostly seen as resolved stars over a very faint glow, so their glow is
+  // halved and their star points are drawn crisp (GalaxyInteriorField).
+  const amplitude = spheroidal
+    ? 2.2 * population.continuum ** 1.6 * (dwarfSpheroidal ? 0.5 : 1)
+    : 1.3 * population.continuum;
+  // Irregulars' old light is a compact, fainter envelope with the whiter colour of their younger,
+  // metal-poor old populations (dIrr integrated B-V about 0.3-0.5; Hunter & Elmegreen 2006,
+  // ApJS 162, 49): a wide beige spheroid had hidden their star-forming complexes in a halo.
+  const radius = Math.max(0.05, population.core) * (spheroidal ? 1 : 0.7);
   const bulge = {
     radius,
     flattening: Math.min(axes[1], axes[2]) * (n >= 3 ? 0.3 : 1),
-    amplitude,
+    amplitude: amplitude * (spheroidal ? 1 : 0.8),
     exponent,
     coefficient,
     axes,
     turn: 0,
-    colour: normalise(population.old),
+    colour: spheroidal ? normalise(population.old) : tint(population.old, population.hot, 0.35),
   };
   const slab = Math.min(
     1.35,
@@ -610,7 +635,7 @@ function populationLayerSpec(
     flare: 0.3,
     slab: Math.max(slab, ...knots.map((k) => Math.abs(k[1]) + k[3] * 3)),
     bulge,
-    interior: [2.4, 0.09],
+    interior: INTERIOR_LIGHT,
     knots: {
       items: knots.map((k) => [k[0], k[1], k[2], k[3]] as [number, number, number, number]),
       hot: spheroidal ? 0.25 * population.hotFraction : 0.5 * population.hotFraction,
@@ -782,7 +807,10 @@ vec3 diskKnots(vec3 q,out float kappa){
   float n1=texture(uNoise,nq*.09+kn.xyz*3.1).r,n2=texture(uNoise,nq*.23+kn.xyz*1.7).r;
   float clump=.2+.8*smoothstep(.38,.78,.6*n1+.4*n2);
   float a=exp(-r2*1.4)*clump/(1.5*kn.w);
-  light+=(uKnotColor*uKnotLight.x*(.4+.6*n2)+vec3(1.,.28,.45)*uKnotLight.y*clump)*a;
+  // H II glows in compact, broken cores inside the young cluster light, not as a pink cloud
+  // filling the complex (about the same central column as before).
+  float h=exp(-r2*3.5)*clump*clump*2./(1.5*kn.w);
+  light+=uKnotColor*uKnotLight.x*(.4+.6*n2)*a+vec3(1.,.28,.45)*uKnotLight.y*h;
   kappa+=uKnotLight.z*a;
  }
  return light;
@@ -956,7 +984,7 @@ void main(){
  // Arms break into segments along their length (lr runs along a logarithmic spiral).
  float along=vnoise(vec2(lr*mix(2.6,5.5,uFlocculent),armIdx*7.31+uSeed));
  float segment=mix(.55+.45*along,smoothstep(.3,.7,along),uFlocculent);
- float sharp=mix(3.4,6.5,uGrand)*mix(1.,.5,uFlocculent);
+ float sharp=mix(4.2,6.5,uGrand)*mix(1.,.5,uFlocculent);
  float region=smoothstep(launch*.75,launch*(uBar>0.?1.1:1.5),r)*edge;
  float arm=pow(wave,sharp)*region*segment*armGain*(1.-uLenticular);
  // Real arms are ragged: their light breaks into sheared clumps along and across them.
@@ -974,6 +1002,16 @@ void main(){
  float spurPhase=th-lr/tan(1.05)+warp*.4;
  float spurs=pow(.5+.5*cos(floor(m*5.+1.)*spurPhase+fbm(p*7.+uSeed)*3.),14.)*smoothstep(.58,.82,rel)*(1.-smoothstep(.9,.99,rel))*region*(1.-uLenticular);
  float armOld=arm,mottle=0.;
+ // Feathered dust between and across the arms, sheared along the spiral (Hubble images of
+ // nearby spirals: La Vigne, Vogel & Ostriker 2006). Without it, generated disks showed no
+ // dust at all beyond the inner arms.
+ if(uArmCount<.5){
+  // Sheared against the arms' winding, so the feathers cross them as spurs do instead of
+  // stacking into rings (the Milky Way's sourced arms use the same shear below).
+  float cross=th+lr/tan(.38);
+  float web=fbm(vec2(cos(cross),sin(cross))*6.+lr*vec2(9.,-6.)+uSeed*2.3);
+  mottle=.8*pow(1.-abs(2.*web-1.),3.)*smoothstep(.35,.7,fbm(p*5.+uSeed*.7))*region*(1.-uLenticular);
+ }
  if(uArmCount>.5){
   // Sourced arms (the Milky Way). Azimuth is the fits' own: 0 toward the Sun and increasing
   // with rotation, so the arms trail. Old stars follow broad arms, young stars narrow ones.
@@ -1041,7 +1079,12 @@ void main(){
   vec3 young=uYoungColor*youngDisk*(arm*(.3+1.15*knots)+ring*(.35+.7*knots)+.02*region);
   young+=uYoungColor*uAmps.y*exp(-rr/uScales.y)*cluster*.9*region;
   young+=vec3(1.,.3,.52)*uAmps.z*exp(-rr/uScales.y)*hii*region;
-  float dust=uAmps.w*exp(-r/(uScales.x*1.35))*edge*(uLanes*(lane*1.15+spurs*.55+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes+mottle);
+  // Dust disks are longer than the old stellar disk (scale length 1.4-1.8 times; Xilouris et
+  // al. 1999, Casasola et al. 2017), so lanes reach the outer arms. The sourced Milky Way keeps
+  // its own tuning.
+  float table=step(.5,uArmCount);
+  float dustScale=mix(max(uScales.x*1.35,uScales.y*1.3),uScales.x*1.35,table);
+  float dust=uAmps.w*exp(-r/dustScale)*edge*(uLanes*(lane*mix(2.6,1.15,table)+spurs*mix(1.,.55,table)+barLane*1.4)+patchy*.25*(.4+.6*uLanes)+ring*.35*uLanes+mottle);
   if(uIrregular>.5)dust=uAmps.w*exp(-rr/(uScales.y*1.5))*region*(patchy*.6+arm*.4);
   if(uPatch.w>0.)dust+=uPatch.w*exp(-pow(length(p-uPatch.xy)/uPatch.z,2.))*(.6+.6*fbm(p*20.));
   if(uRing>0.&&uLenticular>.5)dust+=uAmps.w*exp(-pow((r-uRing)/(uRingWidth*.65),2.))*(.75+.5*fbm(p*18.));
@@ -1383,7 +1426,7 @@ export function diskLayerUniforms(model: GalaxyModel, spec: DiskLayerSpec) {
     uDiskBulgeTurn: {
       value: new THREE.Vector2(Math.cos(spec.bulge.turn), Math.sin(spec.bulge.turn)),
     },
-    uDiskInterior: { value: new THREE.Vector2(...spec.interior) },
+    uDiskInterior: { value: new THREE.Vector3(...spec.interior) },
     uKnot: {
       value: Array.from(
         { length: MAX_DISK_PARTS },

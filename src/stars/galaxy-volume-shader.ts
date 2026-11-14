@@ -106,7 +106,7 @@ export const GALAXY_DISK_FRAGMENT =
 precision highp sampler3D;
 uniform vec3 uEye;
 uniform float uOpacity,uReveal,uSteps,uCacheFade,uExteriorView,uTime,uRotationRate,uPixelAngle,uSlab,uBox;
-uniform vec2 uDiskInterior; // interior gain, light kept when the interior is revealed
+uniform vec3 uDiskInterior; // interior gain, light kept when the interior is revealed, sky contrast (0 or 1)
 uniform float uDiskReach;   // radius with no light or dust beyond it (0: the whole box)
 varying vec3 vP;
 ` +
@@ -115,6 +115,14 @@ varying vec3 vP;
   /* glsl */ `
 const vec3 REDDEN=vec3(.74,1.,1.32);
 const vec3 LUMA=vec3(.2126,.7152,.0722);
+/** Display-referred columns (photograph units). Face-on columns keep the photograph's values;
+ * edge-on columns, many times brighter, roll off logarithmically toward white so the disk keeps
+ * gradations instead of clipping. */
+vec3 rollOff(vec3 light,out float peak){
+ peak=max(light.r,max(light.g,light.b));
+ float shaped=peak<=.55?peak:peak<=1.?.55+.27*(peak-.55)/.45:.82+.16*log(peak)/log(25.);
+ return light*(min(shaped,.985)/max(peak,1.e-6));
+}
 void main(){
 #include <logdepthbuf_fragment>
  if(uCacheFade<.001||uOpacity<.001)discard;
@@ -156,6 +164,10 @@ void main(){
  bool sheet=sheetW>0.&&tc>start&&tc<finish;
  // Interleaved gradient noise decorrelates step positions between neighbouring pixels.
  float jitter=fract(52.9829189*fract(dot(gl_FragCoord.xy,vec2(.06711056,.00583715))));
+ // A pixel's footprint on the disk plane stretches by 1/|rd.y| along the view; filtering the
+ // maps for part of that stretch keeps fine structure from aliasing into moire rings in
+ // close interior views. Exterior views keep the photograph-matched sharpness.
+ float aniso=inside?pow(ay,-.4):1.;
  float angle=uTime*uRotationRate,c=cos(angle),s=sin(angle);
  vec3 trans=vec3(1.),light=vec3(0.);
  float t=start;
@@ -173,10 +185,15 @@ void main(){
   bool atSheet=sheet&&t+ds>=tc;
   if(atSheet)ds=max(tc-t,0.);
   if(ds>0.){
-   float tm=t+ds*.5;
+   // Inside, each step samples a different (golden-ratio) point per pixel, so the long
+   // perspective steps through the thin layers make fine grain, not concentric bands.
+   float tm=t+ds*(inside?fract(jitter+float(i)*.618034):.5);
    vec3 x=uEye+rd*tm;
    vec3 q=vec3(x.x*c-x.z*s,x.y,x.x*s+x.z*c);
-   float lod=log2(max(max(tm*uPixelAngle,ds*sweep),1.e-6));
+   // Grazing interior rays filter the maps over a third of each step, not all of it: the
+   // band keeps its star clouds and dark lanes instead of melting into smooth fog; the
+   // per-pixel step jitter turns the remaining aliasing into fine grain.
+   float lod=log2(max(max(tm*uPixelAngle*aniso,ds*sweep*.33),1.e-6));
    // The layers' own scale is only read where the mid-plane sheet is drawn.
    float lodC=sheetW>0.?max(lod,log2(max(smear*diskFlare(length(q.xz)),1.e-6))):lod;
    vec3 e;float k;
@@ -204,7 +221,7 @@ void main(){
    sheet=false;
    vec3 x=uEye+rd*tc;
    vec2 xz=vec2(x.x*c-x.z*s,x.x*s+x.z*c);
-   float lod=log2(max(tc*uPixelAngle,1.e-6));
+   float lod=log2(max(tc*uPixelAngle*aniso,1.e-6));
    // The sheet's column, seen along the ray, is spread over 1/|rd.y| of path.
    vec4 d=diskSheet(xz,lod,max(lod,log2(max(smear*diskFlare(length(xz)),1.e-6))))*sheetW;
    float clear=smoothstep(.012,mix(.045,.13,uReveal),tc);
@@ -216,19 +233,21 @@ void main(){
   }
  }
  float coverage=clamp(1.-dot(trans,vec3(1./3.)),0.,1.);
- // Display-referred columns (photograph units). Face-on columns keep the photograph's
- // values; edge-on columns, many times brighter, roll off logarithmically toward white so
- // the disk keeps gradations instead of clipping.
- float peak=max(light.r,max(light.g,light.b));
- float shaped=peak<=.55?peak:peak<=1.?.55+.27*(peak-.55)/.45:.82+.16*log(peak)/log(25.);
- vec3 display=light*(min(shaped,.985)/max(peak,1.e-6));
+ float peak,peakInterior;
+ vec3 display=rollOff(light,peak);
+ // Inside, the faint sky between bright bands is lowered before the same roll-off, so the
+ // band stands out against a dark sky (as the Milky Way does from Earth) instead of sitting
+ // in a uniform glow, and the band itself is lifted.
+ // An S-curve on the linear light: faint glow x0.4, the bright band x1.4.
+ float contrast=mix(.4,1.4,smoothstep(.03,.7,peak));
+ vec3 interior=rollOff(light*mix(1.,contrast,uReveal*uDiskInterior.z),peakInterior);
  // The photograph's exact display inversion lifts the faintest light as well; a soft black
  // point keeps the faint exponential wings of very bright edge-on columns from widening
  // the disk, as a photographic sky level would.
  float low=min(display.r,min(display.g,display.b));
  vec3 exact=beforeDisplay(display);
  vec3 toe=display/max(uExposure,1e-4)+(exact-display/max(uExposure,1e-4))*smoothstep(.0015,.02,low);
- vec3 radiance=mix(display*uDiskInterior.x,toe,uExteriorView);
+ vec3 radiance=mix(interior*uDiskInterior.x,toe,uExteriorView);
  float o=uOpacity*uCacheFade;
  if(max(coverage,peak)*o<.0004)discard;
  gl_FragColor=vec4(radiance*o,coverage*o);

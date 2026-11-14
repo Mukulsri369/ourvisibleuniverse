@@ -292,8 +292,9 @@ assert(andromeda, "Andromeda uses a procedural disk layer");
 assert(
   andromeda.procedural.armTable.length === 0 &&
     andromeda.bulge.turn === 0 &&
-    andromeda.interior[0] === 2.4 &&
-    andromeda.interior[1] === 0.09,
+    andromeda.interior[0] === 8 &&
+    andromeda.interior[1] === 0.36 &&
+    andromeda.interior[2] === 1,
   "Other disks keep the m-fold spiral, an unturned bulge and the default interior light",
 );
 

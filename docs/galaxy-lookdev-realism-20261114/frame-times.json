@@ -1,0 +1,133 @@
+{
+ "gpu": "headless Edge, ANGLE D3D11, 1100x700 at DPR 2, optics off",
+ "out": [
+  {
+   "round": 0,
+   "name": "m74-inside",
+   "label": "control",
+   "frames": 111,
+   "mean": 72.24,
+   "p95": 133.2
+  },
+  {
+   "round": 0,
+   "name": "m74-inside",
+   "label": "current",
+   "frames": 112,
+   "mean": 71.66,
+   "p95": 133.3
+  },
+  {
+   "round": 0,
+   "name": "m74-oblique",
+   "label": "control",
+   "frames": 82,
+   "mean": 99.47,
+   "p95": 166.7
+  },
+  {
+   "round": 0,
+   "name": "m74-oblique",
+   "label": "current",
+   "frames": 77,
+   "mean": 104.04,
+   "p95": 199.9
+  },
+  {
+   "round": 0,
+   "name": "lmc-front",
+   "label": "control",
+   "frames": 62,
+   "mean": 130.27,
+   "p95": 150.1
+  },
+  {
+   "round": 0,
+   "name": "lmc-front",
+   "label": "current",
+   "frames": 66,
+   "mean": 121.99,
+   "p95": 216.5
+  },
+  {
+   "round": 0,
+   "name": "fornax-front",
+   "label": "control",
+   "frames": 36,
+   "mean": 225.66,
+   "p95": 283.3
+  },
+  {
+   "round": 0,
+   "name": "fornax-front",
+   "label": "current",
+   "frames": 37,
+   "mean": 221.11,
+   "p95": 266.7
+  },
+  {
+   "round": 1,
+   "name": "m74-inside",
+   "label": "control",
+   "frames": 97,
+   "mean": 83.01,
+   "p95": 150.2
+  },
+  {
+   "round": 1,
+   "name": "m74-inside",
+   "label": "current",
+   "frames": 100,
+   "mean": 80.56,
+   "p95": 116.7
+  },
+  {
+   "round": 1,
+   "name": "m74-oblique",
+   "label": "control",
+   "frames": 68,
+   "mean": 118.13,
+   "p95": 150.1
+  },
+  {
+   "round": 1,
+   "name": "m74-oblique",
+   "label": "current",
+   "frames": 70,
+   "mean": 114.69,
+   "p95": 166.7
+  },
+  {
+   "round": 1,
+   "name": "lmc-front",
+   "label": "control",
+   "frames": 60,
+   "mean": 134.81,
+   "p95": 233.4
+  },
+  {
+   "round": 1,
+   "name": "lmc-front",
+   "label": "current",
+   "frames": 58,
+   "mean": 138.24,
+   "p95": 166.8
+  },
+  {
+   "round": 1,
+   "name": "fornax-front",
+   "label": "control",
+   "frames": 36,
+   "mean": 222.79,
+   "p95": 266.6
+  },
+  {
+   "round": 1,
+   "name": "fornax-front",
+   "label": "current",
+   "frames": 36,
+   "mean": 228.31,
+   "p95": 449.9
+  }
+ ]
+}

@@ -238,3 +238,40 @@ export function makeGalaxyStarData(model: GalaxyModel, count = 100000) {
     ...(indices ? { indices } : {}),
   };
 }
+
+/**
+ * Resolved stars around an observer inside a galaxy, as unit-cube positions that the star
+ * shader wraps into a tile centred on the eye (SpaceEngine-style procedural local stars).
+ * Spectral mix and colours roughly follow the brightest stars of the solar neighbourhood
+ * (many K giants, fewer hot stars); representative, not measured stars.
+ */
+export function makeLocalStarData(count: number, name: string) {
+  let seed = 2166136261;
+  for (const c of name) seed = Math.imul(seed ^ c.charCodeAt(0), 16777619);
+  const rand = () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) | 0;
+    return (seed >>> 0) / 4294967296;
+  };
+  // Cumulative share, display colour and luminosity scale: B, A, F, G, K, M.
+  const types: [number, [number, number, number], number][] = [
+    [0.08, [0.62, 0.74, 1], 2.6],
+    [0.22, [0.8, 0.86, 1], 1.6],
+    [0.36, [1, 0.97, 0.92], 1.1],
+    [0.52, [1, 0.91, 0.78], 0.9],
+    [0.88, [1, 0.78, 0.56], 1],
+    [1, [1, 0.62, 0.4], 0.8],
+  ];
+  const positions = new Float32Array(count * 3),
+    colors = new Float32Array(count * 3),
+    luminosities = new Float32Array(count),
+    phases = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    for (let k = 0; k < 3; k++) positions[i * 3 + k] = rand();
+    const u = rand();
+    const [, colour, scale] = types.find((t) => u < t[0]) ?? types[types.length - 1];
+    colors.set(colour, i * 3);
+    luminosities[i] = (0.05 + Math.pow(rand(), 9) * 6) * scale;
+    phases[i] = rand() * Math.PI * 2;
+  }
+  return { positions, colors, luminosities, phases };
+}

@@ -2,7 +2,29 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 14 November — `6c35ad6` deployed to production (latest checkpoint)
+## 14 November — galaxy realism: spiral colours, interiors, dwarfs (latest checkpoint)
+
+- **What and why:** the owner asked for spirals that look more realistic outside, realistic interiors and premium dwarf galaxies, with SpaceEngine as the reference. Report: [GALAXY_REALISM_20261114.md](GALAXY_REALISM_20261114.md); before/after sheets: [galaxy-lookdev-realism-20261114/](galaxy-lookdev-realism-20261114/).
+- **Reference limits:** spaceengine.org returns a Cloudflare bot check, which was not bypassed. SpaceEngine is proprietary and not installed, so no REA analysis was done. Its publicly described approach was used: map-driven volumes, a procedural local star field, HDR adaptation.
+- **Changes (rendering only; no catalogue values changed):**
+  - **Spirals outside:** warm old disks and bulges in generated spirals, bluer and stronger arms, longer and stronger dust with crossing feathers.
+  - **Inside:** every galaxy except the Milky Way gets the Milky Way's interior light (about 13 times brighter than before) plus a sky-contrast S-curve. There is a SpaceEngine-style tile of 40k resolved stars around the eye, with anti-moiré and anti-banding sampling.
+  - **Dwarfs:** dwarf spheroidals become crisp resolved-star swarms over half the glow. Irregulars get a compact, whiter old envelope and compact H II cores.
+  - **Unchanged on purpose:** the Milky Way's interior band and the exterior sampling of photograph-registered galaxies.
+- **Code:**
+  - `src/stars/galaxy-disk-layer.ts`, `galaxy-volume-shader.ts`, `GalaxyInteriorField.tsx`, `galaxy-star-data.ts`.
+  - `scripts/galaxy-disk-layer-validation.ts`: the interior assertion now expects [8, 0.36, 1].
+  - New control renderer `scripts/nearby-qa/galaxy-control-config.mts` (port 31757, `ovu-galaxy-control` in `.claude/launch.json`).
+- **Checks run:**
+  - `tsc`, plus ESLint and Prettier on the changed files.
+  - Test suites: `test:galaxy-disk-layer`, `test:galaxies`, `test:galaxy-clarity`, `test:galaxy-populations`, `test:galaxy-observed`, `test:galaxy-entry`, `test:galaxy-explorer`, `test:galaxy-landmarks`, `test:rendering`, `test:visual`, `test:3d`, `test:navigation`, `test:scene-depth`, `test:galaxy-empty-space`, `test:exploration-camera`, `test:solar-controls`.
+  - Same-pose GPU renders against the pinned control.
+  - Frame times (AMD integrated GPU, DPR 2 stress mode): equal within noise for four poses.
+- **Not established:** the telescope look-dev comparison for the registered galaxies, an authenticated full-app run, frame-by-frame entry continuity, physical devices and other GPUs.
+- **Source and deployment status:** committed on `migration/supabase-cloudflare` on top of `f0e6b32`, in the commit that records this section. **Not pushed, not deployed.** The owner's `.claude/settings.json` change remains uncommitted as before.
+- **Next concrete action:** owner review locally (`/scripts/nearby-qa/galaxy-views.html?g=catalog-m74-phantom-galaxy&inside=1&eye=0.55,0.018,0&look=-0.36,0.009,0`, `?g=lmc&v=front`, `?g=catalog-fornax-dwarf&v=front`). Then push, and deploy only with the owner's approval.
+
+## 14 November — `6c35ad6` deployed to production
 
 - **What was deployed:** at the owner's request, `6c35ad6` was pushed and deployed from the owner's computer. It is the exoplanet and moon release below, plus the undeployed `bdb5c06` (Lovable removal), `69047e4` (contacts, object list, sitemap) and `8bcbd25` (cosmic structures).
 - **Live version:** Worker `ovu-supabase-staging` version `439aecb5-4784-4092-926f-31211bb0dae0` serves 100% (previous `6c081ba1`).
