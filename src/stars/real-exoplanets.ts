@@ -15,6 +15,11 @@ export type RealPlanet = {
   massEarth: number;
   /** true when the radius is estimated from mass rather than measured */
   radiusEstimated?: boolean;
+  /**
+   * Effective temperature of a self-luminous (young, directly imaged) planet, K.
+   * Model-dependent; used only for the rendered glow.
+   */
+  teffK?: number;
 };
 
 export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
@@ -861,6 +866,9 @@ export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
       massEarth: 1.72,
     },
   ],
+  // teffK: b 800–900 K from evolutionary models (Bowler et al. 2010,
+  // arXiv:1008.4582); c, d, e ~1100 K from cloudy model fits, no error bar quoted
+  // (Wang et al. 2022, arXiv:2208.05594). Spectral fits disagree by a few hundred K.
   "HR 8799": [
     {
       name: "HR 8799 e",
@@ -869,6 +877,7 @@ export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
       periodDays: 18000,
       radiusEarth: 13.1,
       massEarth: 3050,
+      teffK: 1100,
     },
     {
       name: "HR 8799 d",
@@ -877,6 +886,7 @@ export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
       periodDays: 37000,
       radiusEarth: 13.4,
       massEarth: 2900,
+      teffK: 1100,
     },
     {
       name: "HR 8799 c",
@@ -885,6 +895,7 @@ export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
       periodDays: 69000,
       radiusEarth: 13.4,
       massEarth: 2700,
+      teffK: 1100,
     },
     {
       name: "HR 8799 b",
@@ -893,6 +904,7 @@ export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
       periodDays: 170000,
       radiusEarth: 12.3,
       massEarth: 1800,
+      teffK: 850,
     },
   ],
   "WASP-121": [
@@ -995,4 +1007,3 @@ export const REAL_SYSTEMS: Record<string, RealPlanet[]> = {
     },
   ],
 };
-

@@ -38,6 +38,8 @@ export type ExoPlanet = {
   observed?: boolean;
   /** true when the radius is estimated from mass rather than measured */
   radiusEstimated?: boolean;
+  /** self-luminous effective temperature (directly imaged young planets), K */
+  teffK?: number;
 };
 
 export type ExoSystemModel = {
@@ -129,6 +131,7 @@ export function exoSystemFor(star: NamedStar): ExoSystemModel {
         phase: rand() * Math.PI * 2,
         observed: true,
         radiusEstimated: rp.radiusEstimated,
+        teffK: rp.teffK,
       };
     });
     const sys = { star: star.name, hzInner, hzOuter, snowLine, planets };

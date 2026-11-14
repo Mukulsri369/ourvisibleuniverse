@@ -2050,7 +2050,9 @@ function Moon({ moon, parent }: { moon: MoonDef; parent: string }) {
       prev.current.galacticYears = galacticYears;
       prev.current.parent.copy(parentPos);
     }
-  });
+    // After the parent planet (-1) and before CameraRig (0): a moon published later
+    // is followed one frame late, so a close-up shakes by a frame of orbital motion.
+  }, -0.5);
 
   return (
     <group ref={ref} scale={[mag, mag, mag]}>

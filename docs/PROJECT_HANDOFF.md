@@ -2,7 +2,28 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 14 November — cosmic structures rebuilt from real survey galaxies (latest checkpoint)
+## 14 November — exoplanet surfaces rebuilt, moon close-ups steadied (latest checkpoint)
+
+- **What and why:** the owner reported that exoplanets looked blurry and unlike their real images, and that a selected moon shook when viewed close up. Report: [EXOPLANET_REALISM_AND_MOON_TRACKING_20261114.md](EXOPLANET_REALISM_AND_MOON_TRACKING_20261114.md). Look-dev: [exoplanet-lookdev-20261114/](exoplanet-lookdev-20261114/).
+- **Moon shake:**
+  - **Cause:** Solar System moons published their position in the same frame slot as `CameraRig`, which runs first, so the camera followed the previous frame's position.
+  - **Fix:** the `Moon` frame priority is now −0.5 in `src/stars/Planets.tsx`.
+  - **Result** (closest zoom, default speeds with galactic drift): the Moon moved from up to 315 px off-centre (Io, Titan and Phobos were often off-screen) to 0 px, with no frame-to-frame movement.
+- **Exoplanets:**
+  - **Renderer:** the 512×256 CPU textures are replaced by per-pixel 3D-noise shading. It has no seams, adds detail as the camera approaches and fades octaves out instead of aliasing.
+  - **Lighting and physics:** star-coloured light, Sudarsky temperature classes, blackbody glow in reflectance units, Cowan & Agol day/night temperatures, airless regolith and craters, lava melt from substellar temperature, and illustrative temperate worlds with locked-planet cloud decks.
+  - **Real planets:** none get random rings. Small planets are drawn as rock; temperate planets of 1.6–6 Earth radii are drawn as sub-Neptunes.
+  - **Catalogue:** HR 8799 b–e gained sourced `teffK` values.
+  - **Files:** `src/stars/exoplanet-appearance.ts` is new, and `exoplanet-maps.ts` was deleted. The QA page `scripts/nearby-qa/body-views.html` and its driver `body-capture.mjs` were added.
+- **Checks actually run:**
+  - `npx tsc --noEmit`, `npm run build`, and ESLint on the changed files (warnings only).
+  - `test:object-rendering` (now in `package.json`; a mutation restoring the old moon priority fails it).
+  - `test:rendering`, `test:3d`, `test:visual`, `test:navigation`, `test:exploration-camera`, `test:solar-controls`, `test:solar-galactic-motion`, `test:independence`, `test:object-catalogue`, `test:galaxy-explorer`.
+  - Headless Edge captures and 8 s frame samples: full-screen exoplanets ran at 16.6–17.8 ms mean on the AMD iGPU at 1280×800 with vsync.
+- **Not established:** signed-in app, phones, other GPUs. Titan's haze shell at the closest zoom looked odd and was not investigated. Fomalhaut b is still catalogued as a gas giant although it is probably a dust cloud.
+- **Source and deployment status:** committed on `migration/supabase-cloudflare` in the commit that adds this section; not pushed or deployed (production still serves `ca4728b`). `.claude/settings.json` stays uncommitted as before. The QA server `ovu-qa` (31755) was left running.
+
+## 14 November — cosmic structures rebuilt from real survey galaxies
 
 - **What and why:** the owner asked for all cosmic structures to be analysed properly and made realistic and premium, with every small detail visible. The eight landmarks were seeded procedural clouds: blobs, eight straight spokes, and a random shell for the void. Report: [COSMIC_STRUCTURES_20261114.md](COSMIC_STRUCTURES_20261114.md). Look-dev sheets: [cosmic-structures-lookdev-20261114/](cosmic-structures-lookdev-20261114/).
 - **Changes:**
