@@ -2,7 +2,11 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 13 November — Milky Way rebuilt from published fits (latest checkpoint)
+## 14 November — `ca4728b` deployed to production (latest checkpoint)
+
+At the owner's request, `ca4728b` (the Milky Way rebuild below) was built from a clean source tree on the owner's computer and deployed. Worker `ovu-supabase-staging` version `6c081ba1-cec9-4190-9e99-86c8217b8462` serves 100% since 2026-11-14 02:51 UTC (previous `5e65177a`). Production's six plaintext settings were read from the live version and kept exactly; the five secrets were inherited, not read. Before traffic moved, the new version's 11 bindings (names, types, plaintext values) were compared with the live version's and matched. Build, a credential-pattern scan of the built files (prefix checks and a placeholder literal only) and a dry run passed. Live: `/`, `/about`, `/universe`, `/pricing` 200, `/mcp` 401, `www.com` and `.in` 308 to the apex `.com` with path and query kept; the live `StarsApp-Dra8beJ8.js` matches the build byte for byte (SHA-256 prefix `e45de85b02ce949f`) and contains the new arm-table shader. Not checked: signed-in scene, physical devices. Rollback: `npx wrangler versions deploy 5e65177a-d038-466e-a45d-9d90e05bca6f@100 --name ovu-supabase-staging`. The pre-deploy review agents again stopped at the account usage limit.
+
+## 13 November — Milky Way rebuilt from published fits
 
 - **What and why:** the owner reported that the Milky Way did not look realistic and asked for a realistic, premium look, like a galaxy similar to Andromeda, without breaking anything. It was the last large spiral on the legacy cached volume: rope arms that led the rotation, a cross-shaped core, voxel blocks. Report: [MILKY_WAY_RECONSTRUCTION_20261113.md](MILKY_WAY_RECONSTRUCTION_20261113.md). Before and after sheets: [galaxy-lookdev-milky-way-20261113/](galaxy-lookdev-milky-way-20261113/README.md).
 - **Changes:**

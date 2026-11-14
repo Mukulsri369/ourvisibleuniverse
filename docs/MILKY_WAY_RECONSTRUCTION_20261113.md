@@ -1,6 +1,6 @@
 # Milky Way reconstruction from published fits — 13 November 2026
 
-Status: implemented and verified in the isolated QA page on one desktop GPU. Committed locally on `migration/supabase-cloudflare`; not pushed, not deployed.
+Status: implemented and verified in the isolated QA page on one desktop GPU. Pushed to `migration/supabase-cloudflare` and deployed to production on 14 November as Worker version `6c081ba1` (see the handoff).
 
 ## Request
 
