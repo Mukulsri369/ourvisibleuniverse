@@ -3,6 +3,11 @@ import { namedSurveyCounterpart } from "./survey-galaxy-identity";
 import { useGalaxyJourney } from "./galaxy-journey";
 import { pickSurveyGalaxy } from "./survey-galaxy-picking";
 import { useStore } from "./store";
+import {
+  STRUCTURE_MASK_GLSL,
+  createMaskUniforms,
+  updateMaskUniforms,
+} from "./cosmic-structures/structure-masks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
@@ -69,6 +74,7 @@ export function SurveyGalaxyField() {
           uPixelRatio: { value: 1 },
           uGain: { value: 0 },
           uHiddenSeed: { value: -1 },
+          ...createMaskUniforms(),
         },
         transparent: true,
         depthWrite: false,
@@ -76,6 +82,7 @@ export function SurveyGalaxyField() {
         vertexShader: `
 #include <common>
 #include <logdepthbuf_pars_vertex>
+${STRUCTURE_MASK_GLSL}
 attribute float seed,aCatalogMask;varying float vSeed,vAlpha,vPixels;varying vec3 vRight,vUp,vToward;uniform float uHeight,uGain,uHiddenSeed,uPixelRatio;
 void main(){vSeed=seed;
 float a=seed*6.283185,b=fract(seed*7.13)*3.14159;
@@ -86,6 +93,8 @@ vToward=orient*normalize(cameraPosition-(modelMatrix*vec4(position,1.)).xyz);
 vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
 float physical=35000.*(.55+fract(seed*17.3))*uHeight*projectionMatrix[1][1]/max(1.,-mv.z);
 gl_PointSize=clamp(physical,4.2*uPixelRatio,128.*uPixelRatio);vPixels=gl_PointSize/uPixelRatio;vAlpha=uGain*smoothstep(60000.,300000.,length(mv.xyz));if(abs(seed-uHiddenSeed)<.000001||aCatalogMask>.5)vAlpha=0.;
+// Inside a mounted cosmic-structure field the same galaxies are drawn there (cz from cz/H0 = 70).
+vec3 w=(modelMatrix*vec4(position,1.)).xyz;vAlpha*=structureVisibility(w*(70./67.4),length(w)*70./3261563.8);
 #include <logdepthbuf_vertex>
 }`,
         fragmentShader: `
@@ -189,6 +198,7 @@ gl_FragColor=vec4(light/max(.001,1.-trans)*3.,alpha);
     material.uniforms.uGain.value = gain * 0.95;
     material.uniforms.uHeight.value = size.height * gl.getPixelRatio();
     material.uniforms.uPixelRatio.value = gl.getPixelRatio();
+    updateMaskUniforms(material.uniforms as unknown as ReturnType<typeof createMaskUniforms>);
     if (root.current) root.current.visible = gain > 0.001;
   });
   return geometry ? (

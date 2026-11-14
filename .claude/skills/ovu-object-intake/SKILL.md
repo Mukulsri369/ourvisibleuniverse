@@ -56,6 +56,8 @@ npx tsc --noEmit
 
 Many renderer modules use `@ts-nocheck`, so a clean TypeScript run does not prove those files work at runtime. Do not skip, delete or weaken a test to make a change pass.
 
+After changing a `COSMIC_BENCHMARKS` record (or `scripts/cosmic-structures/structure-definitions.ts`), rebuild the structure fields with `npm run cosmic:fetch` (first time only) and `npm run cosmic:build`; `npm run test:cosmic-structures` fails while a field is older than its record.
+
 After adding, removing or renaming objects, regenerate the landing page's downloadable list with `npm run export:catalogue` (needs Python 3 with openpyxl), run `npm run test:object-catalogue`, and commit the updated `public/downloads/our-visible-universe-objects.xlsx`.
 
 ## Hand-off

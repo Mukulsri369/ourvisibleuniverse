@@ -2,7 +2,32 @@
 
 Read this first in a new chat. This is a dated development checkpoint, not a live infrastructure/customer query. Check the current checkout and actual deployed version before acting. Do not repeat completed migrations or one-time customer campaigns from historical prompts.
 
-## 14 November — contact details, object-list download and sitemap cleanup (latest checkpoint)
+## 14 November — cosmic structures rebuilt from real survey galaxies (latest checkpoint)
+
+- **What and why:** the owner asked for all cosmic structures to be analysed properly and made realistic and premium, with every small detail visible. The eight landmarks were seeded procedural clouds: blobs, eight straight spokes, and a random shell for the void. Report: [COSMIC_STRUCTURES_20261114.md](COSMIC_STRUCTURES_20261114.md). Look-dev sheets: [cosmic-structures-lookdev-20261114/](cosmic-structures-lookdev-20261114/).
+- **Changes:**
+  - **Real galaxy fields:** each structure is drawn from 2MRS, SDSS DR17 and 6dFGS DR3 at measured positions and redshifts, 94,039 galaxies in all. Group fingers of God are compressed; Virgo's main body and W′ cloud sit at their SBF distances (Mei et al. 2007); Coma and Perseus align with their atlas galaxies.
+  - **Galaxy rendering:** galaxies render as view-dependent ellipses from measured sizes, axis ratios and (SDSS) position angles.
+  - **Glow and void:** a density-contrast glow is tied to the quality tier, and the Boötes Void is shown as a slab through its centre.
+  - **Code and data:** `StructureCloud.tsx` was deleted, replaced by `src/stars/cosmic-structures/` and `public/data/cosmic-structures/*.bin` (1.8 MB, loaded per structure).
+  - **No double drawing:** the 2MRS layer and larger fields cross-fade out inside a field, and the illustrative survey cloud fades out while a structure is in view.
+  - **Record corrections:** the Boötes Void was placed 12° off, at the Boötes Deep Field; Virgo's RA/Dec disagreed with its l/b; Norma's velocity, size and member count were wrong; Laniakea is now centred on the Great Attractor; Shapley and Perseus–Pisces values were updated. All are sourced in the report.
+  - **Navigation fix:** choosing a structure in the site map now selects it, so its field appears; before, it only moved the camera.
+  - **Explorer panel:** the Cosmic Web explorer's details card lists the plotted galaxies, components, methods and sources.
+- **Pipeline:** `npm run cosmic:fetch` (network; raw tables go to `.taste-skill/cosmic-cache/`), then `npm run cosmic:build`. `test:cosmic-structures` fails if a field is older than its record. Credits: `public/data/cosmic-structures/CREDITS.md`.
+- **Performance** (isolated QA page with the whole atlas, headless Edge, AMD Radeon iGPU, 1280×800, vsync 60 Hz; raw data in [cosmic-structures-performance-20261114.json](cosmic-structures-performance-20261114.json)): at the production fly-to pose, every field is within sampling noise of the same pose with nothing selected (16.7–17.3 ms). The DPR 2, optics-off stress mode adds 3.8–5.8 ms. Not established: other GPUs, phones, the authenticated app, VRAM.
+- **Checks actually run:**
+  - `npx tsc --noEmit`, `npm run build`, ESLint on the changed files (warnings only).
+  - New `test:cosmic-structures`; a mutation restoring Virgo's old RA fails it.
+  - `test:galaxy-explorer`, `test:cosmic-web`, `test:lss`, `test:navigation`, `test:rendering`, `test:visual`, `test:3d`, `test:independence`, `test:nearby-expansion`, `test:nearby-catalog`, `test:galaxies`, `test:scene-depth`, `test:exploration-camera`, `test:solar-controls`, `test:galaxy-entry`, `test:evolution`, `test:object-catalogue`, plus the galaxy-experience and galaxy-rendering validations.
+  - The Excel object list was regenerated.
+- **Not established:**
+  - A planned 11-agent research and fact-check workflow failed at the account usage limit and returned nothing; values were checked inline against SIMBAD, VizieR, SDSS and arXiv instead.
+  - No signed-in full-app check and no physical devices.
+  - Laniakea's watershed boundary and X-ray gas are not drawn.
+- **Source and deployment status:** committed and pushed to `migration/supabase-cloudflare` in the commit that adds this section; not deployed (production still serves `ca4728b`). `.claude/settings.json` stays uncommitted as before. The pinned baseline server (`ovu-structure-control`, port 31756, revision `69047e4`) was stopped; the QA server `ovu-qa` (31755) was left running for review (open `/scripts/nearby-qa/structure-views.html?s=coma_cluster&universe=1`, or `?s=bootes_void&v=side&universe=1`).
+
+## 14 November — contact details, object-list download and sitemap cleanup
 
 - **What and why:** the owner asked for four changes: use `support@ourvisibleuniverse.com` instead of `ourvisibleuniverse@gmail.com`; point Instagram to the new page (written as "ourvisibleunivere"); add a downloadable Excel list of every plotted object, sorted by category, to the landing page; and remove the sitemap's "Solar System" row, which duplicates the Sun row, without removing the Solar System from the scene.
 - **Contact details:** every site mention of the Gmail address (About, Contact, Terms, Privacy, Refund policy, footer) now shows the support address. Instagram links and the footer handle now point to `instagram.com/ourvisibleuniverse`. That profile loads publicly as "Our Visible Universe"; `ourvisibleunivere` loads no profile, so it was treated as a typo. The old handle was `our_visibleuniverse`. `docs/migration/PRODUCTION_CUTOVER.md` still names the Gmail address as the Razorpay merchant login; that is the provider account, not a site contact, and was not changed.

@@ -107,6 +107,10 @@ useExploration.setState({ pending: null });
 navigateExplorationTarget(outsideEntries().find((d) => d.id === "gw150914")!);
 assert.equal(useStore.getState().selectedObjectId, "gw150914");
 assert.equal(useExploration.getState().phase, "outside");
+// Choosing a cosmic structure in the site map selects it (mounting its survey field) and frames it.
+navigateExplorationTarget(outsideEntries().find((d) => d.id === "virgo_cluster")!);
+assert.equal(useStore.getState().selectedCosmicBenchmarkId, "virgo_cluster");
+assert.ok(Math.abs((useStore.getState().flyTo?.distance ?? 0) - 1.47e7) < 1);
 console.log(
   "PASS: complete object-host coverage, scoped search, explicit exit/entry, queued destination, 9s entry, unload flags, and host-unknown navigation",
 );

@@ -1,5 +1,17 @@
 // @ts-nocheck
-import { StructureCloud, COSMIC_POINT_VERTEX, COSMIC_POINT_FRAGMENT } from "./StructureCloud";
+import {
+  COSMIC_POINT_FRAGMENT,
+  COSMIC_POINT_VERTEX,
+  COSMIC_SURVEY_POINT_FRAGMENT,
+  COSMIC_SURVEY_POINT_VERTEX,
+} from "./cosmic-point-shaders";
+import { StructureField } from "./cosmic-structures/StructureField";
+import { isStructureFieldId } from "./cosmic-structures/structure-field-ids";
+import {
+  createMaskUniforms,
+  structureFocus,
+  updateMaskUniforms,
+} from "./cosmic-structures/structure-masks";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
@@ -57,7 +69,6 @@ function ObservationalSurveyWeb() {
   const showZoneOfAvoidance = useStore((s) => s.showZoneOfAvoidance);
   const showCosmicBenchmarks = useStore((s) => s.showCosmicBenchmarks);
   const catalogDensityLevel = useStore((s) => s.catalogDensityLevel);
-  const setSelectedCosmicBenchmarkId = useStore((s) => s.setSelectedCosmicBenchmarkId);
 
   const activeCosmology: CosmologicalParameters = useMemo(() => {
     if (cosmologyModelKey === "custom") {
@@ -129,6 +140,26 @@ function ObservationalSurveyWeb() {
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
+  // Points inside a mounted structure field are drawn by that field from real survey data.
+  const pointMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: { ...createMaskUniforms(), uCloudFade: { value: 1 } },
+        vertexShader: COSMIC_SURVEY_POINT_VERTEX,
+        fragmentShader: COSMIC_SURVEY_POINT_FRAGMENT,
+        vertexColors: true,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [],
+  );
+  useEffect(() => () => pointMaterial.dispose(), [pointMaterial]);
+  useFrame(() => {
+    updateMaskUniforms(pointMaterial.uniforms as ReturnType<typeof createMaskUniforms>);
+    pointMaterial.uniforms.uCloudFade.value = 1 - structureFocus.value;
+  });
+
   // Survey Footprint Cones / Wedges (SDSS Northern & Southern Galactic Caps, 2dFGRS strips)
   const footprintLines = useMemo(() => {
     if (!showSurveyFootprints) return null;
@@ -185,16 +216,7 @@ function ObservationalSurveyWeb() {
   return (
     <group>
       {/* 3D Observed Galaxy Survey Points */}
-      <points geometry={geometry} frustumCulled={false}>
-        <shaderMaterial
-          vertexShader={COSMIC_POINT_VERTEX}
-          fragmentShader={COSMIC_POINT_FRAGMENT}
-          vertexColors
-          transparent
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
+      <points geometry={geometry} material={pointMaterial} frustumCulled={false} />
 
       {/* Survey Footprint Visual Boundaries */}
       {showSurveyFootprints && footprintLines && (
@@ -231,8 +253,8 @@ function ObservationalSurveyWeb() {
       {/* Confirmed Large-Scale Cosmological Structures & Clusters */}
       {showCosmicBenchmarks && (
         <group>
-          {COSMIC_BENCHMARKS.map((b) => (
-            <StructureCloud key={b.id} benchmark={b} />
+          {COSMIC_BENCHMARKS.filter((b) => isStructureFieldId(b.id)).map((b) => (
+            <StructureField key={b.id} id={b.id as never} />
           ))}
         </group>
       )}
@@ -460,9 +482,9 @@ export function LargeScaleStructure3D() {
     <group>
       {visible && mode === "observational" && <ObservationalSurveyWeb />}
       {visible && mode === "simulation" && <IllustrisTNGSimulationWeb />}
-      {benchmark && !(visible && mode === "observational" && showBench) && (
-        <StructureCloud benchmark={benchmark} />
-      )}
+      {benchmark &&
+        isStructureFieldId(benchmark.id) &&
+        !(visible && mode === "observational" && showBench) && <StructureField id={benchmark.id} />}
     </group>
   );
 }

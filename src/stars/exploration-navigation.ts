@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { useStore } from "./store";
+import { COSMIC_BENCHMARKS } from "@/lib/astronomy/cosmic-web/survey-catalogs";
 import { requireGalaxy, useExploration, type ExploreTarget } from "./exploration-scope";
 import { NAMED_STARS } from "./data";
 import { PLANETS } from "./Planets";
@@ -111,6 +112,11 @@ export function navigateExplorationTarget(target: ExploreTarget) {
       if (target.kind === "exo") state.visitExoPlanet(star, target.id);
       else state.flyToStar(star);
     }
+    return;
+  }
+  if (target.kind === "space" && COSMIC_BENCHMARKS.some((b) => b.id === target.id)) {
+    // Selecting the structure mounts its survey field and frames it.
+    state.setSelectedCosmicBenchmarkId(target.id);
     return;
   }
   if (target.kind === "space" && target.position) {

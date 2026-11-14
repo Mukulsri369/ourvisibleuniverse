@@ -1,0 +1,1641 @@
+{
+ "scenario": "scripts/nearby-qa/structure-views.html, earth view at the production fly-to distance, universe=1 (whole atlas), 1280x800; stress runs add dpr=2&optics=0",
+ "evidence": "isolated QA page with production components; headless Microsoft Edge, ANGLE D3D11, AMD Radeon (TM) Graphics (integrated, 0x15E7); vsync on (60 Hz), so means quantise to 16.7 ms steps",
+ "date": "2026-11-14",
+ "runs": [
+  {
+   "label": "pinned baseline (old StructureCloud, rev 69047e4), production pose",
+   "origin": "http://127.0.0.1:31756",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "sloan_great_wall",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 473,
+       "meanMs": 16.92,
+       "fps": 59.1,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 2
+      },
+      {
+       "frames": 474,
+       "meanMs": 16.9,
+       "fps": 59.2,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 3
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 19,
+      "points": 66061,
+      "textures": 15,
+      "programs": 14
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 470,
+       "meanMs": 17.02,
+       "fps": 58.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 2
+      },
+      {
+       "frames": 464,
+       "meanMs": 17.27,
+       "fps": 57.9,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 7
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 18,
+      "points": 62461,
+      "textures": 15,
+      "programs": 14
+     }
+    },
+    {
+     "id": "coma_cluster",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 471,
+       "meanMs": 17.01,
+       "fps": 58.8,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 0
+      },
+      {
+       "frames": 472,
+       "meanMs": 16.98,
+       "fps": 58.9,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      }
+     ],
+     "status": {
+      "id": "coma_cluster",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 20,
+      "points": 64461,
+      "textures": 18,
+      "programs": 15
+     }
+    },
+    {
+     "id": "coma_cluster",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 477,
+       "meanMs": 16.78,
+       "fps": 59.6,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 17.1,
+       "over33": 1
+      },
+      {
+       "frames": 464,
+       "meanMs": 17.26,
+       "fps": 57.9,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 5
+      }
+     ],
+     "status": {
+      "id": "coma_cluster",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 19,
+      "points": 62461,
+      "textures": 18,
+      "programs": 15
+     }
+    }
+   ]
+  },
+  {
+   "label": "first version, production pose",
+   "origin": "http://127.0.0.1:31755",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "sloan_great_wall",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 460,
+       "meanMs": 17.42,
+       "fps": 57.4,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 6
+      },
+      {
+       "frames": 457,
+       "meanMs": 17.51,
+       "fps": 57.1,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 8
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 20,
+      "points": 105106,
+      "textures": 15,
+      "programs": 16
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 462,
+       "meanMs": 17.34,
+       "fps": 57.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      },
+      {
+       "frames": 457,
+       "meanMs": 17.51,
+       "fps": 57.1,
+       "p50Ms": 16.7,
+       "p95Ms": 33.2,
+       "p99Ms": 33.4,
+       "over33": 6
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 18,
+      "points": 62461,
+      "textures": 15,
+      "programs": 14
+     }
+    },
+    {
+     "id": "coma_cluster",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 457,
+       "meanMs": 17.54,
+       "fps": 57,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 33.5,
+       "over33": 7
+      },
+      {
+       "frames": 467,
+       "meanMs": 17.14,
+       "fps": 58.3,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 3
+      }
+     ],
+     "status": {
+      "id": "coma_cluster",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 21,
+      "points": 73400,
+      "textures": 18,
+      "programs": 17
+     }
+    },
+    {
+     "id": "coma_cluster",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 481,
+       "meanMs": 16.64,
+       "fps": 60.1,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 16.9,
+       "over33": 0
+      },
+      {
+       "frames": 477,
+       "meanMs": 16.8,
+       "fps": 59.5,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 17.4,
+       "over33": 1
+      }
+     ],
+     "status": {
+      "id": "coma_cluster",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 19,
+      "points": 62461,
+      "textures": 18,
+      "programs": 15
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 444,
+       "meanMs": 18.06,
+       "fps": 55.4,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 33.4,
+       "over33": 11
+      },
+      {
+       "frames": 460,
+       "meanMs": 17.41,
+       "fps": 57.5,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 5
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 20,
+      "points": 94531,
+      "textures": 15,
+      "programs": 16
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 472,
+       "meanMs": 16.98,
+       "fps": 58.9,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 2
+      },
+      {
+       "frames": 473,
+       "meanMs": 16.94,
+       "fps": 59,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 3
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 18,
+      "points": 62461,
+      "textures": 15,
+      "programs": 14
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 435,
+       "meanMs": 18.41,
+       "fps": 54.3,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 49.9,
+       "over33": 9
+      },
+      {
+       "frames": 438,
+       "meanMs": 18.3,
+       "fps": 54.7,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 49.9,
+       "over33": 15
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 20,
+      "points": 79503,
+      "textures": 15,
+      "programs": 16
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 462,
+       "meanMs": 17.35,
+       "fps": 57.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 5
+      },
+      {
+       "frames": 462,
+       "meanMs": 17.34,
+       "fps": 57.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 18,
+      "points": 62461,
+      "textures": 15,
+      "programs": 14
+     }
+    }
+   ]
+  },
+  {
+   "label": "first version, stress DPR 2 optics off",
+   "origin": "http://127.0.0.1:31755",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "laniakea_boundary",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 274,
+       "meanMs": 29.35,
+       "fps": 34.1,
+       "p50Ms": 33.3,
+       "p95Ms": 50.1,
+       "p99Ms": 66.7,
+       "over33": 75
+      },
+      {
+       "frames": 272,
+       "meanMs": 29.52,
+       "fps": 33.9,
+       "p50Ms": 33.3,
+       "p95Ms": 50.1,
+       "p99Ms": 66.7,
+       "over33": 77
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 79503,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 462,
+       "meanMs": 17.33,
+       "fps": 57.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      },
+      {
+       "frames": 468,
+       "meanMs": 17.12,
+       "fps": 58.4,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 3
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 315,
+       "meanMs": 25.45,
+       "fps": 39.3,
+       "p50Ms": 16.7,
+       "p95Ms": 50,
+       "p99Ms": 66.7,
+       "over33": 47
+      },
+      {
+       "frames": 303,
+       "meanMs": 26.41,
+       "fps": 37.9,
+       "p50Ms": 16.7,
+       "p95Ms": 50,
+       "p99Ms": 50.1,
+       "over33": 65
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 94531,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 474,
+       "meanMs": 16.9,
+       "fps": 59.2,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 0
+      },
+      {
+       "frames": 473,
+       "meanMs": 16.94,
+       "fps": 59,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 2
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 345,
+       "meanMs": 23.23,
+       "fps": 43,
+       "p50Ms": 16.7,
+       "p95Ms": 50,
+       "p99Ms": 50.1,
+       "over33": 42
+      },
+      {
+       "frames": 363,
+       "meanMs": 22.07,
+       "fps": 45.3,
+       "p50Ms": 16.7,
+       "p95Ms": 49.9,
+       "p99Ms": 50,
+       "over33": 39
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 105106,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 429,
+       "meanMs": 18.66,
+       "fps": 53.6,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 49.9,
+       "over33": 11
+      },
+      {
+       "frames": 440,
+       "meanMs": 18.21,
+       "fps": 54.9,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 33.4,
+       "over33": 11
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    }
+   ]
+  },
+  {
+   "label": "glow capped at 4,000 splats, stress DPR 2 optics off",
+   "origin": "http://127.0.0.1:31755",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "laniakea_boundary",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 313,
+       "meanMs": 25.67,
+       "fps": 39,
+       "p50Ms": 16.8,
+       "p95Ms": 50,
+       "p99Ms": 50.6,
+       "over33": 56
+      },
+      {
+       "frames": 322,
+       "meanMs": 24.88,
+       "fps": 40.2,
+       "p50Ms": 16.7,
+       "p95Ms": 50,
+       "p99Ms": 50.1,
+       "over33": 51
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 77503,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 459,
+       "meanMs": 17.45,
+       "fps": 57.3,
+       "p50Ms": 16.7,
+       "p95Ms": 16.9,
+       "p99Ms": 33.4,
+       "over33": 4
+      },
+      {
+       "frames": 467,
+       "meanMs": 17.16,
+       "fps": 58.3,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 1
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 337,
+       "meanMs": 23.81,
+       "fps": 42,
+       "p50Ms": 16.7,
+       "p95Ms": 50,
+       "p99Ms": 50.1,
+       "over33": 42
+      },
+      {
+       "frames": 336,
+       "meanMs": 23.85,
+       "fps": 41.9,
+       "p50Ms": 16.7,
+       "p95Ms": 50,
+       "p99Ms": 50.2,
+       "over33": 51
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 92531,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 476,
+       "meanMs": 16.86,
+       "fps": 59.3,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 0
+      },
+      {
+       "frames": 473,
+       "meanMs": 16.93,
+       "fps": 59.1,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 3
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 351,
+       "meanMs": 22.83,
+       "fps": 43.8,
+       "p50Ms": 16.7,
+       "p95Ms": 33.5,
+       "p99Ms": 50.1,
+       "over33": 31
+      },
+      {
+       "frames": 370,
+       "meanMs": 21.66,
+       "fps": 46.2,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 50,
+       "over33": 40
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 105106,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 447,
+       "meanMs": 17.93,
+       "fps": 55.8,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 33.4,
+       "over33": 5
+      },
+      {
+       "frames": 450,
+       "meanMs": 17.81,
+       "fps": 56.2,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 33.4,
+       "over33": 7
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    }
+   ]
+  },
+  {
+   "label": "4,000 splats, performance tier, stress",
+   "origin": "http://127.0.0.1:31755",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "laniakea_boundary",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0&tier=performance",
+     "samples": [
+      {
+       "frames": 457,
+       "meanMs": 17.54,
+       "fps": 57,
+       "p50Ms": 16.7,
+       "p95Ms": 17.3,
+       "p99Ms": 33.4,
+       "over33": 5
+      },
+      {
+       "frames": 452,
+       "meanMs": 17.72,
+       "fps": 56.4,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 33.4,
+       "over33": 6
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 74703,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0&tier=performance",
+     "samples": [
+      {
+       "frames": 473,
+       "meanMs": 16.91,
+       "fps": 59.1,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 2
+      },
+      {
+       "frames": 459,
+       "meanMs": 17.46,
+       "fps": 57.3,
+       "p50Ms": 16.7,
+       "p95Ms": 17.1,
+       "p99Ms": 33.4,
+       "over33": 7
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    }
+   ]
+  },
+  {
+   "label": "4,000 splats, standard tier, stress",
+   "origin": "http://127.0.0.1:31755",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "laniakea_boundary",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0&tier=standard",
+     "samples": [
+      {
+       "frames": 393,
+       "meanMs": 20.41,
+       "fps": 49,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 50,
+       "over33": 37
+      },
+      {
+       "frames": 387,
+       "meanMs": 20.69,
+       "fps": 48.3,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 50,
+       "over33": 33
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 75903,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0&tier=standard",
+     "samples": [
+      {
+       "frames": 470,
+       "meanMs": 17.04,
+       "fps": 58.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 1
+      },
+      {
+       "frames": 473,
+       "meanMs": 16.94,
+       "fps": 59,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 1
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    }
+   ]
+  },
+  {
+   "label": "final (tier shares 60/40/25%), production pose",
+   "origin": "http://127.0.0.1:31755",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "sloan_great_wall",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 462,
+       "meanMs": 17.34,
+       "fps": 57.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 8
+      },
+      {
+       "frames": 470,
+       "meanMs": 17.04,
+       "fps": 58.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 2
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 20,
+      "points": 104835,
+      "textures": 15,
+      "programs": 16
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 472,
+       "meanMs": 16.97,
+       "fps": 58.9,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 3
+      },
+      {
+       "frames": 474,
+       "meanMs": 16.9,
+       "fps": 59.2,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 0
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 18,
+      "points": 62461,
+      "textures": 15,
+      "programs": 14
+     }
+    },
+    {
+     "id": "coma_cluster",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 479,
+       "meanMs": 16.73,
+       "fps": 59.8,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 16.9,
+       "over33": 1
+      },
+      {
+       "frames": 479,
+       "meanMs": 16.73,
+       "fps": 59.8,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 16.9,
+       "over33": 0
+      }
+     ],
+     "status": {
+      "id": "coma_cluster",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 21,
+      "points": 71755,
+      "textures": 18,
+      "programs": 17
+     }
+    },
+    {
+     "id": "coma_cluster",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 481,
+       "meanMs": 16.63,
+       "fps": 60.1,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 16.8,
+       "over33": 0
+      },
+      {
+       "frames": 481,
+       "meanMs": 16.65,
+       "fps": 60,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 16.8,
+       "over33": 0
+      }
+     ],
+     "status": {
+      "id": "coma_cluster",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 19,
+      "points": 62461,
+      "textures": 18,
+      "programs": 15
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 468,
+       "meanMs": 17.12,
+       "fps": 58.4,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 1
+      },
+      {
+       "frames": 474,
+       "meanMs": 16.9,
+       "fps": 59.2,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 2
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 20,
+      "points": 90931,
+      "textures": 15,
+      "programs": 16
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 481,
+       "meanMs": 16.64,
+       "fps": 60.1,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 16.8,
+       "over33": 0
+      },
+      {
+       "frames": 481,
+       "meanMs": 16.66,
+       "fps": 60,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 16.8,
+       "over33": 0
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 18,
+      "points": 62461,
+      "textures": 15,
+      "programs": 14
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": true,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 474,
+       "meanMs": 16.91,
+       "fps": 59.2,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.3,
+       "over33": 2
+      },
+      {
+       "frames": 467,
+       "meanMs": 17.16,
+       "fps": 58.3,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 20,
+      "points": 75903,
+      "textures": 15,
+      "programs": 16
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": false,
+     "query": "universe=1",
+     "samples": [
+      {
+       "frames": 464,
+       "meanMs": 17.27,
+       "fps": 57.9,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      },
+      {
+       "frames": 466,
+       "meanMs": 17.2,
+       "fps": 58.2,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 3
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 18,
+      "points": 62461,
+      "textures": 15,
+      "programs": 14
+     }
+    }
+   ]
+  },
+  {
+   "label": "final, stress DPR 2 optics off",
+   "origin": "http://127.0.0.1:31755",
+   "viewport": "1280x800",
+   "deviceScaleFactor": 1,
+   "seconds": 8,
+   "browser": "headless msedge (ANGLE D3D11)",
+   "results": [
+    {
+     "id": "laniakea_boundary",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 378,
+       "meanMs": 21.21,
+       "fps": 47.1,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 50.1,
+       "over33": 36
+      },
+      {
+       "frames": 358,
+       "meanMs": 22.36,
+       "fps": 44.7,
+       "p50Ms": 16.7,
+       "p95Ms": 33.5,
+       "p99Ms": 50.1,
+       "over33": 42
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 75903,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "laniakea_boundary",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 459,
+       "meanMs": 17.45,
+       "fps": 57.3,
+       "p50Ms": 16.7,
+       "p95Ms": 17.2,
+       "p99Ms": 33.4,
+       "over33": 2
+      },
+      {
+       "frames": 445,
+       "meanMs": 18,
+       "fps": 55.6,
+       "p50Ms": 16.7,
+       "p95Ms": 33.3,
+       "p99Ms": 33.4,
+       "over33": 7
+      }
+     ],
+     "status": {
+      "id": "laniakea_boundary",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 380,
+       "meanMs": 21.13,
+       "fps": 47.3,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 50.1,
+       "over33": 28
+      },
+      {
+       "frames": 375,
+       "meanMs": 21.4,
+       "fps": 46.7,
+       "p50Ms": 16.7,
+       "p95Ms": 33.5,
+       "p99Ms": 66.6,
+       "over33": 40
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 90931,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "bootes_void",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 471,
+       "meanMs": 17.02,
+       "fps": 58.8,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      },
+      {
+       "frames": 462,
+       "meanMs": 17.34,
+       "fps": 57.7,
+       "p50Ms": 16.7,
+       "p95Ms": 16.8,
+       "p99Ms": 33.4,
+       "over33": 4
+      }
+     ],
+     "status": {
+      "id": "bootes_void",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": true,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 320,
+       "meanMs": 25.03,
+       "fps": 40,
+       "p50Ms": 16.7,
+       "p95Ms": 50.1,
+       "p99Ms": 66.7,
+       "over33": 43
+      },
+      {
+       "frames": 335,
+       "meanMs": 23.9,
+       "fps": 41.8,
+       "p50Ms": 16.7,
+       "p95Ms": 50,
+       "p99Ms": 66.7,
+       "over33": 54
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": true,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 6,
+      "points": 104835,
+      "textures": 2,
+      "programs": 7
+     }
+    },
+    {
+     "id": "sloan_great_wall",
+     "mounted": false,
+     "query": "universe=1&dpr=2&optics=0",
+     "samples": [
+      {
+       "frames": 417,
+       "meanMs": 19.2,
+       "fps": 52.1,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 33.5,
+       "over33": 11
+      },
+      {
+       "frames": 422,
+       "meanMs": 18.96,
+       "fps": 52.7,
+       "p50Ms": 16.7,
+       "p95Ms": 33.4,
+       "p99Ms": 33.9,
+       "over33": 10
+      }
+     ],
+     "status": {
+      "id": "sloan_great_wall",
+      "direction": "earth",
+      "distance": 1.5,
+      "mounted": false,
+      "ready": true,
+      "renderer": "ANGLE (AMD, AMD Radeon (TM) Graphics (0x000015E7) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "calls": 4,
+      "points": 62461,
+      "textures": 2,
+      "programs": 5
+     }
+    }
+   ]
+  }
+ ]
+}

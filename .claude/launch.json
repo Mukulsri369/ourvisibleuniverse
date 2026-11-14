@@ -21,6 +21,16 @@
         "--strictPort"
       ],
       "port": 31760
+    },
+    {
+      "name": "ovu-structure-control",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "node_modules/vite/bin/vite.js",
+        "--config",
+        "scripts/nearby-qa/structure-control-config.mts"
+      ],
+      "port": 31756
     }
   ]
 }

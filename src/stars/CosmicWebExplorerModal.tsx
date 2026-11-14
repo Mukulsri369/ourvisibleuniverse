@@ -41,6 +41,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { StructureFieldDetails } from "./cosmic-structures/StructureFieldDetails";
 
 export function CosmicWebExplorerModal({ journeyRequest = 0 }: { journeyRequest?: number } = {}) {
   const open = useStore((s) => s.cosmicWebExplorerOpen);
@@ -450,9 +451,10 @@ export function CosmicWebExplorerModal({ journeyRequest = 0 }: { journeyRequest?
 
                     {/* Landmark quick jump pills */}
                     <p className="text-[11px] leading-relaxed text-slate-400">
-                      Landmark clouds illustrate spatial density around catalogue coordinates. Their
-                      individual tracers are not measured galaxy-member positions. Survey footprints
-                      and simulation structures remain separate views.
+                      Each landmark is drawn from real survey galaxies (2MRS, SDSS DR17, 6dFGS) at
+                      their measured sky positions and redshifts. Depths inside groups, orientations
+                      in depth and colours are labelled reconstructions. The background survey cloud
+                      is illustrative and fades while a landmark is in view.
                     </p>
                     <div className="pt-2 border-t border-white/5">
                       <div className="text-[11px] text-slate-400 mb-2 font-medium">
@@ -472,6 +474,9 @@ export function CosmicWebExplorerModal({ journeyRequest = 0 }: { journeyRequest?
                             {b.name} ({b.distanceGlyPlanck.toFixed(2)} Gly)
                           </button>
                         ))}
+                      </div>
+                      <div className="mt-3">
+                        <StructureFieldDetails id={selectedCosmicBenchmarkId} />
                       </div>
                     </div>
                   </div>

@@ -1093,7 +1093,7 @@ export const useStore = create<State>((set, get) => ({
           x: pos.x,
           y: pos.y,
           z: pos.z,
-          distance: Math.max(bench.diameterMly * 1.5e6, 500000),
+          distance: Math.max((bench.viewDiameterMly ?? bench.diameterMly) * 1.5e6, 500000),
         },
       });
     }

@@ -67,6 +67,8 @@ export interface CosmicStructureBenchmark {
   meanRedshift: number;
   distanceGlyPlanck: number;
   diameterMly: number;
+  /** Framing for the fly-to when the surroundings matter more than the object's own size. */
+  viewDiameterMly?: number;
   richnessMembers: number;
   discoveryCitation: string;
   description: string;
@@ -154,12 +156,13 @@ export const COSMIC_BENCHMARKS: CosmicStructureBenchmark[] = [
     id: "virgo_cluster",
     name: "Virgo Cluster",
     type: "cluster",
-    ra: 186.75,
-    dec: 12.72,
-    l: 283.8,
-    b: 74.5,
-    meanRedshift: 0.0038,
-    distanceGlyPlanck: 0.054, // ~54 Mly = 16.5 Mpc
+    // Centre on M87, the dynamical centre of subcluster A (SIMBAD "NAME Virgo Cluster").
+    ra: 187.6991,
+    dec: 12.3852,
+    l: 283.76,
+    b: 74.48,
+    meanRedshift: 0.0038, // SIMBAD (1998A&A...338..813W)
+    distanceGlyPlanck: 0.0538, // 16.5 Mpc SBF distance, Mei et al. (2007) ApJ 655, 144
     diameterMly: 9.8,
     richnessMembers: 1500,
     discoveryCitation: "Messier (1781); Binggeli et al. (1985) AJ 90, 1681",
@@ -172,10 +175,11 @@ export const COSMIC_BENCHMARKS: CosmicStructureBenchmark[] = [
     type: "cluster",
     ra: 194.95,
     dec: 27.98,
-    l: 58.1,
-    b: 88.0,
+    l: 58.09,
+    b: 87.96,
     meanRedshift: 0.0231,
-    distanceGlyPlanck: 0.321, // ~321 Mly = 98 Mpc
+    // Aligned with the atlas distance of NGC 4889 (321 Mly); Planck 2018 comoving for z = 0.0231 is 333 Mly.
+    distanceGlyPlanck: 0.321,
     diameterMly: 20.0,
     richnessMembers: 2000,
     discoveryCitation: "Zwicky, F. (1933) Helv. Phys. Acta 6, 110 (Discovery of Dark Matter)",
@@ -186,17 +190,20 @@ export const COSMIC_BENCHMARKS: CosmicStructureBenchmark[] = [
     id: "great_attractor",
     name: "Great Attractor / Norma Cluster (Abell 3627)",
     type: "cluster",
-    ra: 243.8,
-    dec: -60.8,
-    l: 325.3,
-    b: -7.3,
-    meanRedshift: 0.0157,
-    distanceGlyPlanck: 0.22, // ~220 Mly = 67 Mpc
-    diameterMly: 25.0,
-    richnessMembers: 1200,
-    discoveryCitation: "Dressler et al. (1987) ApJL 313, L37; Kraan-Korteweg et al. (1996) Nature",
+    // Norma Cluster centre: SIMBAD ACO 3627 (Ebeling et al. 2002 position).
+    ra: 243.59375,
+    dec: -60.86861,
+    l: 325.26,
+    b: -7.13,
+    meanRedshift: 0.01625, // 4871 ± 54 km/s from 296 members, Woudt et al. (2008) MNRAS 383, 445
+    distanceGlyPlanck: 0.2348, // Planck 2018 comoving distance for z = 0.01625
+    diameterMly: 13.4, // twice the Abell radius (1.5 h⁻¹ Mpc, h = 0.73) used by Woudt et al. (2008)
+    viewDiameterMly: 30, // frame the cluster with its nearest Norma-wall neighbours
+    richnessMembers: 296, // members with measured velocities, Woudt et al. (2008)
+    discoveryCitation:
+      "Dressler et al. (1987) ApJL 313, L37; Kraan-Korteweg et al. (1996) Nature 379, 519",
     description:
-      "Gravitational anomaly near the Milky Way's dust-obscured Zone of Avoidance toward Centaurus/Norma, pulling hundreds of thousands of galaxies toward its deep potential well.",
+      "The Norma Cluster, the richest and most massive cluster at the heart of the Great Attractor overdensity. It lies just behind the dusty plane of the Milky Way, so many of its galaxies are dimmed or hidden from optical view.",
   },
   {
     id: "perseus_pisces",
@@ -204,10 +211,10 @@ export const COSMIC_BENCHMARKS: CosmicStructureBenchmark[] = [
     type: "supercluster",
     ra: 35.0,
     dec: 36.0,
-    l: 140.0,
-    b: -22.0,
+    l: 142.35,
+    b: -23.51,
     meanRedshift: 0.018,
-    distanceGlyPlanck: 0.25,
+    distanceGlyPlanck: 0.26, // Planck 2018 comoving distance for z = 0.018
     diameterMly: 300.0,
     richnessMembers: 3500,
     discoveryCitation: "Giovanelli & Haynes (1982) AJ 87, 1355",
@@ -220,10 +227,10 @@ export const COSMIC_BENCHMARKS: CosmicStructureBenchmark[] = [
     type: "wall",
     ra: 190.0,
     dec: 5.0,
-    l: 295.0,
-    b: 67.0,
+    l: 295.4,
+    b: 67.7,
     meanRedshift: 0.073,
-    distanceGlyPlanck: 1.02, // ~1.02 Gly
+    distanceGlyPlanck: 1.04, // Planck 2018 comoving distance for z = 0.073
     diameterMly: 1370.0,
     richnessMembers: 10000,
     discoveryCitation: "Gott, J. R., et al. (2005) ApJ 624, 463",
@@ -236,11 +243,11 @@ export const COSMIC_BENCHMARKS: CosmicStructureBenchmark[] = [
     type: "supercluster",
     ra: 201.5,
     dec: -31.5,
-    l: 311.5,
-    b: 30.7,
-    meanRedshift: 0.046,
-    distanceGlyPlanck: 0.65, // ~650 Mly
-    diameterMly: 350.0,
+    l: 311.51,
+    b: 30.8,
+    meanRedshift: 0.0484, // main plane at ~14,500 km/s, Proust et al. (2006) A&A 447, 133
+    distanceGlyPlanck: 0.688, // Planck 2018 comoving distance for z = 0.0484
+    diameterMly: 363, // 75 h⁻¹ Mpc long axis (Proust et al. 2006) with h = 0.674
     richnessMembers: 8000,
     discoveryCitation: "Shapley, H. (1930); Raychaudhury, S. (1989) Nature 342, 251",
     description:
@@ -250,28 +257,35 @@ export const COSMIC_BENCHMARKS: CosmicStructureBenchmark[] = [
     id: "bootes_void",
     name: "Boötes Void (The Great Void)",
     type: "void",
-    ra: 218.0,
-    dec: 35.0,
-    l: 59.0,
-    b: 65.0,
-    meanRedshift: 0.052,
-    distanceGlyPlanck: 0.72,
-    diameterMly: 330.0,
-    richnessMembers: 60, // Exceptionally underdense
+    // Centre from Kirshner et al. (1987) ApJ 314, 493, via SIMBAD "NAME Bootes Void".
+    // (RA 218°, Dec +35° was the NOAO Boötes Deep Field, about 12° away.)
+    ra: 222.9458,
+    dec: 45.7955,
+    l: 79.01,
+    b: 59.74,
+    meanRedshift: 0.05, // "mean redshift ~0.05" (Pandey et al. 2021, arXiv:2107.01774, after Kirshner et al.)
+    distanceGlyPlanck: 0.717, // Planck 2018 comoving distance for z = 0.05
+    diameterMly: 300, // radius ~46 Mpc (Pandey et al. 2021, after Kirshner et al.)
+    viewDiameterMly: 600, // frame the void together with its surrounding walls
+    // OVU measurement: SDSS DR17 galaxies brighter than M_r ≈ −19 within 30 Mpc of the centre
+    // (756 expected at the density of the 60–90 Mpc surroundings); see docs/COSMIC_STRUCTURES_20261114.md.
+    richnessMembers: 171,
     discoveryCitation: "Kirshner, Oemler, Schechter, & Shectman (1981) ApJL 248, L57",
     description:
-      "An enormous, nearly spherical region of space containing almost zero galaxies. While normal space would hold ~2,000 galaxies in this volume, only 60 have ever been found.",
+      "A huge, nearly spherical void about 300 million light-years across. In the Sloan Digital Sky Survey its inner 100 million light-years hold only about a quarter as many galaxies as the same volume of its surrounding walls.",
   },
   {
     id: "laniakea_boundary",
     name: "Laniakea Supercluster Watershed",
     type: "supercluster",
-    ra: 180.0,
-    dec: -20.0,
-    l: 290.0,
-    b: 40.0,
-    meanRedshift: 0.012,
-    distanceGlyPlanck: 0.25,
+    // Centred on the Great Attractor region, where Laniakea's flows converge
+    // (Lynden-Bell et al. 1988 ApJ 326, 19: l = 307°, b = 9°, cz ≈ 4350 km/s).
+    ra: 199.625,
+    dec: -53.656,
+    l: 307.0,
+    b: 9.0,
+    meanRedshift: 0.0145,
+    distanceGlyPlanck: 0.2098, // Planck 2018 comoving distance for cz = 4350 km/s
     diameterMly: 520.0,
     richnessMembers: 100000,
     discoveryCitation: "Tully, R. B., et al. (2014) Nature 513, 71",
