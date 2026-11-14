@@ -41,7 +41,7 @@ export const Route = createFileRoute("/terms")({
         <h2>Governing contact</h2>
         <p>
           The service is operated by Mukul Srivastava in Chandigarh, India. Contact
-          ourvisibleuniverse@gmail.com with questions.
+          support@ourvisibleuniverse.com with questions.
         </p>
       </section>
     </InfoPage>

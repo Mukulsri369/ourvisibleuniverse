@@ -46,7 +46,7 @@ export const Route = createFileRoute("/privacy")({
         <h2>Your choices</h2>
         <p>
           You may request access, correction or deletion of eligible personal information by
-          emailing ourvisibleuniverse@gmail.com.
+          emailing support@ourvisibleuniverse.com.
         </p>
       </section>
     </InfoPage>

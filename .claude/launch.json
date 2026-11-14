@@ -10,6 +10,17 @@
         "scripts/nearby-qa/vite.config.mts"
       ],
       "port": 31755
+    },
+    {
+      "name": "ovu-app",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "node_modules/vite/bin/vite.js",
+        "--port",
+        "31760",
+        "--strictPort"
+      ],
+      "port": 31760
     }
   ]
 }

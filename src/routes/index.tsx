@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, Shuffle } from "lucide-react";
+import { ArrowUpRight, Download, Shuffle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { LandingPlans } from "@/components/site/LandingPlans";
@@ -345,13 +345,30 @@ function Index() {
             </p>
           )}
         </section>
+        <section className="ovu-community ovu-frame" aria-labelledby="catalogue-download-title">
+          <div data-reveal>
+            <h2 id="catalogue-download-title">Every object in our universe, in one spreadsheet.</h2>
+            <p>
+              Stars, galaxies, exoplanets, black holes, nebulae and more, each category on its own
+              tab with distances and other names.
+            </p>
+          </div>
+          <a
+            href="/downloads/our-visible-universe-objects.xlsx"
+            download
+            className="ovu-button"
+            data-reveal
+          >
+            Download Excel list <Download size={18} aria-hidden="true" />
+          </a>
+        </section>
         <section className="ovu-community ovu-frame" aria-labelledby="community-title">
           <div data-reveal>
             <h2 id="community-title">Curiosity keeps us looking up.</h2>
             <p>More discoveries, closer to your everyday.</p>
           </div>
           <a
-            href="https://www.instagram.com/our_visibleuniverse"
+            href="https://www.instagram.com/ourvisibleuniverse"
             target="_blank"
             rel="noopener noreferrer"
             className="ovu-button"

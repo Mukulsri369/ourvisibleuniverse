@@ -20,8 +20,8 @@ export const Route = createFileRoute("/contact")({
       <section>
         <h2>Email</h2>
         <p>
-          <a href="mailto:ourvisibleuniverse@gmail.com" className="text-primary underline">
-            ourvisibleuniverse@gmail.com
+          <a href="mailto:support@ourvisibleuniverse.com" className="text-primary underline">
+            support@ourvisibleuniverse.com
           </a>
         </p>
       </section>

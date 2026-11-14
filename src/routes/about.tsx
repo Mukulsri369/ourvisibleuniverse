@@ -67,7 +67,7 @@ const OBSERVATORY_PILLARS = [
     icon: Globe,
     accent: "text-[#38bdf8]",
     description:
-      "Independently created, engineered, and operated by Mukul Srivastava in Chandigarh, India. Inquiries, academic collaborations, and feedback can be sent directly to ourvisibleuniverse@gmail.com.",
+      "Independently created, engineered, and operated by Mukul Srivastava in Chandigarh, India. Inquiries, academic collaborations, and feedback can be sent directly to support@ourvisibleuniverse.com.",
     footer: "CHANDIGARH · INDIA",
   },
 ];
@@ -291,11 +291,11 @@ function AboutHeroChoreography({
           </p>
           <div className="mt-6">
             <a
-              href="mailto:ourvisibleuniverse@gmail.com"
+              href="mailto:support@ourvisibleuniverse.com"
               className="inline-flex h-11 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 font-mono text-xs uppercase tracking-[0.16em] text-[#f5d08a] transition-colors hover:border-[#f5d08a] hover:text-white"
             >
               <Mail className="size-3.5" />
-              <span>ourvisibleuniverse@gmail.com</span>
+              <span>support@ourvisibleuniverse.com</span>
             </a>
           </div>
         </div>
@@ -570,11 +570,11 @@ function AboutPage() {
             </div>
 
             <a
-              href="mailto:ourvisibleuniverse@gmail.com"
+              href="mailto:support@ourvisibleuniverse.com"
               className="group inline-flex h-12 shrink-0 items-center gap-3 self-start rounded-full bg-[#f5d08a] pl-6 pr-2 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-[#05060a] transition-all hover:bg-white md:self-auto"
             >
               <Mail className="size-4" />
-              <span>ourvisibleuniverse@gmail.com</span>
+              <span>support@ourvisibleuniverse.com</span>
               <span className="flex size-8 items-center justify-center rounded-full bg-[#05060a] text-[#f5d08a] transition-transform duration-300 group-hover:rotate-45">
                 <ArrowUpRight className="size-4" />
               </span>

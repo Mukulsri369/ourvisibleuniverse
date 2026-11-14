@@ -56,6 +56,8 @@ npx tsc --noEmit
 
 Many renderer modules use `@ts-nocheck`, so a clean TypeScript run does not prove those files work at runtime. Do not skip, delete or weaken a test to make a change pass.
 
+After adding, removing or renaming objects, regenerate the landing page's downloadable list with `npm run export:catalogue` (needs Python 3 with openpyxl), run `npm run test:object-catalogue`, and commit the updated `public/downloads/our-visible-universe-objects.xlsx`.
+
 ## Hand-off
 
 Update the relevant report and `docs/PROJECT_HANDOFF.md` with what was added, its sources, the checks actually run, what was deferred and the commit and push state. Never describe an unexecuted check as passed. Deployment always needs the owner's explicit approval.

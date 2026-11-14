@@ -45,16 +45,8 @@ export function galaxyEntries(name: string, descriptor?: VisitGalaxy): ExplorerE
     aliases: o.aliases,
   }));
   const extras: ExplorerEntry[] = [];
+  // No separate "Solar System" row: the Sun row already leads to our planetary system.
   if (name === MILKY_WAY) {
-    extras.push({
-      id: "solar-system",
-      name: "Solar System",
-      host: name,
-      kind: "solar",
-      type: "Our planetary system",
-      detail: "Sun, Earth, planets and moons",
-      aliases: ["sun system", "sol", "our home"],
-    });
     for (const star of NAMED_STARS)
       for (const p of REAL_SYSTEMS[star.name] ?? [])
         extras.push({
@@ -71,21 +63,19 @@ export function galaxyEntries(name: string, descriptor?: VisitGalaxy): ExplorerE
     (d, i, a) => a.findIndex((o) => o.kind === d.kind && o.id === d.id) === i,
   );
   const rank = (d: ExplorerEntry) =>
-    d.kind === "solar"
-      ? 0
-      : d.id === "Sun"
-        ? 1
-        : d.kind === "planet"
-          ? 2
-          : d.kind === "host"
-            ? 3
-            : d.kind === "star"
-              ? 4
-              : d.kind === "object"
-                ? 5
-                : d.kind === "exo"
-                  ? 6
-                  : 7;
+    d.id === "Sun"
+      ? 1
+      : d.kind === "planet"
+        ? 2
+        : d.kind === "host"
+          ? 3
+          : d.kind === "star"
+            ? 4
+            : d.kind === "object"
+              ? 5
+              : d.kind === "exo"
+                ? 6
+                : 7;
   result.sort((a, b) => rank(a) - rank(b));
   entryCache.set(name, result);
   return result;

@@ -37,8 +37,13 @@ assert(!galaxyEntries(MILKY_WAY).some((d) => d.id === "tarantula"));
 assert(galaxyEntries("Large Magellanic Cloud").some((d) => d.id === "tarantula"));
 assert(galaxyEntries(ANDROMEDA).some((d) => d.name.includes("PA-99-N2")));
 assert.equal(searchExplorer("solar system", ANDROMEDA).length, 0);
-const solar = searchExplorer("solar system", null).find((d) => d.kind === "solar")!;
-assert(solar && solar.host === MILKY_WAY);
+// The site map lists the Sun, not a duplicate "Solar System" row.
+assert(!galaxyEntries(MILKY_WAY).some((d) => d.kind === "solar" || d.name === "Solar System"));
+assert.equal(galaxyEntries(MILKY_WAY)[0].id, "Sun");
+const sun = searchExplorer("sun", null).find((d) => d.id === "Sun")!;
+assert(sun && sun.host === MILKY_WAY);
+// The "solar" overview flight still exists for the store's own Solar System route.
+const solar = { kind: "solar" as const, id: "solar-system", name: "Solar System", host: MILKY_WAY };
 assert(outsideEntries().some((d) => d.id === "gw150914"));
 assert(outsideEntries().some((d) => d.kind === "space" && d.name.includes("Virgo")));
 for (const d of outsideEntries())
@@ -106,7 +111,7 @@ console.log(
   "PASS: complete object-host coverage, scoped search, explicit exit/entry, queued destination, 9s entry, unload flags, and host-unknown navigation",
 );
 
-assert(searchExplorer("SolarSystem", null).some((d) => d.kind === "solar"));
+assert(!searchExplorer("SolarSystem", null).some((d) => d.kind === "solar"));
 assert.equal(searchExplorer("M1", null)[0].id, "m1");
 const survey = {
   name: "Survey regression galaxy",

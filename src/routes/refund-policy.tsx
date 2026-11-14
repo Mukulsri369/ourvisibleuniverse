@@ -41,8 +41,8 @@ export const Route = createFileRoute("/refund-policy")({
       <section>
         <h2>Payment support</h2>
         <p>
-          Contact ourvisibleuniverse@gmail.com promptly with the account email and relevant date if
-          a problem occurs. Never send card numbers, passwords or bank credentials.
+          Contact support@ourvisibleuniverse.com promptly with the account email and relevant date
+          if a problem occurs. Never send card numbers, passwords or bank credentials.
         </p>
       </section>
     </InfoPage>

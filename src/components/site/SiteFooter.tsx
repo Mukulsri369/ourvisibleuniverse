@@ -34,12 +34,12 @@ export function SiteFooter() {
               <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
             <a
-              href="https://www.instagram.com/our_visibleuniverse"
+              href="https://www.instagram.com/ourvisibleuniverse"
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 text-xs font-medium text-white transition-all hover:border-white/35"
             >
-              <span>@our_visibleuniverse</span>
+              <span>@ourvisibleuniverse</span>
               <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
           </div>
@@ -77,7 +77,7 @@ export function SiteFooter() {
           </div>
 
           <p className="font-mono text-[11px] text-white/35">
-            ourvisibleuniverse@gmail.com
+            support@ourvisibleuniverse.com
           </p>
         </div>
       </div>

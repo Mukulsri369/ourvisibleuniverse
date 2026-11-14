@@ -335,7 +335,6 @@ export function GalaxyExplorer() {
                     className="min-h-11 max-w-[56%] rounded-lg bg-neutral-800 px-2 text-base sm:text-xs"
                   >
                     <option value="all">All objects</option>
-                    <option value="solar">Solar system</option>
                     <option value="star">Stars</option>
                     <option value="cluster">Clusters & associations</option>
                     <option value="nebula">Nebulae</option>
